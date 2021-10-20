@@ -111,11 +111,12 @@ ResourceOveruseStats constructResourceOveruseStats(IoOveruseStats ioOveruseStats
 
 PackageIoOveruseStats constructPackageIoOveruseStats(
         const int32_t uid, const bool shouldNotify, const bool isKillable,
-        const PerStateBytes& remaining, const PerStateBytes& written, const int totalOveruses,
-        const int64_t startTime, const int64_t durationInSeconds) {
+        const PerStateBytes& remaining, const PerStateBytes& written, const PerStateBytes& forgiven,
+        const int totalOveruses, const int64_t startTime, const int64_t durationInSeconds) {
     PackageIoOveruseStats stats;
     stats.uid = uid;
     stats.shouldNotify = shouldNotify;
+    stats.forgivenWriteBytes = forgiven;
     stats.ioOveruseStats = constructIoOveruseStats(isKillable, remaining, written, totalOveruses,
                                                    startTime, durationInSeconds);
 
@@ -331,22 +332,25 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
                                                              mMockUidStatsCollector, nullptr));
 
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/false,
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/false,
                                             /*isKillable=*/false, /*remaining=*/
                                             constructPerStateBytes(10'000, 20'000, 100'000),
                                             /*written=*/constructPerStateBytes(70'000, 20'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
-             constructPackageIoOveruseStats(/*uid*=*/1112345, /*shouldNotify=*/false,
+             constructPackageIoOveruseStats(/*uid=*/1112345, /*shouldNotify=*/false,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(35'000, 15'000, 100'000),
                                             /*written=*/constructPerStateBytes(35'000, 15'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
              // Exceeds threshold.
-             constructPackageIoOveruseStats(/*uid*=*/1212345, /*shouldNotify=*/true,
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/true,
                                             /*isKillable=*/true,
                                             /*remaining=*/
                                             constructPerStateBytes(0, 10'000, 100'000),
                                             /*written=*/constructPerStateBytes(70'000, 20'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(70'000, 0, 0),
                                             /*totalOveruses=*/1, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
@@ -378,26 +382,29 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
             << "\nActual: " << actualOverusingNativeStats.toString();
 
     expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/true,
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/true,
                                             /*isKillable=*/false, /*remaining=*/
                                             constructPerStateBytes(0, 20'000, 100'000),
                                             /*written=*/constructPerStateBytes(100'000, 20'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(80'000, 0, 0),
                                             /*totalOveruses=*/1, startTime, durationInSeconds),
              // Exceeds warn threshold percentage.
-             constructPackageIoOveruseStats(/*uid*=*/1113999, /*shouldNotify=*/true,
+             constructPackageIoOveruseStats(/*uid=*/1113999, /*shouldNotify=*/true,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(10'000, 5'000, 100'000),
                                             /*written=*/constructPerStateBytes(60'000, 25'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
              /*
               * Exceeds threshold.
               * The package was forgiven on previous overuse so the remaining bytes should only
               * reflect the bytes written after the forgiven bytes.
               */
-             constructPackageIoOveruseStats(/*uid*=*/1212345, /*shouldNotify=*/true,
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/true,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(50'000, 0, 100'000),
                                             /*written=*/constructPerStateBytes(90'000, 50'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(70'000, 30'000, 0),
                                             /*totalOveruses=*/2, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
@@ -422,20 +429,23 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
 
     const auto [nextDayStartTime, nextDayDuration] = calculateStartAndDuration(currentTime);
     expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/false,
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/false,
                                             /*isKillable=*/false, /*remaining=*/
                                             constructPerStateBytes(2'000, 2'000, 100'000),
                                             /*written=*/constructPerStateBytes(78'000, 38'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, nextDayStartTime, nextDayDuration),
-             constructPackageIoOveruseStats(/*uid*=*/1113999, /*shouldNotify=*/false,
+             constructPackageIoOveruseStats(/*uid=*/1113999, /*shouldNotify=*/false,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(15'000, 7'000, 100'000),
                                             /*written=*/constructPerStateBytes(55'000, 23'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, nextDayStartTime, nextDayDuration),
-             constructPackageIoOveruseStats(/*uid*=*/1212345, /*shouldNotify=*/false,
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/false,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(15'000, 7'000, 100'000),
                                             /*written=*/constructPerStateBytes(55'000, 23'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, nextDayStartTime,
                                             nextDayDuration)};
 
@@ -484,22 +494,25 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
             << "\nActual: " << actualOverusingNativeStats.toString();
 
     const std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/true,
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/true,
                                             /*isKillable=*/false, /*remaining=*/
                                             constructPerStateBytes(80'000, 40'000, 0),
                                             /*written=*/constructPerStateBytes(0, 0, 130'000),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 100'000),
                                             /*totalOveruses=*/1, startTime, durationInSeconds),
-             constructPackageIoOveruseStats(/*uid*=*/1112345, /*shouldNotify=*/false,
+             constructPackageIoOveruseStats(/*uid=*/1112345, /*shouldNotify=*/false,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(70'000, 30'000, 50'000),
                                             /*written=*/constructPerStateBytes(0, 0, 50'000),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
              // Exceeds threshold.
-             constructPackageIoOveruseStats(/*uid*=*/1212345, /*shouldNotify=*/true,
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/true,
                                             /*isKillable=*/true,
                                             /*remaining=*/
                                             constructPerStateBytes(70'000, 30'000, 0),
                                             /*written=*/constructPerStateBytes(0, 0, 110'000),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 100'000),
                                             /*totalOveruses=*/1, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
@@ -522,6 +535,76 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
                                                             std::chrono::system_clock::now()),
                                                     SystemState::NORMAL_MODE,
                                                     mMockUidStatsCollector, nullptr));
+}
+
+TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1001000, {/*fgWrBytes=*/190'000, /*bgWrBytes=*/42'000}},
+                                       {1212345, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/90'000}}})));
+
+    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
+
+    std::vector<PackageIoOveruseStats> actualPackageIoOveruseStats;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualPackageIoOveruseStats), Return(Status::ok())));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    std::vector<PackageIoOveruseStats> expectedPackageIoOveruseStats =
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/true,
+                                            /*isKillable=*/false, /*remaining=*/
+                                            constructPerStateBytes(0, 0, 100'000),
+                                            /*written=*/constructPerStateBytes(190'000, 42'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(160'000, 40'000, 0),
+                                            /*totalOveruses=*/3, startTime, durationInSeconds),
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/true,
+                                            /*isKillable=*/true, /*remaining=*/
+                                            constructPerStateBytes(0, 0, 100'000),
+                                            /*written=*/constructPerStateBytes(90'000, 90'000, 0),
+                                            /*forgiven=*/constructPerStateBytes(70'000, 90'000, 0),
+                                            /*totalOveruses=*/4, startTime, durationInSeconds)};
+    EXPECT_THAT(actualPackageIoOveruseStats,
+                UnorderedElementsAreArray(expectedPackageIoOveruseStats))
+            << "Expected: " << toString(expectedPackageIoOveruseStats)
+            << "\nActual: " << toString(actualPackageIoOveruseStats);
+}
+
+TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageMode) {
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1001000, {/*fgWrBytes=*/190'000, /*bgWrBytes=*/42'000}},
+                                       {1212345, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/90'000}}})));
+
+    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
+
+    std::vector<PackageIoOveruseStats> actualPackageIoOveruseStats;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualPackageIoOveruseStats), Return(Status::ok())));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    std::vector<PackageIoOveruseStats> expectedPackageIoOveruseStats =
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/true,
+                                            /*isKillable=*/false, /*remaining=*/
+                                            constructPerStateBytes(80'000, 40'000, 0),
+                                            /*written=*/constructPerStateBytes(0, 0, 232'000),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 200'000),
+                                            /*totalOveruses=*/2, startTime, durationInSeconds),
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/true,
+                                            /*isKillable=*/true, /*remaining=*/
+                                            constructPerStateBytes(70'000, 30'000, 0),
+                                            /*written=*/constructPerStateBytes(0, 0, 180'000),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 100'000),
+                                            /*totalOveruses=*/1, startTime, durationInSeconds)};
+    EXPECT_THAT(actualPackageIoOveruseStats,
+                UnorderedElementsAreArray(expectedPackageIoOveruseStats))
+            << "Expected: " << toString(expectedPackageIoOveruseStats)
+            << "\nActual: " << toString(actualPackageIoOveruseStats);
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
@@ -547,21 +630,24 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
                                                              mMockUidStatsCollector, nullptr));
 
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/false,
+            {constructPackageIoOveruseStats(/*uid=*/1001000, /*shouldNotify=*/false,
                                             /*isKillable=*/false, /*remaining=*/
                                             constructPerStateBytes(20'800, 40'000, 100'000),
                                             /*written=*/
                                             constructPerStateBytes(59'200, 0, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
-             constructPackageIoOveruseStats(/*uid*=*/1112345, /*shouldNotify=*/true,
+             constructPackageIoOveruseStats(/*uid=*/1112345, /*shouldNotify=*/true,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(70'000, 4'800, 100'000),
                                             /*written=*/constructPerStateBytes(0, 25'200, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
-             constructPackageIoOveruseStats(/*uid*=*/1312345, /*shouldNotify=*/false,
+             constructPackageIoOveruseStats(/*uid=*/1312345, /*shouldNotify=*/false,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(18'800, 30'000, 100'000),
                                             /*written=*/constructPerStateBytes(51'200, 0, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds)};
 
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
@@ -593,20 +679,24 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
                                                              mMockUidStatsCollector, nullptr));
 
     expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1112345, /*shouldNotify=*/true,
+            {constructPackageIoOveruseStats(/*uid=*/1112345, /*shouldNotify=*/true,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(70'000, 0, 100'000),
                                             /*written=*/constructPerStateBytes(0, 30'100, 0),
+                                            /*forgiven=*/
+                                            constructPerStateBytes(0, 30'000, 0),
                                             /*totalOveruses=*/1, startTime, durationInSeconds),
-             constructPackageIoOveruseStats(/*uid*=*/1212345, /*shouldNotify=*/false,
+             constructPackageIoOveruseStats(/*uid=*/1212345, /*shouldNotify=*/false,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(65'000, 29'400, 100'000),
                                             /*written=*/constructPerStateBytes(5'000, 600, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds),
-             constructPackageIoOveruseStats(/*uid*=*/1312345, /*shouldNotify=*/true,
+             constructPackageIoOveruseStats(/*uid=*/1312345, /*shouldNotify=*/true,
                                             /*isKillable=*/true, /*remaining=*/
                                             constructPerStateBytes(13'900, 30'000, 100'000),
                                             /*written=*/constructPerStateBytes(56'100, 0, 0),
+                                            /*forgiven=*/constructPerStateBytes(0, 0, 0),
                                             /*totalOveruses=*/0, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
@@ -666,11 +756,13 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
                      /*uid*=*/1001000, /*shouldNotify=*/false, /*isKillable=*/false,
                      /*remaining=*/constructPerStateBytes(10'000, 20'000, 100'000),
                      /*written=*/constructPerStateBytes(70'000, 20'000, 0),
+                     /*forgiven=*/constructPerStateBytes(0, 0, 0),
                      /*totalOveruses=*/0, startTime, durationInSeconds),
              constructPackageIoOveruseStats(
                      /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
                      /*remaining=*/constructPerStateBytes(5'000, 0, 80'000),
                      /*written=*/constructPerStateBytes(135'000, 100'000, 120'000),
+                     /*forgiven=*/constructPerStateBytes(70'000, 90'000, 100'000),
                      /*totalOveruses=*/4, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
@@ -690,14 +782,16 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
 
     expectedIoOveruseStats = {constructPackageIoOveruseStats(
                                       /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
-                                      /*remaining=*/constructPerStateBytes(70'000, 30'000, 0),
+                                      /*remaining=*/constructPerStateBytes(5'000, 20'000, 0),
                                       /*written=*/constructPerStateBytes(135'000, 100'000, 230'000),
+                                      /*forgiven=*/constructPerStateBytes(70'000, 90'000, 200'000),
                                       /*totalOveruses=*/5, startTime, durationInSeconds),
                               constructPackageIoOveruseStats(
                                       /*uid*=*/1245678, /*shouldNotify=*/true, /*isKillable=*/true,
                                       /*remaining=*/constructPerStateBytes(10'000, 5'000, 0),
                                       /*written=*/constructPerStateBytes(50'000, 40'000, 75'000),
-                                      /*totalOveruses=*/7, startTime, durationInSeconds)};
+                                      /*forgiven=*/constructPerStateBytes(30'000, 30'000, 70'000),
+                                      /*totalOveruses=*/10, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
             << "\nActual: " << toString(actualIoOveruseStats);
@@ -740,7 +834,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootSt
             /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
             /*remaining=*/constructPerStateBytes(5'000, 0, 80'000),
             /*written=*/constructPerStateBytes(135'000, 140'000, 120'000),
-            /*totalOveruses=*/4, startTime, durationInSeconds)};
+            /*forgiven=*/constructPerStateBytes(70'000, 120'000, 100'000),
+            /*totalOveruses=*/5, startTime, durationInSeconds)};
     EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
             << "Expected: " << toString(expectedIoOveruseStats)
             << "\nActual: " << toString(actualIoOveruseStats);
@@ -878,7 +973,7 @@ TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
     const auto expected =
             constructIoOveruseStats(/*isKillable=*/false,
                                     /*remaining=*/
-                                    constructPerStateBytes(80'000, 40'000, 100'000),
+                                    constructPerStateBytes(70'000, 20'000, 100'000),
                                     /*written=*/
                                     constructPerStateBytes(90'000, 20'000, 0),
                                     /*totalOveruses=*/1, startTime, durationInSeconds);
