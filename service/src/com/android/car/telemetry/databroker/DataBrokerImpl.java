@@ -67,12 +67,6 @@ public class DataBrokerImpl implements DataBroker {
     /** Bind to script executor 5 times before entering disabled state. */
     private static final int MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS = 5;
 
-    /**
-     * If script input exceeds this size, it will be piped to script executor instead of directly
-     * passed via binder call.
-     */
-    private static final int LARGE_SCRIPT_INPUT_SIZE_BYTES = 20 * 1024; // 20 kb
-
     private static final String SCRIPT_EXECUTOR_PACKAGE = "com.android.car.scriptexecutor";
     private static final String SCRIPT_EXECUTOR_CLASS =
             "com.android.car.scriptexecutor.ScriptExecutor";
@@ -369,7 +363,7 @@ public class DataBrokerImpl implements DataBroker {
         mCurrentMetricsConfigKey = new MetricsConfigKey(task.getMetricsConfig().getName(),
                 task.getMetricsConfig().getVersion());
         try {
-            if (task.getDataSizeBytes() >= LARGE_SCRIPT_INPUT_SIZE_BYTES) {
+            if (task.isLargeData()) {
                 Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor for large input");
                 invokeScriptForLargeInput(task);
             } else {
