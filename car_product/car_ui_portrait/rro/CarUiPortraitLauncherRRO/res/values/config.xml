@@ -42,6 +42,6 @@
     <!-- The ComponentName of Assistant VoicePlate Activity, the Activity will be placed in
         VoicePlate TDA -->
     <string name="config_assistantVoicePlateActivity" translatable="false">
-        com.google.android.carassistant/com.google.android.apps.gsa.binaries.auto.app.voiceplate.VoicePlateActivity
+        com.google.android.carassistant/com.google.android.libraries.assistant.auto.tng.assistant.ui.activity.AutoAssistantActivity
     </string>
 </resources>
