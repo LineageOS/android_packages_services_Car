@@ -242,12 +242,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void dump(IndentingPrintWriter writer) {
-        writer.println("*CarWatchdogService*");
+        writer.println("*" + getClass().getSimpleName() + "*");
+        writer.increaseIndent();
         synchronized (mLock) {
             writer.println("Current garage mode: " + toGarageModeString(mCurrentGarageMode));
         }
         mWatchdogProcessHandler.dump(writer);
         mWatchdogPerfHandler.dump(writer);
+        writer.decreaseIndent();
     }
 
     /**

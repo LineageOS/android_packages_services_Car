@@ -20,7 +20,6 @@ import static com.google.common.truth.Truth.assertAbout;
 
 import android.annotation.Nullable;
 import android.automotive.watchdog.IoOveruseStats;
-import android.automotive.watchdog.PerStateBytes;
 
 import com.google.common.truth.Correspondence;
 import com.google.common.truth.FailureMetadata;
@@ -80,7 +79,7 @@ public final class IoUsageStatsEntrySubject extends Subject {
         }
         return actual.userId == expected.userId && actual.packageName.equals(expected.packageName)
                 && actual.ioUsage.getTotalTimesKilled() == expected.ioUsage.getTotalTimesKilled()
-                && isEqualsPerStateBytes(actual.ioUsage.getForgivenWriteBytes(),
+                && InternalPerStateBytesSubject.isEquals(actual.ioUsage.getForgivenWriteBytes(),
                 expected.ioUsage.getForgivenWriteBytes())
                 && isEqualsIoOveruseStats(actual.ioUsage.getInternalIoOveruseStats(),
                 expected.ioUsage.getInternalIoOveruseStats());
@@ -92,20 +91,12 @@ public final class IoUsageStatsEntrySubject extends Subject {
             return (actual == null) && (expected == null);
         }
         return actual.killableOnOveruse == expected.killableOnOveruse
-                && isEqualsPerStateBytes(actual.remainingWriteBytes, expected.remainingWriteBytes)
+                && InternalPerStateBytesSubject.isEquals(
+                        actual.remainingWriteBytes, expected.remainingWriteBytes)
                 && actual.startTime == expected.startTime
                 && actual.durationInSeconds == expected.durationInSeconds
-                && isEqualsPerStateBytes(actual.writtenBytes, expected.writtenBytes)
+                && InternalPerStateBytesSubject.isEquals(actual.writtenBytes, expected.writtenBytes)
                 && actual.totalOveruses == expected.totalOveruses;
-    }
-
-    private static boolean isEqualsPerStateBytes(PerStateBytes actual, PerStateBytes expected) {
-        if (actual == null || expected == null) {
-            return (actual == null) && (expected == null);
-        }
-        return actual.foregroundBytes == expected.foregroundBytes
-                && actual.backgroundBytes == expected.backgroundBytes
-                && actual.garageModeBytes == expected.garageModeBytes;
     }
 
     private static String toString(Iterable<WatchdogStorage.IoUsageStatsEntry> entries) {
@@ -135,7 +126,7 @@ public final class IoUsageStatsEntrySubject extends Subject {
         builder.append("{IoOveruseStats: ");
         toStringBuilder(builder, ioUsage.getInternalIoOveruseStats());
         builder.append(", ForgivenWriteBytes: ");
-        toStringBuilder(builder, ioUsage.getForgivenWriteBytes());
+        InternalPerStateBytesSubject.toStringBuilder(builder, ioUsage.getForgivenWriteBytes());
         return builder.append(", Total times killed: ").append(ioUsage.getTotalTimesKilled())
                 .append('}');
     }
@@ -147,24 +138,13 @@ public final class IoUsageStatsEntrySubject extends Subject {
         }
         builder.append("{Killable on overuse: ").append(stats.killableOnOveruse)
                 .append(", Remaining write bytes: ");
-        toStringBuilder(builder, stats.remainingWriteBytes);
+        InternalPerStateBytesSubject.toStringBuilder(builder, stats.remainingWriteBytes);
         builder.append(", Start time: ").append(stats.startTime)
                 .append(", Duration: ").append(stats.durationInSeconds).append(" seconds")
                 .append(", Total overuses: ").append(stats.totalOveruses)
                 .append(", Written bytes: ");
-        toStringBuilder(builder, stats.writtenBytes);
+        InternalPerStateBytesSubject.toStringBuilder(builder, stats.writtenBytes);
         return builder.append('}');
-    }
-
-    private static StringBuilder toStringBuilder(
-            StringBuilder builder, PerStateBytes perStateBytes) {
-        if (perStateBytes == null) {
-            return builder.append(NULL_ENTRY_STRING);
-        }
-        return builder.append("{Foreground bytes: ").append(perStateBytes.foregroundBytes)
-                .append(", Background bytes: ").append(perStateBytes.backgroundBytes)
-                .append(", Garage mode bytes: ").append(perStateBytes.garageModeBytes)
-                .append('}');
     }
 
     private IoUsageStatsEntrySubject(FailureMetadata failureMetadata,
