@@ -1280,65 +1280,50 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUserWithSafeToKillPackages() throws Exception {
-        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
         injectPackageInfos(Arrays.asList(
-                constructPackageManagerPackageInfo("system_package.non_critical.A", 1102459, null),
-                constructPackageManagerPackageInfo("third_party_package", 1103456, null),
-                constructPackageManagerPackageInfo("vendor_package.critical.B", 1101278, null),
-                constructPackageManagerPackageInfo("vendor_package.non_critical.A", 1105573, null),
-                constructPackageManagerPackageInfo("third_party_package", 1203456, null),
-                constructPackageManagerPackageInfo("vendor_package.critical.B", 1201278, null)));
-
-        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs =
-                sampleInternalResourceOveruseConfigurations();
-        injectResourceOveruseConfigsAndWait(configs);
+                constructPackageManagerPackageInfo("system_package.non_critical.A", 10002459, null),
+                constructPackageManagerPackageInfo("third_party_package", 10003456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical.B", 10001278, null),
+                constructPackageManagerPackageInfo("vendor_package.non_critical.A", 10005573, null),
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical.B", 10101278, null)));
 
         PackageKillableStateSubject.assertThat(
                 mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.ALL))
                 .containsExactly(
-                        new PackageKillableState("system_package.non_critical.A", 11,
+                        new PackageKillableState("system_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package", 11,
+                        new PackageKillableState("third_party_package", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.critical.B", 11,
+                        new PackageKillableState("vendor_package.critical.B", 100,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
-                        new PackageKillableState("vendor_package.non_critical.A", 11,
+                        new PackageKillableState("vendor_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package", 12,
+                        new PackageKillableState("third_party_package", 101,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.critical.B", 12,
+                        new PackageKillableState("vendor_package.critical.B", 101,
                                 PackageKillableState.KILLABLE_STATE_NEVER));
     }
 
     @Test
     public void testGetPackageKillableStatesAsUserWithVendorPackagePrefixes() throws Exception {
-        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11);
-        /* Package names which start with "system" are constructed as system packages. */
-        injectPackageInfos(Arrays.asList(
-                constructPackageManagerPackageInfo("system_package_as_vendor", 1102459, null)));
-
-        android.automotive.watchdog.internal.ResourceOveruseConfiguration vendorConfig =
-                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
-        vendorConfig.componentType = ComponentType.VENDOR;
-        vendorConfig.safeToKillPackages = Collections.singletonList("system_package_as_vendor");
-        vendorConfig.vendorPackagePrefixes = Collections.singletonList(
-                "system_package_as_vendor");
-        injectResourceOveruseConfigsAndWait(Collections.singletonList(vendorConfig));
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
+        injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
+                "some_pkg_as_vendor_pkg", 10002459, /* sharedUserId= */ null, /* flags= */ 0,
+                ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT)));
 
         List<PackageKillableState> killableStates =
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11));
+                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(100));
 
-        /* When CarWatchdogService connects with the watchdog daemon, CarWatchdogService fetches
-         * resource overuse configs from watchdog daemon. The vendor package prefixes in the
-         * configs help identify vendor packages. The safe-to-kill list in the configs helps
-         * identify safe-to-kill vendor packages. |system_package_as_vendor| is a critical system
-         * package by default but with the latest resource overuse configs, this package should be
-         * classified as a safe-to-kill vendor package.
-         */
+        // The vendor package prefixes in the resource overuse configs help identify vendor
+        // packages. The safe-to-kill list in the vendor configs helps identify safe-to-kill vendor
+        // packages. |system_package_as_vendor| is a critical system package by default but with
+        // the resource overuse configs, this package should be classified as a safe-to-kill vendor
+        // package.
         PackageKillableStateSubject.assertThat(killableStates)
-                .containsExactly(
-                        new PackageKillableState("system_package_as_vendor", 11,
-                                PackageKillableState.KILLABLE_STATE_YES));
+                .containsExactly(new PackageKillableState("some_pkg_as_vendor_pkg", 100,
+                        PackageKillableState.KILLABLE_STATE_YES));
     }
 
     @Test
@@ -1374,71 +1359,55 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillPackages()
             throws Exception {
-        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
-                        "vendor_package.non_critical.A", 1103456, "vendor_shared_package.A"),
+                        "vendor_package.non_critical.A", 10003456, "vendor_shared_package.A"),
                 constructPackageManagerPackageInfo(
-                        "system_package.A", 1103456, "vendor_shared_package.A"),
+                        "system_package.A", 10003456, "vendor_shared_package.A"),
                 constructPackageManagerPackageInfo(
-                        "vendor_package.B", 1103456, "vendor_shared_package.A"),
+                        "vendor_package.B", 10003456, "vendor_shared_package.A"),
                 constructPackageManagerPackageInfo(
-                        "third_party_package.C", 1105678, "third_party_shared_package"),
+                        "third_party_package.C", 10005678, "third_party_shared_package"),
                 constructPackageManagerPackageInfo(
-                        "third_party_package.D", 1105678, "third_party_shared_package")));
-
-        android.automotive.watchdog.internal.ResourceOveruseConfiguration vendorConfig =
-                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
-        vendorConfig.componentType = ComponentType.VENDOR;
-        vendorConfig.safeToKillPackages = Collections.singletonList(
-                "vendor_package.non_critical.A");
-        vendorConfig.vendorPackagePrefixes = new ArrayList<>();
-        injectResourceOveruseConfigsAndWait(Collections.singletonList(vendorConfig));
+                        "third_party_package.D", 10005678, "third_party_shared_package")));
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(100)))
                 .containsExactly(
-                        new PackageKillableState("vendor_package.non_critical.A", 11,
+                        new PackageKillableState("vendor_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("system_package.A", 11,
+                        new PackageKillableState("system_package.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.B", 11,
+                        new PackageKillableState("vendor_package.B", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.C", 11,
+                        new PackageKillableState("third_party_package.C", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("third_party_package.D", 11,
+                        new PackageKillableState("third_party_package.D", 100,
                                 PackageKillableState.KILLABLE_STATE_YES));
     }
 
     @Test
     public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillSharedPackage()
             throws Exception {
-        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
-                        "vendor_package.non_critical.A", 1103456, "vendor_shared_package.B"),
+                        "vendor_package.A", 10003456, "vendor_shared_package.non_critical.B"),
                 constructPackageManagerPackageInfo(
-                        "system_package.non_critical.A", 1103456, "vendor_shared_package.B"),
+                        "system_package.A", 10003456, "vendor_shared_package.non_critical.B"),
                 constructPackageManagerPackageInfo(
-                        "vendor_package.non_critical.B", 1103456, "vendor_shared_package.B")));
-
-        android.automotive.watchdog.internal.ResourceOveruseConfiguration vendorConfig =
-                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
-        vendorConfig.componentType = ComponentType.VENDOR;
-        vendorConfig.safeToKillPackages = Collections.singletonList(
-                "shared:vendor_shared_package.B");
-        vendorConfig.vendorPackagePrefixes = new ArrayList<>();
-        injectResourceOveruseConfigsAndWait(Collections.singletonList(vendorConfig));
+                        "vendor_package.B", 10003456, "vendor_shared_package.non_critical.B")));
 
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(100)))
                 .containsExactly(
-                        new PackageKillableState("vendor_package.non_critical.A", 11,
+                        new PackageKillableState("vendor_package.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("system_package.non_critical.A", 11,
+                        new PackageKillableState("system_package.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
-                        new PackageKillableState("vendor_package.non_critical.B", 11,
+                        new PackageKillableState("vendor_package.B", 100,
                                 PackageKillableState.KILLABLE_STATE_YES));
     }
 
@@ -1503,12 +1472,16 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
-        /* Expect two calls, the first is made at car watchdog service init */
-        verify(mMockCarWatchdogDaemon, times(2)).getResourceOveruseConfigurations();
-
         InternalResourceOveruseConfigurationSubject
                 .assertThat(captureOnSetResourceOveruseConfigurations())
                 .containsExactlyElementsIn(sampleInternalResourceOveruseConfigurations());
+
+        // CarService fetches and syncs resource overuse configuration on the main thread by posting
+        // a new message. Wait until this completes.
+        CarServiceUtils.runOnMainSync(() -> {});
+
+        /* Expect two calls, the first is made at car watchdog service init */
+        verify(mMockCarWatchdogDaemon, times(2)).getResourceOveruseConfigurations();
     }
 
     @Test
@@ -1689,9 +1662,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetResourceOveruseConfigurations() throws Exception {
-        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
-                .thenReturn(sampleInternalResourceOveruseConfigurations());
-
         List<ResourceOveruseConfiguration> actualConfigs =
                 mCarWatchdogService.getResourceOveruseConfigurations(
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
@@ -1724,9 +1694,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .doReturn(mMockBinder)
                 .when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
         mCarWatchdogDaemonBinderDeathRecipient.binderDied();
-
-        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
-                .thenReturn(sampleInternalResourceOveruseConfigurations());
 
         List<ResourceOveruseConfiguration> actualConfigs =
                 mCarWatchdogService.getResourceOveruseConfigurations(
@@ -2693,6 +2660,126 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mMockCarWatchdogDaemon, never()).controlProcessHealthCheck(anyBoolean());
     }
 
+    @Test
+    public void testOveruseConfigurationCacheGetVendorPackagePrefixes() throws Exception {
+        OveruseConfigurationCache cache = new OveruseConfigurationCache();
+
+        cache.set(sampleInternalResourceOveruseConfigurations());
+
+        assertWithMessage("Vendor package prefixes").that(cache.getVendorPackagePrefixes())
+                .containsExactly("vendor_package", "some_pkg_as_vendor_pkg");
+    }
+
+    @Test
+    public void testOveruseConfigurationCacheFetchThreshold() throws Exception {
+        OveruseConfigurationCache cache = new OveruseConfigurationCache();
+
+        cache.set(sampleInternalResourceOveruseConfigurations());
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("system_package.non_critical.A", ComponentType.SYSTEM),
+                "System package with generic threshold")
+                .isEqualTo(constructPerStateBytes(10, 20, 30));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("system_package.A", ComponentType.SYSTEM),
+                "System package with package specific threshold")
+                .isEqualTo(constructPerStateBytes(40, 50, 60));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("system_package.MEDIA", ComponentType.SYSTEM),
+                "System package with media category threshold")
+                .isEqualTo(constructPerStateBytes(200, 400, 600));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("vendor_package.non_critical.A", ComponentType.VENDOR),
+                "Vendor package with generic threshold")
+                .isEqualTo(constructPerStateBytes(20, 40, 60));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("vendor_package.A", ComponentType.VENDOR),
+                "Vendor package with package specific threshold")
+                .isEqualTo(constructPerStateBytes(80, 100, 120));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("vendor_package.MEDIA", ComponentType.VENDOR),
+                "Vendor package with media category threshold")
+                .isEqualTo(constructPerStateBytes(200, 400, 600));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("third_party_package.A",
+                        ComponentType.THIRD_PARTY),
+                "3p package with generic threshold").isEqualTo(constructPerStateBytes(30, 60, 90));
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("third_party_package.MAPS", ComponentType.VENDOR),
+                "3p package with maps category threshold")
+                .isEqualTo(constructPerStateBytes(2200, 4400, 6600));
+    }
+
+    @Test
+    public void testOveruseConfigurationCacheIsSafeToKill() throws Exception {
+        OveruseConfigurationCache cache = new OveruseConfigurationCache();
+
+        cache.set(sampleInternalResourceOveruseConfigurations());
+
+        assertWithMessage("isSafeToKill non-critical system package").that(cache.isSafeToKill(
+                "system_package.non_critical.A", ComponentType.SYSTEM, null)).isTrue();
+
+        assertWithMessage("isSafeToKill shared non-critical system package")
+                .that(cache.isSafeToKill("system_package.A", ComponentType.SYSTEM,
+                        Collections.singletonList("system_package.non_critical.A"))).isTrue();
+
+        assertWithMessage("isSafeToKill non-critical vendor package").that(cache.isSafeToKill(
+                "vendor_package.non_critical.A", ComponentType.VENDOR, null)).isTrue();
+
+        assertWithMessage("isSafeToKill shared non-critical vendor package")
+                .that(cache.isSafeToKill("vendor_package.A", ComponentType.VENDOR,
+                        Collections.singletonList("vendor_package.non_critical.A"))).isTrue();
+
+        assertWithMessage("isSafeToKill 3p package").that(cache.isSafeToKill(
+                "third_party_package.A", ComponentType.THIRD_PARTY, null)).isTrue();
+
+        assertWithMessage("isSafeToKill critical system package").that(cache.isSafeToKill(
+                "system_package.A", ComponentType.SYSTEM, null)).isFalse();
+
+        assertWithMessage("isSafeToKill critical vendor package").that(cache.isSafeToKill(
+                "vendor_package.A", ComponentType.VENDOR, null)).isFalse();
+    }
+
+    @Test
+    public void testOverwriteOveruseConfigurationCache() throws Exception {
+        OveruseConfigurationCache cache = new OveruseConfigurationCache();
+
+        cache.set(sampleInternalResourceOveruseConfigurations());
+
+        cache.set(new ArrayList<>());
+
+        assertWithMessage("Vendor package prefixes").that(cache.getVendorPackagePrefixes())
+                .isEmpty();
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("system_package.A", ComponentType.SYSTEM),
+                "System package with default threshold")
+                .isEqualTo(OveruseConfigurationCache.DEFAULT_THRESHOLD);
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("vendor_package.A", ComponentType.VENDOR),
+                "Vendor package with default threshold")
+                .isEqualTo(OveruseConfigurationCache.DEFAULT_THRESHOLD);
+
+        InternalPerStateBytesSubject.assertWithMessage(
+                cache.fetchThreshold("third_party_package.A", ComponentType.THIRD_PARTY),
+                "3p package with default threshold")
+                .isEqualTo(OveruseConfigurationCache.DEFAULT_THRESHOLD);
+
+        assertWithMessage("isSafeToKill any system package").that(cache.isSafeToKill(
+                "system_package.non_critical.A", ComponentType.SYSTEM, null)).isFalse();
+
+        assertWithMessage("isSafeToKill any vendor package").that(cache.isSafeToKill(
+                "vendor_package.non_critical.A", ComponentType.VENDOR, null)).isFalse();
+    }
+
     public static android.automotive.watchdog.PerStateBytes constructPerStateBytes(
             long fgBytes, long bgBytes, long gmBytes) {
         android.automotive.watchdog.PerStateBytes perStateBytes =
@@ -2703,10 +2790,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return perStateBytes;
     }
 
-    private void mockWatchdogDaemon() {
+    private void mockWatchdogDaemon() throws Exception {
         when(mMockBinder.queryLocalInterface(anyString())).thenReturn(mMockCarWatchdogDaemon);
         when(mMockCarWatchdogDaemon.asBinder()).thenReturn(mMockBinder);
         doReturn(mMockBinder).when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations()).thenReturn(
+                sampleInternalResourceOveruseConfigurations());
         mIsDaemonCrashed = false;
     }
 
@@ -2963,22 +3052,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return resourceOveruseConfigurationsCaptor.getValue();
     }
 
-    private void injectResourceOveruseConfigsAndWait(
-            List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs)
-            throws Exception {
-        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations()).thenReturn(configs);
-        /* Trigger CarWatchdogService to fetch/sync resource overuse configurations by changing the
-         * daemon connection status from connected -> disconnected -> connected.
-         */
-        crashWatchdogDaemon();
-        restartWatchdogDaemonAndAwait();
-
-        /* Method should be invoked 2 times. Once at test setup and once more after the daemon
-         * crashes and reconnects.
-         */
-        verify(mMockCarWatchdogDaemon, times(2)).getResourceOveruseConfigurations();
-    }
-
     private SparseArray<PackageIoOveruseStats> injectIoOveruseStatsForPackages(
             SparseArray<String> genericPackageNameByUid, Set<String> killablePackages,
             Set<String> shouldNotifyPackages) throws Exception {
@@ -3185,14 +3258,20 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
-            int componentType, IoOveruseConfiguration ioOveruseConfig) {
+            @ComponentType int componentType, IoOveruseConfiguration ioOveruseConfig) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
         List<String> safeToKill = Arrays.asList(prefix + "_package.non_critical.A",
-                prefix + "_pkg.non_critical.B");
-        List<String> vendorPrefixes = Arrays.asList(prefix + "_package", prefix + "_pkg");
+                prefix + "_pkg.non_critical.B",
+                "shared:" + prefix + "_shared_package.non_critical.B",
+                "some_pkg_as_" + prefix + "_pkg");
+        List<String> vendorPrefixes = Arrays.asList(
+                prefix + "_package", "some_pkg_as_" + prefix + "_pkg");
         Map<String, String> pkgToAppCategory = new ArrayMap<>();
-        pkgToAppCategory.put(prefix + "_package.non_critical.A",
-                "android.car.watchdog.app.category.MEDIA");
+        pkgToAppCategory.put("system_package.MEDIA", "android.car.watchdog.app.category.MEDIA");
+        pkgToAppCategory.put("system_package.A", "android.car.watchdog.app.category.MAPS");
+        pkgToAppCategory.put("vendor_package.MEDIA", "android.car.watchdog.app.category.MEDIA");
+        pkgToAppCategory.put("vendor_package.A", "android.car.watchdog.app.category.MAPS");
+        pkgToAppCategory.put("third_party_package.MAPS", "android.car.watchdog.app.category.MAPS");
         ResourceOveruseConfiguration.Builder configBuilder =
                 new ResourceOveruseConfiguration.Builder(componentType, safeToKill,
                         vendorPrefixes, pkgToAppCategory);
@@ -3201,49 +3280,57 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
-            int componentType) {
+            @ComponentType int componentType) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
         PerStateBytes componentLevelThresholds = new PerStateBytes(
-                /* foregroundModeBytes= */ 10, /* backgroundModeBytes= */ 20,
-                /* garageModeBytes= */ 30);
+                /* foregroundModeBytes= */ componentType * 10L,
+                /* backgroundModeBytes= */ componentType * 20L,
+                /* garageModeBytes= */ componentType * 30L);
         Map<String, PerStateBytes> packageSpecificThresholds = new ArrayMap<>();
         packageSpecificThresholds.put(prefix + "_package.A", new PerStateBytes(
-                /* foregroundModeBytes= */ 40, /* backgroundModeBytes= */ 50,
-                /* garageModeBytes= */ 60));
+                /* foregroundModeBytes= */ componentType * 40L,
+                /* backgroundModeBytes= */ componentType * 50L,
+                /* garageModeBytes= */ componentType * 60L));
 
         Map<String, PerStateBytes> appCategorySpecificThresholds = new ArrayMap<>();
         appCategorySpecificThresholds.put(
                 ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA,
-                new PerStateBytes(/* foregroundModeBytes= */ 100, /* backgroundModeBytes= */ 200,
-                        /* garageModeBytes= */ 300));
+                new PerStateBytes(/* foregroundModeBytes= */ componentType * 100L,
+                        /* backgroundModeBytes= */ componentType * 200L,
+                        /* garageModeBytes= */ componentType * 300L));
         appCategorySpecificThresholds.put(
                 ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS,
-                new PerStateBytes(/* foregroundModeBytes= */ 1100, /* backgroundModeBytes= */ 2200,
-                        /* garageModeBytes= */ 3300));
+                new PerStateBytes(/* foregroundModeBytes= */ componentType * 1100L,
+                        /* backgroundModeBytes= */ componentType * 2200L,
+                        /* garageModeBytes= */ componentType * 3300L));
 
         List<IoOveruseAlertThreshold> systemWideThresholds = Collections.singletonList(
-                new IoOveruseAlertThreshold(/* durationInSeconds= */ 10,
-                        /* writtenBytesPerSecond= */ 200));
+                new IoOveruseAlertThreshold(/* durationInSeconds= */ componentType * 10L,
+                        /* writtenBytesPerSecond= */ componentType * 200L));
 
         return new IoOveruseConfiguration.Builder(componentLevelThresholds,
                 packageSpecificThresholds, appCategorySpecificThresholds, systemWideThresholds);
     }
 
     private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
-            sampleInternalResourceOveruseConfiguration(int componentType,
+            sampleInternalResourceOveruseConfiguration(@ComponentType int componentType,
             android.automotive.watchdog.internal.IoOveruseConfiguration ioOveruseConfig) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
         android.automotive.watchdog.internal.ResourceOveruseConfiguration config =
                 new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
         config.componentType = componentType;
         config.safeToKillPackages = Arrays.asList(prefix + "_package.non_critical.A",
-                prefix + "_pkg.non_critical.B");
-        config.vendorPackagePrefixes = Arrays.asList(prefix + "_package", prefix + "_pkg");
-
-        PackageMetadata metadata = new PackageMetadata();
-        metadata.packageName = prefix + "_package.non_critical.A";
-        metadata.appCategoryType = ApplicationCategoryType.MEDIA;
-        config.packageMetadata = Collections.singletonList(metadata);
+                prefix + "_pkg.non_critical.B",
+                "shared:" + prefix + "_shared_package.non_critical.B",
+                "some_pkg_as_" + prefix + "_pkg");
+        config.vendorPackagePrefixes = Arrays.asList(
+                prefix + "_package", "some_pkg_as_" + prefix + "_pkg");
+        config.packageMetadata = Arrays.asList(
+                constructPackageMetadata("system_package.MEDIA", ApplicationCategoryType.MEDIA),
+                constructPackageMetadata("system_package.A", ApplicationCategoryType.MAPS),
+                constructPackageMetadata("vendor_package.MEDIA", ApplicationCategoryType.MEDIA),
+                constructPackageMetadata("vendor_package.A", ApplicationCategoryType.MAPS),
+                constructPackageMetadata("third_party_package.MAPS", ApplicationCategoryType.MAPS));
 
         ResourceSpecificConfiguration resourceSpecificConfig = new ResourceSpecificConfiguration();
         resourceSpecificConfig.setIoOveruseConfiguration(ioOveruseConfig);
@@ -3253,26 +3340,39 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private static android.automotive.watchdog.internal.IoOveruseConfiguration
-            sampleInternalIoOveruseConfiguration(int componentType) {
+            sampleInternalIoOveruseConfiguration(@ComponentType int componentType) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
         android.automotive.watchdog.internal.IoOveruseConfiguration config =
                 new android.automotive.watchdog.internal.IoOveruseConfiguration();
         config.componentLevelThresholds = constructPerStateIoOveruseThreshold(
-                WatchdogPerfHandler.toComponentTypeStr(componentType), /* fgBytes= */ 10,
-                /* bgBytes= */ 20, /* gmBytes= */ 30);
+                WatchdogPerfHandler.toComponentTypeStr(componentType),
+                /* fgBytes= */ componentType * 10L, /* bgBytes= */ componentType *  20L,
+                /*gmBytes= */ componentType * 30L);
         config.packageSpecificThresholds = Collections.singletonList(
-                constructPerStateIoOveruseThreshold(prefix + "_package.A", /* fgBytes= */ 40,
-                        /* bgBytes= */ 50, /* gmBytes= */ 60));
+                constructPerStateIoOveruseThreshold(prefix + "_package.A",
+                        /* fgBytes= */ componentType * 40L, /* bgBytes= */ componentType * 50L,
+                        /* gmBytes= */ componentType * 60L));
         config.categorySpecificThresholds = Arrays.asList(
                 constructPerStateIoOveruseThreshold(
                         WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
-                        /* fgBytes= */ 100, /* bgBytes= */ 200, /* gmBytes= */ 300),
+                        /* fgBytes= */ componentType * 100L, /* bgBytes= */ componentType * 200L,
+                        /* gmBytes= */ componentType * 300L),
                 constructPerStateIoOveruseThreshold(
                         WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
-                        /* fgBytes= */ 1100, /* bgBytes= */ 2200, /* gmBytes= */ 3300));
+                        /* fgBytes= */ componentType * 1100L, /* bgBytes= */ componentType * 2200L,
+                        /* gmBytes= */ componentType * 3300L));
         config.systemWideThresholds = Collections.singletonList(
-                constructInternalIoOveruseAlertThreshold(/* duration= */ 10, /* writeBPS= */ 200));
+                constructInternalIoOveruseAlertThreshold(
+                        /* duration= */ componentType * 10L, /* writeBPS= */ componentType * 200L));
         return config;
+    }
+
+    private static PackageMetadata constructPackageMetadata(
+            String packageName, @ApplicationCategoryType int appCategoryType) {
+        PackageMetadata metadata = new PackageMetadata();
+        metadata.packageName = packageName;
+        metadata.appCategoryType = appCategoryType;
+        return metadata;
     }
 
     private static PerStateIoOveruseThreshold constructPerStateIoOveruseThreshold(String name,

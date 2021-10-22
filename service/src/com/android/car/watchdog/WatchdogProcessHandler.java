@@ -122,6 +122,7 @@ public final class WatchdogProcessHandler {
             } else {
                 writer.println("none");
             }
+            writer.decreaseIndent();
         }
     }
 

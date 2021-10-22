@@ -19,7 +19,6 @@ package com.android.car.watchdog;
 import static com.google.common.truth.Truth.assertAbout;
 
 import android.annotation.Nullable;
-import android.automotive.watchdog.PerStateBytes;
 import android.automotive.watchdog.internal.IoOveruseAlertThreshold;
 import android.automotive.watchdog.internal.IoOveruseConfiguration;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
@@ -71,9 +70,10 @@ public final class InternalIoOveruseConfigurationSubject extends Subject {
         if (actual == null || expected == null) {
             return (actual == null) && (expected == null);
         }
-        return actual.componentLevelThresholds.name == expected.componentLevelThresholds.name
-                && isPerStateBytesEquals(actual.componentLevelThresholds.perStateWriteBytes,
-                    expected.componentLevelThresholds.perStateWriteBytes)
+        return actual.componentLevelThresholds.name.equals(expected.componentLevelThresholds.name)
+                && InternalPerStateBytesSubject.isEquals(
+                        actual.componentLevelThresholds.perStateWriteBytes,
+                        expected.componentLevelThresholds.perStateWriteBytes)
                 && isPerStateThresholdEquals(actual.packageSpecificThresholds,
                     expected.packageSpecificThresholds)
                 && isPerStateThresholdEquals(actual.categorySpecificThresholds,
@@ -104,10 +104,9 @@ public final class InternalIoOveruseConfigurationSubject extends Subject {
 
     public static String toString(PerStateIoOveruseThreshold threshold) {
         StringBuilder builder = new StringBuilder();
-        builder.append("{Name: ").append(threshold.name).append(", WriteBytes: {fgBytes: ")
-                .append(threshold.perStateWriteBytes.foregroundBytes).append(", bgBytes: ")
-                .append(threshold.perStateWriteBytes.backgroundBytes).append(", gmBytes: ")
-                .append(threshold.perStateWriteBytes.garageModeBytes).append("}}");
+        builder.append("{Name: ").append(threshold.name).append(", WriteBytes: ");
+        InternalPerStateBytesSubject.toStringBuilder(builder, threshold.perStateWriteBytes);
+        builder.append("}");
         return builder.toString();
     }
 
@@ -137,12 +136,6 @@ public final class InternalIoOveruseConfigurationSubject extends Subject {
         Set<String> actualStr = toAlertThresholdStrings(actual);
         Set<String> expectedStr = toAlertThresholdStrings(expected);
         return actualStr.equals(expectedStr);
-    }
-
-    private static boolean isPerStateBytesEquals(PerStateBytes acutal, PerStateBytes expected) {
-        return acutal.foregroundBytes == expected.foregroundBytes
-                && acutal.backgroundBytes == expected.backgroundBytes
-                && acutal.garageModeBytes == expected.garageModeBytes;
     }
 
     private static Set<String> toPerStateThresholdStrings(
