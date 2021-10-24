@@ -79,7 +79,7 @@ bool Enumerator::init(const char* hardwareServiceName) {
 
     // Connect with the underlying hardware enumerator
     mHwEnumerator = IEvsEnumerator::getService(hardwareServiceName);
-    bool result = (mHwEnumerator.get() != nullptr);
+    bool result = (mHwEnumerator != nullptr);
     if (result) {
         // Get an internal display identifier.
         mHwEnumerator->getDisplayIdList(
@@ -296,7 +296,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
 Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& clientCamera) {
     LOG(DEBUG) << __FUNCTION__;
 
-    if (clientCamera.get() == nullptr) {
+    if (clientCamera == nullptr) {
         LOG(ERROR) << "Ignoring call with null camera pointer.";
         return Void();
     }
@@ -317,6 +317,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
             // NOTE:  This should drop our last reference to the camera, resulting in its
             //        destruction.
             mActiveCameras.erase(halCamera->getId());
+            mHwEnumerator->closeCamera(halCamera->getHwCamera());
             if (mMonitorEnabled) {
                 mClientsMonitor->unregisterClientToMonitor(halCamera->getId());
             }
@@ -358,8 +359,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                                                        mEmulatedCameraDevices[id]);
                 }
             } else {
-                device = IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera_1_1(id, streamCfg))
-                         .withDefault(nullptr);
+                device = mHwEnumerator->openCamera_1_1(id, streamCfg);
             }
 
             if (device == nullptr) {
