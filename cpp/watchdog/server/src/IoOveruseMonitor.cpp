@@ -59,6 +59,8 @@ using ::android::base::Result;
 using ::android::base::WriteStringToFd;
 using ::android::binder::Status;
 
+constexpr int64_t kMaxInt32 = std::numeric_limits<int32_t>::max();
+constexpr int64_t kMaxInt64 = std::numeric_limits<int64_t>::max();
 // Minimum written bytes to sync the stats with the Watchdog service.
 constexpr int64_t kMinSyncWrittenBytes = 100 * 1024;
 // Minimum percentage of threshold to warn killable applications.
@@ -80,10 +82,8 @@ std::string uniquePackageIdStr(const PackageIdentifier& id) {
 
 PerStateBytes sum(const PerStateBytes& lhs, const PerStateBytes& rhs) {
     const auto sum = [](const int64_t& l, const int64_t& r) -> int64_t {
-        return (std::numeric_limits<int64_t>::max() - l) > r ? (l + r)
-                                                             : std::numeric_limits<int64_t>::max();
+        return (kMaxInt64 - l) > r ? (l + r) : kMaxInt64;
     };
-
     PerStateBytes result;
     result.foregroundBytes = sum(lhs.foregroundBytes, rhs.foregroundBytes);
     result.backgroundBytes = sum(lhs.backgroundBytes, rhs.backgroundBytes);
@@ -116,11 +116,37 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(struct tm currentTm) {
 
 int64_t totalPerStateBytes(PerStateBytes perStateBytes) {
     const auto sum = [](const int64_t& l, const int64_t& r) -> int64_t {
-        return std::numeric_limits<int64_t>::max() - l > r ? (l + r)
-                                                           : std::numeric_limits<int64_t>::max();
+        return kMaxInt64 - l > r ? (l + r) : kMaxInt64;
     };
     return sum(perStateBytes.foregroundBytes,
                sum(perStateBytes.backgroundBytes, perStateBytes.garageModeBytes));
+}
+
+std::tuple<int32_t, PerStateBytes> calculateOveruseAndForgivenBytes(PerStateBytes writtenBytes,
+                                                                    PerStateBytes threshold) {
+    const auto div = [](const int64_t& l, const int64_t& r) -> int32_t {
+        return r > 0 ? (l / r) : 1;
+    };
+    const auto mul = [](const int32_t& l, const int32_t& r) -> int32_t {
+        if (l == 0 || r == 0) {
+            return 0;
+        }
+        return (kMaxInt32 / r) > l ? (l * r) : kMaxInt32;
+    };
+    const auto sum = [](const int32_t& l, const int32_t& r) -> int32_t {
+        return (kMaxInt32 - l) > r ? (l + r) : kMaxInt32;
+    };
+    int32_t foregroundOveruses = div(writtenBytes.foregroundBytes, threshold.foregroundBytes);
+    int32_t backgroundOveruses = div(writtenBytes.backgroundBytes, threshold.backgroundBytes);
+    int32_t garageModeOveruses = div(writtenBytes.garageModeBytes, threshold.garageModeBytes);
+    int32_t totalOveruses = sum(foregroundOveruses, sum(backgroundOveruses, garageModeOveruses));
+
+    PerStateBytes forgivenWriteBytes;
+    forgivenWriteBytes.foregroundBytes = mul(foregroundOveruses, threshold.foregroundBytes);
+    forgivenWriteBytes.backgroundBytes = mul(backgroundOveruses, threshold.backgroundBytes);
+    forgivenWriteBytes.garageModeBytes = mul(garageModeOveruses, threshold.garageModeBytes);
+
+    return std::make_tuple(totalOveruses, forgivenWriteBytes);
 }
 
 }  // namespace
@@ -251,15 +277,23 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 
         const auto threshold = mIoOveruseConfigs->fetchThreshold(dailyIoUsage->packageInfo);
 
+        const auto deltaWrittenBytes =
+                diff(dailyIoUsage->writtenBytes, dailyIoUsage->forgivenWriteBytes);
+        const auto [currentOveruses, forgivenWriteBytes] =
+                calculateOveruseAndForgivenBytes(deltaWrittenBytes, threshold);
+        dailyIoUsage->totalOveruses += currentOveruses;
+        dailyIoUsage->forgivenWriteBytes =
+                sum(dailyIoUsage->forgivenWriteBytes, forgivenWriteBytes);
+
         PackageIoOveruseStats stats;
         stats.uid = curUidStats.packageInfo.packageIdentifier.uid;
         stats.shouldNotify = false;
+        stats.forgivenWriteBytes = dailyIoUsage->forgivenWriteBytes;
         stats.ioOveruseStats.startTime = startTime;
         stats.ioOveruseStats.durationInSeconds = durationInSeconds;
         stats.ioOveruseStats.writtenBytes = dailyIoUsage->writtenBytes;
         stats.ioOveruseStats.totalOveruses = dailyIoUsage->totalOveruses;
-        stats.ioOveruseStats.remainingWriteBytes =
-                diff(threshold, diff(dailyIoUsage->writtenBytes, dailyIoUsage->forgivenWriteBytes));
+        stats.ioOveruseStats.remainingWriteBytes = diff(threshold, deltaWrittenBytes);
         stats.ioOveruseStats.killableOnOveruse =
                 mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
 
@@ -274,14 +308,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         bool shouldSyncWatchdogService =
                 (totalPerStateBytes(dailyIoUsage->writtenBytes) -
                  dailyIoUsage->lastSyncedWrittenBytes) >= mMinSyncWrittenBytes;
-        if (remainingWriteBytes.foregroundBytes == 0 || remainingWriteBytes.backgroundBytes == 0 ||
-            remainingWriteBytes.garageModeBytes == 0) {
-            stats.ioOveruseStats.totalOveruses = ++dailyIoUsage->totalOveruses;
-            /*
-             * Reset counters as the package may be disabled/killed by the watchdog service.
-             * NOTE: If this logic is updated, update watchdog service side logic as well.
-             */
-            dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
+        if (currentOveruses > 0) {
             dailyIoUsage->isPackageWarned = false;
             /*
              * Send notifications for native service I/O overuses as well because system listeners
