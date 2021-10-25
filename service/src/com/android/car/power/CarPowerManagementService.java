@@ -1817,6 +1817,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     && this.mCarPowerStateListenerState == that.mCarPowerStateListenerState;
         }
 
+        // PowerPolicyHostTest uses the dump output of {@code CarPowerManagementService}. If the
+        // {@code CpmsState.toString} is modifed, PowerPolicyHostTest should be updated accordingly.
+        // TODO(b/184862429): Remove the above comment once dump in proto buffer is done.
         @Override
         public String toString() {
             return "CpmsState canPostpone=" + mCanPostpone
