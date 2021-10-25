@@ -693,8 +693,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     @GuardedBy("mLock")
     private boolean requestActivityIfNecessaryLocked() {
-        if (!mStateEngine.checkCurrentStateRequiresActivity() || mLastEvsHalEvent == null
-                || !mLastEvsHalEvent.isRequestingToStartActivity()) {
+        // TODO(b/202398413): add a test case to verify below logic
+        if (!mStateEngine.checkCurrentStateRequiresActivity() &&
+                (mLastEvsHalEvent == null || !mLastEvsHalEvent.isRequestingToStartActivity())) {
             return false;
         }
 
