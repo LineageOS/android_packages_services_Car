@@ -18,6 +18,8 @@ package com.android.car;
 import static android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.app.ActivityOptions;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
@@ -39,6 +41,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -104,6 +107,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*SystemActivityMonitoringService*");
         writer.println(" Top Tasks per display:");

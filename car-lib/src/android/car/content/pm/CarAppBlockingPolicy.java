@@ -16,10 +16,14 @@
 
 package android.car.content.pm;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.SystemApi;
 import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.Arrays;
 
@@ -52,6 +56,7 @@ public final class CarAppBlockingPolicy implements Parcelable {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
     }

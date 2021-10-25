@@ -23,6 +23,8 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import android.annotation.IntDef;
@@ -63,6 +65,7 @@ import android.util.JsonWriter;
 import android.util.SparseIntArray;
 import android.view.Display;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
 import com.android.car.systeminterface.SystemInterface;
@@ -693,6 +696,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarUxRestrictionsManagerService*");

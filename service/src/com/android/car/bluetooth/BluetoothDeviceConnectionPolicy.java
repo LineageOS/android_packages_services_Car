@@ -16,6 +16,8 @@
 
 package com.android.car.bluetooth;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -45,6 +47,7 @@ import com.android.car.CarDrivingStateService;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.util.List;
@@ -342,6 +345,7 @@ public class BluetoothDeviceConnectionPolicy {
     /**
      * Print the verbose status of the object
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.printf("%s:\n", TAG);
         writer.increaseIndent();

@@ -19,6 +19,7 @@ package com.android.car.vms;
 import static com.android.car.CarServiceUtils.assertAnyVmsPermission;
 import static com.android.car.CarServiceUtils.assertVmsPublisherPermission;
 import static com.android.car.CarServiceUtils.assertVmsSubscriberPermission;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.util.Slogf;
 import android.car.vms.IVmsBrokerService;
@@ -42,6 +43,7 @@ import android.util.ArraySet;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.FunctionalUtils.ThrowingConsumer;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.stats.CarStatsService;
@@ -110,6 +112,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*" + TAG + "*");
         synchronized (mLock) {

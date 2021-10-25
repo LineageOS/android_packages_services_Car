@@ -16,6 +16,8 @@
 
 package android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -35,6 +37,7 @@ import android.os.UserHandle;
 import android.util.Log;
 import android.view.Display;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.ElementType;
@@ -162,6 +165,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public int describeContents() {
             return 0;
         }

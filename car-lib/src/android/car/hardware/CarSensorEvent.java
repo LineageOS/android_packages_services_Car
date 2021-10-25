@@ -16,8 +16,12 @@
 
 package android.car.hardware;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * A CarSensorEvent object corresponds to a single sensor event coming from the car. The sensor
@@ -149,6 +153,7 @@ public class CarSensorEvent implements Parcelable {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
     }

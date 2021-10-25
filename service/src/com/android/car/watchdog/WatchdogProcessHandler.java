@@ -20,6 +20,8 @@ import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_MODERATE;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_NORMAL;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
@@ -34,6 +36,7 @@ import android.os.RemoteException;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -100,6 +103,7 @@ public final class WatchdogProcessHandler {
     }
 
     /** Dumps its state. */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("Registered clients");

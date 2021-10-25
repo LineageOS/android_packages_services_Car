@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.IExperimentalCar;
 import android.car.IExperimentalCarHelper;
 import android.car.builtin.util.Slogf;
@@ -29,6 +31,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -185,6 +188,7 @@ public final class CarExperimentalFeatureServiceController implements CarService
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarExperimentalFeatureServiceController*");
 

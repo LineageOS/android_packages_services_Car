@@ -16,9 +16,13 @@
 
 package com.android.car.internal.util;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.io.IOException;
 
@@ -74,6 +78,7 @@ public final class ParcelableException extends RuntimeException implements Parce
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
     }

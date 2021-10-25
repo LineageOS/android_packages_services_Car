@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.Car;
 import android.car.builtin.util.Slogf;
 import android.car.test.ICarTest;
@@ -22,6 +24,7 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -64,6 +67,7 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarTestService*");
         synchronized (mLock) {

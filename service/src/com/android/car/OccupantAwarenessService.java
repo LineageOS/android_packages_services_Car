@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.builtin.os.ServiceManagerHelper;
@@ -31,6 +33,7 @@ import android.hardware.automotive.occupant_awareness.IOccupantAwarenessClientCa
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -123,6 +126,7 @@ public class OccupantAwarenessService
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*OccupantAwarenessService*");
         synchronized (mLock) {

@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -54,6 +56,7 @@ import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
@@ -419,6 +422,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*OccupantZoneService*");
         synchronized (mLock) {

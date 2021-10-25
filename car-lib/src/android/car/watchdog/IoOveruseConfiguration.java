@@ -196,6 +196,7 @@ public final class IoOveruseConfiguration implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() { return 0; }
 
     /** @hide */

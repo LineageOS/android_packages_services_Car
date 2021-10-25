@@ -16,6 +16,8 @@
 
 package com.android.car.am;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.app.CarActivityManager;
@@ -28,6 +30,7 @@ import android.os.Binder;
 import android.os.RemoteException;
 
 import com.android.car.CarServiceBase;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -93,5 +96,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {}
 }

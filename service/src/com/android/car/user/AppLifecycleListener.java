@@ -16,12 +16,15 @@
 
 package com.android.car.user;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.ICarResultReceiver;
 import android.car.builtin.util.Slogf;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.io.PrintWriter;
 
@@ -58,6 +61,7 @@ final class AppLifecycleListener {
         receiver.asBinder().unlinkToDeath(mDeathRecipient, /* flags= */ 0);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(PrintWriter writer) {
         writer.printf("uid=%d, pkg=%s\n", uid, packageName);
     }

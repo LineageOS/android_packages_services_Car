@@ -27,6 +27,8 @@ import static android.net.wifi.WifiManager.WIFI_AP_STATE_DISABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLED;
 import static android.net.wifi.WifiManager.WIFI_AP_STATE_ENABLING;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.app.ActivityOptions;
 import android.bluetooth.BluetoothDevice;
@@ -68,6 +70,7 @@ import android.text.TextUtils;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.car.bluetooth.CarBluetoothService;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -796,6 +799,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("**CarProjectionService**");
         synchronized (mLock) {

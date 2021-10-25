@@ -22,6 +22,8 @@ import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT
 import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
 import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
@@ -40,6 +42,7 @@ import android.util.Xml;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -270,6 +273,7 @@ public final class PolicyReader {
         return PolicyOperationStatus.OK;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.printf("Registered power policies:%s\n",
                 mRegisteredPowerPolicies.size() == 0 ? " none" : "");

@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.app.ActivityManager;
 import android.car.ILocationManagerProxy;
 import android.car.IPerUserCarService;
@@ -41,6 +43,7 @@ import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
@@ -208,6 +211,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println(TAG);
         mPerUserCarServiceHelper.dump(writer);

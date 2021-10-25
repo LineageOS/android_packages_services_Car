@@ -16,11 +16,14 @@
 
 package android.car.user;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.user.CarUserManager.UserIdentificationAssociationValue;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.DataClass;
 import com.android.internal.util.Preconditions;
@@ -198,6 +201,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() { return 0; }
 
     /** @hide */

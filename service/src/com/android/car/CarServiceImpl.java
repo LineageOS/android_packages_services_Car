@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.os.SystemClock.elapsedRealtime;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.SystemPropertiesHelper;
@@ -32,6 +34,7 @@ import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.util.EventLog;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.util.LimitedTimingsTraceLog;
@@ -126,6 +129,7 @@ public class CarServiceImpl extends ProxiedService {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         // historically, the way to get a dumpsys from CarService has been to use
         // "dumpsys activity service com.android.car/.CarService" - leaving this

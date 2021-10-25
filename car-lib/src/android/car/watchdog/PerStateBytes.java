@@ -130,6 +130,7 @@ public final class PerStateBytes implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() { return 0; }
 
     /** @hide */

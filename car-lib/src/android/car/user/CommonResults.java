@@ -16,6 +16,10 @@
 
 package android.car.user;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 /**
  * Defines status for common result objects.
  */
@@ -56,6 +60,7 @@ final class CommonResults {
      */
     static final int LAST_COMMON_STATUS = 100;
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private CommonResults() {
         throw new UnsupportedOperationException();
     }

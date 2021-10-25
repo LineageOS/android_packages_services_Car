@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import static java.util.Map.entry;
 
 import android.annotation.NonNull;
@@ -38,6 +40,7 @@ import android.util.ArrayMap;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -624,6 +627,7 @@ public class InputCaptureClientController {
     }
 
     /** dump for debugging */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("**InputCaptureClientController**");
         synchronized (mLock) {

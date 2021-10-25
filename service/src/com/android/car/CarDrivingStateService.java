@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -38,6 +40,7 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
@@ -251,6 +254,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarDrivingStateService*");
 

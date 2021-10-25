@@ -15,6 +15,8 @@
  */
 package com.android.car.bluetooth;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
@@ -32,6 +34,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.PerUserCarServiceHelper;
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -552,6 +555,7 @@ public class CarBluetoothService implements CarServiceBase {
      * Print out the verbose debug status of this object
      */
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.printf("* %s *\n", TAG);
         mUserServiceHelper.dump(writer);

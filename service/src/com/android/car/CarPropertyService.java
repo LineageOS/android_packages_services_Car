@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.NonNull;
@@ -36,6 +38,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.hal.PropertyHalService;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -176,6 +179,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarPropertyService*");
         writer.increaseIndent();

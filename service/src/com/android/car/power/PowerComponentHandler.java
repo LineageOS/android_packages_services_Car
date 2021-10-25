@@ -26,6 +26,8 @@ import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT
 import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
 import android.car.builtin.app.VoiceInteractionHelper;
@@ -42,6 +44,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
@@ -184,6 +187,7 @@ public final class PowerComponentHandler {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("Power components state:");

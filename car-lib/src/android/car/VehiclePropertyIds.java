@@ -16,10 +16,14 @@
 
 package android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.RequiresPermission;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Copy from android.hardware.automotive.vehicle-V2.0-java_gen_java/gen/android/hardware/automotive
@@ -1836,6 +1840,7 @@ public final class VehiclePropertyIds {
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public VehiclePropertyIds() {
     }
 

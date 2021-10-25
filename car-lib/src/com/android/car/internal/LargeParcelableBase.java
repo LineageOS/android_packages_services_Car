@@ -18,6 +18,8 @@ package com.android.car.internal;
 
 import static android.system.OsConstants.PROT_READ;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Parcel;
@@ -187,6 +189,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
     }

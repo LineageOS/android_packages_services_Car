@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.car.ILocationManagerProxy;
 import android.car.builtin.util.Slogf;
@@ -23,6 +25,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 /** Wraps a {@link LocationManager}. */
@@ -61,6 +64,7 @@ public class LocationManagerProxy extends ILocationManagerProxy.Stub {
         return mLocationManager.getLastKnownLocation(provider);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter pw) {
         pw.printf("isLocationEnabled: %b\n", isLocationEnabled());
     }
