@@ -673,7 +673,7 @@ public final class WatchdogPerfHandler {
                     continue;
                 }
                 PackageResourceUsage usage = cacheAndFetchUsageLocked(stats.uid, genericPackageName,
-                        stats.ioOveruseStats);
+                        stats.ioOveruseStats, stats.forgivenWriteBytes);
                 if (stats.shouldNotify) {
                     /*
                      * Packages that exceed the warn threshold percentage should be notified as well
@@ -1014,7 +1014,8 @@ public final class WatchdogPerfHandler {
 
     @GuardedBy("mLock")
     private PackageResourceUsage cacheAndFetchUsageLocked(int uid, String genericPackageName,
-            android.automotive.watchdog.IoOveruseStats internalStats) {
+            android.automotive.watchdog.IoOveruseStats internalStats,
+            android.automotive.watchdog.PerStateBytes forgivenWriteBytes) {
         int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
         String key = getUserPackageUniqueId(userId, genericPackageName);
         int defaultKillableState = getDefaultKillableStateLocked(genericPackageName);
@@ -1022,7 +1023,7 @@ public final class WatchdogPerfHandler {
         if (usage == null) {
             usage = new PackageResourceUsage(userId, genericPackageName, defaultKillableState);
         }
-        usage.update(uid, internalStats, defaultKillableState);
+        usage.update(uid, internalStats, forgivenWriteBytes, defaultKillableState);
         mUsageByUserPackage.put(key, usage);
         return usage;
     }
@@ -1774,6 +1775,7 @@ public final class WatchdogPerfHandler {
         }
 
         public void update(int uid, android.automotive.watchdog.IoOveruseStats internalStats,
+                android.automotive.watchdog.PerStateBytes forgivenWriteBytes,
                 @KillableState int defaultKillableState) {
             // Package UID would change if it was re-installed, so keep it up-to-date.
             mUid = uid;
@@ -1793,7 +1795,7 @@ public final class WatchdogPerfHandler {
                  */
                 mKillableState = defaultKillableState;
             }
-            ioUsage.update(internalStats);
+            ioUsage.update(internalStats, forgivenWriteBytes);
         }
 
         public ResourceOveruseStats.Builder getResourceOveruseStatsBuilder() {
@@ -1889,17 +1891,10 @@ public final class WatchdogPerfHandler {
             mTotalTimesKilled = ioUsage.mTotalTimesKilled;
         }
 
-        void update(android.automotive.watchdog.IoOveruseStats internalStats) {
+        void update(android.automotive.watchdog.IoOveruseStats internalStats,
+                android.automotive.watchdog.PerStateBytes forgivenWriteBytes) {
             mIoOveruseStats = internalStats;
-            if (exceedsThreshold()) {
-                /*
-                 * Forgive written bytes on overuse as the package is either forgiven or killed on
-                 * overuse. When the package is killed, the user may opt to open the corresponding
-                 * app and the package should be forgiven anyways.
-                 * NOTE: If this logic is updated, update the daemon side logic as well.
-                 */
-                mForgivenWriteBytes = internalStats.writtenBytes;
-            }
+            mForgivenWriteBytes = forgivenWriteBytes;
         }
 
         IoOveruseStats getIoOveruseStats(boolean isKillable) {
