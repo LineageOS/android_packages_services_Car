@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -101,6 +102,19 @@ public final class ClusterHomeManagerUnitTest {
     }
 
     @Test
+    public void registerClusterHomeCallback_callbackAlreadyRegistered_doNothing() throws Exception {
+        doNothing().when(mService).registerCallback(any());
+        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
+                mClusterHomeCallback);
+
+        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
+                mClusterHomeCallback);
+
+        verify(mService, times(1)).registerCallback(any());
+        verifyNoMoreInteractions(mService);
+    }
+
+    @Test
     public void onNavigationStateChanged_callsCallbacks() throws Exception {
         byte[] newNavigationState = new byte[]{1};
         doAnswer(invocation -> {
@@ -169,5 +183,17 @@ public final class ClusterHomeManagerUnitTest {
         mClusterHomeManager.unregisterClusterHomeCallback(mClusterHomeCallback);
 
         verifyNoMoreInteractions(mCar);
+    }
+
+    @Test
+    public void unregisterClusterHomeCallback_callbackNotPresent_doNothing() throws Exception {
+        RemoteException thrownException = new RemoteException();
+        doNothing().when(mService).registerCallback(any());
+        doThrow(thrownException).when(mService).unregisterCallback(any());
+
+        mClusterHomeManager.unregisterClusterHomeCallback(mClusterHomeCallback);
+
+        verifyNoMoreInteractions(mCar);
+        verifyNoMoreInteractions(mService);
     }
 }
