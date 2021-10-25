@@ -120,6 +120,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                         garageMode = mCurrentGarageMode = action.equals(ACTION_GARAGE_MODE_ON)
                                 ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF;
                     }
+                    mWatchdogPerfHandler.onGarageModeChange(garageMode);
                     if (garageMode == GarageMode.GARAGE_MODE_ON) {
                         mWatchdogStorage.shrinkDatabase();
                     }
