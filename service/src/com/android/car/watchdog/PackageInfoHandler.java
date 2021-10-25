@@ -29,6 +29,7 @@ import android.content.pm.PackageManager;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -55,6 +56,9 @@ public final class PackageInfoHandler {
     @GuardedBy("mLock")
     private final ArrayMap<String, String> mGenericPackageNameByPackage = new ArrayMap<>();
     @GuardedBy("mLock")
+    private final SparseArray<ArraySet<String>> mGenericPackageNamesByComponentType =
+            new SparseArray<>();
+    @GuardedBy("mLock")
     private List<String> mVendorPackagePrefixes = new ArrayList<>();
 
     public PackageInfoHandler(PackageManager packageManager) {
@@ -64,7 +68,7 @@ public final class PackageInfoHandler {
     /**
      * Returns the generic package names for the given UIDs.
      *
-     * Some UIDs may not have names. This may occur when a UID is being removed and the
+     * <p>Some UIDs may not have names. This may occur when a UID is being removed and the
      * internal data structures are not up-to-date. The caller should handle it.
      */
     public SparseArray<String> getNamesForUids(int[] uids) {
@@ -107,7 +111,7 @@ public final class PackageInfoHandler {
     /**
      * Returns the generic package name for the user package.
      *
-     * Returns null when no generic package name is found.
+     * <p>Returns null when no generic package name is found.
      */
     @Nullable
     public String getNameForUserPackage(String packageName, int userId) {
@@ -157,19 +161,12 @@ public final class PackageInfoHandler {
     /**
      * Returns the internal package infos for the given UIDs.
      *
-     * Some UIDs may not have package infos. This may occur when a UID is being removed and the
+     * <p>Some UIDs may not have package infos. This may occur when a UID is being removed and the
      * internal data structures are not up-to-date. The caller should handle it.
      */
     public List<PackageInfo> getPackageInfosForUids(int[] uids,
             List<String> vendorPackagePrefixes) {
-        synchronized (mLock) {
-            /*
-             * Vendor package prefixes don't change frequently because it changes only when the
-             * vendor configuration is updated. Thus caching this locally during this call should
-             * keep the cache up-to-date because the daemon issues this call frequently.
-             */
-            mVendorPackagePrefixes = vendorPackagePrefixes;
-        }
+        setVendorPackagePrefixes(vendorPackagePrefixes);
         SparseArray<String> genericPackageNameByUid = getNamesForUids(uids);
         ArrayList<PackageInfo> packageInfos = new ArrayList<>(genericPackageNameByUid.size());
         for (int i = 0; i < genericPackageNameByUid.size(); ++i) {
@@ -177,6 +174,37 @@ public final class PackageInfoHandler {
                     genericPackageNameByUid.valueAt(i)));
         }
         return packageInfos;
+    }
+
+    /** Returns component type for the given uid and package name. */
+    public @ComponentType int getComponentType(int uid, String genericPackageName) {
+        synchronized (mLock) {
+            for (int i = 0; i < mGenericPackageNamesByComponentType.size(); ++i) {
+                if (mGenericPackageNamesByComponentType.valueAt(i).contains(genericPackageName)) {
+                    return mGenericPackageNamesByComponentType.keyAt(i);
+                }
+            }
+        }
+        int componentType = ComponentType.UNKNOWN;
+        if (genericPackageName.startsWith(SHARED_PACKAGE_PREFIX)) {
+            synchronized (mLock) {
+                if (!mPackagesBySharedUid.contains(uid)) {
+                    populateSharedPackagesLocked(uid, genericPackageName);
+                }
+                List<String> packages = mPackagesBySharedUid.get(uid);
+                if (packages != null) {
+                    componentType = getSharedComponentTypeInternal(
+                            UserHandle.getUserHandleForUid(uid), packages, genericPackageName);
+                }
+            }
+        } else {
+            componentType = getUserPackageComponentType(
+                    UserHandle.getUserHandleForUid(uid), genericPackageName);
+        }
+        if (componentType != ComponentType.UNKNOWN) {
+            cachePackageComponentType(genericPackageName, componentType);
+        }
+        return componentType;
     }
 
     @GuardedBy("mLock")
@@ -194,38 +222,20 @@ public final class PackageInfoHandler {
         packageInfo.packageIdentifier.uid = uid;
         packageInfo.packageIdentifier.name = genericPackageName;
         packageInfo.sharedUidPackages = new ArrayList<>();
-        packageInfo.componentType = ComponentType.UNKNOWN;
+        packageInfo.componentType = getComponentType(uid, genericPackageName);
         /* Application category type mapping is handled on the daemon side. */
         packageInfo.appCategoryType = ApplicationCategoryType.OTHERS;
-        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
         int appId = UserHandle.getAppId(uid);
         packageInfo.uidType = appId >= Process.FIRST_APPLICATION_UID ? UidType.APPLICATION :
                 UidType.NATIVE;
 
         if (genericPackageName.startsWith(SHARED_PACKAGE_PREFIX)) {
-            List<String> packages = null;
             synchronized (mLock) {
-                packages = mPackagesBySharedUid.get(uid);
-                if (packages == null) {
-                    return packageInfo;
+                List<String> packages = mPackagesBySharedUid.get(uid);
+                if (packages != null) {
+                    packageInfo.sharedUidPackages = new ArrayList<>(packages);
                 }
             }
-            List<ApplicationInfo> applicationInfos = new ArrayList<>();
-            for (int i = 0; i < packages.size(); ++i) {
-                try {
-                    applicationInfos.add(mPackageManager.getApplicationInfoAsUser(packages.get(i),
-                            /* flags= */ 0, UserHandle.of(userId)));
-                } catch (PackageManager.NameNotFoundException e) {
-                    Slogf.e(TAG, "Package '%s' not found for user %d: %s", packages.get(i), userId,
-                            e);
-                }
-            }
-            packageInfo.componentType = getSharedComponentType(
-                    applicationInfos, genericPackageName);
-            packageInfo.sharedUidPackages = new ArrayList<>(packages);
-        } else {
-            packageInfo.componentType = getUserPackageComponentType(
-                    userId, genericPackageName);
         }
         return packageInfo;
     }
@@ -237,8 +247,8 @@ public final class PackageInfoHandler {
      * mapped to different component types. Thus map the shared UID to the most restrictive
      * component type.
      */
-    public int getSharedComponentType(List<ApplicationInfo> applicationInfos,
-            String genericPackageName) {
+    public @ComponentType int getSharedComponentType(
+            List<ApplicationInfo> applicationInfos, String genericPackageName) {
         SparseBooleanArray seenComponents = new SparseBooleanArray();
         for (int i = 0; i < applicationInfos.size(); ++i) {
             int type = getComponentType(applicationInfos.get(i));
@@ -261,15 +271,32 @@ public final class PackageInfoHandler {
         return ComponentType.UNKNOWN;
     }
 
-    private int getUserPackageComponentType(int userId, String packageName) {
+    private @ComponentType int getUserPackageComponentType(
+            UserHandle userHandle, String packageName) {
         try {
-            ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(packageName,
-                    /* flags= */ 0, UserHandle.of(userId));
+            ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(
+                    packageName, /* flags= */ 0, userHandle);
             return getComponentType(info);
         } catch (PackageManager.NameNotFoundException e) {
-            Slogf.e(TAG, "Package '%s' not found for user %d: %s", packageName, userId, e);
+            Slogf.e(TAG, e, "Package '%s' not found for user %d", packageName,
+                    userHandle.getIdentifier());
         }
         return ComponentType.UNKNOWN;
+    }
+
+    private @ComponentType int getSharedComponentTypeInternal(
+            UserHandle userHandle, List<String> packages, String genericPackageName) {
+        List<ApplicationInfo> applicationInfos = new ArrayList<>();
+        for (int i = 0; i < packages.size(); ++i) {
+            try {
+                applicationInfos.add(mPackageManager.getApplicationInfoAsUser(
+                        packages.get(i), /* flags= */ 0, userHandle));
+            } catch (PackageManager.NameNotFoundException e) {
+                Slogf.w(TAG, "Package '%s' not found for user %d", packages.get(i),
+                        userHandle.getIdentifier());
+            }
+        }
+        return getSharedComponentType(applicationInfos, genericPackageName);
     }
 
     /** Returns the component type for the given application info. */
@@ -297,7 +324,26 @@ public final class PackageInfoHandler {
 
     void setVendorPackagePrefixes(List<String> vendorPackagePrefixes) {
         synchronized (mLock) {
+            if (mVendorPackagePrefixes.equals(vendorPackagePrefixes)) {
+                return;
+            }
             mVendorPackagePrefixes = vendorPackagePrefixes;
+            // When the vendor package prefixes change due to config update, the component types
+            // for these packages also change. Ergo, clear the component type cache, so the
+            // component types can be inferred again.
+            mGenericPackageNamesByComponentType.clear();
+        }
+    }
+
+    private void cachePackageComponentType(String genericPackageName,
+            @ComponentType int componentType) {
+        synchronized (mLock) {
+            ArraySet<String> packages = mGenericPackageNamesByComponentType.get(componentType);
+            if (packages == null) {
+                packages = new ArraySet<>();
+            }
+            packages.add(genericPackageName);
+            mGenericPackageNamesByComponentType.append(componentType, packages);
         }
     }
 }

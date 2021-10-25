@@ -51,6 +51,7 @@ common_lib_deps = [
     "vehicle-hal-support-lib",
     "com.android.car.procfsinspector-client",
     "cartelemetry-protos",
+    "carwatchdog-protos",
 ]
 
 android_app {
@@ -156,6 +157,7 @@ android_app {
         ":statslog-Car-java-gen",
         ":vehicle-hal-support-lib-src",
         "src/com/android/car/telemetry/proto/*.proto",
+        "src/com/android/car/watchdog/proto/*.proto",
         ":iscriptexecutor_aidl",
         "src/**/*.java",
         ],
