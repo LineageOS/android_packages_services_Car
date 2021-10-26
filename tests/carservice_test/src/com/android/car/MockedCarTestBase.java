@@ -87,6 +87,7 @@ import java.util.Map;
 public class MockedCarTestBase {
     protected static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     protected static final long SHORT_WAIT_TIMEOUT_MS = 500;
+    private static final int STATE_HANDLING_TIMEOUT = 5_000;
     private static final String TAG = MockedCarTestBase.class.getSimpleName();
     private static final IBinder sCarServiceToken = new Binder();
     private static boolean sRealCarServiceReleased;
@@ -236,6 +237,8 @@ public class MockedCarTestBase {
         spyOnBeforeCarImplInit(carImpl);
         carImpl.init();
         mCarImpl = carImpl;
+        // Wait for CPMS to handle the first power state change request.
+        waitUntilPowerStateChangeHandled();
         mCar = new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
     }
 
@@ -243,6 +246,9 @@ public class MockedCarTestBase {
     @UiThreadTest
     public void tearDown() throws Exception {
         Log.i(TAG, "tearDown");
+
+        // Wait for CPMS to finish event processing.
+        waitUntilPowerStateChangeHandled();
 
         try {
             if (mCar != null) {
@@ -321,6 +327,12 @@ public class MockedCarTestBase {
 
         setConfigBuilder(builder, new StaticPropertyHandler(value));
         return builder;
+    }
+
+    private void waitUntilPowerStateChangeHandled() {
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+        cpms.getHandler().runWithScissors(() -> {}, STATE_HANDLING_TIMEOUT);
     }
 
     private void setConfigBuilder(VehiclePropConfigBuilder builder,

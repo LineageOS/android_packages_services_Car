@@ -1209,9 +1209,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void signalComplete() {
         boolean shouldHandleProcessingComplete = false;
         synchronized (mLock) {
-            if (mCurrentState.mState == CpmsState.SHUTDOWN_PREPARE
-                    || mCurrentState.mState == CpmsState.SIMULATE_SLEEP
-                    || mCurrentState.mState == CpmsState.SIMULATE_HIBERNATION) {
+            if (mCurrentState != null
+                    && (mCurrentState.mState == CpmsState.SHUTDOWN_PREPARE
+                            || mCurrentState.mState == CpmsState.SIMULATE_SLEEP
+                            || mCurrentState.mState == CpmsState.SIMULATE_HIBERNATION)) {
                 // All apps are ready to shutdown/suspend.
                 if (mActionOnFinish != ACTION_ON_FINISH_SHUTDOWN) {
                     if (mLastSleepEntryTime > mProcessingStartTime
