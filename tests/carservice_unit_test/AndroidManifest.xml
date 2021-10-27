@@ -32,6 +32,8 @@
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
                   android:taskAffinity="com.android.car.carservice_unittest.block"/>
 
+        <activity android:name="com.android.car.admin.ui.CarAdminUiTestActivity"/>
+
         <service android:name="android.car.cluster.renderer.InstrumentClusterRenderingServiceTest$TestableInstrumentClusterRenderingService"/>
 
     </application>
