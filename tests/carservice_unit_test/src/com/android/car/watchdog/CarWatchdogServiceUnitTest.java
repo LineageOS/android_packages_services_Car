@@ -33,6 +33,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -42,6 +43,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -115,7 +117,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.time.Instant;
@@ -170,6 +171,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private final List<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
             new ArrayList<>();
     private final List<WatchdogStorage.IoUsageStatsEntry> mIoUsageStatsEntries = new ArrayList<>();
+    private final IPackageManager mSpiedPackageManager = spy(ActivityThread.getPackageManager());
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
@@ -192,6 +194,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
         doReturn(mMockCarUxRestrictionsManagerService)
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
+        doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
 
         mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage);
         mCarWatchdogService.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
@@ -2430,12 +2433,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = mMockContext.getPackageName();
         mGenericPackageNameByUid.put(10003346, packageName);
         mGenericPackageNameByUid.put(10101278, "vendor_package.critical");
+        mGenericPackageNameByUid.put(10103456, "third_party_package");
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(
+                        or(eq("third_party_package"), eq("vendor_package.critical")), eq(101));
+
         mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
-                Collections.singletonList(packageName));
+                Arrays.asList(packageName, "third_party_package"));
 
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
@@ -2449,6 +2457,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
 
         verify(mMockWatchdogStorage).deleteUserPackage(eq(user.getIdentifier()), eq(packageName));
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName, 100);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package", 101);
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+
+        verifyNoMoreInteractions(mSpiedPackageManager);
     }
 
     @Test
@@ -2829,16 +2844,14 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     }
                     return packageInfos;
                 });
-        IPackageManager pm = Mockito.spy(ActivityThread.getPackageManager());
-        when(ActivityThread.getPackageManager()).thenReturn(pm);
         doAnswer((args) -> {
             String value = args.getArgument(3) + ":" + args.getArgument(0);
             mDisabledUserPackages.add(value);
             return null;
-        }).when(pm).setApplicationEnabledSetting(
+        }).when(mSpiedPackageManager).setApplicationEnabledSetting(
                 anyString(), eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), anyInt(),
                 anyInt(), anyString());
-        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(pm)
+        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(mSpiedPackageManager)
                 .getApplicationEnabledSetting(anyString(), anyInt());
     }
 
