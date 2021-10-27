@@ -34,6 +34,7 @@ import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
@@ -51,7 +52,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.EventLog;
 
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.am.CarActivityService;
@@ -68,7 +68,6 @@ import com.android.car.hal.VehicleHal;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
-import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
@@ -469,8 +468,7 @@ public class ICarImpl extends ICar.Stub {
             ICarResultReceiver resultReceiver) {
         Bundle bundle;
         try {
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_SET_CAR_SERVICE_HELPER,
-                    Binder.getCallingPid());
+            EventLogHelper.writeCarServiceSetCarServiceHelper(Binder.getCallingPid());
             assertCallingFromSystemProcess();
             synchronized (mLock) {
                 mICarServiceHelper = carServiceHelper;
@@ -838,8 +836,7 @@ public class ICarImpl extends ICar.Stub {
         public void onUserLifecycleEvent(int eventType, int fromUserId, int toUserId)
                 throws RemoteException {
             assertCallingFromSystemProcess();
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
-                    toUserId);
+            EventLogHelper.writeCarServiceOnUserLifecycle(eventType, fromUserId, toUserId);
             if (DBG) {
                 Slogf.d(TAG,
                         "onUserLifecycleEvent("
@@ -852,7 +849,7 @@ public class ICarImpl extends ICar.Stub {
         @Override
         public void initBootUser() throws RemoteException {
             assertCallingFromSystemProcess();
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_INIT_BOOT_USER);
+            EventLogHelper.writeCarServiceInitBootUser();
             if (DBG) Slogf.d(TAG, "initBootUser(): ");
             mCarUserService.initBootUser();
         }
@@ -860,7 +857,7 @@ public class ICarImpl extends ICar.Stub {
         @Override
         public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_REMOVED, user.getIdentifier());
+            EventLogHelper.writeCarServiceOnUserRemoved(user.getIdentifier());
             if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user.toString());
             mCarUserService.onUserRemoved(user);
         }

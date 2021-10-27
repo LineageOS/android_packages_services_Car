@@ -283,6 +283,19 @@ package android.car.builtin.util {
     method public static boolean exists(android.util.AtomicFile);
   }
 
+  public final class EventLogHelper {
+    method public static void writeCarServiceConnected(String);
+    method public static void writeCarServiceCreate(boolean);
+    method public static void writeCarServiceDestroy(boolean);
+    method public static void writeCarServiceInit(int);
+    method public static void writeCarServiceInitBootUser();
+    method public static void writeCarServiceOnUserLifecycle(int, int, int);
+    method public static void writeCarServiceOnUserRemoved(int);
+    method public static void writeCarServiceSetCarServiceHelper(int);
+    method public static void writeCarServiceVhalDied(long);
+    method public static void writeCarServiceVhalReconnected(int);
+  }
+
   public final class Slogf {
     method public static int d(@NonNull String, @NonNull String);
     method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);

@@ -22,6 +22,7 @@ java_sdk_library {
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
+        "src/android/car/builtin/util/EventLogTags.logtags",
     ],
 
     default_to_stubs: true,
