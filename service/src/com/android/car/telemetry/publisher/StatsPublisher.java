@@ -18,6 +18,7 @@ package com.android.car.telemetry.publisher;
 
 import static com.android.car.telemetry.AtomsProto.Atom.ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_CPU_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
 
 import android.app.StatsManager.StatsUnavailableException;
@@ -28,7 +29,8 @@ import android.os.Process;
 import android.util.LongSparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.telemetry.AtomsProto;
+import com.android.car.telemetry.AtomsProto.ProcessCpuTime;
+import com.android.car.telemetry.AtomsProto.ProcessMemoryState;
 import com.android.car.telemetry.StatsLogProto;
 import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
@@ -74,6 +76,10 @@ public class StatsPublisher extends AbstractPublisher {
     static final long ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID = 5;
     @VisibleForTesting
     static final long ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID = 6;
+    @VisibleForTesting
+    static final long PROCESS_CPU_TIME_MATCHER_ID = 7;
+    @VisibleForTesting
+    static final long PROCESS_CPU_TIME_GAUGE_METRIC_ID = 8;
 
     // The file that contains stats config key and stats config version
     @VisibleForTesting
@@ -92,23 +98,27 @@ public class StatsPublisher extends AbstractPublisher {
                     .setField(
                             PROCESS_MEMORY_STATE_FIELD_NUMBER)
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                            .setField(
-                                    AtomsProto.ProcessMemoryState.OOM_ADJ_SCORE_FIELD_NUMBER))
+                            .setField(ProcessMemoryState.OOM_ADJ_SCORE_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                            .setField(
-                                    AtomsProto.ProcessMemoryState.PAGE_FAULT_FIELD_NUMBER))
+                            .setField(ProcessMemoryState.PAGE_FAULT_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                            .setField(
-                                    AtomsProto.ProcessMemoryState.PAGE_MAJOR_FAULT_FIELD_NUMBER))
+                            .setField(ProcessMemoryState.PAGE_MAJOR_FAULT_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                            .setField(
-                                    AtomsProto.ProcessMemoryState.RSS_IN_BYTES_FIELD_NUMBER))
+                            .setField(ProcessMemoryState.RSS_IN_BYTES_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                            .setField(
-                                    AtomsProto.ProcessMemoryState.CACHE_IN_BYTES_FIELD_NUMBER))
+                            .setField(ProcessMemoryState.CACHE_IN_BYTES_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                            .setField(
-                                    AtomsProto.ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER))
+                            .setField(ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER))
+            .build();
+
+    @VisibleForTesting
+    static final StatsdConfigProto.FieldMatcher PROCESS_CPU_TIME_FIELDS_MATCHER =
+            StatsdConfigProto.FieldMatcher.newBuilder()
+                    .setField(PROCESS_CPU_TIME_FIELD_NUMBER)
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(ProcessCpuTime.USER_TIME_MILLIS_FIELD_NUMBER))
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(ProcessCpuTime.SYSTEM_TIME_MILLIS_FIELD_NUMBER))
             .build();
 
     private final StatsManagerProxy mStatsManager;
@@ -218,6 +228,9 @@ public class StatsPublisher extends AbstractPublisher {
                 break;
             case ACTIVITY_FOREGROUND_STATE_CHANGED:
                 metricId = ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID;
+                break;
+            case PROCESS_CPU_TIME:
+                metricId = PROCESS_CPU_TIME_GAUGE_METRIC_ID;
                 break;
             default:
                 return;
@@ -471,6 +484,8 @@ public class StatsPublisher extends AbstractPublisher {
                 return buildProcessMemoryStateStatsdConfig(builder);
             case ACTIVITY_FOREGROUND_STATE_CHANGED:
                 return buildActivityForegroundStateStatsdConfig(builder);
+            case PROCESS_CPU_TIME:
+                return buildProcessCpuTimeStatsdConfig(builder);
             default:
                 throw new IllegalArgumentException("Unsupported metric " + metric.name());
         }
@@ -504,9 +519,9 @@ public class StatsPublisher extends AbstractPublisher {
                         .setDimensionsInWhat(StatsdConfigProto.FieldMatcher.newBuilder()
                                 .setField(PROCESS_MEMORY_STATE_FIELD_NUMBER)
                                 .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                                        .setField(1))  // ProcessMemoryState.uid
+                                        .setField(ProcessMemoryState.UID_FIELD_NUMBER))
                                 .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
-                                        .setField(2))  // ProcessMemoryState.process_name
+                                        .setField(ProcessMemoryState.PROCESS_NAME_FIELD_NUMBER))
                         )
                         .setGaugeFieldsFilter(StatsdConfigProto.FieldFilter.newBuilder()
                                 .setFields(PROCESS_MEMORY_STATE_FIELDS_MATCHER)
@@ -533,6 +548,37 @@ public class StatsPublisher extends AbstractPublisher {
                         // The id must be unique within StatsdConfig/metrics
                         .setId(ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID)
                         .setWhat(ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID))
+                .build();
+    }
+
+    private static StatsdConfig buildProcessCpuTimeStatsdConfig(StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(PROCESS_CPU_TIME_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(PROCESS_CPU_TIME_FIELD_NUMBER)))
+                .addGaugeMetric(StatsdConfigProto.GaugeMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(PROCESS_CPU_TIME_GAUGE_METRIC_ID)
+                        .setWhat(PROCESS_CPU_TIME_MATCHER_ID)
+                        .setDimensionsInWhat(StatsdConfigProto.FieldMatcher.newBuilder()
+                                .setField(PROCESS_CPU_TIME_FIELD_NUMBER)
+                                .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                                        .setField(ProcessCpuTime.UID_FIELD_NUMBER))
+                                .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                                        .setField(ProcessCpuTime.PROCESS_NAME_FIELD_NUMBER))
+                        )
+                        .setGaugeFieldsFilter(StatsdConfigProto.FieldFilter.newBuilder()
+                                .setFields(PROCESS_CPU_TIME_FIELDS_MATCHER)
+                        )  // setGaugeFieldsFilter
+                        .setSamplingType(
+                                StatsdConfigProto.GaugeMetric.SamplingType.RANDOM_ONE_SAMPLE)
+                        .setBucket(StatsdConfigProto.TimeUnit.FIVE_MINUTES)
+                )
+                .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
+                        .setAtomId(PROCESS_CPU_TIME_FIELD_NUMBER)
+                        .addPackages("AID_SYSTEM"))
                 .build();
     }
 }
