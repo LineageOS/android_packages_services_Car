@@ -34,8 +34,8 @@ import static org.mockito.Mockito.when;
 import android.car.Car;
 import android.car.cluster.ClusterHomeManager;
 import android.car.cluster.ClusterState;
-import android.car.cluster.IClusterHomeCallback;
 import android.car.cluster.IClusterHomeService;
+import android.car.cluster.IClusterNavigationStateListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -62,7 +62,10 @@ public final class ClusterHomeManagerUnitTest {
     private IClusterHomeService.Stub mService;
 
     @Mock
-    private ClusterHomeManager.ClusterHomeCallback mClusterHomeCallback;
+    private ClusterHomeManager.ClusterStateListener mClusterStateListener;
+
+    @Mock
+    private ClusterHomeManager.ClusterNavigationStateListener mClusterNavigationStateListener;
 
     private ClusterHomeManager mClusterHomeManager;
     private final Executor mCurrentThreadExecutor = new Executor() {
@@ -90,27 +93,54 @@ public final class ClusterHomeManagerUnitTest {
     }
 
     @Test
-    public void registerClusterHomeCallback_serviceFailure() throws Exception {
+    public void registerClusterStateListener_serviceFailure() throws Exception {
         RemoteException thrownException = new RemoteException();
         doThrow(thrownException)
-                .when(mService).registerCallback(any());
+                .when(mService).registerClusterStateListener(any());
 
-        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
-                mClusterHomeCallback);
+        mClusterHomeManager.registerClusterStateListener(mCurrentThreadExecutor,
+                mClusterStateListener);
 
         verify(mCar).handleRemoteExceptionFromCarService(thrownException);
     }
 
     @Test
-    public void registerClusterHomeCallback_callbackAlreadyRegistered_doNothing() throws Exception {
-        doNothing().when(mService).registerCallback(any());
-        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
-                mClusterHomeCallback);
+    public void registerClusterNavigationStateListener_serviceFailure() throws Exception {
+        RemoteException thrownException = new RemoteException();
+        doThrow(thrownException)
+                .when(mService).registerClusterNavigationStateListener(any());
 
-        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
-                mClusterHomeCallback);
+        mClusterHomeManager.registerClusterNavigationStateListener(mCurrentThreadExecutor,
+                mClusterNavigationStateListener);
 
-        verify(mService, times(1)).registerCallback(any());
+        verify(mCar).handleRemoteExceptionFromCarService(thrownException);
+    }
+
+    @Test
+    public void registerClusterStateListener_callbackAlreadyRegistered_doNothing()
+            throws Exception {
+        doNothing().when(mService).registerClusterStateListener(any());
+        mClusterHomeManager.registerClusterStateListener(mCurrentThreadExecutor,
+                mClusterStateListener);
+
+        mClusterHomeManager.registerClusterStateListener(mCurrentThreadExecutor,
+                mClusterStateListener);
+
+        verify(mService, times(1)).registerClusterStateListener(any());
+        verifyNoMoreInteractions(mService);
+    }
+
+    @Test
+    public void registerClusterNavigationStateListener_callbackAlreadyRegistered_doNothing()
+            throws Exception {
+        doNothing().when(mService).registerClusterNavigationStateListener(any());
+        mClusterHomeManager.registerClusterNavigationStateListener(mCurrentThreadExecutor,
+                mClusterNavigationStateListener);
+
+        mClusterHomeManager.registerClusterNavigationStateListener(mCurrentThreadExecutor,
+                mClusterNavigationStateListener);
+
+        verify(mService, times(1)).registerClusterNavigationStateListener(any());
         verifyNoMoreInteractions(mService);
     }
 
@@ -118,16 +148,16 @@ public final class ClusterHomeManagerUnitTest {
     public void onNavigationStateChanged_callsCallbacks() throws Exception {
         byte[] newNavigationState = new byte[]{1};
         doAnswer(invocation -> {
-            IClusterHomeCallback.Stub clusterHomeManagerHomeCallback =
-                    (IClusterHomeCallback.Stub) invocation.getArgument(0);
-            clusterHomeManagerHomeCallback.onNavigationStateChanged(newNavigationState);
+            IClusterNavigationStateListener.Stub clusterHomeManagerNavigationStateListener =
+                    (IClusterNavigationStateListener.Stub) invocation.getArgument(0);
+            clusterHomeManagerNavigationStateListener.onNavigationStateChanged(newNavigationState);
             return null;
-        }).when(mService).registerCallback(any());
+        }).when(mService).registerClusterNavigationStateListener(any());
 
-        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
-                mClusterHomeCallback);
+        mClusterHomeManager.registerClusterNavigationStateListener(mCurrentThreadExecutor,
+                mClusterNavigationStateListener);
 
-        verify(mClusterHomeCallback).onNavigationState(eq(newNavigationState));
+        verify(mClusterNavigationStateListener).onNavigationState(eq(newNavigationState));
     }
 
     @Test
@@ -173,25 +203,53 @@ public final class ClusterHomeManagerUnitTest {
     }
 
     @Test
-    public void unregisterClusterHomeCallback_serviceFailure() throws Exception {
+    public void unregisterClusterStateListener_serviceFailure() throws Exception {
         RemoteException thrownException = new RemoteException();
-        doNothing().when(mService).registerCallback(any());
-        doThrow(thrownException).when(mService).unregisterCallback(any());
-        mClusterHomeManager.registerClusterHomeCallback(mCurrentThreadExecutor,
-                mClusterHomeCallback);
+        doNothing().when(mService).registerClusterStateListener(any());
+        doThrow(thrownException).when(mService).unregisterClusterStateListener(any());
+        mClusterHomeManager.registerClusterStateListener(mCurrentThreadExecutor,
+                mClusterStateListener);
 
-        mClusterHomeManager.unregisterClusterHomeCallback(mClusterHomeCallback);
+        mClusterHomeManager.unregisterClusterStateListener(mClusterStateListener);
 
         verifyNoMoreInteractions(mCar);
     }
 
     @Test
-    public void unregisterClusterHomeCallback_callbackNotPresent_doNothing() throws Exception {
+    public void unregisterClusterStateListener_callbackNotPresent_doNothing() throws Exception {
         RemoteException thrownException = new RemoteException();
-        doNothing().when(mService).registerCallback(any());
-        doThrow(thrownException).when(mService).unregisterCallback(any());
+        doNothing().when(mService).registerClusterStateListener(any());
+        doThrow(thrownException).when(mService).unregisterClusterStateListener(any());
 
-        mClusterHomeManager.unregisterClusterHomeCallback(mClusterHomeCallback);
+        mClusterHomeManager.unregisterClusterStateListener(mClusterStateListener);
+
+        verifyNoMoreInteractions(mCar);
+        verifyNoMoreInteractions(mService);
+    }
+
+    @Test
+    public void unregisterClusterNavigationStateListener_serviceFailure() throws Exception {
+        RemoteException thrownException = new RemoteException();
+        doNothing().when(mService).registerClusterNavigationStateListener(any());
+        doThrow(thrownException).when(mService).unregisterClusterNavigationStateListener(any());
+        mClusterHomeManager.registerClusterNavigationStateListener(mCurrentThreadExecutor,
+                mClusterNavigationStateListener);
+
+        mClusterHomeManager
+                .unregisterClusterNavigationStateListener(mClusterNavigationStateListener);
+
+        verifyNoMoreInteractions(mCar);
+    }
+
+    @Test
+    public void unregisterClusterNavigationStateListener_callbackNotPresent_doNothing()
+            throws Exception {
+        RemoteException thrownException = new RemoteException();
+        doNothing().when(mService).registerClusterNavigationStateListener(any());
+        doThrow(thrownException).when(mService).unregisterClusterNavigationStateListener(any());
+
+        mClusterHomeManager
+                .unregisterClusterNavigationStateListener(mClusterNavigationStateListener);
 
         verifyNoMoreInteractions(mCar);
         verifyNoMoreInteractions(mService);

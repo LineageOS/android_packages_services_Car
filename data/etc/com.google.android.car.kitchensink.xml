@@ -65,6 +65,7 @@
         <permission name="android.car.permission.CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CAR_IDENTIFICATION"/>
         <permission name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"/>
+        <permission name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"/>
         <permission name="android.car.permission.CAR_MILEAGE"/>
         <permission name="android.car.permission.CAR_MOCK_VEHICLE_HAL"/>
         <permission name="android.car.permission.CAR_NAVIGATION_MANAGER"/>

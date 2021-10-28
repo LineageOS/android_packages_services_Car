@@ -99,6 +99,8 @@
       activities to be displayed in the instrument cluster</string>
     <string name="car_permission_car_cluster_control">Instrument cluster control</string>
     <string name="car_permission_desc_car_cluster_control">Launch apps in the instrument cluster</string>
+    <string name="car_permission_car_monitor_cluster_navigation_state">Instrument cluster navigation state</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state">Listen for instrument cluster navigation state changes</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
     <string name="car_permission_label_car_ux_restrictions_configuration">UX Restrictions Configuration</string>

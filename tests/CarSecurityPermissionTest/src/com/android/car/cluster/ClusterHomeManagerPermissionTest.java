@@ -49,12 +49,17 @@ import java.util.concurrent.Executor;
 public final class ClusterHomeManagerPermissionTest {
     public static final String EXPECTED_ERROR_MESSAGE =
             "requires permission android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
+    public static final String EXPECTED_ERROR_MESSAGE_MISSING_MONITOR_NAVIGATION_STATE_PERMISSION =
+            "requires permission android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
     private Car mCar;
 
     private ClusterHomeManager mClusterHomeManager;
 
     @Mock
-    private ClusterHomeManager.ClusterHomeCallback mMockCallback;
+    private ClusterHomeManager.ClusterStateListener mMockClusterStateListener;
+
+    @Mock
+    private ClusterHomeManager.ClusterNavigationStateListener mMockClusterNavigationStateListener;
 
     @Mock
     private Executor mMockExecutor;
@@ -75,11 +80,20 @@ public final class ClusterHomeManagerPermissionTest {
     }
 
     @Test
-    public void testRegisterClusterHomeCallback_requiresPermission() {
+    public void testRegisterClusterStateListener_requiresPermission() {
         SecurityException thrown = expectThrows(SecurityException.class,
-                () -> mClusterHomeManager.registerClusterHomeCallback(mMockExecutor,
-                        mMockCallback));
+                () -> mClusterHomeManager.registerClusterStateListener(mMockExecutor,
+                        mMockClusterStateListener));
         assertThat(thrown.getMessage()).isEqualTo(EXPECTED_ERROR_MESSAGE);
+    }
+
+    @Test
+    public void testRegisterClusterNavigationStateListener_requiresPermission() {
+        SecurityException thrown = expectThrows(SecurityException.class,
+                () -> mClusterHomeManager.registerClusterNavigationStateListener(mMockExecutor,
+                        mMockClusterNavigationStateListener));
+        assertThat(thrown.getMessage())
+                .isEqualTo(EXPECTED_ERROR_MESSAGE_MISSING_MONITOR_NAVIGATION_STATE_PERMISSION);
     }
 
     @Test

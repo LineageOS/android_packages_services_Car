@@ -31,8 +31,9 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.cluster.ClusterHomeManager;
 import android.car.cluster.ClusterState;
-import android.car.cluster.IClusterHomeCallback;
 import android.car.cluster.IClusterHomeService;
+import android.car.cluster.IClusterNavigationStateListener;
+import android.car.cluster.IClusterStateListener;
 import android.car.cluster.navigation.NavigationState.NavigationStateProto;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ComponentName;
@@ -86,7 +87,10 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private Intent mLastIntent;
     private int mLastIntentUserId = UserManagerHelper.USER_SYSTEM;
 
-    private final RemoteCallbackList<IClusterHomeCallback> mClientCallbacks =
+    private final RemoteCallbackList<IClusterStateListener> mClientListeners =
+            new RemoteCallbackList<>();
+
+    private final RemoteCallbackList<IClusterNavigationStateListener> mClientNavigationListeners =
             new RemoteCallbackList<>();
 
     public ClusterHomeService(Context context, ClusterHalService clusterHalService,
@@ -173,7 +177,8 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         mOccupantZoneService.unregisterCallback(mOccupantZoneCallback);
         mClusterHalService.setCallback(null);
         mClusterNavigationService.setClusterServiceCallback(null);
-        mClientCallbacks.kill();
+        mClientListeners.kill();
+        mClientNavigationListeners.kill();
     }
 
     @Override
@@ -216,16 +221,16 @@ public class ClusterHomeService extends IClusterHomeService.Stub
 
     private void sendDisplayState(int changes) {
         ClusterState state = createClusterState();
-        int n = mClientCallbacks.beginBroadcast();
+        int n = mClientListeners.beginBroadcast();
         for (int i = 0; i < n; i++) {
-            IClusterHomeCallback callback = mClientCallbacks.getBroadcastItem(i);
+            IClusterStateListener callback = mClientListeners.getBroadcastItem(i);
             try {
                 callback.onClusterStateChanged(state, changes);
             } catch (RemoteException ignores) {
                 // ignore
             }
         }
-        mClientCallbacks.finishBroadcast();
+        mClientListeners.finishBroadcast();
     }
 
     // ClusterNavigationServiceCallback starts
@@ -237,16 +242,17 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     }
 
     private void sendNavigationState(byte[] protoBytes) {
-        final int n = mClientCallbacks.beginBroadcast();
+        final int n = mClientNavigationListeners.beginBroadcast();
         for (int i = 0; i < n; i++) {
-            IClusterHomeCallback callback = mClientCallbacks.getBroadcastItem(i);
+            IClusterNavigationStateListener callback =
+                    mClientNavigationListeners.getBroadcastItem(i);
             try {
                 callback.onNavigationStateChanged(protoBytes);
             } catch (RemoteException ignores) {
                 // ignore
             }
         }
-        mClientCallbacks.finishBroadcast();
+        mClientNavigationListeners.finishBroadcast();
 
         if (!mClusterHalService.isNavigationStateSupported()) {
             Slogf.d(TAG, "No Cluster NavigationState HAL property");
@@ -325,19 +331,35 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     }
 
     @Override
-    public void registerCallback(IClusterHomeCallback callback) {
+    public void registerClusterStateListener(IClusterStateListener listener) {
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
 
-        mClientCallbacks.register(callback);
+        mClientListeners.register(listener);
     }
 
     @Override
-    public void unregisterCallback(IClusterHomeCallback callback) {
+    public void unregisterClusterStateListener(IClusterStateListener listener) {
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
 
-        mClientCallbacks.unregister(callback);
+        mClientListeners.unregister(listener);
+    }
+
+    @Override
+    public void registerClusterNavigationStateListener(IClusterNavigationStateListener listener) {
+        enforcePermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE);
+        if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
+
+        mClientNavigationListeners.register(listener);
+    }
+
+    @Override
+    public void unregisterClusterNavigationStateListener(IClusterNavigationStateListener listener) {
+        enforcePermission(Car.PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE);
+        if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
+
+        mClientNavigationListeners.unregister(listener);
     }
 
     @Override
