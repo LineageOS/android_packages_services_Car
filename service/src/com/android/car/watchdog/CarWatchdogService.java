@@ -113,12 +113,20 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             switch (action) {
                 case ACTION_GARAGE_MODE_ON:
                 case ACTION_GARAGE_MODE_OFF:
-                    handleGarageModeIntent(action.equals(ACTION_GARAGE_MODE_ON));
-                    break;
+                    int garageMode;
+                    synchronized (mLock) {
+                        garageMode = mCurrentGarageMode = action.equals(ACTION_GARAGE_MODE_ON)
+                                ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF;
+                    }
+                    if (garageMode == GarageMode.GARAGE_MODE_ON) {
+                        mWatchdogStorage.shrinkDatabase();
+                    }
+                    notifyGarageModeChange(garageMode);
+                    return;
                 case Intent.ACTION_USER_REMOVED:
                     UserHandle user = intent.getParcelableExtra(Intent.EXTRA_USER);
                     mWatchdogPerfHandler.deleteUser(user.getIdentifier());
-                    break;
+                    return;
             }
         }
     };
@@ -127,21 +135,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             new ICarPowerStateListener.Stub() {
         @Override
         public void onStateChanged(int state) {
-            int powerCycle;
-            switch (state) {
-                // SHUTDOWN_PREPARE covers suspend and shutdown.
-                case CarPowerStateListener.SHUTDOWN_PREPARE:
-                    powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE;
-                    break;
-                case CarPowerStateListener.SHUTDOWN_ENTER:
-                case CarPowerStateListener.SUSPEND_ENTER:
-                case CarPowerStateListener.HIBERNATION_ENTER:
-                    powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
+            CarPowerManagementService powerService =
+                    CarLocalServices.getService(CarPowerManagementService.class);
+            if (powerService == null) {
+                return;
+            }
+            int powerCycle = carPowerStateToPowerCycle(powerService.getPowerState());
+            switch (powerCycle) {
+                case PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER:
                     mWatchdogPerfHandler.writeToDatabase();
                     break;
-                    // ON covers resume.
-                case CarPowerStateListener.ON:
-                    powerCycle = PowerCycle.POWER_CYCLE_RESUME;
+                // ON covers resume.
+                case PowerCycle.POWER_CYCLE_RESUME:
                     // There might be outdated & incorrect info. We should reset them before
                     // starting to do health check.
                     mWatchdogProcessHandler.prepareHealthCheck();
@@ -149,7 +154,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 default:
                     return;
             }
-            notifyPowerCycleStateChange(powerCycle);
+            notifyPowerCycleChange(powerCycle);
         }
     };
 
@@ -177,6 +182,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @GuardedBy("mLock")
     private boolean mIsConnected;
     @GuardedBy("mLock")
+    private @GarageMode int mCurrentGarageMode;
+    @GuardedBy("mLock")
     private boolean mIsDisplayEnabled;
 
     public CarWatchdogService(Context context) {
@@ -201,6 +208,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             }
             registerToDaemon();
         };
+        mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
         mIsDisplayEnabled = true;
     }
 
@@ -234,9 +242,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void dump(IndentingPrintWriter writer) {
-        writer.println("*CarWatchdogService*");
+        writer.println("*" + getClass().getSimpleName() + "*");
+        writer.increaseIndent();
+        synchronized (mLock) {
+            writer.println("Current garage mode: " + toGarageModeString(mCurrentGarageMode));
+        }
         mWatchdogProcessHandler.dump(writer);
         mWatchdogPerfHandler.dump(writer);
+        writer.decreaseIndent();
     }
 
     /**
@@ -418,24 +431,34 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogPerfHandler.setRecurringOveruseThreshold(threshold);
     }
 
-    private void handleGarageModeIntent(boolean isOn) {
-        if (isOn) {
-            mWatchdogStorage.shrinkDatabase();
-        }
+    private void notifyAllUserStates() {
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ false);
         try {
-            mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.GARAGE_MODE,
-                    isOn ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF,
-                    /* arg2= */ MISSING_ARG_VALUE);
+            // TODO(b/152780162): reduce the number of RPC calls(isUserRunning).
+            for (int i = 0; i < users.size(); ++i) {
+                UserHandle user = users.get(i);
+                int userState = userManager.isUserRunning(user)
+                        ? UserState.USER_STATE_STARTED
+                        : UserState.USER_STATE_STOPPED;
+                mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE,
+                        user.getIdentifier(), userState);
+                mWatchdogProcessHandler.updateUserState(user.getIdentifier(),
+                        userState == UserState.USER_STATE_STOPPED);
+            }
             if (DEBUG) {
-                Slogf.d(TAG, "Notified car watchdog daemon of garage mode(%s)",
-                        isOn ? "ON" : "OFF");
+                Slogf.d(TAG, "Notified car watchdog daemon of user states");
             }
         } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, e, "Notifying garage mode state change failed");
+            Slogf.w(TAG, "Notifying latest user states failed: %s", e);
         }
     }
 
-    private void notifyPowerCycleStateChange(int powerCycle) {
+    private void notifyPowerCycleChange(@PowerCycle int powerCycle) {
+        if (powerCycle == PowerCycle.NUM_POWER_CYLES) {
+            Slogf.e(TAG, "Skipping notifying invalid power cycle (%d)", powerCycle);
+            return;
+        }
         try {
             mCarWatchdogDaemonHelper.notifySystemStateChange(
                     StateType.POWER_CYCLE, powerCycle, MISSING_ARG_VALUE);
@@ -443,7 +466,19 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 Slogf.d(TAG, "Notified car watchdog daemon of power cycle(%d)", powerCycle);
             }
         } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, "Notifying power cycle state change failed: %s", e);
+            Slogf.w(TAG, e, "Notifying power cycle change to %d failed", powerCycle);
+        }
+    }
+
+    private void notifyGarageModeChange(@GarageMode int garageMode) {
+        try {
+            mCarWatchdogDaemonHelper.notifySystemStateChange(
+                    StateType.GARAGE_MODE, garageMode, MISSING_ARG_VALUE);
+            if (DEBUG) {
+                Slogf.d(TAG, "Notified car watchdog daemon of garage mode(%d)", garageMode);
+            }
+        } catch (RemoteException | RuntimeException e) {
+            Slogf.w(TAG, e, "Notifying garage mode change to %d failed", garageMode);
         }
     }
 
@@ -470,23 +505,27 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         } catch (RemoteException | RuntimeException e) {
             Slogf.w(TAG, "Cannot register to car watchdog daemon: %s", e);
         }
-        UserManager userManager = mContext.getSystemService(UserManager.class);
-
-        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ false);
-        try {
-            // TODO(b/152780162): reduce the number of RPC calls(isUserRunning).
-            for (UserHandle user : users) {
-                int userState = userManager.isUserRunning(user)
-                        ? UserState.USER_STATE_STARTED
-                        : UserState.USER_STATE_STOPPED;
-                mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE,
-                        user.getIdentifier(), userState);
-                mWatchdogProcessHandler.updateUserState(user.getIdentifier(),
-                        userState == UserState.USER_STATE_STOPPED);
+        notifyAllUserStates();
+        CarPowerManagementService powerService =
+                CarLocalServices.getService(CarPowerManagementService.class);
+        if (powerService != null) {
+            int powerState = powerService.getPowerState();
+            int powerCycle = carPowerStateToPowerCycle(powerState);
+            if (powerCycle != PowerCycle.NUM_POWER_CYLES) {
+                notifyPowerCycleChange(powerCycle);
+            } else {
+                Slogf.i(TAG, "Skipping notifying %d power state", powerState);
             }
-        } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, "Notifying system state change failed: %s", e);
         }
+        int garageMode;
+        synchronized (mLock) {
+            // To avoid race condition, fetch {@link mCurrentGarageMode} just before
+            // the {@link notifyGarageModeChange} call. For instance, if {@code mCurrentGarageMode}
+            // changes before the above {@link notifyPowerCycleChange} call returns,
+            // the {@link garageMode}'s value will be out of date.
+            garageMode = mCurrentGarageMode;
+        }
+        notifyGarageModeChange(garageMode);
     }
 
     private void unregisterFromDaemon() {
@@ -572,6 +611,31 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 Context.RECEIVER_NOT_EXPORTED);
     }
 
+    private static @PowerCycle int carPowerStateToPowerCycle(int powerState) {
+        switch (powerState) {
+            // SHUTDOWN_PREPARE covers suspend and shutdown.
+            case CarPowerStateListener.SHUTDOWN_PREPARE:
+                return PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE;
+            case CarPowerStateListener.SHUTDOWN_ENTER:
+            case CarPowerStateListener.SUSPEND_ENTER:
+            case CarPowerStateListener.HIBERNATION_ENTER:
+                return PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
+            // ON covers resume.
+            case CarPowerStateListener.ON:
+                return PowerCycle.POWER_CYCLE_RESUME;
+        }
+        return PowerCycle.NUM_POWER_CYLES;
+    }
+
+    private static String toGarageModeString(@GarageMode int garageMode) {
+        switch (garageMode) {
+            case GarageMode.GARAGE_MODE_OFF:
+                return "GARAGE_MODE_OFF";
+            case GarageMode.GARAGE_MODE_ON:
+                return "GARAGE_MODE_ON";
+        }
+        return "INVALID";
+    }
 
     private static final class ICarWatchdogServiceForSystemImpl
             extends ICarWatchdogServiceForSystem.Stub {
