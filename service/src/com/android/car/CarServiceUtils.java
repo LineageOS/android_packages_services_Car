@@ -409,7 +409,7 @@ public final class CarServiceUtils {
         throw new SecurityException("requires any of " + Arrays.toString(permissions));
     }
 
-    /** Reflecion helper */
+    /** Reflection helper */
     @Nullable
     public static Object executeAMethod(ClassLoader classloader,
             String className, String methodName,

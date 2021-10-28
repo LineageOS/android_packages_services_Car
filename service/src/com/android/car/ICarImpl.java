@@ -346,7 +346,7 @@ public class ICarImpl extends ICar.Stub {
         }
         if (carWatchdogService == null) {
             mCarWatchdogService = constructWithTrace(t, CarWatchdogService.class,
-                    () -> new CarWatchdogService(serviceContext));
+                    () -> new CarWatchdogService(serviceContext, mCarServiceBuiltinPackageContext));
         } else {
             mCarWatchdogService = carWatchdogService;
         }

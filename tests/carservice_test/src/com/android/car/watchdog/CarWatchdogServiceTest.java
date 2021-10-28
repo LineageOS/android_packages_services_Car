@@ -92,6 +92,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     };
 
     @Mock private Context mMockContext;
+    @Mock private Context mMockBuiltinPackageContext;
     @Mock private Car mMockCar;
     @Mock private Resources mMockResources;
     @Mock private UserManager mMockUserManager;
@@ -132,8 +133,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mockUmIsUserRunning(mMockUserManager, 100, true);
         mockUmIsUserRunning(mMockUserManager, 101, false);
 
-        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage,
-                mTimeSource);
+        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockBuiltinPackageContext,
+                mMockWatchdogStorage, mTimeSource);
 
         when(mMockServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
 

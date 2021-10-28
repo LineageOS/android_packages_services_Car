@@ -20,14 +20,14 @@ import android.content.Context;
 import android.content.Intent;
 
 /**
- * Declared all dependency into buildin package, mostly for Activity / class / method names.
+ * Declared all dependency into builtin package, mostly for Activity / class / method names.
  *
  * <p> This is for tracking all dependencies done through java reflection.
  */
 public class BuiltinPackageDependency {
     private BuiltinPackageDependency() {};
 
-    /** Package name of builtin, Will be becessary to send Intent. */
+    /** Package name of builtin, Will be necessary to send Intent. */
     public static final String BUILTIN_CAR_SERVICE_PACKAGE_NAME = "com.android.car";
 
     /** {@code com.android.car.admin.NotificationHelper} class. */
@@ -48,6 +48,10 @@ public class BuiltinPackageDependency {
     /** {@code com.android.car.admin.NotificationHelper#cancelUserDisclaimerNotification()} */
     public static final String NOTIFICATION_HELPER_CANCEL_USER_DISCLAIMER_NOTIFICATION =
             "cancelUserDisclaimerNotification";
+
+    /** {@code com.android.car.admin.NotificationHelper#showResourceOveruseNotificationsAsUser()} */
+    public static final String NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER =
+            "showResourceOveruseNotificationsAsUser";
 
     /** {@code com.android.car.pm.CarSafetyAccessibilityService} */
     public static final String CAR_ACCESSIBILITY_SERVICE_CLASS =
