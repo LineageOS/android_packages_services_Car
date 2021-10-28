@@ -492,6 +492,15 @@ public final class Car {
             "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
 
     /**
+     * Permission necessary to listen for the instrument cluster's navigation state changes.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE =
+            "android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
+
+
+    /**
      * Application must have this permission in order to be launched in the instrument cluster
      * display.
      *
