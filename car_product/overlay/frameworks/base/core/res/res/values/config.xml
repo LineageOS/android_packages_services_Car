@@ -146,7 +146,13 @@
         >com.android.car.activityresolver/.CarResolverActivity</string>
 
     <!-- The name of the package that will hold the system cluster service role. -->
-    <string name="config_systemAutomotiveCluster" translatable="false">android.car.cluster</string>
+    <!-- Removed. As config_systemAutomotiveCluster will be overridden in device or product
+         overlay. -->
+    <!--
+    <string name="config_systemAutomotiveCluster" translatable="false">
+        android.car.cluster
+    </string>
+    -->
 
     <!-- Whether this device is supporting the microphone toggle -->
     <bool name="config_supportsMicToggle">true</bool>
