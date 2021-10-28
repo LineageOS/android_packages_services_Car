@@ -26,6 +26,7 @@
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
     <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
+    <uses-permission android:name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE" />
     <!-- use for AndroidCarApiTest -->
     <uses-permission android:name="android.car.permission.CAR_INFO"/>
     <!-- use for AndroidCarApiTest -->
