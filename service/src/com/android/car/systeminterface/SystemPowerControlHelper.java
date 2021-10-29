@@ -16,9 +16,12 @@
 
 package com.android.car.systeminterface;
 
+import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 
 import com.android.internal.annotations.VisibleForTesting;
+
+import libcore.io.IoUtils;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -33,9 +36,9 @@ public final class SystemPowerControlHelper {
     public static final int SUSPEND_RESULT_FAILURE = -1;
 
     @VisibleForTesting
-    static final String SUSPEND_TARGET_MEM = "mem";
+    static final String SUSPEND_TYPE_MEM = "mem";
     @VisibleForTesting
-    static final String SUSPEND_TARGET_DISK = "disk";
+    static final String SUSPEND_TYPE_DISK = "disk";
 
     private static final String SYSFS_POWER_STATE_CONTROL_FILE = "/sys/power/state";
     private static final String TAG = "SystemPowerControlHelper";
@@ -50,7 +53,7 @@ public final class SystemPowerControlHelper {
      * if Suspend-to-RAM fails
      */
     public static int forceDeepSleep() {
-        return enterSuspend(SUSPEND_TARGET_MEM);
+        return enterSuspend(SUSPEND_TYPE_MEM);
     }
 
     /**
@@ -60,7 +63,27 @@ public final class SystemPowerControlHelper {
      * if Suspend-to-disk fails
      */
     public static int forceHibernate() {
-        return enterSuspend(SUSPEND_TARGET_DISK);
+        return enterSuspend(SUSPEND_TYPE_DISK);
+    }
+
+    /**
+     * Gets whether the device supports deep sleep
+     */
+    public static boolean isSystemSupportingDeepSleep() {
+        return isSuspendTypeSupported(SUSPEND_TYPE_MEM);
+    }
+
+    /**
+     * Gets whether the device supports hibernation
+     */
+    public static boolean isSystemSupportingHibernation() {
+        return isSuspendTypeSupported(SUSPEND_TYPE_DISK);
+    }
+
+
+    @VisibleForTesting
+    static String getSysFsPowerControlFile() {
+        return SYSFS_POWER_STATE_CONTROL_FILE;
     }
 
     /*
@@ -74,15 +97,30 @@ public final class SystemPowerControlHelper {
             writer.write(mode);
             writer.flush();
         } catch (IOException e) {
-            Slogf.e(TAG, "%s Failed to suspend. Target %s. Failed to write to %s", mode,
+            Slogf.e(TAG, e, "Failed to suspend. Target %s. Failed to write to %s", mode,
                     sysFsPowerControlFile);
             return SUSPEND_RESULT_FAILURE;
         }
         return SUSPEND_RESULT_SUCCESS;
     }
 
-    @VisibleForTesting
-    static String getSysFsPowerControlFile() {
-        return SYSFS_POWER_STATE_CONTROL_FILE;
+    private static boolean isSuspendTypeSupported(@NonNull String suspendType) {
+        String sysFsPowerControlFile = getSysFsPowerControlFile();
+
+        boolean isSuspendTypeSupported = false;
+        try {
+            String fileContents = IoUtils.readFileAsString(sysFsPowerControlFile);
+            for (String supported : fileContents.split(" ")) {
+                if (suspendType.equals(supported)) {
+                    isSuspendTypeSupported = true;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            Slogf.e(TAG, e, "Failed to check supported suspend types. Target %s."
+                    + " Unable to read %s", suspendType, sysFsPowerControlFile);
+        }
+
+        return isSuspendTypeSupported;
     }
 }
