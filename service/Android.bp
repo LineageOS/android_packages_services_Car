@@ -59,6 +59,7 @@ common_lib_deps = [
     "car-admin-ui-lib",
     "Slogf",
     "cartelemetry-protos",
+    "carwatchdog-protos",
 ]
 
 android_app {
