@@ -151,6 +151,7 @@ public final class WatchdogPerfHandler {
     private final Handler mMainHandler;
     private final Handler mServiceHandler;
     private final WatchdogStorage mWatchdogStorage;
+    private final OveruseConfigurationCache mOveruseConfigurationCache;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
@@ -163,10 +164,6 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private final SparseArray<ArrayList<ResourceOveruseListenerInfo>>
             mOveruseSystemListenerInfosByUid = new SparseArray<>();
-    @GuardedBy("mLock")
-    private final ArraySet<String> mSafeToKillSystemPackages = new ArraySet<>();
-    @GuardedBy("mLock")
-    private final ArraySet<String> mSafeToKillVendorPackages = new ArraySet<>();
     /** Default killable state for packages. Updated only for {@link UserHandle.ALL} user handle. */
     @GuardedBy("mLock")
     private final ArraySet<String> mDefaultNotKillableGenericPackages = new ArraySet<>();
@@ -218,6 +215,7 @@ public final class WatchdogPerfHandler {
         mServiceHandler = new Handler(CarServiceUtils.getHandlerThread(
                 CarWatchdogService.class.getSimpleName()).getLooper());
         mWatchdogStorage = watchdogStorage;
+        mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = SYSTEM_INSTANCE;
         mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
         mCurrentUxState = UX_STATE_NO_DISTRACTION;
@@ -254,6 +252,7 @@ public final class WatchdogPerfHandler {
         /*
          * TODO(b/183436216): Implement this method.
          */
+        mOveruseConfigurationCache.dump(writer);
     }
 
     /** Retries any pending requests on re-connecting to the daemon */
@@ -557,7 +556,8 @@ public final class WatchdogPerfHandler {
                             packageInfo.applicationInfo);
                     int killableState = getPackageKillableStateForUserPackageLocked(
                             userId, genericPackageName, componentType,
-                            isSafeToKillLocked(genericPackageName, componentType, null));
+                            mOveruseConfigurationCache.isSafeToKill(
+                                    genericPackageName, componentType, /* sharedPackages= */null));
                     states.add(new PackageKillableState(packageInfo.packageName, userId,
                             killableState));
                     continue;
@@ -582,7 +582,8 @@ public final class WatchdogPerfHandler {
                 }
                 int killableState = getPackageKillableStateForUserPackageLocked(
                         userId, genericPackageName, componentType,
-                        isSafeToKillLocked(genericPackageName, componentType, packageNames));
+                        mOveruseConfigurationCache.isSafeToKill(
+                                genericPackageName, componentType, packageNames));
                 for (int i = 0; i < applicationInfos.size(); ++i) {
                     states.add(new PackageKillableState(
                             applicationInfos.get(i).packageName, userId, killableState));
@@ -806,25 +807,9 @@ public final class WatchdogPerfHandler {
             Slogf.e(TAG, "Fetched resource overuse configurations are empty");
             return;
         }
-        synchronized (mLock) {
-            mSafeToKillSystemPackages.clear();
-            mSafeToKillVendorPackages.clear();
-            for (int i = 0; i < internalConfigs.size(); i++) {
-                switch (internalConfigs.get(i).componentType) {
-                    case ComponentType.SYSTEM:
-                        mSafeToKillSystemPackages.addAll(internalConfigs.get(i).safeToKillPackages);
-                        break;
-                    case ComponentType.VENDOR:
-                        mSafeToKillVendorPackages.addAll(internalConfigs.get(i).safeToKillPackages);
-                        mPackageInfoHandler.setVendorPackagePrefixes(
-                                internalConfigs.get(i).vendorPackagePrefixes);
-                        break;
-                    default:
-                        // All third-party apps are killable.
-                        break;
-                }
-            }
-        }
+        mOveruseConfigurationCache.set(internalConfigs);
+        mPackageInfoHandler.setVendorPackagePrefixes(
+                mOveruseConfigurationCache.getVendorPackagePrefixes());
         if (DEBUG) {
             Slogf.d(TAG, "Fetched and synced resource overuse configs.");
         }
@@ -1239,45 +1224,6 @@ public final class WatchdogPerfHandler {
                 break;
             }
             return mIsConnectedToDaemon;
-        }
-    }
-
-    @GuardedBy("mLock")
-    private boolean isSafeToKillLocked(String genericPackageName, int componentType,
-            List<String> sharedPackages) {
-        BiFunction<List<String>, Set<String>, Boolean> isSafeToKillAnyPackage =
-                (packages, safeToKillPackages) -> {
-                    if (packages == null) {
-                        return false;
-                    }
-                    for (int i = 0; i < packages.size(); i++) {
-                        if (safeToKillPackages.contains(packages.get(i))) {
-                            return true;
-                        }
-                    }
-                    return false;
-                };
-
-        switch (componentType) {
-            case ComponentType.SYSTEM:
-                if (mSafeToKillSystemPackages.contains(genericPackageName)) {
-                    return true;
-                }
-                return isSafeToKillAnyPackage.apply(sharedPackages, mSafeToKillSystemPackages);
-            case ComponentType.VENDOR:
-                if (mSafeToKillVendorPackages.contains(genericPackageName)) {
-                    return true;
-                }
-                /*
-                 * Packages under the vendor shared UID may contain system packages because when
-                 * CarWatchdogService derives the shared component type it attributes system
-                 * packages as vendor packages when there is at least one vendor package.
-                 */
-                return isSafeToKillAnyPackage.apply(sharedPackages, mSafeToKillSystemPackages)
-                        || isSafeToKillAnyPackage.apply(sharedPackages, mSafeToKillVendorPackages);
-            default:
-                // Third-party apps are always killable
-                return true;
         }
     }
 
