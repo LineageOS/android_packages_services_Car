@@ -30,6 +30,7 @@ import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_YES;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
@@ -750,13 +751,33 @@ public final class WatchdogPerfHandler {
 
     /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
+        IPackageManager packageManager = ActivityThread.getPackageManager();
         synchronized (mLock) {
             for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
                 PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-                if (genericPackageNames.contains(usage.genericPackageName)) {
-                    usage.resetStats();
-                    usage.verifyAndSetKillableState(/* isKillable= */ true);
-                    mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
+                if (!genericPackageNames.contains(usage.genericPackageName)) {
+                    continue;
+                }
+                usage.resetStats();
+                usage.verifyAndSetKillableState(/* isKillable= */ true);
+                mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
+                mActionableUserPackages.remove(usage.getUniqueId());
+                Slogf.i(TAG,
+                        "Reset resource overuse settings and stats for user '%d' package '%s'",
+                        usage.userId, usage.genericPackageName);
+                try {
+                    if (packageManager.getApplicationEnabledSetting(usage.genericPackageName,
+                            usage.userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                        continue;
+                    }
+                    packageManager.setApplicationEnabledSetting(usage.genericPackageName,
+                            COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, usage.userId,
+                            mContext.getPackageName());
+                    Slogf.i(TAG, "Enabled user '%d' package '%s'", usage.userId,
+                            usage.genericPackageName);
+                } catch (RemoteException | IllegalArgumentException e) {
+                    Slogf.e(TAG, e, "Failed to verify and enable user %d, package '%s'",
+                            usage.userId, usage.genericPackageName);
                 }
             }
         }
