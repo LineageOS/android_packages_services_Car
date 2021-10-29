@@ -26,9 +26,14 @@ import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.watchdog.WatchdogStorage.ZONE_OFFSET;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -45,7 +50,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -110,6 +114,7 @@ import android.view.Display;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
+import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.power.CarPowerManagementService;
 
@@ -120,6 +125,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -159,6 +165,30 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private WatchdogStorage mMockWatchdogStorage;
 
+
+    @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
+    @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
+    @Captor private ArgumentCaptor<BroadcastReceiver> mBroadcastReceiverCaptor;
+    @Captor private ArgumentCaptor<ICarUxRestrictionsChangeListener>
+            mICarUxRestrictionsChangeListener;
+    @Captor private ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
+    @Captor private ArgumentCaptor<ICarWatchdogServiceForSystem>
+            mICarWatchdogServiceForSystemCaptor;
+    @Captor private ArgumentCaptor<List<
+            android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
+            mResourceOveruseConfigurationsCaptor;
+    @Captor private ArgumentCaptor<List<PackageResourceOveruseAction>>
+            mResourceOveruseActionsCaptor;
+    @Captor private ArgumentCaptor<int[]> mIntArrayCaptor;
+    @Captor private ArgumentCaptor<byte[]> mOveruseStatsCaptor;
+    @Captor private ArgumentCaptor<byte[]> mKilledStatsCaptor;
+    @Captor private ArgumentCaptor<Integer> mOverusingUidCaptor;
+    @Captor private ArgumentCaptor<Integer> mKilledUidCaptor;
+    @Captor private ArgumentCaptor<Integer> mUidStateCaptor;
+    @Captor private ArgumentCaptor<Integer> mSystemStateCaptor;
+    @Captor private ArgumentCaptor<Integer> mKillReasonCaptor;
+
+
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
     private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
@@ -184,7 +214,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             .spyStatic(ServiceManager.class)
             .spyStatic(Binder.class)
             .spyStatic(ActivityThread.class)
-            .spyStatic(CarLocalServices.class);
+            .spyStatic(CarLocalServices.class)
+            .spyStatic(CarStatsLog.class);
     }
 
     /**
@@ -1802,7 +1833,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
                         constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
                                 /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
-                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3)));
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
@@ -1828,6 +1859,25 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 packageIoOveruseStats.get(3).ioOveruseStats));
 
         verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
+                new ArrayList<>();
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysPkgUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartyPkgUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
+
+        List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
+                Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartyPkgUid,
+                        CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyKillStatsReported(expectedReportedKillStats);
 
         /* {@link thirdPartyPkgUid} action is sent twice. Once before it is killed and once after
          * it is killed. This is done because the package is killed only after the display is turned
@@ -1887,7 +1937,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
                         constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
                                 /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
-                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
                                 /* totalOveruses= */ 3)));
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
@@ -1913,6 +1963,25 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 "shared:third_party_shared_package", packageIoOveruseStats.get(2).ioOveruseStats));
 
         verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> expectedReportedOveruseStats =
+                new ArrayList<>();
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(criticalSysSharedUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300)));
+        expectedReportedOveruseStats.add(constructIoOveruseStatsReported(thirdPartySharedUid,
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyIoOveruseStatsReported(expectedReportedOveruseStats);
+
+        List<AtomsProto.CarWatchdogKillStatsReported> expectedReportedKillStats =
+                Collections.singletonList(constructIoOveruseKillStatsReported(thirdPartySharedUid,
+                        CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90),
+                        WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
+
+        captureAndVerifyKillStatsReported(expectedReportedKillStats);
 
         /* {@link thirdPartySharedUid} action is sent twice. Once before it is killed and once after
          * it is killed. This is done because the package is killed only after the display is turned
@@ -2183,6 +2252,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
+
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
                         10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
@@ -2202,6 +2276,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
+
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
                         10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
@@ -2220,6 +2299,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
 
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
@@ -2248,6 +2332,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         setDisplayStateEnabled(false);
 
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
                         10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
@@ -2271,6 +2361,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
 
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
@@ -2306,6 +2402,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         setRequiresDistractionOptimization(false);
         setDisplayStateEnabled(false);
 
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
                         10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
@@ -2339,6 +2441,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         setRequiresDistractionOptimization(false);
         setDisplayStateEnabled(false);
 
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10110004, 10010005}));
+
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
                         10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
@@ -2370,6 +2478,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         setRequiresDistractionOptimization(false);
         setDisplayStateEnabled(false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10110004, 10010005}));
 
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
@@ -2403,6 +2517,44 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         setRequiresDistractionOptimization(false);
         setDisplayStateEnabled(false);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
+
+        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
+                /* notKilledUids= */ new int[]{
+                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
+                /* killedRecurringOveruseUids= */ new int[]{10010004, 10110004, 10010005, 10110005}
+        ));
+
+        assertWithMessage("Disabled user packages").that(mDisabledUserPackages).containsExactly(
+                "100:vendor_package.non_critical", "101:vendor_package.non_critical",
+                "100:third_party_package.A", "101:third_party_package.A",
+                "100:third_party_package.B", "101:third_party_package.B");
+    }
+
+    @Test
+    public void testImmediateDisableRecurrentlyOverusingAppDuringGarageMode()
+            throws Exception {
+        setUpSampleUserAndPackages();
+        setRequiresDistractionOptimization(false);
+        setDisplayStateEnabled(false);
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_ON));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        captureAndVerifyIoOveruseStatsReported(sampleReportedOveruseStats());
+
+        captureAndVerifyKillStatsReported(sampleReportedKillStats(
+                CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE,
+                /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
 
         verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
                 /* notKilledUids= */ new int[]{
@@ -2826,36 +2978,29 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void captureCarPowerListeners() {
-        ArgumentCaptor<ICarPowerStateListener> powerStateListenerArgumentCaptor =
-                ArgumentCaptor.forClass(ICarPowerStateListener.class);
         verify(mMockCarPowerManagementService).registerListener(
-                powerStateListenerArgumentCaptor.capture());
-        mCarPowerStateListener = powerStateListenerArgumentCaptor.getValue();
+                mICarPowerStateListenerCaptor.capture());
+        mCarPowerStateListener = mICarPowerStateListenerCaptor.getValue();
         assertWithMessage("Car power state listener").that(mCarPowerStateListener).isNotNull();
 
-        ArgumentCaptor<ICarPowerPolicyListener> powerPolicyListenerArgumentCaptor =
-                ArgumentCaptor.forClass(ICarPowerPolicyListener.class);
         verify(mMockCarPowerManagementService).addPowerPolicyListener(
-                any(), powerPolicyListenerArgumentCaptor.capture());
-        mCarPowerPolicyListener = powerPolicyListenerArgumentCaptor.getValue();
+                any(), mICarPowerPolicyListenerCaptor.capture());
+        mCarPowerPolicyListener = mICarPowerPolicyListenerCaptor.getValue();
         assertWithMessage("Car power policy listener").that(mCarPowerPolicyListener).isNotNull();
     }
 
     private void captureBroadcastReceiver() {
-        ArgumentCaptor<BroadcastReceiver> receiverArgumentCaptor =
-                ArgumentCaptor.forClass(BroadcastReceiver.class);
         verify(mMockContext)
-                .registerReceiverForAllUsers(receiverArgumentCaptor.capture(), any(), any(), any());
-        mBroadcastReceiver = receiverArgumentCaptor.getValue();
+                .registerReceiverForAllUsers(mBroadcastReceiverCaptor.capture(), any(), any(),
+                        any());
+        mBroadcastReceiver = mBroadcastReceiverCaptor.getValue();
         assertWithMessage("Broadcast receiver").that(mBroadcastReceiver).isNotNull();
     }
 
     private void captureCarUxRestrictionsChangeListener() {
-        ArgumentCaptor<ICarUxRestrictionsChangeListener> listenerArgumentCaptor =
-                ArgumentCaptor.forClass(ICarUxRestrictionsChangeListener.class);
         verify(mMockCarUxRestrictionsManagerService).registerUxRestrictionsChangeListener(
-                listenerArgumentCaptor.capture(), eq(Display.DEFAULT_DISPLAY));
-        mCarUxRestrictionsChangeListener = listenerArgumentCaptor.getValue();
+                mICarUxRestrictionsChangeListener.capture(), eq(Display.DEFAULT_DISPLAY));
+        mCarUxRestrictionsChangeListener = mICarUxRestrictionsChangeListener.getValue();
         assertWithMessage("UX restrictions change listener").that(mCarUxRestrictionsChangeListener)
                 .isNotNull();
     }
@@ -2869,18 +3014,14 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         verify(mMockCarWatchdogDaemon, atLeastOnce()).asBinder();
 
-        ArgumentCaptor<IBinder.DeathRecipient> deathRecipientCaptor =
-                ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
-        verify(mMockBinder, atLeastOnce()).linkToDeath(deathRecipientCaptor.capture(), anyInt());
-        mCarWatchdogDaemonBinderDeathRecipient = deathRecipientCaptor.getValue();
+        verify(mMockBinder, atLeastOnce()).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
+        mCarWatchdogDaemonBinderDeathRecipient = mDeathRecipientCaptor.getValue();
         assertWithMessage("Watchdog daemon binder death recipient")
                 .that(mCarWatchdogDaemonBinderDeathRecipient).isNotNull();
 
-        ArgumentCaptor<ICarWatchdogServiceForSystem> watchdogServiceForSystemImplCaptor =
-                ArgumentCaptor.forClass(ICarWatchdogServiceForSystem.class);
         verify(mMockCarWatchdogDaemon, atLeastOnce()).registerCarWatchdogService(
-                watchdogServiceForSystemImplCaptor.capture());
-        mWatchdogServiceForSystemImpl = watchdogServiceForSystemImplCaptor.getValue();
+                mICarWatchdogServiceForSystemCaptor.capture());
+        mWatchdogServiceForSystemImpl = mICarWatchdogServiceForSystemCaptor.getValue();
         assertWithMessage("Car watchdog service for system")
                 .that(mWatchdogServiceForSystemImpl).isNotNull();
 
@@ -3033,23 +3174,21 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        ArgumentCaptor<int[]> notRespondingClients = ArgumentCaptor.forClass(int[].class);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), notRespondingClients.capture(), eq(123456));
-        assertThat(notRespondingClients.getValue().length).isEqualTo(0);
+                eq(mWatchdogServiceForSystemImpl), mIntArrayCaptor.capture(), eq(123456));
+        assertThat(mIntArrayCaptor.getValue()).isEmpty();
         mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), notRespondingClients.capture(), eq(987654));
-        assertThat(notRespondingClients.getValue().length).isEqualTo(badClientCount);
+                eq(mWatchdogServiceForSystemImpl), mIntArrayCaptor.capture(), eq(987654));
+        assertThat(mIntArrayCaptor.getValue().length).isEqualTo(badClientCount);
     }
 
     private List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
             captureOnSetResourceOveruseConfigurations() throws Exception {
-        ArgumentCaptor<List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
-                resourceOveruseConfigurationsCaptor = ArgumentCaptor.forClass(List.class);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
-                .updateResourceOveruseConfigurations(resourceOveruseConfigurationsCaptor.capture());
-        return resourceOveruseConfigurationsCaptor.getValue();
+                .updateResourceOveruseConfigurations(
+                        mResourceOveruseConfigurationsCaptor.capture());
+        return mResourceOveruseConfigurationsCaptor.getValue();
     }
 
     private SparseArray<PackageIoOveruseStats> injectIoOveruseStatsForPackages(
@@ -3118,15 +3257,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         // this to complete by posting a task on the main thread.
         CarServiceUtils.runOnMainSync(() -> {});
 
-        ArgumentCaptor<List<PackageResourceOveruseAction>> resourceOveruseActionsCaptor =
-                ArgumentCaptor.forClass((Class) List.class);
         verify(mMockCarWatchdogDaemon,
                 timeout(MAX_WAIT_TIME_MS).atLeastOnce()).actionTakenOnResourceOveruse(
-                resourceOveruseActionsCaptor.capture());
+                mResourceOveruseActionsCaptor.capture());
 
         List<PackageResourceOveruseAction> actual = new ArrayList<>();
         for (List<PackageResourceOveruseAction> actions :
-                resourceOveruseActionsCaptor.getAllValues()) {
+                mResourceOveruseActionsCaptor.getAllValues()) {
             actual.addAll(actions);
         }
 
@@ -3207,8 +3344,55 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return packageIoOveruseStats;
     }
 
-    List<PackageResourceOveruseAction> sampleActionTakenOnOveruse(int[] notKilledUids,
-            int[] killedRecurringOveruseUids) {
+    private static List<AtomsProto.CarWatchdogIoOveruseStatsReported> sampleReportedOveruseStats() {
+        // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
+        // UID/stat are from {@link sampleIoOveruseStats}.
+        AtomsProto.CarWatchdogPerStateBytes systemThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(10, 20, 30);
+        AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+        AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+        AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> reportedOveruseStats = new ArrayList<>();
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10010001, systemThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10110001, systemThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10010004, vendorThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10110004, vendorThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10010005, thirdPartyThreshold, writtenBytes));
+        reportedOveruseStats.add(constructIoOveruseStatsReported(
+                10110005, thirdPartyThreshold, writtenBytes));
+        return reportedOveruseStats;
+    }
+
+    private static List<AtomsProto.CarWatchdogKillStatsReported> sampleReportedKillStats(
+            int systemState, int[] killedUids) {
+        // The below thresholds are from {@link sampleInternalResourceOveruseConfiguration} and
+        // UID/stat are from {@link sampleIoOveruseStats}.
+        AtomsProto.CarWatchdogPerStateBytes vendorThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(20, 40, 60);
+        AtomsProto.CarWatchdogPerStateBytes thirdPartyThreshold =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(30, 60, 90);
+        AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                WatchdogPerfHandler.constructCarWatchdogPerStateBytes(100, 200, 300);
+        List<AtomsProto.CarWatchdogKillStatsReported> reportedKillStats = new ArrayList<>();
+        for (int uid : killedUids) {
+            AtomsProto.CarWatchdogPerStateBytes threshold =
+                    UserHandle.getAppId(uid) == 10004 ? vendorThreshold : thirdPartyThreshold;
+            reportedKillStats.add(constructIoOveruseKillStatsReported(
+                    uid, systemState, threshold, writtenBytes));
+        }
+        return reportedKillStats;
+    }
+
+    private List<PackageResourceOveruseAction> sampleActionTakenOnOveruse(
+            int[] notKilledUids, int[] killedRecurringOveruseUids) {
         List<PackageResourceOveruseAction> actions = new ArrayList<>();
         for (int uid : notKilledUids) {
             actions.add(constructPackageResourceOveruseAction(
@@ -3497,6 +3681,144 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 action.wait();
             }
         }
+    }
+
+    private static AtomsProto.CarWatchdogIoOveruseStatsReported
+            constructIoOveruseStatsReported(int uid, AtomsProto.CarWatchdogPerStateBytes threshold,
+            AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
+        return constructCarWatchdogIoOveruseStatsReported(
+                uid, WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                        AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
+        );
+    }
+
+    private static AtomsProto.CarWatchdogIoOveruseStatsReported
+            constructCarWatchdogIoOveruseStatsReported(
+                    int uid, AtomsProto.CarWatchdogIoOveruseStats ioOveruseStats) {
+        return AtomsProto.CarWatchdogIoOveruseStatsReported.newBuilder()
+                .setUid(uid)
+                .setIoOveruseStats(ioOveruseStats)
+                .build();
+    }
+
+    private static AtomsProto.CarWatchdogKillStatsReported constructIoOveruseKillStatsReported(
+            int uid, int systemState, AtomsProto.CarWatchdogPerStateBytes threshold,
+            AtomsProto.CarWatchdogPerStateBytes writtenBytes) {
+        return constructCarWatchdogKillStatsReported(uid,
+                CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE, systemState,
+                CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE,
+                WatchdogPerfHandler.constructCarWatchdogIoOveruseStats(
+                        AtomsProto.CarWatchdogIoOveruseStats.Period.DAILY, threshold, writtenBytes)
+        );
+    }
+
+    private static AtomsProto.CarWatchdogKillStatsReported constructCarWatchdogKillStatsReported(
+            int uid, int uidState, int systemState, int killReason,
+            AtomsProto.CarWatchdogIoOveruseStats ioOveruseStats) {
+        return AtomsProto.CarWatchdogKillStatsReported.newBuilder()
+                .setUid(uid)
+                .setUidState(AtomsProto.CarWatchdogKillStatsReported.UidState.forNumber(uidState))
+                .setSystemState(AtomsProto.CarWatchdogKillStatsReported.SystemState.forNumber(
+                        systemState))
+                .setKillReason(AtomsProto.CarWatchdogKillStatsReported.KillReason.forNumber(
+                        killReason))
+                .setIoOveruseStats(ioOveruseStats)
+                .build();
+    }
+
+    private void captureAndVerifyIoOveruseStatsReported(
+            List<AtomsProto.CarWatchdogIoOveruseStatsReported> expected) throws Exception {
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED),
+                mOverusingUidCaptor.capture(), mOveruseStatsCaptor.capture()),
+                times(expected.size()));
+
+        List<Integer> allUidValues = mOverusingUidCaptor.getAllValues();
+        List<byte[]> allOveruseStatsValues = mOveruseStatsCaptor.getAllValues();
+        List<AtomsProto.CarWatchdogIoOveruseStatsReported> actual = new ArrayList<>();
+        for (int i = 0; i < expected.size(); ++i) {
+            actual.add(constructCarWatchdogIoOveruseStatsReported(allUidValues.get(i),
+                    AtomsProto.CarWatchdogIoOveruseStats.parseFrom(allOveruseStatsValues.get(i))));
+        }
+        assertWithMessage("I/O overuse stats reported to statsd").that(actual)
+                .comparingElementsUsing(Correspondence.from(
+                        CarWatchdogServiceUnitTest::isCarWatchdogIoOveruseStatsReportedEquals,
+                        "is equal to")).containsExactlyElementsIn(expected);
+    }
+
+    private void captureAndVerifyKillStatsReported(
+            List<AtomsProto.CarWatchdogKillStatsReported> expected) throws Exception {
+        // Overuse handling task is posted on the main thread and this task performs disabling and
+        // uploading metrics. Wait for this task to complete.
+        CarServiceUtils.runOnMainSync(() -> {});
+
+        verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
+                mKilledUidCaptor.capture(), mUidStateCaptor.capture(),
+                mSystemStateCaptor.capture(), mKillReasonCaptor.capture(), eq(null),
+                mKilledStatsCaptor.capture()), times(expected.size()));
+
+        List<Integer> allUidValues = mKilledUidCaptor.getAllValues();
+        List<Integer> allUidStateValues = mUidStateCaptor.getAllValues();
+        List<Integer> allSystemStateValues = mSystemStateCaptor.getAllValues();
+        List<Integer> allKillReasonValues = mKillReasonCaptor.getAllValues();
+        List<byte[]> allIoOveruseStatsValues = mKilledStatsCaptor.getAllValues();
+        List<AtomsProto.CarWatchdogKillStatsReported> actual = new ArrayList<>();
+        for (int i = 0; i < expected.size(); ++i) {
+            actual.add(constructCarWatchdogKillStatsReported(allUidValues.get(i),
+                    allUidStateValues.get(i), allSystemStateValues.get(i),
+                    allKillReasonValues.get(i),
+                    AtomsProto.CarWatchdogIoOveruseStats.parseFrom(
+                            allIoOveruseStatsValues.get(i))));
+        }
+        assertWithMessage("I/O overuse kill stats reported to statsd").that(actual)
+                .comparingElementsUsing(Correspondence.from(
+                        CarWatchdogServiceUnitTest::isCarWatchdogKillStatsReported, "is equal to"))
+                .containsExactlyElementsIn(expected);
+    }
+
+    public static boolean isCarWatchdogIoOveruseStatsReportedEquals(
+            AtomsProto.CarWatchdogIoOveruseStatsReported actual,
+            AtomsProto.CarWatchdogIoOveruseStatsReported expected) {
+        return actual.getUid() == expected.getUid()
+                && isCarWatchdogIoOveruseStatsEquals(
+                actual.getIoOveruseStats(), expected.getIoOveruseStats());
+    }
+
+    public static boolean isCarWatchdogKillStatsReported(
+            AtomsProto.CarWatchdogKillStatsReported actual,
+            AtomsProto.CarWatchdogKillStatsReported expected) {
+        return actual.getUid() == expected.getUid()
+                && actual.getUidState() == expected.getUidState()
+                && actual.getSystemState() == expected.getSystemState()
+                && actual.getKillReason() == expected.getKillReason()
+                // Process stats is null on I/O overuse kill stats, so equality checking on the
+                // objects is sufficient.
+                && actual.getProcessStats().equals(expected.getProcessStats())
+                && isCarWatchdogIoOveruseStatsEquals(
+                actual.getIoOveruseStats(), expected.getIoOveruseStats());
+    }
+
+    private static boolean isCarWatchdogIoOveruseStatsEquals(
+            AtomsProto.CarWatchdogIoOveruseStats actual,
+            AtomsProto.CarWatchdogIoOveruseStats expected) {
+        if (actual == null || expected == null) {
+            return (actual == null) && (expected == null);
+        }
+        return actual.getPeriod() == expected.getPeriod()
+                && isCarWatchdogPerStateBytesEquals(actual.getThreshold(), expected.getThreshold())
+                && isCarWatchdogPerStateBytesEquals(
+                actual.getWrittenBytes(), expected.getWrittenBytes())
+                && actual.getUptimeMillis() == expected.getUptimeMillis();
+    }
+
+    private static boolean isCarWatchdogPerStateBytesEquals(
+            AtomsProto.CarWatchdogPerStateBytes actual,
+            AtomsProto.CarWatchdogPerStateBytes expected) {
+        if (actual == null || expected == null) {
+            return (actual == null) && (expected == null);
+        }
+        return actual.getForegroundBytes() == expected.getForegroundBytes()
+                && actual.getBackgroundBytes() == expected.getBackgroundBytes()
+                && actual.getGarageModeBytes() == expected.getGarageModeBytes();
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
