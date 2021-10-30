@@ -592,10 +592,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      */
     private int dispatchFocusGainedLocked(AudioFocusInfo afi) {
         // Send the focus (re)gain notification
-        int result = mAudioManager.dispatchAudioFocusChange(
-                afi,
-                afi.getGainRequest(),
-                mAudioPolicy);
+        int result = mAudioManager.dispatchAudioFocusChange(afi, AUDIOFOCUS_GAIN, mAudioPolicy);
         if (result != AUDIOFOCUS_REQUEST_GRANTED) {
             // TODO:  Is this actually an error, or is it okay for an entry in the focus
             // stack to NOT have a listener?  If that's the case, should we even keep
