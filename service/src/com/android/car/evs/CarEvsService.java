@@ -24,6 +24,7 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
 import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
+import static android.hardware.display.DisplayManager.DisplayListener;
 
 import static com.android.car.CarLog.TAG_EVS;
 
@@ -53,6 +54,7 @@ import android.hardware.HardwareBuffer;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -64,6 +66,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.ArraySet;
 import android.util.Log;
+import android.view.Display;
 
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
@@ -157,6 +160,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private final Context mContext;
     private final EvsHalService mEvsHalService;
     private final CarPropertyService mPropertyService;
+    private final DisplayManager mDisplayManager;  // To monitor the default display's state
     private final Object mLock = new Object();
 
     private final ComponentName mEvsCameraActivity;
@@ -222,6 +226,54 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             };
 
     private final Runnable mActivityRequestTimeoutRunnable = () -> handleActivityRequestTimeout();
+
+    private final DisplayManager.DisplayListener mDisplayListener =
+            new DisplayManager.DisplayListener() {
+                @Override
+                public void onDisplayAdded(int displayId) {
+                    // Nothing to do
+                }
+
+                @Override
+                public void onDisplayRemoved(int displayId) {
+                    // Nothing to do
+                }
+
+                @Override
+                public void onDisplayChanged(int displayId) {
+                    if (displayId != Display.DEFAULT_DISPLAY) {
+                        // We are interested only in the default display.
+                        return;
+                    }
+
+                    Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+                    switch (display.getState()) {
+                        case Display.STATE_ON:
+                            // We may want to request the system viewer.
+                            synchronized (mLock) {
+                                if (!requestActivityIfNecessaryLocked()) {
+                                    Slogf.e(TAG_EVS, "Failed to request the system viewer");
+                                }
+                            }
+                            break;
+
+                        case Display.STATE_OFF:
+                            // Stop an active client
+                            ICarEvsStreamCallback callback;
+                            synchronized (mLock) {
+                                callback = mStreamCallback;
+                            }
+                            if (callback != null) {
+                                stopVideoStream(callback);
+                            }
+                            break;
+
+                        default:
+                            // Nothing to do for all other state changes
+                            break;
+                    }
+                }
+            };
 
     // CarEvsService state machine implementation to handle all state transitions.
     private final class StateMachine {
@@ -456,8 +508,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     throw new IllegalStateException("CarEvsService is in the unknown state.");
             }
 
-            // Arms the timer
-            mHandler.postDelayed(mActivityRequestTimeoutRunnable, STREAM_START_REQUEST_TIMEOUT_MS);
+            // Arms the timer for the high-priority request
+            if (priority == REQUEST_PRIORITY_HIGH) {
+                mHandler.postDelayed(
+                        mActivityRequestTimeoutRunnable, STREAM_START_REQUEST_TIMEOUT_MS);
+            }
 
             mState = SERVICE_STATE_REQUESTED;
             mServiceType = service;
@@ -641,8 +696,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     @GuardedBy("mLock")
     private boolean requestActivityIfNecessaryLocked() {
-        if (!mStateEngine.checkCurrentStateRequiresActivity() || mLastEvsHalEvent == null
-                || !mLastEvsHalEvent.isRequestingToStartActivity()) {
+        // TODO(b/202398413): add a test case to verify below logic
+        if (!mStateEngine.checkCurrentStateRequiresActivity() &&
+                (mLastEvsHalEvent == null || !mLastEvsHalEvent.isRequestingToStartActivity())) {
             return false;
         }
 
@@ -719,6 +775,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             mEvsCameraActivity = null;
         }
         if (DBG) Slogf.d(TAG_EVS, "evsCameraActivity=" + mEvsCameraActivity);
+
+        mDisplayManager = context.getSystemService(DisplayManager.class);
+        mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
     }
 
     /** Implements EvsHalService.EvsHalEventListener to monitor VHAL properties. */
