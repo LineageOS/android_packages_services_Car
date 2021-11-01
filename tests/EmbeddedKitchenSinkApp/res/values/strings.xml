@@ -391,4 +391,8 @@
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="get_report" translatable="false">Get Report</string>
     <string name="show_mem_info" translate="false">Show Memory Info</string>
+
+    <!-- Watchdog Test -->
+    <string name="non_recurring_io_overuse" translate="false">Non-recurring I/O overuse</string>
+    <string name="recurring_io_overuse" translate="false">Recurring I/O overuse</string>
 </resources>
