@@ -20,6 +20,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.automotive.watchdog.internal.GarageMode;
@@ -59,6 +60,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
@@ -242,6 +244,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*" + getClass().getSimpleName() + "*");
         writer.increaseIndent();

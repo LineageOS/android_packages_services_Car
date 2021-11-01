@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.IAppFocus;
@@ -31,6 +33,7 @@ import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -296,6 +299,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("**AppFocusService**");
         synchronized (mLock) {

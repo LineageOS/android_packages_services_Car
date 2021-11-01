@@ -16,6 +16,8 @@
 
 package android.car.util.concurrent;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -26,6 +28,7 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -603,6 +606,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
     }

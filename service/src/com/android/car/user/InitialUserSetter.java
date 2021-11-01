@@ -16,6 +16,7 @@
 package com.android.car.user;
 
 import static com.android.car.hal.UserHalHelper.userFlagsToString;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
@@ -285,6 +286,7 @@ final class InitialUserSetter {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String toString() {
             StringBuilder string = new StringBuilder("InitialUserInfo[type=");
             switch(type) {

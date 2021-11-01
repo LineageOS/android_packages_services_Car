@@ -15,6 +15,8 @@
  */
 package com.android.car.bluetooth;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,6 +28,7 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
 import com.android.car.PerUserCarServiceImpl;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.util.Arrays;
@@ -337,6 +340,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     }
 
     /** Dump for debugging */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter pw) {
         pw.printf("Supported profiles: %s\n", sProfilesToConnect);
         pw.printf("Number of connected profiles: %d\n", mConnectedProfiles);

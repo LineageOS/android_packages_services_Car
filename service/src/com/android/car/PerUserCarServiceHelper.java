@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.IPerUserCarService;
 import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager;
@@ -28,6 +30,7 @@ import android.os.IBinder;
 import android.os.UserHandle;
 
 import com.android.car.bluetooth.BuiltinPackageDependency;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -240,6 +243,7 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public final void dump(IndentingPrintWriter pw) {
         pw.println("PerUserCarServiceHelper");
         pw.increaseIndent();

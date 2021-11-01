@@ -18,6 +18,8 @@ package com.android.car.telemetry;
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.app.StatsManager;
 import android.car.Car;
@@ -36,6 +38,7 @@ import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.databroker.DataBroker;
@@ -111,6 +114,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("Car Telemetry service");
     }

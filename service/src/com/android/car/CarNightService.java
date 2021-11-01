@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.IntDef;
 import android.app.UiModeManager;
 import android.car.builtin.util.Slogf;
@@ -26,6 +28,7 @@ import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.RemoteException;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -186,6 +189,7 @@ public class CarNightService implements CarServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*DAY NIGHT POLICY*");

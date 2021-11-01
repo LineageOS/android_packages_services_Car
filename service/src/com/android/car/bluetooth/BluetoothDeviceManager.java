@@ -18,6 +18,8 @@ package com.android.car.bluetooth;
 
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_DEVICES;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
@@ -39,6 +41,7 @@ import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -759,6 +762,7 @@ public final class BluetoothDeviceManager {
      *
      * @param writer PrintWriter object to write lines to
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.printf("%s\n", TAG);
         writer.increaseIndent();

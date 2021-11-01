@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.Car;
 import android.car.builtin.util.Slogf;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
@@ -40,6 +42,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.internal.CarPermission;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.storagemonitoring.IoStatsTracker;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
@@ -509,6 +512,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarStorageMonitoringService*");
         synchronized (mLock) {

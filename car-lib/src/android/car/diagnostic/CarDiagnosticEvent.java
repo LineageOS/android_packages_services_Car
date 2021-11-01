@@ -16,6 +16,8 @@
 
 package android.car.diagnostic;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
@@ -24,6 +26,8 @@ import android.os.Parcelable;
 import android.util.JsonWriter;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.io.IOException;
 import java.lang.annotation.Retention;
@@ -86,6 +90,7 @@ public final class CarDiagnosticEvent implements Parcelable {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() {
         return 0;
     }

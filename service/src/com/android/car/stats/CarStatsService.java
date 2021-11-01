@@ -16,6 +16,8 @@
 
 package com.android.car.stats;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.app.StatsManager;
 import android.app.StatsManager.PullAtomMetadata;
 import android.car.builtin.util.Slogf;
@@ -26,6 +28,7 @@ import android.util.StatsEvent;
 
 import com.android.car.CarLog;
 import com.android.car.CarStatsLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
@@ -127,6 +130,7 @@ public class CarStatsService {
     /**
      * Dump its state.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer, String[] args) {
         List<String> flags = Arrays.asList(args);
         if (args.length == 0 || flags.contains("--vms-client")) {

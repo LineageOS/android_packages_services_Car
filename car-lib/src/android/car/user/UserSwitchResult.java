@@ -16,11 +16,14 @@
 
 package android.car.user;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.TestApi;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DataClass;
 
 import java.lang.annotation.Retention;
@@ -294,6 +297,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() { return 0; }
 
     /** @hide */

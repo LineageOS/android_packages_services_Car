@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
@@ -33,6 +35,7 @@ import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;
 import com.android.car.hal.DiagnosticHalService.DiagnosticCapabilities;
 import com.android.car.internal.CarPermission;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -626,6 +629,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarDiagnosticService*");

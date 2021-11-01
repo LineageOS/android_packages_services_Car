@@ -18,6 +18,8 @@ package com.android.car.bluetooth;
 
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PROFILES_INHIBITED;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -36,6 +38,7 @@ import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.util.SetMultimap;
 import com.android.internal.annotations.GuardedBy;
@@ -606,6 +609,7 @@ public class BluetoothProfileInhibitManager {
     /**
      * Print the verbose status of the object
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.printf("%s:\n", TAG);
         writer.increaseIndent();

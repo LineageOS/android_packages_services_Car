@@ -16,6 +16,8 @@
 
 package com.android.car.bluetooth;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -30,6 +32,7 @@ import android.os.Handler;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 /**
@@ -233,6 +236,7 @@ public class FastPairProvider {
      *
      * @param writer
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println(TAG + " services");
         if (mModelId == 0) {

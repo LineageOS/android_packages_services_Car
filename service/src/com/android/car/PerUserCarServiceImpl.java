@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.ICarBluetoothUserService;
 import android.car.ILocationManagerProxy;
 import android.car.IPerUserCarService;
@@ -24,6 +26,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.android.car.bluetooth.CarBluetoothUserService;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.io.FileDescriptor;
@@ -82,6 +85,7 @@ public class PerUserCarServiceImpl extends ProxiedService {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         try (IndentingPrintWriter pw = new IndentingPrintWriter(writer)) {
             pw.println("CarBluetoothUserService");

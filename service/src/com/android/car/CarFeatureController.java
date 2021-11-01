@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.Car.FeaturerRequestEnum;
@@ -29,6 +31,7 @@ import android.os.HandlerThread;
 import android.util.AtomicFile;
 import android.util.Pair;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -195,6 +198,7 @@ public final class CarFeatureController implements CarServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarFeatureController*");
         writer.println(" mEnabledFeatures:" + mEnabledFeatures);

@@ -20,6 +20,7 @@ import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import static java.lang.Integer.toHexString;
 
@@ -667,6 +668,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     /**
      * Dumps HAL service info using the print writer passed as parameter.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("**dump HAL services**");

@@ -24,9 +24,9 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
 import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
-import static android.hardware.display.DisplayManager.DisplayListener;
 
 import static com.android.car.CarLog.TAG_EVS;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -73,6 +73,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.EvsHalService;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
@@ -877,6 +878,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarEvsService*");
         writer.printf("Current state = %s\n", mStateEngine);

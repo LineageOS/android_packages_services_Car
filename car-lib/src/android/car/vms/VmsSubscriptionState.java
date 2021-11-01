@@ -16,6 +16,8 @@
 
 package android.car.vms;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.builtin.os.ParcelHelper;
@@ -23,6 +25,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.ArraySet;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.AnnotationValidations;
 
 import java.util.Collections;
@@ -180,6 +183,7 @@ public final class VmsSubscriptionState implements Parcelable {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() { return 0; }
 
     /** @hide */

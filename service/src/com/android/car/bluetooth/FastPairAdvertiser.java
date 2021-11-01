@@ -16,6 +16,8 @@
 
 package com.android.car.bluetooth;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -28,6 +30,7 @@ import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.ParcelUuid;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.nio.ByteBuffer;
@@ -194,6 +197,7 @@ class FastPairAdvertiser {
         */
     };
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         if (mAdvertising) {
             writer.println("Currently advertising         : " + mData);

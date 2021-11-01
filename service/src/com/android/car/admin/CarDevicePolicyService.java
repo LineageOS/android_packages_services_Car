@@ -17,6 +17,7 @@
 package com.android.car.admin;
 
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -46,6 +47,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.bluetooth.BuiltinPackageDependency;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.DebugUtils;
@@ -183,6 +185,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(@NonNull IndentingPrintWriter writer) {
         checkHasDumpPermissionGranted(mContext, "dump()");
 
