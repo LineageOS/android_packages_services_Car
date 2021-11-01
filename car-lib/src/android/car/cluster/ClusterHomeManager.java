@@ -123,6 +123,8 @@ public class ClusterHomeManager extends CarManagerBase {
             mExecutor = executor;
             mListener = listener;
         }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -133,6 +135,8 @@ public class ClusterHomeManager extends CarManagerBase {
             }
             return mListener == ((ClusterNavigationStateListenerRecord) obj).mListener;
         }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public int hashCode() {
             return mListener.hashCode();
