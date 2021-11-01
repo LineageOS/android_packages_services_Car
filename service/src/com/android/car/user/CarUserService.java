@@ -606,8 +606,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void initBootUser(int requestType) {
         boolean replaceGuest =
                 requestType == InitialUserInfoRequestType.RESUME && !mSwitchGuestUserBeforeSleep;
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
-                mHalTimeoutMs);
         checkManageUsersPermission("startInitialUser");
 
         if (!isUserHalSupported()) {
@@ -618,6 +616,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, mUserHandleHelper);
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ, requestType,
+                mHalTimeoutMs, usersInfo.currentUser.userId, usersInfo.currentUser.flags,
+                usersInfo.numberUsers);
+
         mHal.getInitialUserInfo(requestType, mHalTimeoutMs, usersInfo, (status, resp) -> {
             if (resp != null) {
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP,
