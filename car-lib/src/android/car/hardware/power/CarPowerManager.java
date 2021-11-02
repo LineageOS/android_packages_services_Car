@@ -159,6 +159,38 @@ public class CarPowerManager extends CarManagerBase {
         int HIBERNATION_EXIT = 10;
 
         /**
+         * State where system shutdown is initiated, but output components such as display is still
+         * on. UI to show a device is about to shutdown can be presented at this state.
+         *
+         * @hide
+         */
+        int PRE_SHUTDOWN_PREPARE = 11;
+
+        /**
+         * CarPowerManagementService and VHAL finish processing to enter deep sleep and the device
+         * is about to sleep.
+         *
+         * @hide
+         */
+        int POST_SUSPEND_ENTER = 12;
+
+        /**
+         * CarPowerManagementService and VHAL finish processing to shutdown and the device is about
+         * to power off.
+         *
+         * @hide
+         */
+        int POST_SHUTDOWN_ENTER = 13;
+
+        /**
+         * CarPowerManagementService and VHAL finish processing to enter hibernation and the device
+         * is about to hibernate.
+         *
+         * @hide
+         */
+        int POST_HIBERNATION_ENTER = 14;
+
+        /**
          * Called when power state changes. This callback is available to
          * any listener, even if it is not running in the system process.
          *
