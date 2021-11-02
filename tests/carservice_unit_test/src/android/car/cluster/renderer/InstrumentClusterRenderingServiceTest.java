@@ -21,30 +21,42 @@ import static android.app.ActivityOptions.KEY_PACKAGE_NAME;
 import static android.car.Car.CAR_EXTRA_CLUSTER_ACTIVITY_STATE;
 import static android.car.Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER;
 import static android.car.cluster.renderer.InstrumentClusterRenderingService.EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER;
-import static android.car.test.mocks.AbstractExtendedMockitoTestCase.ExpectWtf;
 import static android.content.pm.PackageManager.GET_RESOLVED_FILTER;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.view.KeyEvent.KEYCODE_1;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertThrows;
 
+import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.car.cluster.ClusterActivityState;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.view.KeyEvent;
@@ -63,14 +75,22 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.FileDescriptor;
 import java.util.List;
 
 
 /** Unit tests for {@link InstrumentClusterRenderingService}. */
 @RunWith(MockitoJUnitRunner.class)
-public final class InstrumentClusterRenderingServiceTest {
+public final class InstrumentClusterRenderingServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock
     private NavigationRenderer mNavigationRenderer;
+
+    @Mock
+    private ParcelFileDescriptor mParcelFileDescriptor;
+
+    @Mock
+    private FileDescriptor mMockFileDescriptor;
+
 
     @Rule
     public final ServiceTestRule mServiceRule = new ServiceTestRule();
@@ -78,6 +98,11 @@ public final class InstrumentClusterRenderingServiceTest {
     private TestableInstrumentClusterRenderingService mService;
     private TestableInstrumentClusterHelper mTestableInstrumentClusterHelper;
     private IInstrumentCluster mRendererBinder;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        builder.spyStatic(BitmapFactory.class);
+    }
 
     @Before
     public void setup() {
@@ -220,22 +245,31 @@ public final class InstrumentClusterRenderingServiceTest {
     public void setNavigationContextOwner_failureWhenStartingNavigationActivity()
             throws Exception {
         int userId = 10;
-        String packageName = "com.test";
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
                 .create(/* visible= */ true, /* unobscuredBounds= */new Rect(1, 2, 3, 4));
         mService.setClusterActivityState(clusterActivityState);
         mTestableInstrumentClusterHelper.mRuntimeFailureOnInteraction = true;
+        mockPackageManagerInteraction(userId);
 
-        doReturn(new String[]{packageName})
-                .when(mService.mSpyPackageManager).getPackagesForUid(userId);
-        doReturn(PERMISSION_GRANTED)
-                .when(mService.mSpyPackageManager).checkPermission(
-                PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName);
-        doReturn(createActivityResolveInfo(packageName)).when(mService.mSpyPackageManager)
-                .queryIntentActivitiesAsUser(any(), eq(GET_RESOLVED_FILTER),
-                        eq(UserHandle.CURRENT));
+        mRendererBinder.setNavigationContextOwner(userId, 123);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        assertThat(mService.mNumOfTimesOnNavigationComponentLaunchedCalled).isEqualTo(0);
+    }
+
+    @Test
+    public void setNavigationContextOwner_activityNotFoundWhenStartingNavigationActivity()
+            throws Exception {
+        int userId = 10;
+        bindService(createBindIntentWithClusterHelper());
+        mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
+        ClusterActivityState clusterActivityState = ClusterActivityState
+                .create(/* visible= */ true, /* unobscuredBounds= */new Rect(1, 2, 3, 4));
+        mService.setClusterActivityState(clusterActivityState);
+        mTestableInstrumentClusterHelper.mActivityNotFoundFailureOnInteraction = true;
+        mockPackageManagerInteraction(userId);
 
         mRendererBinder.setNavigationContextOwner(userId, 123);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -246,20 +280,12 @@ public final class InstrumentClusterRenderingServiceTest {
     @Test
     public void updateActivityState_notVisible_releasesNavigationComponent() throws Exception {
         int userId = 10;
-        String packageName = "com.test";
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
                 .create(/* visible= */ true, /* unobscuredBounds= */new Rect(1, 2, 3, 4));
         mService.setClusterActivityState(clusterActivityState);
-        doReturn(new String[]{packageName})
-                .when(mService.mSpyPackageManager).getPackagesForUid(userId);
-        doReturn(PERMISSION_GRANTED)
-                .when(mService.mSpyPackageManager).checkPermission(
-                PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName);
-        doReturn(createActivityResolveInfo(packageName)).when(mService.mSpyPackageManager)
-                .queryIntentActivitiesAsUser(any(), eq(GET_RESOLVED_FILTER),
-                        eq(UserHandle.CURRENT));
+        mockPackageManagerInteraction(userId);
         mRendererBinder.setNavigationContextOwner(userId, 123);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
 
@@ -268,6 +294,28 @@ public final class InstrumentClusterRenderingServiceTest {
         mService.setClusterActivityState(clusterActivityNewState);
 
         assertThat(mService.mOnNavigationComponentReleasedCalled).isTrue();
+    }
+
+    private void mockPackageManagerInteraction(int userId) {
+        String packageName = "com.test";
+        doReturn(new String[]{packageName})
+                .when(mService.mSpyPackageManager).getPackagesForUid(userId);
+        doReturn(PERMISSION_GRANTED)
+                .when(mService.mSpyPackageManager).checkPermission(
+                PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName);
+        doReturn(createActivityResolveInfo(packageName)).when(mService.mSpyPackageManager)
+                .queryIntentActivitiesAsUser(any(), eq(GET_RESOLVED_FILTER),
+                        eq(UserHandle.CURRENT));
+    }
+
+    @Test
+    public void clusterOnKeyEvent_triggersOnKeyEventOnService() throws Exception {
+        bindService(createBindIntentWithClusterHelper());
+
+        mRendererBinder.onKeyEvent(new KeyEvent(KeyEvent.FLAG_EDITOR_ACTION, KEYCODE_1));
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        assertThat(mService.mOnKeyEventCalled).isTrue();
     }
 
     @Test
@@ -373,6 +421,7 @@ public final class InstrumentClusterRenderingServiceTest {
         assertThat(succeeded).isFalse();
     }
 
+    @ExpectWtf
     @Test
     public void startFixedActivityMode_clusterHelperAbsent() throws Exception {
         int userId = 10;
@@ -397,6 +446,7 @@ public final class InstrumentClusterRenderingServiceTest {
                 displayId);
     }
 
+    @ExpectWtf
     @Test
     public void stopFixedActivityMode_clusterHelperAbsent() throws Exception {
         int displayId = 1;
@@ -417,6 +467,106 @@ public final class InstrumentClusterRenderingServiceTest {
         mService.stopFixedActivityMode(displayId);
     }
 
+    @Test
+    public void getBitmap_invalidHeight() throws Exception {
+        bindService(createBindIntentWithClusterHelper());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.getBitmap(Uri.parse("content://temp.com/tempFile"), 100, -1)
+        );
+    }
+
+    @Test
+    public void getBitmap_invalidOffLanesAlpha() throws Exception {
+        bindService(createBindIntentWithClusterHelper());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mService.getBitmap(Uri.parse("content://temp.com/tempFile"), 100, 100, 1.1f)
+        );
+    }
+
+    @Test
+    public void getBitmap_contextOwnerMissing() throws Exception {
+        bindService(createBindIntentWithClusterHelper());
+
+        Bitmap bitmap =
+                mService.getBitmap(Uri.parse("content://temp.com/tempFile"), 100, 100);
+
+        assertThat(bitmap).isNull();
+    }
+
+    @Test
+    public void getBitmap_unknownAuthority() throws Exception {
+        // Arrange
+        String packageName = "com.test";
+        int userId = 10;
+        bindService(createBindIntentWithClusterHelper());
+        mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
+        mService.setClusterActivityState(ClusterActivityState
+                .create(/* visible= */ true, /* unobscuredBounds= */new Rect(1, 2, 3, 4)));
+
+        mockPackageManagerInteraction(userId);
+        mockAuthorityForPackage(null, packageName);
+        mRendererBinder.setNavigationContextOwner(userId, 123);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        // Act
+        Bitmap bitmap =
+                mService.getBitmap(Uri.parse("content://temp.com/tempFile"), 100, 100);
+
+        // Assert
+        assertThat(bitmap).isNull();
+    }
+
+    @Test
+    public void getBitmap_success() throws Exception {
+        // Arrange
+        String packageName = "com.test";
+        int userId = ActivityManager.getCurrentUser();
+        Bitmap bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888);
+
+        bindService(createBindIntentWithClusterHelper());
+        mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
+        mService.setClusterActivityState(ClusterActivityState
+                .create(/* visible= */ true, /* unobscuredBounds= */new Rect(1, 2, 3, 4)));
+
+        mockPackageManagerInteraction(userId);
+        mockAuthorityForPackage("temp.com", packageName);
+        mockBitmapReadingFromFileDescriptor(bitmap);
+        mRendererBinder.setNavigationContextOwner(userId, 123);
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
+
+        // Act
+        Bitmap bitmapReturned =
+                mService.getBitmap(Uri.parse("content://temp.com/tempFile"), 100, 100);
+
+        // Assert
+        assertThat(bitmapReturned).isEqualTo(bitmap);
+    }
+
+    private void mockBitmapReadingFromFileDescriptor(Bitmap bitmap) throws Exception {
+        doReturn(bitmap).when(() -> BitmapFactory.decodeFileDescriptor(mMockFileDescriptor));
+        when(mParcelFileDescriptor.getFileDescriptor()).thenReturn(mMockFileDescriptor);
+        doReturn(mParcelFileDescriptor).when(mService.mSpyContentResolver)
+                .openFileDescriptor(any(), eq("r"));
+    }
+
+    private void mockAuthorityForPackage(@Nullable String authority, String packageName)
+            throws Exception {
+        PackageInfo packageInfo = new PackageInfo();
+        if (authority == null) {
+            packageInfo.providers = null;
+        } else {
+            ProviderInfo providerInfo = new ProviderInfo();
+            providerInfo.authority = authority;
+            packageInfo.providers = new ProviderInfo[]{providerInfo};
+        }
+
+        doReturn(packageInfo).when(mService.mSpyPackageManager)
+                .getPackageInfo(packageName,
+                        PackageManager.GET_PROVIDERS | PackageManager.MATCH_ANY_USER);
+    }
+
     /**
      * A fake InstrumentClusterHelper stub used for testing. This can't be mocked because this
      * is sent via binder.
@@ -428,6 +578,7 @@ public final class InstrumentClusterRenderingServiceTest {
         Bundle mStartFixedActivityModeActivityOptions = null;
         boolean mRemoteFailureOnInteraction = false;
         boolean mRuntimeFailureOnInteraction = false;
+        boolean mActivityNotFoundFailureOnInteraction = false;
         int mStopFixedActivityModeDisplayId = -1;
 
         @Override
@@ -438,6 +589,9 @@ public final class InstrumentClusterRenderingServiceTest {
             }
             if (mRuntimeFailureOnInteraction) {
                 throw new RuntimeException("failure");
+            }
+            if (mActivityNotFoundFailureOnInteraction) {
+                throw new ActivityNotFoundException("failure");
             }
             mStartFixedActivityIntent = intent;
             mStartFixedActivityModeActivityOptions = activityOptionsBundle;
@@ -453,6 +607,9 @@ public final class InstrumentClusterRenderingServiceTest {
             if (mRuntimeFailureOnInteraction) {
                 throw new RuntimeException("failure");
             }
+            if (mActivityNotFoundFailureOnInteraction) {
+                throw new ActivityNotFoundException("failure");
+            }
             mStopFixedActivityModeDisplayId = displayId;
         }
     }
@@ -465,14 +622,14 @@ public final class InstrumentClusterRenderingServiceTest {
      */
     public static final class TestableInstrumentClusterRenderingService extends
             InstrumentClusterRenderingService {
-        PackageManager mSpyPackageManager = null;
-        boolean mOnKeyEventCalled = false;
-        int mNumOfTimesOnNavigationComponentLaunchedCalled = 0;
-        boolean mOnNavigationComponentReleasedCalled = false;
-
         private static NavigationRenderer sNavigationRenderer;
+        PackageManager mSpyPackageManager;
+        ContentResolver mSpyContentResolver;
+        boolean mOnKeyEventCalled;
+        int mNumOfTimesOnNavigationComponentLaunchedCalled;
+        boolean mOnNavigationComponentReleasedCalled;
 
-        private IBinder mParentBinder = null;
+        private IBinder mParentBinder;
         private final IBinder mBinder = new BinderWrapper();
 
         static void setNavigationRenderer(NavigationRenderer navigationRenderer) {
@@ -497,6 +654,7 @@ public final class InstrumentClusterRenderingServiceTest {
         public IBinder onBind(Intent intent) {
             mParentBinder = super.onBind(intent);
             mSpyPackageManager = spy(super.getPackageManager());
+            mSpyContentResolver = spy(super.getContentResolver());
             return mBinder;
         }
 
@@ -526,10 +684,12 @@ public final class InstrumentClusterRenderingServiceTest {
 
         @Override
         public PackageManager getPackageManager() {
-            if (mSpyPackageManager == null) {
-                mSpyPackageManager = spy(super.getPackageManager());
-            }
             return mSpyPackageManager;
+        }
+
+        @Override
+        public ContentResolver getContentResolver() {
+            return mSpyContentResolver;
         }
     }
 }
