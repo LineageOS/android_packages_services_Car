@@ -490,10 +490,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     throw new IllegalStateException("CarEvsService is in the unknown state.");
             }
 
-            // Arms the timer
-            mHandler.sendMessageDelayed(obtainMessage(CarEvsService::handleActivityRequestTimeout,
-                    CarEvsService.this).setWhat(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT),
-                    STREAM_START_REQUEST_TIMEOUT_MS);
+            // Arms the timer for the high-priority request
+            if (priority == REQUEST_PRIORITY_HIGH) {
+                mHandler.sendMessageDelayed(obtainMessage(
+                        CarEvsService::handleActivityRequestTimeout,
+                        CarEvsService.this).setWhat(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT),
+                        STREAM_START_REQUEST_TIMEOUT_MS);
+            }
 
             mState = SERVICE_STATE_REQUESTED;
             mServiceType = service;
