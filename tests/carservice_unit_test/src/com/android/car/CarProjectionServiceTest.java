@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.car.CarProjectionManager.PROJECTION_AP_STARTED;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_ACTIVE_FOREGROUND;
 import static android.car.projection.ProjectionStatus.PROJECTION_STATE_INACTIVE;
 import static android.car.projection.ProjectionStatus.PROJECTION_TRANSPORT_USB;
@@ -42,12 +43,17 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
+import android.net.MacAddress;
+import android.net.wifi.SoftApConfiguration;
+import android.net.wifi.WifiManager;
 import android.net.wifi.WifiScanner;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -60,6 +66,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -67,6 +74,7 @@ import java.util.Arrays;
 import java.util.BitSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -80,6 +88,12 @@ public class CarProjectionServiceTest {
     private static final String MD_EXTRA_VALUE = "this is placeholder value";
     private static final String STATUS_EXTRA_KEY = "com.some.key.status";
     private static final String STATUS_EXTRA_VALUE = "additional status value";
+
+    private static final SoftApConfiguration AP_CONFIG = new SoftApConfiguration.Builder()
+            .setSsid("SSID")
+            .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
+            .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+            .build();
 
     private final IBinder mToken = new Binder();
 
@@ -98,12 +112,27 @@ public class CarProjectionServiceTest {
     private CarBluetoothService mCarBluetoothService;
 
     @Mock
-    WifiScanner mWifiScanner;
+    private WifiScanner mWifiScanner;
+
+    @Mock
+    private WifiManager mWifiManager;
+
+    @Mock
+    private WifiManager.LocalOnlyHotspotReservation mLohsReservation;
+
+    @Mock
+    private Messenger mMessenger;
 
     @Before
     public void setUp() {
+        when(mContext.getSystemService(eq(WifiManager.class)))
+                .thenReturn(mWifiManager);
+
         mService = new CarProjectionService(mContext, mHandler, mCarInputService,
                 mCarBluetoothService);
+
+        when(mLohsReservation.getSoftApConfiguration()).thenReturn(AP_CONFIG);
+        mService.setAccessPointBssid(AP_CONFIG.getBssid());
     }
 
     @Test
@@ -123,6 +152,75 @@ public class CarProjectionServiceTest {
         });
 
         latch.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void startLohs_success() throws Exception {
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+
+        assertMessageSent(PROJECTION_AP_STARTED, AP_CONFIG);
+    }
+
+    @Test
+    public void stopLohs_success() throws Exception {
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+        assertMessageSent(PROJECTION_AP_STARTED, AP_CONFIG);
+
+        mService.stopProjectionAccessPoint(mToken);
+        verify(mLohsReservation).close();
+    }
+
+    @Test
+    public void startLohsWithStableCredentials_success() throws Exception {
+        mService.setStableLocalOnlyHotspotConfig(true);
+
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+        assertMessageSent(PROJECTION_AP_STARTED, AP_CONFIG);
+        mService.stopProjectionAccessPoint(mToken);
+        verify(mLohsReservation).close();
+
+        // Creating another service instance to make sure cache values not used and config
+        // is read from SharedPreferences correctly.
+        CarProjectionService anotherServiceInstance = new CarProjectionService(
+                mContext, mHandler, mCarInputService, mCarBluetoothService);
+
+        assertThat(anotherServiceInstance.restoreApConfiguration().get()).isEqualTo(AP_CONFIG);
+
+        startProjectionLohs(true /* expectReusingApConfiguration */);
+    }
+
+    private WifiManager.LocalOnlyHotspotCallback startProjectionLohs(
+            boolean expectReusingApConfiguration)
+            throws RemoteException {
+        mService.setAccessPointTethering(false);
+
+        ArgumentCaptor<WifiManager.LocalOnlyHotspotCallback> lohsCallbackCaptor =
+                ArgumentCaptor.forClass(WifiManager.LocalOnlyHotspotCallback.class);
+
+        mService.startProjectionAccessPoint(mMessenger, mToken);
+
+        if (expectReusingApConfiguration) {
+            verify(mWifiManager)
+                    .startLocalOnlyHotspot(
+                            eq(AP_CONFIG),   // AP configuration got reused.
+                            any(Executor.class),
+                            lohsCallbackCaptor.capture());
+        } else {
+            verify(mWifiManager)
+                    .startLocalOnlyHotspot(lohsCallbackCaptor.capture(), any(Handler.class));
+        }
+
+        Mockito.reset(mWifiManager);  // reset for other interactions
+
+        return lohsCallbackCaptor.getValue();
     }
 
     @Test
@@ -354,6 +452,16 @@ public class CarProjectionServiceTest {
         ICarProjectionKeyEventHandler listener = mock(ICarProjectionKeyEventHandler.Stub.class);
         when(listener.asBinder()).thenCallRealMethod();
         return listener;
+    }
+
+    private void assertMessageSent(int what, Object obj) throws RemoteException {
+        ArgumentCaptor<Message> messageCaptor = ArgumentCaptor.forClass(Message.class);
+        verify(mMessenger).send(messageCaptor.capture());
+        Message message = messageCaptor.getValue();
+        assertThat(message.what).isEqualTo(what);
+        assertThat(message.obj).isEqualTo(obj);
+
+        Mockito.reset(mMessenger);  // make it ready for the next message
     }
 
     private static BitSet bitSetOf(@CarProjectionManager.KeyEventNum int... events) {

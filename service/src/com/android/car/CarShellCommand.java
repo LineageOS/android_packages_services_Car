@@ -143,6 +143,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
     private static final String COMMAND_GET_PROPERTY_VALUE = "get-property-value";
     private static final String COMMAND_PROJECTION_AP_TETHERING = "projection-tethering";
+    private static final String COMMAND_PROJECTION_AP_STABLE_CONFIG =
+            "projection-stable-lohs-config";
     private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
@@ -848,7 +850,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 if (args.length != 2) {
                     return showInvalidArguments(writer);
                 }
-                mCarProjectionService.setAccessPointTethering(Boolean.valueOf(args[1]));
+                mCarProjectionService.setAccessPointTethering(Boolean.parseBoolean(args[1]));
+                break;
+            case COMMAND_PROJECTION_AP_STABLE_CONFIG:
+                if (args.length != 2) {
+                    return showInvalidArguments(writer);
+                }
+                mCarProjectionService.setStableLocalOnlyHotspotConfig(
+                        Boolean.parseBoolean(args[1]));
                 break;
             case COMMAND_RESUME:
                 mCarPowerManagementService.forceSimulatedResume();
