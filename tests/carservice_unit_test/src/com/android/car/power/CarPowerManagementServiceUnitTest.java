@@ -21,6 +21,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,9 +36,11 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.VoiceInteractionHelper;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -53,6 +56,7 @@ import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -168,6 +172,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
      * Helper method to create mService and initialize a test case
      */
     private void setService() throws Exception {
+        doReturn(mResources).when(mContext).getResources();
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
         doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
@@ -227,7 +232,6 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
     }
-
 
     @Test
     public void testCanHibernate() throws Exception {
@@ -448,6 +452,91 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mService.setShutdownTimersForTest(10, 40);
 
         suspendAndResume();
+    }
+
+    @Test
+    public void testRegisterListenerWithCompletion() throws Exception {
+        SparseBooleanArray stateMapToCompletion = new SparseBooleanArray();
+        ICarPowerStateListener listenerRegistered = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state) {
+                stateMapToCompletion.put(state, true);
+                if (state == CarPowerStateListener.PRE_SHUTDOWN_PREPARE
+                        || state == CarPowerStateListener.SHUTDOWN_PREPARE) {
+                    mService.finished(this);
+                }
+            }
+        };
+        mService.registerListenerWithCompletion(listenerRegistered);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+
+        assertWithMessage("WAIT_FOR_VHAL notification")
+                .that(stateMapToCompletion.get(CarPowerStateListener.WAIT_FOR_VHAL)).isFalse();
+        assertWithMessage("ON notification")
+                .that(stateMapToCompletion.get(CarPowerStateListener.ON)).isTrue();
+        assertWithMessage("PRE_SHUTDOWN_PREPARE notification")
+                .that(stateMapToCompletion.get(CarPowerStateListener.PRE_SHUTDOWN_PREPARE))
+                .isTrue();
+        assertWithMessage("SHUTDOWN_PREPARE notification")
+                .that(stateMapToCompletion.get(CarPowerStateListener.SHUTDOWN_PREPARE)).isTrue();
+        assertWithMessage("SHUTDOWN_ENTER notification")
+                .that(stateMapToCompletion.get(CarPowerStateListener.SHUTDOWN_ENTER)).isTrue();
+    }
+
+    @Test
+    public void testUnregisterListenerWithCompletion() throws Exception {
+        ICarPowerStateListener listenerUnregistered = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state) {
+                fail("No notification should be sent to unregistered listener");
+            }
+        };
+        mService.registerListenerWithCompletion(listenerUnregistered);
+        mService.unregisterListener(listenerUnregistered);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testShutdownPrepareWithCompletion_timeout() throws Exception {
+        // Shortens the timeout for listen completion
+        when(mResources.getInteger(R.integer.config_preShutdownPrepareTimeout))
+                .thenReturn(10);
+        mService.setShutdownTimersForTest(1000, 1000);
+        ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state) {
+                // Does nothing to make timeout occur
+            }
+        };
+        mService.registerListenerWithCompletion(listener);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(
+                new PowerState(
+                        VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        // Power state should reach SHUTDOWN_ENTER because waiting for listeners to complete is done
+        // after timeout.
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_LONG_MS);
     }
 
     @Test

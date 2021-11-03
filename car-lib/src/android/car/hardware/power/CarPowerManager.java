@@ -570,7 +570,8 @@ public class CarPowerManager extends CarManagerBase {
 
     private void updateFutureLocked(int state) {
         cleanupFutureLocked();
-        if (state == CarPowerStateListener.SHUTDOWN_PREPARE) {
+        if (state == CarPowerStateListener.PRE_SHUTDOWN_PREPARE
+                || state == CarPowerStateListener.SHUTDOWN_PREPARE) {
             // Create a CompletableFuture and pass it to the listener.
             // When the listener completes the future, tell
             // CarPowerManagementService that this action is finished.
