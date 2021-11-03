@@ -24,6 +24,7 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
 import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
+import static android.hardware.display.DisplayManager.DisplayListener;
 
 import static com.android.car.CarLog.TAG_EVS;
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
@@ -51,6 +52,7 @@ import android.hardware.HardwareBuffer;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -64,6 +66,7 @@ import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
+import android.view.Display;
 
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
@@ -159,6 +162,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private final Context mContext;
     private final EvsHalService mEvsHalService;
     private final CarPropertyService mPropertyService;
+    private final DisplayManager mDisplayManager;       // To monitor the default display's state
     private final Object mLock = new Object();
 
     private final ComponentName mEvsCameraActivity;
@@ -220,6 +224,48 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         // Handle only the latest event
                         Slog.e(TAG_EVS, "Handling GearSelection");
                         handlePropertyEventLocked(events.get(events.size() - 1));
+                    }
+                }
+            };
+
+    private final DisplayManager.DisplayListener mDisplayListener =
+            new DisplayManager.DisplayListener() {
+                @Override
+                public void onDisplayAdded(int displayId) {
+                    // Nothing to do
+                }
+
+                @Override
+                public void onDisplayRemoved(int displayId) {
+                    // Nothing to do
+                }
+
+                @Override
+                public void onDisplayChanged(int displayId) {
+                    if (displayId != Display.DEFAULT_DISPLAY) {
+                        // We are interested only in the default display.
+                        return;
+                    }
+
+                    Display display = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+                    switch (display.getState()) {
+                        case Display.STATE_ON:
+                            // We may want to request the system viewer.
+                            if (!requestActivityIfNecessaryLocked()) {
+                                Slog.e(TAG_EVS, "Failed to request the system viewer");
+                            }
+                            break;
+
+                        case Display.STATE_OFF:
+                            // Stop an active client
+                            if (mStreamCallback != null) {
+                                stopVideoStream(mStreamCallback);
+                            }
+                            break;
+
+                        default:
+                            // Nothing to do for all other state changes
+                            break;
                     }
                 }
             };
@@ -704,6 +750,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             mEvsCameraActivity = null;
         }
         if (DBG) Slog.d(TAG_EVS, "evsCameraActivity=" + mEvsCameraActivity);
+
+        mDisplayManager = context.getSystemService(DisplayManager.class);
+        mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
     }
 
     /** Implements EvsHalService.EvsHalEventListener to monitor VHAL properties. */
