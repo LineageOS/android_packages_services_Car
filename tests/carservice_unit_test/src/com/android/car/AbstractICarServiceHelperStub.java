@@ -81,4 +81,9 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
                 + ", displayId=" + displayId + ", featureId=" + featureId + ")");
         return CarActivityManager.RESULT_SUCCESS;
     }
+
+    @Override
+    public void sendInitialUser(UserHandle user) {
+        Log.d(TAG, "sendInitialUser " + user);
+    }
 }

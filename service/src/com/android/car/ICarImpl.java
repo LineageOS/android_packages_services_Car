@@ -887,5 +887,10 @@ public class ICarImpl extends ICar.Stub {
                     /* instance= */null, new Class[]{Context.class, ICarResultReceiver.class},
                     new Object[]{mCarServiceBuiltinPackageContext, callback}, false);
         }
+
+        @Override
+        public void setInitialUser(UserHandle user) {
+            mCarUserService.setInitialUserFromSystemServer(user);
+        }
     }
 }
