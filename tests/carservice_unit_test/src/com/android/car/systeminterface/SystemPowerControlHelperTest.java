@@ -19,6 +19,7 @@ package com.android.car.systeminterface;
 import static com.android.car.systeminterface.SystemPowerControlHelper.SUSPEND_RESULT_SUCCESS;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.Mockito.when;
 
@@ -30,6 +31,8 @@ import libcore.io.IoUtils;
 
 import org.junit.Test;
 
+import java.io.FileWriter;
+import java.util.function.BooleanSupplier;
 import java.util.function.IntSupplier;
 
 /**
@@ -49,13 +52,13 @@ public final class SystemPowerControlHelperTest extends AbstractExtendedMockitoT
     @Test
     public void testForceDeepSleep() throws Exception {
         testHelperMockedFileWrite(SystemPowerControlHelper::forceDeepSleep,
-                SystemPowerControlHelper.SUSPEND_TARGET_MEM);
+                SystemPowerControlHelper.SUSPEND_TYPE_MEM);
     }
 
     @Test
     public void testForceHibernate() throws Exception {
         testHelperMockedFileWrite(SystemPowerControlHelper::forceHibernate,
-                SystemPowerControlHelper.SUSPEND_TARGET_DISK);
+                SystemPowerControlHelper.SUSPEND_TYPE_DISK);
     }
 
     private void testHelperMockedFileWrite(IntSupplier consumer, String target) throws Exception {
@@ -69,4 +72,65 @@ public final class SystemPowerControlHelperTest extends AbstractExtendedMockitoT
                     .isEqualTo(target);
         }
     }
+
+    @Test
+    public void testIsSystemSupportingDeepSleep() throws Exception {
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingDeepSleep,
+                "freeze mem standby disk", true);
+
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingDeepSleep,
+                SystemPowerControlHelper.SUSPEND_TYPE_MEM, true);
+
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingDeepSleep,
+                "", false);
+
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingDeepSleep,
+                SystemPowerControlHelper.SUSPEND_TYPE_DISK, false);
+    }
+
+    @Test
+    public void testIsSystemSupportingHibernation() throws Exception {
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingHibernation,
+                "freeze mem standby disk", true);
+
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingHibernation,
+                SystemPowerControlHelper.SUSPEND_TYPE_DISK, true);
+
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingHibernation,
+                "", false);
+
+        testHelperMockedFileRead(SystemPowerControlHelper::isSystemSupportingHibernation,
+                SystemPowerControlHelper.SUSPEND_TYPE_MEM, false);
+    }
+
+    @Test
+    public void testSystemSupportsSuspend_NoControlFile() throws Exception {
+        String fileName;
+        try (TemporaryFile temporaryFile = new TemporaryFile(POWER_STATE_FILE)) {
+            fileName = temporaryFile.getFile().getAbsolutePath();
+        }
+
+        when(SystemPowerControlHelper.getSysFsPowerControlFile()).thenReturn(fileName);
+        assertThat(SystemPowerControlHelper.isSystemSupportingDeepSleep()).isFalse();
+        assertThat(SystemPowerControlHelper.isSystemSupportingHibernation()).isFalse();
+
+    }
+
+    private void testHelperMockedFileRead(BooleanSupplier consumer, String fileContents,
+            boolean result) throws Exception {
+        assertSpied(SystemPowerControlHelper.class);
+
+        try (TemporaryFile powerStateControlFile = new TemporaryFile(POWER_STATE_FILE)) {
+            when(SystemPowerControlHelper.getSysFsPowerControlFile())
+                    .thenReturn(powerStateControlFile.getFile().getAbsolutePath());
+
+            FileWriter fileWriter = powerStateControlFile.newFileWriter();
+            fileWriter.write(fileContents);
+            fileWriter.flush();
+
+            assertWithMessage("Check failed, fileContents = %s", fileContents).that(
+                    consumer.getAsBoolean()).isEqualTo(result);
+        }
+    }
+
 }

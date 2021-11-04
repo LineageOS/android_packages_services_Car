@@ -70,7 +70,6 @@ public interface SystemStateInterface {
      * Gets whether the device supports deep sleep
      */
     default boolean isSystemSupportingDeepSleep() {
-        //TODO should return by checking some kernel suspend control sysfs, bug: 32061842
         return true;
     }
 
@@ -78,7 +77,6 @@ public interface SystemStateInterface {
      * Gets whether the device supports hibernation
      */
     default boolean isSystemSupportingHibernation() {
-        //TODO(b/202148609): should check kernel if Suspend-to-disk is supported.
         return true;
     }
 
@@ -163,6 +161,16 @@ public interface SystemStateInterface {
                         Context.RECEIVER_NOT_EXPORTED);
             }
             mActionsList.add(Pair.create(action, delay));
+        }
+
+        @Override
+        public boolean isSystemSupportingDeepSleep() {
+            return SystemPowerControlHelper.isSystemSupportingDeepSleep();
+        }
+
+        @Override
+        public boolean isSystemSupportingHibernation() {
+            return SystemPowerControlHelper.isSystemSupportingHibernation();
         }
     }
 }
