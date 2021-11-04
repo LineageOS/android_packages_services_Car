@@ -22,10 +22,15 @@ Source code for [Android Automotive OS](https://source.android.com/devices/autom
 
 ```
 car_product/           - AAOS product
+car-builtin-lib/       - A helper library for CarService to access hidden
+                         framework APIs
 car-lib/               - Car API
+car-lib-module/        - Car API module
 cpp/                   - Native services
 experimental/          - Experimental Car API and services
-service/               - Car service
+packages/              - Apps and services for cars
+service/               - Car service module
+service-builint        - Platform builtin component that runs CarService module
 tests/                 - Tests and sample apps
 tools/                 - Helper scripts
 ```

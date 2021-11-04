@@ -16,6 +16,8 @@
 
 # Android Automotive OS API
 
+NOTE: car-lib directory will be replaced with car-lib-module.
+
 This directory contains Car services API. All the vendor or app code should use the API defined
 here. The APIs also released to the final Android Automotive OS SDK as part of the Android SDK. The
 actual services implementation are located under `packages/services/Car/service`.
