@@ -82,6 +82,7 @@ public class InputCaptureClientController {
             entry(KeyEvent.KEYCODE_NAVIGATE_OUT, CarInputManager.INPUT_TYPE_NAVIGATE_KEYS),
             entry(KeyEvent.KEYCODE_NAVIGATE_NEXT, CarInputManager.INPUT_TYPE_NAVIGATE_KEYS),
             entry(KeyEvent.KEYCODE_NAVIGATE_PREVIOUS, CarInputManager.INPUT_TYPE_NAVIGATE_KEYS),
+            entry(KeyEvent.KEYCODE_BACK, CarInputManager.INPUT_TYPE_NAVIGATE_KEYS),
             entry(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_DOWN,
                     CarInputManager.INPUT_TYPE_SYSTEM_NAVIGATE_KEYS),
             entry(KeyEvent.KEYCODE_SYSTEM_NAVIGATION_UP,
