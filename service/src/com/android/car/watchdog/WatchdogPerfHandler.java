@@ -313,8 +313,10 @@ public final class WatchdogPerfHandler {
     public void onGarageModeChange(@GarageMode int garageMode) {
         synchronized (mLock) {
             mCurrentGarageMode = garageMode;
-            mCurrentUxState = UX_STATE_NO_INTERACTION;
-            performOveruseHandlingLocked();
+            if (mCurrentGarageMode == GarageMode.GARAGE_MODE_ON) {
+                mCurrentUxState = UX_STATE_NO_INTERACTION;
+                performOveruseHandlingLocked();
+            }
         }
     }
 
