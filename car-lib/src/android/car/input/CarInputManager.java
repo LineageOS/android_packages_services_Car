@@ -159,7 +159,7 @@ public final class CarInputManager extends CarManagerBase {
     public static final int INPUT_TYPE_DPAD_KEYS = 100;
 
     /**
-     * This is for all {@code KeyEvent#KEYCODE_NAVIGATE_*} keys.
+     * This is for all {@code KeyEvent#KEYCODE_NAVIGATE_*} keys and {@link KeyEvent#KEYCODE_BACK}.
      *
      * @hide
      */
