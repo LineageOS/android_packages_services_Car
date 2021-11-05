@@ -54,4 +54,6 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY" />
     <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA" />
     <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS" />
+    <!-- Permissions required for ATS tests - CarEvsManagerTest -->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH" />
 </manifest>
