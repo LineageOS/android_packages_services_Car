@@ -99,7 +99,7 @@ java_library {
     ],
     aidl: {
         include_dirs: [
-            "system/bt/binder",
+            "packages/modules/Bluetooth/system/binder",
         ],
     },
     exclude_srcs: [
