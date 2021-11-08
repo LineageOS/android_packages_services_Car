@@ -33,6 +33,7 @@ import static com.android.car.telemetry.publisher.StatsPublisher.PROCESS_MEMORY_
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.reset;
@@ -449,7 +450,7 @@ public class StatsPublisherTest {
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
-        verify(subscriber1).push(mBundleCaptor.capture());
+        verify(subscriber1).push(mBundleCaptor.capture(), anyBoolean());
         PersistableBundle bundle1 = mBundleCaptor.getValue();
         assertThat(bundle1.getLongArray("elapsed_timestamp_nanos"))
             .asList().containsExactly(99999999L);
@@ -457,12 +458,44 @@ public class StatsPublisherTest {
         assertThat(Arrays.asList(bundle1.getStringArray("activity_name")))
             .containsExactly("activityName");
         assertThat(bundle1.getLongArray("rss_in_bytes")).asList().containsExactly(1234L);
-        verify(subscriber2).push(mBundleCaptor.capture());
+        verify(subscriber2).push(mBundleCaptor.capture(), anyBoolean());
         PersistableBundle bundle2 = mBundleCaptor.getValue();
         assertThat(bundle2.getIntArray("uid")).asList().containsExactly(234);
         assertThat(bundle2.getLongArray("rss_in_bytes")).asList().containsExactly(4567L);
         assertThat(bundle2.getLongArray("elapsed_timestamp_nanos"))
             .asList().containsExactly(445678901L);
+    }
+
+    @Test
+    public void testBundleWithLargeSize_isLargeData() throws Exception {
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putBooleanArray("bool", new boolean[1000]);
+        bundle.putLongArray("long", new long[1000]);
+        bundle.putIntArray("int", new int[1000]);
+        bundle.putDoubleArray("double", new double[1000]);
+        String[] strArray = new String[1000];
+        for (int i = 0; i < strArray.length; ++i) {
+            strArray[i] = "test";
+        }
+        bundle.putStringArray("string", strArray);
+
+        assertThat(mPublisher.isBundleLargeData(bundle)).isTrue();
+    }
+
+    @Test
+    public void testBundleWithSmallSize_isNotLargeData() throws Exception {
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putBooleanArray("bool", new boolean[100]);
+        bundle.putLongArray("long", new long[100]);
+        bundle.putIntArray("int", new int[100]);
+        bundle.putDoubleArray("double", new double[100]);
+        String[] strArray = new String[100];
+        for (int i = 0; i < strArray.length; ++i) {
+            strArray[i] = "test";
+        }
+        bundle.putStringArray("string", strArray);
+
+        assertThat(mPublisher.isBundleLargeData(bundle)).isFalse();
     }
 
     @Test
@@ -483,7 +516,7 @@ public class StatsPublisherTest {
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
         // subscriber shouldn't get data, because of EMPTY_METRICS_REPORT.
-        verify(subscriber, times(0)).push(any());
+        verify(subscriber, times(0)).push(any(), anyBoolean());
         assertThat(mFailedConfigs).containsExactly(METRICS_CONFIG);
         assertThat(mPublisherFailure).hasMessageThat().contains("Found invalid configs");
     }

@@ -21,6 +21,8 @@ import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_C
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_CPU_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
 
+import static java.nio.charset.StandardCharsets.UTF_16;
+
 import android.app.StatsManager.StatsUnavailableException;
 import android.car.builtin.util.Slogf;
 import android.os.Handler;
@@ -91,6 +93,12 @@ public class StatsPublisher extends AbstractPublisher {
 
     private static final String BUNDLE_CONFIG_KEY_PREFIX = "statsd-publisher-config-id-";
     private static final String BUNDLE_CONFIG_VERSION_PREFIX = "statsd-publisher-config-version-";
+    /**
+     * Binder transaction size limit is 1MB for all binders per process, so for large script input
+     * file pipe will be used to transfer the data to script executor instead of binder call. This
+     * is the input size threshold above which piping is used.
+     */
+    private static final int SCRIPT_INPUT_SIZE_THRESHOLD_BYTES = 20 * 1024; // 20 kb
 
     @VisibleForTesting
     static final StatsdConfigProto.FieldMatcher PROCESS_MEMORY_STATE_FIELDS_MATCHER =
@@ -240,7 +248,39 @@ public class StatsPublisher extends AbstractPublisher {
                     "No reports for metric id " + metricId + " for config " + configKey);
             return;
         }
-        subscriber.push(metricBundles.get(metricId));
+        PersistableBundle bundle = metricBundles.get(metricId);
+        subscriber.push(bundle, isBundleLargeData(bundle));
+    }
+
+    @VisibleForTesting
+    boolean isBundleLargeData(PersistableBundle bundle) {
+        String[] keys = bundle.keySet().toArray(new String[0]);
+        int bytes = 0;
+        for (int i = 0; i < keys.length; ++i) {
+            Object array = bundle.get(keys[i]);
+            if (array instanceof boolean[]) {
+                boolean[] boolArray = (boolean[]) array;
+                bytes += boolArray.length;  // Java boolean is 1 byte
+            } else if (array instanceof long[]) {
+                long[] longArray = (long[]) array;
+                bytes += longArray.length * Long.BYTES;
+            } else if (array instanceof int[]) {
+                int[] intArray = (int[]) array;
+                bytes += intArray.length * Integer.BYTES;
+            } else if (array instanceof double[]) {
+                double[] doubleArray = (double[]) array;
+                bytes += doubleArray.length * Double.BYTES;
+            } else if (array instanceof String[]) {
+                String[] stringArray = (String[]) array;
+                for (String str : stringArray) {
+                    bytes += str.getBytes(UTF_16).length;
+                }
+            }
+        }
+        if (bytes < SCRIPT_INPUT_SIZE_THRESHOLD_BYTES) {
+            return false;
+        }
+        return true;
     }
 
     private void processStatsMetadata(StatsLogProto.StatsdStatsReport statsReport) {

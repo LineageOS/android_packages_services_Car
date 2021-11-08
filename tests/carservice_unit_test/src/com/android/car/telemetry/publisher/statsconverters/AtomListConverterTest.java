@@ -16,8 +16,6 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.PersistableBundle;
@@ -60,8 +58,7 @@ public class AtomListConverterTest {
 
         PersistableBundle bundle = AtomListConverter.convert(pushedAtomsList, null, null, null);
 
-        assertThat(bundle.size()).isEqualTo(4);
-        assertThat(bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)).isEqualTo(80);
+        assertThat(bundle.size()).isEqualTo(3);
         assertThat(bundle.getIntArray(
                 accessorMap.get(AppStartMemoryStateCaptured.UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 1100).inOrder();
@@ -97,8 +94,7 @@ public class AtomListConverterTest {
 
         PersistableBundle bundle = AtomListConverter.convert(pulledAtomsList, null, null, null);
 
-        assertThat(bundle.size()).isEqualTo(4);
-        assertThat(bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)).isEqualTo(76);
+        assertThat(bundle.size()).isEqualTo(3);
         assertThat(bundle.getIntArray(
                 accessorMap.get(ProcessMemoryState.UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 1100).inOrder();

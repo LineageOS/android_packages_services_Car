@@ -16,8 +16,6 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
-
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.AtomsProto;
@@ -84,9 +82,6 @@ public class GaugeMetricDataConverter {
             elapsedTimesArray[i] = elapsedTimes.get(i);
         }
         bundle.putLongArray(ELAPSED_TIME_NANOS, elapsedTimesArray);
-        int bundleSize = bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)
-                + elapsedTimesArray.length * Long.BYTES;
-        bundle.putInt(APPROX_BUNDLE_SIZE_BYTES_KEY, bundleSize);
         return bundle;
     }
 }
