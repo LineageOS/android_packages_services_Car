@@ -46,6 +46,7 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
 import android.os.Trace;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.EventLog;
 import android.util.IndentingPrintWriter;
@@ -961,6 +962,11 @@ public class ICarImpl extends ICar.Stub {
 
             mCarPowerManagementService.setFactoryResetCallback(callback);
             FactoryResetActivity.sendNotification(mContext, callback);
+        }
+
+        @Override
+        public void setInitialUser(UserHandle user) {
+            mCarUserService.setInitialUserFromSystemServer(user);
         }
     }
 }

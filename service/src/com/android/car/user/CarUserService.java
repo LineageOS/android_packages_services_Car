@@ -230,7 +230,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Nullable
     @GuardedBy("mLockUser")
-    private UserInfo mInitialUser;
+    private UserHandle mInitialUser;
 
     private IResultReceiver mUserSwitchUiReceiver;
 
@@ -751,7 +751,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @hide
      */
     @Nullable
-    public UserInfo getInitialUser() {
+    public UserHandle getInitialUser() {
         checkInteractAcrossUsersPermission("getInitialUser");
         synchronized (mLockUser) {
             return mInitialUser;
@@ -765,13 +765,53 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SET_INITIAL_USER,
                 user == null ? UserHandle.USER_NULL : user.id);
         synchronized (mLockUser) {
+            if (user == null) {
+                // This mean InitialUserSetter failed and could not fallback, so the initial user
+                // was not switched (and most likely is SYSTEM_USER).
+                // TODO(b/153104378): should we set it to ActivityManager.getCurrentUser() instead?
+                Slog.wtf(TAG, "Initial user set to null");
+                mInitialUser = null;
+                return;
+            }
+            mInitialUser = user.getUserHandle();
+        }
+        sendInitialUserToSystemServer(user.getUserHandle());
+    }
+
+    /**
+     * Sets the initial foreground user after car service is crashed and reconnected.
+     */
+    public void setInitialUserFromSystemServer(@Nullable UserHandle user) {
+        if (user == null || user.getIdentifier() == UserHandle.USER_NULL) {
+            Slogf.e(TAG,
+                    "setInitialUserFromSystemServer: Not setting initial user as user is NULL ");
+            return;
+        }
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slogf.d(TAG, "setInitialUserFromSystemServer: initial User: %s", user);
+        }
+
+        synchronized (mLockUser) {
             mInitialUser = user;
         }
-        if (user == null) {
-            // This mean InitialUserSetter failed and could not fallback, so the initial user was
-            // not switched (and most likely is SYSTEM_USER).
-            // TODO(b/153104378): should we set it to ActivityManager.getCurrentUser() instead?
-            Slog.wtf(TAG, "Initial user set to null");
+    }
+
+    private void sendInitialUserToSystemServer(UserHandle user) {
+        ICarServiceHelper iCarServiceHelper;
+        synchronized (mLockUser) {
+            iCarServiceHelper = mICarServiceHelper;
+        }
+
+        if (iCarServiceHelper == null) {
+            Slogf.e(TAG, "sendInitialUserToSystemServer: CarServiceHelper is NULL.");
+            return;
+        }
+
+        try {
+            iCarServiceHelper.sendInitialUser(user);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Error calling sendInitialUser.", e);
         }
     }
 
