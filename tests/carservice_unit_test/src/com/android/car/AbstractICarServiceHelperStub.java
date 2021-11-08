@@ -39,12 +39,6 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     }
 
     @Override
-    public int forceSuspend(int timeoutMs) {
-        Log.d(TAG, "forceSuspend(" + timeoutMs + "): returning 0");
-        return 0;
-    }
-
-    @Override
     public void setDisplayAllowlistForUser(@UserIdInt int userId, int[] displayIds) {
         Log.d(TAG, "setDisplayAllowlistForUser(user=" + userId + ", displayIds="
                 + Arrays.toString(displayIds) + ")");

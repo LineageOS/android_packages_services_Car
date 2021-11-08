@@ -26,7 +26,6 @@ import java.util.List;
  * @hide
  */
 interface ICarServiceHelper {
-    int forceSuspend(int timeoutMs);
     /**
     * Check
     * {@link com.android.server.wm.CarLaunchParamsModifier#setDisplayAllowlistForUser(int, int[]).
