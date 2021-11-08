@@ -62,12 +62,14 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.ICarImpl;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.ArrayUtils;
 import com.android.server.utils.Slogf;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.time.Instant;
 import java.util.List;
@@ -83,7 +85,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
     static final int MISSING_ARG_VALUE = -1;
-    static final TimeSourceInterface SYSTEM_INSTANCE = new TimeSourceInterface() {
+
+    private static final String FALLBACK_DATA_SYSTEM_CAR_DIR_PATH = "/data/system/car";
+    private static final String WATCHDOG_DIR_NAME = "watchdog";
+
+    private static final TimeSource SYSTEM_INSTANCE = new TimeSource() {
         @Override
         public Instant now() {
             return Instant.now();
@@ -145,7 +151,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             }
             int powerCycle = carPowerStateToPowerCycle(powerService.getPowerState());
             switch (powerCycle) {
+                case PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE:
+                    // Perform time consuming disk I/O operation during shutdown prepare to avoid
+                    // incomplete I/O.
+                    mWatchdogPerfHandler.writeMetadataFile();
+                    break;
                 case PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER:
+                    // Watchdog service and daemon performs garage mode monitoring so delay writing
+                    // to database until after shutdown enter.
                     mWatchdogPerfHandler.writeToDatabase();
                     break;
                 // ON covers resume.
@@ -190,11 +203,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private boolean mIsDisplayEnabled;
 
     public CarWatchdogService(Context context) {
-        this(context, new WatchdogStorage(context));
+        this(context, new WatchdogStorage(context, SYSTEM_INSTANCE), SYSTEM_INSTANCE);
     }
 
     @VisibleForTesting
-    CarWatchdogService(Context context, WatchdogStorage watchdogStorage) {
+    CarWatchdogService(Context context, WatchdogStorage watchdogStorage, TimeSource timeSource) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
@@ -203,7 +216,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
                 mCarWatchdogDaemonHelper);
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
-                mPackageInfoHandler, mWatchdogStorage);
+                mPackageInfoHandler, mWatchdogStorage, timeSource);
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
             synchronized (mLock) {
@@ -420,11 +433,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @VisibleForTesting
-    void setTimeSource(TimeSourceInterface timeSource) {
-        mWatchdogPerfHandler.setTimeSource(timeSource);
-    }
-
-    @VisibleForTesting
     void setOveruseHandlingDelay(long millis) {
         mWatchdogPerfHandler.setOveruseHandlingDelay(millis);
     }
@@ -432,6 +440,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @VisibleForTesting
     void setRecurringOveruseThreshold(int threshold) {
         mWatchdogPerfHandler.setRecurringOveruseThreshold(threshold);
+    }
+
+    @VisibleForTesting
+    void setUidIoUsageSummaryTopCount(int uidIoUsageSummaryTopCount) {
+        mWatchdogPerfHandler.setUidIoUsageSummaryTopCount(uidIoUsageSummaryTopCount);
+    }
+
+    static File getWatchdogDirFile() {
+        SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+        String systemCarDirPath = systemInterface == null ? FALLBACK_DATA_SYSTEM_CAR_DIR_PATH
+                : systemInterface.getSystemCarDir().getAbsolutePath();
+        return new File(systemCarDirPath, WATCHDOG_DIR_NAME);
     }
 
     private void notifyAllUserStates() {
