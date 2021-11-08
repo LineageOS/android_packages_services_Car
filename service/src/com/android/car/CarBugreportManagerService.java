@@ -152,7 +152,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         ensureTheCallerIsDesignatedBugReportApp();
         synchronized (mLock) {
             if (!mIsServiceRunning.getAndSet(false)) {
-                Slogf.i(TAG, "Failed to cancel. Service is not running.");
+                Slogf.i(TAG, "Ignoring cancelBugreport. Service is not running.");
                 return;
             }
             Slogf.i(TAG, "Cancelling the running bugreport");
