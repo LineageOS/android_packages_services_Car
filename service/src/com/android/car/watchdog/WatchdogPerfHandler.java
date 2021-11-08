@@ -16,6 +16,8 @@
 
 package com.android.car.watchdog;
 
+import static android.app.StatsManager.PULL_SKIP;
+import static android.app.StatsManager.PULL_SUCCESS;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_PAST_15_DAYS;
@@ -38,17 +40,20 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_INTERACTION_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.watchdog.CarWatchdogService.DEBUG;
-import static com.android.car.watchdog.CarWatchdogService.SYSTEM_INSTANCE;
 import static com.android.car.watchdog.CarWatchdogService.TAG;
 import static com.android.car.watchdog.PackageInfoHandler.SHARED_PACKAGE_PREFIX;
-import static com.android.car.watchdog.WatchdogStorage.STATS_TEMPORAL_UNIT;
-import static com.android.car.watchdog.WatchdogStorage.ZONE_OFFSET;
+import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
+import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.app.StatsManager;
+import android.app.StatsManager.PullAtomMetadata;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.GarageMode;
@@ -88,7 +93,12 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.AtomicFile;
+import android.util.JsonReader;
+import android.util.JsonWriter;
+import android.util.Pair;
 import android.util.SparseArray;
+import android.util.StatsEvent;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -96,21 +106,34 @@ import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.time.ZoneOffset;
+import java.nio.charset.StandardCharsets;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -121,9 +144,25 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS = "MAPS";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
-
+    public static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 10;
+    public static final int UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES = 500 * 1024 * 1024;
+    private static final String METADATA_FILENAME = "metadata.json";
+    private static final String SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE =
+            "systemIoUsageSummaryReportedDate";
+    private static final String UID_IO_USAGE_SUMMARY_REPORTED_DATE =
+            "uidIoUsageSummaryReportedDate";
     private static final long OVERUSE_HANDLING_DELAY_MILLS = 10_000;
     private static final long MAX_WAIT_TIME_MILLS = 3_000;
+
+    private static final PullAtomMetadata PULL_ATOM_METADATA =
+            new PullAtomMetadata.Builder()
+                    // Summary atoms are populated only once a week. So, a longer cool down duration
+                    // is sufficient.
+                    .setCoolDownMillis(TimeUnit.MILLISECONDS.convert(1L, TimeUnit.HOURS))
+                    // When summary atoms are populated once a week, watchdog needs additional time
+                    // for reading from disk/DB.
+                    .setTimeoutMillis(10_000)
+                    .build();
 
     // TODO(b/195425666): Define this constant as a resource overlay config with two values:
     //  1. Recurring overuse period - Period to calculate the recurring overuse.
@@ -195,11 +234,17 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private @GarageMode int mCurrentGarageMode;
     @GuardedBy("mLock")
-    private TimeSourceInterface mTimeSource;
+    private TimeSource mTimeSource;
     @GuardedBy("mLock")
     private long mOveruseHandlingDelayMills;
     @GuardedBy("mLock")
     private long mRecurringOveruseThreshold;
+    @GuardedBy("mLock")
+    private ZonedDateTime mLastSystemIoUsageSummaryReportedDate;
+    @GuardedBy("mLock")
+    private ZonedDateTime mLastUidIoUsageSummaryReportedDate;
+    @GuardedBy("mLock")
+    private int mUidIoUsageSummaryTopCount;
 
     private final ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener =
             new ICarUxRestrictionsChangeListener.Stub() {
@@ -213,7 +258,8 @@ public final class WatchdogPerfHandler {
             };
 
     public WatchdogPerfHandler(Context context, CarWatchdogDaemonHelper daemonHelper,
-            PackageInfoHandler packageInfoHandler, WatchdogStorage watchdogStorage) {
+            PackageInfoHandler packageInfoHandler, WatchdogStorage watchdogStorage,
+            TimeSource timeSource) {
         mContext = context;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
@@ -222,11 +268,12 @@ public final class WatchdogPerfHandler {
                 CarWatchdogService.class.getSimpleName()).getLooper());
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
-        mTimeSource = SYSTEM_INSTANCE;
+        mTimeSource = timeSource;
         mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
         mCurrentUxState = UX_STATE_NO_DISTRACTION;
         mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
         mRecurringOveruseThreshold = RECURRING_OVERUSE_THRESHOLD;
+        mUidIoUsageSummaryTopCount = UID_IO_USAGE_SUMMARY_TOP_COUNT;
     }
 
     /** Initializes the handler. */
@@ -237,7 +284,16 @@ public final class WatchdogPerfHandler {
             synchronized (mLock) {
                 checkAndHandleDateChangeLocked();
                 mIsWrittenToDatabase = false;
-            }});
+            }
+            // Set atom pull callbacks only after the internal datastructures are updated. When the
+            // pull happens, the service is already initialized and ready to populate the pulled
+            // atoms.
+            StatsManager statsManager = mContext.getSystemService(StatsManager.class);
+            statsManager.setPullAtomCallback(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                    PULL_ATOM_METADATA, ConcurrentUtils.DIRECT_EXECUTOR, this::onPullAtom);
+            statsManager.setPullAtomCallback(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                    PULL_ATOM_METADATA, ConcurrentUtils.DIRECT_EXECUTOR, this::onPullAtom);
+        });
 
         CarLocalServices.getService(CarUxRestrictionsManagerService.class)
                 .registerUxRestrictionsChangeListener(
@@ -820,13 +876,6 @@ public final class WatchdogPerfHandler {
         }
     }
 
-    /** Sets the time source. */
-    public void setTimeSource(TimeSourceInterface timeSource) {
-        synchronized (mLock) {
-            mTimeSource = timeSource;
-        }
-    }
-
     /**
      * Sets the delay to handle resource overuse after the package is notified of resource overuse.
      */
@@ -840,6 +889,56 @@ public final class WatchdogPerfHandler {
     public void setRecurringOveruseThreshold(int threshold) {
         synchronized (mLock) {
             mRecurringOveruseThreshold = threshold;
+        }
+    }
+
+    /** Sets top N UID I/O usage summaries to report on stats pull. */
+    public void setUidIoUsageSummaryTopCount(int uidIoUsageSummaryTopCount) {
+        synchronized (mLock) {
+            mUidIoUsageSummaryTopCount = uidIoUsageSummaryTopCount;
+        }
+    }
+
+    /** Writes to watchdog metadata file. */
+    public void writeMetadataFile() {
+        ZonedDateTime systemIoUsageSummaryReportDate;
+        ZonedDateTime uidIoUsageSummaryReportDate;
+        synchronized (mLock) {
+            if (mLastSystemIoUsageSummaryReportedDate == null
+                    && mLastUidIoUsageSummaryReportedDate == null) {
+                return;
+            }
+            systemIoUsageSummaryReportDate = mLastSystemIoUsageSummaryReportedDate;
+            uidIoUsageSummaryReportDate = mLastUidIoUsageSummaryReportedDate;
+        }
+        File file = getWatchdogMetadataFile();
+        AtomicFile atomicFile = new AtomicFile(file);
+        FileOutputStream fos = null;
+        try {
+            fos = atomicFile.startWrite();
+            try (JsonWriter jsonWriter =
+                         new JsonWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
+                jsonWriter.beginObject();
+                if (systemIoUsageSummaryReportDate != null) {
+                    jsonWriter.name(SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE)
+                            .value(systemIoUsageSummaryReportDate
+                                    .format(DateTimeFormatter.ISO_DATE_TIME));
+                }
+                if (uidIoUsageSummaryReportDate != null) {
+                    jsonWriter.name(UID_IO_USAGE_SUMMARY_REPORTED_DATE)
+                            .value(uidIoUsageSummaryReportDate
+                                    .format(DateTimeFormatter.ISO_DATE_TIME));
+                }
+                jsonWriter.endObject();
+            }
+            atomicFile.finishWrite(fos);
+            if (DEBUG) {
+                Slogf.e(TAG, "Successfully wrote watchdog metadata file '%s'",
+                        file.getAbsoluteFile());
+            }
+        } catch (IOException e) {
+            Slogf.e(TAG, e, "Failed to write watchdog metadata file '%s'", file.getAbsoluteFile());
+            atomicFile.failWrite(fos);
         }
     }
 
@@ -890,8 +989,7 @@ public final class WatchdogPerfHandler {
                 usage.setKillableState(entry.killableState);
                 mUsageByUserPackage.put(key, usage);
             }
-            ZonedDateTime curReportDate =
-                    mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+            ZonedDateTime curReportDate = mTimeSource.getCurrentDate();
             for (int i = 0; i < ioStatsEntries.size(); ++i) {
                 WatchdogStorage.IoUsageStatsEntry entry = ioStatsEntries.get(i);
                 String key = getUserPackageUniqueId(entry.userId, entry.packageName);
@@ -1025,8 +1123,7 @@ public final class WatchdogPerfHandler {
 
     @GuardedBy("mLock")
     private void checkAndHandleDateChangeLocked() {
-        ZonedDateTime currentDate = mTimeSource.now().atZone(ZoneOffset.UTC)
-                .truncatedTo(STATS_TEMPORAL_UNIT);
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         if (currentDate.equals(mLatestStatsReportDate)) {
             return;
         }
@@ -1440,6 +1537,269 @@ public final class WatchdogPerfHandler {
                         writtenBytes.backgroundBytes, writtenBytes.garageModeBytes));
     }
 
+    private int onPullAtom(int atomTag, List<StatsEvent> data) {
+        if (atomTag != CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY
+                && atomTag != CAR_WATCHDOG_UID_IO_USAGE_SUMMARY) {
+            Slogf.e(TAG, "Unexpected atom tag: %d", atomTag);
+            return PULL_SKIP;
+        }
+        synchronized (mLock) {
+            if (mLastSystemIoUsageSummaryReportedDate == null
+                    || mLastUidIoUsageSummaryReportedDate == null) {
+                readMetadataFileLocked();
+            }
+        }
+        ZonedDateTime reportDate;
+        switch (atomTag) {
+            case CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY:
+                synchronized (mLock) {
+                    reportDate = mLastSystemIoUsageSummaryReportedDate;
+                }
+                pullAtomsForWeeklyPeriodsSinceReportedDate(reportDate, data,
+                        this::pullSystemIoUsageSummaryStatsEvents);
+                synchronized (mLock) {
+                    mLastSystemIoUsageSummaryReportedDate = mTimeSource.getCurrentDate();
+                }
+                break;
+            case CAR_WATCHDOG_UID_IO_USAGE_SUMMARY:
+                synchronized (mLock) {
+                    reportDate = mLastUidIoUsageSummaryReportedDate;
+                }
+                pullAtomsForWeeklyPeriodsSinceReportedDate(reportDate, data,
+                        this::pullUidIoUsageSummaryStatsEvents);
+                synchronized (mLock) {
+                    mLastUidIoUsageSummaryReportedDate = mTimeSource.getCurrentDate();
+                }
+                break;
+        }
+        return PULL_SUCCESS;
+    }
+
+    @GuardedBy("mLock")
+    private void readMetadataFileLocked() {
+        mLastSystemIoUsageSummaryReportedDate = mLastUidIoUsageSummaryReportedDate =
+                mTimeSource.getCurrentDate().minus(RETENTION_PERIOD);
+        File file = getWatchdogMetadataFile();
+        if (!file.exists()) {
+            Slogf.e(TAG, "Watchdog metadata file '%s' doesn't exist", file.getAbsoluteFile());
+            return;
+        }
+        AtomicFile atomicFile = new AtomicFile(file);
+        try (FileInputStream fis = atomicFile.openRead()) {
+            JsonReader reader = new JsonReader(new InputStreamReader(fis, StandardCharsets.UTF_8));
+            reader.beginObject();
+            while (reader.hasNext()) {
+                String name = reader.nextName();
+                switch (name) {
+                    case SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE:
+                        mLastSystemIoUsageSummaryReportedDate =
+                                ZonedDateTime.parse(reader.nextString(),
+                                        DateTimeFormatter.ISO_DATE_TIME.withZone(ZONE_OFFSET));
+                        break;
+                    case UID_IO_USAGE_SUMMARY_REPORTED_DATE:
+                        mLastUidIoUsageSummaryReportedDate =
+                                ZonedDateTime.parse(reader.nextString(),
+                                        DateTimeFormatter.ISO_DATE_TIME.withZone(ZONE_OFFSET));
+                        break;
+                    default:
+                        Slogf.w(TAG, "Unrecognized key: %s", name);
+                        reader.skipValue();
+                }
+            }
+            reader.endObject();
+            if (DEBUG) {
+                Slogf.e(TAG, "Successfully read watchdog metadata file '%s'",
+                        file.getAbsoluteFile());
+            }
+        } catch (IOException e) {
+            Slogf.e(TAG, e, "Failed to read watchdog metadata file '%s'", file.getAbsoluteFile());
+        } catch (NumberFormatException | IllegalStateException | DateTimeParseException e) {
+            Slogf.e(TAG, e, "Unexpected format in watchdog metadata file '%s'",
+                    file.getAbsoluteFile());
+        }
+    }
+
+    private void pullAtomsForWeeklyPeriodsSinceReportedDate(ZonedDateTime reportedDate,
+            List<StatsEvent> data, BiConsumer<Pair<ZonedDateTime, ZonedDateTime>,
+            List<StatsEvent>> pullAtomCallback) {
+        ZonedDateTime now;
+        synchronized (mLock) {
+            now = mTimeSource.getCurrentDate();
+        }
+        ZonedDateTime nextReportWeekStartDate = reportedDate.with(ChronoField.DAY_OF_WEEK, 1)
+                .truncatedTo(ChronoUnit.DAYS);
+        while (ChronoUnit.WEEKS.between(nextReportWeekStartDate, now) > 0) {
+            pullAtomCallback.accept(
+                    new Pair<>(nextReportWeekStartDate, nextReportWeekStartDate.plusWeeks(1)),
+                    data);
+            nextReportWeekStartDate = nextReportWeekStartDate.plusWeeks(1);
+        }
+    }
+
+    private void pullSystemIoUsageSummaryStatsEvents(Pair<ZonedDateTime, ZonedDateTime> period,
+            List<StatsEvent> data) {
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries =
+                mWatchdogStorage.getDailySystemIoUsageSummaries(period.first.toEpochSecond(),
+                        period.second.toEpochSecond());
+        if (dailyIoUsageSummaries == null) {
+            Slogf.i(TAG, "No system I/O usage summary stats available to pull");
+            return;
+        }
+
+        AtomsProto.CarWatchdogEventTimePeriod evenTimePeriod =
+                AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
+                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY)
+                        .setStartTimeMillis(period.first.toEpochSecond()).build();
+        data.add(CarStatsLog.buildStatsEvent(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
+                        .setEventTimePeriod(evenTimePeriod)
+                        .addAllDailyIoUsageSummary(dailyIoUsageSummaries).build()
+                        .toByteArray()));
+
+        Slogf.i(TAG, "Successfully pulled system I/O usage summary stats");
+    }
+
+    private void pullUidIoUsageSummaryStatsEvents(Pair<ZonedDateTime, ZonedDateTime> period,
+            List<StatsEvent> data) {
+        int numTopUsers;
+        synchronized (mLock) {
+            numTopUsers = mUidIoUsageSummaryTopCount;
+        }
+        // Fetch summaries for twice the top N user packages because if the UID cannot be resolved
+        // for some user packages, the fetched summaries will still contain enough entries to pull.
+        List<WatchdogStorage.UserPackageDailySummaries> topUsersDailyIoUsageSummaries =
+                mWatchdogStorage.getTopUsersDailyIoUsageSummaries(numTopUsers * 2,
+                        UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES,
+                        period.first.toEpochSecond(), period.second.toEpochSecond());
+        if (topUsersDailyIoUsageSummaries == null) {
+            Slogf.i(TAG, "No top users' I/O usage summary stats available to pull");
+            return;
+        }
+
+        SparseArray<List<String>> genericPackageNamesByUserId = new SparseArray<>();
+        for (int i = 0; i < topUsersDailyIoUsageSummaries.size(); ++i) {
+            WatchdogStorage.UserPackageDailySummaries entry =
+                    topUsersDailyIoUsageSummaries.get(i);
+            List<String> genericPackageNames = genericPackageNamesByUserId.get(entry.userId);
+            if (genericPackageNames == null) {
+                genericPackageNames = new ArrayList<>();
+            }
+            genericPackageNames.add(entry.packageName);
+            genericPackageNamesByUserId.put(entry.userId, genericPackageNames);
+        }
+
+        SparseArray<Map<String, Integer>> packageUidsByUserId =
+                getPackageUidsForUsers(genericPackageNamesByUserId);
+
+        AtomsProto.CarWatchdogEventTimePeriod.Builder evenTimePeriodBuilder =
+                AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
+                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY)
+                        .setStartTimeMillis(period.first.toEpochSecond());
+
+        int numPulledUidSummaryStats = 0;
+        for (int i = 0; i < topUsersDailyIoUsageSummaries.size()
+                && numPulledUidSummaryStats < numTopUsers; ++i) {
+            WatchdogStorage.UserPackageDailySummaries entry = topUsersDailyIoUsageSummaries.get(i);
+            Map<String, Integer> uidsByGenericPackageName = packageUidsByUserId.get(entry.userId);
+            if (uidsByGenericPackageName == null
+                    || !uidsByGenericPackageName.containsKey(entry.packageName)) {
+                Slogf.e(TAG, "Failed to fetch uid for package %s and user %d. So, skipping "
+                        + "reporting stats for this user package", entry.packageName, entry.userId);
+                continue;
+            }
+            data.add(CarStatsLog.buildStatsEvent(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                    uidsByGenericPackageName.get(entry.packageName),
+                    AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
+                            .setEventTimePeriod(evenTimePeriodBuilder)
+                            .addAllDailyIoUsageSummary(entry.dailyIoUsageSummaries).build()
+                            .toByteArray()));
+            ++numPulledUidSummaryStats;
+        }
+
+        Slogf.e(TAG, "Successfully pulled top %d users' I/O usage summary stats",
+                numPulledUidSummaryStats);
+    }
+
+    private SparseArray<Map<String, Integer>> getPackageUidsForUsers(
+            SparseArray<List<String>> genericPackageNamesByUserId) {
+        PackageManager pm = mContext.getPackageManager();
+        SparseArray<Map<String, Integer>> packageUidsByUserId = new SparseArray<>();
+        for (int i = 0; i < genericPackageNamesByUserId.size(); ++i) {
+            int userId = genericPackageNamesByUserId.keyAt(i);
+            Map<String, Integer> uidsByGenericPackageName = getPackageUidsForUser(pm,
+                    genericPackageNamesByUserId.valueAt(i), userId);
+            if (!uidsByGenericPackageName.isEmpty()) {
+                packageUidsByUserId.put(userId, uidsByGenericPackageName);
+            }
+        }
+        return packageUidsByUserId;
+    }
+
+    /**
+     * Returns UIDs for the given generic package names belonging to the given user.
+     *
+     * <p>{@code pm.getInstalledPackagesAsUser} call is expensive as it fetches all installed
+     * packages for the given user. Thus this method should be called for all packages that requires
+     * the UIDs to be resolved in a single call.
+     */
+    private Map<String, Integer> getPackageUidsForUser(PackageManager pm,
+            List<String> genericPackageNames, int userId) {
+        Map<String, Integer> uidsByGenericPackageNames = new ArrayMap<>();
+        Set<String> resolveSharedUserIds = new ArraySet<>();
+        for (int i = 0; i < genericPackageNames.size(); ++i) {
+            String genericPackageName = genericPackageNames.get(i);
+            PackageResourceUsage usage;
+            synchronized (mLock) {
+                usage = mUsageByUserPackage.get(getUserPackageUniqueId(userId,
+                        genericPackageName));
+            }
+            if (usage != null && usage.getUid() != INVALID_UID) {
+                uidsByGenericPackageNames.put(genericPackageName, usage.getUid());
+                continue;
+            }
+            if (genericPackageName.startsWith(SHARED_PACKAGE_PREFIX)) {
+                resolveSharedUserIds.add(
+                        genericPackageName.substring(SHARED_PACKAGE_PREFIX.length()));
+                continue;
+            }
+            int uid = getPackageUidAsUser(pm, genericPackageName, userId);
+            if (uid != INVALID_UID) {
+                uidsByGenericPackageNames.put(genericPackageName, uid);
+            }
+        }
+        if (resolveSharedUserIds.isEmpty()) {
+            return uidsByGenericPackageNames;
+        }
+        List<PackageInfo> packageInfos = pm.getInstalledPackagesAsUser(/* flags= */ 0, userId);
+        for (int i = 0; i < packageInfos.size() && !resolveSharedUserIds.isEmpty(); ++i) {
+            PackageInfo packageInfo = packageInfos.get(i);
+            if (packageInfo.sharedUserId == null
+                    || !resolveSharedUserIds.contains(packageInfo.sharedUserId)) {
+                continue;
+            }
+            int uid = getPackageUidAsUser(pm, packageInfo.packageName, userId);
+            if (uid != INVALID_UID) {
+                uidsByGenericPackageNames.put(SHARED_PACKAGE_PREFIX + packageInfo.sharedUserId,
+                        uid);
+            }
+            resolveSharedUserIds.remove(packageInfo.sharedUserId);
+        }
+        return uidsByGenericPackageNames;
+    }
+
+    private int getPackageUidAsUser(PackageManager pm, String packageName, @UserIdInt int userId) {
+        try {
+            return PackageManagerHelper.getPackageUidAsUser(pm, packageName, userId);
+        } catch (PackageManager.NameNotFoundException e) {
+            Slogf.e(TAG, "Package %s for user %d is not found", packageName, userId);
+            return INVALID_UID;
+        }
+    }
+
+    private static File getWatchdogMetadataFile() {
+        return new File(CarWatchdogService.getWatchdogDirFile(), METADATA_FILENAME);
+    }
+
     private static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
         return userId + ":" + genericPackageName;
     }
@@ -1798,10 +2158,18 @@ public final class WatchdogPerfHandler {
     @VisibleForTesting
     static AtomsProto.CarWatchdogPerStateBytes constructCarWatchdogPerStateBytes(
             long foregroundBytes, long backgroundBytes, long garageModeBytes) {
-        return AtomsProto.CarWatchdogPerStateBytes.newBuilder()
-                .setForegroundBytes(foregroundBytes)
-                .setBackgroundBytes(backgroundBytes)
-                .setGarageModeBytes(garageModeBytes).build();
+        AtomsProto.CarWatchdogPerStateBytes.Builder perStateBytesBuilder =
+                AtomsProto.CarWatchdogPerStateBytes.newBuilder();
+        if (foregroundBytes != 0) {
+            perStateBytesBuilder.setForegroundBytes(foregroundBytes);
+        }
+        if (backgroundBytes != 0) {
+            perStateBytesBuilder.setBackgroundBytes(backgroundBytes);
+        }
+        if (garageModeBytes != 0) {
+            perStateBytesBuilder.setGarageModeBytes(garageModeBytes);
+        }
+        return perStateBytesBuilder.build();
     }
 
     private final class PackageResourceUsage {
