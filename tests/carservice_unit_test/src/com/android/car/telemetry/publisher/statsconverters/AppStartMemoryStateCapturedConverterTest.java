@@ -24,7 +24,6 @@ import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.P
 import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.RSS_IN_BYTES_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.SWAP_IN_BYTES_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.UID_FIELD_NUMBER;
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -119,8 +118,7 @@ public class AppStartMemoryStateCapturedConverterTest {
         PersistableBundle bundle = mConverter.convert(atomsList, DIM_FIELDS_IDS,
                 dimensionsValuesList, HASH_STR_MAP);
 
-        assertThat(bundle.size()).isEqualTo(9);
-        assertThat(bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)).isEqualTo(204);
+        assertThat(bundle.size()).isEqualTo(8);
         assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 2000).inOrder();
         assertThat(Arrays.asList(
