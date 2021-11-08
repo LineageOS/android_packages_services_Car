@@ -17,11 +17,26 @@
 package com.android.car.watchdog;
 
 import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 /**
  * Provider for the current value of "now" for users of {@code java.time}.
  */
-public interface TimeSourceInterface {
+public abstract class TimeSource {
+    public static final ZoneOffset ZONE_OFFSET = ZoneOffset.UTC;
+
     /** Returns the current instant from the time source implementation. */
-    Instant now();
+    abstract Instant now();
+
+    /** Returns the current date time for the UTC timezone. */
+    public ZonedDateTime getCurrentDateTime() {
+        return now().atZone(ZONE_OFFSET);
+    }
+
+    /** Returns the current date for the UTC timezone without time. */
+    public ZonedDateTime getCurrentDate() {
+        return now().atZone(ZONE_OFFSET).truncatedTo(ChronoUnit.DAYS);
+    }
 }

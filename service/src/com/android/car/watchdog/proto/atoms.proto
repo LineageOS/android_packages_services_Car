@@ -158,3 +158,96 @@ message CarWatchdogProcessStat {
   // Resident set size in kb.
   optional uint64 vm_rss_kb = 7;
 }
+
+/**
+ * Logs total I/O usage summary for all applications and services running in the system.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogSystemIoUsageSummary {
+  // I/O usage summary for the system.
+  optional CarWatchdogIoUsageSummary io_usage_summary = 1;
+}
+
+/**
+ * Logs I/O usage summary for an UID.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogUidIoUsageSummary {
+  // UID of the application/service whose usage summary are recorded.
+  optional int32 uid = 1;
+
+  // I/O usage summary for the UID.
+  optional CarWatchdogIoUsageSummary io_usage_summary = 2;
+}
+
+/**
+ * Logs I/O usage summary for a time period.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogIoUsageSummary {
+  // Summary event time period.
+  optional CarWatchdogEventTimePeriod event_time_period = 1;
+
+  // Daily I/O usage summary for the period. Logs summary entries only for days with I/O usage.
+  // The entries are ordered beginning from the event_time_period.start_time_millis.
+  repeated CarWatchdogDailyIoUsageSummary daily_io_usage_summary = 2;
+}
+
+/**
+ * Logs a car watchdog event's time period.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogEventTimePeriod {
+  enum Period {
+    UNKNOWN_PERIOD = 0;
+    WEEKLY = 1;
+    BIWEEKLY = 2;
+    MONTHLY = 3;
+  }
+
+  // Start time of the event in milliseconds since epoch.
+  optional uint64 start_time_millis = 1;
+
+  // Period for the event.
+  optional Period period = 2;
+}
+
+/**
+ * Logs daily I/O usage summary.
+ *
+ * Keep in sync with proto file at
+ * packages/services/Car/service/src/com/android/car/watchdog/proto/atoms.proto
+ *
+ * Pulled from:
+ *  packages/services/Car/service/src/com/android/car/watchdog/WatchdogPerfHandler.java
+ */
+message CarWatchdogDailyIoUsageSummary {
+  // Total bytes written to disk during a day.
+  optional CarWatchdogPerStateBytes written_bytes = 1;
+
+  // Total uptime for the system or service or application during a day.
+  optional uint64 uptime_millis = 2;
+
+  // Total disk I/O overuses during a day.
+  optional int32 overuse_count = 3;
+}
