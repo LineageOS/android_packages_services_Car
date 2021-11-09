@@ -20,7 +20,6 @@ import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChange
 import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.PKG_NAME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.STATE_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.UID_FIELD_NUMBER;
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -105,8 +104,7 @@ public class ActivityForegroundStateChangedConverterTest {
         PersistableBundle bundle = mConverter.convert(atomsList, DIM_FIELDS_IDS,
                 dimensionsValuesList, HASH_STR_MAP);
 
-        assertThat(bundle.size()).isEqualTo(5);
-        assertThat(bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)).isEqualTo(120);
+        assertThat(bundle.size()).isEqualTo(4);
         assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 2000).inOrder();
         assertThat(Arrays.asList(

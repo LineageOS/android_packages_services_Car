@@ -21,7 +21,6 @@ import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.PROCESS_NA
 import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.RSS_IN_BYTES_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.UID_FIELD_NUMBER;
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -104,8 +103,7 @@ public class GaugeMetricDataConverterTest {
 
         // For each atom 2 fields were set, additionally 3 fields were encoded in dimension values,
         // and 1 elapsed time array, so 6 arrays are expected in the bundle.
-        assertThat(bundle.size()).isEqualTo(7);
-        assertThat(bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)).isEqualTo(264);
+        assertThat(bundle.size()).isEqualTo(6);
         assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(123, 123, 123, 234).inOrder();
         assertThat(Arrays.asList(bundle.getStringArray(

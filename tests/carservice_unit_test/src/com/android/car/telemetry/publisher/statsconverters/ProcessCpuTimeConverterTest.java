@@ -101,7 +101,7 @@ public class ProcessCpuTimeConverterTest {
         PersistableBundle bundle = mConverter.convert(atomsList, DIM_FIELDS_IDS,
                 dimensionsValuesList, HASH_STR_MAP);
 
-        assertThat(bundle.size()).isEqualTo(5);
+        assertThat(bundle.size()).isEqualTo(4);
         assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 2000).inOrder();
         assertThat(Arrays.asList(
