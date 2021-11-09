@@ -87,6 +87,8 @@ message StatsPublisher {
     PROCESS_MEMORY_STATE = 2;
     // Collects activity foreground/background transition events.
     ACTIVITY_FOREGROUND_STATE_CHANGED = 3;
+    // Collects process CPU usage time
+    PROCESS_CPU_TIME = 4;
   }
 
   // Required.
