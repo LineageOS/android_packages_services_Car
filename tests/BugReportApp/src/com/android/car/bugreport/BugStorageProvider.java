@@ -234,8 +234,7 @@ public class BugStorageProvider extends ContentProvider {
             return false;
         }
         mDatabaseHelper = new DatabaseHelper(getContext());
-        mConfig = new Config();
-        mConfig.start();
+        mConfig = Config.create();
         return true;
     }
 
@@ -462,10 +461,6 @@ public class BugStorageProvider extends ContentProvider {
     }
 
     private boolean deleteFilesFor(MetaBugReport bugReport) {
-        if (!Strings.isNullOrEmpty(bugReport.getFilePath())) {
-            // Old bugreports have only filePath.
-            return new File(bugReport.getFilePath()).delete();
-        }
         File pendingDir = FileUtils.getPendingDir(getContext());
         boolean result = true;
         if (!Strings.isNullOrEmpty(bugReport.getAudioFileName())) {

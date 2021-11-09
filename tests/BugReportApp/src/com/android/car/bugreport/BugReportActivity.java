@@ -241,8 +241,7 @@ public class BugReportActivity extends Activity {
 
         // Connect to the services here, because they are used only when showing the dialog.
         // We need to minimize system state change when performing SILENT bug report.
-        mConfig = new Config();
-        mConfig.start();
+        mConfig = Config.create();
         mCar = Car.createCar(this, /* handler= */ null,
                 Car.CAR_WAIT_TIMEOUT_DO_NOT_WAIT, this::onCarLifecycleChanged);
 
