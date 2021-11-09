@@ -43,6 +43,7 @@
         <item name="android:textAppearanceListItemSmall">@*android:style/TextAppearance.DeviceDefault.Large</item>
         <item name="android:textAppearanceListItemSecondary">@*android:style/TextAppearance.DeviceDefault.Small</item>
         <item name="android:actionBarSize">@*android:dimen/car_app_bar_height</item>
+        <item name="android:radioButtonStyle">@style/Widget.DeviceDefault.CompoundButton.RadioButton</item>
 
         <item name="colorSwitchThumbNormal">@color/car_switch_thumb_color</item>
         <item name="colorSwitchTrack">@color/car_switch_track_background_selector</item>
