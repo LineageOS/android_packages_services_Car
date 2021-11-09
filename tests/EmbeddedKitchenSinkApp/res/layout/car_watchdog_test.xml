@@ -28,6 +28,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/recurring_io_overuse"/>
+    <Button
+        android:id="@+id/long_running_recurring_io_overuse_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/long_running_recurring_io_overuse"/>
     <TextView
         android:id="@+id/io_overuse_textview"
         android:layout_width="wrap_content"
