@@ -146,6 +146,11 @@
     <!-- car_switch_thumb_size + car_switch_thumb_stroke_width == car_switch_track_height -->
     <dimen name="car_switch_thumb_size">40dp</dimen>
 
+    <!-- Radio button dimensions -->
+    <dimen name="car_radio_button_outer_ring_size">45dp</dimen>
+    <dimen name="car_radio_button_outer_ring_stroke_width">2dp</dimen>
+    <dimen name="car_radio_button_inner_circle_size">32dp</dimen>
+
     <!-- SeekBar dimensions. -->
     <!-- Allows thumb to extend out of the range of the track. -->
     <!-- For more information see android.widget.SeekBar#attr_android:thumbOffset. -->
