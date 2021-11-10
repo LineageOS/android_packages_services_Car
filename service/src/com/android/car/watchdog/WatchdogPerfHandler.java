@@ -31,6 +31,7 @@ import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_IO_OVERUSE_STATS_REPORTED;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED;
@@ -767,19 +768,35 @@ public final class WatchdogPerfHandler {
                 Slogf.i(TAG,
                         "Reset resource overuse settings and stats for user '%d' package '%s'",
                         usage.userId, usage.genericPackageName);
-                try {
-                    if (packageManager.getApplicationEnabledSetting(usage.genericPackageName,
-                            usage.userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                List<String> packages = Collections.singletonList(usage.genericPackageName);
+                if (usage.isSharedPackage()) {
+                    int uid = usage.getUid();
+                    if (uid == INVALID_UID) {
+                        // Only enable packages that were disabled by the watchdog service. Ergo, if
+                        // the usage doesn't have a valid UID, the package was not recently disabled
+                        // by the watchdog service (unless the service crashed) and can be safely
+                        // skipped.
+                        Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
+                                usage.genericPackageName);
                         continue;
                     }
-                    packageManager.setApplicationEnabledSetting(usage.genericPackageName,
-                            COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, usage.userId,
-                            mContext.getPackageName());
-                    Slogf.i(TAG, "Enabled user '%d' package '%s'", usage.userId,
-                            usage.genericPackageName);
-                } catch (RemoteException | IllegalArgumentException e) {
-                    Slogf.e(TAG, e, "Failed to verify and enable user %d, package '%s'",
-                            usage.userId, usage.genericPackageName);
+                    packages = mPackageInfoHandler.getPackagesForUid(uid, usage.genericPackageName);
+                }
+                for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
+                    String packageName = packages.get(pkgIdx);
+                    try {
+                        if (packageManager.getApplicationEnabledSetting(packageName, usage.userId)
+                                != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                            continue;
+                        }
+                        packageManager.setApplicationEnabledSetting(packageName,
+                                COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, usage.userId,
+                                mContext.getPackageName());
+                        Slogf.i(TAG, "Enabled user '%d' package '%s'", usage.userId, packageName);
+                    } catch (RemoteException | IllegalArgumentException e) {
+                        Slogf.e(TAG, e, "Failed to verify and enable user %d, package '%s'",
+                                usage.userId, packageName);
+                    }
                 }
             }
         }
@@ -1851,6 +1868,7 @@ public final class WatchdogPerfHandler {
             this.genericPackageName = genericPackageName;
             this.userId = userId;
             this.mKillableState = defaultKillableState;
+            this.mUid = INVALID_UID;
         }
 
         public boolean isSharedPackage() {

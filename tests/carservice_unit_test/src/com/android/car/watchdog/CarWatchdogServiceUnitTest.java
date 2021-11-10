@@ -2582,17 +2582,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         String packageName = mMockContext.getPackageName();
         mGenericPackageNameByUid.put(10003346, packageName);
         mGenericPackageNameByUid.put(10101278, "vendor_package.critical");
-        mGenericPackageNameByUid.put(10103456, "third_party_package");
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
-        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting(
-                        or(eq("third_party_package"), eq("vendor_package.critical")), eq(101));
-
         mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
-                Arrays.asList(packageName, "third_party_package"));
+                Collections.singletonList(packageName));
 
         ResourceOveruseStats actualStats =
                 mCarWatchdogService.getResourceOveruseStatsForUserPackage(
@@ -2606,11 +2601,49 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
 
         verify(mMockWatchdogStorage).deleteUserPackage(eq(user.getIdentifier()), eq(packageName));
+    }
 
-        verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName, 100);
-        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package", 101);
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
-                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+    @Test
+    public void testResetResourceOveruseStatsEnablesPackage() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package.A", 10012345,
+                        /* sharedUserId= */ null),
+                constructPackageManagerPackageInfo("vendor_package.critical.A", 10014567,
+                        "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo("vendor_package.critical.B", 10014567,
+                        "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo("system_package.critical.A", 10001278,
+                        "system_shared_package.A"),
+                constructPackageManagerPackageInfo("third_party_package.B", 10056790,
+                        /* sharedUserId= */ null),
+                constructPackageManagerPackageInfo("system_package.non_critical.B", 10007345,
+                        "system_shared_package.B")));
+
+        injectIoOveruseStatsForPackages(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>());
+
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(
+                        or(or(eq("third_party_package.A"), eq("vendor_package.critical.A")),
+                                eq("vendor_package.critical.B")), eq(100));
+
+        mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
+                Arrays.asList("third_party_package.A", "shared:vendor_shared_package.A",
+                        "shared:system_shared_package.A", "third_party_package.B"));
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.A", 100);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("vendor_package.critical.A", 100);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("vendor_package.critical.B", 100);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("system_package.critical.A", 100);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.B", 100);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("vendor_package.critical.B"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());
 
         verifyNoMoreInteractions(mSpiedPackageManager);
     }
