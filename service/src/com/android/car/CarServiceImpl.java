@@ -16,22 +16,16 @@
 
 package com.android.car;
 
-import static android.os.SystemClock.elapsedRealtime;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.IBinder;
-import android.os.IHwBinder.DeathRecipient;
 import android.os.Process;
-import android.os.RemoteException;
-import android.os.SystemProperties;
 import android.util.EventLog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -41,7 +35,6 @@ import com.android.car.util.LimitedTimingsTraceLog;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.NoSuchElementException;
 
 /** Implementation of CarService */
 public class CarServiceImpl extends ProxiedService {
@@ -49,7 +42,7 @@ public class CarServiceImpl extends ProxiedService {
     public static final int CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS = 5;
 
     private ICarImpl mICarImpl;
-    private IVehicle mVehicle;
+    private VehicleStub mVehicle;
 
     private String mVehicleInterfaceName;
 
@@ -62,19 +55,16 @@ public class CarServiceImpl extends ProxiedService {
         initTiming.traceBegin("CarService.onCreate");
 
         initTiming.traceBegin("getVehicle");
-        mVehicle = getVehicle();
-        initTiming.traceEnd();
+        mVehicle = new VehicleStub();
+        initTiming.traceEnd(); // "getVehicle"
 
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle.isValid() ? 1 : 0);
 
-        if (mVehicle == null) {
+        if (!mVehicle.isValid()) {
             throw new IllegalStateException("Vehicle HAL service is not available.");
         }
-        try {
-            mVehicleInterfaceName = mVehicle.interfaceDescriptor();
-        } catch (RemoteException e) {
-            throw new IllegalStateException("Unable to get Vehicle HAL interface descriptor", e);
-        }
+
+        mVehicleInterfaceName = mVehicle.getInterfaceDescriptor();
 
         Slogf.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
         EventLog.writeEvent(EventLogTags.CAR_SERVICE_CONNECTED, mVehicleInterfaceName);
@@ -86,7 +76,7 @@ public class CarServiceImpl extends ProxiedService {
                 mVehicleInterfaceName);
         mICarImpl.init();
 
-        linkToDeath(mVehicle, mVehicleDeathRecipient);
+        mVehicle.linkToDeath(mVehicleDeathRecipient);
 
         ServiceManagerHelper.addService("car_service", mICarImpl);
         SystemPropertiesHelper.set("boot.car_service_created", "1");
@@ -101,18 +91,12 @@ public class CarServiceImpl extends ProxiedService {
     // cleanup task that you want to make sure happens on shutdown/reboot, see OnShutdownReboot.
     @Override
     public void onDestroy() {
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
+        EventLog.writeEvent(EventLogTags.CAR_SERVICE_DESTROY, mVehicle.isValid() ? 1 : 0);
         Slogf.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
 
-        if (mVehicle != null) {
-            try {
-                mVehicle.unlinkToDeath(mVehicleDeathRecipient);
-                mVehicle = null;
-            } catch (RemoteException e) {
-                // Ignore errors on shutdown path.
-            }
-        }
+        mVehicle.unlinkToDeath(mVehicleDeathRecipient);
+        mVehicle = null;
 
         super.onDestroy();
     }
@@ -137,38 +121,7 @@ public class CarServiceImpl extends ProxiedService {
         mICarImpl.dump(fd, writer, args);
     }
 
-    @Nullable
-    private IVehicle getVehicleWithTimeout(long waitMilliseconds) {
-        IVehicle vehicle = getVehicle();
-        long start = elapsedRealtime();
-        while (vehicle == null && (start + waitMilliseconds) > elapsedRealtime()) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                throw new RuntimeException("Sleep was interrupted", e);
-            }
-
-            vehicle = getVehicle();
-        }
-
-        return vehicle;
-    }
-
-    @Nullable
-    private static IVehicle getVehicle() {
-        final String instanceName = SystemProperties.get("ro.vehicle.hal", "default");
-
-        try {
-            return android.hardware.automotive.vehicle.V2_0.IVehicle.getService(instanceName);
-        } catch (RemoteException e) {
-            Slogf.e(CarLog.TAG_SERVICE, "Failed to get IVehicle/" + instanceName + " service", e);
-        } catch (NoSuchElementException e) {
-            Slogf.e(CarLog.TAG_SERVICE, "IVehicle/" + instanceName + " service not registered yet");
-        }
-        return null;
-    }
-
-    private class VehicleDeathRecipient implements DeathRecipient {
+    private static class VehicleDeathRecipient implements IVehicleDeathRecipient {
 
         @Override
         public void serviceDied(long cookie) {
@@ -176,13 +129,12 @@ public class CarServiceImpl extends ProxiedService {
             Slogf.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
             Process.killProcess(Process.myPid());
         }
-    }
 
-    private static void linkToDeath(IVehicle vehicle, DeathRecipient recipient) {
-        try {
-            vehicle.linkToDeath(recipient, 0);
-        } catch (RemoteException e) {
-            throw new IllegalStateException("Failed to linkToDeath Vehicle HAL");
+        @Override
+        public void binderDied() {
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_DIED, /*cookie=*/0);
+            Slogf.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
+            Process.killProcess(Process.myPid());
         }
     }
 }

@@ -31,7 +31,6 @@ import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
 import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
@@ -53,6 +52,7 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.VehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.Lists;
 import com.android.internal.annotations.GuardedBy;
@@ -127,7 +127,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Constructs a new {@link VehicleHal} object given the {@link Context} and {@link IVehicle}
      * both passed as parameters.
      */
-    public VehicleHal(Context context, IVehicle vehicle) {
+    public VehicleHal(Context context, VehicleStub vehicle) {
         mHandlerThread = CarServiceUtils.getHandlerThread(
                 VehicleHal.class.getSimpleName());
         mHandler = new Handler(mHandlerThread.getLooper());
@@ -189,21 +189,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mTimeHalService,
                 mPropertyHal));
         mHalClient = halClient;
-    }
-
-    /** Called when connection to Vehicle HAL was restored. */
-    public void vehicleHalReconnected(IVehicle vehicle) {
-        synchronized (mLock) {
-            mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
-                    this /*IVehicleCallback*/);
-            SubscribeOptions[] options = mSubscribedProperties.values()
-                    .toArray(new SubscribeOptions[0]);
-            try {
-                mHalClient.subscribe(options);
-            } catch (RemoteException e) {
-                throw new RuntimeException("Failed to subscribe: " + Arrays.asList(options), e);
-            }
-        }
     }
 
     private void fetchAllPropConfigs() {
