@@ -20,6 +20,7 @@ import android.car.builtin.util.Slogf;
 import android.car.telemetry.MetricsConfigKey;
 import android.os.PersistableBundle;
 import android.util.ArrayMap;
+import android.util.AtomicFile;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
@@ -28,7 +29,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -68,13 +68,9 @@ public class ResultStore {
     /** Reads interim results into memory for faster access. */
     private void loadInterimResultsIntoMemory() {
         for (File file : mInterimResultDirectory.listFiles()) {
-            try (FileInputStream fis = new FileInputStream(file)) {
-                mInterimResultCache.put(
-                        file.getName(),
-                        new InterimResult(PersistableBundle.readFromStream(fis)));
-            } catch (IOException e) {
-                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to read result from disk.", e);
-                // TODO(b/197153560): record failure
+            PersistableBundle interimResultBundle = readPersistableBundle(new AtomicFile(file));
+            if (interimResultBundle != null) {
+                mInterimResultCache.put(file.getName(), new InterimResult(interimResultBundle));
             }
         }
     }
@@ -107,19 +103,14 @@ public class ResultStore {
      * @return the final result as PersistableBundle if exists, null otherwise
      */
     public PersistableBundle getFinalResult(String metricsConfigName, boolean deleteResult) {
-        File file = new File(mFinalResultDirectory, metricsConfigName);
+        AtomicFile atomicFile = new AtomicFile(new File(mFinalResultDirectory, metricsConfigName));
         // if no final result exists for this metrics config, return immediately
-        if (!file.exists()) {
+        if (!atomicFile.getBaseFile().exists()) {
             return null;
         }
-        PersistableBundle result = null;
-        try (FileInputStream fis = new FileInputStream(file)) {
-            result = PersistableBundle.readFromStream(fis);
-        } catch (IOException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to get final result from disk.", e);
-        }
+        PersistableBundle result = readPersistableBundle(atomicFile);
         if (deleteResult) {
-            file.delete();
+            atomicFile.delete();
         }
         return result;
     }
@@ -129,7 +120,7 @@ public class ResultStore {
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
     public void putFinalResult(String metricsConfigName, PersistableBundle result) {
-        writePersistableBundleToFile(mFinalResultDirectory, metricsConfigName, result);
+        writePersistableBundle(mFinalResultDirectory, metricsConfigName, result);
         deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
         mInterimResultCache.remove(metricsConfigName);
     }
@@ -137,34 +128,35 @@ public class ResultStore {
     /** Returns the error result produced by the metrics config if exists, null otherwise. */
     public TelemetryProto.TelemetryError getError(
             String metricsConfigName, boolean deleteResult) {
-        File file = new File(mErrorResultDirectory, metricsConfigName);
+        AtomicFile atomicFile = new AtomicFile(new File(mErrorResultDirectory, metricsConfigName));
         // if no error exists for this metrics config, return immediately
-        if (!file.exists()) {
+        if (!atomicFile.getBaseFile().exists()) {
             return null;
         }
         TelemetryProto.TelemetryError result = null;
         try {
-            byte[] serializedBytes = Files.readAllBytes(file.toPath());
-            result = TelemetryProto.TelemetryError.parseFrom(serializedBytes);
+            result = TelemetryProto.TelemetryError.parseFrom(atomicFile.readFully());
         } catch (IOException e) {
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to get error result from disk.", e);
         }
         if (deleteResult) {
-            file.delete();
+            atomicFile.delete();
         }
         return result;
     }
 
     /** Stores the error object produced by the script. */
     public void putError(String metricsConfigName, TelemetryProto.TelemetryError error) {
-        mInterimResultCache.remove(metricsConfigName);
+        AtomicFile errorFile = new AtomicFile(new File(mErrorResultDirectory, metricsConfigName));
+        FileOutputStream fos = null;
         try {
-            Files.write(
-                    new File(mErrorResultDirectory, metricsConfigName).toPath(),
-                    error.toByteArray());
+            fos = errorFile.startWrite();
+            fos.write(error.toByteArray());
+            errorFile.finishWrite(fos);
             deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
             mInterimResultCache.remove(metricsConfigName);
         } catch (IOException e) {
+            errorFile.failWrite(fos);
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write data to file", e);
             // TODO(b/197153560): record failure
         }
@@ -205,7 +197,7 @@ public class ResultStore {
             if (!interimResult.isDirty()) {
                 return;
             }
-            writePersistableBundleToFile(
+            writePersistableBundle(
                     mInterimResultDirectory, metricsConfigName, interimResult.getBundle());
         });
     }
@@ -226,14 +218,32 @@ public class ResultStore {
     /**
      * Converts a {@link PersistableBundle} into byte array and saves the results to a file.
      */
-    private void writePersistableBundleToFile(
+    private void writePersistableBundle(
             File dir, String metricsConfigName, PersistableBundle result) {
-        try (FileOutputStream os = new FileOutputStream(new File(dir, metricsConfigName))) {
-            result.writeToStream(os);
+        AtomicFile bundleFile = new AtomicFile(new File(dir, metricsConfigName));
+        FileOutputStream fos = null;
+        try {
+            fos = bundleFile.startWrite();
+            result.writeToStream(fos);
+            bundleFile.finishWrite(fos);
         } catch (IOException e) {
+            bundleFile.failWrite(fos);
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
             // TODO(b/197153560): record failure
         }
+    }
+
+    /**
+     * Reads a {@link PersistableBundle} from the file system.
+     */
+    private PersistableBundle readPersistableBundle(AtomicFile atomicFile) {
+        try (FileInputStream fis = atomicFile.openRead()) {
+            return PersistableBundle.readFromStream(fis);
+        } catch (IOException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to read from disk.", e);
+            // TODO(b/197153560): record failure
+        }
+        return null;
     }
 
     /** Deletes a the given file in the given directory if it exists. */

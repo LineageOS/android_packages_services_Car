@@ -63,6 +63,7 @@ import java.io.IOException;
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
     private static final boolean DEBUG = false;
+    private static final String PUBLISHER_DIR = "publisher";
     public static final String TELEMETRY_DIR = "telemetry";
 
     private final Context mContext;
@@ -91,13 +92,15 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
             // full root directory path is /data/system/car/telemetry
             File rootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
+            File publisherDirectory = new File(rootDirectory, PUBLISHER_DIR);
+            publisherDirectory.mkdirs();
             // initialize all necessary components
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(rootDirectory);
             mStatsManagerProxy = new StatsManagerImpl(
                     mContext.getSystemService(StatsManager.class));
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
-                    mStatsManagerProxy, rootDirectory);
+                    mStatsManagerProxy, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore);
             mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
             // controller starts metrics collection after boot complete
