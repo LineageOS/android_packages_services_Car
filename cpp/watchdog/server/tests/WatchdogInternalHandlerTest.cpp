@@ -45,7 +45,6 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::GarageMode;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
-using aawi::PackageResourceOveruseAction;
 using aawi::PowerCycle;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
@@ -451,22 +450,6 @@ TEST_F(WatchdogInternalHandlerTest,
     EXPECT_CALL(*mMockIoOveruseMonitor, getResourceOveruseConfigurations(_)).Times(0);
     std::vector<ResourceOveruseConfiguration> configs;
     Status status = mWatchdogInternalHandler->getResourceOveruseConfigurations(&configs);
-    ASSERT_FALSE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogInternalHandlerTest, TestActionTakenOnResourceOveruse) {
-    setSystemCallingUid();
-    EXPECT_CALL(*mMockIoOveruseMonitor, actionTakenOnIoOveruse(_)).WillOnce(Return(Result<void>()));
-    Status status = mWatchdogInternalHandler->actionTakenOnResourceOveruse(
-            std::vector<PackageResourceOveruseAction>{});
-    ASSERT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(WatchdogInternalHandlerTest,
-       TestErrorOnActionTakenOnResourceOveruseWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, actionTakenOnIoOveruse(_)).Times(0);
-    Status status = mWatchdogInternalHandler->actionTakenOnResourceOveruse(
-            std::vector<PackageResourceOveruseAction>{});
     ASSERT_FALSE(status.isOk()) << status;
 }
 
