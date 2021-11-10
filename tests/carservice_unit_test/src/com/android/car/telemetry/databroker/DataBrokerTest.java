@@ -16,8 +16,6 @@
 
 package com.android.car.telemetry.databroker;
 
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -156,11 +154,13 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         mHighPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 mData,
-                SystemClock.elapsedRealtime());
+                SystemClock.elapsedRealtime(),
+                false);
         mLowPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_BAR, SUBSCRIBER_BAR),
                 mData,
-                SystemClock.elapsedRealtime());
+                SystemClock.elapsedRealtime(),
+                false);
     }
 
     @Override
@@ -319,13 +319,13 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     }
 
     @Test
-    public void testScheduleNextTask_largeInput_shouldPipeData() throws Exception {
+    public void testScheduleNextTask_withLargeDataFlag_shouldPipeData() throws Exception {
         PersistableBundle data = new PersistableBundle();
-        data.putBooleanArray("1 MB Array", new boolean [1024 * 1024]);
         ScriptExecutionTask highPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 data,
-                SystemClock.elapsedRealtime());
+                SystemClock.elapsedRealtime(),
+                true);
         mDataBroker.getTaskQueue().add(highPriorityTask);
 
         mDataBroker.scheduleNextTask();
@@ -335,29 +335,13 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     }
 
     @Test
-    public void testScheduleNextTask_largeReportWithApproxSize_shouldPipeData() throws Exception {
+    public void testScheduleNextTask_withoutLargeDataFlag_doesNotPipeData() throws Exception {
         PersistableBundle data = new PersistableBundle();
-        data.putInt(APPROX_BUNDLE_SIZE_BYTES_KEY, 21000);
         ScriptExecutionTask highPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 data,
-                SystemClock.elapsedRealtime());
-        mDataBroker.getTaskQueue().add(highPriorityTask);
-
-        mDataBroker.scheduleNextTask();
-
-        waitForTelemetryThreadToFinish();
-        assertThat(mFakeScriptExecutor.getInvokeScriptForLargeInputCount()).isEqualTo(1);
-    }
-
-    @Test
-    public void testScheduleNextTask_smallReportWithApproxSize_doesNotPipeData() throws Exception {
-        PersistableBundle data = new PersistableBundle();
-        data.putInt(APPROX_BUNDLE_SIZE_BYTES_KEY, 1000);
-        ScriptExecutionTask highPriorityTask = new ScriptExecutionTask(
-                new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
-                data,
-                SystemClock.elapsedRealtime());
+                SystemClock.elapsedRealtime(),
+                false);
         mDataBroker.getTaskQueue().add(highPriorityTask);
 
         mDataBroker.scheduleNextTask();
@@ -369,18 +353,18 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     @Test
     public void testScheduleNextTask_largeInputPipeIOException_shouldIgnoreCurrentTask()
             throws Exception {
-        PersistableBundle data = new PersistableBundle();
-        data.putBooleanArray("1 MB Array", new boolean [1024 * 1024]);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         ScriptExecutionTask highPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
-                data,
-                SystemClock.elapsedRealtime());
+                new PersistableBundle(),
+                SystemClock.elapsedRealtime(),
+                true);
         taskQueue.add(highPriorityTask); // invokeScriptForLargeInput() path
         taskQueue.add(new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 new PersistableBundle(),
-                SystemClock.elapsedRealtime())); // invokeScript() path
+                SystemClock.elapsedRealtime(),
+                false)); // invokeScript() path
         ParcelFileDescriptor[] fds = ParcelFileDescriptor.createPipe();
         when(ParcelFileDescriptor.createPipe()).thenReturn(fds);
         fds[1].close(); // cause IO Exception in invokeScriptForLargeInput() path
@@ -496,7 +480,8 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         ScriptExecutionTask taskWithMetricsConfigFoo = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 mData,
-                SystemClock.elapsedRealtime());
+                SystemClock.elapsedRealtime(),
+                false);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask); // associated with METRICS_CONFIG_FOO
         taskQueue.add(mLowPriorityTask); // associated with METRICS_CONFIG_BAR
