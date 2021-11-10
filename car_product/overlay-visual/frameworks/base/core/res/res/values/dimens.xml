@@ -165,6 +165,8 @@
     <dimen name="car_seekbar_thumb_selected_stroke_width">8dp</dimen>
     <!-- The size of the SeekBar thumb. -->
     <dimen name="car_seekbar_thumb_size">68dp</dimen>
+    <!-- The radius of the end of the SeekbarTrack. -->
+    <dimen name="car_seekbar_thumb_outer_radius">24dp</dimen>
 
     <!-- Sets the Theme android:disabledAlpha value, Used by SeekBar. -->
     <dimen name="car_disabled_alpha">0.46</dimen>
