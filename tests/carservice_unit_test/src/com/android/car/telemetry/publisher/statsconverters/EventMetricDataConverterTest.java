@@ -19,7 +19,6 @@ package com.android.car.telemetry.publisher.statsconverters;
 import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.ACTIVITY_NAME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.RSS_IN_BYTES_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.UID_FIELD_NUMBER;
-import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -67,8 +66,7 @@ public class EventMetricDataConverterTest {
 
         PersistableBundle bundle = EventMetricDataConverter.convertEventDataList(eventDataList);
 
-        assertThat(bundle.size()).isEqualTo(5);
-        assertThat(bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)).isEqualTo(96);
+        assertThat(bundle.size()).isEqualTo(4);
         assertThat(bundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(12345678L, 23456789L).inOrder();
         assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))

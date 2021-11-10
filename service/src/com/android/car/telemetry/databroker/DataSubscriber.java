@@ -57,12 +57,20 @@ public class DataSubscriber {
 
     /**
      * Creates a {@link ScriptExecutionTask} and pushes it to the priority queue where the task
-     * will be pending execution.
+     * will be pending execution. Flag isLargeData indicates whether data is large.
+     */
+    public void push(PersistableBundle data, boolean isLargeData) {
+        ScriptExecutionTask task = new ScriptExecutionTask(
+                this, data, SystemClock.elapsedRealtime(), isLargeData);
+        mDataBroker.addTaskToQueue(task);
+    }
+
+    /**
+     * Creates a {@link ScriptExecutionTask} and pushes it to the priority queue where the task
+     * will be pending execution. Defaults isLargeData flag to false.
      */
     public void push(PersistableBundle data) {
-        ScriptExecutionTask task = new ScriptExecutionTask(
-                this, data, SystemClock.elapsedRealtime());
-        mDataBroker.addTaskToQueue(task);
+        push(data, false);
     }
 
     /** Returns the {@link TelemetryProto.MetricsConfig}. */

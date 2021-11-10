@@ -17,7 +17,6 @@
 package com.android.car.telemetry.databroker;
 
 import android.car.telemetry.MetricsConfigKey;
-import android.os.Parcel;
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.TelemetryProto;
@@ -30,37 +29,17 @@ import com.android.car.telemetry.TelemetryProto;
  * The object can be accessed from any thread. See {@link DataSubscriber} for thread-safety.
  */
 public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
-    // Key to the calculated bundle size, which doesn't contain implementation-dependent overhead
-    // and other allocations. It's approximately 10% smaller than the actual size of binder parcel.
-    public static final String APPROX_BUNDLE_SIZE_BYTES_KEY = "approx_bundle_size_bytes";
-
-    /**
-     * Binder transaction size limit is 1MB for all binders per process, so for large script input
-     * file pipe will be used to transfer the data to script executor instead of binder call. This
-     * is the input size threshold above which piping is used.
-     */
-    private static final int LARGE_SCRIPT_INPUT_SIZE_BYTES = 20 * 1024; // 20 kb
-
     private final long mTimestampMillis;
     private final DataSubscriber mSubscriber;
     private final PersistableBundle mData;
     private final boolean mIsLargeData;
 
     ScriptExecutionTask(DataSubscriber subscriber, PersistableBundle data,
-            long elapsedRealtimeMillis) {
+            long elapsedRealtimeMillis, boolean isLargeData) {
         mTimestampMillis = elapsedRealtimeMillis;
         mSubscriber = subscriber;
         mData = data;
-        if (mData.containsKey(APPROX_BUNDLE_SIZE_BYTES_KEY)) {
-            mIsLargeData =
-                    mData.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY) > LARGE_SCRIPT_INPUT_SIZE_BYTES;
-            mData.remove(APPROX_BUNDLE_SIZE_BYTES_KEY);
-        } else {
-            Parcel parcel = Parcel.obtain();
-            parcel.writePersistableBundle(mData);
-            mIsLargeData = parcel.dataSize() > LARGE_SCRIPT_INPUT_SIZE_BYTES;
-            parcel.recycle();
-        }
+        mIsLargeData = isLargeData;
     }
 
     /** Returns the priority of the task. */
