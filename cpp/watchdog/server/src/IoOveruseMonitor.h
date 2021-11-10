@@ -31,7 +31,6 @@
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
-#include <android/automotive/watchdog/internal/PackageResourceOveruseAction.h>
 #include <utils/Mutex.h>
 
 #include <time.h>
@@ -81,10 +80,6 @@ public:
     virtual android::base::Result<void> getResourceOveruseConfigurations(
             std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     configs) const = 0;
-    virtual android::base::Result<void> actionTakenOnIoOveruse(
-            const std::vector<
-                    android::automotive::watchdog::internal::PackageResourceOveruseAction>&
-                    actions) = 0;
 
     // Below methods support APIs from ICarWatchdog.aidl. Please refer to the AIDL for description.
     virtual android::base::Result<void> addIoOveruseListener(
@@ -154,11 +149,6 @@ public:
     android::base::Result<void> getResourceOveruseConfigurations(
             std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     configs) const override;
-
-    android::base::Result<void> actionTakenOnIoOveruse(
-            const std::vector<
-                    android::automotive::watchdog::internal::PackageResourceOveruseAction>& actions)
-            override;
 
     android::base::Result<void> addIoOveruseListener(
             const sp<IResourceOveruseListener>& listener) override;

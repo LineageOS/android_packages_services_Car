@@ -21,7 +21,6 @@ import android.annotation.Nullable;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
-import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.os.Handler;
@@ -274,18 +273,6 @@ public final class CarWatchdogDaemonHelper {
             configurations.addAll(daemon.getResourceOveruseConfigurations());
         });
         return configurations;
-    }
-
-    /**
-     * Notifies car watchdog daemon with the actions taken on resource overuse.
-     *
-     * @param actions List of actions taken on resource overuse. One action taken per resource
-     *                overusing user package.
-     * @throws RemoteException
-     */
-    public void actionTakenOnResourceOveruse(List<PackageResourceOveruseAction> actions)
-            throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.actionTakenOnResourceOveruse(actions));
     }
 
     /**

@@ -16,8 +16,6 @@
 
 package com.android.car.watchdog;
 
-import static android.automotive.watchdog.internal.ResourceOveruseActionType.KILLED_RECURRING_OVERUSE;
-import static android.automotive.watchdog.internal.ResourceOveruseActionType.NOT_KILLED;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
@@ -56,7 +54,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityThread;
-import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.GarageMode;
@@ -67,7 +64,6 @@ import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
-import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
@@ -174,8 +170,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<List<
             android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
             mResourceOveruseConfigurationsCaptor;
-    @Captor private ArgumentCaptor<List<PackageResourceOveruseAction>>
-            mResourceOveruseActionsCaptor;
     @Captor private ArgumentCaptor<int[]> mIntArrayCaptor;
     @Captor private ArgumentCaptor<byte[]> mOveruseStatsCaptor;
     @Captor private ArgumentCaptor<byte[]> mKilledStatsCaptor;
@@ -1877,14 +1871,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
-
-        /* {@link thirdPartyPkgUid} action is sent twice. Once before it is killed and once after
-         * it is killed. This is done because the package is killed only after the display is turned
-         * off.
-         */
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{criticalSysPkgUid, thirdPartyPkgUid},
-                /* killedRecurringOveruseUids= */ new int[]{thirdPartyPkgUid}));
     }
 
     @Test
@@ -1981,14 +1967,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         WatchdogPerfHandler.constructCarWatchdogPerStateBytes(300, 600, 900)));
 
         captureAndVerifyKillStatsReported(expectedReportedKillStats);
-
-        /* {@link thirdPartySharedUid} action is sent twice. Once before it is killed and once after
-         * it is killed. This is done because the package is killed only after the display is turned
-         * off.
-         */
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{criticalSysSharedUid, thirdPartySharedUid},
-                /* killedRecurringOveruseUids= */ new int[]{thirdPartySharedUid}));
     }
 
     @Test
@@ -2256,11 +2234,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
                 anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
 
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{}));
-
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).isEmpty();
     }
 
@@ -2280,11 +2253,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
                 anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
 
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{}));
-
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).isEmpty();
     }
 
@@ -2303,11 +2271,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         verify(() -> CarStatsLog.write(eq(CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED),
                 anyInt(), anyInt(), anyInt(), anyInt(), any(), any()), never());
-
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{}));
 
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).isEmpty();
     }
@@ -2337,12 +2300,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
                 /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
 
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10010004, 10110004, 10010005, 10110005}
-        ));
-
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).containsExactly(
                 "100:vendor_package.non_critical", "101:vendor_package.non_critical",
                 "100:third_party_package.A", "101:third_party_package.A",
@@ -2366,12 +2323,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureAndVerifyKillStatsReported(sampleReportedKillStats(
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
                 /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
-
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10010004, 10110004, 10010005, 10110005}
-        ));
 
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).containsExactly(
                 "100:vendor_package.non_critical", "101:vendor_package.non_critical",
@@ -2407,12 +2358,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
                 /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
 
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10010004, 10110004, 10010005, 10110005}
-        ));
-
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).containsExactly(
                 "100:vendor_package.non_critical", "101:vendor_package.non_critical",
                 "100:third_party_package.A", "101:third_party_package.A",
@@ -2446,12 +2391,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
                 /* killedUids= */ new int[]{10110004, 10010005}));
 
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10110004, 10010005}
-        ));
-
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages)
                 .containsExactly("101:vendor_package.non_critical", "100:third_party_package.A",
                         "100:third_party_package.B");
@@ -2483,12 +2422,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureAndVerifyKillStatsReported(sampleReportedKillStats(
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
                 /* killedUids= */ new int[]{10110004, 10010005}));
-
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10110004, 10010005}
-        ));
 
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages)
                 .containsExactly("101:vendor_package.non_critical", "100:third_party_package.A",
@@ -2523,12 +2456,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE,
                 /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
 
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10010004, 10110004, 10010005, 10110005}
-        ));
-
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).containsExactly(
                 "100:vendor_package.non_critical", "101:vendor_package.non_critical",
                 "100:third_party_package.A", "101:third_party_package.A",
@@ -2554,12 +2481,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureAndVerifyKillStatsReported(sampleReportedKillStats(
                 CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE,
                 /* killedUids= */ new int[]{10010004, 10110004, 10010005, 10110005}));
-
-        verifyActionsTakenOnResourceOveruse(sampleActionTakenOnOveruse(
-                /* notKilledUids= */ new int[]{
-                        10010001, 10110001, 10010004, 10110004, 10010005, 10110005},
-                /* killedRecurringOveruseUids= */ new int[]{10010004, 10110004, 10010005, 10110005}
-        ));
 
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).containsExactly(
                 "100:vendor_package.non_critical", "101:vendor_package.non_critical",
@@ -3293,25 +3214,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         CarServiceUtils.runOnMainSyncDelayed(() -> {}, OVERUSE_HANDLING_DELAY_MILLS * 2);
     }
 
-    private void verifyActionsTakenOnResourceOveruse(List<PackageResourceOveruseAction> expected)
-            throws Exception {
-        // notifyActionsTakenOnOveruse is posted on the main thread after taking action, so wait for
-        // this to complete by posting a task on the main thread.
-        CarServiceUtils.runOnMainSync(() -> {});
-
-        verify(mMockCarWatchdogDaemon,
-                timeout(MAX_WAIT_TIME_MS).atLeastOnce()).actionTakenOnResourceOveruse(
-                mResourceOveruseActionsCaptor.capture());
-
-        List<PackageResourceOveruseAction> actual = new ArrayList<>();
-        for (List<PackageResourceOveruseAction> actions :
-                mResourceOveruseActionsCaptor.getAllValues()) {
-            actual.addAll(actions);
-        }
-
-        PackageResourceOveruseActionSubject.assertThat(actual).containsExactlyElementsIn(expected);
-    }
-
     private void setUpSampleUserAndPackages() {
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
         int[] users = new int[]{100, 101};
@@ -3431,22 +3333,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     uid, systemState, threshold, writtenBytes));
         }
         return reportedKillStats;
-    }
-
-    private List<PackageResourceOveruseAction> sampleActionTakenOnOveruse(
-            int[] notKilledUids, int[] killedRecurringOveruseUids) {
-        List<PackageResourceOveruseAction> actions = new ArrayList<>();
-        for (int uid : notKilledUids) {
-            actions.add(constructPackageResourceOveruseAction(
-                    mGenericPackageNameByUid.get(uid), uid, new int[]{ResourceType.IO}, NOT_KILLED)
-            );
-        }
-        for (int uid : killedRecurringOveruseUids) {
-            actions.add(constructPackageResourceOveruseAction(
-                    mGenericPackageNameByUid.get(uid), uid, new int[]{ResourceType.IO},
-                    KILLED_RECURRING_OVERUSE));
-        }
-        return actions;
     }
 
     private static void verifyOnOveruseCalled(List<ResourceOveruseStats> expectedStats,
@@ -3694,17 +3580,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         stats.writtenBytes = writtenBytes;
         stats.totalOveruses = totalOveruses;
         return stats;
-    }
-
-    private static PackageResourceOveruseAction constructPackageResourceOveruseAction(
-            String packageName, int uid, int[] resourceTypes, int resourceOveruseActionType) {
-        PackageResourceOveruseAction action = new PackageResourceOveruseAction();
-        action.packageIdentifier = new PackageIdentifier();
-        action.packageIdentifier.name = packageName;
-        action.packageIdentifier.uid = uid;
-        action.resourceTypes = resourceTypes;
-        action.resourceOveruseActionType = resourceOveruseActionType;
-        return action;
     }
 
     private static AtomsProto.CarWatchdogIoOveruseStatsReported

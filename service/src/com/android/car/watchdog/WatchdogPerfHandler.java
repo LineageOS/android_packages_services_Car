@@ -16,8 +16,6 @@
 
 package com.android.car.watchdog;
 
-import static android.automotive.watchdog.internal.ResourceOveruseActionType.KILLED_RECURRING_OVERUSE;
-import static android.automotive.watchdog.internal.ResourceOveruseActionType.NOT_KILLED;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_PAST_15_DAYS;
@@ -51,15 +49,12 @@ import static com.android.car.watchdog.WatchdogStorage.ZONE_OFFSET;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
-import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.IoUsageStats;
-import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
-import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
@@ -167,9 +162,6 @@ public final class WatchdogPerfHandler {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
-    @GuardedBy("mLock")
-    private final List<PackageResourceOveruseAction> mOveruseActionsByUserPackage =
-            new ArrayList<>();
     @GuardedBy("mLock")
     private final SparseArray<ArrayList<ResourceOveruseListenerInfo>> mOveruseListenerInfosByUid =
             new SparseArray<>();
@@ -718,13 +710,6 @@ public final class WatchdogPerfHandler {
                     continue;
                 }
                 overusingUserPackageKeys.add(usage.getUniqueId());
-                PackageResourceOveruseAction overuseAction = new PackageResourceOveruseAction();
-                overuseAction.packageIdentifier = new PackageIdentifier();
-                overuseAction.packageIdentifier.name = genericPackageName;
-                overuseAction.packageIdentifier.uid = usage.getUid();
-                overuseAction.resourceTypes = new int[]{ ResourceType.IO };
-                overuseAction.resourceOveruseActionType = NOT_KILLED;
-                mOveruseActionsByUserPackage.add(overuseAction);
                 int killableState = usage.getKillableState();
                 if (killableState == KILLABLE_STATE_NEVER) {
                     continue;
@@ -734,9 +719,6 @@ public final class WatchdogPerfHandler {
                     mActionableUserPackages.add(id);
                     mUserNotifiablePackages.add(id);
                 }
-            }
-            if (!mOveruseActionsByUserPackage.isEmpty()) {
-                mMainHandler.post(this::notifyActionsTakenOnOveruse);
             }
             if (mCurrentUxState != UX_STATE_NO_DISTRACTION
                     && (!mActionableUserPackages.isEmpty() || !mUserNotifiablePackages.isEmpty())) {
@@ -1330,18 +1312,12 @@ public final class WatchdogPerfHandler {
             if (killableState != KILLABLE_STATE_YES) {
                 continue;
             }
-            killedUserPackageKeys.add(usage.getUniqueId());
-            PackageResourceOveruseAction overuseAction = new PackageResourceOveruseAction();
-            overuseAction.packageIdentifier = new PackageIdentifier();
-            overuseAction.packageIdentifier.name = usage.genericPackageName;
-            overuseAction.packageIdentifier.uid = usage.getUid();
-            overuseAction.resourceTypes = new int[]{ ResourceType.IO };
-            overuseAction.resourceOveruseActionType = NOT_KILLED;
             List<String> packages = Collections.singletonList(usage.genericPackageName);
             if (usage.isSharedPackage()) {
-                packages = mPackageInfoHandler.getPackagesForUid(
-                        overuseAction.packageIdentifier.uid, usage.genericPackageName);
+                packages = mPackageInfoHandler.getPackagesForUid(usage.getUid(),
+                        usage.genericPackageName);
             }
+            boolean isKilled = false;
             for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
                 String packageName = packages.get(pkgIdx);
                 try {
@@ -1357,28 +1333,21 @@ public final class WatchdogPerfHandler {
                     PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
                             COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0,
                             usage.userId, mContext.getPackageName());
+                    isKilled = true;
                     Slogf.i(TAG,
                             "Disabled user %d's package '%s' until used due to disk I/O overuse",
                             usage.userId, packageName);
-                    // TODO(b/200599130): When background apps are killed immediately regardless
-                    //  of the UX state, update the action type as KILLED only for immediately
-                    //  killed apps and KILLED_RECURRING_OVERUSE only for apps killed on
-                    //  recurring overuse.
-                    overuseAction.resourceOveruseActionType = KILLED_RECURRING_OVERUSE;
                 } catch (RemoteException e) {
                     Slogf.e(TAG, "Failed to disable application for user %d, package '%s'",
                             usage.userId, packageName);
                 }
             }
-            if (overuseAction.resourceOveruseActionType != NOT_KILLED) {
+            if (isKilled) {
                 usage.ioUsage.killed();
-                mOveruseActionsByUserPackage.add(overuseAction);
+                killedUserPackageKeys.add(usage.getUniqueId());
             }
         }
         pushIoOveruseKillMetrics(killedUserPackageKeys);
-        if (!mOveruseActionsByUserPackage.isEmpty()) {
-            mMainHandler.post(this::notifyActionsTakenOnOveruse);
-        }
         mActionableUserPackages.clear();
     }
 
@@ -1471,29 +1440,8 @@ public final class WatchdogPerfHandler {
                         writtenBytes.backgroundBytes, writtenBytes.garageModeBytes));
     }
 
-    /** Notify daemon about the actions take on resource overuse */
-    private void notifyActionsTakenOnOveruse() {
-        List<PackageResourceOveruseAction> actions;
-        synchronized (mLock) {
-            if (mOveruseActionsByUserPackage.isEmpty()) {
-                return;
-            }
-            actions = new ArrayList<>(mOveruseActionsByUserPackage);
-            mOveruseActionsByUserPackage.clear();
-        }
-        try {
-            mCarWatchdogDaemonHelper.actionTakenOnResourceOveruse(actions);
-        } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, e, "Failed to notify car watchdog daemon of actions taken on resource "
-                    + "overuse");
-        }
-        if (DEBUG) {
-            Slogf.d(TAG, "Notified car watchdog daemon of actions taken on resource overuse");
-        }
-    }
-
-    private static String getUserPackageUniqueId(int userId, String genericPackageName) {
-        return String.valueOf(userId) + ":" + genericPackageName;
+    private static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
+        return userId + ":" + genericPackageName;
     }
 
     @VisibleForTesting
