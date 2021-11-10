@@ -45,11 +45,6 @@ public:
             android::base::Result<void>, getResourceOveruseConfigurations,
             (std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*),
             (const, override));
-    MOCK_METHOD(android::base::Result<void>, actionTakenOnIoOveruse,
-                (const std::vector<
-                        android::automotive::watchdog::internal::PackageResourceOveruseAction>&
-                         actions),
-                (override));
     MOCK_METHOD(android::base::Result<void>, addIoOveruseListener,
                 (const sp<IResourceOveruseListener>&), (override));
     MOCK_METHOD(android::base::Result<void>, removeIoOveruseListener,

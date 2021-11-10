@@ -50,7 +50,6 @@ using ::android::automotive::watchdog::internal::IoUsageStats;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
-using ::android::automotive::watchdog::internal::PackageResourceOveruseAction;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::automotive::watchdog::internal::UserPackageIoUsageStats;
@@ -472,7 +471,6 @@ void IoOveruseMonitor::notifyNativePackagesLocked(
     if (DEBUG) {
         ALOGD("Notified native packages on I/O overuse");
     }
-    // TODO(b/184310189): Upload I/O overuse metrics for native packages.
 }
 
 Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
@@ -509,15 +507,6 @@ Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
         return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
     }
     mIoOveruseConfigs->get(configs);
-    return {};
-}
-
-Result<void> IoOveruseMonitor::actionTakenOnIoOveruse(
-        [[maybe_unused]] const std::vector<PackageResourceOveruseAction>& actions) {
-    // TODO(b/184310189): Upload metrics.
-    if (DEBUG) {
-        ALOGD("Recorded action taken on I/O overuse");
-    }
     return {};
 }
 
