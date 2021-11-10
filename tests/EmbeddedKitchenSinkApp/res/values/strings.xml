@@ -396,4 +396,5 @@
     <!-- Watchdog Test -->
     <string name="non_recurring_io_overuse" translate="false">Non-recurring I/O overuse</string>
     <string name="recurring_io_overuse" translate="false">Recurring I/O overuse</string>
+    <string name="long_running_recurring_io_overuse" translate="false">Long-running recurring I/O overuse</string>
 </resources>
