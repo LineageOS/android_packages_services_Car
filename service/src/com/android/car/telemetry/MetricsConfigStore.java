@@ -23,12 +23,14 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_VER
 
 import android.car.telemetry.MetricsConfigKey;
 import android.util.ArrayMap;
+import android.util.AtomicFile;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -54,14 +56,14 @@ public class MetricsConfigStore {
         mActiveConfigs = new ArrayMap<>();
         // TODO(b/197336485): Add expiration date check for MetricsConfig
         for (File file : mConfigDirectory.listFiles()) {
+            AtomicFile atomicFile = new AtomicFile(file);
             try {
-                byte[] serializedConfig = Files.readAllBytes(file.toPath());
                 TelemetryProto.MetricsConfig config =
-                        TelemetryProto.MetricsConfig.parseFrom(serializedConfig);
+                        TelemetryProto.MetricsConfig.parseFrom(atomicFile.readFully());
                 mActiveConfigs.put(config.getName(), config);
             } catch (IOException e) {
                 // TODO(b/197336655): record failure
-                file.delete();
+                atomicFile.delete();
             }
         }
     }
@@ -94,12 +96,15 @@ public class MetricsConfigStore {
             }
         }
         mActiveConfigs.put(metricsConfig.getName(), metricsConfig);
+        AtomicFile atomicFile = new AtomicFile(new File(mConfigDirectory, metricsConfig.getName()));
+        FileOutputStream fos = null;
         try {
-            Files.write(
-                    new File(mConfigDirectory, metricsConfig.getName()).toPath(),
-                    metricsConfig.toByteArray());
+            fos = atomicFile.startWrite();
+            fos.write(metricsConfig.toByteArray());
+            atomicFile.finishWrite(fos);
         } catch (IOException e) {
             // TODO(b/197336655): record failure
+            atomicFile.failWrite(fos);
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
             return ERROR_METRICS_CONFIG_UNKNOWN;
         }

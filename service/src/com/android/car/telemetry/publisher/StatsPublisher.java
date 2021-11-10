@@ -27,6 +27,7 @@ import android.app.StatsManager.StatsUnavailableException;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
+import android.util.AtomicFile;
 import android.util.LongSparseArray;
 
 import com.android.car.CarLog;
@@ -48,7 +49,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -130,7 +130,7 @@ public class StatsPublisher extends AbstractPublisher {
             .build();
 
     private final StatsManagerProxy mStatsManager;
-    private final File mSavedStatsConfigsFile;
+    private final AtomicFile mSavedStatsConfigsFile;
     private final Handler mTelemetryHandler;
 
     // True if the publisher is periodically pulling reports from StatsD.
@@ -150,25 +150,27 @@ public class StatsPublisher extends AbstractPublisher {
     StatsPublisher(
             PublisherFailureListener failureListener,
             StatsManagerProxy statsManager,
-            File rootDirectory,
+            File publisherDirectory,
             Handler telemetryHandler) {
         super(failureListener);
         mStatsManager = statsManager;
         mTelemetryHandler = telemetryHandler;
-        mSavedStatsConfigsFile = new File(rootDirectory, SAVED_STATS_CONFIGS_FILE);
+        mSavedStatsConfigsFile = new AtomicFile(
+                new File(publisherDirectory, SAVED_STATS_CONFIGS_FILE));
         mSavedStatsConfigs = loadBundle();
     }
 
     /** Loads the PersistableBundle containing stats config keys and versions from disk. */
     private PersistableBundle loadBundle() {
-        try (FileInputStream fileInputStream = new FileInputStream(mSavedStatsConfigsFile)) {
-            return PersistableBundle.readFromStream(fileInputStream);
-        } catch (FileNotFoundException e) {
+        if (!mSavedStatsConfigsFile.getBaseFile().exists()) {
             return new PersistableBundle();
+        }
+        try (FileInputStream fileInputStream = mSavedStatsConfigsFile.openRead()) {
+            return PersistableBundle.readFromStream(fileInputStream);
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
-            Slogf.e(CarLog.TAG_TELEMETRY,
-                    "Failed to read file " + mSavedStatsConfigsFile.getAbsolutePath(), e);
+            Slogf.e(CarLog.TAG_TELEMETRY, "Failed to read file "
+                    + mSavedStatsConfigsFile.getBaseFile().getAbsolutePath(), e);
             return new PersistableBundle();
         }
     }
@@ -179,12 +181,16 @@ public class StatsPublisher extends AbstractPublisher {
             mSavedStatsConfigsFile.delete();
             return;
         }
-        try (FileOutputStream fileOutputStream = new FileOutputStream(mSavedStatsConfigsFile)) {
+        FileOutputStream fileOutputStream = null;
+        try {
+            fileOutputStream = mSavedStatsConfigsFile.startWrite();
             mSavedStatsConfigs.writeToStream(fileOutputStream);
+            mSavedStatsConfigsFile.finishWrite(fileOutputStream);
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
+            mSavedStatsConfigsFile.failWrite(fileOutputStream);
             Slogf.e(CarLog.TAG_TELEMETRY,
-                    "Cannot write to " + mSavedStatsConfigsFile.getAbsolutePath()
+                    "Cannot write to " + mSavedStatsConfigsFile.getBaseFile().getAbsolutePath()
                             + ". Added stats config info is lost.", e);
         }
     }

@@ -35,7 +35,7 @@ import java.io.File;
 public class PublisherFactory {
     private final Object mLock = new Object();
     private final CarPropertyService mCarPropertyService;
-    private final File mRootDirectory;
+    private final File mPublisherDirectory;
     private final Handler mTelemetryHandler;
     private final StatsManagerProxy mStatsManager;
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
@@ -48,11 +48,11 @@ public class PublisherFactory {
             CarPropertyService carPropertyService,
             Handler handler,
             StatsManagerProxy statsManager,
-            File rootDirectory) {
+            File publisherDirectory) {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         mStatsManager = statsManager;
-        mRootDirectory = rootDirectory;
+        mPublisherDirectory = publisherDirectory;
     }
 
     /** Returns the publisher by given type. This method is thread-safe. */
@@ -75,7 +75,8 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
                         mStatsPublisher = new StatsPublisher(
-                                mFailureListener, mStatsManager, mRootDirectory, mTelemetryHandler);
+                                mFailureListener, mStatsManager, mPublisherDirectory,
+                                mTelemetryHandler);
                     }
                     return mStatsPublisher;
                 default:
