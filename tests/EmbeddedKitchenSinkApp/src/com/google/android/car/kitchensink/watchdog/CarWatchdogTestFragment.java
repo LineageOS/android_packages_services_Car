@@ -54,6 +54,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.file.Files;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Fragment to test the I/O monitoring of Car Watchdog.
@@ -76,7 +77,12 @@ import java.util.concurrent.Executors;
  */
 public class CarWatchdogTestFragment extends Fragment {
     private static final long TEN_MEGABYTES = 1024 * 1024 * 10;
-    private static final int DISK_DELAY_MS = 3000;
+    private static final int WATCHDOG_IO_EVENT_SYNC_SHORT_DELAY_MS = 3_000;
+    // By default, watchdog daemon syncs the disk I/O events with the CarService once every
+    // 2 minutes unless it is manually changed with the aforementioned `--start_perf` watchdog
+    // daemon's dumpsys command.
+    private static final int WATCHDOG_IO_EVENT_SYNC_LONG_DELAY_MS = 240_000;
+    private static final int USER_APP_SWITCHING_TIMEOUT_MS = 30_000;
     private static final String TAG = "CarWatchdogTestFragment";
     private static final double WARN_THRESHOLD_PERCENT = 0.8;
     private static final double EXCEED_WARN_THRESHOLD_PERCENT = 0.9;
@@ -104,6 +110,7 @@ public class CarWatchdogTestFragment extends Fragment {
     private @interface NotificationType{}
 
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
+    private final AtomicBoolean mIsAppInForeground = new AtomicBoolean(true);
     private Context mContext;
     private CarWatchdogManager mCarWatchdogManager;
     private KitchenSinkActivity mActivity;
@@ -129,11 +136,15 @@ public class CarWatchdogTestFragment extends Fragment {
             @NonNull LayoutInflater inflater,
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
+        mIsAppInForeground.set(true);
+
         View view = inflater.inflate(R.layout.car_watchdog_test, container, false);
 
         mOveruseTextView = view.findViewById(R.id.io_overuse_textview);
         Button nonRecurringIoOveruseButton = view.findViewById(R.id.non_recurring_io_overuse_btn);
         Button recurringIoOveruseButton = view.findViewById(R.id.recurring_io_overuse_btn);
+        Button longRunningRecurringIoOveruseButton =
+                view.findViewById(R.id.long_running_recurring_io_overuse_btn);
 
         try {
             mTestDir =
@@ -147,10 +158,12 @@ public class CarWatchdogTestFragment extends Fragment {
                 v -> mExecutor.execute(
                         () -> {
                             mTextViewSetter = new TextViewSetter(mOveruseTextView, mActivity);
+                            mTextViewSetter.setPermanent("Note: Keep the app in the foreground "
+                                    + "until the test completes." + System.lineSeparator());
                             mTextViewSetter.set("Starting non-recurring I/O overuse test.");
                             IoOveruseListener listener = addResourceOveruseListener();
 
-                            if (overuseDiskIo(listener)) {
+                            if (overuseDiskIo(listener, WATCHDOG_IO_EVENT_SYNC_SHORT_DELAY_MS)) {
                                 showAlert("Non-recurring I/O overuse test",
                                         "Test completed successfully.", 0);
                             } else {
@@ -162,50 +175,79 @@ public class CarWatchdogTestFragment extends Fragment {
                             Log.d(TAG, "Non-recurring I/O overuse test completed.");
                         }));
 
-        recurringIoOveruseButton.setOnClickListener(
-                v -> mExecutor.execute(
-                        () -> {
-                            mTextViewSetter = new TextViewSetter(mOveruseTextView, mActivity);
-                            mTextViewSetter.set("Starting recurring I/O overuse test.");
-                            IoOveruseListener listener = addResourceOveruseListener();
+        recurringIoOveruseButton.setOnClickListener(v -> mExecutor.execute(
+                () -> {
+                    mTextViewSetter = new TextViewSetter(mOveruseTextView, mActivity);
+                    mTextViewSetter.setPermanent("Note: Keep the app in the foreground "
+                            + "until the test completes." + System.lineSeparator());
+                    recurringIoOveruseTest(WATCHDOG_IO_EVENT_SYNC_SHORT_DELAY_MS);
+                }));
 
-                            if (!overuseDiskIo(listener)) {
-                                mTextViewSetter.setPermanent("First disk I/O overuse failed.");
-                                finishTest(listener);
-                                return;
-                            }
-                            mTextViewSetter.setPermanent(
-                                    "First disk I/O overuse completed successfully."
-                                            + System.lineSeparator());
+        // Long-running recurring I/O overuse test is helpful to trigger recurring I/O overuse
+        // behavior in environments where shell access is limited.
+        longRunningRecurringIoOveruseButton.setOnClickListener(v -> mExecutor.execute(
+                () -> {
+                    mTextViewSetter = new TextViewSetter(mOveruseTextView, mActivity);
+                    mTextViewSetter.setPermanent("Note: Please switch the app to the background "
+                            + "and don't bring the app to the foreground until the test completes."
+                            + System.lineSeparator());
 
-                            if (!overuseDiskIo(listener)) {
-                                mTextViewSetter.setPermanent("Second disk I/O overuse failed.");
-                                finishTest(listener);
-                                return;
-                            }
-                            mTextViewSetter.setPermanent(
-                                    "Second disk I/O overuse completed successfully."
-                                            + System.lineSeparator());
-
-                            if (!overuseDiskIo(listener)) {
-                                mTextViewSetter.setPermanent("Third disk I/O overuse failed.");
-                                finishTest(listener);
-                                return;
-                            }
-                            mTextViewSetter.setPermanent(
-                                    "Third disk I/O overuse completed successfully.");
-
-                            finishTest(listener);
-                            showAlert("Recurring I/O overuse test", "Test completed successfully.",
-                                    0);
-                            Log.d(TAG, "Recurring I/O overuse test completed.");
-                        }));
+                    waitFor(USER_APP_SWITCHING_TIMEOUT_MS,
+                            "user to switch the app to the background");
+                    recurringIoOveruseTest(WATCHDOG_IO_EVENT_SYNC_LONG_DELAY_MS);
+                }));
 
         return view;
     }
 
-    private boolean overuseDiskIo(IoOveruseListener listener) {
-        DiskIoStats diskIoStats = fetchInitialDiskIoStats();
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "App switched to background");
+        mIsAppInForeground.set(false);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG, "App switched to foreground");
+        mIsAppInForeground.set(true);
+    }
+
+    private void recurringIoOveruseTest(int watchdogSyncDelayMs) {
+        mTextViewSetter.set("Starting recurring I/O overuse test.");
+        IoOveruseListener listener = addResourceOveruseListener();
+
+        if (!overuseDiskIo(listener, watchdogSyncDelayMs)) {
+            mTextViewSetter.setPermanent("First disk I/O overuse failed.");
+            finishTest(listener);
+            return;
+        }
+        mTextViewSetter.setPermanent("First disk I/O overuse completed successfully."
+                + System.lineSeparator());
+
+        if (!overuseDiskIo(listener, watchdogSyncDelayMs)) {
+            mTextViewSetter.setPermanent("Second disk I/O overuse failed.");
+            finishTest(listener);
+            return;
+        }
+        mTextViewSetter.setPermanent("Second disk I/O overuse completed successfully."
+                + System.lineSeparator());
+
+        if (!overuseDiskIo(listener, watchdogSyncDelayMs)) {
+            mTextViewSetter.setPermanent("Third disk I/O overuse failed.");
+            finishTest(listener);
+            return;
+        }
+        mTextViewSetter.setPermanent("Third disk I/O overuse completed successfully.");
+
+        finishTest(listener);
+        showAlert("Recurring I/O overuse test", "Test completed successfully.", 0);
+        Log.d(TAG, "Recurring I/O overuse test completed.");
+    }
+
+    private boolean overuseDiskIo(IoOveruseListener listener, int watchdogSyncDelayMs) {
+        DiskIoStats diskIoStats = fetchInitialDiskIoStats(watchdogSyncDelayMs);
         if (diskIoStats == null) {
             return false;
         }
@@ -223,7 +265,8 @@ public class CarWatchdogTestFragment extends Fragment {
                 NOTIFICATION_TYPE_WARNING);
         long bytesToExceedWarnThreshold =
                 (long) Math.ceil(diskIoStats.remainingBytes * EXCEED_WARN_THRESHOLD_PERCENT);
-        if (!writeToDisk(bytesToExceedWarnThreshold) || !listener.isValidNotificationReceived()) {
+        if (!writeToDisk(bytesToExceedWarnThreshold)
+                || !listener.isValidNotificationReceived(watchdogSyncDelayMs)) {
             return false;
         }
         mTextViewSetter.setPermanent(
@@ -232,7 +275,8 @@ public class CarWatchdogTestFragment extends Fragment {
         long remainingBytes = listener.getNotifiedRemainingBytes();
         listener.expectNewNotification(remainingBytes, diskIoStats.totalOveruses + 1,
                 NOTIFICATION_TYPE_OVERUSE);
-        if (!writeToDisk(remainingBytes) || !listener.isValidNotificationReceived()) {
+        if (!writeToDisk(remainingBytes)
+                || !listener.isValidNotificationReceived(watchdogSyncDelayMs)) {
             return false;
         }
         mTextViewSetter.setPermanent(
@@ -247,10 +291,12 @@ public class CarWatchdogTestFragment extends Fragment {
         super.onDestroyView();
     }
 
-    private @Nullable DiskIoStats fetchInitialDiskIoStats() {
+    private @Nullable DiskIoStats fetchInitialDiskIoStats(int watchdogSyncDelayMs) {
         if (!writeToDisk(TEN_MEGABYTES)) {
             return null;
         }
+        waitFor(watchdogSyncDelayMs,
+                "the disk I/O activity to be detected by the watchdog service...");
 
         ResourceOveruseStats resourceOveruseStats = mCarWatchdogManager.getResourceOveruseStats(
                 CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
@@ -270,11 +316,10 @@ public class CarWatchdogTestFragment extends Fragment {
                     + ioOveruseStats.getTotalBytesWritten() + "' returned by get request.");
             return null;
         }
-        /*
-         * Check for foreground mode bytes given kitchensink app is running in the foreground
-         * during manual testing.
-         */
-        long remainingBytes = ioOveruseStats.getRemainingWriteBytes().getForegroundModeBytes();
+
+        long remainingBytes = mIsAppInForeground.get()
+                ? ioOveruseStats.getRemainingWriteBytes().getForegroundModeBytes()
+                : ioOveruseStats.getRemainingWriteBytes().getBackgroundModeBytes();
         if (remainingBytes == 0) {
             showErrorAlert("Zero remaining bytes reported." + System.lineSeparator()
                     + "Note: Reset resource overuse stats before running the test.");
@@ -327,20 +372,10 @@ public class CarWatchdogTestFragment extends Fragment {
                 return false;
             }
             fos.getFD().sync();
-            mTextViewSetter.set("Wrote " + bytes + " bytes to disk. Waiting "
-                    + (DISK_DELAY_MS / 1000) + " seconds for the disk I/O activity to be detected "
-                    + "by the watchdog service...");
-            Thread.sleep(DISK_DELAY_MS);
+            mTextViewSetter.set("Wrote " + bytes + " bytes to disk.");
             return true;
-        } catch (IOException | InterruptedException e) {
-            String reason;
-            if (e instanceof IOException) {
-                reason = "I/O exception";
-            } else {
-                reason = "Thread interrupted";
-                Thread.currentThread().interrupt();
-            }
-            String message = reason + " after successfully writing to disk.";
+        } catch (IOException e) {
+            String message = "I/O exception after successfully writing to disk.";
             Log.e(TAG, message, e);
             showErrorAlert(message + System.lineSeparator() + System.lineSeparator()
                     + e.getMessage());
@@ -376,6 +411,19 @@ public class CarWatchdogTestFragment extends Fragment {
         return totalBytesWritten;
     }
 
+    private void waitFor(int waitMs, String reason) {
+        try {
+            mTextViewSetter.set("Waiting " + (waitMs / 1000) + " seconds for " + reason);
+            Thread.sleep(waitMs);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            String message = "Thread interrupted while waiting for " + reason;
+            Log.e(TAG, message, e);
+            showErrorAlert(message + System.lineSeparator() + System.lineSeparator()
+                    + e.getMessage());
+        }
+    }
+
     private void showErrorAlert(String message) {
         mTextViewSetter.setPermanent("Error: " + message);
         showAlert("Error", message, android.R.drawable.ic_dialog_alert);
@@ -407,7 +455,7 @@ public class CarWatchdogTestFragment extends Fragment {
 
     private final class IoOveruseListener
             implements CarWatchdogManager.ResourceOveruseListener {
-        private static final int NOTIFICATION_DELAY_MS = 10000;
+        private static final int NOTIFICATION_DELAY_MS = 10_000;
 
         private final Object mLock = new Object();
         @GuardedBy("mLock")
@@ -443,8 +491,9 @@ public class CarWatchdogTestFragment extends Fragment {
                             + toNotificationTypeString(mExpectedNotificationType) + '.');
                     return;
                 }
-                mNotifiedRemainingBytes = ioOveruseStats.getRemainingWriteBytes()
-                        .getForegroundModeBytes();
+                mNotifiedRemainingBytes = mIsAppInForeground.get()
+                        ? ioOveruseStats.getRemainingWriteBytes().getForegroundModeBytes()
+                        : ioOveruseStats.getRemainingWriteBytes().getBackgroundModeBytes();
                 if (mExpectedNotificationType == NOTIFICATION_TYPE_WARNING
                         && mNotifiedRemainingBytes == 0) {
                     showErrorAlert("Expected non-zero remaining write bytes in the "
@@ -484,12 +533,13 @@ public class CarWatchdogTestFragment extends Fragment {
             }
         }
 
-        private boolean isValidNotificationReceived() {
+        private boolean isValidNotificationReceived(int watchdogSyncDelayMs) {
             synchronized (mLock) {
                 long now = SystemClock.uptimeMillis();
-                long deadline = now + NOTIFICATION_DELAY_MS;
-                mTextViewSetter.set("Waiting " + (NOTIFICATION_DELAY_MS / 1000)
-                                + " seconds to be notified of disk I/O overuse...");
+                long deadline = now + NOTIFICATION_DELAY_MS + watchdogSyncDelayMs;
+                mTextViewSetter.set("Waiting "
+                        + ((NOTIFICATION_DELAY_MS + watchdogSyncDelayMs) / 1000)
+                        + " seconds to be notified of disk I/O overuse...");
                 while (mNotificationStatus == NOTIFICATION_STATUS_NO && now < deadline) {
                     try {
                         mLock.wait(deadline - now);
