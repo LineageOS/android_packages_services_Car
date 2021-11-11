@@ -20,6 +20,7 @@ import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.internal.ICarServiceHelper;
@@ -80,5 +81,10 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         Log.d(TAG, "setPersistentActivity(activity=" + activity.toShortString()
                 + ", displayId=" + displayId + ", featureId=" + featureId + ")");
         return CarActivityManager.RESULT_SUCCESS;
+    }
+
+    @Override
+    public void sendInitialUser(UserHandle user) {
+        Log.d(TAG, "sendInitialUser " + user);
     }
 }
