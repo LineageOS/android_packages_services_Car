@@ -16,6 +16,8 @@
 
 package com.android.car.watchdog;
 
+import static android.app.StatsManager.PULL_SKIP;
+import static android.app.StatsManager.PULL_SUCCESS;
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
@@ -28,7 +30,11 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__USER_NO_INTERACTION_MODE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
-import static com.android.car.watchdog.WatchdogStorage.ZONE_OFFSET;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
+import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
+import static com.android.car.watchdog.WatchdogPerfHandler.UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
@@ -39,6 +45,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.AdditionalMatchers.or;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
@@ -54,6 +61,9 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityThread;
+import android.app.StatsManager;
+import android.app.StatsManager.PullAtomMetadata;
+import android.app.StatsManager.StatsPullAtomCallback;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.GarageMode;
@@ -96,6 +106,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.os.Binder;
+import android.os.FileUtils;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -105,6 +116,7 @@ import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
+import android.util.StatsEvent;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -112,6 +124,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.systeminterface.SystemInterface;
 
 import com.google.common.truth.Correspondence;
 
@@ -124,16 +137,21 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.time.Instant;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
@@ -147,17 +165,20 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int INVALID_SESSION_ID = -1;
     private static final int OVERUSE_HANDLING_DELAY_MILLS = 1000;
     private static final int RECURRING_OVERUSE_THRESHOLD = 2;
+    private static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 3;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
+    private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
 
     @Mock private Context mMockContext;
     @Mock private PackageManager mMockPackageManager;
+    @Mock private StatsManager mMockStatsManager;
     @Mock private UserManager mMockUserManager;
+    @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarUxRestrictionsManagerService mMockCarUxRestrictionsManagerService;
     @Mock private IBinder mMockBinder;
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private WatchdogStorage mMockWatchdogStorage;
-
 
     @Captor private ArgumentCaptor<ICarPowerStateListener> mICarPowerStateListenerCaptor;
     @Captor private ArgumentCaptor<ICarPowerPolicyListener> mICarPowerPolicyListenerCaptor;
@@ -170,6 +191,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<List<
             android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
             mResourceOveruseConfigurationsCaptor;
+    @Captor private ArgumentCaptor<StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
     @Captor private ArgumentCaptor<int[]> mIntArrayCaptor;
     @Captor private ArgumentCaptor<byte[]> mOveruseStatsCaptor;
     @Captor private ArgumentCaptor<byte[]> mKilledStatsCaptor;
@@ -179,7 +201,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<Integer> mSystemStateCaptor;
     @Captor private ArgumentCaptor<Integer> mKillReasonCaptor;
 
-
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
     private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
@@ -188,8 +209,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private ICarPowerStateListener mCarPowerStateListener;
     private ICarPowerPolicyListener mCarPowerPolicyListener;
     private ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener;
-    private TimeSourceInterface mTimeSource;
+    private StatsPullAtomCallback mStatsPullAtomCallback;
+    private File mTempSystemCarDir;
 
+    private final TestTimeSource mTimeSource = new TestTimeSource();
     private final SparseArray<String> mGenericPackageNameByUid = new SparseArray<>();
     private final SparseArray<List<String>> mPackagesBySharedUid = new SparseArray<>();
     private final ArrayMap<String, android.content.pm.PackageInfo> mPmPackageInfoByUserPackage =
@@ -198,6 +221,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private final List<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
             new ArrayList<>();
     private final List<WatchdogStorage.IoUsageStatsEntry> mIoUsageStatsEntries = new ArrayList<>();
+    private final List<AtomsProto.CarWatchdogSystemIoUsageSummary> mPulledSystemIoUsageSummaries =
+            new ArrayList<>();
+    private final List<AtomsProto.CarWatchdogUidIoUsageSummary> mPulledUidIoUsageSummaries =
+            new ArrayList<>();
     private final IPackageManager mSpiedPackageManager = spy(ActivityThread.getPackageManager());
 
     @Override
@@ -216,28 +243,33 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Before
     public void setUp() throws Exception {
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
         when(mMockContext.getPackageName()).thenReturn(
                 CarWatchdogServiceUnitTest.class.getCanonicalName());
+        doReturn(mMockSystemInterface)
+                .when(() -> CarLocalServices.getService(SystemInterface.class));
         doReturn(mMockCarPowerManagementService)
                 .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
         doReturn(mMockCarUxRestrictionsManagerService)
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
         doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
 
-        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage);
-        mCarWatchdogService.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
-        mCarWatchdogService.setRecurringOveruseThreshold(RECURRING_OVERUSE_THRESHOLD);
-        setDate(/* numDaysAgo= */ 0);
+        when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
+                .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
+                        UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
+
+        mTempSystemCarDir = Files.createTempDirectory("watchdog_test").toFile();
+        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
+
+        setupUsers();
         mockWatchdogDaemon();
         mockWatchdogStorage();
-        setupUsers();
-        mCarWatchdogService.init();
-        captureCarPowerListeners();
-        captureBroadcastReceiver();
-        captureCarUxRestrictionsChangeListener();
-        captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ true);
-        verifyDatabaseInit(/* wantedInvocations= */ 1);
         mockPackageManager();
+        mockBuildStatsEventCalls();
+
+        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage,
+                mTimeSource);
+        initService(/* wantedInvocations= */ 1);
     }
 
     /**
@@ -259,6 +291,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mPackagesBySharedUid.clear();
         mPmPackageInfoByUserPackage.clear();
         mDisabledUserPackages.clear();
+        mPulledSystemIoUsageSummaries.clear();
+        mPulledUidIoUsageSummaries.clear();
+        if (mTempSystemCarDir != null) {
+            FileUtils.deleteContentsAndDir(mTempSystemCarDir);
+        }
     }
 
     @Test
@@ -392,7 +429,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
                 packageName, uid, null, ApplicationInfo.FLAG_SYSTEM, 0)));
 
-        long startTime = mTimeSource.now().atZone(ZONE_OFFSET).minusDays(4).toEpochSecond();
+        long startTime = mTimeSource.getCurrentDateTime().minusDays(4).toEpochSecond();
         long duration = mTimeSource.now().getEpochSecond() - startTime;
         when(mMockWatchdogStorage.getHistoricalIoOveruseStats(
                 UserHandle.getUserId(uid), packageName, 6))
@@ -457,7 +494,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
                 packageName, uid, null, ApplicationInfo.FLAG_SYSTEM, 0)));
 
-        long startTime = mTimeSource.now().atZone(ZONE_OFFSET).minusDays(4).toEpochSecond();
+        long startTime = mTimeSource.getCurrentDateTime().minusDays(4).toEpochSecond();
         long duration = mTimeSource.now().getEpochSecond() - startTime;
         when(mMockWatchdogStorage.getHistoricalIoOveruseStats(
                 UserHandle.getUserId(uid), packageName, 6))
@@ -572,7 +609,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 /* totalOveruses= */ 0)));
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
-        ZonedDateTime now = mTimeSource.now().atZone(ZONE_OFFSET);
+        ZonedDateTime now = mTimeSource.getCurrentDateTime();
         long startTime = now.minusDays(4).toEpochSecond();
         IoOveruseStats thirdPartyPkgOldStats = new IoOveruseStats.Builder(
                 startTime, now.toEpochSecond() - startTime).setTotalOveruses(5)
@@ -757,7 +794,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 /* totalOveruses= */ 0)));
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
-        ZonedDateTime now = mTimeSource.now().atZone(ZONE_OFFSET);
+        ZonedDateTime now = mTimeSource.getCurrentDateTime();
         long startTime = now.minusDays(4).toEpochSecond();
         IoOveruseStats thirdPartyPkgOldStats = new IoOveruseStats.Builder(
                 startTime, now.toEpochSecond() - startTime).setTotalOveruses(5)
@@ -851,7 +888,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 /* totalOveruses= */ 3)));
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
-        ZonedDateTime now = mTimeSource.now().atZone(ZONE_OFFSET);
+        ZonedDateTime now = mTimeSource.getCurrentDateTime();
         long startTime = now.minusDays(4).toEpochSecond();
         IoOveruseStats vendorPkgOldStats = new IoOveruseStats.Builder(
                 startTime, now.toEpochSecond() - startTime).setTotalOveruses(2)
@@ -2026,14 +2063,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mCarWatchdogService.setKillablePackageAsUser(
                 "third_party_package.A", UserHandle.of(12), /* isKillable= */ false);
 
-        setCarPowerState(CarPowerStateListener.SHUTDOWN_ENTER);
-        verify(mMockWatchdogStorage).saveIoUsageStats(any());
-        verify(mMockWatchdogStorage).saveUserPackageSettings(any());
-        mCarWatchdogService.release();
-        verify(mMockWatchdogStorage).release();
-        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage);
-        mCarWatchdogService.init();
-        verifyDatabaseInit(/* wantedInvocations= */ 2);
+        restartService(/* totalRestarts= */ 1);
 
         List<ResourceOveruseStats> actualStats = mCarWatchdogService.getAllResourceOveruseStats(
                 CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
@@ -2074,7 +2104,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 constructPackageManagerPackageInfo("third_party_package", 1001100, null)));
 
         setDisplayStateEnabled(false);
-        setDate(1);
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
         List<PackageIoOveruseStats> prevDayStats = Arrays.asList(
                 constructPackageIoOveruseStats(1011200, /* shouldNotify= */ false,
                         /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
@@ -2101,7 +2131,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 /* totalTimesKilled= */ 0)));
 
         setDisplayStateEnabled(true);
-        setDate(0);
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
         List<PackageIoOveruseStats> currentDayStats = Arrays.asList(
                 constructPackageIoOveruseStats(1011200, /* shouldNotify= */ false,
                         /* forgivenWriteBytes= */ constructPerStateBytes(0, 0, 0),
@@ -2333,7 +2363,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testDisableRecurrentlyOverusingAppWhenDisplayDisabledAfterDateChange()
             throws Exception {
-        setDate(1);
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
         setUpSampleUserAndPackages();
         setRequiresDistractionOptimization(true);
         setDisplayStateEnabled(true);
@@ -2345,7 +2375,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertWithMessage("Disabled user packages").that(mDisabledUserPackages).isEmpty();
 
-        setDate(0);
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
 
         pushLatestIoOveruseStatsAndWait(new ArrayList<>());
 
@@ -2599,6 +2629,190 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         verify(mMockWatchdogStorage, times(2)).deleteUserPackage(anyInt(),
                 eq("third_party_package.A"));
+    }
+
+    @Test
+    public void testPullSystemIoUsageSummaryAtomsWithRestart() throws Exception {
+        List<StatsEvent> events = new ArrayList<>();
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        List<AtomsProto.CarWatchdogSystemIoUsageSummary> expectedSummaries =
+                verifyAndGetSystemIoUsageSummaries(
+                        mTimeSource.getCurrentDate().minus(RETENTION_PERIOD));
+
+        assertWithMessage("First pulled system I/O usage summary atoms")
+                .that(mPulledSystemIoUsageSummaries).containsExactlyElementsIn(expectedSummaries);
+        mPulledSystemIoUsageSummaries.clear();
+
+        restartService(/* totalRestarts= */ 1);
+
+        assertWithMessage("Status of stats pull atom callback after restart")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        assertWithMessage("Pulled system I/O usage summary atoms after restart")
+                .that(mPulledSystemIoUsageSummaries).isEmpty();
+
+        verifyNoMoreInteractions(mMockWatchdogStorage);
+    }
+
+    @Test
+    public void testPullSystemIoUsageSummaryAtomsWithDateChange() throws Exception {
+        mTimeSource.updateNow(/* numDaysAgo= */ 7);
+
+        List<StatsEvent> events = new ArrayList<>();
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        List<AtomsProto.CarWatchdogSystemIoUsageSummary> expectedSummaries =
+                verifyAndGetSystemIoUsageSummaries(
+                        mTimeSource.getCurrentDate().minus(RETENTION_PERIOD));
+
+        assertWithMessage("First pulled system I/O usage summary atoms")
+                .that(mPulledSystemIoUsageSummaries).containsExactlyElementsIn(expectedSummaries);
+        mPulledSystemIoUsageSummaries.clear();
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 6);
+
+        assertWithMessage("Status of stats pull atom callback within the same week")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        assertWithMessage("Pulled system I/O usage summary atoms within the same week")
+                .that(mPulledSystemIoUsageSummaries).isEmpty();
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+
+        assertWithMessage("Status of stats pull atom callback after a week")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        expectedSummaries = verifyAndGetSystemIoUsageSummaries(
+                mTimeSource.getCurrentDate().minus(1, ChronoUnit.WEEKS));
+
+        assertWithMessage("Pulled system I/O usage summary atoms after a week")
+                .that(mPulledSystemIoUsageSummaries).containsExactlyElementsIn(expectedSummaries);
+
+        verifyNoMoreInteractions(mMockWatchdogStorage);
+    }
+
+    @Test
+    public void testPullUidIoUsageSummaryAtomsForTopUids() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package.critical.A", 10000345, null),
+                constructPackageManagerPackageInfo("third_party_package.B", 10004675, null),
+                constructPackageManagerPackageInfo("system_package.critical.B", 10010001, null),
+                constructPackageManagerPackageInfo("vendor_package.non_critical", 10110004, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10110005,
+                        "third_party_shared_package")));
+
+        List<StatsEvent> events = new ArrayList<>();
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        List<AtomsProto.CarWatchdogUidIoUsageSummary> expectedSummaries =
+                verifyAndGetUidIoUsageSummaries(
+                        mTimeSource.getCurrentDate().minus(RETENTION_PERIOD),
+                        /* expectUids= */ Arrays.asList(10010001, 10110004, 10110005));
+
+        assertWithMessage(String.format("Pulled uid I/O usage summary atoms for top %d UIDs",
+                UID_IO_USAGE_SUMMARY_TOP_COUNT)).that(mPulledUidIoUsageSummaries)
+                .containsExactlyElementsIn(expectedSummaries);
+    }
+
+    @Test
+    public void testPullUidIoUsageSummaryAtomsWithRestart() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package.critical", 10010001, null),
+                constructPackageManagerPackageInfo("vendor_package.non_critical", 10110004, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10110005,
+                        "third_party_shared_package")));
+
+        List<StatsEvent> events = new ArrayList<>();
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        List<AtomsProto.CarWatchdogUidIoUsageSummary> expectedSummaries =
+                verifyAndGetUidIoUsageSummaries(
+                        mTimeSource.getCurrentDate().minus(RETENTION_PERIOD),
+                        /* expectUids= */ Arrays.asList(10010001, 10110004, 10110005));
+
+        assertWithMessage("First pulled uid I/O usage summary atoms")
+                .that(mPulledUidIoUsageSummaries).containsExactlyElementsIn(expectedSummaries);
+        mPulledUidIoUsageSummaries.clear();
+
+        restartService(/* totalRestarts= */ 1);
+
+        assertWithMessage("Status of stats pull atom callback after restart")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        assertWithMessage("Pulled uid I/O usage summary atoms after restart")
+                .that(mPulledUidIoUsageSummaries).isEmpty();
+
+        verifyNoMoreInteractions(mMockWatchdogStorage);
+    }
+
+    @Test
+    public void testPullUidIoUsageSummaryAtomsWithDateChange() throws Exception {
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package.critical", 10010001, null),
+                constructPackageManagerPackageInfo("vendor_package.non_critical", 10110004, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10110005,
+                        "third_party_shared_package")));
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 7);
+
+        List<StatsEvent> events = new ArrayList<>();
+        assertWithMessage("Stats pull atom callback status")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        List<AtomsProto.CarWatchdogUidIoUsageSummary> expectedSummaries =
+                verifyAndGetUidIoUsageSummaries(
+                        mTimeSource.getCurrentDate().minus(RETENTION_PERIOD),
+                        /* expectUids= */ Arrays.asList(10010001, 10110004, 10110005));
+
+        assertWithMessage("First pulled uid I/O usage summary atoms")
+                .that(mPulledUidIoUsageSummaries).containsExactlyElementsIn(expectedSummaries);
+        mPulledUidIoUsageSummaries.clear();
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 6);
+
+        assertWithMessage("Status of stats pull atom callback within the same week")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        assertWithMessage("Pulled uid I/O usage summary atoms within the same week")
+                .that(mPulledUidIoUsageSummaries).isEmpty();
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+
+        assertWithMessage("Status of stats pull atom callback after a week")
+                .that(mStatsPullAtomCallback.onPullAtom(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY,
+                        events)).isEqualTo(PULL_SUCCESS);
+
+        expectedSummaries = verifyAndGetUidIoUsageSummaries(
+                mTimeSource.getCurrentDate().minus(1, ChronoUnit.WEEKS),
+                /* expectUids= */ Arrays.asList(10010001, 10110004, 10110005));
+
+        assertWithMessage("Pulled uid I/O usage summary atoms after a week")
+                .that(mPulledUidIoUsageSummaries).containsExactlyElementsIn(expectedSummaries);
+
+        verifyNoMoreInteractions(mMockWatchdogStorage);
+    }
+
+    @Test
+    public void testPullInvalidAtoms() throws Exception {
+        List<StatsEvent> actualEvents = new ArrayList<>();
+        assertWithMessage("Stats pull atom callback status").that(mStatsPullAtomCallback.onPullAtom(
+                0, actualEvents)).isEqualTo(PULL_SKIP);
+        assertWithMessage("Pulled stats events").that(actualEvents).isEmpty();
     }
 
     @Test
@@ -2935,6 +3149,24 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         });
         when(mMockWatchdogStorage.getUserPackageSettings()).thenReturn(mUserPackageSettingsEntries);
         when(mMockWatchdogStorage.getTodayIoUsageStats()).thenReturn(mIoUsageStatsEntries);
+        when(mMockWatchdogStorage.getDailySystemIoUsageSummaries(anyLong(), anyLong())).thenAnswer(
+                args -> sampleDailyIoUsageSummariesForAWeek(args.getArgument(0),
+                        SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER));
+        when(mMockWatchdogStorage.getTopUsersDailyIoUsageSummaries(
+                anyInt(), anyLong(), anyLong(), anyLong())).thenAnswer(args -> {
+                    ArrayList<WatchdogStorage.UserPackageDailySummaries> summaries =
+                            new ArrayList<>();
+                    for (int i = 0; i < mGenericPackageNameByUid.size(); ++i) {
+                        int uid = mGenericPackageNameByUid.keyAt(i);
+                        summaries.add(new WatchdogStorage.UserPackageDailySummaries(
+                                UserHandle.getUserId(uid), mGenericPackageNameByUid.valueAt(i),
+                                sampleDailyIoUsageSummariesForAWeek(args.getArgument(2),
+                                        /* sysOrUidMultiplier= */ uid)));
+                    }
+                    summaries.sort(Comparator.comparingLong(WatchdogStorage
+                            .UserPackageDailySummaries::getTotalWrittenBytes).reversed());
+                    return summaries;
+                });
     }
 
     private void setupUsers() {
@@ -2942,29 +3174,59 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mockUmGetAllUsers(mMockUserManager, new UserHandle[0]);
     }
 
-    private void captureCarPowerListeners() {
-        verify(mMockCarPowerManagementService).registerListener(
+    private void initService(int wantedInvocations) throws Exception {
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        mCarWatchdogService.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
+        mCarWatchdogService.setRecurringOveruseThreshold(RECURRING_OVERUSE_THRESHOLD);
+        mCarWatchdogService.setUidIoUsageSummaryTopCount(
+                UID_IO_USAGE_SUMMARY_TOP_COUNT);
+        mCarWatchdogService.init();
+        captureCarPowerListeners(wantedInvocations);
+        captureBroadcastReceiver(wantedInvocations);
+        captureCarUxRestrictionsChangeListener(wantedInvocations);
+        captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ true);
+        verifyDatabaseInit(wantedInvocations);
+        captureStatsPullAtomCallback(wantedInvocations);
+    }
+
+    private void restartService(int totalRestarts) throws Exception {
+        setCarPowerState(CarPowerStateListener.SHUTDOWN_PREPARE);
+        setCarPowerState(CarPowerStateListener.SHUTDOWN_ENTER);
+        mCarWatchdogService.release();
+        verify(mMockWatchdogStorage, times(totalRestarts)).saveIoUsageStats(any());
+        verify(mMockWatchdogStorage, times(totalRestarts)).saveUserPackageSettings(any());
+        verify(mMockWatchdogStorage, times(totalRestarts)).release();
+        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage,
+                mTimeSource);
+        initService(/* wantedInvocations= */ totalRestarts + 1);
+    }
+
+    private void captureCarPowerListeners(int wantedInvocations) {
+        verify(mMockCarPowerManagementService, times(wantedInvocations)).registerListener(
                 mICarPowerStateListenerCaptor.capture());
         mCarPowerStateListener = mICarPowerStateListenerCaptor.getValue();
         assertWithMessage("Car power state listener").that(mCarPowerStateListener).isNotNull();
 
-        verify(mMockCarPowerManagementService).addPowerPolicyListener(
+        verify(mMockCarPowerManagementService, times(wantedInvocations)).addPowerPolicyListener(
                 any(), mICarPowerPolicyListenerCaptor.capture());
         mCarPowerPolicyListener = mICarPowerPolicyListenerCaptor.getValue();
         assertWithMessage("Car power policy listener").that(mCarPowerPolicyListener).isNotNull();
     }
 
-    private void captureBroadcastReceiver() {
-        verify(mMockContext)
+    private void captureBroadcastReceiver(int wantedInvocations) {
+        verify(mMockContext, times(wantedInvocations))
                 .registerReceiverForAllUsers(mBroadcastReceiverCaptor.capture(),
                         any(), any(), any(), anyInt());
         mBroadcastReceiver = mBroadcastReceiverCaptor.getValue();
         assertWithMessage("Broadcast receiver").that(mBroadcastReceiver).isNotNull();
     }
 
-    private void captureCarUxRestrictionsChangeListener() {
-        verify(mMockCarUxRestrictionsManagerService).registerUxRestrictionsChangeListener(
-                mICarUxRestrictionsChangeListener.capture(), eq(Display.DEFAULT_DISPLAY));
+    private void captureCarUxRestrictionsChangeListener(int wantedInvocations) {
+        verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
+                .getCurrentUxRestrictions();
+        verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
+                .registerUxRestrictionsChangeListener(mICarUxRestrictionsChangeListener.capture(),
+                        eq(Display.DEFAULT_DISPLAY));
         mCarUxRestrictionsChangeListener = mICarUxRestrictionsChangeListener.getValue();
         assertWithMessage("UX restrictions change listener").that(mCarUxRestrictionsChangeListener)
                 .isNotNull();
@@ -3012,6 +3274,44 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mMockWatchdogStorage, times(wantedInvocations)).getTodayIoUsageStats();
     }
 
+    private void captureStatsPullAtomCallback(int wantedInvocations) {
+        verify(mMockStatsManager, times(wantedInvocations)).setPullAtomCallback(
+                eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY), any(PullAtomMetadata.class),
+                any(Executor.class), mStatsPullAtomCallbackCaptor.capture());
+        verify(mMockStatsManager, times(wantedInvocations)).setPullAtomCallback(
+                eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), any(PullAtomMetadata.class),
+                any(Executor.class), mStatsPullAtomCallbackCaptor.capture());
+
+        // The same callback is set in the above calls, so fetch the latest captured callback.
+        mStatsPullAtomCallback = mStatsPullAtomCallbackCaptor.getValue();
+        assertWithMessage("Stats pull atom callback").that(mStatsPullAtomCallback).isNotNull();
+    }
+
+    private void mockBuildStatsEventCalls() {
+        when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
+                any(byte[].class))).thenAnswer(args -> {
+                    mPulledSystemIoUsageSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary
+                            .newBuilder()
+                            .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
+                                    (byte[]) args.getArgument(1)))
+                            .build());
+                    // Returned event is not used in tests, so return an empty event.
+                    return StatsEvent.newBuilder().build();
+                });
+
+        when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
+                any(byte[].class))).thenAnswer(args -> {
+                    mPulledUidIoUsageSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary
+                            .newBuilder()
+                            .setUid(args.getArgument(1))
+                            .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
+                                    (byte[]) args.getArgument(2)))
+                            .build());
+                    // Returned event is not used in tests, so return an empty event.
+                    return StatsEvent.newBuilder().build();
+                });
+    }
+
     private void mockPackageManager() throws Exception {
         when(mMockPackageManager.getNamesForUids(any())).thenAnswer(args -> {
             int[] uids = args.getArgument(0);
@@ -3038,10 +3338,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     }
                     return packageInfo.applicationInfo;
                 });
-        when(mMockPackageManager.getPackageInfoAsUser(anyString(), anyInt(), anyInt())).thenAnswer(
-                args -> {
-                    int userId = args.getArgument(2);
-                    String userPackageId = userId + ":" + args.getArgument(0);
+        when(mMockPackageManager.getPackageInfoAsUser(anyString(), anyInt(), anyInt()))
+                .thenAnswer(args -> {
+                    String userPackageId = args.getArgument(2) + ":" + args.getArgument(0);
                     android.content.pm.PackageInfo packageInfo =
                             mPmPackageInfoByUserPackage.get(userPackageId);
                     if (packageInfo == null) {
@@ -3050,8 +3349,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     }
                     return packageInfo;
                 });
-        when(mMockPackageManager.getInstalledPackagesAsUser(anyInt(), anyInt())).thenAnswer(
-                args -> {
+        when(mMockPackageManager.getInstalledPackagesAsUser(anyInt(), anyInt()))
+                .thenAnswer(args -> {
                     int userId = args.getArgument(1);
                     List<android.content.pm.PackageInfo> packageInfos = new ArrayList<>();
                     for (android.content.pm.PackageInfo packageInfo :
@@ -3062,6 +3361,18 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     }
                     return packageInfos;
                 });
+        when(mMockPackageManager.getPackageUidAsUser(anyString(), anyInt()))
+                .thenAnswer(args -> {
+                    String userPackageId = args.getArgument(1) + ":" + args.getArgument(0);
+                    android.content.pm.PackageInfo packageInfo =
+                            mPmPackageInfoByUserPackage.get(userPackageId);
+                    if (packageInfo == null) {
+                        throw new PackageManager.NameNotFoundException(
+                                "User package id '" + userPackageId + "' not found");
+                    }
+                    return packageInfo.applicationInfo.uid;
+                });
+
         doAnswer((args) -> {
             String value = args.getArgument(3) + ":" + args.getArgument(0);
             mDisabledUserPackages.add(value);
@@ -3114,26 +3425,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ false);
     }
 
-    private void setDate(int numDaysAgo) {
-        TimeSourceInterface timeSource = new TimeSourceInterface() {
-            @Override
-            public Instant now() {
-                /* Return the same time, so the tests are deterministic. */
-                return mNow;
-            }
-
-            @Override
-            public String toString() {
-                return "Mocked date to " + now();
-            }
-
-            private final Instant mNow = Instant.now().minus(numDaysAgo, ChronoUnit.DAYS);
-        };
-        mCarWatchdogService.setTimeSource(timeSource);
-        mTimeSource = timeSource;
-    }
-
-
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
@@ -3176,8 +3467,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return packageIoOveruseStatsByUid;
     }
 
-    private void injectPackageInfos(
-            List<android.content.pm.PackageInfo> packageInfos) {
+    private void injectPackageInfos(List<android.content.pm.PackageInfo> packageInfos) {
         for (android.content.pm.PackageInfo packageInfo : packageInfos) {
             String genericPackageName = packageInfo.packageName;
             int uid = packageInfo.applicationInfo.uid;
@@ -3204,8 +3494,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         }
     }
 
-    private void pushLatestIoOveruseStatsAndWait(
-            List<PackageIoOveruseStats> packageIoOveruseStats) throws Exception {
+    private void pushLatestIoOveruseStatsAndWait(List<PackageIoOveruseStats> packageIoOveruseStats)
+            throws Exception {
         mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
 
         // Resource overuse handling is done on the main thread by posting a new message with
@@ -3639,9 +3929,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     AtomsProto.CarWatchdogIoOveruseStats.parseFrom(allOveruseStatsValues.get(i))));
         }
         assertWithMessage("I/O overuse stats reported to statsd").that(actual)
-                .comparingElementsUsing(Correspondence.from(
-                        CarWatchdogServiceUnitTest::isCarWatchdogIoOveruseStatsReportedEquals,
-                        "is equal to")).containsExactlyElementsIn(expected);
+                .containsExactlyElementsIn(expected);
     }
 
     private void captureAndVerifyKillStatsReported(
@@ -3669,55 +3957,87 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                             allIoOveruseStatsValues.get(i))));
         }
         assertWithMessage("I/O overuse kill stats reported to statsd").that(actual)
-                .comparingElementsUsing(Correspondence.from(
-                        CarWatchdogServiceUnitTest::isCarWatchdogKillStatsReported, "is equal to"))
                 .containsExactlyElementsIn(expected);
     }
 
-    public static boolean isCarWatchdogIoOveruseStatsReportedEquals(
-            AtomsProto.CarWatchdogIoOveruseStatsReported actual,
-            AtomsProto.CarWatchdogIoOveruseStatsReported expected) {
-        return actual.getUid() == expected.getUid()
-                && isCarWatchdogIoOveruseStatsEquals(
-                actual.getIoOveruseStats(), expected.getIoOveruseStats());
-    }
-
-    public static boolean isCarWatchdogKillStatsReported(
-            AtomsProto.CarWatchdogKillStatsReported actual,
-            AtomsProto.CarWatchdogKillStatsReported expected) {
-        return actual.getUid() == expected.getUid()
-                && actual.getUidState() == expected.getUidState()
-                && actual.getSystemState() == expected.getSystemState()
-                && actual.getKillReason() == expected.getKillReason()
-                // Process stats is null on I/O overuse kill stats, so equality checking on the
-                // objects is sufficient.
-                && actual.getProcessStats().equals(expected.getProcessStats())
-                && isCarWatchdogIoOveruseStatsEquals(
-                actual.getIoOveruseStats(), expected.getIoOveruseStats());
-    }
-
-    private static boolean isCarWatchdogIoOveruseStatsEquals(
-            AtomsProto.CarWatchdogIoOveruseStats actual,
-            AtomsProto.CarWatchdogIoOveruseStats expected) {
-        if (actual == null || expected == null) {
-            return (actual == null) && (expected == null);
+    private List<AtomsProto.CarWatchdogSystemIoUsageSummary> verifyAndGetSystemIoUsageSummaries(
+            ZonedDateTime beginReportDate) {
+        ZonedDateTime beginWeekStartDate = beginReportDate.with(ChronoField.DAY_OF_WEEK, 1);
+        ZonedDateTime endWeekStartDate = mTimeSource.getCurrentDate()
+                .with(ChronoField.DAY_OF_WEEK, 1);
+        List<AtomsProto.CarWatchdogSystemIoUsageSummary> expectedSummaries = new ArrayList<>();
+        while (!beginWeekStartDate.equals(endWeekStartDate)) {
+            long startEpochSecond = beginWeekStartDate.toEpochSecond();
+            verify(mMockWatchdogStorage).getDailySystemIoUsageSummaries(startEpochSecond,
+                    beginWeekStartDate.plusWeeks(1).toEpochSecond());
+            expectedSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary.newBuilder()
+                    .setIoUsageSummary(constructCarWatchdogIoUsageSummary(startEpochSecond,
+                            sampleDailyIoUsageSummariesForAWeek(startEpochSecond,
+                                    SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER)))
+                    .build());
+            beginWeekStartDate = beginWeekStartDate.plusWeeks(1);
         }
-        return actual.getPeriod() == expected.getPeriod()
-                && isCarWatchdogPerStateBytesEquals(actual.getThreshold(), expected.getThreshold())
-                && isCarWatchdogPerStateBytesEquals(
-                actual.getWrittenBytes(), expected.getWrittenBytes())
-                && actual.getUptimeMillis() == expected.getUptimeMillis();
+        return expectedSummaries;
     }
 
-    private static boolean isCarWatchdogPerStateBytesEquals(
-            AtomsProto.CarWatchdogPerStateBytes actual,
-            AtomsProto.CarWatchdogPerStateBytes expected) {
-        if (actual == null || expected == null) {
-            return (actual == null) && (expected == null);
+    private List<AtomsProto.CarWatchdogUidIoUsageSummary> verifyAndGetUidIoUsageSummaries(
+            ZonedDateTime beginReportDate, List<Integer> expectUids) {
+        ZonedDateTime beginWeekStartDate = beginReportDate.with(ChronoField.DAY_OF_WEEK, 1);
+        ZonedDateTime endWeekStartDate = mTimeSource.getCurrentDate()
+                .with(ChronoField.DAY_OF_WEEK, 1);
+        List<AtomsProto.CarWatchdogUidIoUsageSummary> expectedSummaries = new ArrayList<>();
+        while (!beginWeekStartDate.equals(endWeekStartDate)) {
+            long startEpochSecond = beginWeekStartDate.toEpochSecond();
+            verify(mMockWatchdogStorage).getTopUsersDailyIoUsageSummaries(
+                    UID_IO_USAGE_SUMMARY_TOP_COUNT * 2,
+                    UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES, startEpochSecond,
+                    beginWeekStartDate.plusWeeks(1).toEpochSecond());
+            for (Integer uid : expectUids) {
+                expectedSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary.newBuilder()
+                        .setUid(uid)
+                        .setIoUsageSummary(constructCarWatchdogIoUsageSummary(startEpochSecond,
+                                sampleDailyIoUsageSummariesForAWeek(startEpochSecond,
+                                        uid)))
+                        .build());
+            }
+            beginWeekStartDate = beginWeekStartDate.plusWeeks(1);
         }
-        return actual.getForegroundBytes() == expected.getForegroundBytes()
-                && actual.getBackgroundBytes() == expected.getBackgroundBytes()
-                && actual.getGarageModeBytes() == expected.getGarageModeBytes();
+        return expectedSummaries;
+    }
+
+    private static AtomsProto.CarWatchdogIoUsageSummary constructCarWatchdogIoUsageSummary(
+            long startTimeMillis, List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailySummaries) {
+        return AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
+                .setEventTimePeriod(AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
+                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY)
+                        .setStartTimeMillis(startTimeMillis).build())
+                .addAllDailyIoUsageSummary(dailySummaries)
+                .build();
+    }
+
+    private List<AtomsProto.CarWatchdogDailyIoUsageSummary> sampleDailyIoUsageSummariesForAWeek(
+            long startEpochSeconds, long sysOrUidMultiplier) {
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> summaries = new ArrayList<>();
+        long weekMultiplier = ChronoUnit.WEEKS.between(
+                ZonedDateTime.ofInstant(Instant.ofEpochSecond(startEpochSeconds), ZONE_OFFSET),
+                mTimeSource.getCurrentDate());
+        for (int i = 1; i < 8; ++i) {
+            summaries.add(constructCarWatchdogDailyIoUsageSummary(
+                    /* fgWrBytes= */ 100 * i * weekMultiplier * sysOrUidMultiplier,
+                    /* bgWrBytes= */ 200 * i * weekMultiplier * sysOrUidMultiplier,
+                    /* gmWrBytes= */ 300 * i * weekMultiplier * sysOrUidMultiplier,
+                    /* overuseCount= */ 2 * i));
+        }
+        return summaries;
+    }
+
+    static AtomsProto.CarWatchdogDailyIoUsageSummary constructCarWatchdogDailyIoUsageSummary(
+            long fgWrBytes, long bgWrBytes, long gmWrBytes, int overuseCount) {
+        return AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
+                .setWrittenBytes(WatchdogPerfHandler
+                        .constructCarWatchdogPerStateBytes(fgWrBytes, bgWrBytes, gmWrBytes))
+                .setOveruseCount(overuseCount)
+                .build();
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
@@ -3854,5 +4174,28 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         packageInfo.applicationInfo.flags = flags;
         packageInfo.applicationInfo.privateFlags = privateFlags;
         return packageInfo;
+    }
+
+    private static final class TestTimeSource extends TimeSource {
+        private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
+        private Instant mNow;
+        TestTimeSource() {
+            mNow = TEST_DATE_TIME;
+        }
+
+        @Override
+        public Instant now() {
+            /* Return the same time, so the tests are deterministic. */
+            return mNow;
+        }
+
+        @Override
+        public String toString() {
+            return "Mocked date to " + now();
+        }
+
+        void updateNow(int numDaysAgo) {
+            mNow = TEST_DATE_TIME.minus(numDaysAgo, ChronoUnit.DAYS);
+        }
     }
 }
