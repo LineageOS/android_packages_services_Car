@@ -294,9 +294,16 @@ public final class WatchdogPerfHandler {
                     PULL_ATOM_METADATA, ConcurrentUtils.DIRECT_EXECUTOR, this::onPullAtom);
         });
 
-        CarLocalServices.getService(CarUxRestrictionsManagerService.class)
-                .registerUxRestrictionsChangeListener(
-                        mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
+        CarUxRestrictionsManagerService carUxRestrictionsManagerService =
+                CarLocalServices.getService(CarUxRestrictionsManagerService.class);
+        CarUxRestrictions uxRestrictions =
+                carUxRestrictionsManagerService.getCurrentUxRestrictions();
+        synchronized (mLock) {
+            mCurrentUxRestrictions = uxRestrictions;
+            applyCurrentUxRestrictionsLocked();
+        }
+        carUxRestrictionsManagerService.registerUxRestrictionsChangeListener(
+                mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
 
         if (DEBUG) {
             Slogf.d(TAG, "WatchdogPerfHandler is initialized");
