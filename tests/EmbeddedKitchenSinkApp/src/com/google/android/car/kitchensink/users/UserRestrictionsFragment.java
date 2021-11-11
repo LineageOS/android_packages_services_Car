@@ -46,6 +46,7 @@ public final class UserRestrictionsFragment extends Fragment {
             Arrays.asList(
                     UserManager.DISALLOW_ADD_USER,
                     UserManager.DISALLOW_BLUETOOTH,
+                    UserManager.DISALLOW_CONFIG_BRIGHTNESS,
                     UserManager.DISALLOW_FACTORY_RESET,
                     UserManager.DISALLOW_INSTALL_APPS,
                     UserManager.DISALLOW_MODIFY_ACCOUNTS,
