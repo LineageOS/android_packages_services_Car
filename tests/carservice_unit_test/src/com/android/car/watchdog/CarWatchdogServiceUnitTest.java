@@ -258,6 +258,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
         doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
 
+        when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
+                .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
+                        UX_RESTRICTIONS_BASELINE, /* time= */ 0).build());
+
         mTempSystemCarDir = Files.createTempDirectory("watchdog_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
 
@@ -3222,6 +3226,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void captureCarUxRestrictionsChangeListener(int wantedInvocations) {
+        verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
+                .getCurrentUxRestrictions();
         verify(mMockCarUxRestrictionsManagerService, times(wantedInvocations))
                 .registerUxRestrictionsChangeListener(mICarUxRestrictionsChangeListener.capture(),
                         eq(Display.DEFAULT_DISPLAY));
