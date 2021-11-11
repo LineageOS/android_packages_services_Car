@@ -16,7 +16,7 @@
 
 package com.android.car.watchdog;
 
-import static com.android.car.watchdog.CarWatchdogService.SYSTEM_INSTANCE;
+import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -40,15 +40,17 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
 
+import java.io.File;
 import java.time.Instant;
 import java.time.Period;
-import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * Defines the database to store/retrieve system resource stats history from local storage.
@@ -61,26 +63,27 @@ public final class WatchdogStorage {
     /* Number of days to retain the stats in local storage. */
     public static final Period RETENTION_PERIOD =
             Period.ofDays(RETENTION_PERIOD_IN_DAYS).normalized();
-    /* Zone offset for all date based table entries. */
-    public static final ZoneOffset ZONE_OFFSET = ZoneOffset.UTC;
+    public static final String ZONE_MODIFIER = "utc";
+    public static final String DATE_MODIFIER = "unixepoch";
 
     private final WatchdogDbHelper mDbHelper;
     private final ArrayMap<String, UserPackage> mUserPackagesByKey = new ArrayMap<>();
     private final ArrayMap<String, UserPackage> mUserPackagesById = new ArrayMap<>();
-    private TimeSourceInterface mTimeSource = SYSTEM_INSTANCE;
+    private TimeSource mTimeSource;
     private final Object mLock = new Object();
     // Cache of today's I/O overuse stats collected during the previous boot. The data contained in
     // the cache won't change until the next boot, so it is safe to cache the data in memory.
     @GuardedBy("mLock")
     private final List<IoUsageStatsEntry> mTodayIoUsageStatsEntries = new ArrayList<>();
 
-    public WatchdogStorage(Context context) {
-        this(context, /* useDataSystemCarDir= */ true);
+    public WatchdogStorage(Context context, TimeSource timeSource) {
+        this(context, /* useDataSystemCarDir= */ true, timeSource);
     }
 
     @VisibleForTesting
-    WatchdogStorage(Context context, boolean useDataSystemCarDir) {
-        mDbHelper = new WatchdogDbHelper(context, useDataSystemCarDir);
+    WatchdogStorage(Context context, boolean useDataSystemCarDir, TimeSource timeSource) {
+        mTimeSource = timeSource;
+        mDbHelper = new WatchdogDbHelper(context, useDataSystemCarDir, mTimeSource);
     }
 
     /** Releases resources. */
@@ -146,13 +149,12 @@ public final class WatchdogStorage {
             if (!mTodayIoUsageStatsEntries.isEmpty()) {
                 return new ArrayList<>(mTodayIoUsageStatsEntries);
             }
-            ZonedDateTime statsDate =
-                    mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
-            long startEpochSeconds = statsDate.toEpochSecond();
-            long endEpochSeconds = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond();
+            long includingStartEpochSeconds = mTimeSource.getCurrentDate().toEpochSecond();
+            long excludingEndEpochSeconds = mTimeSource.getCurrentDateTime().toEpochSecond();
             ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsagesById;
             try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-                ioUsagesById = IoUsageStatsTable.queryStats(db, startEpochSeconds, endEpochSeconds);
+                ioUsagesById = IoUsageStatsTable.queryStats(db, includingStartEpochSeconds,
+                        excludingEndEpochSeconds);
             }
             for (int i = 0; i < ioUsagesById.size(); ++i) {
                 String id = ioUsagesById.keyAt(i);
@@ -191,12 +193,11 @@ public final class WatchdogStorage {
      * {@code null} when stats are not available.
      */
     @Nullable
-    public IoOveruseStats getHistoricalIoOveruseStats(
-            @UserIdInt int userId, String packageName, int numDaysAgo) {
-        ZonedDateTime currentDate =
-                mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
-        long startEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
-        long endEpochSeconds = currentDate.toEpochSecond();
+    public IoOveruseStats getHistoricalIoOveruseStats(@UserIdInt int userId, String packageName,
+            int numDaysAgo) {
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+        long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
+        long excludingEndEpochSeconds = currentDate.toEpochSecond();
         try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
             UserPackage userPackage = mUserPackagesByKey.get(
                     UserPackage.getKey(userId, packageName));
@@ -204,9 +205,56 @@ public final class WatchdogStorage {
                 /* Packages without historical stats don't have userPackage entry. */
                 return null;
             }
-            return IoUsageStatsTable.queryHistoricalStats(
-                    db, userPackage.getUniqueId(), startEpochSeconds, endEpochSeconds);
+            return IoUsageStatsTable.queryIoOveruseStatsForUniqueId(db, userPackage.getUniqueId(),
+                    includingStartEpochSeconds, excludingEndEpochSeconds);
         }
+    }
+
+    /**
+     * Returns daily system-level I/O usage summaries for the given period or {@code null} when
+     * summaries are not available.
+     */
+    public @Nullable List<AtomsProto.CarWatchdogDailyIoUsageSummary> getDailySystemIoUsageSummaries(
+            long includingStartEpochSeconds, long excludingEndEpochSeconds) {
+        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
+            return IoUsageStatsTable.queryDailySystemIoUsageSummaries(db,
+                    includingStartEpochSeconds, excludingEndEpochSeconds);
+        }
+    }
+
+    /**
+     * Returns top N disk I/O users' daily I/O usage summaries for the given period or {@code null}
+     * when summaries are not available.
+     */
+    public @Nullable List<UserPackageDailySummaries> getTopUsersDailyIoUsageSummaries(
+            int numTopUsers, long minTotalWrittenBytes, long includingStartEpochSeconds,
+            long excludingEndEpochSeconds) {
+        ArrayMap<String, List<AtomsProto.CarWatchdogDailyIoUsageSummary>> summariesById;
+        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
+            summariesById = IoUsageStatsTable.queryTopUsersDailyIoUsageSummaries(db,
+                    numTopUsers, minTotalWrittenBytes, includingStartEpochSeconds,
+                    excludingEndEpochSeconds);
+        }
+        if (summariesById == null) {
+            return null;
+        }
+        ArrayList<UserPackageDailySummaries> userPackageDailySummaries = new ArrayList<>();
+        for (int i = 0; i < summariesById.size(); ++i) {
+            String id = summariesById.keyAt(i);
+            UserPackage userPackage = mUserPackagesById.get(id);
+            if (userPackage == null) {
+                Slogf.i(TAG,
+                        "Failed to find user id and package name for unique database id: '%s'",
+                        id);
+                continue;
+            }
+            userPackageDailySummaries.add(new UserPackageDailySummaries(userPackage.getUserId(),
+                    userPackage.getPackageName(), summariesById.valueAt(i)));
+        }
+        userPackageDailySummaries
+                .sort(Comparator.comparingLong(UserPackageDailySummaries::getTotalWrittenBytes)
+                        .reversed());
+        return userPackageDailySummaries;
     }
 
     /**
@@ -230,8 +278,7 @@ public final class WatchdogStorage {
 
     @VisibleForTesting
     boolean saveIoUsageStats(List<IoUsageStatsEntry> entries, boolean shouldCheckRetention) {
-        ZonedDateTime currentDate =
-                mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         List<ContentValues> rows = new ArrayList<>(entries.size());
         for (int i = 0; i < entries.size(); ++i) {
             IoUsageStatsEntry entry = entries.get(i);
@@ -257,12 +304,6 @@ public final class WatchdogStorage {
         try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
             return atomicReplaceEntries(db, IoUsageStatsTable.TABLE_NAME, rows);
         }
-    }
-
-    @VisibleForTesting
-    void setTimeSource(TimeSourceInterface timeSource) {
-        mTimeSource = timeSource;
-        mDbHelper.setTimeSource(timeSource);
     }
 
     private void populateUserPackages(SQLiteDatabase db, ArraySet<Integer> users) {
@@ -302,15 +343,105 @@ public final class WatchdogStorage {
 
     /** Defines the user package settings entry stored in the UserPackageSettingsTable. */
     static final class UserPackageSettingsEntry {
-        public final String packageName;
         public final @UserIdInt int userId;
+        public final String packageName;
         public final @KillableState int killableState;
 
-        UserPackageSettingsEntry(
-                @UserIdInt int userId, String packageName, @KillableState int killableState) {
+        UserPackageSettingsEntry(@UserIdInt int userId, String packageName,
+                @KillableState int killableState) {
             this.userId = userId;
             this.packageName = packageName;
             this.killableState = killableState;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof UserPackageSettingsEntry)) {
+                return false;
+            }
+            UserPackageSettingsEntry other = (UserPackageSettingsEntry) obj;
+            return userId == other.userId && packageName.equals(other.packageName)
+                    && killableState == other.killableState;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, packageName, killableState);
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder().append("UserPackageSettingsEntry{userId: ").append(userId)
+                    .append(", packageName: ").append(packageName)
+                    .append(", killableState: ").append(killableState).append('}')
+                    .toString();
+        }
+    }
+
+    /** Defines the daily summaries for user packages. */
+    static final class UserPackageDailySummaries {
+        public final @UserIdInt int userId;
+        public final String packageName;
+        public final List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries;
+        private final long mTotalWrittenBytes;
+
+        UserPackageDailySummaries(@UserIdInt int userId, String packageName,
+                List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries) {
+            this.userId = userId;
+            this.packageName = packageName;
+            this.dailyIoUsageSummaries = dailyIoUsageSummaries;
+            this.mTotalWrittenBytes = computeTotalWrittenBytes();
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof UserPackageDailySummaries)) {
+                return false;
+            }
+            UserPackageDailySummaries other = (UserPackageDailySummaries) obj;
+            return userId == other.userId && packageName.equals(other.packageName)
+                    && dailyIoUsageSummaries.equals(other.dailyIoUsageSummaries);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, packageName, dailyIoUsageSummaries, mTotalWrittenBytes);
+        }
+
+        @Override
+        public String toString() {
+            return new StringBuilder().append("UserPackageDailySummaries{userId: ").append(userId)
+                    .append(", packageName: ").append(packageName)
+                    .append(", dailyIoUsageSummaries: ").append(dailyIoUsageSummaries).append('}')
+                    .toString();
+        }
+
+        long getTotalWrittenBytes() {
+            return mTotalWrittenBytes;
+        }
+
+        long computeTotalWrittenBytes() {
+            long totalBytes = 0;
+            for (int i = 0; i < dailyIoUsageSummaries.size(); ++i) {
+                AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                        dailyIoUsageSummaries.get(i).getWrittenBytes();
+                if (writtenBytes.hasForegroundBytes()) {
+                    totalBytes += writtenBytes.getForegroundBytes();
+                }
+                if (writtenBytes.hasBackgroundBytes()) {
+                    totalBytes += writtenBytes.getBackgroundBytes();
+                }
+                if (writtenBytes.hasGarageModeBytes()) {
+                    totalBytes += writtenBytes.getGarageModeBytes();
+                }
+            }
+            return totalBytes;
         }
     }
 
@@ -523,7 +654,7 @@ public final class WatchdogStorage {
         }
 
         public static ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> queryStats(
-                SQLiteDatabase db, long startEpochSeconds, long endEpochSeconds) {
+                SQLiteDatabase db, long includingStartEpochSeconds, long excludingEndEpochSeconds) {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT ")
                     .append(COLUMN_USER_PACKAGE_ID).append(", ")
@@ -543,8 +674,8 @@ public final class WatchdogStorage {
                     .append(COLUMN_DATE_EPOCH).append(">= ? and ")
                     .append(COLUMN_DATE_EPOCH).append("< ? GROUP BY ")
                     .append(COLUMN_USER_PACKAGE_ID);
-            String[] selectionArgs = new String[]{
-                    String.valueOf(startEpochSeconds), String.valueOf(endEpochSeconds)};
+            String[] selectionArgs = new String[]{String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds)};
 
             ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsageById = new ArrayMap<>();
             try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
@@ -552,7 +683,8 @@ public final class WatchdogStorage {
                     android.automotive.watchdog.IoOveruseStats ioOveruseStats =
                             new android.automotive.watchdog.IoOveruseStats();
                     ioOveruseStats.startTime = cursor.getLong(1);
-                    ioOveruseStats.durationInSeconds = endEpochSeconds - startEpochSeconds;
+                    ioOveruseStats.durationInSeconds =
+                            excludingEndEpochSeconds - includingStartEpochSeconds;
                     ioOveruseStats.totalOveruses = cursor.getInt(2);
                     ioOveruseStats.writtenBytes = new PerStateBytes();
                     ioOveruseStats.writtenBytes.foregroundBytes = cursor.getLong(4);
@@ -574,8 +706,8 @@ public final class WatchdogStorage {
             return ioUsageById;
         }
 
-        public static IoOveruseStats queryHistoricalStats(SQLiteDatabase db, String uniqueId,
-                long startEpochSeconds, long endEpochSeconds) {
+        public static @Nullable IoOveruseStats queryIoOveruseStatsForUniqueId(SQLiteDatabase db,
+                String uniqueId, long includingStartEpochSeconds, long excludingEndEpochSeconds) {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT SUM(").append(COLUMN_NUM_OVERUSES).append("), ")
                     .append("SUM(").append(COLUMN_NUM_TIMES_KILLED).append("), ")
@@ -588,11 +720,12 @@ public final class WatchdogStorage {
                     .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
                     .append(COLUMN_DATE_EPOCH).append("< ?");
             String[] selectionArgs = new String[]{uniqueId,
-                    String.valueOf(startEpochSeconds), String.valueOf(endEpochSeconds)};
+                    String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds)};
             long totalOveruses = 0;
             long totalTimesKilled = 0;
             long totalBytesWritten = 0;
-            long earliestEpochSecond = endEpochSeconds;
+            long earliestEpochSecond = excludingEndEpochSeconds;
             try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
                 if (cursor.getCount() == 0) {
                     return null;
@@ -607,13 +740,125 @@ public final class WatchdogStorage {
             if (totalBytesWritten == 0) {
                 return null;
             }
-            long durationInSeconds = endEpochSeconds - earliestEpochSecond;
+            long durationInSeconds = excludingEndEpochSeconds - earliestEpochSecond;
             IoOveruseStats.Builder statsBuilder = new IoOveruseStats.Builder(
                     earliestEpochSecond, durationInSeconds);
             statsBuilder.setTotalOveruses(totalOveruses);
             statsBuilder.setTotalTimesKilled(totalTimesKilled);
             statsBuilder.setTotalBytesWritten(totalBytesWritten);
             return statsBuilder.build();
+        }
+
+        public static @Nullable List<AtomsProto.CarWatchdogDailyIoUsageSummary>
+                queryDailySystemIoUsageSummaries(SQLiteDatabase db, long includingStartEpochSeconds,
+                long excludingEndEpochSeconds) {
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.append("SELECT SUM(").append(COLUMN_NUM_OVERUSES).append("), ")
+                    .append("SUM(").append(COLUMN_WRITTEN_FOREGROUND_BYTES).append("), ")
+                    .append("SUM(").append(COLUMN_WRITTEN_BACKGROUND_BYTES).append("), ")
+                    .append("SUM(").append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append("), ")
+                    .append("date(").append(COLUMN_DATE_EPOCH).append(", '").append(DATE_MODIFIER)
+                    .append("', '").append(ZONE_MODIFIER).append("') as stats_date_epoch ")
+                    .append("FROM ").append(TABLE_NAME).append(" WHERE ")
+                    .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
+                    .append(COLUMN_DATE_EPOCH).append(" < ? ")
+                    .append("GROUP BY stats_date_epoch ")
+                    .append("HAVING SUM(").append(COLUMN_WRITTEN_FOREGROUND_BYTES).append(" + ")
+                    .append(COLUMN_WRITTEN_BACKGROUND_BYTES).append(" + ")
+                    .append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append(") > 0 ")
+                    .append("ORDER BY stats_date_epoch ASC");
+
+            Slogf.e(TAG, "Query: %s", queryBuilder.toString());
+
+            String[] selectionArgs = new String[]{String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds)};
+            List<AtomsProto.CarWatchdogDailyIoUsageSummary> summaries = new ArrayList<>();
+            try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
+                if (cursor.getCount() == 0) {
+                    return null;
+                }
+                while (cursor.moveToNext()) {
+                    summaries.add(AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
+                            .setWrittenBytes(WatchdogPerfHandler.constructCarWatchdogPerStateBytes(
+                                    /* foregroundBytes= */ cursor.getLong(1),
+                                    /* backgroundBytes= */ cursor.getLong(2),
+                                    /* garageModeBytes= */ cursor.getLong(3)))
+                            .setOveruseCount(cursor.getInt(0))
+                            .build());
+                }
+            }
+            return summaries;
+        }
+
+        public static @Nullable ArrayMap<String, List<AtomsProto.CarWatchdogDailyIoUsageSummary>>
+                queryTopUsersDailyIoUsageSummaries(SQLiteDatabase db, int numTopUsers,
+                long minTotalWrittenBytes, long includingStartEpochSeconds,
+                long excludingEndEpochSeconds) {
+            StringBuilder innerQueryBuilder = new StringBuilder();
+            innerQueryBuilder.append("SELECT ").append(COLUMN_USER_PACKAGE_ID)
+                    .append(" FROM (SELECT ").append(COLUMN_USER_PACKAGE_ID).append(", ")
+                    .append("SUM(").append(COLUMN_WRITTEN_FOREGROUND_BYTES).append(" + ")
+                    .append(COLUMN_WRITTEN_BACKGROUND_BYTES).append(" + ")
+                    .append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append(") AS total_written_bytes ")
+                    .append("FROM ").append(TABLE_NAME).append(" WHERE ")
+                    .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
+                    .append(COLUMN_DATE_EPOCH).append(" < ?")
+                    .append(" GROUP BY ").append(COLUMN_USER_PACKAGE_ID)
+                    .append(" HAVING total_written_bytes >= ").append(minTotalWrittenBytes)
+                    .append(" ORDER BY total_written_bytes LIMIT ").append(numTopUsers).append(')');
+
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.append("SELECT ").append(COLUMN_USER_PACKAGE_ID).append(", ")
+                    .append("SUM(").append(COLUMN_NUM_OVERUSES).append("), ")
+                    .append("SUM(").append(COLUMN_WRITTEN_FOREGROUND_BYTES).append("), ")
+                    .append("SUM(").append(COLUMN_WRITTEN_BACKGROUND_BYTES).append("), ")
+                    .append("SUM(").append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append("), ")
+                    .append("date(").append(COLUMN_DATE_EPOCH).append(", '").append(DATE_MODIFIER)
+                    .append("', '").append(ZONE_MODIFIER).append("') as stats_date_epoch ")
+                    .append("FROM ").append(TABLE_NAME).append(" WHERE ")
+                    .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
+                    .append(COLUMN_DATE_EPOCH).append(" < ? and (")
+                    .append(COLUMN_WRITTEN_FOREGROUND_BYTES).append(" > 0 or ")
+                    .append(COLUMN_WRITTEN_BACKGROUND_BYTES).append(" > 0 or ")
+                    .append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append(" > 0) and ")
+                    .append(COLUMN_USER_PACKAGE_ID)
+                    .append(" in (").append(innerQueryBuilder)
+                    .append(") GROUP BY stats_date_epoch, ").append(COLUMN_USER_PACKAGE_ID)
+                    .append(" ORDER BY ").append(COLUMN_USER_PACKAGE_ID)
+                    .append(", stats_date_epoch ASC");
+
+            String[] selectionArgs = new String[]{
+                    // Outer query selection arguments.
+                    String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds),
+                    // Inner query selection arguments.
+                    String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds)};
+
+            ArrayMap<String, List<AtomsProto.CarWatchdogDailyIoUsageSummary>> summariesById =
+                    new ArrayMap<>();
+            try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
+                if (cursor.getCount() == 0) {
+                    return null;
+                }
+                while (cursor.moveToNext()) {
+                    String id = cursor.getString(0);
+                    List<AtomsProto.CarWatchdogDailyIoUsageSummary> summaries =
+                            summariesById.get(id);
+                    if (summaries == null) {
+                        summaries = new ArrayList<>();
+                    }
+                    summaries.add(AtomsProto.CarWatchdogDailyIoUsageSummary.newBuilder()
+                            .setWrittenBytes(WatchdogPerfHandler.constructCarWatchdogPerStateBytes(
+                                    /* foregroundBytes= */ cursor.getLong(2),
+                                    /* backgroundBytes= */ cursor.getLong(3),
+                                    /* garageModeBytes= */ cursor.getLong(4)))
+                            .setOveruseCount(cursor.getInt(1))
+                            .build());
+                    summariesById.put(id, summaries);
+                }
+            }
+            return summariesById;
         }
 
         public static void truncateToDate(SQLiteDatabase db, ZonedDateTime latestTruncateDate) {
@@ -645,21 +890,23 @@ public final class WatchdogStorage {
      * Defines the Watchdog database and database level operations.
      */
     static final class WatchdogDbHelper extends SQLiteOpenHelper {
-        public static final String DATABASE_DIR = "/data/system/car/watchdog/";
         public static final String DATABASE_NAME = "car_watchdog.db";
 
         private static final int DATABASE_VERSION = 1;
 
         private ZonedDateTime mLatestShrinkDate;
-        private TimeSourceInterface mTimeSource = SYSTEM_INSTANCE;
+        private TimeSource mTimeSource;
 
-        WatchdogDbHelper(Context context, boolean useDataSystemCarDir) {
+        WatchdogDbHelper(Context context, boolean useDataSystemCarDir, TimeSource timeSource) {
             /* Use device protected storage because CarService may need to access the database
              * before the user has authenticated.
              */
-            super(context.createDeviceProtectedStorageContext(),
-                    useDataSystemCarDir ? DATABASE_DIR + DATABASE_NAME : DATABASE_NAME,
+            super(context.createDeviceProtectedStorageContext(), useDataSystemCarDir
+                            ? new File(CarWatchdogService.getWatchdogDirFile(), DATABASE_NAME)
+                                    .getAbsolutePath()
+                            : DATABASE_NAME,
                     /* name= */ null, DATABASE_VERSION);
+            mTimeSource = timeSource;
         }
 
         @Override
@@ -675,8 +922,7 @@ public final class WatchdogStorage {
         }
 
         public void onShrink(SQLiteDatabase db) {
-            ZonedDateTime currentDate =
-                    mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(ChronoUnit.DAYS);
+            ZonedDateTime currentDate = mTimeSource.getCurrentDate();
             if (currentDate.equals(mLatestShrinkDate)) {
                 return;
             }
@@ -689,10 +935,6 @@ public final class WatchdogStorage {
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int currentVersion) {
             /* Still on the 1st version so no upgrade required. */
-        }
-
-        void setTimeSource(TimeSourceInterface timeSource) {
-            mTimeSource = timeSource;
         }
     }
 

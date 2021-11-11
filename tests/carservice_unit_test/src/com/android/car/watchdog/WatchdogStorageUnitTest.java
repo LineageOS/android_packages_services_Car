@@ -23,7 +23,6 @@ import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_YES;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.STATS_TEMPORAL_UNIT;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
-import static com.android.car.watchdog.WatchdogStorage.ZONE_OFFSET;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -62,15 +61,16 @@ public final class WatchdogStorageUnitTest {
     private Context mContext;
     private WatchdogStorage mService;
     private File mDatabaseFile;
-    private TimeSourceInterface mTimeSource;
+
+    private final TestTimeSource mTimeSource = new TestTimeSource();
 
     @Before
     public void setUp() throws Exception {
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mContext = InstrumentationRegistry.getTargetContext().createDeviceProtectedStorageContext();
         mDatabaseFile = mContext.createDeviceProtectedStorageContext()
                 .getDatabasePath(DATABASE_NAME);
-        mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false);
-        setDate(/* numDaysAgo= */ 0);
+        mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false, mTimeSource);
     }
 
     @After
@@ -87,7 +87,7 @@ public final class WatchdogStorageUnitTest {
 
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+        assertWithMessage("User package settings").that(mService.getUserPackageSettings())
                 .containsExactlyElementsIn(expected);
     }
 
@@ -109,23 +109,21 @@ public final class WatchdogStorageUnitTest {
 
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
-                .containsExactlyElementsIn(expected);
+        assertWithMessage("User package settings after overwrite")
+                .that(mService.getUserPackageSettings()).containsExactlyElementsIn(expected);
     }
 
     @Test
     public void testSaveAndGetIoOveruseStats() throws Exception {
         injectSampleUserPackageSettings();
         /* Start time aligned to the beginning of the day. */
-        long startTime = mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT)
-                .toEpochSecond();
+        long startTime = mTimeSource.getCurrentDate().toEpochSecond();
 
         assertWithMessage("Saved I/O usage stats successfully")
                 .that(mService.saveIoUsageStats(sampleStatsForDate(startTime, /* duration= */ 60)))
                 .isTrue();
 
-        long expectedDuration =
-                mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond() - startTime;
+        long expectedDuration = mTimeSource.getCurrentDateTime().toEpochSecond() - startTime;
         List<WatchdogStorage.IoUsageStatsEntry> expected = sampleStatsForDate(
                 startTime, expectedDuration);
 
@@ -137,18 +135,16 @@ public final class WatchdogStorageUnitTest {
     public void testSaveAndGetIoOveruseStatsWithOffsettedStartTime() throws Exception {
         injectSampleUserPackageSettings();
         /* Start time in the middle of the day. */
-        long startTime = mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT)
-                .plusHours(12).toEpochSecond();
+        long startTime = mTimeSource.getCurrentDate().plusHours(12).toEpochSecond();
         List<WatchdogStorage.IoUsageStatsEntry> entries = sampleStatsForDate(
                 startTime, /* duration= */ 60);
 
         assertWithMessage("Saved I/O usage stats successfully")
                 .that(mService.saveIoUsageStats(entries)).isTrue();
 
-        long expectedStartTime = mTimeSource.now().atZone(ZONE_OFFSET)
-                .truncatedTo(STATS_TEMPORAL_UNIT).toEpochSecond();
+        long expectedStartTime = mTimeSource.getCurrentDate().toEpochSecond();
         long expectedDuration =
-                mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond() - expectedStartTime;
+                mTimeSource.getCurrentDateTime().toEpochSecond() - expectedStartTime;
         List<WatchdogStorage.IoUsageStatsEntry> expected = sampleStatsForDate(
                 expectedStartTime, expectedDuration);
 
@@ -159,9 +155,8 @@ public final class WatchdogStorageUnitTest {
     @Test
     public void testOverwriteIoOveruseStats() throws Exception {
         injectSampleUserPackageSettings();
-        long startTime = mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT)
-                .toEpochSecond();
-        long duration = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond() - startTime;
+        long startTime = mTimeSource.getCurrentDate().toEpochSecond();
+        long duration = mTimeSource.getCurrentDateTime().toEpochSecond() - startTime;
 
         List<WatchdogStorage.IoUsageStatsEntry> statsBeforeOverwrite = Collections.singletonList(
                 constructIoUsageStatsEntry(
@@ -200,8 +195,8 @@ public final class WatchdogStorageUnitTest {
                 .containsExactlyElementsIn(statsBeforeOverwrite);
 
         mService.release();
-        mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false);
-        setDate(/* numDaysAgo= */ 0);
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false, mTimeSource);
 
         assertWithMessage("User packages settings").that(mService.getUserPackageSettings())
                 .isNotEmpty();
@@ -243,12 +238,11 @@ public final class WatchdogStorageUnitTest {
          * Returned stats shouldn't include stats for the current date as WatchdogPerfHandler fills
          * the current day's stats.
          */
-        ZonedDateTime currentDate = mTimeSource.now().atZone(ZONE_OFFSET)
-                .truncatedTo(STATS_TEMPORAL_UNIT);
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         long startTime = currentDate.minus(4, STATS_TEMPORAL_UNIT).toEpochSecond();
         long duration = currentDate.toEpochSecond() - startTime;
         IoOveruseStats expected = new IoOveruseStats.Builder(startTime, duration)
-                .setTotalOveruses(8).setTotalTimesKilled(4).setTotalBytesWritten(24_000).build();
+                .setTotalOveruses(8).setTotalTimesKilled(4).setTotalBytesWritten(25_200).build();
 
         IoOveruseStatsSubject.assertWithMessage(
                 "Fetched stats only for 4 days. Expected stats (%s) equals actual stats (%s)",
@@ -272,17 +266,130 @@ public final class WatchdogStorageUnitTest {
          * Returned stats shouldn't include stats for the current date as WatchdogPerfHandler fills
          * the current day's stats.
          */
-        ZonedDateTime currentDate = mTimeSource.now().atZone(ZONE_OFFSET)
-                .truncatedTo(STATS_TEMPORAL_UNIT);
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         long startTime = currentDate.minus(4, STATS_TEMPORAL_UNIT).toEpochSecond();
         long duration = currentDate.toEpochSecond() - startTime;
         IoOveruseStats expected = new IoOveruseStats.Builder(startTime, duration)
-                .setTotalOveruses(4).setTotalTimesKilled(2).setTotalBytesWritten(12_000).build();
+                .setTotalOveruses(4).setTotalTimesKilled(2).setTotalBytesWritten(12_600).build();
 
         IoOveruseStatsSubject.assertWithMessage(
                 "Fetched stats only for 2 days. Expected stats (%s) equals actual stats (%s)",
                 expected.toString(), actual.toString()).that(actual)
                 .isEqualTo(expected);
+    }
+
+    @Test
+    public void testGetDailySystemIoUsageSummaries() throws Exception {
+        injectSampleUserPackageSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        for (int i = 1; i <= 30; ++i) {
+            entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
+                    /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
+        }
+
+        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> actual =
+                mService.getDailySystemIoUsageSummaries(
+                        /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
+                        /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
+
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> expected = new ArrayList<>();
+        for (int i = 15; i > 7; --i) {
+            expected.add(CarWatchdogServiceUnitTest
+                    .constructCarWatchdogDailyIoUsageSummary(/* fgWrBytes= */ 10402L * i,
+                            /* bgWrBytes= */ 14402L * i, /* gmWrBytes= */ 18402L * i,
+                            /* overuseCount= */ 6));
+        }
+
+        assertWithMessage("Daily system I/O usage summary stats").that(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void testGetDailySystemIoUsageSummariesWithoutStats() throws Exception {
+        injectSampleUserPackageSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        for (int i = 1; i <= 7; ++i) {
+            entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
+                    /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
+        }
+
+        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> actual =
+                mService.getDailySystemIoUsageSummaries(
+                        /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
+                        /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
+
+        assertWithMessage("Daily system I/O usage summary stats").that(actual).isNull();
+    }
+
+    @Test
+    public void testGetTopUsersDailyIoUsageSummaries() throws Exception {
+        injectSampleUserPackageSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        for (int i = 1; i <= 30; ++i) {
+            entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
+                    /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
+        }
+
+        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+
+        List<WatchdogStorage.UserPackageDailySummaries> actual =
+                mService.getTopUsersDailyIoUsageSummaries(/* numTopUsers= */ 3,
+                        /* minTotalWrittenBytes= */ 600_000,
+                        /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
+                        /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
+
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> user101VendorPkgSummaries =
+                new ArrayList<>();
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> user100VendorPkgSummaries =
+                new ArrayList<>();
+        for (int i = 15; i > 7; --i) {
+            user101VendorPkgSummaries.add(CarWatchdogServiceUnitTest
+                    .constructCarWatchdogDailyIoUsageSummary(/* fgWrBytes= */ 4101L * i,
+                            /* bgWrBytes= */ 5101L * i, /* gmWrBytes= */ 6101L * i,
+                            /* overuseCount= */ 1));
+            user100VendorPkgSummaries.add(CarWatchdogServiceUnitTest
+                    .constructCarWatchdogDailyIoUsageSummary(/* fgWrBytes= */ 4100L * i,
+                            /* bgWrBytes= */ 5100L * i, /* gmWrBytes= */ 6100L * i,
+                            /* overuseCount= */ 1));
+        }
+        List<WatchdogStorage.UserPackageDailySummaries> expected = Arrays.asList(
+                new WatchdogStorage.UserPackageDailySummaries(/* userId= */ 101,
+                        /* packageName= */ "vendor_package.critical.C", user101VendorPkgSummaries),
+                new WatchdogStorage.UserPackageDailySummaries(/* userId= */ 100,
+                        /* packageName= */ "vendor_package.critical.C", user100VendorPkgSummaries));
+
+        assertWithMessage("Top users daily I/O usage summaries").that(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void testGetTopUsersDailyIoUsageSummariesWithoutStats() throws Exception {
+        injectSampleUserPackageSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        for (int i = 1; i <= 7; ++i) {
+            entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
+                    /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
+        }
+
+        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+
+        List<WatchdogStorage.UserPackageDailySummaries> actual =
+                mService.getTopUsersDailyIoUsageSummaries(/* numTopUsers= */ 3,
+                        /* minTotalWrittenBytes= */ 600_000,
+                        /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
+                        /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
+
+        assertWithMessage("Top users daily I/O usage summaries").that(actual).isNull();
     }
 
     @Test
@@ -301,8 +408,8 @@ public final class WatchdogStorageUnitTest {
         settingsEntries.removeIf(
                 (s) -> s.userId == deleteUserId && s.packageName.equals(deletePackageName));
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
-                .containsExactlyElementsIn(settingsEntries);
+        assertWithMessage("User package settings after deleting a user package")
+                .that(mService.getUserPackageSettings()).containsExactlyElementsIn(settingsEntries);
 
         ioUsageStatsEntries.removeIf(
                 (e) -> e.userId == deleteUserId && e.packageName.equals(deletePackageName));
@@ -323,7 +430,7 @@ public final class WatchdogStorageUnitTest {
 
         mService.deleteUserPackage(deleteUserId, deletePackageName);
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+        assertWithMessage("User package settings").that(mService.getUserPackageSettings())
                 .containsExactlyElementsIn(sampleSettings());
 
         ioUsageStatsEntries.removeIf(
@@ -350,8 +457,8 @@ public final class WatchdogStorageUnitTest {
         settingsEntries.removeIf(
                 (s) -> s.userId == deleteUserId && s.packageName.equals(deletePackageName));
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
-                .containsExactlyElementsIn(settingsEntries);
+        assertWithMessage("User package settings after deleting user package with historical stats")
+                .that(mService.getUserPackageSettings()).containsExactlyElementsIn(settingsEntries);
 
         IoOveruseStats actual = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
@@ -372,8 +479,8 @@ public final class WatchdogStorageUnitTest {
         settingsEntries.removeIf((s) -> s.userId == 100);
         ioUsageStatsEntries.removeIf((e) -> e.userId == 100);
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
-                .containsExactlyElementsIn(settingsEntries);
+        assertWithMessage("User package settings after syncing alive users")
+                .that(mService.getUserPackageSettings()).containsExactlyElementsIn(settingsEntries);
 
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(ioUsageStatsEntries);
@@ -391,8 +498,8 @@ public final class WatchdogStorageUnitTest {
 
         settingsEntries.removeIf((s) -> s.userId == 100);
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
-                .containsExactlyElementsIn(settingsEntries);
+        assertWithMessage("User package settings after syncing alive users with historical stats")
+                .that(mService.getUserPackageSettings()).containsExactlyElementsIn(settingsEntries);
 
         IoOveruseStats actualSystemPackage = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
@@ -415,8 +522,8 @@ public final class WatchdogStorageUnitTest {
 
         mService.syncUsers(/* aliveUserIds= */ new int[] {100, 101});
 
-        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
-                .containsExactlyElementsIn(settingsEntries);
+        assertWithMessage("User package settings after syncing users")
+                .that(mService.getUserPackageSettings()).containsExactlyElementsIn(settingsEntries);
         IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
                 .containsExactlyElementsIn(ioUsageStatsEntries);
     }
@@ -424,7 +531,7 @@ public final class WatchdogStorageUnitTest {
     @Test
     public void testTruncateStatsOutsideRetentionPeriodOnDateChange() throws Exception {
         injectSampleUserPackageSettings();
-        setDate(/* numDaysAgo= */ 1);
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
 
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
                 /* includingStartDaysAgo= */ 0, /* excludingEndDaysAgo= */ 40),
@@ -435,19 +542,18 @@ public final class WatchdogStorageUnitTest {
 
         assertWithMessage("Fetched I/O overuse stats").that(actual).isNotNull();
 
-        ZonedDateTime currentDate = mTimeSource.now().atZone(ZONE_OFFSET)
-                .truncatedTo(STATS_TEMPORAL_UNIT);
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         long startTime = currentDate.minus(39, STATS_TEMPORAL_UNIT).toEpochSecond();
         long duration = currentDate.toEpochSecond() - startTime;
         IoOveruseStats expected = new IoOveruseStats.Builder(startTime, duration)
-                .setTotalOveruses(78).setTotalTimesKilled(39).setTotalBytesWritten(234_000).build();
+                .setTotalOveruses(78).setTotalTimesKilled(39).setTotalBytesWritten(245_700).build();
 
         IoOveruseStatsSubject.assertWithMessage(
                 "Fetched stats only for 39 days. Expected stats (%s) equals actual stats (%s)",
                 expected.toString(), actual.toString()).that(actual)
                 .isEqualTo(expected);
 
-        setDate(/* numDaysAgo= */ 0);
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mService.shrinkDatabase();
 
         actual = mService.getHistoricalIoOveruseStats(
@@ -455,34 +561,15 @@ public final class WatchdogStorageUnitTest {
 
         assertWithMessage("Fetched I/O overuse stats").that(actual).isNotNull();
 
-        currentDate = mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+        currentDate = mTimeSource.getCurrentDate();
         startTime = currentDate.minus(RETENTION_PERIOD.minusDays(1)).toEpochSecond();
         duration = currentDate.toEpochSecond() - startTime;
         expected = new IoOveruseStats.Builder(startTime, duration)
-                .setTotalOveruses(58).setTotalTimesKilled(29).setTotalBytesWritten(174_000).build();
+                .setTotalOveruses(58).setTotalTimesKilled(29).setTotalBytesWritten(182_700).build();
 
         IoOveruseStatsSubject.assertWithMessage("Fetched stats only within retention period. "
                         + "Expected stats (%s) equals actual stats (%s)",
                 expected.toString(), actual.toString()).that(actual).isEqualTo(expected);
-    }
-
-    private void setDate(int numDaysAgo) {
-        TimeSourceInterface timeSource = new TimeSourceInterface() {
-            @Override
-            public Instant now() {
-                /* Return the same time, so the tests are deterministic. */
-                return mNow;
-            }
-
-            @Override
-            public String toString() {
-                return "Mocked date to " + now();
-            }
-
-            private final Instant mNow = Instant.now().minus(numDaysAgo, ChronoUnit.DAYS);
-        };
-        mService.setTimeSource(timeSource);
-        mTimeSource = timeSource;
     }
 
     private void injectSampleUserPackageSettings() throws Exception {
@@ -509,45 +596,60 @@ public final class WatchdogStorageUnitTest {
 
     private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsBetweenDates(
             int includingStartDaysAgo, int excludingEndDaysAgo) {
-        ZonedDateTime currentDate = mTimeSource.now().atZone(ZONE_OFFSET)
-                .truncatedTo(STATS_TEMPORAL_UNIT);
+        return sampleStatsBetweenDates(includingStartDaysAgo, excludingEndDaysAgo,
+                /* writtenBytesMultiplier= */ 1);
+    }
+
+    private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsBetweenDates(
+            int includingStartDaysAgo, int excludingEndDaysAgo, int writtenBytesMultiplier) {
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         ArrayList<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
         for (int i = includingStartDaysAgo; i < excludingEndDaysAgo; ++i) {
-            entries.addAll(sampleStatsForDate(
-                    currentDate.minus(i, STATS_TEMPORAL_UNIT).toEpochSecond(),
-                    STATS_TEMPORAL_UNIT.getDuration().toSeconds()));
+            entries.addAll(
+                    sampleStatsForDate(currentDate.minus(i, STATS_TEMPORAL_UNIT).toEpochSecond(),
+                            STATS_TEMPORAL_UNIT.getDuration().toSeconds(), writtenBytesMultiplier));
         }
         return entries;
     }
 
     private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsForToday() {
-        long currentTime = mTimeSource.now().atZone(ZONE_OFFSET)
-                .truncatedTo(STATS_TEMPORAL_UNIT).toEpochSecond();
-        long duration = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond() - currentTime;
-        return sampleStatsForDate(currentTime, duration);
+        long statsDateEpoch = mTimeSource.getCurrentDate().toEpochSecond();
+        long duration = mTimeSource.getCurrentDateTime().toEpochSecond() - statsDateEpoch;
+        return sampleStatsForDate(statsDateEpoch, duration, /* writtenBytesMultiplier= */ 1);
     }
 
     private static ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsForDate(
             long statsDateEpoch, long duration) {
+        return sampleStatsForDate(statsDateEpoch, duration, /* writtenBytesMultiplier= */ 1);
+    }
+
+    private static ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsForDate(
+            long statsDateEpoch, long duration, int writtenBytesMultiplier) {
         ArrayList<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
         for (int i = 100; i <= 101; ++i) {
             entries.add(constructIoUsageStatsEntry(
                     /* userId= */ i, "system_package.non_critical.A", statsDateEpoch, duration,
                     /* remainingWriteBytes= */
-                    CarWatchdogServiceUnitTest.constructPerStateBytes(200, 300, 400),
+                    CarWatchdogServiceUnitTest.constructPerStateBytes(200L, 300L, 400L),
                     /* writtenBytes= */
-                    CarWatchdogServiceUnitTest.constructPerStateBytes(1000, 2000, 3000),
+                    CarWatchdogServiceUnitTest.constructPerStateBytes(
+                            (1000L + i) * writtenBytesMultiplier,
+                            (2000L + i) * writtenBytesMultiplier,
+                            (3000L + i) * writtenBytesMultiplier),
                     /* forgivenWriteBytes= */
-                    CarWatchdogServiceUnitTest.constructPerStateBytes(100, 100, 100),
+                    CarWatchdogServiceUnitTest.constructPerStateBytes(100L, 100L, 100L),
                     /* totalOveruses= */ 2, /* totalTimesKilled= */ 1));
             entries.add(constructIoUsageStatsEntry(
                     /* userId= */ i, "vendor_package.critical.C", statsDateEpoch, duration,
                     /* remainingWriteBytes= */
-                    CarWatchdogServiceUnitTest.constructPerStateBytes(500, 600, 700),
+                    CarWatchdogServiceUnitTest.constructPerStateBytes(500L, 600L, 700L),
                     /* writtenBytes= */
-                    CarWatchdogServiceUnitTest.constructPerStateBytes(4000, 5000, 6000),
+                    CarWatchdogServiceUnitTest.constructPerStateBytes(
+                            (4000L + i) * writtenBytesMultiplier,
+                            (5000L + i) * writtenBytesMultiplier,
+                            (6000L + i) * writtenBytesMultiplier),
                     /* forgivenWriteBytes= */
-                    CarWatchdogServiceUnitTest.constructPerStateBytes(200, 200, 200),
+                    CarWatchdogServiceUnitTest.constructPerStateBytes(200L, 200L, 200L),
                     /* totalOveruses= */ 1, /* totalTimesKilled= */ 0));
         }
         return entries;
@@ -575,4 +677,27 @@ public final class WatchdogStorageUnitTest {
         stats.totalOveruses = totalOveruses;
         return stats;
     }
+
+    private static final class TestTimeSource extends TimeSource {
+        private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
+        private Instant mNow;
+        TestTimeSource() {
+            mNow = TEST_DATE_TIME;
+        }
+
+        @Override
+        public Instant now() {
+            /* Return the same time, so the tests are deterministic. */
+            return mNow;
+        }
+
+        @Override
+        public String toString() {
+            return "Mocked date to " + now();
+        }
+
+        void updateNow(int numDaysAgo) {
+            mNow = TEST_DATE_TIME.minus(numDaysAgo, ChronoUnit.DAYS);
+        }
+    };
 }
