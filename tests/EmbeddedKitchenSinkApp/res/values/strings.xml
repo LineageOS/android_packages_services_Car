@@ -304,6 +304,10 @@
     <string name="bluetooth_voice_recognition_enable" translatable="false">Start Voice Recognition</string>
     <string name="bluetooth_voice_recognition_disable" translatable="false">Stop Voice Recognition</string>
     <string name="uploading_supported_feature" translatable="false">Uploading_Supported bit value</string>
+    <string name="bluetooth_eir_advertising_state" translatable="false">Advertising state:</string>
+    <string name="bluetooth_eir_adapter_state" translatable="false">Bluetooth adapter state:</string>
+    <string name="bluetooth_eir_advertising_instructions" translatable="false">Advertising puts device in discoverable mode. Enables BT adapter if not already enabled. (Pixel needs to be discoverable to receive EIR)</string>
+    <string name="bluetooth_eir_uuid_instructions" translatable="false">Toggle ON to add UUID to EIR, toggle OFF to remove. UUID can only be changed when the toggle is OFF. Toggling ON a UUID enables BT adapter if not already enabled.</string>
 
     <!--Car Service Settings-->
     <string name="garage_title" translatable="false">Garage Mode</string>
