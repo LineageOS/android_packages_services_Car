@@ -514,10 +514,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Sets the initial foreground user after car service is crashed and reconnected.
      */
     public void setInitialUserFromSystemServer(@Nullable UserHandle user) {
-        if (user != null || user.getIdentifier() != UserManagerHelper.USER_NULL) {
+        if (user == null || user.getIdentifier() == UserManagerHelper.USER_NULL) {
             Slogf.e(TAG,
                     "setInitialUserFromSystemServer: Not setting initial user as user is NULL ");
             return;
+        }
+
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            Slogf.d(TAG, "setInitialUserFromSystemServer: initial User: %s", user);
         }
 
         synchronized (mLockUser) {

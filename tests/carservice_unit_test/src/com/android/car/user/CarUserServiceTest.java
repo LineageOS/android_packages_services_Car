@@ -299,6 +299,24 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSetInitialUser() throws Exception {
+        UserHandle user = UserHandle.of(101);
+
+        mCarUserService.setInitialUser(user);
+
+        assertThat(mCarUserService.getInitialUser()).isEqualTo(user);
+    }
+
+    @Test
+    @ExpectWtf
+    public void testSetInitialUser_nullUser() throws Exception {
+        mCarUserService.setInitialUser(null);
+
+        mockInteractAcrossUsersPermission(true);
+        assertThat(mCarUserService.getInitialUser()).isNull();
+    }
+
+    @Test
     public void testSendInitialUserToSystemServer() throws Exception {
         UserHandle user = UserHandle.of(101);
         mCarUserService.setCarServiceHelper(mICarServiceHelper);
@@ -306,6 +324,22 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.setInitialUser(user);
 
         verify(mICarServiceHelper).sendInitialUser(user);
+    }
+
+    @Test
+    public void testsetInitialUserFromSystemServer() throws Exception {
+        UserHandle user = UserHandle.of(101);
+
+        mCarUserService.setInitialUserFromSystemServer(user);
+
+        assertThat(mCarUserService.getInitialUser()).isEqualTo(user);
+    }
+
+    @Test
+    public void testsetInitialUserFromSystemServer_nullUser() throws Exception {
+        mCarUserService.setInitialUserFromSystemServer(null);
+
+        assertThat(mCarUserService.getInitialUser()).isNull();
     }
 
     @Test
@@ -2258,15 +2292,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         waitForHandlerThreadToFinish();
 
         verify(mUserPreCreator).managePreCreatedUsers();
-    }
-
-    @Test
-    @ExpectWtf
-    public void testSetInitialUser_nullUser() throws Exception {
-        mCarUserService.setInitialUser(null);
-
-        mockInteractAcrossUsersPermission(true);
-        assertThat(mCarUserService.getInitialUser()).isNull();
     }
 
     @Test
