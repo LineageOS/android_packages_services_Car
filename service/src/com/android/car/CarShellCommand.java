@@ -1633,8 +1633,8 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private void getInitialUser(IndentingPrintWriter writer) {
-        android.content.pm.UserInfo user = mCarUserService.getInitialUser();
-        writer.println(user == null ? NO_INITIAL_USER : user.id);
+        UserHandle user = mCarUserService.getInitialUser();
+        writer.println(user == null ? NO_INITIAL_USER : user.getIdentifier());
     }
 
     private void getUserAuthAssociation(String[] args, IndentingPrintWriter writer) {
