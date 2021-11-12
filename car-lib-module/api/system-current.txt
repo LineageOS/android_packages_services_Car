@@ -106,6 +106,7 @@ package android.car {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean releaseBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void removeKeyEventHandler(@NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean requestBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void resetProjectionAccessPointCredentials();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void startProjectionAccessPoint(@NonNull android.car.CarProjectionManager.ProjectionAccessPointCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void stopProjectionAccessPoint();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionListener();

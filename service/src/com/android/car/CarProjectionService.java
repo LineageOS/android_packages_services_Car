@@ -659,6 +659,27 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    @Override
+    public void resetProjectionAccessPointCredentials() {
+        CarServiceUtils.assertProjectionPermission(mContext);
+
+        if (!mStableLocalOnlyHotspotConfig) {
+            Slogf.i(TAG, "Resetting local-only hotspot credentials ignored as credentials do"
+                    + " not persist.");
+            return;
+        }
+
+        Slogf.i(TAG, "Clearing local-only hotspot credentials.");
+        getSharedPreferences()
+                .edit()
+                .clear()
+                .apply();
+
+        synchronized (mLock) {
+            mApConfiguration = null;
+        }
+    }
+
     @GuardedBy("mLock")
     private void startLocalOnlyApLocked() {
         if (mLocalOnlyHotspotReservation != null) {

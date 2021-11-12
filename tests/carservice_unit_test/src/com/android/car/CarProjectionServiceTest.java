@@ -224,6 +224,23 @@ public class CarProjectionServiceTest {
     }
 
     @Test
+    public void resetProjectionAccessPointCredentials() throws Exception {
+        mService.setStableLocalOnlyHotspotConfig(true);
+
+        WifiManager.LocalOnlyHotspotCallback callback = startProjectionLohs(false);
+
+        // Simulate framework saying AP successfully created.
+        callback.onStarted(mLohsReservation);
+        assertMessageSent(PROJECTION_AP_STARTED, AP_CONFIG);
+        mService.stopProjectionAccessPoint(mToken);
+        verify(mLohsReservation).close();
+
+        mService.resetProjectionAccessPointCredentials();
+
+        assertThat(mService.restoreApConfiguration().isPresent()).isFalse();
+    }
+
+    @Test
     public void updateProjectionStatus_subscribeAfterUpdate() throws Exception {
         final ProjectionStatus status = createProjectionStatus();
         mService.updateProjectionStatus(status, mToken);
