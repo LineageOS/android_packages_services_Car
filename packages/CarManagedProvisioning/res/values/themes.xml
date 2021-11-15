@@ -15,6 +15,7 @@
     limitations under the License.
 -->
 <resources>
-  <style name="Theme.CarManagedProvisioning" parent="Theme.CarUi">
+  <style name="Theme.CarManagedProvisioning"
+      parent="Theme.Car.SetupWizard.NoActionBar.Accent">
   </style>
 </resources>
