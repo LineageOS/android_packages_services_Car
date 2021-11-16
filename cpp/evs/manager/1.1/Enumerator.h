@@ -18,6 +18,7 @@
 #define CPP_EVS_MANAGER_1_1_ENUMERATOR_H_
 
 #include "HalCamera.h"
+#include "ServiceFactory.h"
 #include "VirtualCamera.h"
 #include "emul/EvsEmulatedCamera.h"
 #include "stats/StatsCollector.h"
@@ -28,13 +29,38 @@
 #include <system/camera_metadata.h>
 
 #include <list>
+#include <memory>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace android::automotive::evs::V1_1::implementation {
 
+// Passthrough to remove static cling and allow for mocking.
+class ProdServiceFactory : public ServiceFactory {
+public:
+    explicit ProdServiceFactory(const char* hardwareServiceName) :
+          mHardwareServiceName(hardwareServiceName) {}
+    virtual ~ProdServiceFactory() = default;
+
+    sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator> getService() override {
+        return IEvsEnumerator::getService(mHardwareServiceName.data());
+    }
+
+    const std::string mHardwareServiceName;
+};
+
 class Enumerator : public IEvsEnumerator {
 public:
+    explicit Enumerator(const char* hardwareServiceName) :
+          mServiceFactory(new ProdServiceFactory(hardwareServiceName)) {}
+
+    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory) :
+          mServiceFactory(std::move(serviceFactory)) {}
+
+    static std::unique_ptr<Enumerator> build(const char* hardwareServiceName);
+
+    virtual ~Enumerator();
+
     // Methods from hardware::automotive::evs::V1_0::IEvsEnumerator follow.
     hardware::Return<void> getCameraList(getCameraList_cb _hidl_cb) override;
     hardware::Return<sp<hardware::automotive::evs::V1_0::IEvsCamera>> openCamera(
@@ -66,16 +92,14 @@ public:
     hardware::Return<void> debug(const hardware::hidl_handle& fd,
                                  const hidl_vec<hardware::hidl_string>& options) override;
 
-    // Implementation details
     bool init(const char* hardwareServiceName);
-
-    // Destructor
-    virtual ~Enumerator();
 
 private:
     bool inline checkPermission();
     bool isLogicalCamera(const camera_metadata_t* metadata);
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& id);
+
+    const std::unique_ptr<ServiceFactory> mServiceFactory;
 
     sp<hardware::automotive::evs::V1_1::IEvsEnumerator> mHwEnumerator;
     wp<hardware::automotive::evs::V1_0::IEvsDisplay> mActiveDisplay;

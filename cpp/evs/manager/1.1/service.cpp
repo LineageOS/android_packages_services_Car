@@ -35,7 +35,8 @@ using android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 
 static void startService(const char* hardwareServiceName, const char* managerServiceName) {
     LOG(INFO) << "EVS managed service connecting to hardware service at " << hardwareServiceName;
-    android::sp<Enumerator> service = new Enumerator();
+    android::sp<Enumerator> service = new Enumerator(hardwareServiceName);
+
     if (!service->init(hardwareServiceName)) {
         LOG(ERROR) << "Failed to connect to hardware service - quitting from registrationThread";
         exit(1);

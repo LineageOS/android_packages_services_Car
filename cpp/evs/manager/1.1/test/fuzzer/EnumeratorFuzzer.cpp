@@ -88,7 +88,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
 
     // Inititialize the enumerator that we are going to test
     static bool initialized = DoInitialization();
-    sEnumerator = new Enumerator();
+    sEnumerator = new Enumerator(kMockHWEnumeratorName);
     if (!initialized || !sEnumerator->init(kMockHWEnumeratorName)) {
         std::cerr << "Failed to connect to hardware service"
                   << "- quitting from LLVMFuzzerInitialize" << std::endl;
