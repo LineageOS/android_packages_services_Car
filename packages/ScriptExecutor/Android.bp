@@ -88,5 +88,5 @@ java_test_helper_library {
         "src/**/*.java",
     ],
 
-    sdk_version: "current",
+    sdk_version: "test_current",
 }

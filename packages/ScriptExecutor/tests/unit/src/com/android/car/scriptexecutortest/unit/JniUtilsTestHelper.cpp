@@ -24,14 +24,16 @@
 namespace com {
 namespace android {
 namespace car {
-namespace scriptexecutor {
+namespace scriptexecutortest {
+namespace unit {
 namespace {
 
 template <typename T>
 bool hasIntegerArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, T rawInputArray,
                      const int arrayLength) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
     auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
@@ -69,34 +71,43 @@ extern "C" {
 
 #include "lua.h"
 
-JNIEXPORT jlong JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeCreateLuaEngine(
-        JNIEnv* env, jobject object) {
+JNIEXPORT jlong JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeCreateLuaEngine(JNIEnv* env,
+                                                                                jobject object) {
     // Cast first to intptr_t to ensure int can hold the pointer without loss.
-    return static_cast<jlong>(reinterpret_cast<intptr_t>(new LuaEngine()));
-}
-
-JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeDestroyLuaEngine(
-        JNIEnv* env, jobject object, jlong luaEnginePtr) {
-    delete reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    return static_cast<jlong>(reinterpret_cast<intptr_t>(new scriptexecutor::LuaEngine()));
 }
 
 JNIEXPORT void JNICALL
-Java_com_android_car_scriptexecutor_JniUtilsTest_nativePushBundleToLuaTableCaller(
-        JNIEnv* env, jobject object, jlong luaEnginePtr, jobject bundle) {
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
-    pushBundleToLuaTable(env, engine->getLuaState(), bundle);
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeDestroyLuaEngine(
+        JNIEnv* env, jobject object, jlong luaEnginePtr) {
+    delete reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
 }
 
-JNIEXPORT jint JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeGetObjectSize(
-        JNIEnv* env, jobject object, jlong luaEnginePtr, jint index) {
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+JNIEXPORT void JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativePushBundleToLuaTableCaller(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jobject bundle) {
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::pushBundleToLuaTable(env, engine->getLuaState(), bundle);
+}
+
+JNIEXPORT jint JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeGetObjectSize(JNIEnv* env,
+                                                                              jobject object,
+                                                                              jlong luaEnginePtr,
+                                                                              jint index) {
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     return lua_rawlen(engine->getLuaState(), static_cast<int>(index));
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasBooleanValue(
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasBooleanValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jboolean value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
     env->ReleaseStringUTFChars(key, rawKey);
@@ -110,10 +121,11 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasIntValue(
+JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasIntValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jint value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
     auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
@@ -128,10 +140,12 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasDoubleValue(
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasDoubleValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jdouble value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
     auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
@@ -146,10 +160,12 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasStringValue(
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasStringValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jstring value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
-    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
     auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
@@ -168,7 +184,8 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasIntArrayValue(
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasIntArrayValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jintArray value) {
     jint* rawInputArray = env->GetIntArrayElements(value, nullptr);
     const auto kInputLength = env->GetArrayLength(value);
@@ -177,7 +194,8 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasLongArrayValue(
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasLongArrayValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jlongArray value) {
     jlong* rawInputArray = env->GetLongArrayElements(value, nullptr);
     const auto kInputLength = env->GetArrayLength(value);
@@ -189,7 +207,8 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
 }  //  extern "C"
 
 }  // namespace
-}  // namespace scriptexecutor
+}  // namespace unit
+}  // namespace scriptexecutortest
 }  // namespace car
 }  // namespace android
 }  // namespace com
