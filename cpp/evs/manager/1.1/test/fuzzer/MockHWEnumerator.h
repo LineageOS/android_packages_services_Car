@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef EVS_MANAGER_1_1_TEST_FUZZER_MOCKHWENUMERATOR_H_
-#define EVS_MANAGER_1_1_TEST_FUZZER_MOCKHWENUMERATOR_H_
+#ifndef CPP_EVS_MANAGER_1_1_TEST_FUZZER_MOCKHWENUMERATOR_H_
+#define CPP_EVS_MANAGER_1_1_TEST_FUZZER_MOCKHWENUMERATOR_H_
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
@@ -29,7 +29,7 @@ namespace evs {
 namespace V1_1 {
 namespace implementation {
 
-class MockHWEnumerator : public IEvsEnumerator_1_1 {
+class MockHWEnumerator : public ::android::hardware::automotive::evs::V1_1::IEvsEnumerator {
 public:
     MockHWEnumerator() {
         // four cameras
@@ -121,4 +121,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // EVS_MANAGER_1_1_TEST_FUZZER_MOCKHWENUMERATOR_H_
+#endif  // CPP_EVS_MANAGER_1_1_TEST_FUZZER_MOCKHWENUMERATOR_H_
