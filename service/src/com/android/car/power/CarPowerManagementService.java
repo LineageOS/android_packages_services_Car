@@ -384,7 +384,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.printf("mLastSleepEntryTime: %d\n", mLastSleepEntryTime);
             writer.printf("mNextWakeupSec: %d\n", mNextWakeupSec);
             writer.printf("mShutdownOnNextSuspend: %b\n", mShutdownOnNextSuspend);
-            writer.printf("mActionOnFinish: %d\n", mActionOnFinish);
+            writer.printf("mActionOnFinish: %s\n", actionOnFinishToString(mActionOnFinish));
             writer.printf("mShutdownPollingIntervalMs: %d\n", mShutdownPollingIntervalMs);
             writer.printf("mShutdownPrepareTimeMs: %d\n", mShutdownPrepareTimeMs);
             writer.printf("mRebootAfterGarageMode: %b\n", mRebootAfterGarageMode);
@@ -687,6 +687,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         Runnable taskAtCompletion = () -> {
             // The next power state is still SHUTDOWN_PREPARE, and the listener state is
             // SHUTDOW_PREPARE.
+            Slogf.i(TAG, "All listeners completed for PreShutdownPrepare");
             onApPowerStateChange(CpmsState.SHUTDOWN_PREPARE,
                     CarPowerManager.STATE_SHUTDOWN_PREPARE);
         };
@@ -728,27 +729,65 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void handleWaitForFinish(CpmsState state) {
-        sendPowerManagerEvent(state.mCarPowerStateListenerState, TIMEOUT_NOT_USED);
-        int wakeupSec;
-        synchronized (mLock) {
-            // If we're shutting down immediately, don't schedule
-            // a wakeup time.
-            wakeupSec = mGarageModeShouldExitImmediately ? 0 : mNextWakeupSec;
-        }
-        switch (state.mCarPowerStateListenerState) {
-            case CarPowerManager.STATE_SUSPEND_ENTER:
-                mHal.sendSleepEntry(wakeupSec);
-                break;
-            case CarPowerManager.STATE_SHUTDOWN_ENTER:
-                mHal.sendShutdownStart(wakeupSec);
-                break;
-            case CarPowerManager.STATE_HIBERNATION_ENTER:
-                mHal.sendHibernationEntry(wakeupSec);
-                break;
-        }
+        int timeoutMs = getShutdownEnterTimeoutConfig();
+        sendPowerManagerEvent(state.mCarPowerStateListenerState, timeoutMs);
+        Runnable taskAtCompletion = () -> {
+            Slogf.i(TAG, "All listeners completed for %s",
+                    listenerStateToString(state.mCarPowerStateListenerState));
+            int wakeupSec;
+            synchronized (mLock) {
+                // If we're shutting down immediately, don't schedule a wakeup time.
+                wakeupSec = mGarageModeShouldExitImmediately ? 0 : mNextWakeupSec;
+            }
+            switch (state.mCarPowerStateListenerState) {
+                case CarPowerManager.STATE_SUSPEND_ENTER:
+                    mHal.sendSleepEntry(wakeupSec);
+                    break;
+                case CarPowerManager.STATE_SHUTDOWN_ENTER:
+                    mHal.sendShutdownStart(wakeupSec);
+                    break;
+                case CarPowerManager.STATE_HIBERNATION_ENTER:
+                    mHal.sendHibernationEntry(wakeupSec);
+                    break;
+            }
+        };
+        Slogf.i(TAG, "Start waiting for listener completion for %s",
+                listenerStateToString(state.mCarPowerStateListenerState));
+        waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
+                /* intervalMs= */ -1);
     }
 
     private void handleFinish() {
+        int listenerState;
+        synchronized (mLock) {
+            switch (mActionOnFinish) {
+                case ACTION_ON_FINISH_SHUTDOWN:
+                    listenerState = CarPowerManager.STATE_POST_SHUTDOWN_ENTER;
+                    break;
+                case ACTION_ON_FINISH_DEEP_SLEEP:
+                    listenerState = CarPowerManager.STATE_POST_SUSPEND_ENTER;
+                    break;
+                case ACTION_ON_FINISH_HIBERNATION:
+                    listenerState = CarPowerManager.STATE_POST_HIBERNATION_ENTER;
+                    break;
+                default:
+                    Slogf.w(TAG, "Invalid action on finish: %d", mActionOnFinish);
+                    return;
+            }
+        }
+        int timeoutMs = getPostShutdownEnterTimeoutConfig();
+        sendPowerManagerEvent(listenerState, timeoutMs);
+        Runnable taskAtCompletion = () -> {
+            Slogf.i(TAG, "All listeners completed for %s", listenerStateToString(listenerState));
+            doHandleFinish();
+        };
+        Slogf.i(TAG, "Start waiting for listener completion for %s",
+                listenerStateToString(listenerState));
+        waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
+                /* intervalMs= */ -1);
+    }
+
+    private void doHandleFinish() {
         boolean simulatedMode;
         synchronized (mSimulationWaitObject) {
             simulatedMode = mInSimulatedDeepSleepMode;
@@ -859,7 +898,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void waitForShutdownPrepareListenersToComplete(long timeoutMs, long intervalMs) {
         Runnable taskAtCompletion = () -> {
             finishShutdownPrepare();
-            Slogf.i(TAG, "All listeners completed for Shutdown Prepare");
+            Slogf.i(TAG, "All listeners completed for ShutdownPrepare");
         };
         Runnable taskAtInterval = () -> {
             mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
@@ -952,29 +991,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         boolean allowCompletion = false;
         long expirationTimeMs = TIMEOUT_NOT_USED;
         synchronized (mLock) {
-            switch (newState) {
-                case CarPowerManager.STATE_SHUTDOWN_PREPARE:
-                case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
-                // TODO(b/193927500): Remove comments below once shutdown process improvement is
-                // done.
-                // case CarPowerManager.STATE_SHUTDOWN_ENTER:
-                // case CarPowerManager.STATE_SUSPEND_ENTER:
-                // case CarPowerManager.STATE_HIBERNATION_ENTER:
-                // case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
-                // case CarPowerManager.STATE_POST_SUSPEND_ENTER:
-                // case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
-                    if (timeoutMs < 0) {
-                        Slogf.wtf(TAG, "Completion timeout(%d) for state(%d) should be "
-                                + "non-negative", timeoutMs, newState);
-                        return;
-                    }
-                    mStateForCompletion = newState;
-                    allowCompletion = true;
-                    expirationTimeMs = SystemClock.elapsedRealtime() + timeoutMs;
-                    break;
-                default:
-                    mStateForCompletion = CarPowerManager.STATE_INVALID;
-                    break;
+            // TODO(b/210010903): Define a isCompletionAllowedInternal here which allows
+            // completion for shutdown prepare, because CarPowerManager.isCompletionAllowed will not
+            // cover shutdown prepare.
+            if (CarPowerManager.isCompletionAllowed(newState)) {
+                if (timeoutMs < 0) {
+                    Slogf.wtf(TAG, "Completion timeout(%d) for state(%d) should be "
+                            + "non-negative", timeoutMs, newState);
+                    return;
+                }
+                mStateForCompletion = newState;
+                allowCompletion = true;
+                expirationTimeMs = SystemClock.elapsedRealtime() + timeoutMs;
+            } else {
+                mStateForCompletion = CarPowerManager.STATE_INVALID;
             }
         }
 
@@ -2234,5 +2264,51 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private int getCompletionWaitTimeoutConfig(int resourceId) {
         int timeout = mContext.getResources().getInteger(resourceId);
         return timeout >= 0 ? timeout : DEFAULT_COMPLETION_WAIT_TIMEOUT;
+    }
+
+    private static String listenerStateToString(int state) {
+        switch (state) {
+            case CarPowerManager.STATE_WAIT_FOR_VHAL:
+                return "WaitForVhal";
+            case CarPowerManager.STATE_SUSPEND_ENTER:
+                return "SuspendEnter";
+            case CarPowerManager.STATE_SUSPEND_EXIT:
+                return "SuspendExit";
+            case CarPowerManager.STATE_SHUTDOWN_ENTER:
+                return "ShutdownEnter";
+            case CarPowerManager.STATE_ON:
+                return "On";
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
+                return "ShutdownPrepare";
+            case CarPowerManager.STATE_SHUTDOWN_CANCELLED:
+                return "ShutdownCancelled";
+            case CarPowerManager.STATE_HIBERNATION_ENTER:
+                return "HibernationEnter";
+            case CarPowerManager.STATE_HIBERNATION_EXIT:
+                return "HibernationdExit";
+            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
+                return "PreShutdownPrepare";
+            case CarPowerManager.STATE_POST_SUSPEND_ENTER:
+                return "PostSuspendEnter";
+            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
+                return "PostShutdownEnter";
+            case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
+                return "PostHibernationEnter";
+            default:
+                return "Unknown";
+        }
+    }
+
+    private static String actionOnFinishToString(int actionOnFinish) {
+        switch (actionOnFinish) {
+            case ACTION_ON_FINISH_SHUTDOWN:
+                return "Shutdown";
+            case ACTION_ON_FINISH_DEEP_SLEEP:
+                return "Deep sleep";
+            case ACTION_ON_FINISH_HIBERNATION:
+                return "Hibernation";
+            default:
+                return "Unknown";
+        }
     }
 }

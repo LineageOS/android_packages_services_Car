@@ -395,17 +395,16 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
             @Override
             public void onStateChanged(int state, long expirationTimeMs) {
-                switch (state) {
-                    case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
-                        cpms.finished(state, this);
-                        break;
-                    case CarPowerManager.STATE_SHUTDOWN_PREPARE:
-                        // Do not call finished() to stay in shutdown prepare, when Garage Mode is
-                        // running.
-                        if (cpms.garageModeShouldExitImmediately()) {
-                            cpms.finished(state, this);
-                        }
+                // TODO(b/210010903): Re-write the logic when shutdown prepare is removed from
+                // CarPowerManager.isCompletionAllowed().
+                if (CarPowerManager.isCompletionAllowed(state)) {
+                    // Do not call finished() to stay in shutdown prepare, when Garage Mode is
+                    // supposed to be running.
+                    if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE
+                            && !cpms.garageModeShouldExitImmediately()) {
                         return;
+                    }
+                    cpms.finished(state, this);
                 }
             }
         };
