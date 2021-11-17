@@ -457,7 +457,7 @@ public class DataBrokerImpl implements DataBroker {
             if (stackTrace != null) {
                 error.setStackTrace(stackTrace);
             }
-            mResultStore.putError(mCurrentMetricsConfigKey.getName(), error.build());
+            mResultStore.putErrorResult(mCurrentMetricsConfigKey.getName(), error.build());
             mCurrentMetricsConfigKey = null;
             scheduleNextTask();
         });
