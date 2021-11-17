@@ -70,15 +70,15 @@ public class CarBugreportManagerTest extends CarApiTestBase {
 
     private CarBugreportManager mManager;
     private FakeCarBugreportCallback mFakeCallback;
-    private PipedTempFile mOutput;
-    private PipedTempFile mExtraOutput;
+    private ParcelFileDescriptor mOutput;
+    private ParcelFileDescriptor mExtraOutput;
 
     @Before
     public void setUp() throws Exception {
         mManager = (CarBugreportManager) getCar().getCarManager(Car.CAR_BUGREPORT_SERVICE);
         mFakeCallback = new FakeCarBugreportCallback();
-        mOutput = PipedTempFile.create("bugreport-" + getTestName(), ".zip");
-        mExtraOutput = PipedTempFile.create("screenshot-" + getTestName(), ".png");
+        mOutput = openDevNullParcelFd();
+        mExtraOutput = openDevNullParcelFd();
         mAllCloseables.addAll(List.of(mOutput, mExtraOutput));
     }
 
@@ -106,7 +106,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
         SecurityException expected =
                 expectThrows(SecurityException.class,
                         () -> mManager.requestBugreportForTesting(
-                            mOutput.getWriteFd(), mExtraOutput.getWriteFd(), mFakeCallback));
+                            mOutput, mExtraOutput, mFakeCallback));
         assertThat(expected).hasMessageThat().contains(
                 "nor current process has android.permission.DUMP.");
     }
@@ -114,64 +114,61 @@ public class CarBugreportManagerTest extends CarApiTestBase {
     @Test
     public void test_requestBugreport_works() throws Exception {
         getPermissions();
+        PipedTempFile output = PipedTempFile.create("bugreport-" + getTestName(), ".zip");
+        PipedTempFile extraOutput = PipedTempFile.create("screenshot-" + getTestName(), ".png");
+        mAllCloseables.addAll(List.of(output, extraOutput));
 
         mManager.requestBugreportForTesting(
-                mOutput.getWriteFd(), mExtraOutput.getWriteFd(), mFakeCallback);
+                output.getWriteFd(), extraOutput.getWriteFd(), mFakeCallback);
 
         // The FDs must be duped and closed in requestBugreport() immediately.
-        assertFdIsClosed(mOutput.getWriteFd());
-        assertFdIsClosed(mExtraOutput.getWriteFd());
+        assertFdIsClosed(output.getWriteFd());
+        assertFdIsClosed(extraOutput.getWriteFd());
 
-        PipedTempFile.copyAllToPersistentFiles(mOutput, mExtraOutput);
+        // Blocks the thread until bugreport is finished.
+        PipedTempFile.copyAllToPersistentFiles(output, extraOutput);
 
         mFakeCallback.waitTillDoneOrTimeout(BUGREPORT_TIMEOUT_MILLIS);
         assertThat(mFakeCallback.isFinishedSuccessfully()).isEqualTo(true);
         assertThat(mFakeCallback.getReceivedProgress()).isTrue();
-        assertContainsValidBugreport(mOutput.getPersistentFile());
+        assertContainsValidBugreport(output.getPersistentFile());
     }
 
     @Test
     public void test_requestBugreport_cannotRunMultipleBugreports() throws Exception {
         getPermissions();
         FakeCarBugreportCallback callback2 = new FakeCarBugreportCallback();
-        PipedTempFile output2 = PipedTempFile.create("bugreport2-" + getTestName(), ".zip");
-        PipedTempFile extraOutput2 = PipedTempFile.create("screenshot2-" + getTestName(), ".png");
-        mAllCloseables.addAll(List.of(output2, extraOutput2));
+        ParcelFileDescriptor output2 = openDevNullParcelFd();
+        ParcelFileDescriptor extraOutput2 = openDevNullParcelFd();
 
         // 1st bugreport.
-        mManager.requestBugreportForTesting(
-                mOutput.getWriteFd(), mExtraOutput.getWriteFd(), mFakeCallback);
+        mManager.requestBugreportForTesting(mOutput, mExtraOutput, mFakeCallback);
 
         // 2nd bugreport.
-        mManager.requestBugreportForTesting(
-                output2.getWriteFd(), extraOutput2.getWriteFd(), callback2);
+        mManager.requestBugreportForTesting(output2, extraOutput2, callback2);
 
         callback2.waitTillDoneOrTimeout(BUGREPORT_TIMEOUT_MILLIS);
         assertThat(callback2.getErrorCode()).isEqualTo(
                 CarBugreportManagerCallback.CAR_BUGREPORT_IN_PROGRESS);
+        assertThat(mFakeCallback.isFinished()).isFalse();
     }
 
     @Test
     public void test_cancelBugreport_works() throws Exception {
         getPermissions();
         FakeCarBugreportCallback callback2 = new FakeCarBugreportCallback();
-        PipedTempFile output2 = PipedTempFile.create("bugreport2-" + getTestName(), ".zip");
-        PipedTempFile extraOutput2 = PipedTempFile.create("screenshot2-" + getTestName(), ".png");
-        mAllCloseables.addAll(List.of(output2, extraOutput2));
+        ParcelFileDescriptor output2 = openDevNullParcelFd();
+        ParcelFileDescriptor extraOutput2 = openDevNullParcelFd();
 
         // 1st bugreport.
-        mManager.requestBugreportForTesting(
-                mOutput.getWriteFd(), mExtraOutput.getWriteFd(), mFakeCallback);
+        mManager.requestBugreportForTesting(mOutput, mExtraOutput, mFakeCallback);
         mManager.cancelBugreport();
-        PipedTempFile.copyAllToPersistentFiles(mOutput, mExtraOutput);
 
         // Allow the system to finish the bugreport cancellation, 0.5 seconds is enough.
         Thread.sleep(500);
 
         // 2nd bugreport must work, because 1st bugreport was cancelled.
-        mManager.requestBugreportForTesting(
-                output2.getWriteFd(), extraOutput2.getWriteFd(), callback2);
-        PipedTempFile.copyAllToPersistentFiles(output2, extraOutput2);
+        mManager.requestBugreportForTesting(output2, extraOutput2, callback2);
 
         callback2.waitTillProgressOrTimeout(BUGREPORT_TIMEOUT_MILLIS);
         assertThat(callback2.getErrorCode()).isEqualTo(NO_ERROR);
@@ -226,6 +223,12 @@ public class CarBugreportManagerTest extends CarApiTestBase {
             }
         });
         return result.toString(StandardCharsets.UTF_8.name());
+    }
+
+    private static ParcelFileDescriptor openDevNullParcelFd() throws IOException {
+        return ParcelFileDescriptor.open(
+                new File("/dev/null"),
+                ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_APPEND);
     }
 
     /**
@@ -333,6 +336,10 @@ public class CarBugreportManagerTest extends CarApiTestBase {
 
         boolean isFinishedSuccessfully() {
             return mEndedLatch.getCount() == 0 && getErrorCode() == NO_ERROR;
+        }
+
+        boolean isFinished() {
+            return mEndedLatch.getCount() == 0;
         }
 
         void waitTillDoneOrTimeout(long timeoutMillis) throws InterruptedException {
