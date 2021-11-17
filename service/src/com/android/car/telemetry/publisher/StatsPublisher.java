@@ -17,9 +17,12 @@
 package com.android.car.telemetry.publisher;
 
 import static com.android.car.telemetry.AtomsProto.Atom.ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.ANR_OCCURRED_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.APP_CRASH_OCCURRED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_CPU_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.WTF_OCCURRED_FIELD_NUMBER;
 
 import static java.nio.charset.StandardCharsets.UTF_16;
 
@@ -82,6 +85,18 @@ public class StatsPublisher extends AbstractPublisher {
     static final long PROCESS_CPU_TIME_MATCHER_ID = 7;
     @VisibleForTesting
     static final long PROCESS_CPU_TIME_GAUGE_METRIC_ID = 8;
+    @VisibleForTesting
+    static final long APP_CRASH_OCCURRED_ATOM_MATCHER_ID = 9;
+    @VisibleForTesting
+    static final long APP_CRASH_OCCURRED_EVENT_METRIC_ID = 10;
+    @VisibleForTesting
+    static final long ANR_OCCURRED_ATOM_MATCHER_ID = 11;
+    @VisibleForTesting
+    static final long ANR_OCCURRED_EVENT_METRIC_ID = 12;
+    @VisibleForTesting
+    static final long WTF_OCCURRED_ATOM_MATCHER_ID = 13;
+    @VisibleForTesting
+    static final long WTF_OCCURRED_EVENT_METRIC_ID = 14;
 
     // The file that contains stats config key and stats config version
     @VisibleForTesting
@@ -245,6 +260,15 @@ public class StatsPublisher extends AbstractPublisher {
                 break;
             case PROCESS_CPU_TIME:
                 metricId = PROCESS_CPU_TIME_GAUGE_METRIC_ID;
+                break;
+            case APP_CRASH_OCCURRED:
+                metricId = APP_CRASH_OCCURRED_EVENT_METRIC_ID;
+                break;
+            case ANR_OCCURRED:
+                metricId = ANR_OCCURRED_EVENT_METRIC_ID;
+                break;
+            case WTF_OCCURRED:
+                metricId = WTF_OCCURRED_EVENT_METRIC_ID;
                 break;
             default:
                 return;
@@ -532,6 +556,12 @@ public class StatsPublisher extends AbstractPublisher {
                 return buildActivityForegroundStateStatsdConfig(builder);
             case PROCESS_CPU_TIME:
                 return buildProcessCpuTimeStatsdConfig(builder);
+            case APP_CRASH_OCCURRED:
+                return buildAppCrashOccurredStatsdConfig(builder);
+            case ANR_OCCURRED:
+                return buildAnrOccurredStatsdConfig(builder);
+            case WTF_OCCURRED:
+                return buildWtfOccurredStatsdConfig(builder);
             default:
                 throw new IllegalArgumentException("Unsupported metric " + metric.name());
         }
@@ -625,6 +655,48 @@ public class StatsPublisher extends AbstractPublisher {
                 .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
                         .setAtomId(PROCESS_CPU_TIME_FIELD_NUMBER)
                         .addPackages("AID_SYSTEM"))
+                .build();
+    }
+
+    private static StatsdConfig buildAppCrashOccurredStatsdConfig(StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(APP_CRASH_OCCURRED_ATOM_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(APP_CRASH_OCCURRED_FIELD_NUMBER)))
+                .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(APP_CRASH_OCCURRED_EVENT_METRIC_ID)
+                        .setWhat(APP_CRASH_OCCURRED_ATOM_MATCHER_ID))
+                .build();
+    }
+
+    private static StatsdConfig buildAnrOccurredStatsdConfig(StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(ANR_OCCURRED_ATOM_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(ANR_OCCURRED_FIELD_NUMBER)))
+                .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(ANR_OCCURRED_EVENT_METRIC_ID)
+                        .setWhat(ANR_OCCURRED_ATOM_MATCHER_ID))
+                .build();
+    }
+
+    private static StatsdConfig buildWtfOccurredStatsdConfig(StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(WTF_OCCURRED_ATOM_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(WTF_OCCURRED_FIELD_NUMBER)))
+                .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(WTF_OCCURRED_EVENT_METRIC_ID)
+                        .setWhat(WTF_OCCURRED_ATOM_MATCHER_ID))
                 .build();
     }
 }
