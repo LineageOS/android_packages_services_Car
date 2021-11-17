@@ -31,7 +31,6 @@ import android.car.builtin.util.Slogf;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
-import android.util.AtomicFile;
 import android.util.LongSparseArray;
 
 import com.android.car.CarLog;
@@ -45,14 +44,13 @@ import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.statsconverters.ConfigMetricsReportListConverter;
 import com.android.car.telemetry.publisher.statsconverters.StatsConversionException;
+import com.android.car.telemetry.util.IoUtils;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -132,7 +130,7 @@ public class StatsPublisher extends AbstractPublisher {
                             .setField(ProcessMemoryState.CACHE_IN_BYTES_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER))
-            .build();
+                    .build();
 
     @VisibleForTesting
     static final StatsdConfigProto.FieldMatcher PROCESS_CPU_TIME_FIELDS_MATCHER =
@@ -142,10 +140,10 @@ public class StatsPublisher extends AbstractPublisher {
                             .setField(ProcessCpuTime.USER_TIME_MILLIS_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(ProcessCpuTime.SYSTEM_TIME_MILLIS_FIELD_NUMBER))
-            .build();
+                    .build();
 
     private final StatsManagerProxy mStatsManager;
-    private final AtomicFile mSavedStatsConfigsFile;
+    private final File mSavedStatsConfigsFile;
     private final Handler mTelemetryHandler;
 
     // True if the publisher is periodically pulling reports from StatsD.
@@ -170,22 +168,21 @@ public class StatsPublisher extends AbstractPublisher {
         super(failureListener);
         mStatsManager = statsManager;
         mTelemetryHandler = telemetryHandler;
-        mSavedStatsConfigsFile = new AtomicFile(
-                new File(publisherDirectory, SAVED_STATS_CONFIGS_FILE));
+        mSavedStatsConfigsFile = new File(publisherDirectory, SAVED_STATS_CONFIGS_FILE);
         mSavedStatsConfigs = loadBundle();
     }
 
     /** Loads the PersistableBundle containing stats config keys and versions from disk. */
     private PersistableBundle loadBundle() {
-        if (!mSavedStatsConfigsFile.getBaseFile().exists()) {
+        if (!mSavedStatsConfigsFile.exists()) {
             return new PersistableBundle();
         }
-        try (FileInputStream fileInputStream = mSavedStatsConfigsFile.openRead()) {
-            return PersistableBundle.readFromStream(fileInputStream);
+        try {
+            return IoUtils.readBundle(mSavedStatsConfigsFile);
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
             Slogf.e(CarLog.TAG_TELEMETRY, "Failed to read file "
-                    + mSavedStatsConfigsFile.getBaseFile().getAbsolutePath(), e);
+                    + mSavedStatsConfigsFile.getAbsolutePath(), e);
             return new PersistableBundle();
         }
     }
@@ -196,16 +193,12 @@ public class StatsPublisher extends AbstractPublisher {
             mSavedStatsConfigsFile.delete();
             return;
         }
-        FileOutputStream fileOutputStream = null;
         try {
-            fileOutputStream = mSavedStatsConfigsFile.startWrite();
-            mSavedStatsConfigs.writeToStream(fileOutputStream);
-            mSavedStatsConfigsFile.finishWrite(fileOutputStream);
+            IoUtils.writeBundle(mSavedStatsConfigsFile, mSavedStatsConfigs);
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
-            mSavedStatsConfigsFile.failWrite(fileOutputStream);
             Slogf.e(CarLog.TAG_TELEMETRY,
-                    "Cannot write to " + mSavedStatsConfigsFile.getBaseFile().getAbsolutePath()
+                    "Cannot write to " + mSavedStatsConfigsFile.getAbsolutePath()
                             + ". Added stats config info is lost.", e);
         }
     }
