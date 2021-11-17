@@ -31,10 +31,13 @@ import java.util.Map;
 public class AtomListConverter {
     // Map of pushed atom cases to corresponding atom converter.
     private static Map<Atom.PushedCase, AbstractAtomConverter> sPushedCaseConverters = Map.of(
-            Atom.PushedCase.APP_START_MEMORY_STATE_CAPTURED,
-            new AppStartMemoryStateCapturedConverter(),
-            Atom.PushedCase.ACTIVITY_FOREGROUND_STATE_CHANGED,
-            new ActivityForegroundStateChangedConverter());
+            /* key = */ Atom.PushedCase.APP_START_MEMORY_STATE_CAPTURED,
+            /* value = */ new AppStartMemoryStateCapturedConverter(),
+            /* key = */ Atom.PushedCase.ACTIVITY_FOREGROUND_STATE_CHANGED,
+            /* value = */ new ActivityForegroundStateChangedConverter(),
+            Atom.PushedCase.APP_CRASH_OCCURRED, new AppCrashOccurredConverter(),
+            Atom.PushedCase.ANR_OCCURRED, new AnrOccurredConverter(),
+            Atom.PushedCase.WTF_OCCURRED, new WtfOccurredConverter());
 
     // Map of pulled atom cases to corresponding atom converter.
     private static Map<Atom.PulledCase, AbstractAtomConverter> sPulledCaseConverters = Map.of(

@@ -87,8 +87,14 @@ message StatsPublisher {
     PROCESS_MEMORY_STATE = 2;
     // Collects activity foreground/background transition events.
     ACTIVITY_FOREGROUND_STATE_CHANGED = 3;
-    // Collects process CPU usage time
+    // Collects process CPU usage time.
     PROCESS_CPU_TIME = 4;
+    // Collects app crash events.
+    APP_CRASH_OCCURRED = 5;
+    // Collects App Not Responding events.
+    ANR_OCCURRED = 6;
+    // Collects "wtf"-level log events.
+    WTF_OCCURRED = 7;
   }
 
   // Required.
