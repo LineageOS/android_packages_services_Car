@@ -26,6 +26,8 @@
     <!-- Header title margin -->
     <dimen name="header_margin">24dp</dimen>
 
+    <dimen name="primary_button_max_width">500dp</dimen>
+
     <dimen name="landscape_vertical_divider_width">1dp</dimen>
     <dimen name="landscape_page_margin_top">48dp</dimen>
     <dimen name="landscape_page_margin_bottom">64dp</dimen>
@@ -34,20 +36,20 @@
     <dimen name="landscape_page_padding_top">48dp</dimen>
     <dimen name="landscape_page_padding_left">80dp</dimen>
     <dimen name="landscape_page_padding_right">300dp</dimen>
-    <dimen name="landscape_page_content_left_offset">-110dp</dimen>
 
     <!--  Additional space for content that is center aligned  -->
-    <dimen name="landscape_page_narrow_padding_horizontal">250dp</dimen>
+    <dimen name="landscape_page_narrow_padding_horizontal">300dp</dimen>
 
     <!-- Provisioning screens -->
     <dimen name="sud_items_icon_size">48dp</dimen>
     <dimen name="sud_items_summary_margin_horizontal">24dp</dimen>
     <dimen name="sud_items_summary_margin_top">16dp</dimen>
-    <dimen name="sud_items_margin_top">48dp</dimen>
+    <dimen name="sud_items_margin_top">0dp</dimen>
     <dimen name="sud_items_margin_inbetween">32dp</dimen>
     <dimen name="terms_disclaimer_header_vertical_margin">32dp</dimen>
     <dimen name="terms_disclaimer_content_margin_top">32dp</dimen>
     <dimen name="terms_disclaimer_content_margin_bottom">48dp</dimen>
-    <dimen name="item_header_text_size">24sp</dimen>
-    <dimen name="item_body_text_size">20dp</dimen>
+    <dimen name="item_header_text_size">30dp</dimen>
+    <dimen name="item_body_text_size">24dp</dimen>
+    <dimen name="item_extra_spacing">5dp</dimen>
 </resources>
