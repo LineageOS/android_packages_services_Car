@@ -119,6 +119,10 @@
     <!-- Make the dots in lock pattern thicker in Car -->
     <dimen name="lock_pattern_dot_size">20dp</dimen>
 
+    <!-- Focus dimensions -->
+    <dimen name="focus_stroke_width">8dp</dimen>
+    <dimen name="focus_pressed_stroke_width">4dp</dimen>
+
     <!-- Autofill save dialog padding -->
     <dimen name="autofill_save_outer_top_margin">@*android:dimen/car_padding_2</dimen>
     <dimen name="autofill_save_outer_top_padding">@*android:dimen/car_padding_2</dimen>
@@ -137,8 +141,17 @@
 
     <!-- Switch dimensions -->
     <dimen name="car_switch_track_height">48dp</dimen>
+    <dimen name="car_switch_track_width">88dp</dimen>
     <!-- Increases the vertical touch target size. -->
     <dimen name="car_switch_track_margin_vertical">14dp</dimen>
+    <!-- Switch focus ring height. -->
+    <dimen name="car_switch_track_focus_ring_height">72dp</dimen>
+    <!-- Switch focus ring width. -->
+    <dimen name="car_switch_track_focus_ring_width">112dp</dimen>
+    <!-- Switch focus ring padding. -->
+    <dimen name="car_switch_track_focus_ring_padding">12dp</dimen>
+    <!-- Should be the half of car_switch_track_focus_ring_height. -->
+    <dimen name="car_switch_track_focus_ring_outer_radius">36dp</dimen>
     <!-- Should be the half of car_switch_track_height. -->
     <dimen name="car_switch_thumb_outer_radius">24dp</dimen>
     <!--  The difference between the track size and the thumb size. -->

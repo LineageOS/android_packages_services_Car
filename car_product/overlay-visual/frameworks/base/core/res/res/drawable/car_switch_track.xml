@@ -24,8 +24,15 @@
             <padding
                 android:left="@dimen/car_switch_thumb_stroke_width"
                 android:right="@dimen/car_switch_thumb_stroke_width" />
-            <size android:height="@dimen/car_switch_track_height" />
+            <size
+                android:height="@dimen/car_switch_track_height"
+                android:width="@dimen/car_switch_track_width" />
             <solid android:color="?attr/colorSwitchTrack" />
         </shape>
     </item>
+    <item
+        android:bottom="@dimen/car_switch_track_margin_vertical"
+        android:drawable="@drawable/car_switch_track_focus_highlight"
+        android:gravity="center"
+        android:top="@dimen/car_switch_track_margin_vertical" />
 </layer-list>
