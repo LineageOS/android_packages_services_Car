@@ -694,8 +694,9 @@ public class BugReportActivity extends Activity {
                  InputStream input = new FileInputStream(mAudioFile)) {
                 ByteStreams.copy(input, out);
             } catch (IOException e) {
+                // Allow user to try again if it fails to write audio.
                 BugStorageUtils.setBugReportStatus(mContext, bug,
-                        com.android.car.bugreport.Status.STATUS_WRITE_FAILED,
+                        com.android.car.bugreport.Status.STATUS_AUDIO_PENDING,
                         "Failed to write audio to bug report");
                 Log.e(TAG, "Failed to write audio to bug report", e);
                 return null;
