@@ -107,7 +107,7 @@
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.RadioButton"
-        parent="android:Widget.DeviceDefault.CompoundButton.RadioButton">
+        parent="android:Widget.Material.CompoundButton.RadioButton">
         <item name="android:button">@drawable/car_radio_button</item>
     </style>
 
