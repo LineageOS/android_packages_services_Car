@@ -20,7 +20,7 @@
     <string name="app_name" msgid="2596316479611335185">"బగ్ రిపోర్ట్‌"</string>
     <string name="bugreport_info_quit" msgid="5590138890181142473">"మూసివేయి"</string>
     <string name="bugreport_info_start" msgid="667324824650830832">"బగ్ రిపోర్ట్‌ను ప్రారంభించండి"</string>
-    <string name="bugreport_info_status" msgid="7211044508792815451">"స్థితి:"</string>
+    <string name="bugreport_info_status" msgid="7211044508792815451">"స్టేటస్‌:"</string>
     <string name="bugreport_info_expires_soon_notice" msgid="927139313070992675">"ఈ బగ్ రిపోర్ట్‌ గడువు త్వరలో ముగుస్తుంది"</string>
     <string name="bugreport_dialog_submit" msgid="2789636252713280633">"సమర్పించండి"</string>
     <string name="bugreport_dialog_cancel" msgid="4741928791364757040">"రద్దు చేయండి"</string>
@@ -46,5 +46,5 @@
     <string name="toast_status_dump_state_failed" msgid="3496460783060512078">"డంప్‌స్టేట్ విఫలమైంది"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"బగ్ రిపోర్ట్‌ ప్రోగ్రెస్‌లో ఉంది"</string>
     <string name="notification_bugreport_finished_title" msgid="1188447311929693472">"బగ్ రిపోర్ట్ సేకరించబడింది"</string>
-    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"బగ్ రిపోర్ట్‌ స్థితి ఛానెల్"</string>
+    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"బగ్ రిపోర్ట్‌ స్టేటస్‌ ఛానెల్"</string>
 </resources>
