@@ -938,6 +938,7 @@
     <uses-permission android:name="android.permission.MANAGE_USERS"/>
     <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.AUTOMOTIVE_GNSS_CONTROLS"/>
     <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT"/>
     <uses-permission android:name="android.permission.READ_LOGS"/>
     <!--  Used by NotificationHelper to change the notifications app name -->
