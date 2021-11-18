@@ -15,9 +15,13 @@
   ~ limitations under the License.
   -->
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:gravity="center">
-        <shape
-            android:shape="oval">
+      <item
+        android:bottom="@dimen/car_radio_button_focus_ring_padding"
+        android:gravity="center"
+        android:left="@dimen/car_radio_button_focus_ring_padding"
+        android:right="@dimen/car_radio_button_focus_ring_padding"
+        android:top="@dimen/car_radio_button_focus_ring_padding">
+        <shape android:shape="oval">
             <size
                 android:width="@dimen/car_radio_button_outer_ring_size"
                 android:height="@dimen/car_radio_button_outer_ring_size" />
@@ -35,5 +39,8 @@
             <solid android:color="@color/car_radio_button_checked_color"/>
         </shape>
     </item>
+    <item
+        android:drawable="@drawable/car_radio_button_focus_highlight"
+        android:gravity="center" />
 </layer-list>
 

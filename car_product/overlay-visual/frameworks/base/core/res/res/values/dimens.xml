@@ -163,6 +163,8 @@
     <dimen name="car_radio_button_outer_ring_size">45dp</dimen>
     <dimen name="car_radio_button_outer_ring_stroke_width">2dp</dimen>
     <dimen name="car_radio_button_inner_circle_size">32dp</dimen>
+    <dimen name="car_radio_button_focus_ring_size">69dp</dimen>
+    <dimen name="car_radio_button_focus_ring_padding">12dp</dimen>
 
     <!-- SeekBar dimensions. -->
     <!-- Allows thumb to extend out of the range of the track. -->
