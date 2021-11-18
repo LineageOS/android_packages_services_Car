@@ -38,8 +38,8 @@
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"మీ కారు రేడియోను యాక్సెస్ చేయండి"</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"కారు డిస్‌ప్లే‌లో ఫోన్‌ నుండి ఇంటర్‌ఫేస్‌ను ప్రొజెక్ట్ చేయగలవు"</string>
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"కార్ డిస్‌ప్లే‌లో ఫోన్‌ నుండి ఇంటర్‌ఫేస్‌ను రూపొందించడానికి యాప్‌ను అనుమతిస్తుంది."</string>
-    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ప్రొజెక్షన్ స్థితిని యాక్సెస్ చేయగలవు"</string>
-    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"కార్ డిస్‌ప్లేకి ప్రొజెక్ట్ చేసే ఇతర యాప్‌ల స్థితిని పొందడానికి యాప్‌ను అనుమతిస్తుంది."</string>
+    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ప్రొజెక్షన్ స్టేటస్‌ని యాక్సెస్ చేయగలవు"</string>
+    <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"కార్ డిస్‌ప్లేకి ప్రొజెక్ట్ చేసే ఇతర యాప్‌ల స్టేటస్‌ పొందడానికి యాప్‌ను అనుమతిస్తుంది."</string>
     <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ప్రొజెక్షన్ సేవకు అనుబంధించగలవు"</string>
     <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ప్రొజెక్షన్ సేవ యొక్క అగ్ర-స్థాయి ఇంటర్‌ఫేస్‌కు అనుబంధించడానికి హోల్డర్‌ను అనుమతిస్తుంది. సాధారణ యాప్‌లకు ఎప్పటికీ దీని అవసరం లేదు."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"కారు ఆడియోను నియత్రించగలవు"</string>
@@ -67,7 +67,7 @@
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP మోడ్‌లో USB పరికరాన్ని కమ్యూనికేట్ చేయండి"</string>
     <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="273505990971317034">"AOAP మోడ్‌లో పరికరంతో కమ్యూనికేట్ చేయడానికి యాప్‌ను అనుమతిస్తుంది"</string>
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness Systemను చదవే యాక్సెస్"</string>
-    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemకు చదివే స్థితిని, డేటాను గుర్తించడాన్ని అనుమతిస్తుంది"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemకు చదివే స్టేటస్‌ని, డేటాను గుర్తించడాన్ని అనుమతిస్తుంది"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System గ్రాఫ్‌ను నియంత్రించు"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness Systemను గుర్తించే గ్రాఫ్‌ను ప్రారంభించడాన్ని, ఆపివేయడాన్ని నియంత్రించడానికి అనుమతిస్తుంది"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"కారు ఇన్‌పుట్ సేవ"</string>
