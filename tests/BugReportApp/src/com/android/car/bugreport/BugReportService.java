@@ -215,8 +215,7 @@ public class BugReportService extends Service {
         mSingleThreadExecutor = Executors.newSingleThreadScheduledExecutor();
         mHandler = new BugReportHandler();
         mHandlerStartedToast = new Handler();
-        mConfig = new Config();
-        mConfig.start();
+        mConfig = Config.create();
     }
 
     @Override

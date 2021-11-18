@@ -74,6 +74,8 @@ abstract class MetaBugReport implements Parcelable {
      *
      * <p>NOTE: This is the old way of storing final zipped bugreport. See
      * {@link BugStorageProvider#URL_SEGMENT_OPEN_FILE} for more info.
+     *
+     * <p>@deprecated getBugReportFileName() is used now.
      */
     public abstract String getFilePath();
 

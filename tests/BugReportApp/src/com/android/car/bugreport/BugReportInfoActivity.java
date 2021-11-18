@@ -94,8 +94,7 @@ public class BugReportInfoActivity extends Activity {
         mRecyclerView.addItemDecoration(new DividerItemDecoration(mRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL));
 
-        mConfig = new Config();
-        mConfig.start();
+        mConfig = Config.create();
 
         mBugInfoAdapter = new BugInfoAdapter(this::onBugReportItemClicked, mConfig);
         mRecyclerView.setAdapter(mBugInfoAdapter);
