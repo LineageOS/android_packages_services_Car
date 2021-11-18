@@ -362,16 +362,36 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOff) {
     ASSERT_TRUE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogInternalHandlerTest, TestNotifyUserStateChange) {
+TEST_F(WatchdogInternalHandlerTest, TestNotifyUserStateChangeWithStartedUser) {
     setSystemCallingUid();
     aawi::StateType type = aawi::StateType::USER_STATE;
-    EXPECT_CALL(*mMockWatchdogProcessService,
-                notifyUserStateChange(234567, aawi::UserState::USER_STATE_STOPPED))
-            .WillOnce(Return(Status::ok()));
+    EXPECT_CALL(*mMockWatchdogProcessService, notifyUserStateChange(234567, /*isStarted=*/true));
+    Status status = mWatchdogInternalHandler
+                            ->notifySystemStateChange(type, 234567,
+                                                      static_cast<int32_t>(
+                                                              aawi::UserState::USER_STATE_STARTED));
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyUserStateChangeWithStoppedUser) {
+    setSystemCallingUid();
+    aawi::StateType type = aawi::StateType::USER_STATE;
+    EXPECT_CALL(*mMockWatchdogProcessService, notifyUserStateChange(234567, /*isStarted=*/false));
     Status status = mWatchdogInternalHandler
                             ->notifySystemStateChange(type, 234567,
                                                       static_cast<int32_t>(
                                                               aawi::UserState::USER_STATE_STOPPED));
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyUserStateChangeWithRemovedUser) {
+    setSystemCallingUid();
+    aawi::StateType type = aawi::StateType::USER_STATE;
+    EXPECT_CALL(*mMockIoOveruseMonitor, removeStatsForUser(/*userId=*/234567));
+    Status status = mWatchdogInternalHandler
+                            ->notifySystemStateChange(type, 234567,
+                                                      static_cast<int32_t>(
+                                                              aawi::UserState::USER_STATE_REMOVED));
     ASSERT_TRUE(status.isOk()) << status;
 }
 

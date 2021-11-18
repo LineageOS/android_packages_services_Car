@@ -53,6 +53,7 @@ public:
                 (const, override));
     MOCK_METHOD(android::base::Result<void>, resetIoOveruseStats, (const std::vector<std::string>&),
                 (override));
+    MOCK_METHOD(void, removeStatsForUser, (userid_t), (override));
 };
 
 }  // namespace watchdog

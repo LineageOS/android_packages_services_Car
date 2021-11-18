@@ -80,8 +80,7 @@ public:
                     monitor,
             int32_t pid);
     virtual void setEnabled(bool isEnabled);
-    virtual android::binder::Status notifyUserStateChange(
-            userid_t userId, android::automotive::watchdog::internal::UserState state);
+    virtual void notifyUserStateChange(userid_t userId, bool isStarted);
 
 private:
     enum ClientType {

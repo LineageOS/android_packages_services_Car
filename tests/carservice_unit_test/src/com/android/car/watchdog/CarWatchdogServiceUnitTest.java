@@ -39,6 +39,7 @@ import static com.android.car.admin.NotificationHelper.RESOURCE_OVERUSE_NOTIFICA
 import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
+import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_ID;
 import static com.android.car.watchdog.WatchdogPerfHandler.UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES;
@@ -362,9 +363,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     public void testGarageModeStateChangeToOn() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_ON));
-        verify(mMockCarWatchdogDaemon)
-                .notifySystemStateChange(
-                        eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_ON), eq(-1));
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.GARAGE_MODE,
+                GarageMode.GARAGE_MODE_ON, MISSING_ARG_VALUE);
         verify(mMockWatchdogStorage).shrinkDatabase();
     }
 
@@ -374,9 +374,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_OFF));
         // GARAGE_MODE_OFF is notified twice: Once during the initial daemon connect and once when
         // the ACTION_GARAGE_MODE_OFF intent is received.
-        verify(mMockCarWatchdogDaemon, times(2))
-                .notifySystemStateChange(
-                        eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_OFF), eq(-1));
+        verify(mMockCarWatchdogDaemon, times(2)).notifySystemStateChange(StateType.GARAGE_MODE,
+                GarageMode.GARAGE_MODE_OFF, MISSING_ARG_VALUE);
         verify(mMockWatchdogStorage, never()).shrinkDatabase();
     }
 
@@ -393,14 +392,14 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         restartWatchdogDaemonAndAwait();
 
-        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
-                eq(StateType.USER_STATE), eq(101), eq(UserState.USER_STATE_STOPPED));
-        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
-                eq(StateType.USER_STATE), eq(102), eq(UserState.USER_STATE_STARTED));
-        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
-                eq(StateType.POWER_CYCLE), eq(PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER), eq(-1));
-        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
-                eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_ON), eq(-1));
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 101,
+                UserState.USER_STATE_STOPPED);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 102,
+                UserState.USER_STATE_STARTED);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.GARAGE_MODE,
+                GarageMode.GARAGE_MODE_ON, MISSING_ARG_VALUE);
     }
 
     @Test
@@ -409,6 +408,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(Intent.ACTION_USER_REMOVED)
                         .putExtra(Intent.EXTRA_USER, UserHandle.of(100)));
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.USER_STATE, 100,
+                UserState.USER_STATE_REMOVED);
         verify(mMockWatchdogStorage).syncUsers(new int[] {101, 102});
     }
 
@@ -3564,7 +3565,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .that(mWatchdogServiceForSystemImpl).isNotNull();
 
         verify(mMockCarWatchdogDaemon, atLeastOnce()).notifySystemStateChange(
-                eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_OFF), eq(-1));
+                StateType.GARAGE_MODE, GarageMode.GARAGE_MODE_OFF, MISSING_ARG_VALUE);
 
         // Once registration with daemon completes, the service post a new message on the main
         // thread to fetch and sync resource overuse configs.
