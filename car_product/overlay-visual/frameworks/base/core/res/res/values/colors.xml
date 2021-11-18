@@ -37,6 +37,12 @@
          icons. -->
     <color name="notification_default_color">@*android:color/car_accent</color>
 
+    <!-- Focus colors -->
+    <color name="focus_stroke_color">#94CBFF</color>
+    <color name="focus_fill_color">#3D94CBFF</color>
+    <color name="focus_pressed_stroke_color">#94CBFF</color>
+    <color name="focus_pressed_fill_color">#8A94CBFF</color>
+
     <!-- The Switch track background color when checked. -->
     <color name="car_switch_track_background_checked">#66B5FF</color>
     <!-- The Switch track background color when unchecked. -->
