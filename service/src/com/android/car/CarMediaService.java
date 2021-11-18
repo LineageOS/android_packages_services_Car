@@ -27,6 +27,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimeUtils;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -532,8 +533,11 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     private void dumpSharedPrefs(IndentingPrintWriter writer) {
         Map<String, ?> allPrefs = mSharedPrefs.getAll();
-        writer.printf("%d shared preferences (saved on directory %s)",
-                allPrefs.size(), mContext.getDataDir());
+        long lastUpdate = mSharedPrefs.getLong(LAST_UPDATE_KEY, -1);
+        writer.printf("%d shared preferences (saved on directory %s; last update on %d / ",
+                allPrefs.size(), mContext.getDataDir(), lastUpdate);
+        TimeUtils.dumpTime(writer, lastUpdate);
+        writer.print(')');
         if (!Log.isLoggable(CarLog.TAG_MEDIA, Log.VERBOSE) || allPrefs.isEmpty()) {
             writer.println();
             return;
