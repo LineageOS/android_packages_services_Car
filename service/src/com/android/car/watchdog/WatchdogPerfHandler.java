@@ -781,8 +781,12 @@ public final class WatchdogPerfHandler {
                     mUserNotifiablePackages.add(id);
                 }
             }
-            if (mCurrentUxState != UX_STATE_NO_DISTRACTION
-                    && (!mActionableUserPackages.isEmpty() || !mUserNotifiablePackages.isEmpty())) {
+            if ((mCurrentUxState != UX_STATE_NO_DISTRACTION && !mUserNotifiablePackages.isEmpty())
+                    // TODO(b/200599130): When resource overusing background apps are killed
+                    //  immediately, update the below check to allow posting
+                    //  {@code performOveruseHandlingLocked} immediately.
+                    || (mCurrentUxState == UX_STATE_NO_INTERACTION
+                    && !mActionableUserPackages.isEmpty())) {
                 mMainHandler.postDelayed(() -> {
                     synchronized (mLock) {
                         performOveruseHandlingLocked();
