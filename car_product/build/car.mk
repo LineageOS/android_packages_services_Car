@@ -109,6 +109,11 @@ PRODUCT_PROPERTY_OVERRIDES := \
 PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=true
 
+# TODO(b/205189147): Remove the following change after the proper fix is landed.
+# Uses the local KeyGuard animation to resolve TaskView misalignment issue after display-on.
+PRODUCT_SYSTEM_PROPERTIES += \
+    persist.wm.enable_remote_keyguard_animation=0
+
 # Automotive specific packages
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
