@@ -88,6 +88,10 @@ public class Controller implements CarPowerStateListenerWithCompletion {
                 Slogf.d(TAG, "CPM state changed to SHUTDOWN_ENTER");
                 handleShutdownEnter();
                 break;
+            case CarPowerStateListener.PRE_SHUTDOWN_PREPARE:
+                Slogf.d(TAG, "CPM state changed to PRE_SHUTDOWN_PREPARE");
+                handlePreShutdownPrepare(future);
+                break;
             case CarPowerStateListener.SHUTDOWN_PREPARE:
                 Slogf.d(TAG, "CPM state changed to SHUTDOWN_PREPARE");
                 handleShutdownPrepare(future);
@@ -180,6 +184,11 @@ public class Controller implements CarPowerStateListenerWithCompletion {
 
     private void handleShutdownEnter() {
         resetGarageMode();
+    }
+
+    private void handlePreShutdownPrepare(CompletableFuture<Void> future) {
+        // Garage Mode doesn't care about pre shutdown prepare.
+        if (future != null) future.complete(null);
     }
 
     private void handleShutdownPrepare(CompletableFuture<Void> future) {

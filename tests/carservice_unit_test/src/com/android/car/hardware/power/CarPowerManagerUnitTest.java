@@ -85,7 +85,6 @@ import org.mockito.Spy;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
@@ -204,25 +203,27 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         List<Integer> states = listener.await();
         checkThatStatesReceivedInOrder("Check that events were received in order", states,
-                Arrays.asList(CarPowerStateListener.SHUTDOWN_PREPARE,
+                List.of(CarPowerStateListener.PRE_SHUTDOWN_PREPARE,
+                        CarPowerStateListener.SHUTDOWN_PREPARE,
                         CarPowerStateListener.SUSPEND_ENTER));
     }
 
     @Test
     public void testSetListenerWithCompletion() throws Exception {
-        setPowerOn();
-
+        List<Integer> expectedStates = List.of(CarPowerStateListener.ON,
+                CarPowerStateListener.PRE_SHUTDOWN_PREPARE, CarPowerStateListener.SHUTDOWN_PREPARE,
+                CarPowerStateListener.SUSPEND_ENTER);
         WaitablePowerStateListenerWithCompletion listener =
-                new WaitablePowerStateListenerWithCompletion(2);
+                new WaitablePowerStateListenerWithCompletion(/* initialCount= */ 4);
 
+        setPowerOn();
         setPowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
 
         List<Integer> states = listener.await();
         checkThatStatesReceivedInOrder("Check that events were received in order", states,
-                Arrays.asList(CarPowerStateListener.SHUTDOWN_PREPARE,
-                        CarPowerStateListener.SUSPEND_ENTER));
+                expectedStates);
     }
 
     @Test
@@ -557,17 +558,22 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
      * Helper class to set a power-state listener with completion,
      * verify that the listener gets called the right number of times,
      * verify that the CompletableFuture is provided, complete the
-     * CompletableFuture, and return the final power state.
+     * CompletableFuture, and return the all listened states in order.
      */
     private final class WaitablePowerStateListenerWithCompletion {
         private final CountDownLatch mLatch;
-        private List<Integer> mReceivedStates = new ArrayList<Integer>();
+        private final List<Integer> mReceivedStates = new ArrayList<>();
+        private int mRemainingCount;
+
         WaitablePowerStateListenerWithCompletion(int initialCount) {
+            mRemainingCount = initialCount;
             mLatch = new CountDownLatch(initialCount);
             mCarPowerManager.setListenerWithCompletion(
                     (state, future) -> {
                         mReceivedStates.add(state);
-                        if (state == CarPowerStateListener.SHUTDOWN_PREPARE) {
+                        mRemainingCount--;
+                        if (state == CarPowerStateListener.SHUTDOWN_PREPARE
+                                || state == CarPowerStateListener.PRE_SHUTDOWN_PREPARE) {
                             assertThat(future).isNotNull();
                             future.complete(null);
                         } else {
@@ -579,6 +585,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         List<Integer> await() throws Exception {
             JavaMockitoHelper.await(mLatch, WAIT_TIMEOUT_MS);
+            assertThat(mRemainingCount).isEqualTo(0);
             return mReceivedStates;
         }
     }
