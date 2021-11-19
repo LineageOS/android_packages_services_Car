@@ -40,6 +40,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
 import android.content.pm.UserInfo;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -80,6 +81,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final int INVALID_SESSION_ID = -1;
+    private static final int RECURRING_OVERUSE_TIMES = 2;
+    private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor =
@@ -92,6 +95,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Mock private Context mMockContext;
     @Mock private Car mMockCar;
+    @Mock private Resources mMockResources;
     @Mock private UserManager mMockUserManager;
     @Mock private StatsManager mMockStatsManager;
     @Mock private SystemInterface mMockSystemInterface;
@@ -108,14 +112,17 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUp() throws Exception {
-        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage,
-                mMockUserNotificationHelper, mTimeSource);
-
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mMockDaemonBinder, mMockCarWatchdogDaemon);
         when(mMockCar.getEventHandler()).thenReturn(mMainHandler);
-        when(mMockServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
         when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mMockUserManager);
         when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
+        when(mMockContext.getResources()).thenReturn(mMockResources);
+        when(mMockResources.getInteger(
+                com.android.car.R.integer.recurringResourceOverusePeriodInDays))
+                .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+        when(mMockResources.getInteger(
+                com.android.car.R.integer.recurringResourceOveruseTimes))
+                .thenReturn(RECURRING_OVERUSE_TIMES);
 
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
@@ -127,6 +134,11 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mockUmGetAllUsers(mMockUserManager, mUserInfos);
         mockUmIsUserRunning(mMockUserManager, 100, true);
         mockUmIsUserRunning(mMockUserManager, 101, false);
+
+        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage,
+                mMockUserNotificationHelper, mTimeSource);
+
+        when(mMockServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
 
         mCarWatchdogService.init();
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
