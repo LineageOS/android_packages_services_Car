@@ -388,6 +388,9 @@
     <string name="app_start_memory_state_captured_config" translate="false">app_start_memory_state_captured:</string>
     <string name="activity_foreground_state_changed_config" translate="false">activity_foreground_state_changed:</string>
     <string name="process_cpu_time_config" translate="false">process_cpu_time:</string>
+    <string name="app_crash_occurred_config" translate="false">app_crash_occurred:</string>
+    <string name="anr_occurred_config" translate="false">anr_occurred:</string>
+    <string name="wtf_occurred_config" translate="false">wtf_occurred:</string>
     <string name="add_metrics_config" translatable="false">Add MetricsConfig</string>
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="get_report" translatable="false">Get Report</string>
