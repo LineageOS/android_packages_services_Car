@@ -154,7 +154,8 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
     public static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 10;
-    public static final int UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES = 500 * 1024 * 1024;
+    public static final int UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES =
+            500 * 1024 * 1024;
 
     static final String INTENT_EXTRA_ID = "notification_id";
 
@@ -1827,7 +1828,7 @@ public final class WatchdogPerfHandler {
         // for some user packages, the fetched summaries will still contain enough entries to pull.
         List<WatchdogStorage.UserPackageDailySummaries> topUsersDailyIoUsageSummaries =
                 mWatchdogStorage.getTopUsersDailyIoUsageSummaries(numTopUsers * 2,
-                        UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES,
+                        UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES,
                         period.first.toEpochSecond(), period.second.toEpochSecond());
         if (topUsersDailyIoUsageSummaries == null) {
             Slogf.i(TAG, "No top users' I/O usage summary stats available to pull");

@@ -227,13 +227,17 @@ public final class WatchdogStorage {
      * when summaries are not available.
      */
     public @Nullable List<UserPackageDailySummaries> getTopUsersDailyIoUsageSummaries(
-            int numTopUsers, long minTotalWrittenBytes, long includingStartEpochSeconds,
+            int numTopUsers, long minSystemTotalWrittenBytes, long includingStartEpochSeconds,
             long excludingEndEpochSeconds) {
         ArrayMap<String, List<AtomsProto.CarWatchdogDailyIoUsageSummary>> summariesById;
         try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
+            long systemTotalWrittenBytes = IoUsageStatsTable.querySystemTotalWrittenBytes(db,
+                    includingStartEpochSeconds, excludingEndEpochSeconds);
+            if (systemTotalWrittenBytes < minSystemTotalWrittenBytes) {
+                return null;
+            }
             summariesById = IoUsageStatsTable.queryTopUsersDailyIoUsageSummaries(db,
-                    numTopUsers, minTotalWrittenBytes, includingStartEpochSeconds,
-                    excludingEndEpochSeconds);
+                    numTopUsers, includingStartEpochSeconds, excludingEndEpochSeconds);
         }
         if (summariesById == null) {
             return null;
@@ -768,8 +772,6 @@ public final class WatchdogStorage {
                     .append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append(") > 0 ")
                     .append("ORDER BY stats_date_epoch ASC");
 
-            Slogf.e(TAG, "Query: %s", queryBuilder.toString());
-
             String[] selectionArgs = new String[]{String.valueOf(includingStartEpochSeconds),
                     String.valueOf(excludingEndEpochSeconds)};
             List<AtomsProto.CarWatchdogDailyIoUsageSummary> summaries = new ArrayList<>();
@@ -790,10 +792,30 @@ public final class WatchdogStorage {
             return summaries;
         }
 
+        public static long querySystemTotalWrittenBytes(SQLiteDatabase db,
+                long includingStartEpochSeconds, long excludingEndEpochSeconds) {
+            StringBuilder queryBuilder = new StringBuilder();
+            queryBuilder.append("SELECT SUM(").append(COLUMN_WRITTEN_FOREGROUND_BYTES).append(" + ")
+                    .append(COLUMN_WRITTEN_BACKGROUND_BYTES).append(" + ")
+                    .append(COLUMN_WRITTEN_GARAGE_MODE_BYTES).append(") ")
+                    .append("FROM ").append(TABLE_NAME).append(" WHERE ")
+                    .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
+                    .append(COLUMN_DATE_EPOCH).append(" < ? ");
+
+            String[] selectionArgs = new String[]{String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds)};
+            long totalWrittenBytes = 0;
+            try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
+                while (cursor.moveToNext()) {
+                    totalWrittenBytes += cursor.getLong(0);
+                }
+            }
+            return totalWrittenBytes;
+        }
+
         public static @Nullable ArrayMap<String, List<AtomsProto.CarWatchdogDailyIoUsageSummary>>
                 queryTopUsersDailyIoUsageSummaries(SQLiteDatabase db, int numTopUsers,
-                long minTotalWrittenBytes, long includingStartEpochSeconds,
-                long excludingEndEpochSeconds) {
+                long includingStartEpochSeconds, long excludingEndEpochSeconds) {
             StringBuilder innerQueryBuilder = new StringBuilder();
             innerQueryBuilder.append("SELECT ").append(COLUMN_USER_PACKAGE_ID)
                     .append(" FROM (SELECT ").append(COLUMN_USER_PACKAGE_ID).append(", ")
@@ -804,8 +826,8 @@ public final class WatchdogStorage {
                     .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
                     .append(COLUMN_DATE_EPOCH).append(" < ?")
                     .append(" GROUP BY ").append(COLUMN_USER_PACKAGE_ID)
-                    .append(" HAVING total_written_bytes >= ").append(minTotalWrittenBytes)
-                    .append(" ORDER BY total_written_bytes LIMIT ").append(numTopUsers).append(')');
+                    .append(" ORDER BY total_written_bytes DESC LIMIT ").append(numTopUsers)
+                    .append(')');
 
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT ").append(COLUMN_USER_PACKAGE_ID).append(", ")

@@ -41,7 +41,7 @@ import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETT
 import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_ID;
-import static com.android.car.watchdog.WatchdogPerfHandler.UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES;
+import static com.android.car.watchdog.WatchdogPerfHandler.UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -4343,7 +4343,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             long startEpochSecond = beginWeekStartDate.toEpochSecond();
             verify(mMockWatchdogStorage).getTopUsersDailyIoUsageSummaries(
                     UID_IO_USAGE_SUMMARY_TOP_COUNT * 2,
-                    UID_IO_USAGE_SUMMARY_MIN_WEEKLY_WRITTEN_BYTES, startEpochSecond,
+                    UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES, startEpochSecond,
                     beginWeekStartDate.plusWeeks(1).toEpochSecond());
             for (Integer uid : expectUids) {
                 expectedSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary.newBuilder()
