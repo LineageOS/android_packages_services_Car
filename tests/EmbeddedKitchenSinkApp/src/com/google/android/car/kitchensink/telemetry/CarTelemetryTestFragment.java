@@ -17,9 +17,12 @@
 package com.google.android.car.kitchensink.telemetry;
 
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ANR_OCCURRED;
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_CRASH_OCCURRED;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -181,17 +184,17 @@ public class CarTelemetryTestFragment extends Fragment {
     /** ActivityForegroundStateChanged section. */
     private static final String LUA_SCRIPT_ON_ACTIVITY_FOREGROUND_STATE_CHANGED =
             new StringBuilder()
-                .append("function onActivityForegroundStateChanged(published_data, state)\n")
-                .append("    result = {}\n")
-                .append("    n = 0\n")
-                .append("    for k, v in pairs(published_data) do\n")
-                .append("        result[k] = v[1]\n")
-                .append("        n = n + 1\n")
-                .append("    end\n")
-                .append("    result.n = n\n")
-                .append("    on_script_finished(result)\n")
-                .append("end\n")
-                .toString();
+                    .append("function onActivityForegroundStateChanged(published_data, state)\n")
+                    .append("    result = {}\n")
+                    .append("    n = 0\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("        n = n + 1\n")
+                    .append("    end\n")
+                    .append("    result.n = n\n")
+                    .append("    on_script_finished(result)\n")
+                    .append("end\n")
+                    .toString();
     private static final TelemetryProto.Publisher ACTIVITY_FOREGROUND_STATE_CHANGED_PUBLISHER =
             TelemetryProto.Publisher.newBuilder()
                     .setStats(
@@ -214,20 +217,20 @@ public class CarTelemetryTestFragment extends Fragment {
                     METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getName(),
                     METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getVersion());
 
-    /* ProcessCpuTime section */
+    /** ProcessCpuTime section */
     private static final String LUA_SCRIPT_ON_PROCESS_CPU_TIME =
             new StringBuilder()
-                .append("function onProcessCpuTime(published_data, state)\n")
-                .append("    result = {}\n")
-                .append("    n = 0\n")
-                .append("    for k, v in pairs(published_data) do\n")
-                .append("        result[k] = v[1]\n")
-                .append("        n = n + 1\n")
-                .append("    end\n")
-                .append("    result.n = n\n")
-                .append("    on_script_finished(result)\n")
-                .append("end\n")
-                .toString();
+                    .append("function onProcessCpuTime(published_data, state)\n")
+                    .append("    result = {}\n")
+                    .append("    n = 0\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("        n = n + 1\n")
+                    .append("    end\n")
+                    .append("    result.n = n\n")
+                    .append("    on_script_finished(result)\n")
+                    .append("end\n")
+                    .toString();
     private static final TelemetryProto.Publisher PROCESS_CPU_TIME_PUBLISHER =
             TelemetryProto.Publisher.newBuilder()
                     .setStats(
@@ -249,6 +252,93 @@ public class CarTelemetryTestFragment extends Fragment {
             new MetricsConfigKey(
                     METRICS_CONFIG_PROCESS_CPU_TIME_V1.getName(),
                     METRICS_CONFIG_PROCESS_CPU_TIME_V1.getVersion());
+
+    /** AppCrashOccurred section */
+    private static final String LUA_SCRIPT_ON_APP_CRASH_OCCURRED =
+            new StringBuilder()
+                    .append("function onAppCrashOccurred(published_data, state)\n")
+                    .append("    on_script_finished(published_data)\n")
+                    .append("end\n")
+                    .toString();
+    private static final TelemetryProto.Publisher APP_CRASH_OCCURRED_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(APP_CRASH_OCCURRED)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_APP_CRASH_OCCURRED_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("app_crash_occurred_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_APP_CRASH_OCCURRED)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onAppCrashOccurred")
+                                    .setPublisher(APP_CRASH_OCCURRED_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final MetricsConfigKey APP_CRASH_OCCURRED_KEY_V1 =
+            new MetricsConfigKey(
+                    METRICS_CONFIG_APP_CRASH_OCCURRED_V1.getName(),
+                    METRICS_CONFIG_APP_CRASH_OCCURRED_V1.getVersion());
+
+    /** ANROccurred section */
+    private static final String LUA_SCRIPT_ON_ANR_OCCURRED =
+            new StringBuilder()
+                    .append("function onAnrOccurred(published_data, state)\n")
+                    .append("    on_script_finished(published_data)\n")
+                    .append("end\n")
+                    .toString();
+    private static final TelemetryProto.Publisher ANR_OCCURRED_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(ANR_OCCURRED)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_ANR_OCCURRED_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("anr_occurred_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_ANR_OCCURRED)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onAnrOccurred")
+                                    .setPublisher(ANR_OCCURRED_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final MetricsConfigKey ANR_OCCURRED_KEY_V1 =
+            new MetricsConfigKey(
+                    METRICS_CONFIG_ANR_OCCURRED_V1.getName(),
+                    METRICS_CONFIG_ANR_OCCURRED_V1.getVersion());
+
+    /** WTFOccurred section */
+    private static final String LUA_SCRIPT_ON_WTF_OCCURRED =
+            new StringBuilder()
+                    .append("function onWtfOccurred(published_data, state)\n")
+                    .append("    on_script_finished(published_data)\n")
+                    .append("end\n")
+                    .toString();
+    private static final TelemetryProto.Publisher WTF_OCCURRED_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(WTF_OCCURRED)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_WTF_OCCURRED_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("wtf_occurred_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_WTF_OCCURRED)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onWtfOccurred")
+                                    .setPublisher(WTF_OCCURRED_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final MetricsConfigKey WTF_OCCURRED_KEY_V1 =
+            new MetricsConfigKey(
+                    METRICS_CONFIG_WTF_OCCURRED_V1.getName(),
+                    METRICS_CONFIG_WTF_OCCURRED_V1.getVersion());
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
@@ -304,6 +394,27 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveProcessCpuTimeConfigBtnClick);
         view.findViewById(R.id.get_on_process_cpu_time_report)
                 .setOnClickListener(this::onGetProcessCpuTimeReportBtnClick);
+        /** AppCrashOccurred section */
+        view.findViewById(R.id.send_on_app_crash_occurred_config)
+                .setOnClickListener(this::onSendAppCrashOccurredConfigBtnClick);
+        view.findViewById(R.id.remove_on_app_crash_occurred_config)
+                .setOnClickListener(this::onRemoveAppCrashOccurredConfigBtnClick);
+        view.findViewById(R.id.get_on_app_crash_occurred_report)
+                .setOnClickListener(this::onGetAppCrashOccurredReportBtnClick);
+        /** ANROccurred section */
+        view.findViewById(R.id.send_on_anr_occurred_config)
+                .setOnClickListener(this::onSendAnrOccurredConfigBtnClick);
+        view.findViewById(R.id.remove_on_anr_occurred_config)
+                .setOnClickListener(this::onRemoveAnrOccurredConfigBtnClick);
+        view.findViewById(R.id.get_on_anr_occurred_report)
+                .setOnClickListener(this::onGetAnrOccurredReportBtnClick);
+        /** WTFOccurred section */
+        view.findViewById(R.id.send_on_wtf_occurred_config)
+                .setOnClickListener(this::onSendWtfOccurredConfigBtnClick);
+        view.findViewById(R.id.remove_on_wtf_occurred_config)
+                .setOnClickListener(this::onRemoveWtfOccurredConfigBtnClick);
+        view.findViewById(R.id.get_on_wtf_occurred_report)
+                .setOnClickListener(this::onGetWtfOccurredReportBtnClick);
         view.findViewById(R.id.show_mem_info_btn).setOnClickListener(this::onShowMemInfoBtnClick);
         return view;
     }
@@ -400,6 +511,57 @@ public class CarTelemetryTestFragment extends Fragment {
         showOutput("Fetching report for PROCESS_CPU_TIME... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
         mCarTelemetryManager.sendFinishedReports(PROCESS_CPU_TIME_KEY_V1);
+    }
+
+    private void onSendAppCrashOccurredConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for APP_CRASH_OCCURRED...");
+        mCarTelemetryManager.addMetricsConfig(APP_CRASH_OCCURRED_KEY_V1,
+                METRICS_CONFIG_APP_CRASH_OCCURRED_V1.toByteArray());
+    }
+
+    private void onRemoveAppCrashOccurredConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for APP_CRASH_OCCURRED...");
+        mCarTelemetryManager.removeMetricsConfig(APP_CRASH_OCCURRED_KEY_V1);
+    }
+
+    private void onGetAppCrashOccurredReportBtnClick(View view) {
+        showOutput("Fetching report for APP_CRASH_OCCURRED... If nothing shows up within 5 "
+                + "seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(APP_CRASH_OCCURRED_KEY_V1);
+    }
+
+    private void onSendAnrOccurredConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for ANR_OCCURRED...");
+        mCarTelemetryManager.addMetricsConfig(ANR_OCCURRED_KEY_V1,
+                METRICS_CONFIG_ANR_OCCURRED_V1.toByteArray());
+    }
+
+    private void onRemoveAnrOccurredConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for ANR_OCCURRED...");
+        mCarTelemetryManager.removeMetricsConfig(ANR_OCCURRED_KEY_V1);
+    }
+
+    private void onGetAnrOccurredReportBtnClick(View view) {
+        showOutput("Fetching report for ANR_OCCURRED... If nothing shows up within 5 "
+                + "seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(ANR_OCCURRED_KEY_V1);
+    }
+
+    private void onSendWtfOccurredConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for WTF_OCCURRED...");
+        mCarTelemetryManager.addMetricsConfig(WTF_OCCURRED_KEY_V1,
+                METRICS_CONFIG_WTF_OCCURRED_V1.toByteArray());
+    }
+
+    private void onRemoveWtfOccurredConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for WTF_OCCURRED...");
+        mCarTelemetryManager.removeMetricsConfig(WTF_OCCURRED_KEY_V1);
+    }
+
+    private void onGetWtfOccurredReportBtnClick(View view) {
+        showOutput("Fetching report for WTF_OCCURRED... If nothing shows up within 5 "
+                + "seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(WTF_OCCURRED_KEY_V1);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */
