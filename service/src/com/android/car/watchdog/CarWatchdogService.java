@@ -18,6 +18,7 @@ package com.android.car.watchdog;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.content.Intent.ACTION_USER_REMOVED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
 
@@ -84,6 +85,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             "com.android.server.jobscheduler.GARAGE_MODE_ON";
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
+    static final String ACTION_LAUNCH_APP_SETTINGS =
+            "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
+    static final String ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
+            "com.android.car.watchdog.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION";
+    static final String ACTION_RESOURCE_OVERUSE_DISABLE_APP =
+            "com.android.car.watchdog.ACTION_RESOURCE_OVERUSE_DISABLE_APP";
     static final int MISSING_ARG_VALUE = -1;
 
     private static final String FALLBACK_DATA_SYSTEM_CAR_DIR_PATH = "/data/system/car";
@@ -119,6 +126,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
             switch (action) {
+                case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
+                case ACTION_LAUNCH_APP_SETTINGS:
+                case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
+                    mWatchdogPerfHandler.handleIntent(context, intent);
+                    break;
                 case ACTION_GARAGE_MODE_ON:
                 case ACTION_GARAGE_MODE_OFF:
                     int garageMode;
@@ -132,7 +144,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     }
                     notifyGarageModeChange(garageMode);
                     return;
-                case Intent.ACTION_USER_REMOVED:
+                case ACTION_USER_REMOVED:
                     UserHandle user = intent.getParcelableExtra(Intent.EXTRA_USER);
                     mWatchdogPerfHandler.deleteUser(user.getIdentifier());
                     return;
@@ -203,11 +215,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private boolean mIsDisplayEnabled;
 
     public CarWatchdogService(Context context) {
-        this(context, new WatchdogStorage(context, SYSTEM_INSTANCE), SYSTEM_INSTANCE);
+        this(context, new WatchdogStorage(context, SYSTEM_INSTANCE),
+                new UserNotificationHelper(context), SYSTEM_INSTANCE);
     }
 
     @VisibleForTesting
-    CarWatchdogService(Context context, WatchdogStorage watchdogStorage, TimeSource timeSource) {
+    CarWatchdogService(Context context, WatchdogStorage watchdogStorage,
+            UserNotificationHelper userNotificationHelper, TimeSource timeSource) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
@@ -216,7 +230,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
                 mCarWatchdogDaemonHelper);
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
-                mPackageInfoHandler, mWatchdogStorage, timeSource);
+                mPackageInfoHandler, mWatchdogStorage, userNotificationHelper, timeSource);
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
             synchronized (mLock) {
@@ -625,11 +639,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void subscribeBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
         filter.addAction(ACTION_GARAGE_MODE_ON);
         filter.addAction(ACTION_GARAGE_MODE_OFF);
-        filter.addAction(Intent.ACTION_USER_REMOVED);
+        filter.addAction(ACTION_LAUNCH_APP_SETTINGS);
+        filter.addAction(ACTION_RESOURCE_OVERUSE_DISABLE_APP);
+        filter.addAction(ACTION_USER_REMOVED);
 
-        mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter, null, null);
+        mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
+                Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, /* scheduler= */ null);
     }
 
     private static @PowerCycle int carPowerStateToPowerCycle(int powerState) {
