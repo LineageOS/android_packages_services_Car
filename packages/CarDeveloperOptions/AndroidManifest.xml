@@ -67,6 +67,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.homepage.DeepLinkHomepageActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.network.telephony.MobileNetworkActivity"
             android:enabled="false"
             android:exported="false"
@@ -128,6 +137,15 @@
             tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
         </activity>
+
+        <receiver
+            android:name="com.android.settings.search.SearchStateReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
 
         <activity
             android:name="com.android.settings.Settings$WifiSettingsActivity"
@@ -916,6 +934,15 @@
 
         <activity
             android:name="com.android.settings.Settings$ReduceBrightColorsSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$AccessibilityInversionSettingsActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
@@ -2340,15 +2367,6 @@
 
         <activity-alias
             android:name="com.android.settings.Settings"
-            android:enabled="false"
-            android:exported="false"
-            tools:node="merge"
-            tools:replace="android:exported">
-            <intent-filter tools:node="removeAll"/>
-        </activity-alias>
-
-        <activity-alias
-            android:name="com.android.settings.DeepLinkHomepageActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
