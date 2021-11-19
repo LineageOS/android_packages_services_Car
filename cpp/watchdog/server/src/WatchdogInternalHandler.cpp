@@ -186,7 +186,7 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
                 return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                          StringPrintf("Invalid user state %d", userState));
             }
-            return mWatchdogProcessService->notifyUserStateChange(userId, userState);
+            return handleUserStateChange(userId, userState);
         }
         case aawi::StateType::BOOT_PHASE: {
             aawi::BootPhase phase = static_cast<aawi::BootPhase>(static_cast<uint32_t>(arg1));
@@ -222,6 +222,29 @@ Status WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCycle) {
             return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                              "Unsupported power cycle");
     }
+    return Status::ok();
+}
+
+Status WatchdogInternalHandler::handleUserStateChange(userid_t userId, aawi::UserState userState) {
+    std::string stateDesc;
+    switch (userState) {
+        case aawi::UserState::USER_STATE_STARTED:
+            stateDesc = "started";
+            mWatchdogProcessService->notifyUserStateChange(userId, /*isStarted=*/true);
+            break;
+        case aawi::UserState::USER_STATE_STOPPED:
+            stateDesc = "stopped";
+            mWatchdogProcessService->notifyUserStateChange(userId, /*isStarted=*/false);
+            break;
+        case aawi::UserState::USER_STATE_REMOVED:
+            stateDesc = "removed";
+            mIoOveruseMonitor->removeStatsForUser(userId);
+            break;
+        default:
+            ALOGW("Unsupported user state: %d", userState);
+            return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, "Unsupported user state");
+    }
+    ALOGI("Received user state change: user(%" PRId32 ") is %s", userId, stateDesc.c_str());
     return Status::ok();
 }
 

@@ -23,11 +23,11 @@
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
+#include <android-base/strings.h>
 #include <android/automotive/watchdog/internal/PackageIdentifier.h>
 #include <android/automotive/watchdog/internal/UidType.h>
 #include <binder/IPCThreadState.h>
 #include <binder/Status.h>
-#include <cutils/multiuser.h>
 #include <log/log.h>
 #include <processgroup/sched_policy.h>
 
@@ -53,8 +53,10 @@ using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::automotive::watchdog::internal::UserPackageIoUsageStats;
+using ::android::base::EndsWith;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::binder::Status;
 
@@ -598,6 +600,7 @@ Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string
     std::unordered_set<std::string> uniquePackageNames;
     std::copy(packageNames.begin(), packageNames.end(),
               std::inserter(uniquePackageNames, uniquePackageNames.end()));
+    std::unique_lock writeLock(mRwMutex);
     for (auto& [key, usage] : mUserPackageDailyIoUsageById) {
         if (uniquePackageNames.find(usage.packageInfo.packageIdentifier.name) !=
             uniquePackageNames.end()) {
@@ -605,6 +608,37 @@ Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string
         }
     }
     return {};
+}
+
+void IoOveruseMonitor::removeStatsForUser(userid_t userId) {
+    std::unique_lock writeLock(mRwMutex);
+    for (auto it = mUserPackageDailyIoUsageById.begin();
+         it != mUserPackageDailyIoUsageById.end();) {
+        if (multiuser_get_user_id(it->second.packageInfo.packageIdentifier.uid) == userId) {
+            it = mUserPackageDailyIoUsageById.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    // |mPrevBootIoUsageStatsById| keys are constructed using |uniquePackageIdStr| method. Thus, the
+    // key suffix would contain the userId. The value in this map is |IoUsageStats|, which doesn't
+    // contain the userId, so this is the only way to delete cached previous boot stats for
+    // the removed user.
+    std::string keySuffix = StringPrintf(":%" PRId32, userId);
+    for (auto it = mPrevBootIoUsageStatsById.begin(); it != mPrevBootIoUsageStatsById.end();) {
+        if (EndsWith(it->first, keySuffix)) {
+            it = mPrevBootIoUsageStatsById.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    for (auto it = mLatestIoOveruseStats.begin(); it != mLatestIoOveruseStats.end();) {
+        if (multiuser_get_user_id(it->uid) == userId) {
+            it = mLatestIoOveruseStats.erase(it);
+        } else {
+            ++it;
+        }
+    }
 }
 
 void IoOveruseMonitor::handleBinderDeath(const wp<IBinder>& who) {
