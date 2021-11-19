@@ -31,6 +31,7 @@
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
+#include <cutils/multiuser.h>
 #include <utils/Mutex.h>
 
 #include <time.h>
@@ -92,6 +93,9 @@ public:
 
     virtual android::base::Result<void> resetIoOveruseStats(
             const std::vector<std::string>& packageNames) = 0;
+
+    // Removes stats for the given user from the internal cache.
+    virtual void removeStatsForUser(userid_t userId) = 0;
 };
 
 class IoOveruseMonitor final : public IIoOveruseMonitor {
@@ -160,6 +164,8 @@ public:
 
     android::base::Result<void> resetIoOveruseStats(
             const std::vector<std::string>& packageName) override;
+
+    void removeStatsForUser(userid_t userId) override;
 
 protected:
     android::base::Result<void> init();

@@ -1064,6 +1064,85 @@ TEST_F(IoOveruseMonitorTest, TestFailsUpdateResourceOveruseConfigurations) {
     ASSERT_FALSE(mIoOveruseMonitor->updateResourceOveruseConfigurations({}).ok());
 }
 
+TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
+    std::vector<UserPackageIoUsageStats> todayIoUsageStats =
+            {constructUserPackageIoUsageStats(
+                     /*userId=*/11, "com.android.google.package",
+                     /*writtenBytes=*/constructPerStateBytes(100'000, 85'000, 120'000),
+                     /*forgivenWriteBytes=*/constructPerStateBytes(70'000, 60'000, 100'000),
+                     /*totalOveruses=*/3),
+             constructUserPackageIoUsageStats(
+                     /*userId=*/12, "com.android.kitchensink",
+                     /*writtenBytes=*/constructPerStateBytes(50'000, 40'000, 35'000),
+                     /*forgivenWriteBytes=*/constructPerStateBytes(30'000, 30'000, 30'000),
+                     /*totalOveruses=*/6)};
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats), Return(Status::ok())));
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1001000, {/*fgWrBytes=*/70'000, /*bgWrBytes=*/20'000}},
+                                       {1112345, {/*fgWrBytes=*/35'000, /*bgWrBytes=*/15'000}}})));
+
+    std::vector<PackageIoOveruseStats> actualIoOveruseStats;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+
+    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
+            {constructPackageIoOveruseStats(
+                     /*uid*=*/1001000, /*shouldNotify=*/false, /*isKillable=*/false,
+                     /*remaining=*/constructPerStateBytes(10'000, 20'000, 100'000),
+                     /*written=*/constructPerStateBytes(70'000, 20'000, 0),
+                     /*forgiven=*/constructPerStateBytes(0, 0, 0),
+                     /*totalOveruses=*/0, startTime, durationInSeconds),
+             constructPackageIoOveruseStats(
+                     /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
+                     /*remaining=*/constructPerStateBytes(5'000, 0, 80'000),
+                     /*written=*/constructPerStateBytes(135'000, 100'000, 120'000),
+                     /*forgiven=*/constructPerStateBytes(70'000, 90'000, 100'000),
+                     /*totalOveruses=*/4, startTime, durationInSeconds)};
+    EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
+            << "Expected: " << toString(expectedIoOveruseStats)
+            << "\nActual: " << toString(actualIoOveruseStats);
+
+    mIoOveruseMonitor->removeStatsForUser(/*userId=*/11);
+    mIoOveruseMonitor->removeStatsForUser(/*userId=*/12);
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1112345, {/*fgWrBytes=*/70'000, /*bgWrBytes=*/40'000}},
+                                       {1245678, {/*fgWrBytes=*/30'000, /*bgWrBytes=*/10'000}}})));
+
+    actualIoOveruseStats.clear();
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    expectedIoOveruseStats = {constructPackageIoOveruseStats(
+                                      /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
+                                      /*remaining=*/constructPerStateBytes(70'000, 30'000, 0),
+                                      /*written=*/constructPerStateBytes(0, 0, 110'000),
+                                      /*forgiven=*/constructPerStateBytes(0, 0, 100'000),
+                                      /*totalOveruses=*/1, startTime, durationInSeconds),
+                              constructPackageIoOveruseStats(
+                                      /*uid*=*/1245678, /*shouldNotify=*/true, /*isKillable=*/true,
+                                      /*remaining=*/constructPerStateBytes(30'000, 15'000, 0),
+                                      /*written=*/constructPerStateBytes(0, 0, 40'000),
+                                      /*forgiven=*/constructPerStateBytes(0, 0, 40'000),
+                                      /*totalOveruses=*/4, startTime, durationInSeconds)};
+    EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
+            << "Expected: " << toString(expectedIoOveruseStats)
+            << "\nActual: " << toString(actualIoOveruseStats);
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
