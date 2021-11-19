@@ -439,11 +439,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @VisibleForTesting
-    void setRecurringOveruseThreshold(int threshold) {
-        mWatchdogPerfHandler.setRecurringOveruseThreshold(threshold);
-    }
-
-    @VisibleForTesting
     void setUidIoUsageSummaryTopCount(int uidIoUsageSummaryTopCount) {
         mWatchdogPerfHandler.setUidIoUsageSummaryTopCount(uidIoUsageSummaryTopCount);
     }

@@ -79,6 +79,7 @@ public final class IoUsageStatsEntrySubject extends Subject {
         }
         return actual.userId == expected.userId && actual.packageName.equals(expected.packageName)
                 && actual.ioUsage.getTotalTimesKilled() == expected.ioUsage.getTotalTimesKilled()
+                && actual.ioUsage.getForgivenOveruses() == expected.ioUsage.getForgivenOveruses()
                 && InternalPerStateBytesSubject.isEquals(actual.ioUsage.getForgivenWriteBytes(),
                 expected.ioUsage.getForgivenWriteBytes())
                 && isEqualsIoOveruseStats(actual.ioUsage.getInternalIoOveruseStats(),
@@ -127,6 +128,7 @@ public final class IoUsageStatsEntrySubject extends Subject {
         toStringBuilder(builder, ioUsage.getInternalIoOveruseStats());
         builder.append(", ForgivenWriteBytes: ");
         InternalPerStateBytesSubject.toStringBuilder(builder, ioUsage.getForgivenWriteBytes());
+        builder.append(", Forgiven overuses: ").append(ioUsage.getForgivenOveruses());
         return builder.append(", Total times killed: ").append(ioUsage.getTotalTimesKilled())
                 .append('}');
     }
