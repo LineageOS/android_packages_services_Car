@@ -117,6 +117,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.FileUtils;
 import android.os.Handler;
@@ -179,7 +180,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final int INVALID_SESSION_ID = -1;
     private static final int OVERUSE_HANDLING_DELAY_MILLS = 1000;
-    private static final int RECURRING_OVERUSE_THRESHOLD = 2;
+    private static final int RECURRING_OVERUSE_TIMES = 2;
+    private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 3;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
@@ -192,6 +194,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarUxRestrictionsManagerService mMockCarUxRestrictionsManagerService;
+    @Mock private Resources mMockResources;
     @Mock private IBinder mMockBinder;
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private WatchdogStorage mMockWatchdogStorage;
@@ -208,6 +211,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<List<
             android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
             mResourceOveruseConfigurationsCaptor;
+    @Captor private ArgumentCaptor<SparseArray<List<String>>> mPackagesByUserIdCaptor;
     @Captor private ArgumentCaptor<StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
     @Captor private ArgumentCaptor<List<UserNotificationHelper.PackageNotificationInfo>>
             mPackageNotificationInfosCaptor;
@@ -270,6 +274,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         when(mMockContext.getSystemService(StatsManager.class)).thenReturn(mMockStatsManager);
         when(mMockContext.getPackageName()).thenReturn(
                 CarWatchdogServiceUnitTest.class.getCanonicalName());
+        when(mMockContext.getResources()).thenReturn(mMockResources);
+        when(mMockResources.getInteger(
+                eq(com.android.car.R.integer.recurringResourceOverusePeriodInDays)))
+                .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
+        when(mMockResources.getInteger(
+                eq(com.android.car.R.integer.recurringResourceOveruseTimes)))
+                .thenReturn(RECURRING_OVERUSE_TIMES);
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
         doReturn(mMockCarPowerManagementService)
@@ -2182,13 +2193,15 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
                         /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
                         /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
-                        /* totalOveruses= */ 2, /* totalTimesKilled= */ 1),
+                        /* totalOveruses= */ 2, /* forgivenOveruses= */ 0,
+                        /* totalTimesKilled= */ 1),
                 WatchdogStorageUnitTest.constructIoUsageStatsEntry(
                         /* userId= */ 11, "vendor_package", /* startTime */ 0, /* duration= */ 1234,
                         /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
                         /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
                         /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
-                        /* totalOveruses= */ 4, /* totalTimesKilled= */ 10));
+                        /* totalOveruses= */ 4, /* forgivenOveruses= */ 1,
+                        /* totalTimesKilled= */ 10));
         when(mMockWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
 
         List<UserPackageIoUsageStats> actualStats =
@@ -2292,11 +2305,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 10, "system_package",
                 new WatchdogPerfHandler.PackageIoUsage(prevDayStats.get(0).ioOveruseStats,
                         /* forgivenWriteBytes= */ constructPerStateBytes(600, 700, 800),
-                        /* totalTimesKilled= */ 1)),
+                        /* forgivenOveruses= */ 3, /* totalTimesKilled= */ 1)),
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 10, "third_party_package",
                         new WatchdogPerfHandler.PackageIoUsage(prevDayStats.get(1).ioOveruseStats,
                                 /* forgivenWriteBytes= */ constructPerStateBytes(1050, 1100, 1200),
-                                /* totalTimesKilled= */ 0)));
+                                /* forgivenOveruses= */ 0, /* totalTimesKilled= */ 0)));
 
         setDisplayStateEnabled(true);
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
@@ -2523,19 +2536,35 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* notificationIds= */ Arrays.asList(150, 151))));
     }
 
-    /* TODO(b/195425666): Test resource overuse notifications taking into considerations
-     *  historical overuses.
-     *
-     *  @Test
-     *  public void testUserNotificationOnHistoricalRecurrentOveruse() throws Exception {
-     *    1. Setup historical stats with RECURRING_OVERUSE_THRESHOLD overuses by mocking
-     *       WatchdogStorage calls.
-     *    2. Set display to enabled and UX restriction to requires distraction optimization.
-     *    3. Push some I/O stats with non-recurrent overuse and wait.
-     *    4. Set UX restriction to not require distraction optimization.
-     *    5. Verify no user notification.
-     *  }
-     */
+    @Test
+    public void testUserNotificationOnHistoricalRecurrentOveruse() throws Exception {
+        when(mMockWatchdogStorage
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS))
+                .thenReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                        "system_package.non_critical", 2)));
+
+        // Force CarWatchdogService to fetch historical not forgiven overuses.
+        restartService(/* totalRestarts= */ 1);
+        mockAmGetCurrentUser(100);
+        setDisplayStateEnabled(true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010002, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 1))));
+
+        captureAndVerifyUserNotifications(Collections.singletonList(
+                new UserNotificationCall(UserHandle.of(100),
+                        Collections.singletonList("system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ true,
+                        /* notificationIds= */ Collections.singletonList(150))));
+    }
 
     @Test
     public void testUserNotificationWithDisabledDisplay() throws Exception {
@@ -2830,10 +2859,106 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 "100:third_party_package.B", "101:third_party_package.B");
     }
 
-    /* TODO(b/195425666): Test recurrently overusing app with overuse history stored in the DB.
-     * @Test
-     * public void  testDisableHistoricalRecurrentlyOverusingApp() throws Exception {}
-     */
+    @Test
+    public void testDisableHistoricalRecurrentlyOverusingApp() throws Exception {
+        when(mMockWatchdogStorage
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS))
+                .thenReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                        "third_party_package", 2)));
+
+        // Force CarWatchdogService to fetch historical not forgiven overuses.
+        restartService(/* totalRestarts= */ 1);
+        setRequiresDistractionOptimization(true);
+        setDisplayStateEnabled(false);
+        int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
+
+        injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
+                "third_party_package", thirdPartyPkgUid, null)));
+
+        pushLatestIoOveruseStatsAndWait(
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false));
+
+        // Third party package is disabled given the two historical overuses and one current
+        // overuse.
+        assertWithMessage("Disabled packages after recurring overuse with history")
+                .that(mDisabledUserPackages)
+                .containsExactlyElementsIn(Collections.singleton("100:third_party_package"));
+
+        // Package was enabled again.
+        mDisabledUserPackages.clear();
+
+        PackageIoOveruseStats packageIoOveruseStats =
+                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(200, 400, 600),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(200, 400, 600),
+                                /* totalOveruses= */ 3));
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(packageIoOveruseStats));
+
+        // From the 3 total overuses, one overuse was forgiven previously.
+        assertWithMessage("Disabled packages after non-recurring overuse")
+                .that(mDisabledUserPackages).isEmpty();
+
+        // Add one overuse.
+        packageIoOveruseStats.ioOveruseStats.totalOveruses = 4;
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(packageIoOveruseStats));
+
+        // Third party package is disabled again given the three current overuses. From the 4 total
+        // overuses, one overuse was forgiven previously.
+        assertWithMessage("Disabled packages after recurring overuse from the same day")
+                .that(mDisabledUserPackages)
+                .containsExactlyElementsIn(Collections.singleton("100:third_party_package"));
+
+        // Force write to database
+        restartService(/* totalRestarts= */ 2);
+
+        verify(mMockWatchdogStorage).forgiveHistoricalOveruses(mPackagesByUserIdCaptor.capture(),
+                eq(RECURRING_OVERUSE_PERIOD_IN_DAYS));
+
+        assertWithMessage("Forgiven packages")
+                .that(mPackagesByUserIdCaptor.getValue().get(100))
+                .containsExactlyElementsIn(Arrays.asList("third_party_package"));
+    }
+
+    @Test
+    public void testDisableHistoricalRecurrentlyOverusingAppAfterDateChange() throws Exception {
+        when(mMockWatchdogStorage.getNotForgivenHistoricalIoOveruses(
+                eq(RECURRING_OVERUSE_PERIOD_IN_DAYS)))
+                .thenReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                        "third_party_package", 2)));
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 1);
+        setRequiresDistractionOptimization(true);
+        setDisplayStateEnabled(false);
+        int thirdPartyPkgUid = UserHandle.getUid(100, 10005);
+
+        injectPackageInfos(Collections.singletonList(constructPackageManagerPackageInfo(
+                "third_party_package", thirdPartyPkgUid, null)));
+
+        List<PackageIoOveruseStats> ioOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ false);
+        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
+
+        // Third party package is disabled given the two historical overuses and one current
+        // overuse.
+        assertThat(mDisabledUserPackages)
+                .containsExactlyElementsIn(Collections.singleton("100:third_party_package"));
+
+        // Force write to database by pushing non-overusing I/O overuse stats.
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(ioOveruseStats.get(0)));
+
+        verify(mMockWatchdogStorage).forgiveHistoricalOveruses(mPackagesByUserIdCaptor.capture(),
+                eq(RECURRING_OVERUSE_PERIOD_IN_DAYS));
+
+        assertWithMessage("Forgiven packages")
+                .that(mPackagesByUserIdCaptor.getValue().get(100))
+                .containsExactlyElementsIn(Arrays.asList("third_party_package"));
+    }
+
 
     @Test
     public void testResetResourceOveruseStatsResetsStats() throws Exception {
@@ -3455,6 +3580,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                                 new WatchdogPerfHandler.PackageIoUsage(
                                         entry.ioUsage.getInternalIoOveruseStats(),
                                         entry.ioUsage.getForgivenWriteBytes(),
+                                        entry.ioUsage.getForgivenOveruses(),
                                         entry.ioUsage.getTotalTimesKilled())));
             }
             return true;
@@ -3489,7 +3615,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void initService(int wantedInvocations) throws Exception {
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mCarWatchdogService.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
-        mCarWatchdogService.setRecurringOveruseThreshold(RECURRING_OVERUSE_THRESHOLD);
         mCarWatchdogService.setUidIoUsageSummaryTopCount(
                 UID_IO_USAGE_SUMMARY_TOP_COUNT);
         mCarWatchdogService.init();
@@ -3584,6 +3709,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mMockWatchdogStorage, times(wantedInvocations)).syncUsers(any());
         verify(mMockWatchdogStorage, times(wantedInvocations)).getUserPackageSettings();
         verify(mMockWatchdogStorage, times(wantedInvocations)).getTodayIoUsageStats();
+        verify(mMockWatchdogStorage, times(wantedInvocations)).getNotForgivenHistoricalIoOveruses(
+                RECURRING_OVERUSE_PERIOD_IN_DAYS);
     }
 
     private void captureStatsPullAtomCallback(int wantedInvocations) {
@@ -3842,7 +3969,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private List<PackageIoOveruseStats> sampleIoOveruseStats(boolean requireRecurrentOveruseStats)
             throws Exception {
         int[] users = new int[]{100, 101};
-        int totalOveruses = requireRecurrentOveruseStats ? RECURRING_OVERUSE_THRESHOLD + 1 : 0;
+        int totalOveruses = requireRecurrentOveruseStats ? RECURRING_OVERUSE_TIMES + 1 : 1;
         List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>();
         android.automotive.watchdog.PerStateBytes zeroRemainingBytes =
                 constructPerStateBytes(0, 0, 0);
