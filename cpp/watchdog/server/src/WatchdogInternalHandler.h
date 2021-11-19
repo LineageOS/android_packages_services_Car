@@ -105,6 +105,9 @@ private:
     android::binder::Status handlePowerCycleChange(
             android::automotive::watchdog::internal::PowerCycle powerCycle);
 
+    android::binder::Status handleUserStateChange(
+            userid_t userId, android::automotive::watchdog::internal::UserState userState);
+
     android::sp<WatchdogBinderMediator> mBinderMediator;
     android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper;
     android::sp<WatchdogProcessService> mWatchdogProcessService;

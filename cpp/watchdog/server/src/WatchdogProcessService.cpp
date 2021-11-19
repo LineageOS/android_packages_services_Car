@@ -289,24 +289,14 @@ void WatchdogProcessService::setEnabled(bool isEnabled) {
     }
 }
 
-Status WatchdogProcessService::notifyUserStateChange(userid_t userId, aawi::UserState state) {
+void WatchdogProcessService::notifyUserStateChange(userid_t userId, bool isStarted) {
     std::string buffer;
     Mutex::Autolock lock(mMutex);
-    switch (state) {
-        case aawi::UserState::USER_STATE_STARTED:
-            mStoppedUserIds.erase(userId);
-            buffer = StringPrintf("user(%d) is started", userId);
-            break;
-        case aawi::UserState::USER_STATE_STOPPED:
-            mStoppedUserIds.insert(userId);
-            buffer = StringPrintf("user(%d) is stopped", userId);
-            break;
-        default:
-            ALOGW("Unsupported user state: %d", state);
-            return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, "Unsupported user state");
+    if (isStarted) {
+        mStoppedUserIds.erase(userId);
+    } else {
+        mStoppedUserIds.insert(userId);
     }
-    ALOGI("Received user state change: %s", buffer.c_str());
-    return Status::ok();
 }
 
 Result<void> WatchdogProcessService::dump(int fd, const Vector<String16>& /*args*/) {
