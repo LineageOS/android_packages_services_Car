@@ -442,26 +442,6 @@ package android.car.drivingstate {
     method public void onUxRestrictionsChanged(android.car.drivingstate.CarUxRestrictions);
   }
 
-  public interface ICarUxRestrictionsChangeListener extends android.os.IInterface {
-    method public void onUxRestrictionsChanged(android.car.drivingstate.CarUxRestrictions) throws android.os.RemoteException;
-    field public static final String DESCRIPTOR = "android.car.drivingstate.ICarUxRestrictionsChangeListener";
-  }
-
-  public static class ICarUxRestrictionsChangeListener.Default implements android.car.drivingstate.ICarUxRestrictionsChangeListener {
-    ctor public ICarUxRestrictionsChangeListener.Default();
-    method public android.os.IBinder asBinder();
-    method public void onUxRestrictionsChanged(android.car.drivingstate.CarUxRestrictions) throws android.os.RemoteException;
-  }
-
-  public abstract static class ICarUxRestrictionsChangeListener.Stub extends android.os.Binder implements android.car.drivingstate.ICarUxRestrictionsChangeListener {
-    ctor public ICarUxRestrictionsChangeListener.Stub();
-    method public android.os.IBinder asBinder();
-    method public static android.car.drivingstate.ICarUxRestrictionsChangeListener asInterface(android.os.IBinder);
-    method public static android.car.drivingstate.ICarUxRestrictionsChangeListener getDefaultImpl();
-    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
-    method public static boolean setDefaultImpl(android.car.drivingstate.ICarUxRestrictionsChangeListener);
-  }
-
 }
 
 package android.car.hardware {
