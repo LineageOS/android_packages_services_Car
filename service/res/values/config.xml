@@ -264,6 +264,13 @@
          created. -->
     <bool name="config_projectionAccessPointTethering" translatable="false">false</bool>
 
+    <!-- If projection Access Point is configured to not provide Internet access (not tethered,
+         see config_projectionAccessPointTethering) then this flag will be used to control
+         whether Wi-Fi configuration will persist reboots. By default new Wi-Fi credentials are
+         created for every local-only hotspot (LOHS) instantiation, changing this flag to true
+         will make LOHS credentials persistent. -->
+    <bool name="config_stableLocalOnlyHotspotConfig" translatable="false">false</bool>
+
     <!-- The package name of a service to be launched by CarService to bind to an active media
          service on the current  user.
          TODO(b/139497602): Remove dependency on Media Center, handle in CarMediaService -->
