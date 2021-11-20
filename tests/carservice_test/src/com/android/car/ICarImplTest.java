@@ -30,7 +30,6 @@ import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.UserHandle;
@@ -63,16 +62,18 @@ import java.io.IOException;
 
 /**
  * This class contains unit tests for the {@link ICarImpl}.
- * It tests that services started with {@link ICarImpl} are initialized properly.
  *
- * The following mocks are used:
- * 1. {@link ActivityManagerInterface} broadcasts intent for a user.
- * 2. {@link DisplayInterface} provides access to display operations.
- * 3. {@link IVehicle} provides access to vehicle properties.
- * 4. {@link StorageMonitoringInterface} provides access to storage monitoring operations.
- * 5. {@link SystemStateInterface} provides system statuses (booting, sleeping, ...).
- * 6. {@link TimeInterface} provides access to time operations.
- * 7. {@link TimeInterface} provides access to wake lock operations.
+ * <p>It tests that services started with {@link ICarImpl} are initialized properly.
+ * <p>The following mocks are used:
+ * <ol>
+ * <li>{@link ActivityManagerInterface} broadcasts intent for a user.</li>
+ * <li>{@link DisplayInterface} provides access to display operations.</li>
+ * <li>{@link IVehicle} provides access to vehicle properties.</li>
+ * <li>{@link StorageMonitoringInterface} provides access to storage monitoring operations.</li>
+ * <li>{@link SystemStateInterface} provides system statuses (booting, sleeping, ...).</li>
+ * <li>{@link TimeInterface} provides access to time operations.</li>
+ * <li>{@link TimeInterface} provides access to wake lock operations.</li>
+ * </ol>
  */
 @RunWith(MockitoJUnitRunner.class)
 public class ICarImplTest extends AbstractExtendedMockitoTestCase {
@@ -80,7 +81,7 @@ public class ICarImplTest extends AbstractExtendedMockitoTestCase {
 
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
     @Mock private DisplayInterface mMockDisplayInterface;
-    @Mock private IVehicle mMockVehicle;
+    @Mock private VehicleStub mMockVehicle;
     @Mock private StorageMonitoringInterface mMockStorageMonitoringInterface;
     @Mock private SystemStateInterface mMockSystemStateInterface;
     @Mock private TimeInterface mMockTimeInterface;

@@ -19,7 +19,6 @@ package com.android.car.hal;
 import static android.os.SystemClock.elapsedRealtime;
 
 import android.car.builtin.util.Slogf;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
@@ -32,6 +31,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
 import com.android.car.CarLog;
+import com.android.car.VehicleStub;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
@@ -54,7 +54,7 @@ final class HalClient {
 
     private static final int SLEEP_BETWEEN_RETRIABLE_INVOKES_MS = 50;
 
-    private final IVehicle mVehicle;
+    private final VehicleStub mVehicle;
     private final IVehicleCallback mInternalCallback;
     private final int mWaitCapMs;
     private final int mSleepMs;
@@ -66,14 +66,14 @@ final class HalClient {
      * @param looper looper that will be used to propagate notifications from vehicle HAL
      * @param callback to propagate notifications from Vehicle HAL in the provided looper thread
      */
-    HalClient(IVehicle vehicle, Looper looper, IVehicleCallback callback) {
+    HalClient(VehicleStub vehicle, Looper looper, IVehicleCallback callback) {
         this(vehicle, looper, callback, WAIT_CAP_FOR_RETRIABLE_RESULT_MS,
                 SLEEP_BETWEEN_RETRIABLE_INVOKES_MS);
     }
 
     @VisibleForTesting
-    HalClient(IVehicle vehicle, Looper looper, IVehicleCallback callback,
-            int waitCapMs, int sleepMs) {
+    HalClient(VehicleStub vehicle, Looper looper, IVehicleCallback callback, int waitCapMs,
+            int sleepMs) {
         mVehicle = vehicle;
         Handler handler = new CallbackHandler(looper, callback);
         mInternalCallback = new VehicleCallback(handler);

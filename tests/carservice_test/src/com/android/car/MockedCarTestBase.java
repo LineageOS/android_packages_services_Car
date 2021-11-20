@@ -95,6 +95,7 @@ public class MockedCarTestBase {
     private Car mCar;
     private ICarImpl mCarImpl;
     private MockedVehicleHal mMockedVehicleHal;
+    private VehicleStub mMockedVehicleStub;
     private SystemInterface mFakeSystemInterface;
     private MockedCarTestContext mMockedCarTestContext;
 
@@ -230,9 +231,12 @@ public class MockedCarTestBase {
 
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
-        ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, null, mMockedVehicleHal,
-                mFakeSystemInterface, "MockedCar", mCarUserService, mCarWatchdogService,
-                mPowerPolicyDaemon);
+
+        mMockedVehicleStub = new VehicleStub(mMockedVehicleHal);
+
+        ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
+                mMockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
+                mCarUserService, mCarWatchdogService, mPowerPolicyDaemon);
 
         spyOnBeforeCarImplInit(carImpl);
         carImpl.init();

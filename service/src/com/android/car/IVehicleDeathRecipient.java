@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,22 +16,9 @@
 
 package com.android.car;
 
-import com.android.car.internal.util.IndentingPrintWriter;
-
 /**
- * Base class for all Car specific services.
+ * IVehicleDeathRecipient is a death recipient that implements DeathRecipient interface for both
+ * AIDL and HIDL.
  */
-public interface CarServiceBase {
-
-    /**
-     * service is started. All necessary initialization should be done and service should be
-     * functional after this.
-     */
-    void init();
-
-    /** service should stop and all resources should be released. */
-    void release();
-
-    /** Dumps its state. */
-    void dump(IndentingPrintWriter writer);
-}
+public interface IVehicleDeathRecipient
+        extends android.os.IHwBinder.DeathRecipient, android.os.IBinder.DeathRecipient {}

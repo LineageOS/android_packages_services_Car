@@ -23,13 +23,14 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.expectThrows;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+
+import com.android.car.VehicleStub;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +46,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
 
     private final VehiclePropValue mProp = new VehiclePropValue();
 
-    @Mock IVehicle mIVehicle;
+    @Mock VehicleStub mIVehicle;
     @Mock IVehicleCallback mIVehicleCallback;
 
     private HalClient mClient;

@@ -41,7 +41,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
@@ -170,7 +169,7 @@ public class ICarImpl extends ICar.Stub {
             (FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args) ->
                     newCarShellCommand().exec(ICarImpl.this, in, out, err, args);
 
-    public ICarImpl(Context serviceContext, Context builtinContext, IVehicle vehicle,
+    public ICarImpl(Context serviceContext, Context builtinContext, VehicleStub vehicle,
             SystemInterface systemInterface, String vehicleInterfaceName) {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
@@ -178,8 +177,8 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @VisibleForTesting
-    ICarImpl(Context serviceContext, @Nullable Context builtinContext,
-            IVehicle vehicle, SystemInterface systemInterface, String vehicleInterfaceName,
+    ICarImpl(Context serviceContext, @Nullable Context builtinContext, VehicleStub vehicle,
+            SystemInterface systemInterface, String vehicleInterfaceName,
             @Nullable CarUserService carUserService,
             @Nullable CarWatchdogService carWatchdogService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
@@ -463,14 +462,6 @@ public class ICarImpl extends ICar.Stub {
             mAllServices[i].release();
         }
         mHal.release();
-    }
-
-    void vehicleHalReconnected(IVehicle vehicle) {
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_RECONNECTED, mAllServices.length);
-        mHal.vehicleHalReconnected(vehicle);
-        for (CarServiceBase service : mAllServices) {
-            service.vehicleHalReconnected();
-        }
     }
 
     @Override

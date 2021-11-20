@@ -32,8 +32,6 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.car.hardware.property.CarPropertyManager;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
-import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
 import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
@@ -56,7 +54,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -82,8 +79,6 @@ public class VehicleHalTest {
 
     private static final float ANY_SAMPLING_RATE = 60f;
     private static final int NO_FLAGS = 0;
-
-    @Mock private IVehicle mIVehicle;
 
     @Mock private PowerHalService mPowerHalService;
     @Mock private PropertyHalService mPropertyHalService;
@@ -678,60 +673,6 @@ public class VehicleHalTest {
 
         // Assert
         verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
-    }
-
-    @Test
-    public void testVehicleHalReconnected() throws Exception {
-        // Arrange
-        IVehicle mockVehicle = mock(IVehicle.class);
-
-        // Act
-        mVehicleHal.vehicleHalReconnected(mockVehicle);
-
-        // Assert
-        ArgumentCaptor<IVehicleCallback> vehicleCallbackCaptor = ArgumentCaptor.forClass(
-                IVehicleCallback.class);
-        ArgumentCaptor<ArrayList> optionsCaptor = ArgumentCaptor.forClass(ArrayList.class);
-        verify(mockVehicle, times(1)).subscribe(vehicleCallbackCaptor.capture(),
-                optionsCaptor.capture());
-        assertThat(vehicleCallbackCaptor.getValue()).isNotNull();
-        assertThat(optionsCaptor.getValue()).isEmpty();
-    }
-
-    @Test
-    public void testVehicleHalReconnectedSubscribedProperties() throws Exception {
-        // Arrange
-        IVehicle mockVehicle = mock(IVehicle.class);
-
-        // Act
-        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE, NO_FLAGS);
-        mVehicleHal.vehicleHalReconnected(mockVehicle);
-
-        // Assert
-        ArgumentCaptor<IVehicleCallback> vehicleCallbackCaptor = ArgumentCaptor.forClass(
-                IVehicleCallback.class);
-        ArgumentCaptor<ArrayList> optionsCaptor = ArgumentCaptor.forClass(ArrayList.class);
-        verify(mockVehicle, times(1)).subscribe(vehicleCallbackCaptor.capture(),
-                optionsCaptor.capture());
-        assertThat(vehicleCallbackCaptor.getValue()).isNotNull();
-        List<SubscribeOptions> options = optionsCaptor.getValue();
-        assertThat(options.size()).isEqualTo(1);
-        SubscribeOptions expectedOptions = new SubscribeOptions();
-        expectedOptions.propId = SOME_READ_ON_CHANGE_PROPERTY;
-        expectedOptions.sampleRate = ANY_SAMPLING_RATE;
-        expectedOptions.flags = NO_FLAGS;
-        assertThat(options.get(0)).isEqualTo(expectedOptions);
-    }
-
-    @Test
-    public void testVehicleHalReconnectedSubscribeRemoteException() throws Exception {
-        // Arrange
-        IVehicle mockVehicle = mock(IVehicle.class);
-        when(mockVehicle.subscribe(any(), any())).thenThrow(new RemoteException());
-
-        // Act
-        assertThrows(RuntimeException.class, () -> mVehicleHal.vehicleHalReconnected(mockVehicle));
     }
 
     @Test
