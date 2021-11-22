@@ -24,6 +24,8 @@ import androidx.annotation.VisibleForTesting;
 import com.android.managedprovisioning.R;
 import com.android.managedprovisioning.common.AccessibilityContextMenuMaker;
 import com.android.managedprovisioning.common.CarSetupWizardLayoutHelper;
+import com.android.managedprovisioning.common.RoleHolderProvider;
+import com.android.managedprovisioning.common.RoleHolderUpdaterProvider;
 import com.android.managedprovisioning.common.SettingsFacade;
 import com.android.managedprovisioning.common.ThemeHelper;
 import com.android.managedprovisioning.common.ThemeHelper.DefaultNightModeChecker;
@@ -61,7 +63,8 @@ public final class CarPreProvisioningActivity extends PreProvisioningActivity {
             ControllerProvider controllerProvider,
             AccessibilityContextMenuMaker contextMenuMaker, Utils utils,
             SettingsFacade settingsFacade, ThemeHelper themeHelper) {
-        super(controllerProvider, contextMenuMaker, utils, settingsFacade, themeHelper);
+        super(controllerProvider, contextMenuMaker, utils, settingsFacade, themeHelper,
+                RoleHolderProvider.DEFAULT, RoleHolderUpdaterProvider.DEFAULT);
         mContextMenuMaker =
                 contextMenuMaker != null ? contextMenuMaker : new AccessibilityContextMenuMaker(
                         this);
