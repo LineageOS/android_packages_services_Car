@@ -45,6 +45,8 @@ allow carservice_app {
     telecom_service
     tethering_service
     thermal_service
+    timedetector_service
+    timezonedetector_service
     uimode_service
     voiceinteraction_service
     wifi_service

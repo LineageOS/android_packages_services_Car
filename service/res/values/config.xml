@@ -456,4 +456,8 @@
     <string name="config_template_activity_class_name">
         androidx.car.app.activity.CarAppActivity
     </string>
+
+    <!-- A flag to configure whether the ExternalCarTime VHAL property should be used to send
+         ExternalTimeSuggestions to the Android TimeManager service. -->
+    <bool name="config_enableExternalCarTimeToExternalTimeSuggestion">false</bool>
 </resources>

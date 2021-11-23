@@ -27,6 +27,7 @@
         <permission name="android.permission.REBOOT"/>
         <permission name="android.permission.READ_LOGS"/>
         <permission name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>
+        <permission name="android.permission.SUGGEST_EXTERNAL_TIME"/>
         <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
     </privapp-permissions>
 </permissions>

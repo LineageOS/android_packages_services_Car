@@ -943,6 +943,7 @@
     <uses-permission android:name="android.permission.READ_LOGS"/>
     <!--  Used by NotificationHelper to change the notifications app name -->
     <uses-permission android:name="android.permission.SUBSTITUTE_NOTIFICATION_APP_NAME"/>
+    <uses-permission android:name="android.permission.SUGGEST_EXTERNAL_TIME" />
 
     <application android:label="@string/app_title"
          android:directBootAware="true"
