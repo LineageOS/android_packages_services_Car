@@ -241,6 +241,10 @@
     <install-in-user-type package="com.android.inputdevices">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- IntentResolver only consists of Activity and requires user interaction -->
+    <install-in-user-type package="com.android.intentresolver">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
     <install-in-user-type package="com.android.soundpicker">
         <install-in user-type="FULL" />
     </install-in-user-type>
