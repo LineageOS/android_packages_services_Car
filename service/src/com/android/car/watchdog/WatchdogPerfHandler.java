@@ -27,6 +27,8 @@ import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_PAST_7_DAYS;
 import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_NEVER;
 import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_NO;
 import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_YES;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER;
@@ -939,7 +941,8 @@ public final class WatchdogPerfHandler {
                 break;
             case ACTION_LAUNCH_APP_SETTINGS:
                 Intent settingsIntent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                        .setData(Uri.parse("package:" + packageName));
+                        .setData(Uri.parse("package:" + packageName))
+                        .setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
                 context.startActivityAsUser(settingsIntent, userHandle);
                 if (DEBUG) {
                     Slogf.e(TAG, "Handled user notification action to launch settings app for "

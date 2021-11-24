@@ -24,6 +24,8 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
@@ -490,6 +492,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertWithMessage("Launch app settings intent data string")
                 .that(actualIntent.getDataString()).contains(packageName);
+
+        assertWithMessage("Launch app settings intent flags")
+                .that(actualIntent.getFlags())
+                .isEqualTo(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
 
         verify(mMockNotificationManager).cancelAsUser(CarWatchdogService.TAG,
                 RESOURCE_OVERUSE_NOTIFICATION_BASE_ID, userHandle);
