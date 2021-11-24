@@ -44,7 +44,6 @@ android_app {
         "managedprovisioning_protoslite",
         "androidx.legacy_legacy-support-v4",
         "car-setup-wizard-lib",
-        "car-ui-lib",
         "setupcompat",
         "setupdesign",
         "devicepolicyprotosnano",

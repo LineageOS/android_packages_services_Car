@@ -66,8 +66,8 @@
   <string name="fully_managed_device_provisioning_return_device_subheader">Reset and return this vehicle to the organization manager, or go back to the previous screen to continue setup.</string>
   <!-- Button text. Leads the user to the screen letting them cancel the setup. [CHARLIMIT=40]-->
   <string name="fully_managed_device_cancel_setup_button">Cancel setup</string>
-  <!-- Button text. The final affirmitive button the user needs to press to actually reset the device. [CHARLIMIT=40]-->
-  <string name="fully_managed_device_reset_and_return_button">Reset &amp; return vehicle</string>
+  <!-- Button text. The final affirmitive button the user needs to press to actually reset the device. [CHARLIMIT=20]-->
+  <string name="fully_managed_device_reset_and_return_button">Reset &amp; return</string>
 
   <!-- Notification title. This text is letting the user know about a privacy reminder before they start using their new work device. [CHAR LIMIT=NONE]-->
   <string name="fully_managed_device_provisioning_privacy_title">Privacy notice</string>

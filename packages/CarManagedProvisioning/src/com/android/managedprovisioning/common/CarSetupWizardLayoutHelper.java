@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.app.Activity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewStub;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -150,11 +151,27 @@ public final class CarSetupWizardLayoutHelper {
      * activity.
      */
     public void setHeaderText(int headerResId, int descriptionResId) {
-        TextView descriptionTitle = mActivity.findViewById(R.id.description_title);
-        descriptionTitle.setText(headerResId);
+        setHeaderTitle(headerResId);
 
         TextView description = mActivity.findViewById(R.id.description);
         description.setText(descriptionResId);
+    }
+
+    /**
+     * Sets the header title in {@code CarSetupWizardCompatLayout} for current
+     * activity and removes empty description view.
+     */
+    public void setHeaderText(int headerResId) {
+        setHeaderTitle(headerResId);
+
+        TextView description = mActivity.findViewById(R.id.description);
+        ViewGroup parent = (ViewGroup) description.getParent();
+        parent.removeView(description);
+    }
+
+    private void setHeaderTitle(int headerResId) {
+        TextView descriptionTitle = mActivity.findViewById(R.id.description_title);
+        descriptionTitle.setText(headerResId);
     }
 
     /**

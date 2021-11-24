@@ -22,15 +22,14 @@ import static java.util.Objects.requireNonNull;
 
 import android.annotation.Nullable;
 import android.os.Bundle;
-import android.widget.TextView;
 
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.car.setupwizardlib.CarSetupWizardCompatLayout;
-import com.android.car.ui.recyclerview.CarUiRecyclerView;
 import com.android.managedprovisioning.R;
 import com.android.managedprovisioning.common.AccessibilityContextMenuMaker;
 import com.android.managedprovisioning.common.CarSetupWizardLayoutHelper;
@@ -84,8 +83,9 @@ public final class CarTermsActivity extends TermsActivity implements
                         /* mainLayoutResId= */ CarSetupWizardLayoutHelper.MAIN_LAYOUT_RES_ID,
                         /* columnLayoutId= */ R.layout.single_column_left_layout,
                         /* subLayoutId= */ R.layout.terms_layout);
-        TextView titleView = layout.findViewById(R.id.description_title);
-        titleView.setText(R.string.terms);
+        layoutHelper.setHeaderText(R.string.terms);
+        // TextView titleView = layout.findViewById(R.id.description_title);
+        // titleView.setText(R.string.terms);
         layout.setPrimaryToolbarButtonVisible(false);
 
         ProvisioningParams params = checkNotNull(
@@ -93,7 +93,7 @@ public final class CarTermsActivity extends TermsActivity implements
         mViewModel = mViewModelFetcher.apply(this, params);
         List<TermsDocument> terms = mViewModel.getTerms();
 
-        CarUiRecyclerView recyclerView = layout.findViewById(R.id.terms_container);
+        RecyclerView recyclerView = layout.findViewById(R.id.terms_container);
         recyclerView.setLayoutManager(new LinearLayoutManager(/* context= */ this));
         recyclerView.setAdapter(new TermsListAdapter(
                 this,
