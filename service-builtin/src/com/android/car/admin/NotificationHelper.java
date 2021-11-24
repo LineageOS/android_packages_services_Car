@@ -16,6 +16,8 @@
 
 package com.android.car.admin;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
@@ -319,7 +321,8 @@ public final class NotificationHelper {
     private static PendingIntent getAppSettingsPendingIntent(Context context, UserHandle user,
             String packageName, int notificationId) {
         Intent intent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.parse("package:" + packageName));
+                .setData(Uri.parse("package:" + packageName))
+                .setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
         return PendingIntent.getActivityAsUser(context, notificationId, intent,
                 PendingIntent.FLAG_IMMUTABLE, /* options= */ null, user);
     }

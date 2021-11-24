@@ -19,6 +19,8 @@ import static android.app.Notification.EXTRA_TEXT;
 import static android.app.Notification.EXTRA_TITLE;
 import static android.app.Notification.FLAG_ONGOING_EVENT;
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.admin.NotificationHelper.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
@@ -295,6 +297,8 @@ public final class NotificationHelperTest {
         if (isPositiveAction || !isSystemApp) {
             assertWithMessage("%s intent action", actionName).that(intent.getAction())
                     .isEqualTo(ACTION_APPLICATION_DETAILS_SETTINGS);
+            assertWithMessage("%s intent flags", actionName).that(intent.getFlags())
+                    .isEqualTo(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
             return;
         }
         int userId = UserHandle.getUserId(applicationInfo.uid);
