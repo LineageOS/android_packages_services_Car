@@ -45,7 +45,6 @@ import static org.testng.Assert.assertThrows;
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
@@ -203,16 +202,18 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         List<Integer> states = listener.await();
         checkThatStatesReceivedInOrder("Check that events were received in order", states,
-                List.of(CarPowerStateListener.PRE_SHUTDOWN_PREPARE,
-                        CarPowerStateListener.SHUTDOWN_PREPARE,
-                        CarPowerStateListener.SUSPEND_ENTER));
+                List.of(CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE,
+                        CarPowerManager.STATE_SHUTDOWN_PREPARE,
+                        CarPowerManager.STATE_SUSPEND_ENTER));
     }
 
     @Test
     public void testSetListenerWithCompletion() throws Exception {
-        List<Integer> expectedStates = List.of(CarPowerStateListener.ON,
-                CarPowerStateListener.PRE_SHUTDOWN_PREPARE, CarPowerStateListener.SHUTDOWN_PREPARE,
-                CarPowerStateListener.SUSPEND_ENTER);
+        grantAdjustShutdownProcessPermission();
+        List<Integer> expectedStates = List.of(CarPowerManager.STATE_ON,
+                CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE,
+                CarPowerManager.STATE_SHUTDOWN_PREPARE,
+                CarPowerManager.STATE_SUSPEND_ENTER);
         WaitablePowerStateListenerWithCompletion listener =
                 new WaitablePowerStateListenerWithCompletion(/* initialCount= */ 4);
 
@@ -472,6 +473,12 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                 .checkCallingOrSelfPermission(Car.PERMISSION_READ_CAR_POWER_POLICY);
     }
 
+    private void grantAdjustShutdownProcessPermission() {
+        when(mCar.getContext()).thenReturn(mContext);
+        doReturn(PackageManager.PERMISSION_GRANTED).when(mContext)
+                .checkCallingOrSelfPermission(Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS);
+    }
+
     private static void checkThatStatesReceivedInOrder(String message, List<Integer> states,
             List<Integer> referenceStates) {
         assertWithMessage(message).that(states).containsExactlyElementsIn(
@@ -541,7 +548,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         WaitablePowerStateListener(int initialCount) {
             mLatch = new CountDownLatch(initialCount);
-            mCarPowerManager.setListener(
+            mCarPowerManager.setListener(mContext.getMainExecutor(),
                     (state) -> {
                         mReceivedStates.add(state);
                         mLatch.countDown();
@@ -557,8 +564,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     /**
      * Helper class to set a power-state listener with completion,
      * verify that the listener gets called the right number of times,
-     * verify that the CompletableFuture is provided, complete the
-     * CompletableFuture, and return the all listened states in order.
+     * verify that the CompletablePowerStateChangeFuture is provided, complete the
+     * CompletablePowerStateChangeFuture, and return the all listened states in order.
      */
     private final class WaitablePowerStateListenerWithCompletion {
         private final CountDownLatch mLatch;
@@ -568,14 +575,14 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         WaitablePowerStateListenerWithCompletion(int initialCount) {
             mRemainingCount = initialCount;
             mLatch = new CountDownLatch(initialCount);
-            mCarPowerManager.setListenerWithCompletion(
+            mCarPowerManager.setListenerWithCompletion(mContext.getMainExecutor(),
                     (state, future) -> {
                         mReceivedStates.add(state);
                         mRemainingCount--;
-                        if (state == CarPowerStateListener.SHUTDOWN_PREPARE
-                                || state == CarPowerStateListener.PRE_SHUTDOWN_PREPARE) {
+                        if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE
+                                || state == CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE) {
                             assertThat(future).isNotNull();
-                            future.complete(null);
+                            future.complete();
                         } else {
                             assertThat(future).isNull();
                         }

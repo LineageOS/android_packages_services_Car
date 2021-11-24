@@ -525,6 +525,11 @@
     <!-- Permission text: apps control car power policy [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_power_policy">Control car power policy.</string>
 
+    <!-- Permission text: apps adjust the shutdown process [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_adjust_shutdown_process">adjust shutdown process</string>
+    <!-- Permission text: apps adjust the shutdown process [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_adjust_shutdown_process">Adjust shutdown process.</string>
+
     <!-- Permission text: app can render templates provided by another app [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_template_renderer">render templates</string>
     <!-- Permission text: app can render templates provided by another app [CHAR LIMIT=NONE] -->

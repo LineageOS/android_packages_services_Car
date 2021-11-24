@@ -140,9 +140,9 @@ public final class CarUserNoticeService implements CarServiceBase {
     private final CarPowerStateListener mPowerStateListener = new CarPowerStateListener() {
         @Override
         public void onStateChanged(int state) {
-            if (state == CarPowerManager.CarPowerStateListener.SHUTDOWN_PREPARE) {
+            if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE) {
                 mCommonThreadHandler.post(() -> stopUi(/* clearUiShown= */ true));
-            } else if (state == CarPowerManager.CarPowerStateListener.ON) {
+            } else if (state == CarPowerManager.STATE_ON) {
                 // Only ON can be relied on as car can restart while in garage mode.
                 mCommonThreadHandler.post(() -> startNoticeUiIfNecessary());
             }
@@ -395,7 +395,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             carPowerManager = mCarPowerManager;
         }
         try {
-            carPowerManager.setListener(mPowerStateListener);
+            carPowerManager.setListener(mContext.getMainExecutor(), mPowerStateListener);
         } catch (CarNotConnectedException e) {
             // should not happen
             throw new RuntimeException("CarNotConnectedException from CarPowerManager", e);

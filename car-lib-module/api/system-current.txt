@@ -63,6 +63,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
@@ -871,14 +872,36 @@ package android.car.hardware.power {
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void applyPowerPolicy(@NonNull String);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void clearListener();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public int getPowerState();
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@Nullable android.car.hardware.power.CarPowerManager.CarPowerStateListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerStateListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS) public void setListenerWithCompletion(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void setPowerPolicyGroup(@NonNull String);
+    field public static final int STATE_HIBERNATION_ENTER = 9; // 0x9
+    field public static final int STATE_HIBERNATION_EXIT = 10; // 0xa
+    field public static final int STATE_INVALID = 0; // 0x0
+    field public static final int STATE_ON = 6; // 0x6
+    field public static final int STATE_POST_HIBERNATION_ENTER = 14; // 0xe
+    field public static final int STATE_POST_SHUTDOWN_ENTER = 13; // 0xd
+    field public static final int STATE_POST_SUSPEND_ENTER = 12; // 0xc
+    field public static final int STATE_PRE_SHUTDOWN_PREPARE = 11; // 0xb
+    field public static final int STATE_SHUTDOWN_CANCELLED = 8; // 0x8
+    field public static final int STATE_SHUTDOWN_ENTER = 5; // 0x5
+    field public static final int STATE_SHUTDOWN_PREPARE = 7; // 0x7
+    field public static final int STATE_SUSPEND_ENTER = 2; // 0x2
+    field public static final int STATE_SUSPEND_EXIT = 3; // 0x3
+    field public static final int STATE_WAIT_FOR_VHAL = 1; // 0x1
   }
 
   public static interface CarPowerManager.CarPowerStateListener {
+    method public void onStateChanged(int);
   }
 
   public static interface CarPowerManager.CarPowerStateListenerWithCompletion {
+    method public void onStateChanged(int, @Nullable android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture);
+  }
+
+  public static interface CarPowerManager.CompletablePowerStateChangeFuture {
+    method public void complete();
+    method public long getExpirationTime();
   }
 
 }

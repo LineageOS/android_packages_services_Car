@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.car.Car;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
@@ -394,16 +394,16 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
         ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
             @Override
-            public void onStateChanged(int state) {
+            public void onStateChanged(int state, long expirationTimeMs) {
                 switch (state) {
-                    case CarPowerStateListener.PRE_SHUTDOWN_PREPARE:
-                        cpms.finished(this);
+                    case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
+                        cpms.finished(state, this);
                         break;
-                    case CarPowerStateListener.SHUTDOWN_PREPARE:
+                    case CarPowerManager.STATE_SHUTDOWN_PREPARE:
                         // Do not call finished() to stay in shutdown prepare, when Garage Mode is
                         // running.
                         if (cpms.garageModeShouldExitImmediately()) {
-                            cpms.finished(this);
+                            cpms.finished(state, this);
                         }
                         return;
                 }

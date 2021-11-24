@@ -53,7 +53,6 @@ import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -157,10 +156,10 @@ public final class GarageModeTest {
         garageMode = new GarageMode(mContext, mController);
         garageMode.init();
         // Check exit immediately with future
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        CompletablePowerStateChangeFutureImpl future = new CompletablePowerStateChangeFutureImpl();
         garageMode.enterGarageMode(future);
         assertThat(garageMode.isGarageModeActive()).isFalse();
-        assertThat(future.isDone()).isTrue();
+        assertThat(future.isCompleted()).isTrue();
 
         // Create new instance of GarageMode
         garageMode = new GarageMode(mContext, mController);
@@ -168,7 +167,7 @@ public final class GarageModeTest {
         // Check exit immediately with completed future
         garageMode.enterGarageMode(future);
         assertThat(garageMode.isGarageModeActive()).isFalse();
-        assertThat(future.isDone()).isTrue();
+        assertThat(future.isCompleted()).isTrue();
 
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
     }

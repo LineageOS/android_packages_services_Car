@@ -34,6 +34,7 @@
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE"/>
     <uses-permission android:name="android.car.permission.READ_CAR_POWER_POLICY"/>
+    <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"/>
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_1"/>
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_1"/>
 

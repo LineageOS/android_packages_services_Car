@@ -668,6 +668,14 @@ public final class Car {
             "android.car.permission.CONTROL_CAR_POWER_POLICY";
 
     /**
+     * Permission necessary to adjust the shutdown process.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS =
+            "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
+
+    /**
      * Permission necessary to access Car PROJECTION system APIs.
      * @hide
      */
