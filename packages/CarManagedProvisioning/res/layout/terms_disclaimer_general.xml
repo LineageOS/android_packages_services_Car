@@ -21,4 +21,5 @@
     android:layout_height="match_parent"
     android:layout_gravity="left"
     android:textSize="@dimen/item_body_text_size"
-    android:textColor="@color/secondary_text"/>
+    android:textColor="@color/secondary_text"
+    android:lineSpacingExtra="@dimen/item_extra_spacing" />

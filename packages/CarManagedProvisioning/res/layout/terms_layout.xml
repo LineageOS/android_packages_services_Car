@@ -20,7 +20,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="top|left">
-    <com.android.car.ui.recyclerview.CarUiRecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/terms_container"
         android:textColor="@color/secondary_text"
         android:layout_width="match_parent"
