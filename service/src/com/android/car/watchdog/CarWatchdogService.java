@@ -85,6 +85,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             "com.android.server.jobscheduler.GARAGE_MODE_ON";
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
+    static final String ACTION_LAUNCH_APP_SETTINGS =
+            "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
+    static final String ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
+            "com.android.car.watchdog.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION";
     static final String ACTION_RESOURCE_OVERUSE_DISABLE_APP =
             "com.android.car.watchdog.ACTION_RESOURCE_OVERUSE_DISABLE_APP";
 
@@ -125,10 +129,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             String action = intent.getAction();
             UserHandle userHandle;
             switch (action) {
+                case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
+                case ACTION_LAUNCH_APP_SETTINGS:
                 case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
-                    String packageName = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
-                    userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
-                    mWatchdogPerfHandler.disablePackageForUser(packageName, userHandle);
+                    mWatchdogPerfHandler.handleIntent(intent);
                     break;
                 case ACTION_GARAGE_MODE_ON:
                 case ACTION_GARAGE_MODE_OFF:
@@ -653,9 +657,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private void subscribeBroadcastReceiver() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_RESOURCE_OVERUSE_DISABLE_APP);
+        filter.addAction(ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
         filter.addAction(ACTION_GARAGE_MODE_ON);
         filter.addAction(ACTION_GARAGE_MODE_OFF);
+        filter.addAction(ACTION_LAUNCH_APP_SETTINGS);
+        filter.addAction(ACTION_RESOURCE_OVERUSE_DISABLE_APP);
         filter.addAction(ACTION_USER_REMOVED);
 
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,

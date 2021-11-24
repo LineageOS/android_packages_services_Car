@@ -19,13 +19,12 @@ import static android.app.Notification.EXTRA_TEXT;
 import static android.app.Notification.EXTRA_TITLE;
 import static android.app.Notification.FLAG_ONGOING_EVENT;
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
-import static com.android.car.admin.NotificationHelper.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
+import static com.android.car.admin.NotificationHelper.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
+import static com.android.car.admin.NotificationHelper.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.admin.NotificationHelper.CHANNEL_ID_DEFAULT;
 import static com.android.car.admin.NotificationHelper.CHANNEL_ID_HIGH;
+import static com.android.car.admin.NotificationHelper.INTENT_EXTRA_NOTIFICATION_ID;
 import static com.android.car.admin.NotificationHelper.NEW_USER_DISCLAIMER_NOTIFICATION_ID;
 import static com.android.car.admin.NotificationHelper.newNotificationBuilder;
 
@@ -54,6 +53,7 @@ import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.SparseArray;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -68,12 +68,9 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -114,6 +111,17 @@ public final class NotificationHelperTest {
     }
 
     @Test
+    public void testCancelNotificationAsUser() {
+        UserHandle userHandle = UserHandle.of(100);
+
+        NotificationHelper.cancelNotificationAsUser(mSpiedContext, userHandle,
+                /* notificationId= */ 150);
+
+        verify(mMockNotificationManager).cancelAsUser(NotificationHelper.TAG, /* id= */ 150,
+                userHandle);
+    }
+
+    @Test
     public void testShowUserDisclaimerNotification() {
         int userId = 11;
         NotificationHelper.showUserDisclaimerNotification(userId, mSpiedContext);
@@ -151,9 +159,14 @@ public final class NotificationHelperTest {
     public void testShowResourceOveruseNotificationsAsUser() throws Exception {
         UserHandle userHandle = UserHandle.of(100);
 
-        List<String> expectedPackages = List.of("system_package.A", "vendor_package.A",
-                "third_party_package.A", "system_package.B", "vendor_package.B",
-                "third_party_package.B");
+        SparseArray<String> expectedHeadsUpPackagesById = new SparseArray<>();
+        expectedHeadsUpPackagesById.put(169, "system_package.A");
+        expectedHeadsUpPackagesById.put(150, "vendor_package.A");
+        expectedHeadsUpPackagesById.put(151, "third_party_package.A");
+        SparseArray<String> expectedNotificationCenterPackagesById = new SparseArray<>();
+        expectedNotificationCenterPackagesById.put(152, "system_package.B");
+        expectedNotificationCenterPackagesById.put(153, "vendor_package.B");
+        expectedNotificationCenterPackagesById.put(154, "third_party_package.B");
 
         List<ApplicationInfo> applicationInfos = List.of(
                 constructApplicationInfo("system_package.A", "System A",
@@ -172,8 +185,7 @@ public final class NotificationHelperTest {
         injectApplicationInfos(applicationInfos);
 
         NotificationHelper.showResourceOveruseNotificationsAsUser(mSpiedContext, userHandle,
-                expectedPackages.subList(0, 3), expectedPackages.subList(3, 6),
-                /* idStartOffset= */ 19);
+                expectedHeadsUpPackagesById, expectedNotificationCenterPackagesById);
 
         verify(mMockNotificationManager, times(6)).notifyAsUser(eq(NotificationHelper.TAG),
                 mIntCaptor.capture(), mNotificationCaptor.capture(), eq(userHandle));
@@ -187,18 +199,25 @@ public final class NotificationHelperTest {
 
         List<Notification> actualNotifications = mNotificationCaptor.getAllValues();
         assertWithMessage("Notifications size").that(actualNotifications)
-                .hasSize(expectedPackages.size());
+                .hasSize(expectedHeadsUpPackagesById.size()
+                        + expectedNotificationCenterPackagesById.size());
 
-        List<String> actualPackages = new ArrayList<>();
         for (Notification actualNotification : actualNotifications) {
-            String packageName = getPackageNameFromResourceNotification(actualNotification);
-            actualPackages.add(packageName);
+            Intent intent = getActionIntent(actualNotification.actions[0]);
+            int notificationId = intent.getIntExtra(INTENT_EXTRA_NOTIFICATION_ID, -1);
+            String packageName = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
             ApplicationInfo applicationInfo = findApplicationInfo(packageName, applicationInfos);
-            boolean isHeadsUp = expectedPackages.subList(0, 3).contains(packageName);
-            assertResourceOveruseNotification(actualNotification, applicationInfo, isHeadsUp);
+            boolean isHeadsUp = expectedHeadsUpPackagesById.get(notificationId) != null;
+            if (isHeadsUp) {
+                assertWithMessage("Notification package name").that(packageName)
+                        .isEqualTo(expectedHeadsUpPackagesById.get(notificationId));
+            } else {
+                assertWithMessage("Notification package name").that(packageName)
+                        .isEqualTo(expectedNotificationCenterPackagesById.get(notificationId));
+            }
+            assertResourceOveruseNotification(notificationId, actualNotification, applicationInfo,
+                    isHeadsUp);
         }
-        assertWithMessage("Notification package names")
-                .that(actualPackages).containsExactlyElementsIn(expectedPackages);
     }
 
     private void assertNotificationContents(Notification notification) {
@@ -221,6 +240,7 @@ public final class NotificationHelperTest {
         } finally {
             mUiAutomation.dropShellPermissionIdentity();
         }
+
         assertWithMessage("content intent").that(intent).isNotNull();
         assertWithMessage("content intent component").that(intent.getComponent())
                 .isEqualTo(ComponentName.unflattenFromString(mRealContext.getString(
@@ -236,7 +256,7 @@ public final class NotificationHelperTest {
                 .isEqualTo(ManagedDeviceTextView.getManagedDeviceText(mRealContext).toString());
     }
 
-    private void assertResourceOveruseNotification(Notification notification,
+    private void assertResourceOveruseNotification(int notificationId, Notification notification,
             ApplicationInfo applicationInfo, boolean isHeadsUp) {
         String notificationName = applicationInfo.packageName + " notification";
         String channelId = isHeadsUp ? CHANNEL_ID_HIGH : CHANNEL_ID_DEFAULT;
@@ -247,9 +267,9 @@ public final class NotificationHelperTest {
                 .isEqualTo(channelId);
 
         assertResourceOveruseNotificationAction(notification.actions[0], applicationInfo,
-                /* isPositiveAction= */ true);
+                notificationId, /* isPositiveAction= */ true);
         assertResourceOveruseNotificationAction(notification.actions[1], applicationInfo,
-                /* isPositiveAction= */ false);
+                notificationId, /* isPositiveAction= */ false);
 
         CharSequence titleTemplate =
                 mRealContext.getText(R.string.resource_overuse_notification_title);
@@ -275,7 +295,7 @@ public final class NotificationHelperTest {
     }
 
     private void assertResourceOveruseNotificationAction(Notification.Action action,
-            ApplicationInfo applicationInfo, boolean isPositiveAction) {
+            ApplicationInfo applicationInfo, int notificationId, boolean isPositiveAction) {
         String actionName = applicationInfo.packageName + (isPositiveAction ? " positive action"
                 : " negative action");
         boolean isSystemApp = (applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
@@ -291,21 +311,20 @@ public final class NotificationHelperTest {
         assertWithMessage("%s pending intent is immutable", actionName)
                 .that(action.actionIntent.isImmutable()).isTrue();
 
+        int userId = UserHandle.getUserId(applicationInfo.uid);
         Intent intent = getActionIntent(action);
+        String expectedAction =
+                isPositiveAction || !isSystemApp ? CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS
+                        : CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 
         assertWithMessage("%s intent", actionName).that(intent).isNotNull();
-        if (isPositiveAction || !isSystemApp) {
-            assertWithMessage("%s intent action", actionName).that(intent.getAction())
-                    .isEqualTo(ACTION_APPLICATION_DETAILS_SETTINGS);
-            assertWithMessage("%s intent flags", actionName).that(intent.getFlags())
-                    .isEqualTo(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-            return;
-        }
-        int userId = UserHandle.getUserId(applicationInfo.uid);
         assertWithMessage("%s intent action", actionName).that(intent.getAction())
-                .isEqualTo(ACTION_RESOURCE_OVERUSE_DISABLE_APP);
+                .isEqualTo(expectedAction);
         assertWithMessage("%s intent package", actionName).that(intent.getPackage())
                 .isEqualTo(mRealContext.getPackageName());
+        assertWithMessage("%s intent extra id", actionName)
+                .that(intent.getIntExtra(INTENT_EXTRA_NOTIFICATION_ID, -1))
+                .isEqualTo(notificationId);
         assertWithMessage("%s intent extra package name", actionName)
                 .that(intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME))
                 .isEqualTo(applicationInfo.packageName);
@@ -341,14 +360,6 @@ public final class NotificationHelperTest {
                     }
                     return applicationInfo;
                 });
-    }
-
-    private String getPackageNameFromResourceNotification(Notification notification)
-            throws Exception {
-        Intent intent = getActionIntent(notification.actions[0]);
-        Matcher m = PACKAGE_NAME_PATTERN.matcher(intent.getDataString());
-        assertWithMessage("Package name on notification intent").that(m.find()).isTrue();
-        return Objects.requireNonNull(m.group(1)).trim();
     }
 
     private Intent getActionIntent(Notification.Action action) {

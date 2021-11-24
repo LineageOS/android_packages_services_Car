@@ -16,10 +16,6 @@
 
 package com.android.car.admin;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
-
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
@@ -35,7 +31,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.text.TextUtils;
@@ -47,7 +42,6 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
-import java.util.List;
 import java.util.Objects;
 
 // TODO(b/196947649): move this class to CarSettings or at least to some common package (not
@@ -73,7 +67,10 @@ public final class NotificationHelper {
     /** Maximum notification offset for car watchdog's resource overuse notifications. */
     public static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 20;
 
-    public static final String ACTION_RESOURCE_OVERUSE_DISABLE_APP =
+    public static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
+    public static final String CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS =
+            "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
+    public static final String CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP =
             "com.android.car.watchdog.ACTION_RESOURCE_OVERUSE_DISABLE_APP";
     public static final String CAR_SERVICE_PACKAGE_NAME = "com.android.car";
     @VisibleForTesting
@@ -125,6 +122,17 @@ public final class NotificationHelper {
             details = "private constructor")
     private NotificationHelper() {
         throw new UnsupportedOperationException("Contains only static methods");
+    }
+
+    /**
+     * Cancels a specific notification as a user.
+     */
+    public static void cancelNotificationAsUser(Context context, UserHandle user,
+            int notificationId) {
+        if (DEBUG) {
+            Slogf.d(TAG, "Canceling notification %d for user %s", notificationId, user);
+        }
+        context.getSystemService(NotificationManager.class).cancelAsUser(TAG, notificationId, user);
     }
 
     /**
@@ -186,17 +194,17 @@ public final class NotificationHelper {
      * Shows the user car watchdog's resource overuse notifications.
      */
     public static void showResourceOveruseNotificationsAsUser(Context context,
-            UserHandle userHandle, List<String> headsUpNotificationPackages,
-            List<String> notificationCenterPackages, int idStartOffset) {
-        Preconditions.checkArgument(userHandle.getIdentifier() >= 0,
-                "Must provide the user handle for a specific user");
+            UserHandle user, SparseArray<String> headsUpNotificationPackagesById,
+            SparseArray<String> notificationCenterPackagesById) {
+        Preconditions.checkArgument(user.getIdentifier() >= 0,
+                "Invalid user: %s. Must provide the user handle for a specific user.", user);
 
-        SparseArray<List<String>> packagesByImportance = new SparseArray<>(2);
-        packagesByImportance.put(NotificationManager.IMPORTANCE_HIGH, headsUpNotificationPackages);
+        SparseArray<SparseArray<String>> packagesByImportance = new SparseArray<>(2);
+        packagesByImportance.put(NotificationManager.IMPORTANCE_HIGH,
+                headsUpNotificationPackagesById);
         packagesByImportance.put(NotificationManager.IMPORTANCE_DEFAULT,
-                notificationCenterPackages);
-        showResourceOveruseNotificationsAsUser(context, userHandle, packagesByImportance,
-                idStartOffset);
+                notificationCenterPackagesById);
+        showResourceOveruseNotificationsAsUser(context, user, packagesByImportance);
     }
 
     /**
@@ -236,7 +244,7 @@ public final class NotificationHelper {
     }
 
     private static void showResourceOveruseNotificationsAsUser(Context context, UserHandle user,
-            SparseArray<List<String>> packagesByImportance, int idStartOffset) {
+            SparseArray<SparseArray<String>> packagesByImportance) {
         PackageManager packageManager = context.getPackageManager();
         NotificationManager notificationManager =
                 context.getSystemService(NotificationManager.class);
@@ -259,11 +267,10 @@ public final class NotificationHelper {
 
         for (int i = 0; i < packagesByImportance.size(); i++) {
             int importance = packagesByImportance.keyAt(i);
-            List<String> packages = packagesByImportance.valueAt(i);
-            for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
-                int idOffset = (idStartOffset + pkgIdx) % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
-                int notificationId = RESOURCE_OVERUSE_NOTIFICATION_BASE_ID + idOffset;
-                String packageName = packages.get(pkgIdx);
+            SparseArray<String> packagesById = packagesByImportance.valueAt(i);
+            for (int pkgIdx = 0; pkgIdx < packagesById.size(); pkgIdx++) {
+                int notificationId = packagesById.keyAt(pkgIdx);
+                String packageName = packagesById.valueAt(pkgIdx);
                 String text = textUninstallApp;
                 String negativeActionText = actionTitleUninstallApp;
 
@@ -275,14 +282,16 @@ public final class NotificationHelper {
                             /* flags= */ 0, user);
                     appName = info.loadLabel(packageManager);
                     negativeActionPendingIntent = positiveActionPendingIntent =
-                            getAppSettingsPendingIntent(context, user, packageName, notificationId);
+                            getPendingIntent(context, CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS, user,
+                                    packageName, notificationId);
                     // Apps with SYSTEM flag are considered bundled apps by car settings and
                     // bundled apps have disable button rather than uninstall button.
                     if ((info.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
                         text = textDisableApp;
                         negativeActionText = actionTitleDisableApp;
-                        negativeActionPendingIntent = getDisableAppPendingIntent(context, user,
-                                packageName, notificationId);
+                        negativeActionPendingIntent = getPendingIntent(context,
+                                CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP, user, packageName,
+                                notificationId);
                     }
                 } catch (PackageManager.NameNotFoundException e) {
                     Slogf.e(TAG, e, "Package '%s' not found for user %s", packageName, user);
@@ -312,27 +321,15 @@ public final class NotificationHelper {
                             actionTitlePrioritizeApp, negativeActionText);
                 }
             }
-            idStartOffset += packages.size();
         }
     }
 
-    // TODO(b/205900458): Send the intent to CarWatchdogService, where once the notification is
-    //  received it should be dismissed. Pass the notification id to the intent as an extra.
-    private static PendingIntent getAppSettingsPendingIntent(Context context, UserHandle user,
+    private static PendingIntent getPendingIntent(Context context, String action, UserHandle user,
             String packageName, int notificationId) {
-        Intent intent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
-                .setData(Uri.parse("package:" + packageName))
-                .setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-        return PendingIntent.getActivityAsUser(context, notificationId, intent,
-                PendingIntent.FLAG_IMMUTABLE, /* options= */ null, user);
-    }
-
-    // TODO(b/205900458): Pass the notification id to the intent as an extra.
-    private static PendingIntent getDisableAppPendingIntent(Context context, UserHandle user,
-            String packageName, int notificationId) {
-        Intent intent = new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+        Intent intent = new Intent(action)
                 .putExtra(Intent.EXTRA_USER, user)
+                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, notificationId)
                 .setPackage(context.getPackageName())
                 .setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
         return PendingIntent.getBroadcastAsUser(context, notificationId, intent,
