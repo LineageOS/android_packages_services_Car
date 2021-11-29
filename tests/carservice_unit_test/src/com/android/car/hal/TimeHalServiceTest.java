@@ -32,10 +32,8 @@ import android.app.time.TimeManager;
 import android.car.test.util.FakeContext;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 
 import com.android.car.R;
 
@@ -52,11 +50,11 @@ import java.util.function.Supplier;
 @RunWith(MockitoJUnitRunner.class)
 public final class TimeHalServiceTest {
 
-    private static final VehiclePropConfig ANDROID_TIME_PROP =
-            VehicleHalTestingHelper.newConfigDeprecated(ANDROID_EPOCH_TIME);
+    private static final HalPropConfig ANDROID_TIME_PROP =
+            VehicleHalTestingHelper.newConfig(ANDROID_EPOCH_TIME);
 
-    private static final VehiclePropConfig CAR_TIME_PROP =
-            VehicleHalTestingHelper.newConfigDeprecated(EXTERNAL_CAR_TIME);
+    private static final HalPropConfig CAR_TIME_PROP =
+            VehicleHalTestingHelper.newConfig(EXTERNAL_CAR_TIME);
 
     private final FakeContext mFakeContext = new FakeContext();
 
@@ -66,6 +64,8 @@ public final class TimeHalServiceTest {
 
     private Supplier<TimeHalService> mTimeHalServiceProvider;
 
+    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+
     @Before
     public void setUp() {
         when(mMockResources.getBoolean(R.bool.config_enableExternalCarTimeToExternalTimeSuggestion))
@@ -74,13 +74,14 @@ public final class TimeHalServiceTest {
         mFakeContext.setResources(mMockResources);
         mFakeContext.setSystemService(TimeManager.class, mTimeManagerService);
 
+        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mTimeHalServiceProvider = () -> new TimeHalService(mFakeContext, mVehicleHal);
     }
 
     @Test
     public void testInitDoesNothing() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.emptyList());
+        timeHalService.takeProperties(Collections.emptyList());
 
         timeHalService.init();
 
@@ -92,7 +93,7 @@ public final class TimeHalServiceTest {
     @Test
     public void testInitRegistersBroadcastReceiver() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(ANDROID_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(ANDROID_TIME_PROP));
 
         timeHalService.init();
 
@@ -103,21 +104,21 @@ public final class TimeHalServiceTest {
     @Test
     public void testInitSendsAndroidTimeUpdate() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(ANDROID_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(ANDROID_TIME_PROP));
         long sysTimeMillis = System.currentTimeMillis();
 
         timeHalService.init();
 
         assertThat(timeHalService.isAndroidTimeSupported()).isTrue();
-        ArgumentCaptor<VehiclePropValue> captor = ArgumentCaptor.forClass(VehiclePropValue.class);
-        verify(mVehicleHal).setDeprecated(captor.capture());
-        VehiclePropValue propValue = captor.getValue();
-        assertThat(propValue.prop).isEqualTo(ANDROID_EPOCH_TIME);
-        assertThat(propValue.areaId).isEqualTo(VehicleArea.GLOBAL);
-        assertThat(propValue.status).isEqualTo(VehiclePropertyStatus.AVAILABLE);
-        assertThat(propValue.timestamp).isAtLeast(sysTimeMillis);
-        assertThat(propValue.value.int64Values).hasSize(1);
-        assertThat(propValue.value.int64Values.get(0)).isAtLeast(sysTimeMillis);
+        ArgumentCaptor<HalPropValue> captor = ArgumentCaptor.forClass(HalPropValue.class);
+        verify(mVehicleHal).set(captor.capture());
+        HalPropValue propValue = captor.getValue();
+        assertThat(propValue.getPropId()).isEqualTo(ANDROID_EPOCH_TIME);
+        assertThat(propValue.getAreaId()).isEqualTo(VehicleArea.GLOBAL);
+        assertThat(propValue.getStatus()).isEqualTo(VehiclePropertyStatus.AVAILABLE);
+        assertThat(propValue.getTimestamp()).isAtLeast(sysTimeMillis);
+        assertThat(propValue.getInt64ValuesSize()).isEqualTo(1);
+        assertThat(propValue.getInt64Value(0)).isAtLeast(sysTimeMillis);
     }
 
     @Test
@@ -125,7 +126,7 @@ public final class TimeHalServiceTest {
         when(mMockResources.getBoolean(R.bool.config_enableExternalCarTimeToExternalTimeSuggestion))
                 .thenReturn(false);
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(CAR_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(CAR_TIME_PROP));
 
         timeHalService.init();
 
@@ -136,15 +137,15 @@ public final class TimeHalServiceTest {
     @Test
     public void testInitSendsExternalTimeSuggestion() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(CAR_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(CAR_TIME_PROP));
         long testTimeNanos = 123_456_789_456_123L;
-        when(mVehicleHal.getDeprecated(anyInt())).thenReturn(
+        when(mVehicleHal.get(anyInt())).thenReturn(
                 newExternalCarTimeValue(testTimeNanos));
 
         timeHalService.init();
 
         assertThat(timeHalService.isExternalCarTimeSupported()).isTrue();
-        verify(mVehicleHal).getDeprecated(EXTERNAL_CAR_TIME);
+        verify(mVehicleHal).get(EXTERNAL_CAR_TIME);
         verify(mTimeManagerService).suggestExternalTime(
                 new ExternalTimeSuggestion(testTimeNanos / 1_000_000, testTimeNanos));
     }
@@ -152,7 +153,7 @@ public final class TimeHalServiceTest {
     @Test
     public void testReleaseUnregistersBroadcastReceiver() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(ANDROID_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(ANDROID_TIME_PROP));
         timeHalService.init();
         clearInvocations(mVehicleHal);
 
@@ -165,7 +166,7 @@ public final class TimeHalServiceTest {
     @Test
     public void testReleaseClearsExternalCarTime() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(ANDROID_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(ANDROID_TIME_PROP));
         timeHalService.init();
 
         timeHalService.release();
@@ -176,34 +177,34 @@ public final class TimeHalServiceTest {
     @Test
     public void testSendsAndroidTimeUpdateWhenBroadcast() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(ANDROID_TIME_PROP));
+        timeHalService.takeProperties(Collections.singletonList(ANDROID_TIME_PROP));
         timeHalService.init();
         clearInvocations(mVehicleHal);
         long sysTimeMillis = System.currentTimeMillis();
 
         mFakeContext.sendBroadcast(new Intent(Intent.ACTION_TIME_CHANGED));
 
-        ArgumentCaptor<VehiclePropValue> captor = ArgumentCaptor.forClass(VehiclePropValue.class);
-        verify(mVehicleHal).setDeprecated(captor.capture());
-        VehiclePropValue propValue = captor.getValue();
-        assertThat(propValue.prop).isEqualTo(ANDROID_EPOCH_TIME);
-        assertThat(propValue.areaId).isEqualTo(VehicleArea.GLOBAL);
-        assertThat(propValue.status).isEqualTo(VehiclePropertyStatus.AVAILABLE);
-        assertThat(propValue.timestamp).isAtLeast(sysTimeMillis);
-        assertThat(propValue.value.int64Values).hasSize(1);
-        assertThat(propValue.value.int64Values.get(0)).isAtLeast(sysTimeMillis);
+        ArgumentCaptor<HalPropValue> captor = ArgumentCaptor.forClass(HalPropValue.class);
+        verify(mVehicleHal).set(captor.capture());
+        HalPropValue propValue = captor.getValue();
+        assertThat(propValue.getPropId()).isEqualTo(ANDROID_EPOCH_TIME);
+        assertThat(propValue.getAreaId()).isEqualTo(VehicleArea.GLOBAL);
+        assertThat(propValue.getStatus()).isEqualTo(VehiclePropertyStatus.AVAILABLE);
+        assertThat(propValue.getTimestamp()).isAtLeast(sysTimeMillis);
+        assertThat(propValue.getInt64ValuesSize()).isEqualTo(1);
+        assertThat(propValue.getInt64Value(0)).isAtLeast(sysTimeMillis);
     }
 
     @Test
     public void testOnHalEventSendsExternalTimeSuggestion() {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
-        timeHalService.takePropertiesDeprecated(Collections.singletonList(CAR_TIME_PROP));
-        when(mVehicleHal.getDeprecated(anyInt())).thenReturn(newExternalCarTimeValue(0));
+        timeHalService.takeProperties(Collections.singletonList(CAR_TIME_PROP));
+        when(mVehicleHal.get(anyInt())).thenReturn(newExternalCarTimeValue(0));
         timeHalService.init();
         clearInvocations(mTimeManagerService);
         long testTimeNanos = 123_456_789_456_123L;
 
-        timeHalService.onHalEventsDeprecated(
+        timeHalService.onHalEvents(
                 Collections.singletonList(newExternalCarTimeValue(testTimeNanos)));
 
         assertThat(timeHalService.isExternalCarTimeSupported()).isTrue();
@@ -211,14 +212,8 @@ public final class TimeHalServiceTest {
                 new ExternalTimeSuggestion(testTimeNanos / 1_000_000, testTimeNanos));
     }
 
-    private static VehiclePropValue newExternalCarTimeValue(long timeMicros) {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = EXTERNAL_CAR_TIME;
-        propValue.areaId = VehicleArea.GLOBAL;
-        propValue.status = VehiclePropertyStatus.AVAILABLE;
-        propValue.timestamp = timeMicros;
-        propValue.value.int64Values.add(timeMicros);
-
-        return propValue;
+    private HalPropValue newExternalCarTimeValue(long timeMicros) {
+        return mPropValueBuilder.build(EXTERNAL_CAR_TIME, VehicleArea.GLOBAL,
+                timeMicros, VehiclePropertyStatus.AVAILABLE, timeMicros);
     }
 }

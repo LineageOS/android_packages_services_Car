@@ -31,10 +31,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 
 import com.android.car.CarLog;
 import com.android.car.R;
@@ -47,7 +45,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 
-/** Writes the Android System time to EPOCH_TIME in the VHAL, if supported. */
+/** Writes the Android System time to ANDROID_EPOCH_TIME in the VHAL, if supported. */
 public final class TimeHalService extends HalServiceBase {
 
     private static final int[] SUPPORTED_PROPERTIES =
@@ -58,6 +56,8 @@ public final class TimeHalService extends HalServiceBase {
     private final TimeManager mTimeManager;
 
     private final boolean mEnableExternalCarTimeSuggestions;
+
+    private final HalPropValueBuilder mPropValueBuilder;
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -96,10 +96,10 @@ public final class TimeHalService extends HalServiceBase {
     TimeHalService(Context context, VehicleHal hal) {
         mContext = requireNonNull(context);
         mHal = requireNonNull(hal);
-        mAidlSupported = false;
         mTimeManager = requireNonNull(context.getSystemService(TimeManager.class));
         mEnableExternalCarTimeSuggestions = mContext.getResources().getBoolean(
                 R.bool.config_enableExternalCarTimeToExternalTimeSuggestion);
+        mPropValueBuilder = hal.getHalPropValueBuilder();
     }
 
     @Override
@@ -116,7 +116,7 @@ public final class TimeHalService extends HalServiceBase {
             }
 
             if (mExternalCarTimeSupported) {
-                VehiclePropValue propValue = mHal.getDeprecated(EXTERNAL_CAR_TIME);
+                HalPropValue propValue = mHal.get(EXTERNAL_CAR_TIME);
                 suggestExternalTimeLocked(propValue);
             }
         }
@@ -144,9 +144,9 @@ public final class TimeHalService extends HalServiceBase {
     }
 
     @Override
-    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
-        for (VehiclePropConfig property : properties) {
-            switch (property.prop) {
+    public void takeProperties(Collection<HalPropConfig> properties) {
+        for (HalPropConfig property : properties) {
+            switch (property.getPropId()) {
                 case ANDROID_EPOCH_TIME:
                     synchronized (mLock) {
                         mAndroidTimeSupported = true;
@@ -164,14 +164,14 @@ public final class TimeHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
+    public void onHalEvents(List<HalPropValue> values) {
         synchronized (mLock) {
             if (!mExternalCarTimeSupported) {
                 return;
             }
 
-            for (VehiclePropValue value : values) {
-                if (value.prop == EXTERNAL_CAR_TIME) {
+            for (HalPropValue value : values) {
+                if (value.getPropId() == EXTERNAL_CAR_TIME) {
                     suggestExternalTimeLocked(value);
                     break;
                 }
@@ -195,33 +195,31 @@ public final class TimeHalService extends HalServiceBase {
 
     @GuardedBy("mLock")
     private void updateAndroidEpochTimePropertyLocked(long timeMillis) {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = ANDROID_EPOCH_TIME;
-        propValue.areaId = VehicleArea.GLOBAL;
-        propValue.status = VehiclePropertyStatus.AVAILABLE;
-        propValue.timestamp = timeMillis;
-        propValue.value.int64Values.add(timeMillis);
+        HalPropValue propValue = mPropValueBuilder.build(ANDROID_EPOCH_TIME, VehicleArea.GLOBAL,
+                /*timestamp=*/timeMillis, VehiclePropertyStatus.AVAILABLE,
+                /*value=*/timeMillis);
 
         Slogf.d(CarLog.TAG_TIME, "Writing value %d to property ANDROID_EPOCH_TIME", timeMillis);
-        mHal.setDeprecated(propValue);
+        mHal.set(propValue);
         mLastAndroidTimeReported = Instant.ofEpochMilli(timeMillis);
     }
 
     @GuardedBy("mLock")
-    private void suggestExternalTimeLocked(VehiclePropValue value) {
-        if (value.prop != EXTERNAL_CAR_TIME || value.status != VehiclePropertyStatus.AVAILABLE) {
+    private void suggestExternalTimeLocked(HalPropValue value) {
+        if (value.getPropId() != EXTERNAL_CAR_TIME
+                || value.getStatus() != VehiclePropertyStatus.AVAILABLE) {
             return;
         }
 
-        if (value.value.int64Values.size() != 1) {
+        if (value.getInt64ValuesSize() != 1) {
             Slogf.e(CarLog.TAG_TIME, "Invalid value received for EXTERNAL_CAR_TIME.\n"
                     + "  Expected a single element in int64values.\n"
-                    + "  Received: %s", value.value);
+                    + "  Received: %s", value.dumpInt64Values());
             return;
         }
-        long epochTime = value.value.int64Values.get(0);
+        long epochTime = value.getInt64Value(0);
         // timestamp is stored in nanoseconds but the suggest API uses milliseconds.
-        long elapsedRealtime = value.timestamp / 1_000_000;
+        long elapsedRealtime = value.getTimestamp() / 1_000_000;
 
         mLastExternalTimeSuggestion = new ExternalTimeSuggestion(elapsedRealtime, epochTime);
 
