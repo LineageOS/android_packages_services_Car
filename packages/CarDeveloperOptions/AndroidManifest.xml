@@ -184,6 +184,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$AdaptiveBrightnessActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$ConfigureWifiSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2348,6 +2357,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$ButtonNavigationSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$MediaControlsSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2362,6 +2380,15 @@
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$OneHandedSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
             <intent-filter tools:node="removeAll"/>
         </activity>
 
