@@ -40,6 +40,7 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.R;
 
 import java.math.BigInteger;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -276,8 +277,8 @@ public class CustomUuidEirFragment extends Fragment {
                     return;
                 }
             }
-            mAdapter.setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE,
-                    DISCOVERABLE_TIMEOUT_TWO_MINUTES);
+            mAdapter.setDiscoverableTimeout(Duration.ofMillis(DISCOVERABLE_TIMEOUT_TWO_MINUTES));
+            mAdapter.setScanMode(BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
             Log.d(TAG, "Started discovery.");
         } else {
             // Stop advertising.
