@@ -45,14 +45,16 @@ public:
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
     MOCK_METHOD(Return<void>, getCameraList, (getCameraList_cb _hidl_cb), (override));
-    Return<sp<IEvsCamera_1_0>> openCamera(const hidl_string& cameraId) override {
+    Return<sp<hardware::automotive::evs::V1_0::IEvsCamera>> openCamera(
+            const hidl_string& cameraId) override {
         uint64_t idx = std::stoi(cameraId);
         if (mHWCameras.find(idx) != mHWCameras.end()) {
             return mHWCameras[idx];
         }
         return nullptr;
     }
-    MOCK_METHOD(Return<void>, closeCamera, (const sp<IEvsCamera_1_0>& carCamera), (override));
+    MOCK_METHOD(Return<void>, closeCamera,
+                (const sp<hardware::automotive::evs::V1_0::IEvsCamera>& carCamera), (override));
     Return<sp<IEvsDisplay_1_0>> openDisplay() override { return mHWDisplays.begin()->second; }
     Return<void> closeDisplay(const sp<IEvsDisplay_1_0>& display) override { return {}; }
     MOCK_METHOD(Return<DisplayState>, getDisplayState, (), (override));

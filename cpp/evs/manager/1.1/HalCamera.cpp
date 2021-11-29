@@ -60,7 +60,7 @@ sp<VirtualCamera> HalCamera::makeVirtualCamera() {
     return client;
 }
 
-bool HalCamera::ownVirtualCamera(sp<VirtualCamera>& virtualCamera) {
+bool HalCamera::ownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     if (virtualCamera == nullptr) {
         LOG(ERROR) << "Failed to create virtualCamera camera object";
         return false;
@@ -82,7 +82,7 @@ bool HalCamera::ownVirtualCamera(sp<VirtualCamera>& virtualCamera) {
     return true;
 }
 
-void HalCamera::disownVirtualCamera(sp<VirtualCamera>& virtualCamera) {
+void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     // Ignore calls with null pointers
     if (virtualCamera == nullptr) {
         LOG(WARNING) << "Ignoring disownVirtualCamera call with null pointer";
@@ -510,12 +510,12 @@ Return<EvsResult> HalCamera::unsetMaster(const VirtualCamera* virtualCamera) {
 }
 
 Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera, CameraParam id,
-                                          int32_t& value) {
+                                          int32_t* value) {
     EvsResult result = EvsResult::INVALID_ARG;
     if (virtualCamera == mPrimaryClient.promote()) {
-        mHwCamera->setIntParameter(id, value, [&result, &value](auto status, auto readValue) {
+        mHwCamera->setIntParameter(id, *value, [&result, value](auto status, auto readValue) {
             result = status;
-            value = readValue[0];
+            *value = readValue[0];
         });
 
         if (result == EvsResult::OK) {
@@ -523,7 +523,7 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera, Camer
             EvsEventDesc event;
             event.aType = EvsEventType::PARAMETER_CHANGED;
             event.payload[0] = static_cast<uint32_t>(id);
-            event.payload[1] = static_cast<uint32_t>(value);
+            event.payload[1] = static_cast<uint32_t>(*value);
             auto cbResult = this->notify(event);
             if (!cbResult.isOk()) {
                 LOG(ERROR) << "Fail to deliver a parameter change notification";
@@ -539,12 +539,12 @@ Return<EvsResult> HalCamera::setParameter(sp<VirtualCamera> virtualCamera, Camer
     return result;
 }
 
-Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t& value) {
+Return<EvsResult> HalCamera::getParameter(CameraParam id, int32_t* value) {
     EvsResult result = EvsResult::OK;
-    mHwCamera->getIntParameter(id, [&result, &value](auto status, auto readValue) {
+    mHwCamera->getIntParameter(id, [&result, value](auto status, auto readValue) {
         result = status;
         if (result == EvsResult::OK) {
-            value = readValue[0];
+            *value = readValue[0];
         }
     });
 

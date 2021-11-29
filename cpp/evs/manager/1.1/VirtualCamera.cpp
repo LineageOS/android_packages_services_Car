@@ -783,7 +783,7 @@ Return<void> VirtualCamera::setIntParameter(CameraParam id, int32_t value,
         return Void();
     }
 
-    status = pHwCamera->setParameter(this, id, value);
+    status = pHwCamera->setParameter(this, id, &value);
 
     values.resize(1);
     values[0] = value;
@@ -809,7 +809,7 @@ Return<void> VirtualCamera::getIntParameter(CameraParam id, getIntParameter_cb _
     }
 
     int32_t value;
-    status = pHwCamera->getParameter(id, value);
+    status = pHwCamera->getParameter(id, &value);
 
     values.resize(1);
     values[0] = value;
