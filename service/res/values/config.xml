@@ -347,7 +347,7 @@
          necessary permission for TYPE_APPLICATION_OVERLAY window type. The UI package should
          resolve permission by itself to use any higher priority window type.
          Setting this string to empty will disable the feature. -->
-    <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoiticeDemoUiService</string>
+    <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoticeDemoUiService</string>
 
     <!-- Configuration to enable media center to autoplay when the media source is changed.
          There are 3 supported configurations:

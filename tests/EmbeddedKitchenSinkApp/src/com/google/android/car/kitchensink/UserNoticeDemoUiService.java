@@ -38,9 +38,9 @@ import com.android.internal.annotations.GuardedBy;
  * <p>IUserNotice and IUserNoticeUI are intentionally accessed / implemented without using the
  * generated code from aidl so that this can be done without accessing hidden API.
  */
-public class UserNoiticeDemoUiService extends Service {
+public class UserNoticeDemoUiService extends Service {
 
-    private static final String TAG = UserNoiticeDemoUiService.class.getSimpleName();
+    private static final String TAG = UserNoticeDemoUiService.class.getSimpleName();
 
     private static final String IUSER_NOTICE_BINDER_DESCRIPTOR = "android.car.user.IUserNotice";
     private static final int IUSER_NOTICE_TR_ON_DIALOG_DISMISSED =

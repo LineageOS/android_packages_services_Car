@@ -205,7 +205,7 @@
              android:directBootAware="true">
         </service>
 
-        <service android:name=".UserNoiticeDemoUiService"
+        <service android:name=".UserNoticeDemoUiService"
              android:directBootAware="true"/>
 
         <!-- Content provider for images -->
