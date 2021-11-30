@@ -89,6 +89,17 @@ public final class DebugUtils {
     /**
      * Gets human-readable representation of constants (static final values).
      *
+     * @see #constantToString(Class, String, int)
+     *
+     * @hide
+     */
+    public static String constantToString(Class<?> clazz, int value) {
+        return constantToString(clazz, "", value);
+    }
+
+    /**
+     * Gets human-readable representation of constants (static final values).
+     *
      * @hide
      */
     public static String constantToString(Class<?> clazz, String prefix, int value) {
