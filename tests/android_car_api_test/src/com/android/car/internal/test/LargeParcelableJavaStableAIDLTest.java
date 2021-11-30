@@ -42,7 +42,7 @@ import java.util.concurrent.CountDownLatch;
 
 @SmallTest
 public final class LargeParcelableJavaStableAIDLTest {
-    private static final long DEFAULT_TIMEOUT_MS = 3000;
+    private static final long DEFAULT_TIMEOUT_MS = 60_000;
     private static final int ARRAY_LENGTH_SMALL = 2048;
     // The current threshold is 4096.
     private static final int ARRAY_LENGTH_BIG = 4099;
