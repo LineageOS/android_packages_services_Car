@@ -195,7 +195,7 @@ class SimpleUploaderAsyncTask extends AsyncTask<Void, Void, Boolean> {
                             + " - it was already uploaded before. Marking it success.");
                     // It may leave bugreport files in the device for some time, but they are
                     // cleaned-up during ExpireOldBugReportsJob.
-                    BugStorageUtils.setUploadSuccess(mContext, bugReport);
+                    BugStorageUtils.setUploadedBefore(mContext, bugReport, e);
                     continue;
                 }
                 Log.w(TAG, String.format("Failed uploading %s - likely a transient error",
