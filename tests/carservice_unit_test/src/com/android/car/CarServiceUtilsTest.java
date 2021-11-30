@@ -23,6 +23,7 @@ import android.hardware.automotive.vehicle.SubscribeOptions;
 import org.junit.Test;
 
 public class CarServiceUtilsTest {
+
     private static final int TEST_PROP = 1;
     private static final int TEST_AREA_ID = 2;
     private static final float MIN_SAMPLE_RATE = 1.0f;

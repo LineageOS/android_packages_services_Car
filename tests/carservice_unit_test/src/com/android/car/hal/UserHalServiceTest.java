@@ -176,7 +176,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mUserHalService = spy(new UserHalService(mVehicleHal, mHandler));
         // Needs at least one property, otherwise isSupported() and isUserAssociationSupported()
         // will return false
-        mUserHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        mUserHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER),
                 newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
@@ -205,7 +206,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
 
-        myHalService.takeProperties(Collections.emptyList());
+        myHalService.takePropertiesDeprecated(Collections.emptyList());
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
     }
@@ -214,7 +215,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testTakeSupportedProperties_supportedFewProperties() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER)));
 
         assertThat(myHalService.isSupported()).isFalse();
@@ -226,7 +228,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mockUserHalEnabled(null);
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER)));
 
@@ -239,7 +242,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mockUserHalEnabled(false);
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER)));
 
@@ -251,7 +255,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testTakeSupportedProperties_supportedAllCoreProperties() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER)));
 
@@ -264,7 +269,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mockUserHalEnabled(false);
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER),
                 newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
@@ -278,7 +284,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mockUserHalEnabled(null);
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER),
                 newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
@@ -291,7 +298,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testTakeSupportedProperties_supportedAllProperties() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER),
                 newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
@@ -306,7 +314,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         UserHalService myHalService = new UserHalService(mVehicleHal);
         VehiclePropConfig unsupportedConfig = newConfig(CURRENT_GEAR);
 
-        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+        myHalService.takePropertiesDeprecated(
+                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
                 newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
                 newSubscribableConfig(SWITCH_USER), unsupportedConfig,
                 newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
@@ -782,7 +791,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         propResponse.value.int32Values.add(targetUserId);
 
-        mUserHalService.onHalEvents(Arrays.asList(propResponse));
+        mUserHalService.onHalEventsDeprecated(Arrays.asList(propResponse));
         waitForHandler();
 
         verify(mCarUserService).switchAndroidUserFromHal(requestId, targetUserId);
@@ -796,7 +805,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
                 requestId, SwitchUserMessageType.VEHICLE_REQUEST);
         propResponse.value.int32Values.add(targetUserId);
 
-        mUserHalService.onHalEvents(Arrays.asList(propResponse));
+        mUserHalService.onHalEventsDeprecated(Arrays.asList(propResponse));
         waitForHandler();
 
         verify(mCarUserService, never()).switchAndroidUserFromHal(anyInt(), anyInt());
@@ -831,7 +840,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mUserHalService.postSwitchResponse(request);
         ArgumentCaptor<VehiclePropValue> propCaptor =
                 ArgumentCaptor.forClass(VehiclePropValue.class);
-        verify(mVehicleHal).set(propCaptor.capture());
+        verify(mVehicleHal).setDeprecated(propCaptor.capture());
         VehiclePropValue prop = propCaptor.getValue();
         assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH, mUser10);
     }
@@ -912,7 +921,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         mUserHalService.removeUser(request);
 
-        verify(mVehicleHal).set(propCaptor.capture());
+        verify(mVehicleHal).setDeprecated(propCaptor.capture());
         assertHalSetRemoveUserRequest(propCaptor.getValue(), mUser10);
     }
 
@@ -945,7 +954,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mUserHalService.legacyUserSwitch(request);
         ArgumentCaptor<VehiclePropValue> propCaptor =
                 ArgumentCaptor.forClass(VehiclePropValue.class);
-        verify(mVehicleHal).set(propCaptor.capture());
+        verify(mVehicleHal).setDeprecated(propCaptor.capture());
         VehiclePropValue prop = propCaptor.getValue();
         assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.LEGACY_ANDROID_SWITCH,
                 mUser10);
@@ -1555,9 +1564,9 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
             response.value.int32Values.set(0, responseId);
             Log.d(TAG, "replySetPropertyWithOnChangeEvent(): resp=" + response + " for req="
                     + request);
-            mUserHalService.onHalEvents(Arrays.asList(response));
+            mUserHalService.onHalEventsDeprecated(Arrays.asList(response));
             return null;
-        }).when(mVehicleHal).set(isProperty(prop));
+        }).when(mVehicleHal).setDeprecated(isProperty(prop));
         return ref;
     }
 
@@ -1566,7 +1575,8 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
      */
     private void replySetPropertyWithTimeoutException(int prop) throws Exception {
         doThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN,
-                "PropId: 0x" + Integer.toHexString(prop))).when(mVehicleHal).set(isProperty(prop));
+                "PropId: 0x" + Integer.toHexString(prop))).when(mVehicleHal)
+                .setDeprecated(isProperty(prop));
     }
 
     @NonNull
@@ -1591,7 +1601,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
 
-        when(mVehicleHal.get(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
+        when(mVehicleHal.getDeprecated(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
                 DEFAULT_REQUEST_ID, DEFAULT_USER_ID, DEFAULT_USER_FLAGS,
                 /* numberAssociations= */ 1, KEY_FOB)))
             .thenReturn(response);
@@ -1609,7 +1619,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         request.numberAssociationTypes = 1;
         request.associationTypes.add(KEY_FOB);
 
-        when(mVehicleHal.get(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
+        when(mVehicleHal.getDeprecated(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
                 DEFAULT_REQUEST_ID, DEFAULT_USER_ID, DEFAULT_USER_FLAGS,
                 /* numberAssociations= */ 1, KEY_FOB))).thenThrow(e);
 
@@ -1709,7 +1719,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
      * {@link #replyToValidGetUserIdentificationRequest(VehiclePropValue)}.
      */
     private void verifyValidGetUserIdentificationRequestMade() {
-        verify(mVehicleHal).get(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
+        verify(mVehicleHal).getDeprecated(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
                 DEFAULT_REQUEST_ID, DEFAULT_USER_ID, DEFAULT_USER_FLAGS,
                 /* numberAssociations= */ 1, KEY_FOB));
     }

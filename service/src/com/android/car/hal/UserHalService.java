@@ -146,6 +146,7 @@ public final class UserHalService extends HalServiceBase {
     @VisibleForTesting
     UserHalService(VehicleHal hal, Handler handler) {
         mHal = hal;
+        mAidlSupported = false;
         mHandler = handler;
         mBaseRequestId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
     }
@@ -163,7 +164,7 @@ public final class UserHalService extends HalServiceBase {
             int size = mProperties.size();
             for (int i = 0; i < size; i++) {
                 VehiclePropConfig config = mProperties.valueAt(i);
-                if (VehicleHal.isPropertySubscribable(config)) {
+                if (VehicleHal.isPropertySubscribableDeprecated(config)) {
                     props.add(config.prop);
                 }
             }
@@ -182,7 +183,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         if (DBG) Slogf.d(TAG, "handleHalEvents(): " + values);
 
         for (int i = 0; i < values.size(); i++) {
@@ -210,7 +211,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void onPropertySetError(int property, int area,
+    public void onPropertySetErrorDeprecated(int property, int area,
             @CarPropertyManager.CarSetPropertyErrorCode int errorCode) {
         if (DBG) Slogf.d(TAG, "handlePropertySetError(" + property + "/" + area + ")");
     }
@@ -221,7 +222,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
         if (properties.isEmpty()) {
             Slogf.w(TAG, UNSUPPORTED_MSG);
             return;
@@ -350,7 +351,7 @@ public final class UserHalService extends HalServiceBase {
         mHandler.postDelayed(() -> handleCheckIfRequestTimedOut(requestId), requestId, timeoutMs);
         try {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + request);
-            mHal.set(request);
+            mHal.setDeprecated(request);
         } catch (ServiceSpecificException e) {
             handleRemovePendingRequest(requestId);
             Slogf.w(TAG, "Failed to set " + request, e);
@@ -422,7 +423,7 @@ public final class UserHalService extends HalServiceBase {
 
         try {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + propRequest);
-            mHal.set(propRequest);
+            mHal.setDeprecated(propRequest);
         } catch (ServiceSpecificException e) {
             Slogf.w(TAG, "Failed to set REMOVE USER", e);
         }
@@ -487,7 +488,7 @@ public final class UserHalService extends HalServiceBase {
 
         try {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + propRequest);
-            mHal.set(propRequest);
+            mHal.setDeprecated(propRequest);
         } catch (ServiceSpecificException e) {
             Slogf.w(TAG, "Failed to set ANDROID POST SWITCH", e);
         }
@@ -519,7 +520,7 @@ public final class UserHalService extends HalServiceBase {
 
         try {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + propRequest);
-            mHal.set(propRequest);
+            mHal.setDeprecated(propRequest);
         } catch (ServiceSpecificException e) {
             Slogf.w(TAG, "Failed to set LEGACY ANDROID SWITCH", e);
         }
@@ -556,7 +557,7 @@ public final class UserHalService extends HalServiceBase {
                 .writeCarUserHalGetUserAuthReq(requestAsPropValue.value.int32Values.toArray());
         VehiclePropValue responseAsPropValue;
         try {
-            responseAsPropValue = mHal.get(requestAsPropValue);
+            responseAsPropValue = mHal.getDeprecated(requestAsPropValue);
         } catch (ServiceSpecificException e) {
             Slogf.w(TAG, "HAL returned error for request " + requestAsPropValue, e);
             return null;

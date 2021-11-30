@@ -132,6 +132,7 @@ public class PropertyHalService extends HalServiceBase {
         mPropIds = new PropertyHalServiceIds();
         mSubscribedHalPropIds = new HashSet<Integer>();
         mVehicleHal = vehicleHal;
+        mAidlSupported = false;
         if (mDbg) {
             Slogf.d(TAG, "started PropertyHalService");
         }
@@ -182,7 +183,7 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         // CarPropertyManager catches and rethrows exception, no need to handle here.
-        VehiclePropValue value = mVehicleHal.get(halPropId, areaId);
+        VehiclePropValue value = mVehicleHal.getDeprecated(halPropId, areaId);
         if (value == null) {
             return null;
         }
@@ -298,7 +299,7 @@ public class PropertyHalService extends HalServiceBase {
             halProp = toVehiclePropValue(prop, halPropId);
         }
         // CarPropertyManager catches and rethrows exception, no need to handle here.
-        mVehicleHal.set(halProp);
+        mVehicleHal.setDeprecated(halProp);
     }
 
     /**
@@ -385,7 +386,7 @@ public class PropertyHalService extends HalServiceBase {
 
     // The method is called in HAL init(). Avoid handling complex things in here.
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> allProperties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> allProperties) {
         for (VehiclePropConfig p : allProperties) {
             if (mPropIds.isSupportedProperty(p.prop)) {
                 synchronized (mLock) {
@@ -412,7 +413,7 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         PropertyHalListener listener;
         synchronized (mLock) {
             listener = mListener;
@@ -457,7 +458,7 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     @Override
-    public void onPropertySetError(int halPropId, int area,
+    public void onPropertySetErrorDeprecated(int halPropId, int area,
             @CarPropertyManager.CarSetPropertyErrorCode int errorCode) {
         PropertyHalListener listener;
         synchronized (mLock) {

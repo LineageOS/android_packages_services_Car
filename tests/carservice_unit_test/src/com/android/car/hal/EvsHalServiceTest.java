@@ -79,7 +79,7 @@ public class EvsHalServiceTest {
         Set<VehiclePropConfig> offeredProps = ImmutableSet.of(
                 EVS_SERVICE_REQUEST);
 
-        mEvsHalService.takeProperties(offeredProps);
+        mEvsHalService.takePropertiesDeprecated(offeredProps);
 
         assertThat(mEvsHalService.isEvsServiceRequestSupported()).isTrue();
     }
@@ -125,19 +125,19 @@ public class EvsHalServiceTest {
         v.prop = VehicleProperty.EVS_SERVICE_REQUEST;
 
         // Not type, no state.
-        mEvsHalService.onHalEvents(ImmutableList.of(v));
+        mEvsHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mListener, never()).onEvent(anyInt(), anyBoolean());
 
         // Not state.
         v.value.int32Values.add(EvsServiceType.REARVIEW);
-        mEvsHalService.onHalEvents(ImmutableList.of(v));
+        mEvsHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mListener, never()).onEvent(anyInt(), anyBoolean());
     }
 
     // TODO(b/179029031): Adds more tests to verify the surround view service integration.
 
     private void dispatchEvsServiceRequest(int type, int state) {
-        mEvsHalService.onHalEvents(
+        mEvsHalService.onHalEventsDeprecated(
                 ImmutableList.of(buildEvsServiceRequestProp(type, state)));
     }
 
@@ -152,7 +152,7 @@ public class EvsHalServiceTest {
 
     private void subscribeListener(Collection<VehiclePropConfig> properties) {
         reset(mListener);
-        mEvsHalService.takeProperties(properties);
+        mEvsHalService.takePropertiesDeprecated(properties);
         mEvsHalService.setListener(mListener);
 
         for (VehiclePropConfig config : properties) {

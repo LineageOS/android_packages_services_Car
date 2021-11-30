@@ -92,7 +92,7 @@ public class ClusterHalServiceTest {
     @Before
     public void setUp() {
         mClusterHalService = new ClusterHalService(mVehicleHal);
-        mClusterHalService.takeProperties(Arrays.asList(
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList(
                 newSubscribableConfig(CLUSTER_SWITCH_UI),
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE),
@@ -118,14 +118,14 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testTakeProperties_noProperties() {
-        mClusterHalService.takeProperties(Arrays.asList());
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList());
         assertThat(mClusterHalService.isCoreSupported()).isFalse();
         assertThat(mClusterHalService.isNavigationStateSupported()).isFalse();
     }
 
     @Test
     public void testTakeProperties_doNotTakePartialProperties() {
-        mClusterHalService.takeProperties(Arrays.asList(
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList(
                 newSubscribableConfig(CLUSTER_SWITCH_UI),
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE)));
@@ -135,7 +135,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testTakeProperties_coreProperties() {
-        mClusterHalService.takeProperties(Arrays.asList(
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList(
                 newSubscribableConfig(CLUSTER_SWITCH_UI),
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE),
@@ -146,7 +146,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testTakeProperties_fullProperties() {
-        mClusterHalService.takeProperties(Arrays.asList(
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList(
                 newSubscribableConfig(CLUSTER_SWITCH_UI),
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE),
@@ -182,7 +182,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnSwitchUi() {
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createSwitchUiEvent(UI_TYPE_1)));
 
         assertThat(mUiType).isEqualTo(UI_TYPE_1);
@@ -192,7 +192,7 @@ public class ClusterHalServiceTest {
     public void testOnSwitchUi_noListener() {
         mClusterHalService.setCallback(null);
 
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createSwitchUiEvent(UI_TYPE_1)));
 
         assertThat(mUiType).isEqualTo(NOT_ASSIGNED);
@@ -200,9 +200,9 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnSwitchUi_noProperties() {
-        mClusterHalService.takeProperties(Arrays.asList());
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList());
 
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createSwitchUiEvent(UI_TYPE_1)));
 
         assertThat(mUiType).isEqualTo(NOT_ASSIGNED);
@@ -210,7 +210,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnDisplayState() {
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
@@ -227,7 +227,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnDisplayState_DontAcceptPartialDontCare_Bounds() {
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, DONT_CARE,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
@@ -241,7 +241,7 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnDisplayState_DontAcceptPartialDontCare_Inset() {
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, DONT_CARE)));
 
@@ -257,7 +257,7 @@ public class ClusterHalServiceTest {
     public void testOnDisplayState_noListener() {
         mClusterHalService.setCallback(null);
 
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
@@ -268,9 +268,9 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testOnDisplayState_noProperties() {
-        mClusterHalService.takeProperties(Arrays.asList());
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList());
 
-        mClusterHalService.onHalEvents(Arrays.asList(
+        mClusterHalService.onHalEventsDeprecated(Arrays.asList(
                 createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
@@ -286,7 +286,7 @@ public class ClusterHalServiceTest {
                 Insets.of(INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM),
                 UI_TYPE_1, UI_TYPE_2, UI_AVAILABILITY);
 
-        verify(mVehicleHal).set(mPropCaptor.capture());
+        verify(mVehicleHal).setDeprecated(mPropCaptor.capture());
         VehiclePropValue prop = mPropCaptor.getValue();
         assertThat(prop.prop).isEqualTo(CLUSTER_REPORT_STATE);
         assertThat(prop.value.int32Values).containsExactly(
@@ -298,21 +298,21 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testReportState_noProperties() {
-        mClusterHalService.takeProperties(Arrays.asList());
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList());
 
         mClusterHalService.reportState(
                 ON, new Rect(BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM),
                 Insets.of(INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM),
                 UI_TYPE_1, UI_TYPE_2, UI_AVAILABILITY);
 
-        verify(mVehicleHal, times(0)).set(mPropCaptor.capture());
+        verify(mVehicleHal, times(0)).setDeprecated(mPropCaptor.capture());
     }
 
     @Test
     public void testRequestDisplay() {
         mClusterHalService.requestDisplay(UI_TYPE_2);
 
-        verify(mVehicleHal).set(mPropCaptor.capture());
+        verify(mVehicleHal).setDeprecated(mPropCaptor.capture());
         VehiclePropValue prop = mPropCaptor.getValue();
         assertThat(prop.prop).isEqualTo(CLUSTER_REQUEST_DISPLAY);
         assertThat(prop.value.int32Values).containsExactly(UI_TYPE_2);
@@ -320,18 +320,18 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testRequestDisplay_noProperties() {
-        mClusterHalService.takeProperties(Arrays.asList());
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList());
 
         mClusterHalService.requestDisplay(UI_TYPE_2);
 
-        verify(mVehicleHal, times(0)).set(mPropCaptor.capture());
+        verify(mVehicleHal, times(0)).setDeprecated(mPropCaptor.capture());
     }
 
     @Test
     public void testSendNavigationState() {
         mClusterHalService.sendNavigationState(new byte[]{1, 2, 3, 4});
 
-        verify(mVehicleHal).set(mPropCaptor.capture());
+        verify(mVehicleHal).setDeprecated(mPropCaptor.capture());
         VehiclePropValue prop = mPropCaptor.getValue();
         assertThat(prop.prop).isEqualTo(CLUSTER_NAVIGATION_STATE);
         assertThat(prop.value.bytes).containsExactly((byte) 1, (byte) 2, (byte) 3, (byte) 4);
@@ -339,10 +339,10 @@ public class ClusterHalServiceTest {
 
     @Test
     public void testSendNavigationState_noProperties() {
-        mClusterHalService.takeProperties(Arrays.asList());
+        mClusterHalService.takePropertiesDeprecated(Arrays.asList());
 
         mClusterHalService.sendNavigationState(new byte[]{1, 2, 3, 4});
 
-        verify(mVehicleHal, times(0)).set(mPropCaptor.capture());
+        verify(mVehicleHal, times(0)).setDeprecated(mPropCaptor.capture());
     }
 }

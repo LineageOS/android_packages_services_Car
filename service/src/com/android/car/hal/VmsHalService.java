@@ -142,6 +142,7 @@ public class VmsHalService extends HalServiceBase {
             BiFunction<Handler, VmsClientCallback, VmsClient> initVmsClient,
             boolean propagatePropertyException) {
         mVehicleHal = vehicleHal;
+        mAidlSupported = false;
         mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
         mInitVmsClient = initVmsClient;
         mClientMetricsProperty = getClientMetricsProperty(context);
@@ -178,7 +179,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
         if (properties.isEmpty()) {
             return;
         }
@@ -249,7 +250,7 @@ public class VmsHalService extends HalServiceBase {
 
         VehiclePropValue vehicleProp = null;
         try {
-            vehicleProp = mVehicleHal.get(mClientMetricsProperty);
+            vehicleProp = mVehicleHal.getDeprecated(mClientMetricsProperty);
         } catch (RuntimeException e) {
             // Failures to retrieve metrics should be non-fatal
             Slogf.e(TAG, "While reading metrics from client", e);
@@ -274,7 +275,7 @@ public class VmsHalService extends HalServiceBase {
      * hardware/interfaces/automotive/vehicle/2.0/types.hal
      */
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         if (DBG) Slogf.d(TAG, "Handling a VMS property change");
         for (VehiclePropValue v : values) {
             ArrayList<Integer> vec = v.value.int32Values;
@@ -645,7 +646,7 @@ public class VmsHalService extends HalServiceBase {
         }
 
         try {
-            mVehicleHal.set(vehicleProp);
+            mVehicleHal.setDeprecated(vehicleProp);
         } catch (RuntimeException e) {
             Slogf.e(TAG, "While sending " + VmsMessageType.toString(messageType), e);
             if (mPropagatePropertyException) {

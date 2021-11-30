@@ -87,6 +87,7 @@ import android.hardware.automotive.vehicle.V2_0.UsersInfo;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
+import android.hardware.automotive.vehicle.VehiclePropError;
 import android.os.Binder;
 import android.os.FileUtils;
 import android.os.NewUserRequest;
@@ -2211,8 +2212,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         try {
             if (isErrorEvent) {
-                mHal.onPropertySetError(Integer.decode(value), Integer.decode(property),
-                        Integer.decode(zone));
+                VehiclePropError error = new VehiclePropError();
+                error.areaId = Integer.decode(zone);
+                error.propId = Integer.decode(property);
+                error.errorCode = Integer.decode(value);
+                mHal.onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(error)));
             } else {
                 mHal.injectVhalEvent(Integer.decode(property), Integer.decode(zone), value,
                         Integer.decode(delayTime));
