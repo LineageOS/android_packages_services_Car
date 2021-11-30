@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -410,5 +411,21 @@ public final class CarServiceUtils {
             }
         }
         throw new SecurityException("requires any of " + Arrays.toString(permissions));
+    }
+
+    /**
+     * Turns a {@code SubscribeOptions} to {@code
+     * android.hardware.automotive.vehicle.V2_0.SubscribeOptions}
+     */
+    public static android.hardware.automotive.vehicle.V2_0.SubscribeOptions subscribeOptionsToHidl(
+            SubscribeOptions options) {
+        android.hardware.automotive.vehicle.V2_0.SubscribeOptions hidlOptions =
+                new android.hardware.automotive.vehicle.V2_0.SubscribeOptions();
+        hidlOptions.propId = options.propId;
+        hidlOptions.sampleRate = options.sampleRate;
+        // HIDL backend requires flags to be set although it is not used any more.
+        hidlOptions.flags = android.hardware.automotive.vehicle.V2_0.SubscribeFlags.EVENTS_FROM_CAR;
+        // HIDL backend does not support area IDs, so we ignore options.areaId field.
+        return hidlOptions;
     }
 }

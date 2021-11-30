@@ -198,8 +198,8 @@ android_app {
         "android.hardware.automotive.audiocontrol-V1.0-java",
         "android.hardware.automotive.audiocontrol-V2.0-java",
         "android.hardware.automotive.audiocontrol-V1-java",
-        "android.hardware.automotive.vehicle-V2.0-java",
         "android.hardware.automotive.vehicle-V1-java",
+        "android.hardware.automotive.vehicle-V2.0-java",
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
@@ -229,6 +229,11 @@ java_library {
     libs: [
         "android.car.builtin",
         "android.car",
+    ],
+
+    static_libs: [
+        "android.hardware.automotive.vehicle-V1-java",
+        "android.hardware.automotive.vehicle-V2.0-java",
     ],
 
     product_variables: {
