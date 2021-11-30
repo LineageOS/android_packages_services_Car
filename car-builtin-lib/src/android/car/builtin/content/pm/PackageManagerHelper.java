@@ -70,9 +70,9 @@ public final class PackageManagerHelper {
 
     /** Check {@link PackageManager#getPackageInfoAsUser(String, int, int)}. */
     public static PackageInfo getPackageInfoAsUser(@NonNull PackageManager pm,
-            @NonNull String packageName, @PackageManager.PackageInfoFlags int flags,
+            @NonNull String packageName, int packageInfoFlags,
             @UserIdInt int userId) throws PackageManager.NameNotFoundException {
-        return pm.getPackageInfoAsUser(packageName, flags, userId);
+        return pm.getPackageInfoAsUser(packageName, packageInfoFlags, userId);
     }
 
     /** Check {@link PackageManager#getPackageUidAsUser(String, int)}. */
