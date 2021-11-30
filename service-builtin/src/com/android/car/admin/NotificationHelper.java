@@ -324,7 +324,8 @@ public final class NotificationHelper {
         }
     }
 
-    private static PendingIntent getPendingIntent(Context context, String action, UserHandle user,
+    @VisibleForTesting
+    static PendingIntent getPendingIntent(Context context, String action, UserHandle user,
             String packageName, int notificationId) {
         Intent intent = new Intent(action)
                 .putExtra(Intent.EXTRA_USER, user)
