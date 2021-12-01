@@ -17,7 +17,9 @@
 package com.android.car;
 
 import android.annotation.Nullable;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -26,57 +28,46 @@ import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.internal.annotations.VisibleForTesting;
 
-/**
- * VehicleStub represents an IVehicle service interface in either AIDL or legacy HIDL version. It
- * exposes common interface so that the client does not need to care about which version the
- * underlying IVehicle service is in.
- */
-public abstract class VehicleStub {
-    /** VehicleStubCallback is either an AIDL or a HIDL callback. */
-    public interface VehicleStubCallback {
-        /**
-         *  Get the callback interface for AIDL backend.
-         */
-        android.hardware.automotive.vehicle.IVehicleCallback getAidlCallback();
-        /**
-         * Get the callback interface for HIDL backend.
-         */
-        android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub getHidlCallback();
+final class AidlVehicleStub extends VehicleStub {
+
+    private static final String AIDL_VHAL_SERVICE =
+            "android.hardware.automotive.vehicle.IVehicle/default";
+
+    private final IVehicle mAidlVehicle;
+    private final HalPropValueBuilder mPropValueBuilder;
+
+    AidlVehicleStub() {
+        this(getAidlVehicle());
     }
 
-    /**
-     * Create a new VehicleStub to connect to Vehicle HAL.
-     *
-     * Create a new VehicleStub to connect to Vehicle HAL according to which backend (AIDL or HIDL)
-     * is available. Caller must call isValid to check the returned {@code VehicleStub} before using
-     * it.
-     *
-     * @return a vehicle stub to connect to Vehicle HAL.
-     */
-    public static VehicleStub newVehicleStub() {
-        VehicleStub stub = new AidlVehicleStub();
-        if (stub.isValid()) {
-            return stub;
-        }
-
-        Slogf.w(CarLog.TAG_SERVICE, "No AIDL vehicle HAL found, fall back to HIDL version");
-        return new HidlVehicleStub();
+    @VisibleForTesting
+    AidlVehicleStub(IVehicle aidlVehicle) {
+        mAidlVehicle = aidlVehicle;
+        mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
     }
+
 
     /**
      * Gets a HalPropValueBuilder that could be used to build a HalPropValue.
      *
      * @return a builder to build HalPropValue.
      */
-    public abstract HalPropValueBuilder getHalPropValueBuilder();
+    @Override
+    public HalPropValueBuilder getHalPropValueBuilder() {
+        return mPropValueBuilder;
+    }
 
     /**
      * Returns whether this vehicle stub is connecting to a valid vehicle HAL.
      *
      * @return Whether this vehicle stub is connecting to a valid vehicle HAL.
      */
-    public abstract boolean isValid();
+    @Override
+    public boolean isValid() {
+        return mAidlVehicle != null;
+    }
 
     /**
      * Gets the interface descriptor for the connecting vehicle HAL.
@@ -84,7 +75,14 @@ public abstract class VehicleStub {
      * @return the interface descriptor.
      * @throws IllegalStateException If unable to get the descriptor.
      */
-    public abstract String getInterfaceDescriptor() throws IllegalStateException;
+    @Override
+    public String getInterfaceDescriptor() throws IllegalStateException {
+        try {
+            return mAidlVehicle.asBinder().getInterfaceDescriptor();
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Unable to get Vehicle HAL interface descriptor", e);
+        }
+    }
 
     /**
      * Register a death recipient that would be called when vehicle HAL died.
@@ -92,14 +90,24 @@ public abstract class VehicleStub {
      * @param recipient A death recipient.
      * @throws IllegalStateException If unable to register the death recipient.
      */
-    public abstract void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException;
+    @Override
+    public void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException {
+        try {
+            mAidlVehicle.asBinder().linkToDeath(recipient, /*flag=*/ 0);
+        } catch (RemoteException e) {
+            throw new IllegalStateException("Failed to linkToDeath Vehicle HAL");
+        }
+    }
 
     /**
      * Unlink a previously linked death recipient.
      *
      * @param recipient A previously linked death recipient.
      */
-    public abstract void unlinkToDeath(IVehicleDeathRecipient recipient);
+    @Override
+    public void unlinkToDeath(IVehicleDeathRecipient recipient) {
+        mAidlVehicle.asBinder().unlinkToDeath(recipient, /*flag=*/ 0);
+    }
 
     /**
      * Get all property configs.
@@ -108,8 +116,12 @@ public abstract class VehicleStub {
      * @throws RemoteException if the remote operation fails.
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
-    public abstract HalPropConfig[] getAllPropConfigs()
-            throws RemoteException, ServiceSpecificException;
+    @Override
+    public HalPropConfig[] getAllPropConfigs()
+            throws RemoteException, ServiceSpecificException {
+        // TODO(b/205774940): Call AIDL APIs.
+        return null;
+    }
 
     /**
      * Subscribe to a property.
@@ -119,8 +131,12 @@ public abstract class VehicleStub {
      * @throws RemoteException if the remote operation fails.
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
-    public abstract void subscribe(VehicleStubCallback callback,
-            SubscribeOptions[] options) throws RemoteException, ServiceSpecificException;
+    @Override
+    public void subscribe(VehicleStubCallback callback, SubscribeOptions[] options)
+            throws RemoteException, ServiceSpecificException {
+        // TODO(b/205774940): Call AIDL APIs.
+        return;
+    }
 
     /**
      * Unsubscribe to a property.
@@ -130,8 +146,12 @@ public abstract class VehicleStub {
      * @throws RemoteException if the remote operation fails.
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
-    public abstract void unsubscribe(VehicleStubCallback callback, int prop)
-            throws RemoteException, ServiceSpecificException;
+    @Override
+    public void unsubscribe(VehicleStubCallback callback, int prop)
+            throws RemoteException, ServiceSpecificException {
+        // TODO(b/205774940): Call AIDL APIs.
+        return;
+    }
 
     /**
      * Get a new {@code VehicleStubCallback} that could be used to subscribe/unsubscribe.
@@ -139,7 +159,11 @@ public abstract class VehicleStub {
      * @param callback A callback that could be used to receive events.
      * @return a {@code VehicleStubCallback} that could be passed to subscribe/unsubscribe.
      */
-    public abstract VehicleStubCallback newCallback(HalClientCallback callback);
+    @Override
+    public VehicleStubCallback newCallback(HalClientCallback callback) {
+        // TODO(b/205774940): Return AIDL callback.
+        return null;
+    }
 
     /**
      * Get a property.
@@ -149,9 +173,13 @@ public abstract class VehicleStub {
      * @throws RemoteException if the remote operation fails.
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
+    @Override
     @Nullable
-    public abstract HalPropValue get(HalPropValue requestedPropValue)
-            throws RemoteException, ServiceSpecificException;
+    public HalPropValue get(HalPropValue requestedPropValue)
+            throws RemoteException, ServiceSpecificException {
+        // TODO(b/205774940): Call AIDL APIs.
+        return null;
+    }
 
     /**
      * Set a property.
@@ -160,6 +188,20 @@ public abstract class VehicleStub {
      * @throws RemoteException if the remote operation fails.
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
-    public abstract void set(HalPropValue propValue)
-            throws RemoteException, ServiceSpecificException;
+    @Override
+    public void set(HalPropValue propValue) throws RemoteException, ServiceSpecificException {
+        // TODO(b/205774940): Call AIDL APIs.
+        return;
+    }
+
+    @Nullable
+    private static IVehicle getAidlVehicle() {
+        try {
+            return IVehicle.Stub.asInterface(
+                    ServiceManagerHelper.waitForDeclaredService(AIDL_VHAL_SERVICE));
+        } catch (RuntimeException e) {
+            Slogf.w(CarLog.TAG_SERVICE, "Failed to get \"" + AIDL_VHAL_SERVICE + "\" service", e);
+        }
+        return null;
+    }
 }

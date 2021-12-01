@@ -55,7 +55,7 @@ public class CarServiceImpl extends ProxiedService {
         initTiming.traceBegin("CarService.onCreate");
 
         initTiming.traceBegin("getVehicle");
-        mVehicle = new VehicleStub();
+        mVehicle = VehicleStub.newVehicleStub();
         initTiming.traceEnd(); // "getVehicle"
 
         EventLogHelper.writeCarServiceCreate(/* hasVhal= */ mVehicle.isValid());
