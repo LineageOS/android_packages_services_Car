@@ -463,11 +463,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogPerfHandler.setOveruseHandlingDelay(millis);
     }
 
-    @VisibleForTesting
-    void setUidIoUsageSummaryTopCount(int uidIoUsageSummaryTopCount) {
-        mWatchdogPerfHandler.setUidIoUsageSummaryTopCount(uidIoUsageSummaryTopCount);
-    }
-
     static File getWatchdogDirFile() {
         SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
         String systemCarDirPath = systemInterface == null ? FALLBACK_DATA_SYSTEM_CAR_DIR_PATH

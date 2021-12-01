@@ -37,7 +37,6 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
-import static com.android.car.watchdog.WatchdogPerfHandler.UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -175,6 +174,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int RECURRING_OVERUSE_TIMES = 2;
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 3;
+    private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
 
@@ -269,6 +269,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         when(mMockResources.getInteger(
                 eq(com.android.car.R.integer.recurringResourceOveruseTimes)))
                 .thenReturn(RECURRING_OVERUSE_TIMES);
+        when(mMockResources.getInteger(
+                eq(com.android.car.R.integer.uidIoUsageSummaryTopCount)))
+                .thenReturn(UID_IO_USAGE_SUMMARY_TOP_COUNT);
+        when(mMockResources.getInteger(
+                eq(com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes)))
+                .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
         when(mMockBuiltinPackageContext.getClassLoader()).thenReturn(mMockClassLoader);
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
@@ -3429,8 +3435,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         });
         when(mMockWatchdogStorage.getUserPackageSettings()).thenReturn(mUserPackageSettingsEntries);
         when(mMockWatchdogStorage.getTodayIoUsageStats()).thenReturn(mIoUsageStatsEntries);
-        when(mMockWatchdogStorage.getDailySystemIoUsageSummaries(anyLong(), anyLong())).thenAnswer(
-                args -> sampleDailyIoUsageSummariesForAWeek(args.getArgument(0),
+        when(mMockWatchdogStorage.getDailySystemIoUsageSummaries(anyLong(), anyLong(), anyLong()))
+                .thenAnswer(args -> sampleDailyIoUsageSummariesForAWeek(args.getArgument(1),
                         SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER));
         when(mMockWatchdogStorage.getTopUsersDailyIoUsageSummaries(
                 anyInt(), anyLong(), anyLong(), anyLong())).thenAnswer(args -> {
@@ -3457,8 +3463,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void initService(int wantedInvocations) throws Exception {
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mCarWatchdogService.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
-        mCarWatchdogService.setUidIoUsageSummaryTopCount(
-                UID_IO_USAGE_SUMMARY_TOP_COUNT);
         mCarWatchdogService.init();
         captureCarPowerListeners(wantedInvocations);
         captureBroadcastReceiver(wantedInvocations);
@@ -4300,7 +4304,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         List<AtomsProto.CarWatchdogSystemIoUsageSummary> expectedSummaries = new ArrayList<>();
         while (!beginWeekStartDate.equals(endWeekStartDate)) {
             long startEpochSecond = beginWeekStartDate.toEpochSecond();
-            verify(mMockWatchdogStorage).getDailySystemIoUsageSummaries(startEpochSecond,
+            verify(mMockWatchdogStorage).getDailySystemIoUsageSummaries(
+                    IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, startEpochSecond,
                     beginWeekStartDate.plusWeeks(1).toEpochSecond());
             expectedSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary.newBuilder()
                     .setIoUsageSummary(constructCarWatchdogIoUsageSummary(startEpochSecond,
@@ -4322,7 +4327,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             long startEpochSecond = beginWeekStartDate.toEpochSecond();
             verify(mMockWatchdogStorage).getTopUsersDailyIoUsageSummaries(
                     UID_IO_USAGE_SUMMARY_TOP_COUNT * 2,
-                    UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES, startEpochSecond,
+                    IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, startEpochSecond,
                     beginWeekStartDate.plusWeeks(1).toEpochSecond());
             for (Integer uid : expectUids) {
                 expectedSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary.newBuilder()

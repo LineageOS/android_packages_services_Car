@@ -83,6 +83,7 @@ import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -147,9 +148,6 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS = "MAPS";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
-    public static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 10;
-    public static final int UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES =
-            500 * 1024 * 1024;
     private static final String METADATA_FILENAME = "metadata.json";
     private static final String SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE =
             "systemIoUsageSummaryReportedDate";
@@ -202,6 +200,8 @@ public final class WatchdogPerfHandler {
     private final Handler mServiceHandler;
     private final WatchdogStorage mWatchdogStorage;
     private final OveruseConfigurationCache mOveruseConfigurationCache;
+    private final int mUidIoUsageSummaryTopCount;
+    private final int mIoUsageSummaryMinSystemTotalWrittenBytes;
     private final int mRecurringOverusePeriodInDays;
     private final int mRecurringOveruseTimes;
     private final Object mLock = new Object();
@@ -253,8 +253,6 @@ public final class WatchdogPerfHandler {
     private ZonedDateTime mLastSystemIoUsageSummaryReportedDate;
     @GuardedBy("mLock")
     private ZonedDateTime mLastUidIoUsageSummaryReportedDate;
-    @GuardedBy("mLock")
-    private int mUidIoUsageSummaryTopCount;
 
     private final ICarUxRestrictionsChangeListener mCarUxRestrictionsChangeListener =
             new ICarUxRestrictionsChangeListener.Stub() {
@@ -283,11 +281,13 @@ public final class WatchdogPerfHandler {
         mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
         mCurrentUxState = UX_STATE_NO_DISTRACTION;
         mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
-        mUidIoUsageSummaryTopCount = UID_IO_USAGE_SUMMARY_TOP_COUNT;
-        mRecurringOverusePeriodInDays = mContext.getResources().getInteger(
-                R.integer.recurringResourceOverusePeriodInDays);
-        mRecurringOveruseTimes = mContext.getResources().getInteger(
-                R.integer.recurringResourceOveruseTimes);
+        Resources resources = mContext.getResources();
+        mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
+        mIoUsageSummaryMinSystemTotalWrittenBytes = resources
+                .getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
+        mRecurringOverusePeriodInDays = resources
+                .getInteger(R.integer.recurringResourceOverusePeriodInDays);
+        mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
     }
 
     /** Initializes the handler. */
@@ -938,13 +938,6 @@ public final class WatchdogPerfHandler {
     public void setOveruseHandlingDelay(long millis) {
         synchronized (mLock) {
             mOveruseHandlingDelayMills = millis;
-        }
-    }
-
-    /** Sets top N UID I/O usage summaries to report on stats pull. */
-    public void setUidIoUsageSummaryTopCount(int uidIoUsageSummaryTopCount) {
-        synchronized (mLock) {
-            mUidIoUsageSummaryTopCount = uidIoUsageSummaryTopCount;
         }
     }
 
@@ -1743,7 +1736,8 @@ public final class WatchdogPerfHandler {
     private void pullSystemIoUsageSummaryStatsEvents(Pair<ZonedDateTime, ZonedDateTime> period,
             List<StatsEvent> data) {
         List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries =
-                mWatchdogStorage.getDailySystemIoUsageSummaries(period.first.toEpochSecond(),
+                mWatchdogStorage.getDailySystemIoUsageSummaries(
+                        mIoUsageSummaryMinSystemTotalWrittenBytes, period.first.toEpochSecond(),
                         period.second.toEpochSecond());
         if (dailyIoUsageSummaries == null) {
             Slogf.i(TAG, "No system I/O usage summary stats available to pull");
@@ -1765,15 +1759,11 @@ public final class WatchdogPerfHandler {
 
     private void pullUidIoUsageSummaryStatsEvents(Pair<ZonedDateTime, ZonedDateTime> period,
             List<StatsEvent> data) {
-        int numTopUsers;
-        synchronized (mLock) {
-            numTopUsers = mUidIoUsageSummaryTopCount;
-        }
         // Fetch summaries for twice the top N user packages because if the UID cannot be resolved
         // for some user packages, the fetched summaries will still contain enough entries to pull.
         List<WatchdogStorage.UserPackageDailySummaries> topUsersDailyIoUsageSummaries =
-                mWatchdogStorage.getTopUsersDailyIoUsageSummaries(numTopUsers * 2,
-                        UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES,
+                mWatchdogStorage.getTopUsersDailyIoUsageSummaries(mUidIoUsageSummaryTopCount * 2,
+                        mIoUsageSummaryMinSystemTotalWrittenBytes,
                         period.first.toEpochSecond(), period.second.toEpochSecond());
         if (topUsersDailyIoUsageSummaries == null) {
             Slogf.i(TAG, "No top users' I/O usage summary stats available to pull");
@@ -1802,7 +1792,7 @@ public final class WatchdogPerfHandler {
 
         int numPulledUidSummaryStats = 0;
         for (int i = 0; i < topUsersDailyIoUsageSummaries.size()
-                && numPulledUidSummaryStats < numTopUsers; ++i) {
+                && numPulledUidSummaryStats < mUidIoUsageSummaryTopCount; ++i) {
             WatchdogStorage.UserPackageDailySummaries entry = topUsersDailyIoUsageSummaries.get(i);
             Map<String, Integer> uidsByGenericPackageName = packageUidsByUserId.get(entry.userId);
             if (uidsByGenericPackageName == null

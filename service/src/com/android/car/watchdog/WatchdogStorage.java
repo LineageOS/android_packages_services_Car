@@ -215,10 +215,26 @@ public final class WatchdogStorage {
      * summaries are not available.
      */
     public @Nullable List<AtomsProto.CarWatchdogDailyIoUsageSummary> getDailySystemIoUsageSummaries(
-            long includingStartEpochSeconds, long excludingEndEpochSeconds) {
+            long minSystemTotalWrittenBytes, long includingStartEpochSeconds,
+            long excludingEndEpochSeconds) {
         try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            return IoUsageStatsTable.queryDailySystemIoUsageSummaries(db,
-                    includingStartEpochSeconds, excludingEndEpochSeconds);
+            List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailyIoUsageSummaries =
+                    IoUsageStatsTable.queryDailySystemIoUsageSummaries(db,
+                            includingStartEpochSeconds, excludingEndEpochSeconds);
+            if (dailyIoUsageSummaries == null) {
+                return null;
+            }
+            long systemTotalWrittenBytes = 0;
+            for (int i = 0; i < dailyIoUsageSummaries.size(); i++) {
+                AtomsProto.CarWatchdogPerStateBytes writtenBytes =
+                        dailyIoUsageSummaries.get(i).getWrittenBytes();
+                systemTotalWrittenBytes += writtenBytes.getForegroundBytes()
+                        + writtenBytes.getBackgroundBytes() + writtenBytes.getGarageModeBytes();
+            }
+            if (systemTotalWrittenBytes < minSystemTotalWrittenBytes) {
+                return null;
+            }
+            return dailyIoUsageSummaries;
         }
     }
 
