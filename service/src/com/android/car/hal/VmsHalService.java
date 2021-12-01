@@ -560,11 +560,11 @@ public class VmsHalService extends HalServiceBase {
 
         // Publisher Info
         byte[] publisherInfo = getVmsClient().getProviderDescription(publisherId);
+        byte[] payload = publisherInfo != null ? publisherInfo : DEFAULT_PUBLISHER_INFO;
 
         HalPropValue vehicleProp =
                 createVmsMessage(mPropValueBuilder, VmsMessageType.PUBLISHER_INFORMATION_RESPONSE,
-                        /*message=*/new ArrayList<Integer>(),
-                        /*payload=*/publisherInfo != null ? publisherInfo : DEFAULT_PUBLISHER_INFO);
+                        /* values= */ new ArrayList<Integer>(), payload);
         setPropertyValue(vehicleProp);
     }
 

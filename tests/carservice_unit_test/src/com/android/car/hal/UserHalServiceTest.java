@@ -23,8 +23,8 @@ import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 import static android.car.test.mocks.CarArgumentMatchers.isProperty;
 import static android.car.test.mocks.CarArgumentMatchers.isPropertyWithValues;
-import static android.car.test.util.VehicleHalTestingHelper.newConfig;
-import static android.car.test.util.VehicleHalTestingHelper.newSubscribableConfig;
+import static android.car.test.util.VehicleHalTestingHelper.newConfigDeprecated;
+import static android.car.test.util.VehicleHalTestingHelper.newSubscribableConfigDeprecated;
 import static android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType.COLD_BOOT;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
@@ -177,10 +177,11 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Needs at least one property, otherwise isSupported() and isUserAssociationSupported()
         // will return false
         mUserHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER),
-                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER),
+                newSubscribableConfigDeprecated(USER_IDENTIFICATION_ASSOCIATION)));
 
         mUser0.userId = 0;
         mUser0.flags = 100;
@@ -216,8 +217,9 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER)));
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
@@ -229,9 +231,10 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER)));
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
@@ -243,9 +246,10 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER)));
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
@@ -256,9 +260,10 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER)));
 
         assertThat(myHalService.isSupported()).isTrue();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
@@ -270,10 +275,11 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER),
-                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER),
+                newSubscribableConfigDeprecated(USER_IDENTIFICATION_ASSOCIATION)));
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isTrue();
@@ -285,10 +291,11 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER),
-                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER),
+                newSubscribableConfigDeprecated(USER_IDENTIFICATION_ASSOCIATION)));
 
         assertThat(myHalService.isSupported()).isFalse();
         assertThat(myHalService.isUserAssociationSupported()).isTrue();
@@ -299,10 +306,11 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER),
-                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER),
+                newSubscribableConfigDeprecated(USER_IDENTIFICATION_ASSOCIATION)));
 
         assertThat(myHalService.isSupported()).isTrue();
         assertThat(myHalService.isUserAssociationSupported()).isTrue();
@@ -312,13 +320,14 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testTakeSupportedPropertiesAndInit() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
-        VehiclePropConfig unsupportedConfig = newConfig(CURRENT_GEAR);
+        VehiclePropConfig unsupportedConfig = newConfigDeprecated(CURRENT_GEAR);
 
         myHalService.takePropertiesDeprecated(
-                Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
-                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
-                newSubscribableConfig(SWITCH_USER), unsupportedConfig,
-                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+                Arrays.asList(newSubscribableConfigDeprecated(INITIAL_USER_INFO),
+                newSubscribableConfigDeprecated(CREATE_USER),
+                newSubscribableConfigDeprecated(REMOVE_USER),
+                newSubscribableConfigDeprecated(SWITCH_USER), unsupportedConfig,
+                newSubscribableConfigDeprecated(USER_IDENTIFICATION_ASSOCIATION)));
 
 
         // Ideally there should be 2 test methods (one for takeSupportedProperties() and one for

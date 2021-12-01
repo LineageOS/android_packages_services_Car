@@ -54,10 +54,10 @@ import java.util.function.Supplier;
 public final class TimeHalServiceTest {
 
     private static final VehiclePropConfig ANDROID_TIME_PROP =
-            VehicleHalTestingHelper.newConfig(ANDROID_EPOCH_TIME);
+            VehicleHalTestingHelper.newConfigDeprecated(ANDROID_EPOCH_TIME);
 
     private static final VehiclePropConfig CAR_TIME_PROP =
-            VehicleHalTestingHelper.newConfig(EXTERNAL_CAR_TIME);
+            VehicleHalTestingHelper.newConfigDeprecated(EXTERNAL_CAR_TIME);
 
     private final FakeContext mFakeContext = new FakeContext();
 
