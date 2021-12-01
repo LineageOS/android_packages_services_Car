@@ -59,4 +59,14 @@ public abstract class HalPropConfig {
      * Get the max sample rate.
      */
     public abstract float getMaxSampleRate();
+
+    /**
+     * Converts to AIDL or HIDL VehiclePropConfig.
+     */
+    public abstract Object toVehiclePropConfig();
+
+    /**
+     * Get the string representation for debugging.
+     */
+    public abstract String toString();
 }

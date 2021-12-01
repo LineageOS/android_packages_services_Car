@@ -109,4 +109,20 @@ public final class HidlHalPropConfig extends HalPropConfig {
     public float getMaxSampleRate() {
         return mConfig.maxSampleRate;
     }
+
+    /**
+     * Converts to AIDL or HIDL VehiclePropConfig.
+     */
+    @Override
+    public Object toVehiclePropConfig() {
+        return mConfig;
+    }
+
+    /**
+     * Get the string representation for debugging.
+     */
+    @Override
+    public String toString() {
+        return mConfig.toString();
+    }
 }

@@ -32,15 +32,14 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.car.hardware.property.CarPropertyManager;
-import android.hardware.automotive.vehicle.V2_0.SubscribeFlags;
-import android.hardware.automotive.vehicle.V2_0.SubscribeOptions;
-import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.hardware.automotive.vehicle.VehicleAreaConfig;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropError;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
@@ -48,6 +47,8 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
 import com.android.car.CarServiceUtils;
+import com.android.car.VehicleStub;
+import com.android.car.internal.util.ArrayUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -78,7 +79,6 @@ public class VehicleHalTest {
     private static final int UNSUPPORTED_PROPERTY = -1;
 
     private static final float ANY_SAMPLING_RATE = 60f;
-    private static final int NO_FLAGS = 0;
 
     @Mock private PowerHalService mPowerHalService;
     @Mock private PropertyHalService mPropertyHalService;
@@ -89,10 +89,12 @@ public class VehicleHalTest {
     @Mock private ClusterHalService mClusterHalService;
     @Mock private TimeHalService mTimeHalService;
     @Mock private HalClient mHalClient;
+    @Mock private VehicleStub mVehicle;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             VehicleHal.class.getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
 
     @Rule public final TestName mTestName = new TestName();
 
@@ -103,10 +105,14 @@ public class VehicleHalTest {
 
     @Before
     public void setUp() throws Exception {
+        when(mVehicle.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
+        when(mPowerHalService.isAidlSupported()).thenReturn(true);
+        when(mPropertyHalService.isAidlSupported()).thenReturn(true);
+
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService, mHalClient,
-                mHandlerThread);
+                mHandlerThread, mVehicle);
 
         mConfigs.clear();
 
@@ -124,8 +130,10 @@ public class VehicleHalTest {
 
             init(powerHalConfig, propertyHalConfig);
 
-            assertThat(VehicleHal.isPropertySubscribable(powerHalConfig)).isTrue();
-            assertThat(VehicleHal.isPropertySubscribable(propertyHalConfig)).isFalse();
+            assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(powerHalConfig)))
+                    .isTrue();
+            assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(propertyHalConfig)))
+                    .isFalse();
         }
     }
 
@@ -148,17 +156,41 @@ public class VehicleHalTest {
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
+        when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
         mVehicleHal.init();
     }
 
     private static Answer<Void> checkConfigs(ArrayList<VehiclePropConfig> configs) {
         return new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
+                ArrayList<HalPropConfig> halConfigs =
+                        (ArrayList<HalPropConfig>) invocation.getArguments()[0];
+                ArrayList<VehiclePropConfig> aidlConfigs = new ArrayList<VehiclePropConfig>();
+                for (HalPropConfig halConfig : halConfigs) {
+                    aidlConfigs.add((VehiclePropConfig) (halConfig.toVehiclePropConfig()));
+                }
+                assertThat(configs).isEqualTo(aidlConfigs);
+                return null;
+            }
+        };
+    }
+
+    private static Answer<Void> checkHidlConfigs(
+                ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig> configs) {
+        return new Answer<Void>() {
+            public Void answer(InvocationOnMock invocation) {
                 assertThat(configs).isEqualTo(invocation.getArguments()[0]);
                 return null;
             }
         };
+    }
+
+    private static HalPropConfig[] toHalPropConfigs(List<VehiclePropConfig> configs) {
+        HalPropConfig[] halConfigs = new HalPropConfig[configs.size()];
+        for (int i = 0; i < configs.size(); i++) {
+            halConfigs[i] = new AidlHalPropConfig(configs.get(i));
+        }
+        return halConfigs;
     }
 
     @Test
@@ -202,6 +234,53 @@ public class VehicleHalTest {
     }
 
     @Test
+    public void testInitHidlService_skipSetupInit() throws Exception {
+        when(mPowerHalService.isAidlSupported()).thenReturn(false);
+
+        VehiclePropConfig powerHalConfig = new VehiclePropConfig();
+        powerHalConfig.prop = SOME_READ_ON_CHANGE_PROPERTY;
+        powerHalConfig.access = VehiclePropertyAccess.READ_WRITE;
+        powerHalConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+
+        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlConfig =
+                new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+        hidlConfig.prop = SOME_READ_ON_CHANGE_PROPERTY;
+        hidlConfig.access = VehiclePropertyAccess.READ_WRITE;
+        hidlConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
+
+        // When takeProperties is called, verify the arguments. We cannot verify this afterwards
+        // because the input arg is a reference that would be updated after the call. Mockito does
+        // not do deep copy.
+        doAnswer(checkHidlConfigs(
+                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig>(
+                        Arrays.asList(hidlConfig))))
+                .when(mPowerHalService).takePropertiesDeprecated(any());
+
+        when(mPowerHalService.getAllSupportedProperties()).thenReturn(
+                new int[]{SOME_READ_ON_CHANGE_PROPERTY});
+        mConfigs.add(powerHalConfig);
+
+        // Initialize the remaining services with empty properties
+        when(mPropertyHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mInputHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+
+        HalPropConfig[] halConfigs = new HalPropConfig[]{new HidlHalPropConfig(hidlConfig)};
+        when(mHalClient.getAllPropConfigs()).thenReturn(halConfigs);
+        mVehicleHal.init();
+
+        verify(mPowerHalService).init();
+        verify(mPropertyHalService).init();
+        verify(mInputHalService).init();
+        verify(mVmsHalService).init();
+        verify(mUserHalService).init();
+        verify(mDiagnosticHalService).init();
+    }
+
+    @Test
     public void testInitWith0SupportedProps_skipSetupInit() throws Exception {
         when(mPowerHalService.getAllSupportedProperties()).thenReturn(new int[]{});
         when(mPowerHalService.isSupportedProperty(eq(SOME_READ_ON_CHANGE_PROPERTY)))
@@ -213,7 +292,8 @@ public class VehicleHalTest {
         powerHalConfig.access = VehiclePropertyAccess.READ_WRITE;
         powerHalConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
         mConfigs.add(powerHalConfig);
-        assertThat(VehicleHal.isPropertySubscribable(powerHalConfig)).isTrue();
+        assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(powerHalConfig)))
+                .isTrue();
 
         when(mPropertyHalService.getAllSupportedProperties()).thenReturn(new int[]{});
         when(mPropertyHalService.isSupportedProperty(eq(SOME_READ_WRITE_STATIC_PROPERTY)))
@@ -225,7 +305,8 @@ public class VehicleHalTest {
         propertyHalConfig.access = VehiclePropertyAccess.READ_WRITE;
         propertyHalConfig.changeMode = VehiclePropertyChangeMode.STATIC;
         mConfigs.add(propertyHalConfig);
-        assertThat(VehicleHal.isPropertySubscribable(propertyHalConfig)).isFalse();
+        assertThat(VehicleHal.isPropertySubscribable(new AidlHalPropConfig(propertyHalConfig)))
+                .isFalse();
 
         // Initialize the remaining services with empty properties
         when(mInputHalService.getAllSupportedProperties()).thenReturn(new int[0]);
@@ -234,7 +315,7 @@ public class VehicleHalTest {
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
+        when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 
         mVehicleHal.init();
     }
@@ -276,7 +357,7 @@ public class VehicleHalTest {
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Return empty prop configs.
-        when(mHalClient.getAllPropConfigs()).thenReturn(new ArrayList<VehiclePropConfig>());
+        when(mHalClient.getAllPropConfigs()).thenReturn(new HalPropConfig[0]);
 
         doAnswer(checkConfigs(new ArrayList<VehiclePropConfig>()))
                 .when(mPowerHalService).takeProperties(any());
@@ -369,8 +450,8 @@ public class VehicleHalTest {
 
     @Test
     public void testRelease() throws Exception {
-        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE, NO_FLAGS);
+        mVehicleHal.subscribeProperty(
+                mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE);
 
         mVehicleHal.release();
 
@@ -385,8 +466,8 @@ public class VehicleHalTest {
 
     @Test
     public void testReleaseUnsubscribeRemoteException() throws Exception {
-        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE, NO_FLAGS);
+        mVehicleHal.subscribeProperty(
+                mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE);
         // This exception should be captured into a warning.
         doThrow(new RemoteException()).when(mHalClient).unsubscribe(SOME_READ_ON_CHANGE_PROPERTY);
 
@@ -416,14 +497,14 @@ public class VehicleHalTest {
     @Test
     public void testSubscribeProperty_registeringReadWriteAndOnChangeProperty() throws Exception {
         // Act
-        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE, NO_FLAGS);
+        mVehicleHal.subscribeProperty(
+                mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE);
 
         // Assert
         SubscribeOptions expectedOptions = new SubscribeOptions();
         expectedOptions.propId = SOME_READ_ON_CHANGE_PROPERTY;
         expectedOptions.sampleRate = ANY_SAMPLING_RATE;
-        expectedOptions.flags = NO_FLAGS;
+        expectedOptions.areaIds = new int[0];
 
         verify(mHalClient).subscribe(eq(expectedOptions));
     }
@@ -436,7 +517,7 @@ public class VehicleHalTest {
         SubscribeOptions expectedOptions = new SubscribeOptions();
         expectedOptions.propId = SOME_READ_ON_CHANGE_PROPERTY;
         expectedOptions.sampleRate = 0f;
-        expectedOptions.flags = SubscribeFlags.EVENTS_FROM_CAR;
+        expectedOptions.areaIds = new int[0];
 
         verify(mHalClient).subscribe(eq(expectedOptions));
     }
@@ -450,7 +531,7 @@ public class VehicleHalTest {
         SubscribeOptions expectedOptions = new SubscribeOptions();
         expectedOptions.propId = SOME_READ_ON_CHANGE_PROPERTY;
         expectedOptions.sampleRate = ANY_SAMPLING_RATE;
-        expectedOptions.flags = SubscribeFlags.EVENTS_FROM_CAR;
+        expectedOptions.areaIds = new int[0];
 
         verify(mHalClient).subscribe(eq(expectedOptions));
     }
@@ -458,15 +539,23 @@ public class VehicleHalTest {
     @Test
     public void testSubScribeProperty_unownedProperty() throws Exception {
         // PropertyHalService does not own SOME_READ_ON_CHANGE_PROPERTY.
-        assertThrows(IllegalArgumentException.class, () -> mVehicleHal.subscribeProperty(
-                mPropertyHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE, NO_FLAGS));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        mVehicleHal.subscribeProperty(
+                                mPropertyHalService,
+                                SOME_READ_ON_CHANGE_PROPERTY,
+                                ANY_SAMPLING_RATE));
     }
 
     @Test
     public void testSubScribeProperty_noConfigProperty() throws Exception {
         // Property UNSUPPORTED_PROPERTY does not have config.
-        assertThrows(IllegalArgumentException.class, () -> mVehicleHal.subscribeProperty(
-                mPowerHalService, UNSUPPORTED_PROPERTY, ANY_SAMPLING_RATE, NO_FLAGS));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        mVehicleHal.subscribeProperty(
+                                mPowerHalService, UNSUPPORTED_PROPERTY, ANY_SAMPLING_RATE));
     }
 
     @Test
@@ -479,7 +568,7 @@ public class VehicleHalTest {
         SubscribeOptions expectedOptions = new SubscribeOptions();
         expectedOptions.propId = SOME_READ_ON_CHANGE_PROPERTY;
         expectedOptions.sampleRate = ANY_SAMPLING_RATE;
-        expectedOptions.flags = SubscribeFlags.EVENTS_FROM_CAR;
+        expectedOptions.areaIds = new int[0];
 
         // RemoteException is handled in subscribeProperty.
         verify(mHalClient).subscribe(eq(expectedOptions));
@@ -488,8 +577,8 @@ public class VehicleHalTest {
     @Test
     public void testSubscribeProperty_registeringStaticProperty() throws Exception {
         // Act
-        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_WRITE_STATIC_PROPERTY,
-                ANY_SAMPLING_RATE, NO_FLAGS);
+        mVehicleHal.subscribeProperty(
+                mPowerHalService, SOME_READ_WRITE_STATIC_PROPERTY, ANY_SAMPLING_RATE);
 
         // Assert
         verify(mHalClient, never()).subscribe(any(SubscribeOptions.class));
@@ -548,8 +637,8 @@ public class VehicleHalTest {
     @Test
     public void testGetSampleRate_supportedAndRegisteredProperty() {
         // Act
-        mVehicleHal.subscribeProperty(mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY,
-                ANY_SAMPLING_RATE, NO_FLAGS);
+        mVehicleHal.subscribeProperty(
+                mPowerHalService, SOME_READ_ON_CHANGE_PROPERTY, ANY_SAMPLING_RATE);
 
         // Assert
         assertThat(mVehicleHal.getSampleRate(SOME_READ_ON_CHANGE_PROPERTY)).isEqualTo(
@@ -559,13 +648,12 @@ public class VehicleHalTest {
     @Test
     public void testOnPropertyEvent() {
         // Arrange
-        List<VehiclePropValue> dispatchList = mock(List.class);
+        List<HalPropValue> dispatchList = mock(List.class);
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        ArrayList<VehiclePropValue> propValues = new ArrayList<>();
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
         propValues.add(propValue);
 
         // Act
@@ -578,15 +666,43 @@ public class VehicleHalTest {
     }
 
     @Test
-    public void testOnPropertyEvent_existingInfo() {
+    public void testOnPropertyEventHidlService() {
         // Arrange
-        List<VehiclePropValue> dispatchList = mock(List.class);
+        when(mPowerHalService.isAidlSupported()).thenReturn(false);
+        List<HalPropValue> dispatchList = new ArrayList<HalPropValue>();
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        ArrayList<VehiclePropValue> propValues = new ArrayList<>();
+        HalPropValueBuilder propValueBuilder = new HalPropValueBuilder(/*isAidl=*/false);
+        HalPropValue propValue = propValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, 1);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
+        propValues.add(propValue);
+
+        List<android.hardware.automotive.vehicle.V2_0.VehiclePropValue> events =
+                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropValue>();
+        android.hardware.automotive.vehicle.V2_0.VehiclePropValue hidlValue =
+                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
+        hidlValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
+        hidlValue.areaId = VehicleHal.NO_AREA;
+        hidlValue.value.int32Values.add(1);
+        events.add(hidlValue);
+
+        // Act
+        mVehicleHal.onPropertyEvent(propValues);
+
+        // Assert
+        verify(mPowerHalService).onHalEventsDeprecated(events);
+    }
+
+    @Test
+    public void testOnPropertyEvent_existingInfo() {
+        // Arrange
+        List<HalPropValue> dispatchList = mock(List.class);
+        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
+
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
         propValues.add(propValue);
 
         // Act
@@ -607,10 +723,9 @@ public class VehicleHalTest {
 
     @Test
     public void testOnPropertyEvent_unsupportedProperty() {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = UNSUPPORTED_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        ArrayList<VehiclePropValue> propValues = new ArrayList<>();
+        HalPropValue propValue = mPropValueBuilder.build(UNSUPPORTED_PROPERTY,
+                VehicleHal.NO_AREA);
+        ArrayList<HalPropValue> propValues = new ArrayList<>();
         propValues.add(propValue);
 
         mVehicleHal.onPropertyEvent(propValues);
@@ -621,70 +736,128 @@ public class VehicleHalTest {
     @Test
     public void testOnPropertySetError() {
         // Arrange
-        int errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        int propId = SOME_READ_ON_CHANGE_PROPERTY;
-        int areaId = VehicleHal.NO_AREA;
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error1 = new VehiclePropError();
+        error1.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error1.areaId = VehicleHal.NO_AREA;
+        error1.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error1);
+        VehiclePropError error2 = new VehiclePropError();
+        error2.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error2.areaId = 1;
+        error2.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+        errors.add(error2);
+        VehiclePropError error3 = new VehiclePropError();
+        error3.propId = SOME_READ_WRITE_STATIC_PROPERTY;
+        error3.areaId = VehicleHal.NO_AREA;
+        error3.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error3);
 
         // Act
-        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
+        mVehicleHal.onPropertySetError(errors);
 
         // Assert
-        verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
+        verify(mPowerHalService).onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(
+                error1, error2)));
+        verify(mPropertyHalService).onPropertySetError(new ArrayList<VehiclePropError>(
+                Arrays.asList(error3)));
+    }
+
+    @Test
+    public void testOnPropertySetErrorHidlService() {
+        // Arrange
+        when(mPowerHalService.isAidlSupported()).thenReturn(false);
+        when(mPropertyHalService.isAidlSupported()).thenReturn(false);
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error1 = new VehiclePropError();
+        error1.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error1.areaId = VehicleHal.NO_AREA;
+        error1.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error1);
+        VehiclePropError error2 = new VehiclePropError();
+        error2.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error2.areaId = 1;
+        error2.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
+        errors.add(error2);
+        VehiclePropError error3 = new VehiclePropError();
+        error3.propId = SOME_READ_WRITE_STATIC_PROPERTY;
+        error3.areaId = VehicleHal.NO_AREA;
+        error3.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        errors.add(error3);
+
+        // Act
+        mVehicleHal.onPropertySetError(errors);
+
+        // Assert
+        verify(mPowerHalService).onPropertySetErrorDeprecated(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN);
+        verify(mPowerHalService).onPropertySetErrorDeprecated(SOME_READ_ON_CHANGE_PROPERTY,
+                1, CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG);
+        verify(mPropertyHalService).onPropertySetErrorDeprecated(SOME_READ_WRITE_STATIC_PROPERTY,
+                VehicleHal.NO_AREA, CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN);
     }
 
     @Test
     public void testOnPropertySetError_invalidProp() {
         // Arrange
-        int errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        int propId = VehicleProperty.INVALID;
-        int areaId = VehicleHal.NO_AREA;
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error = new VehiclePropError();
+        error.propId = VehicleProperty.INVALID;
+        error.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        error.areaId = VehicleHal.NO_AREA;
+        errors.add(error);
 
         // Act
-        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
+        mVehicleHal.onPropertySetError(errors);
 
         // Assert
-        verify(mPowerHalService, never()).onPropertySetError(propId, areaId, errorCode);
+        verify(mPowerHalService, never()).onPropertySetError(errors);
     }
 
     @Test
     public void testOnPropertySetError_unsupportedProp() {
         // Arrange
-        int errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        int propId = UNSUPPORTED_PROPERTY;
-        int areaId = VehicleHal.NO_AREA;
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error = new VehiclePropError();
+        error.propId = UNSUPPORTED_PROPERTY;
+        error.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        error.areaId = VehicleHal.NO_AREA;
+        errors.add(error);
 
         // Act
-        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
+        mVehicleHal.onPropertySetError(errors);
 
         // Assert
-        verify(mPowerHalService, never()).onPropertySetError(propId, areaId, errorCode);
+        verify(mPowerHalService, never()).onPropertySetError(errors);
     }
 
     @Test
     public void testInjectOnPropertySetError() {
         // Arrange
-        int errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        int propId = SOME_READ_ON_CHANGE_PROPERTY;
-        int areaId = VehicleHal.NO_AREA;
+        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
+        VehiclePropError error = new VehiclePropError();
+        error.propId = SOME_READ_ON_CHANGE_PROPERTY;
+        error.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
+        error.areaId = VehicleHal.NO_AREA;
+        errors.add(error);
 
         // Act
-        mHandler.post(() -> mVehicleHal.onPropertySetError(errorCode, propId, areaId));
+        mHandler.post(() -> mVehicleHal.onPropertySetError(errors));
         CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
-        verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
+        verify(mPowerHalService).onPropertySetError(errors);
     }
 
     @Test
     public void testGetIfAvailableOrFail() {
         // Arrange
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
-        VehiclePropValue actual = mVehicleHal.getIfAvailableOrFail(SOME_READ_ON_CHANGE_PROPERTY,
+        HalPropValue actual = mVehicleHal.getIfAvailableOrFail(SOME_READ_ON_CHANGE_PROPERTY,
                 /* numberOfRetries= */ 1);
 
         // Assert
@@ -693,7 +866,7 @@ public class VehicleHalTest {
 
     @Test
     public void testGetIfAvailableOrFail_unsupportedProperty() {
-        VehiclePropValue actual = mVehicleHal.getIfAvailableOrFail(UNSUPPORTED_PROPERTY,
+        HalPropValue actual = mVehicleHal.getIfAvailableOrFail(UNSUPPORTED_PROPERTY,
                 /* numberOfRetries= */ 1);
 
         assertThat(actual).isNull();
@@ -701,7 +874,7 @@ public class VehicleHalTest {
 
     @Test
     public void testGetIfAvailableOrFail_serviceSpecificException() {
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenThrow(
+        when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
         assertThrows(IllegalStateException.class, () -> mVehicleHal.getIfAvailableOrFail(
@@ -710,14 +883,13 @@ public class VehicleHalTest {
 
     @Test
     public void testGetIfAvailableOrFail_serviceSpecificExceptionRetrySucceed() {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenThrow(
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
+        when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0)).thenReturn(propValue);
 
         // Retry once.
-        VehiclePropValue actual = mVehicleHal.getIfAvailableOrFail(SOME_READ_ON_CHANGE_PROPERTY,
+        HalPropValue actual = mVehicleHal.getIfAvailableOrFail(SOME_READ_ON_CHANGE_PROPERTY,
                 /* numberOfRetries= */ 2);
 
         assertThat(actual).isEqualTo(propValue);
@@ -750,15 +922,14 @@ public class VehicleHalTest {
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
+        when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
-        VehiclePropValue actual = mVehicleHal.getIfAvailableOrFailForEarlyStage(
+        HalPropValue actual = mVehicleHal.getIfAvailableOrFailForEarlyStage(
                 SOME_READ_ON_CHANGE_PROPERTY, /* numberOfRetries= */ 1);
 
         // Assert
@@ -767,7 +938,8 @@ public class VehicleHalTest {
 
     @Test
     public void testGetClazz() throws Exception {
-        VehiclePropValue propValue = new VehiclePropValue();
+        android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
         propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
         propValue.areaId = VehicleHal.NO_AREA;
         propValue.value.int32Values.add(1);
@@ -778,52 +950,54 @@ public class VehicleHalTest {
         propValue.value.stringValue = testString;
         ArrayList<Byte> testBytes = new ArrayList<Byte>(Arrays.asList((byte) 0x00, (byte) 0x01));
         propValue.value.bytes = testBytes;
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(
+                        mPropValueBuilder.build(propValue));
 
-        assertThat(mVehicleHal.<Integer>get(Integer.class, propValue)).isEqualTo(1);
-        assertThat(mVehicleHal.<Integer>get(int.class, propValue)).isEqualTo(1);
-        assertThat(mVehicleHal.<Boolean>get(Boolean.class, propValue)).isTrue();
-        assertThat(mVehicleHal.<Boolean>get(boolean.class, propValue)).isTrue();
-        assertThat(mVehicleHal.<Float>get(Float.class, propValue)).isEqualTo(1.1f);
-        assertThat(mVehicleHal.<Float>get(float.class, propValue)).isEqualTo(1.1f);
-        assertThat(mVehicleHal.<Float[]>get(Float[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<Integer>getDeprecated(Integer.class, propValue)).isEqualTo(1);
+        assertThat(mVehicleHal.<Integer>getDeprecated(int.class, propValue)).isEqualTo(1);
+        assertThat(mVehicleHal.<Boolean>getDeprecated(Boolean.class, propValue)).isTrue();
+        assertThat(mVehicleHal.<Boolean>getDeprecated(boolean.class, propValue)).isTrue();
+        assertThat(mVehicleHal.<Float>getDeprecated(Float.class, propValue)).isEqualTo(1.1f);
+        assertThat(mVehicleHal.<Float>getDeprecated(float.class, propValue)).isEqualTo(1.1f);
+        assertThat(mVehicleHal.<Float[]>getDeprecated(Float[].class, propValue)).isEqualTo(
                 new Float[]{1.1f, 1.2f});
-        assertThat(mVehicleHal.<Integer[]>get(Integer[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<Integer[]>getDeprecated(Integer[].class, propValue)).isEqualTo(
                 new Integer[]{1, 2});
-        assertThat(mVehicleHal.<float[]>get(float[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<float[]>getDeprecated(float[].class, propValue)).isEqualTo(
                 new float[]{1.1f, 1.2f});
-        assertThat(mVehicleHal.<int[]>get(int[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<int[]>getDeprecated(int[].class, propValue)).isEqualTo(
                 new int[]{1, 2});
-        assertThat(mVehicleHal.<byte[]>get(byte[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<byte[]>getDeprecated(byte[].class, propValue)).isEqualTo(
                 new byte[]{(byte) 0x00, (byte) 0x01});
-        assertThat(mVehicleHal.<String>get(String.class, propValue)).isEqualTo(testString);
+        assertThat(mVehicleHal.<String>getDeprecated(String.class, propValue)).isEqualTo(
+                testString);
     }
 
     @Test
     public void testGetClazz_unexpectedType() throws Exception {
-        VehiclePropValue propValue = new VehiclePropValue();
+        android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
         propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
         propValue.areaId = VehicleHal.NO_AREA;
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(
+                mPropValueBuilder.build(propValue));
 
-        assertThrows(IllegalArgumentException.class, () -> mVehicleHal.<VehiclePropValue>get(
-                VehiclePropValue.class, propValue));
+        assertThrows(IllegalArgumentException.class, () -> mVehicleHal
+                .<android.hardware.automotive.vehicle.V2_0.VehiclePropValue>getDeprecated(
+                        HalPropValue.class, propValue));
     }
 
     @Test
     public void testGetClazz_defaultArea() throws Exception {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        propValue.value.int32Values.add(1);
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, 1);
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         Integer actual = mVehicleHal.get(Integer.class, SOME_READ_ON_CHANGE_PROPERTY);
 
         assertThat(actual).isEqualTo(1);
-        VehiclePropValue requestProp = new VehiclePropValue();
-        requestProp.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        requestProp.areaId = VehicleHal.NO_AREA;
+        HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
         verify(mHalClient).getValue(eq(requestProp));
     }
 
@@ -838,9 +1012,10 @@ public class VehicleHalTest {
                 ClusterHalService clusterHalService,
                 TimeHalService timeHalService,
                 HalClient halClient,
-                HandlerThread handlerThread) {
+                HandlerThread handlerThread,
+                VehicleStub vehicleStub) {
             super(powerHal, propertyHal, inputHal, vmsHal, userHal, diagnosticHal,
-                    clusterHalService, timeHalService, halClient, handlerThread);
+                    clusterHalService, timeHalService, halClient, handlerThread, vehicleStub);
         }
     }
 
@@ -849,12 +1024,11 @@ public class VehicleHalTest {
         VehicleHalTestClass t = new VehicleHalTestClass(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
-                mHalClient, mHandlerThread);
+                mHalClient, mHandlerThread, mVehicle);
         t.init();
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
         t.set(propValue);
 
         verify(mHalClient).setValue(propValue);
@@ -863,11 +1037,8 @@ public class VehicleHalTest {
     @Test
     public void testSetter_bool() throws Exception {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(true);
-
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        propValue.value.int32Values.add(1);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, new int[]{1});
         verify(mHalClient).setValue(propValue);
     }
 
@@ -875,10 +1046,8 @@ public class VehicleHalTest {
     public void testSetter_int() throws Exception {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(2);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        propValue.value.int32Values.add(2);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, new int[]{2});
         verify(mHalClient).setValue(propValue);
     }
 
@@ -886,11 +1055,8 @@ public class VehicleHalTest {
     public void testSetter_ints() throws Exception {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(new int[]{1, 2});
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        propValue.value.int32Values.add(1);
-        propValue.value.int32Values.add(2);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, new int[]{1, 2});
         verify(mHalClient).setValue(propValue);
     }
 
@@ -898,11 +1064,8 @@ public class VehicleHalTest {
     public void testSetter_integers() throws Exception {
         mVehicleHal.set(SOME_READ_ON_CHANGE_PROPERTY).to(Arrays.asList(1, 2));
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        propValue.value.int32Values.add(1);
-        propValue.value.int32Values.add(2);
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, new int[]{1, 2});
         verify(mHalClient).setValue(propValue);
     }
 
@@ -967,10 +1130,8 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, /* propId= */ -1, /* areaId= */-1);
@@ -985,10 +1146,8 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
@@ -997,9 +1156,8 @@ public class VehicleHalTest {
         // Assert
         assertThat(writer.toString()).contains("string: some_value");
 
-        VehiclePropValue requestProp = new VehiclePropValue();
-        requestProp.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        requestProp.areaId = VehicleHal.NO_AREA;
+        HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA);
         verify(mHalClient).getValue(requestProp);
     }
 
@@ -1009,14 +1167,14 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         VehicleAreaConfig areaConfig = new VehicleAreaConfig();
         areaConfig.areaId = 123;
-        mConfigs.get(0).areaConfigs.add(areaConfig);
+        mConfigs.get(0).areaConfigs =
+                ArrayUtils.appendElement(
+                        VehicleAreaConfig.class, mConfigs.get(0).areaConfigs, areaConfig, true);
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
@@ -1025,9 +1183,7 @@ public class VehicleHalTest {
         // Assert
         assertThat(writer.toString()).contains("string: some_value");
 
-        VehiclePropValue requestProp = new VehiclePropValue();
-        requestProp.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        requestProp.areaId = 123;
+        HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY, 123);
         verify(mHalClient).getValue(requestProp);
     }
 
@@ -1037,14 +1193,14 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         VehicleAreaConfig areaConfig = new VehicleAreaConfig();
         areaConfig.areaId = 123;
-        mConfigs.get(0).areaConfigs.add(areaConfig);
+        mConfigs.get(0).areaConfigs =
+                ArrayUtils.appendElement(
+                        VehicleAreaConfig.class, mConfigs.get(0).areaConfigs, areaConfig, true);
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY, 123);
@@ -1052,9 +1208,7 @@ public class VehicleHalTest {
         // Assert
         assertThat(writer.toString()).contains("string: some_value");
 
-        VehiclePropValue requestProp = new VehiclePropValue();
-        requestProp.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        requestProp.areaId = 123;
+        HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY, 123);
         verify(mHalClient).getValue(requestProp);
     }
 
@@ -1064,10 +1218,8 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenThrow(
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
         // Act
@@ -1084,15 +1236,15 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenThrow(
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
         VehicleAreaConfig areaConfig = new VehicleAreaConfig();
         areaConfig.areaId = 123;
-        mConfigs.get(0).areaConfigs.add(areaConfig);
+        mConfigs.get(0).areaConfigs =
+                ArrayUtils.appendElement(
+                        VehicleAreaConfig.class, mConfigs.get(0).areaConfigs, areaConfig, true);
 
         // Act
         mVehicleHal.dumpPropertyValueByCommand(printWriter, SOME_READ_ON_CHANGE_PROPERTY,
@@ -1100,9 +1252,7 @@ public class VehicleHalTest {
 
         // Assert
         assertThat(writer.toString()).contains("Can not get property value");
-        VehiclePropValue requestProp = new VehiclePropValue();
-        requestProp.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        requestProp.areaId = 123;
+        HalPropValue requestProp = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY, 123);
         verify(mHalClient).getValue(requestProp);
     }
 
@@ -1112,10 +1262,8 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenThrow(
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
         // Act
@@ -1132,10 +1280,8 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.value = new VehiclePropValue.RawValue();
-        propValue.value.stringValue = "some_value";
-        when(mHalClient.getValue(any(VehiclePropValue.class))).thenReturn(propValue);
+        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         // Act
         // Note here we cannot use UNSUPPORTED_PROPERTY because its value -1 has special meaning
@@ -1168,16 +1314,14 @@ public class VehicleHalTest {
         mVehicleHal.get(propertyId, areaId);
 
         // Assert
-        VehiclePropValue expectedPropValue = new VehiclePropValue();
-        expectedPropValue.prop = propertyId;
-        expectedPropValue.areaId = areaId;
+        HalPropValue expectedPropValue = mPropValueBuilder.build(propertyId, areaId);
         verify(mHalClient).getValue(eq(expectedPropValue));
     }
 
     @Test
-    public void testGet_VehiclePropValue() {
+    public void testGet_HalPropValue() {
         // Arrange
-        VehiclePropValue propValue = new VehiclePropValue();
+        HalPropValue propValue = mPropValueBuilder.build(0, 0);
 
         // Act
         mVehicleHal.get(propValue);
@@ -1188,16 +1332,16 @@ public class VehicleHalTest {
 
     // Make a copy of the prop value reference so that we could check them later.
     // This is necessary because the passed in value list would be cleared after the call.
-    private static Answer<Void> storePropValues(List<VehiclePropValue> values) {
+    private static Answer<Void> storePropValues(List<HalPropValue> values) {
         return new Answer<Void>() {
             public Void answer(InvocationOnMock invocation) {
-                values.addAll((List<VehiclePropValue>) invocation.getArguments()[0]);
+                values.addAll((List<HalPropValue>) invocation.getArguments()[0]);
                 return null;
             }
         };
     }
 
-    private void setupInjectEventTest(int property, List<VehiclePropValue> values)
+    private void setupInjectEventTest(int property, List<HalPropValue> values)
             throws Exception {
         VehiclePropConfig config = new VehiclePropConfig();
         config.prop = property;
@@ -1211,9 +1355,9 @@ public class VehicleHalTest {
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
-        when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
+        when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 
-        List<VehiclePropValue> dispatchList = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> dispatchList = new ArrayList<HalPropValue>();
         when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
         doAnswer(storePropValues(values)).when(mPowerHalService).onHalEvents(any());
 
@@ -1223,7 +1367,7 @@ public class VehicleHalTest {
     @Test
     public void testInjectVhalEvent_intProperty_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
@@ -1233,17 +1377,17 @@ public class VehicleHalTest {
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
-        VehiclePropValue prop = values.get(0);
-        assertThat(prop.prop).isEqualTo(SOME_INT32_PROPERTY);
-        assertThat(prop.areaId).isEqualTo(VehicleHal.NO_AREA);
-        assertThat(prop.value.int32Values).isEqualTo(Arrays.asList(1));
-        assertThat(prop.timestamp).isGreaterThan(time);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_INT32_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getInt32Value(0)).isEqualTo(1);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
     @Test
     public void testInjectVhalEvent_intVecProperty_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_INT32_VEC_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
@@ -1253,17 +1397,18 @@ public class VehicleHalTest {
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
-        VehiclePropValue prop = values.get(0);
-        assertThat(prop.prop).isEqualTo(SOME_INT32_VEC_PROPERTY);
-        assertThat(prop.areaId).isEqualTo(VehicleHal.NO_AREA);
-        assertThat(prop.value.int32Values).isEqualTo(Arrays.asList(1, 2));
-        assertThat(prop.timestamp).isGreaterThan(time);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_INT32_VEC_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getInt32Value(0)).isEqualTo(1);
+        assertThat(prop.getInt32Value(1)).isEqualTo(2);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
     @Test
     public void testInjectVhalEvent_bool_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_BOOL_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
@@ -1273,17 +1418,17 @@ public class VehicleHalTest {
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
-        VehiclePropValue prop = values.get(0);
-        assertThat(prop.prop).isEqualTo(SOME_BOOL_PROPERTY);
-        assertThat(prop.areaId).isEqualTo(VehicleHal.NO_AREA);
-        assertThat(prop.value.int32Values).isEqualTo(Arrays.asList(1));
-        assertThat(prop.timestamp).isGreaterThan(time);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_BOOL_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getInt32Value(0)).isEqualTo(1);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
     @Test
     public void testInjectVhalEvent_floatProperty_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_FLOAT_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
@@ -1293,17 +1438,17 @@ public class VehicleHalTest {
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
-        VehiclePropValue prop = values.get(0);
-        assertThat(prop.prop).isEqualTo(SOME_FLOAT_PROPERTY);
-        assertThat(prop.areaId).isEqualTo(VehicleHal.NO_AREA);
-        assertThat(prop.value.floatValues).isEqualTo(Arrays.asList(1.1f));
-        assertThat(prop.timestamp).isGreaterThan(time);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_FLOAT_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getFloatValue(0)).isEqualTo(1.1f);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
     @Test
     public void testInjectVhalEvent_floatVecProperty_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_FLOAT_VEC_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
@@ -1313,17 +1458,18 @@ public class VehicleHalTest {
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
-        VehiclePropValue prop = values.get(0);
-        assertThat(prop.prop).isEqualTo(SOME_FLOAT_VEC_PROPERTY);
-        assertThat(prop.areaId).isEqualTo(VehicleHal.NO_AREA);
-        assertThat(prop.value.floatValues).isEqualTo(Arrays.asList(1.1f, 1.2f));
-        assertThat(prop.timestamp).isGreaterThan(time);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_FLOAT_VEC_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getFloatValue(0)).isEqualTo(1.1f);
+        assertThat(prop.getFloatValue(1)).isEqualTo(1.2f);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
     @Test
     public void testInjectVhalEvent_unsupportedProperty_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         // SOME_READ_ON_CHANGE_PROPERTY does not have a valid property type.
         setupInjectEventTest(SOME_READ_ON_CHANGE_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
@@ -1339,7 +1485,7 @@ public class VehicleHalTest {
     @Test
     public void testInjectContinuousVhalEvent_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
@@ -1358,7 +1504,7 @@ public class VehicleHalTest {
     @Test
     public void testInjectContinuousVhalEvent_unsupportedProp_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         // SOME_READ_ON_CHANGE_PROPERTY does not have a valid property type.
         setupInjectEventTest(SOME_READ_ON_CHANGE_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
@@ -1375,7 +1521,7 @@ public class VehicleHalTest {
     @Test
     public void testInjectContinuousVhalEvent_invalidSampleRate_skipSetupInit() throws Exception {
         // Arrange
-        List<VehiclePropValue> values = new ArrayList<VehiclePropValue>();
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
         long time = SystemClock.elapsedRealtimeNanos();
 
