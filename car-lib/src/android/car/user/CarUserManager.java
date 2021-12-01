@@ -775,11 +775,11 @@ public final class CarUserManager extends CarManagerBase {
             UserLifecycleEvent event = new UserLifecycleEvent(eventType, from, to);
             ArrayMap<UserLifecycleListener, Executor> listeners;
             synchronized (mLock) {
-                listeners = mListeners;
-            }
-            if (listeners == null) {
-                Log.w(TAG, "No listeners for event " + event);
-                return;
+                if (mListeners == null) {
+                    Log.w(TAG, "No listeners for event " + event);
+                    return;
+                }
+                listeners = new ArrayMap<>(mListeners);
             }
             int size = listeners.size();
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_NOTIFY_LIFECYCLE_LISTENER,
