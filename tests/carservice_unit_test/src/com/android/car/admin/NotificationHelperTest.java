@@ -20,6 +20,7 @@ import static android.app.Notification.EXTRA_TITLE;
 import static android.app.Notification.FLAG_ONGOING_EVENT;
 import static android.app.NotificationManager.IMPORTANCE_HIGH;
 
+import static com.android.car.admin.NotificationHelper.CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.admin.NotificationHelper.CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.admin.NotificationHelper.CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.admin.NotificationHelper.CHANNEL_ID_DEFAULT;
@@ -255,6 +256,9 @@ public final class NotificationHelperTest {
                 NotificationHelper.getPendingIntent(mSpiedContext,
                         CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS, userHandle, packageName,
                         notificationId);
+        PendingIntent deletePendingIntent = NotificationHelper.getPendingIntent(mSpiedContext,
+                CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION, userHandle, packageName,
+                notificationId);
 
         String text;
         String negativeActionText;
@@ -285,6 +289,7 @@ public final class NotificationHelperTest {
                         actionTitlePrioritizeApp, positiveActionPendingIntent).build())
                 .addAction(new Notification.Action.Builder(/* icon= */ null,
                         negativeActionText, negativeActionPendingIntent).build())
+                .setDeleteIntent(deletePendingIntent)
                 .build();
     }
 
@@ -346,6 +351,8 @@ public final class NotificationHelperTest {
         assertWithMessage("Notification.getSmallIcon().getResId() for id %s", notificationId)
                 .that(actual.getSmallIcon().getResId())
                 .isEqualTo(expected.getSmallIcon().getResId());
+        isIntentEqualTo(getIntent(actual.deleteIntent), getIntent(expected.deleteIntent),
+                notificationId);
         isBundleEqualTo(actual.extras, expected.extras, notificationId, Notification.EXTRA_TITLE,
                 Notification.EXTRA_TEXT);
     }
@@ -359,7 +366,8 @@ public final class NotificationHelperTest {
                 .isEqualTo(expected.actionIntent.isImmutable());
         assertWithMessage("Action.actionIntent for id %s", notificationId).that(actual.actionIntent)
                 .isEqualTo(expected.actionIntent);
-        isIntentEqualTo(getActionIntent(actual), getActionIntent(expected), notificationId);
+        isIntentEqualTo(getIntent(actual.actionIntent), getIntent(expected.actionIntent),
+                notificationId);
     }
 
     private void isIntentEqualTo(Intent actual, Intent expected, int notificationId)
@@ -399,11 +407,11 @@ public final class NotificationHelperTest {
         }
     }
 
-    private Intent getActionIntent(Notification.Action action) {
+    private Intent getIntent(PendingIntent pendingIntent) {
         Intent intent;
         mUiAutomation.adoptShellPermissionIdentity();
         try {
-            intent = action.actionIntent.getIntent();
+            intent = pendingIntent.getIntent();
         } finally {
             mUiAutomation.dropShellPermissionIdentity();
         }
