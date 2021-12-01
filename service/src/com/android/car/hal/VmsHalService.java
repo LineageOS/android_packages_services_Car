@@ -15,7 +15,6 @@
  */
 package com.android.car.hal;
 
-import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehicleAreaType;
@@ -30,17 +29,16 @@ import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsSubscriptionHelper;
 import android.car.vms.VmsSubscriptionState;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
-import android.hardware.automotive.vehicle.V2_0.VmsBaseMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsPublisherInformationIntegerValuesIndex;
-import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VmsBaseMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.VmsMessageType;
+import android.hardware.automotive.vehicle.VmsMessageWithLayerAndPublisherIdIntegerValuesIndex;
+import android.hardware.automotive.vehicle.VmsMessageWithLayerIntegerValuesIndex;
+import android.hardware.automotive.vehicle.VmsOfferingMessageIntegerValuesIndex;
+import android.hardware.automotive.vehicle.VmsPublisherInformationIntegerValuesIndex;
+import android.hardware.automotive.vehicle.VmsStartSessionMessageIntegerValuesIndex;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.RemoteException;
@@ -52,6 +50,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.os.HandlerExecutor;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.vms.VmsBrokerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -61,6 +60,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -102,6 +102,8 @@ public class VmsHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private VmsClient mClient;
 
+    private final HalPropValueBuilder mPropValueBuilder;
+
     private final VmsClientCallback mClientCallback = new VmsClientCallback() {
         @Override
         public void onClientConnected(VmsClient client) {
@@ -111,21 +113,21 @@ public class VmsHalService extends HalServiceBase {
         @Override
         public void onSubscriptionStateChanged(VmsSubscriptionState subscriptionState) {
             if (DBG) Slogf.d(TAG, "Handling a subscription state change");
-            setPropertyValue(createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_CHANGE,
-                            subscriptionState));
+            setPropertyValue(createSubscriptionStateMessage(mPropValueBuilder,
+                    VmsMessageType.SUBSCRIPTIONS_CHANGE, subscriptionState));
         }
 
         @Override
         public void onLayerAvailabilityChanged(VmsAvailableLayers availableLayers) {
             if (DBG) Slogf.d(TAG, "Handling a layer availability change");
-            setPropertyValue(createAvailableLayersMessage(VmsMessageType.AVAILABILITY_CHANGE,
-                            availableLayers));
+            setPropertyValue(createAvailableLayersMessage(mPropValueBuilder,
+                    VmsMessageType.AVAILABILITY_CHANGE, availableLayers));
         }
 
         @Override
         public void onPacketReceived(int providerId, VmsLayer layer, byte[] packet) {
             if (DBG) Slogf.d(TAG, "Handling a data message for Layer: " + layer);
-            setPropertyValue(createDataMessage(layer, providerId, packet));
+            setPropertyValue(createDataMessage(mPropValueBuilder, layer, providerId, packet));
         }
     };
 
@@ -142,11 +144,11 @@ public class VmsHalService extends HalServiceBase {
             BiFunction<Handler, VmsClientCallback, VmsClient> initVmsClient,
             boolean propagatePropertyException) {
         mVehicleHal = vehicleHal;
-        mAidlSupported = false;
         mCoreId = (int) (getCoreId.get() % Integer.MAX_VALUE);
         mInitVmsClient = initVmsClient;
         mClientMetricsProperty = getClientMetricsProperty(context);
         mPropagatePropertyException = propagatePropertyException;
+        mPropValueBuilder = vehicleHal.getHalPropValueBuilder();
     }
 
     private static int getClientMetricsProperty(Context context) {
@@ -179,7 +181,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     @Override
-    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
+    public void takeProperties(Collection<HalPropConfig> properties) {
         if (properties.isEmpty()) {
             return;
         }
@@ -202,7 +204,8 @@ public class VmsHalService extends HalServiceBase {
         mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
 
         mHandler.post(() ->
-                setPropertyValue(createStartSessionMessage(mCoreId, UNKNOWN_CLIENT_ID)));
+                setPropertyValue(createStartSessionMessage(
+                        mPropValueBuilder, mCoreId, UNKNOWN_CLIENT_ID)));
     }
 
     @Override
@@ -248,9 +251,9 @@ public class VmsHalService extends HalServiceBase {
             return;
         }
 
-        VehiclePropValue vehicleProp = null;
+        HalPropValue vehicleProp = null;
         try {
-            vehicleProp = mVehicleHal.getDeprecated(mClientMetricsProperty);
+            vehicleProp = mVehicleHal.get(mClientMetricsProperty);
         } catch (RuntimeException e) {
             // Failures to retrieve metrics should be non-fatal
             Slogf.e(TAG, "While reading metrics from client", e);
@@ -261,7 +264,7 @@ public class VmsHalService extends HalServiceBase {
         }
 
         try (FileOutputStream fout = new FileOutputStream(fd)) {
-            fout.write(toByteArray(vehicleProp.value.bytes));
+            fout.write(vehicleProp.getByteArray());
             fout.flush();
         } catch (IOException e) {
             Slogf.e(TAG, "Error writing metrics to output stream", e);
@@ -275,23 +278,30 @@ public class VmsHalService extends HalServiceBase {
      * hardware/interfaces/automotive/vehicle/2.0/types.hal
      */
     @Override
-    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
+    public void onHalEvents(List<HalPropValue> values) {
         if (DBG) Slogf.d(TAG, "Handling a VMS property change");
-        for (VehiclePropValue v : values) {
-            ArrayList<Integer> vec = v.value.int32Values;
+        for (HalPropValue v : values) {
+            ArrayList<Integer> vec = new ArrayList<Integer>(v.getInt32ValuesSize());
+            for (int i = 0; i < v.getInt32ValuesSize(); i++) {
+                vec.add(v.getInt32Value(i));
+            }
             int messageType;
             try {
-                messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
+                messageType = v.getInt32Value(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
             } catch (IndexOutOfBoundsException e) {
                 Slogf.e(TAG, "Invalid event, no message type", e);
                 continue;
             }
 
-            if (DBG) Slogf.d(TAG, "Received " + VmsMessageType.toString(messageType) + " message");
+            if (DBG) {
+                Slogf.d(TAG, "Received "
+                        + DebugUtils.constantToString(VmsMessageType.class, messageType)
+                        + " message");
+            }
             try {
                 switch (messageType) {
                     case VmsMessageType.DATA:
-                        handleDataEvent(vec, toByteArray(v.value.bytes));
+                        handleDataEvent(vec, v.getByteArray());
                         break;
                     case VmsMessageType.SUBSCRIBE:
                         handleSubscribeEvent(vec);
@@ -306,7 +316,7 @@ public class VmsHalService extends HalServiceBase {
                         handleUnsubscribeFromPublisherEvent(vec);
                         break;
                     case VmsMessageType.PUBLISHER_ID_REQUEST:
-                        handlePublisherIdRequest(toByteArray(v.value.bytes));
+                        handlePublisherIdRequest(v.getByteArray());
                         break;
                     case VmsMessageType.PUBLISHER_INFORMATION_REQUEST:
                         handlePublisherInfoRequest(vec);
@@ -327,7 +337,8 @@ public class VmsHalService extends HalServiceBase {
                         Slogf.e(TAG, "Unexpected message type: " + messageType);
                 }
             } catch (IndexOutOfBoundsException e) {
-                Slogf.e(TAG, "While handling " + VmsMessageType.toString(messageType), e);
+                Slogf.e(TAG, "While handling "
+                        + DebugUtils.constantToString(VmsMessageType.class, messageType), e);
             }
         }
     }
@@ -395,7 +406,7 @@ public class VmsHalService extends HalServiceBase {
             disconnectVmsClient();
             connectVmsClient();
             // Send acknowledgement message
-            setPropertyValue(createStartSessionMessage(mCoreId, clientId));
+            setPropertyValue(createStartSessionMessage(mPropValueBuilder, mCoreId, clientId));
         }
         mClientCallback.onLayerAvailabilityChanged(getVmsClient().getAvailableLayers());
     }
@@ -521,10 +532,11 @@ public class VmsHalService extends HalServiceBase {
             return;
         }
 
-        VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.PUBLISHER_ID_RESPONSE);
+        int publisherId = getVmsClient().registerProvider(payload);
+        HalPropValue vehicleProp = createVmsMessage(mPropValueBuilder,
+                VmsMessageType.PUBLISHER_ID_RESPONSE, new ArrayList<Integer>(
+                        Arrays.asList(publisherId)));
 
-        // Publisher ID
-        vehicleProp.value.int32Values.add(getVmsClient().registerProvider(payload));
         setPropertyValue(vehicleProp);
     }
 
@@ -546,13 +558,13 @@ public class VmsHalService extends HalServiceBase {
         if (DBG) Slogf.d(TAG, "Handling a publisher info request event");
         int publisherId = message.get(VmsPublisherInformationIntegerValuesIndex.PUBLISHER_ID);
 
-        VehiclePropValue vehicleProp =
-                createVmsMessage(VmsMessageType.PUBLISHER_INFORMATION_RESPONSE);
-
         // Publisher Info
         byte[] publisherInfo = getVmsClient().getProviderDescription(publisherId);
-        appendBytes(vehicleProp.value.bytes,
-                publisherInfo != null ? publisherInfo : DEFAULT_PUBLISHER_INFO);
+
+        HalPropValue vehicleProp =
+                createVmsMessage(mPropValueBuilder, VmsMessageType.PUBLISHER_INFORMATION_RESPONSE,
+                        /*message=*/new ArrayList<Integer>(),
+                        /*payload=*/publisherInfo != null ? publisherInfo : DEFAULT_PUBLISHER_INFO);
         setPropertyValue(vehicleProp);
     }
 
@@ -618,8 +630,8 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handleAvailabilityRequestEvent() {
-        setPropertyValue(createAvailableLayersMessage(VmsMessageType.AVAILABILITY_RESPONSE,
-                getVmsClient().getAvailableLayers()));
+        setPropertyValue(createAvailableLayersMessage(mPropValueBuilder,
+                VmsMessageType.AVAILABILITY_RESPONSE, getVmsClient().getAvailableLayers()));
     }
 
     /**
@@ -629,26 +641,27 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handleSubscriptionsRequestEvent() {
-        setPropertyValue(createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_RESPONSE,
-                getVmsClient().getSubscriptionState()));
+        setPropertyValue(createSubscriptionStateMessage(mPropValueBuilder,
+                VmsMessageType.SUBSCRIPTIONS_RESPONSE, getVmsClient().getSubscriptionState()));
     }
 
-    private void setPropertyValue(VehiclePropValue vehicleProp) {
-        int messageType = vehicleProp.value.int32Values.get(
+    private void setPropertyValue(HalPropValue vehicleProp) {
+        int messageType = vehicleProp.getInt32Value(
                 VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
 
         synchronized (mLock) {
             if (!mIsSupported) {
                 Slogf.w(TAG, "HAL unsupported while attempting to send "
-                        + VmsMessageType.toString(messageType));
+                        + DebugUtils.constantToString(VmsMessageType.class, messageType));
                 return;
             }
         }
 
         try {
-            mVehicleHal.setDeprecated(vehicleProp);
+            mVehicleHal.set(vehicleProp);
         } catch (RuntimeException e) {
-            Slogf.e(TAG, "While sending " + VmsMessageType.toString(messageType), e);
+            Slogf.e(TAG, "While sending "
+                    + DebugUtils.constantToString(VmsMessageType.class, messageType), e);
             if (mPropagatePropertyException) {
                 throw new IllegalStateException(e);
             }
@@ -656,7 +669,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     /**
-     * Creates a SESSION_START type {@link VehiclePropValue}.
+     * Creates a SESSION_START type {@link HalPropValue}.
      *
      * SESSION_START message format:
      * <ul>
@@ -665,22 +678,16 @@ public class VmsHalService extends HalServiceBase {
      * <li>Client ID
      * </ul>
      */
-    private static VehiclePropValue createStartSessionMessage(int coreId, int clientId) {
+    private static HalPropValue createStartSessionMessage(HalPropValueBuilder builder, int coreId,
+            int clientId) {
         // Message type + layer
-        VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.START_SESSION);
-        List<Integer> message = vehicleProp.value.int32Values;
-
-        // Core ID
-        message.add(coreId);
-
-        // Client ID
-        message.add(clientId);
-
+        HalPropValue vehicleProp = createVmsMessage(builder, VmsMessageType.START_SESSION,
+                new ArrayList<Integer>(Arrays.asList(coreId, clientId)));
         return vehicleProp;
     }
 
     /**
-     * Creates a DATA type {@link VehiclePropValue}.
+     * Creates a DATA type {@link HalPropValue}.
      *
      * DATA message format:
      * <ul>
@@ -696,23 +703,19 @@ public class VmsHalService extends HalServiceBase {
      * @param publisherId Publisher of message
      * @param payload Data message
      */
-    private static VehiclePropValue createDataMessage(VmsLayer layer, int publisherId,
-            byte[] payload) {
+    private static HalPropValue createDataMessage(HalPropValueBuilder builder, VmsLayer layer,
+            int publisherId, byte[] payload) {
         // Message type + layer
-        VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.DATA);
-        appendLayer(vehicleProp.value.int32Values, layer);
-        List<Integer> message = vehicleProp.value.int32Values;
-
+        List<Integer> message = new ArrayList<Integer>();
+        appendLayer(message, layer);
         // Publisher ID
         message.add(publisherId);
 
-        // Payload
-        appendBytes(vehicleProp.value.bytes, payload);
-        return vehicleProp;
+        return createVmsMessage(builder, VmsMessageType.DATA, message, payload);
     }
 
     /**
-     * Creates a SUBSCRIPTION_CHANGE or SUBSCRIPTION_RESPONSE type {@link VehiclePropValue}.
+     * Creates a SUBSCRIPTION_CHANGE or SUBSCRIPTION_RESPONSE type {@link HalPropValue}.
      *
      * Both message types have the same format:
      * <ul>
@@ -727,12 +730,9 @@ public class VmsHalService extends HalServiceBase {
      * @param messageType       Either SUBSCRIPTIONS_CHANGE or SUBSCRIPTIONS_RESPONSE.
      * @param subscriptionState The subscription state to encode in the message.
      */
-    private static VehiclePropValue createSubscriptionStateMessage(int messageType,
-            VmsSubscriptionState subscriptionState) {
-        // Message type
-        VehiclePropValue vehicleProp = createVmsMessage(messageType);
-        List<Integer> message = vehicleProp.value.int32Values;
-
+    private static HalPropValue createSubscriptionStateMessage(HalPropValueBuilder builder,
+            int messageType, VmsSubscriptionState subscriptionState) {
+        List<Integer> message = new ArrayList<Integer>();
         // Sequence number
         message.add(subscriptionState.getSequenceNumber());
 
@@ -753,11 +753,12 @@ public class VmsHalService extends HalServiceBase {
         for (VmsAssociatedLayer layer : associatedLayers) {
             appendAssociatedLayer(message, layer);
         }
-        return vehicleProp;
+
+        return createVmsMessage(builder, messageType, message);
     }
 
     /**
-     * Creates an AVAILABILITY_CHANGE or AVAILABILITY_RESPONSE type {@link VehiclePropValue}.
+     * Creates an AVAILABILITY_CHANGE or AVAILABILITY_RESPONSE type {@link HalPropValue}.
      *
      * Both message types have the same format:
      * <ul>
@@ -770,12 +771,9 @@ public class VmsHalService extends HalServiceBase {
      * @param messageType     Either AVAILABILITY_CHANGE or AVAILABILITY_RESPONSE.
      * @param availableLayers The available layers to encode in the message.
      */
-    private static VehiclePropValue createAvailableLayersMessage(int messageType,
-            VmsAvailableLayers availableLayers) {
-        // Message type
-        VehiclePropValue vehicleProp = createVmsMessage(messageType);
-        List<Integer> message = vehicleProp.value.int32Values;
-
+    private static HalPropValue createAvailableLayersMessage(HalPropValueBuilder builder,
+            int messageType, VmsAvailableLayers availableLayers) {
+        List<Integer> message = new ArrayList<Integer>();
         // Sequence number
         message.add(availableLayers.getSequence());
 
@@ -786,21 +784,45 @@ public class VmsHalService extends HalServiceBase {
         for (VmsAssociatedLayer layer : availableLayers.getAssociatedLayers()) {
             appendAssociatedLayer(message, layer);
         }
-        return vehicleProp;
+        return createVmsMessage(builder, messageType, message);
     }
 
     /**
-     * Creates a base {@link VehiclePropValue} of the requested message type, with no message fields
-     * populated.
+     * Creates a {@link HalPropValue} of the requested message type, and a list of values.
      *
      * @param messageType Type of message, from {@link VmsMessageType}
+     * @param values A list of values.
      */
-    private static VehiclePropValue createVmsMessage(int messageType) {
-        VehiclePropValue vehicleProp = new VehiclePropValue();
-        vehicleProp.prop = HAL_PROPERTY_ID;
-        vehicleProp.areaId = VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
-        vehicleProp.value.int32Values.add(messageType);
-        return vehicleProp;
+    private static HalPropValue createVmsMessage(HalPropValueBuilder builder,  int messageType,
+            List<Integer> values) {
+        int[] intValues = new int[values.size() + 1];
+        intValues[0] = messageType;
+        for (int i = 0; i < values.size(); i++) {
+            intValues[i + 1] = values.get(i);
+        }
+        return builder.build(HAL_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                /*timestamp=*/0, VehiclePropertyStatus.AVAILABLE,
+                /*values=*/intValues);
+    }
+
+    /**
+     * Creates a {@link HalPropValue} of the requested message type, and a list of values.
+     *
+     * @param messageType Type of message, from {@link VmsMessageType}
+     * @param values A list of values.
+     * @param payload The byte values.
+     */
+    private static HalPropValue createVmsMessage(HalPropValueBuilder builder, int messageType,
+            List<Integer> values, byte[] payload) {
+        int[] intValues = new int[values.size() + 1];
+        intValues[0] = messageType;
+        for (int i = 0; i < values.size(); i++) {
+            intValues[i + 1] = values.get(i);
+        }
+        return builder.build(HAL_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL,
+                /*timestamp=*/0, VehiclePropertyStatus.AVAILABLE,
+                /*int32Values=*/intValues, /*floatValues=*/new float[0],
+                /*int64Values=*/new long[0], /*stringValue=*/new String(), /*byteValues=*/payload);
     }
 
     /**
@@ -843,13 +865,6 @@ public class VmsHalService extends HalServiceBase {
         message.add(layer.getVmsLayer().getVersion());
         message.add(layer.getProviderIds().size());
         message.addAll(layer.getProviderIds());
-    }
-
-    private static void appendBytes(ArrayList<Byte> dst, byte[] src) {
-        dst.ensureCapacity(src.length);
-        for (byte b : src) {
-            dst.add(b);
-        }
     }
 
     private static VmsLayer parseVmsLayerFromMessage(List<Integer> message) {
