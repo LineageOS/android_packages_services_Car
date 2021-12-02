@@ -465,7 +465,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Boolean content = (Boolean) propValue.getValue();
 
@@ -487,7 +487,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer content = (Integer) propValue.getValue();
 
@@ -506,7 +506,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer[] content = (Integer[]) propValue.getValue();
 
@@ -524,7 +524,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float content = (Float) propValue.getValue();
 
@@ -543,7 +543,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float[] content = (Float[]) propValue.getValue();
 
@@ -561,7 +561,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long content = (Long) propValue.getValue();
 
@@ -580,7 +580,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long[] content = (Long[]) propValue.getValue();
 
@@ -599,7 +599,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         byte[] content = (byte[]) propValue.getValue();
 
@@ -617,7 +617,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(hidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         String content = (String) propValue.getValue();
 
@@ -644,7 +644,8 @@ public final class HalPropValueTest {
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
         HalPropValue value = builder.build(hidlValue);
 
-        CarPropertyValue propValue = value.toCarPropertyValue(TEST_MGR_PROP, config);
+        CarPropertyValue propValue = value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(config));
 
         Object[] content = (Object[]) propValue.getValue();
 
@@ -671,7 +672,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Boolean content = (Boolean) propValue.getValue();
 
@@ -694,7 +695,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer content = (Integer) propValue.getValue();
 
@@ -713,7 +714,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Integer[] content = (Integer[]) propValue.getValue();
 
@@ -732,7 +733,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float content = (Float) propValue.getValue();
 
@@ -751,7 +752,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Float[] content = (Float[]) propValue.getValue();
 
@@ -770,7 +771,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long content = (Long) propValue.getValue();
 
@@ -789,7 +790,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         Long[] content = (Long[]) propValue.getValue();
 
@@ -808,7 +809,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         byte[] content = (byte[]) propValue.getValue();
 
@@ -827,7 +828,7 @@ public final class HalPropValueTest {
         HalPropValue value = builder.build(aidlValue);
 
         CarPropertyValue propValue = value.toCarPropertyValue(
-                TEST_MGR_PROP, new VehiclePropConfig());
+                TEST_MGR_PROP, new AidlHalPropConfig(new VehiclePropConfig()));
 
         String content = (String) propValue.getValue();
 
@@ -854,7 +855,8 @@ public final class HalPropValueTest {
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         HalPropValue value = builder.build(aidlValue);
 
-        CarPropertyValue propValue = value.toCarPropertyValue(TEST_MGR_PROP, config);
+        CarPropertyValue propValue = value.toCarPropertyValue(TEST_MGR_PROP,
+                new AidlHalPropConfig(config));
 
         Object[] content = (Object[]) propValue.getValue();
 
@@ -872,7 +874,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Boolean) true);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_BOOL_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_BOOL_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_BOOL_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -885,7 +888,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Integer) TEST_INT32_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_INT32_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT32_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT32_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -901,7 +905,8 @@ public final class HalPropValueTest {
                         new Integer[] {TEST_INT32_VALUE, TEST_INT32_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_INT32_VEC_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT32_VEC_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT32_VEC_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -916,7 +921,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Float) TEST_FLOAT_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_FLOAT_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_FLOAT_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_FLOAT_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -932,7 +938,8 @@ public final class HalPropValueTest {
                         new Float[] {TEST_FLOAT_VALUE, TEST_FLOAT_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_FLOAT_VEC_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_FLOAT_VEC_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_FLOAT_VEC_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -947,7 +954,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Long) TEST_INT64_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_INT64_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT64_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT64_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -963,7 +971,8 @@ public final class HalPropValueTest {
                         new Long[] {TEST_INT64_VALUE, TEST_INT64_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_INT64_VEC_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT64_VEC_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT64_VEC_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -978,7 +987,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, new byte[] {TEST_BYTE_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_BYTES_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_BYTES_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_BYTES_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -991,7 +1001,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, TEST_STRING_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue value = builder.build(propValue, TEST_STRING_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_STRING_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_STRING_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1016,7 +1027,8 @@ public final class HalPropValueTest {
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
         VehiclePropConfig config = new VehiclePropConfig();
         config.configArray = new int[] {1, 1, 1, 0, 1, 0, 1, 0, 1};
-        HalPropValue value = builder.build(propValue, TEST_MIXED_PROP, config);
+        HalPropValue value = builder.build(propValue, TEST_MIXED_PROP,
+                new AidlHalPropConfig(config));
 
         assertThat(value.getPropId()).isEqualTo(TEST_MIXED_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1034,7 +1046,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Boolean) true);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_BOOL_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_BOOL_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_BOOL_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1047,7 +1060,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Integer) TEST_INT32_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_INT32_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT32_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT32_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1063,7 +1077,8 @@ public final class HalPropValueTest {
                         new Integer[] {TEST_INT32_VALUE, TEST_INT32_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_INT32_VEC_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT32_VEC_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT32_VEC_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1078,7 +1093,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Float) TEST_FLOAT_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_FLOAT_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_FLOAT_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_FLOAT_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1094,7 +1110,8 @@ public final class HalPropValueTest {
                         new Float[] {TEST_FLOAT_VALUE, TEST_FLOAT_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_FLOAT_VEC_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_FLOAT_VEC_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_FLOAT_VEC_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1109,7 +1126,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, (Long) TEST_INT64_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_INT64_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT64_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT64_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1125,7 +1143,8 @@ public final class HalPropValueTest {
                         new Long[] {TEST_INT64_VALUE, TEST_INT64_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_INT64_VEC_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_INT64_VEC_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_INT64_VEC_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1140,7 +1159,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, new byte[] {TEST_BYTE_VALUE});
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_BYTES_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_BYTES_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_BYTES_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1153,7 +1173,8 @@ public final class HalPropValueTest {
                 new CarPropertyValue(TEST_MGR_PROP, TEST_AREA_ID, TEST_STRING_VALUE);
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
-        HalPropValue value = builder.build(propValue, TEST_STRING_PROP, new VehiclePropConfig());
+        HalPropValue value = builder.build(propValue, TEST_STRING_PROP,
+                new AidlHalPropConfig(new VehiclePropConfig()));
 
         assertThat(value.getPropId()).isEqualTo(TEST_STRING_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);
@@ -1178,7 +1199,8 @@ public final class HalPropValueTest {
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         VehiclePropConfig config = new VehiclePropConfig();
         config.configArray = new int[] {1, 1, 1, 0, 1, 0, 1, 0, 1};
-        HalPropValue value = builder.build(propValue, TEST_MIXED_PROP, config);
+        HalPropValue value = builder.build(propValue, TEST_MIXED_PROP,
+                new AidlHalPropConfig(config));
 
         assertThat(value.getPropId()).isEqualTo(TEST_MIXED_PROP);
         assertThat(value.getAreaId()).isEqualTo(TEST_AREA_ID);

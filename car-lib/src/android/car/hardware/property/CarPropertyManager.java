@@ -494,6 +494,9 @@ public class CarPropertyManager extends CarManagerBase {
                     && (propValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
+        } catch (ServiceSpecificException e) {
+            Log.e(TAG, "unable to get property, error: " + e);
+            return false;
         }
     }
 
@@ -727,7 +730,7 @@ public class CarPropertyManager extends CarManagerBase {
                             + "areaId: 0x%x", propId, areaId));
                 }
             }
-            return handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
+            return handleCarServiceSpecificException(e, propId, areaId, null);
         }
     }
 
@@ -787,7 +790,7 @@ public class CarPropertyManager extends CarManagerBase {
                             + "areaId: 0x%x", propId, areaId));
                 }
             }
-            return handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
+            return handleCarServiceSpecificException(e, propId, areaId, null);
         }
     }
 
@@ -861,7 +864,7 @@ public class CarPropertyManager extends CarManagerBase {
                             + "areaId: 0x%x", propId, areaId));
                 }
             }
-            handleCarServiceSpecificException(e.errorCode, propId, areaId, null);
+            handleCarServiceSpecificException(e, propId, areaId, null);
         }
     }
 
@@ -909,8 +912,11 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     // Handles ServiceSpecificException in CarService for R and later version.
-    private <T> T handleCarServiceSpecificException(int errorCode, int propId, int areaId,
-            T returnValue) {
+    private <T> T handleCarServiceSpecificException(
+            ServiceSpecificException e, int propId, int areaId, T returnValue) {
+        // We are not passing the error message down, so log it here.
+        Log.w(TAG, "received ServiceSpecificException: " + e);
+        int errorCode = e.errorCode;
         switch (errorCode) {
             case VehicleHalStatusCode.STATUS_NOT_AVAILABLE:
                 throw new PropertyNotAvailableException(propId, areaId);
