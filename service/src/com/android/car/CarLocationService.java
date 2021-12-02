@@ -102,15 +102,16 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
             getClass().getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
-    private CarPowerManager mCarPowerManager;
-    private CarDrivingStateService mCarDrivingStateService;
-    private PerUserCarServiceHelper mPerUserCarServiceHelper;
+    private final CarPowerManager mCarPowerManager;
+    private final CarDrivingStateService mCarDrivingStateService;
+    private final PerUserCarServiceHelper mPerUserCarServiceHelper;
     private final CarPowerManagementService mCarPowerManagementService;
 
     @GuardedBy("mLock")
     private LocationManager mLocationManager;
 
     // Allows us to interact with the {@link LocationManager} as the foreground user.
+    @GuardedBy("mLocationManagerProxyLock")
     private ILocationManagerProxy mILocationManagerProxy;
 
     // Used for supporting features such as suspend to RAM and suspend to disk. Power policy
@@ -228,6 +229,21 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         if (mCarPowerManagementService == null) {
             Slogf.w(TAG, "Cannot find CarPowerManagementService.");
         }
+
+        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
+        if (mCarPowerManager == null) {
+            Slogf.w(TAG, "Cannot find CarPowerManager.");
+        }
+
+        mPerUserCarServiceHelper = CarLocalServices.getService(PerUserCarServiceHelper.class);
+        if (mPerUserCarServiceHelper == null) {
+            Slogf.w(TAG, "Cannot find PerUserCarServiceHelper.");
+        }
+
+        mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
+        if (mCarDrivingStateService == null) {
+            Slogf.w(TAG, "Cannot find CarDrivingStateService.");
+        }
     }
 
     @Override
@@ -237,7 +253,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
         mContext.registerReceiver(this, filter, Context.RECEIVER_NOT_EXPORTED);
 
-        mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
         if (mCarDrivingStateService != null) {
             CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
             if (event != null && event.eventValue == CarDrivingStateEvent.DRIVING_STATE_MOVING) {
@@ -247,11 +262,11 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                         mICarDrivingStateChangeEventListener);
             }
         }
-        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
+
         if (mCarPowerManager != null) { // null case happens for testing.
             mCarPowerManager.setListenerWithCompletion(CarLocationService.this);
         }
-        mPerUserCarServiceHelper = CarLocalServices.getService(PerUserCarServiceHelper.class);
+
         if (mPerUserCarServiceHelper != null) {
             mPerUserCarServiceHelper.registerServiceCallback(mUserServiceCallback);
         }

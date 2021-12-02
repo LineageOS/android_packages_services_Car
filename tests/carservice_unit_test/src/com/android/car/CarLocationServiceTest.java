@@ -111,15 +111,7 @@ public class CarLocationServiceTest {
         mContext = InstrumentationRegistry.getTargetContext();
         mTempDirectory = new TemporaryDirectory(TAG).getDirectory();
         mLatch = new CountDownLatch(1);
-        mCarLocationService = new CarLocationService(mMockContext) {
-            @Override
-            void asyncOperation(Runnable operation) {
-                super.asyncOperation(() -> {
-                    operation.run();
-                    mLatch.countDown();
-                });
-            }
-        };
+
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
         CarLocalServices.removeServiceForTest(CarDrivingStateService.class);
@@ -134,6 +126,16 @@ public class CarLocationServiceTest {
             fail("We only support and test the headless system user case. Ensure the system has "
                     + "the system property 'ro.fw.mu.headless_system_user' set to true.");
         }
+
+        mCarLocationService = new CarLocationService(mMockContext) {
+            @Override
+            void asyncOperation(Runnable operation) {
+                super.asyncOperation(() -> {
+                    operation.run();
+                    mLatch.countDown();
+                });
+            }
+        };
 
         // Store CarLocationService's user switch callback so we can invoke it in the tests.
         doAnswer((invocation) -> {
