@@ -59,7 +59,7 @@ public abstract class CarApiTestBase {
 
     private static final String TAG = CarApiTestBase.class.getSimpleName();
 
-    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 60_000;
+    protected static final long DEFAULT_WAIT_TIMEOUT_MS = 120_000;
 
     /**
      * Constant used to wait blindly, when there is no condition that can be checked.
