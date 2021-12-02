@@ -361,19 +361,16 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
-        mCallback0.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_NAVIGATE_NEXT, mCallback0);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_DPAD_CENTER);
-        mCallback0.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_DPAD_CENTER, mCallback0);
 
         int numClicks = 3;
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-        mCallback0.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
 
         r = mCarInputManager.requestInputEventCapture(
@@ -389,21 +386,19 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         carInputManager0.releaseInputEventCapture(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
 
         // Now capture should be granted back
-        mCallback1.waitForStateChange();
-        assertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION},
                 mCallback1);
         assertNoStateChange(mCallback0);
 
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-        mCallback1.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback1);
     }
 
     @Test
-    public void testOneClientTransitionFromFullToNonFull() {
+    public void testOneClientTransitionFromFullToNonFull() throws Exception {
         CarInputManager carInputManager0 = createAnotherCarInputManager();
 
         int r = carInputManager0.requestInputEventCapture(
@@ -428,7 +423,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
-        assertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_NAVIGATE_KEYS},
                 mCallback1);
         assertNoStateChange(mCallback0);
@@ -462,8 +457,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
         int numClicks = 3;
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-        mCallback0.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
 
         r = mCarInputManager.requestInputEventCapture(
@@ -472,8 +466,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
-        mCallback1.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_NAVIGATE_NEXT, mCallback1);
     }
 
@@ -491,14 +484,12 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_DPAD_CENTER);
-        mCallback0.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_DPAD_CENTER, mCallback0);
 
         int numClicks = 3;
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-        mCallback0.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
 
         r = carInputManager1.requestInputEventCapture(
@@ -508,52 +499,46 @@ public final class CarInputManagerTest extends MockedCarTestBase {
                         CarInputManager.INPUT_TYPE_NAVIGATE_KEYS}, 0, mCallback1);
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
-        mCallback0.waitForStateChange();
-        assertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_DPAD_KEYS},
                 mCallback0);
         assertNoStateChange(mCallback1);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
-        mCallback1.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_NAVIGATE_NEXT, mCallback1);
         assertNumberOfOnKeyEvents(1, mCallback0);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_DPAD_CENTER);
-        mCallback0.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_DPAD_CENTER, mCallback0);
         assertNumberOfOnKeyEvents(2, mCallback0);
 
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-        mCallback1.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback1);
         assertNumberOfOnRotaryEvents(1, mCallback0);
 
         mCallback0.resetAllEventsWaiting();
         carInputManager1.releaseInputEventCapture(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
 
-        mCallback0.waitForStateChange();
-        assertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION},
                 mCallback0);
         assertNoStateChange(mCallback1);
 
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
-        mCallback0.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
     }
 
     @Test
-    public void testInteractionWithFullCapturer() {
+    public void testInteractionWithFullCapturer() throws Exception {
         CarInputManager carInputManager0 = createAnotherCarInputManager();
         CarInputManager carInputManager1 = createAnotherCarInputManager();
 
-        Log.i(TAG, "requestInputEventCapture callback 0");
+        // Request rotary and dpad input event capture for display main (mCallback0)
         int r = carInputManager0.requestInputEventCapture(
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{
@@ -561,7 +546,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0, mCallback0);
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
-        Log.i(TAG, "requestInputEventCapture callback 1");
+        // Request all input event capture for display main (mCallback1)
         r = carInputManager1.requestInputEventCapture(
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
@@ -569,15 +554,14 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         waitForDispatchToMain();
-        assertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[0], mCallback0);
         assertNoStateChange(mCallback1);
 
-        Log.i(TAG, "releaseInputEventCapture callback 1");
+        // Release input event capture for main display
         carInputManager1.releaseInputEventCapture(CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
-
         waitForDispatchToMain();
-        assertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastStateChange(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 new int[]{CarInputManager.INPUT_TYPE_DPAD_KEYS,
                         CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION},
                 mCallback0);
@@ -593,8 +577,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
 
         injectKeyEvent(true, KeyEvent.KEYCODE_MENU, VehicleDisplay.INSTRUMENT_CLUSTER);
-        mCallback0.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, true,
                 KeyEvent.KEYCODE_MENU, mCallback0);
     }
 
@@ -664,8 +647,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         injectRotaryNavigationEvent(VehicleDisplay.MAIN, numClicks);
 
         // Assert: ensure RotaryEvent was delivered
-        mCallback0.waitForRotaryEvent();
-        assertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+        waitAndAssertLastRotaryEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                 CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION, numClicks, mCallback0);
 
         // Assert: ensure that Rotary event was dispatched using the assigned executor
@@ -689,8 +671,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         injectKeyEvent(true, KeyEvent.KEYCODE_NAVIGATE_NEXT);
 
         // Assert: ensure KeyEvent was delivered
-        mCallback0.waitForKeyEvent();
-        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
+        waitAndAssertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, true,
                 KeyEvent.KEYCODE_NAVIGATE_NEXT, mCallback0);
 
         // Assert: ensure that Key event was dispatched using the assigned executor
@@ -716,8 +697,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
                 /* repeatCounter= */ repeatedCounter);
 
         // Assert: ensure CustomInputEvent was delivered
-        mCallback0.waitForCustomInputEvent();
-        assertLastCustomInputEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, CUSTOM_EVENT_F1,
+        waitAndAssertLastCustomInputEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, CUSTOM_EVENT_F1,
                 repeatedCounter, mCallback0);
 
         // Assert: ensure that CustomInputEvent was dispatched using the assigned executor
@@ -892,14 +872,17 @@ public final class CarInputManagerTest extends MockedCarTestBase {
      * Events dispatched to main, so this should guarantee that all event dispatched are completed.
      */
     private void waitForDispatchToMain() {
-        // Needs to be invoked twice as it is dispatched to main inside car service once and it is
+        // Needs to be invoked twice as it is dispatched to main inside car service once, and it is
         // dispatched to main inside CarInputManager once.
         CarServiceUtils.runOnMainSync(() -> {});
         CarServiceUtils.runOnMainSync(() -> {});
     }
 
-    private void assertLastKeyEvent(int displayTarget, boolean down, int keyCode,
-            CaptureCallback callback) {
+    private void waitAndAssertLastKeyEvent(int displayTarget, boolean down, int keyCode,
+            CaptureCallback callback) throws Exception {
+        // Wait for key event first.
+        callback.waitForKeyEvent();
+
         LinkedList<Pair<Integer, List<KeyEvent>>> events = callback.getkeyEvents();
         assertThat(events).isNotEmpty();
         Pair<Integer, List<KeyEvent>> lastEvent = events.getFirst();
@@ -916,8 +899,11 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(events).hasSize(expectedNumber);
     }
 
-    private void assertLastRotaryEvent(int displayTarget, int rotaryType, int numberOfClicks,
-            CaptureCallback callback) {
+    private void waitAndAssertLastRotaryEvent(int displayTarget, int rotaryType, int numberOfClicks,
+            CaptureCallback callback) throws Exception {
+        // Wait for rotary event first.
+        callback.waitForRotaryEvent();
+
         LinkedList<Pair<Integer, List<RotaryEvent>>> rotaryEvents = callback.getRotaryEvents();
         assertThat(rotaryEvents).isNotEmpty();
         Pair<Integer, List<RotaryEvent>> lastEvent = rotaryEvents.getFirst();
@@ -934,8 +920,11 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(rotaryEvents).hasSize(expectedNumber);
     }
 
-    private void assertLastStateChange(int expectedTargetDisplayTarget, int[] expectedInputTypes,
-            CaptureCallback callback) {
+    private void waitAndAssertLastStateChange(int expectedTargetDisplayTarget,
+            int[] expectedInputTypes, CaptureCallback callback) throws Exception {
+        // Wait for state change event first.
+        callback.waitForStateChange();
+
         LinkedList<Pair<Integer, int[]>> changes = callback.getStateChanges();
         assertThat(changes).isNotEmpty();
         Pair<Integer, int[]> lastChange = changes.getFirst();
@@ -965,9 +954,12 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(actual.second).isEqualTo(expectedInputTypes);
     }
 
-    private void assertLastCustomInputEvent(int expectedDisplayType,
+    private void waitAndAssertLastCustomInputEvent(int expectedDisplayType,
             int expectedCustomEventFunction, int expectedRepeatedCounter,
-            CaptureCallback callback) {
+            CaptureCallback callback) throws Exception {
+        // Wait for custom input event first.
+        callback.waitForCustomInputEvent();
+
         LinkedList<Pair<Integer, List<CustomInputEvent>>> events = callback.getCustomInputEvents();
         assertThat(events).isNotEmpty();
 
