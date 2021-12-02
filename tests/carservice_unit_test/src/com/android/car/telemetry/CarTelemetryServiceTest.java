@@ -21,10 +21,12 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.MetricsConfigKey;
@@ -78,9 +80,11 @@ public class CarTelemetryServiceTest {
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
+    private ActivityManager mMockActivityManager;
+    @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
-    private Context mContext;
+    private Context mMockContext;
     @Mock
     private ICarTelemetryServiceListener mMockListener;
     @Mock
@@ -92,12 +96,21 @@ public class CarTelemetryServiceTest {
     public void setUp() throws Exception {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+        // ActivityManager is used by SystemMonitor
+        doAnswer(i -> {
+            ActivityManager.MemoryInfo mi = i.getArgument(0);
+            mi.availMem = 5_000_000L; // memory usage is at 50%
+            mi.totalMem = 10_000_000;
+            return null;
+        }).when(mMockActivityManager).getMemoryInfo(any(ActivityManager.MemoryInfo.class));
+        when(mMockContext.getSystemService(Context.ACTIVITY_SERVICE))
+                .thenReturn(mMockActivityManager);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
         when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        mService = new CarTelemetryService(mContext, mMockCarPropertyService);
+        mService = new CarTelemetryService(mMockContext, mMockCarPropertyService);
         mService.init();
         mService.setListener(mMockListener);
 
@@ -235,14 +248,14 @@ public class CarTelemetryServiceTest {
                 .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
                 .setMessage("test error")
                 .build();
-        mResultStore.putError(KEY_V1.getName(), error);
+        mResultStore.putErrorResult(KEY_V1.getName(), error);
 
         mService.sendFinishedReports(KEY_V1);
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onError(eq(KEY_V1), eq(error.toByteArray()));
         // error should have been deleted
-        assertThat(mResultStore.getError(KEY_V1.getName(), false)).isNull();
+        assertThat(mResultStore.getErrorResult(KEY_V1.getName(), false)).isNull();
     }
 
     @Test
