@@ -22,14 +22,13 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.os.TraceHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Process;
-import android.util.EventLog;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.util.LimitedTimingsTraceLog;
 
@@ -58,7 +57,7 @@ public class CarServiceImpl extends ProxiedService {
         mVehicle = new VehicleStub();
         initTiming.traceEnd(); // "getVehicle"
 
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle.isValid() ? 1 : 0);
+        EventLogHelper.writeCarServiceCreate(/* hasVhal= */ mVehicle.isValid());
 
         if (!mVehicle.isValid()) {
             throw new IllegalStateException("Vehicle HAL service is not available.");
@@ -67,7 +66,7 @@ public class CarServiceImpl extends ProxiedService {
         mVehicleInterfaceName = mVehicle.getInterfaceDescriptor();
 
         Slogf.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_CONNECTED, mVehicleInterfaceName);
+        EventLogHelper.writeCarServiceConnected(mVehicleInterfaceName);
 
         mICarImpl = new ICarImpl(this,
                 getBuiltinPackageContext(),
@@ -91,7 +90,7 @@ public class CarServiceImpl extends ProxiedService {
     // cleanup task that you want to make sure happens on shutdown/reboot, see OnShutdownReboot.
     @Override
     public void onDestroy() {
-        EventLog.writeEvent(EventLogTags.CAR_SERVICE_DESTROY, mVehicle.isValid() ? 1 : 0);
+        EventLogHelper.writeCarServiceDestroy(/* hasVhal= */ mVehicle.isValid());
         Slogf.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
 
@@ -125,14 +124,14 @@ public class CarServiceImpl extends ProxiedService {
 
         @Override
         public void serviceDied(long cookie) {
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_DIED, cookie);
+            EventLogHelper.writeCarServiceVhalDied(cookie);
             Slogf.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
             Process.killProcess(Process.myPid());
         }
 
         @Override
         public void binderDied() {
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_DIED, /*cookie=*/0);
+            EventLogHelper.writeCarServiceVhalDied(/*cookie=*/ 0);
             Slogf.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
             Process.killProcess(Process.myPid());
         }
