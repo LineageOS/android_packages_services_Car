@@ -285,6 +285,9 @@ public class CarPropertyService extends ICarProperty.Stub
                 }
             }
         }
+        if (events.isEmpty()) {
+            return;
+        }
         try {
             client.getListener().onEvent(events);
         } catch (RemoteException ex) {

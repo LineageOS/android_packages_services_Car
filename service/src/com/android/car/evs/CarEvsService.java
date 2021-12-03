@@ -218,6 +218,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             new ICarPropertyEventListener.Stub() {
                 @Override
                 public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+                    if (events.isEmpty()) {
+                        return;
+                    }
                     synchronized (mLock) {
                         // Handle only the latest event
                         Slogf.e(TAG_EVS, "Handling GearSelection");
