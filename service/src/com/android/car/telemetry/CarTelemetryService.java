@@ -20,6 +20,8 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SU
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import static java.util.stream.Collectors.toList;
+
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.builtin.os.TraceHelper;
@@ -54,6 +56,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.function.BiConsumer;
+import java.util.function.IntConsumer;
 
 /**
  * CarTelemetryService manages OEM telemetry collection, processing and communication
@@ -176,37 +181,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
                 return;
             }
-            if (DEBUG) {
-                Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config: " + key.getName()
-                        + " to car telemetry service");
-            }
             mTelemetryThreadTraceLog.traceBegin("addMetricsConfig");
-            TelemetryProto.MetricsConfig metricsConfig = null;
-            int status;
-            try {
-                metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
-                if (!metricsConfig.getName().equals(key.getName())
-                        || metricsConfig.getVersion() != key.getVersion()) {
-                    Slogf.e(CarLog.TAG_TELEMETRY,
-                            "Argument key " + key + " doesn't match name/version in MetricsConfig ("
-                                    + metricsConfig.getName() + ", "
-                                    + metricsConfig.getVersion() + ").");
-                    status = STATUS_METRICS_CONFIG_PARSE_FAILED;
-                } else {
-                    status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
-                }
-            } catch (InvalidProtocolBufferException e) {
-                Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
-                status = STATUS_METRICS_CONFIG_PARSE_FAILED;
-            }
-            // If no error (config is added to MetricsConfigStore), remove legacy data and add
-            // config to data broker for metrics collection
-            if (status == STATUS_METRICS_CONFIG_SUCCESS) {
-                mResultStore.removeResult(key);
-                mDataBroker.removeMetricsConfig(key);
-                mDataBroker.addMetricsConfig(key, metricsConfig);
-                // TODO(b/199410900): update logic once metrics configs have expiration dates
-            }
+            int status = addMetricsConfigInternal(key, config);
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
             } catch (RemoteException e) {
@@ -214,6 +190,38 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             }
             mTelemetryThreadTraceLog.traceEnd();
         });
+    }
+
+    /** Adds the MetricsConfig and returns the status. */
+    private int addMetricsConfigInternal(@NonNull MetricsConfigKey key, @NonNull byte[] config) {
+        Slogf.d(CarLog.TAG_TELEMETRY,
+                "Adding metrics config: " + key.getName() + " to car telemetry service");
+        TelemetryProto.MetricsConfig metricsConfig;
+        try {
+            metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
+        } catch (InvalidProtocolBufferException e) {
+            Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
+            return STATUS_METRICS_CONFIG_PARSE_FAILED;
+        }
+        if (!metricsConfig.getName().equals(key.getName())
+                || metricsConfig.getVersion() != key.getVersion()) {
+            Slogf.e(CarLog.TAG_TELEMETRY,
+                    "Argument key " + key + " doesn't match name/version in MetricsConfig ("
+                            + metricsConfig.getName() + ", "
+                            + metricsConfig.getVersion() + ").");
+            return STATUS_METRICS_CONFIG_PARSE_FAILED;
+        }
+        int status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
+        if (status != STATUS_METRICS_CONFIG_SUCCESS) {
+            return status;
+        }
+        // If no error (config is added to the MetricsConfigStore), remove previously collected data
+        // for this key and add config to the DataBroker for metrics collection.
+        mResultStore.removeResult(key);
+        mDataBroker.removeMetricsConfig(key);
+        mDataBroker.addMetricsConfig(key, metricsConfig);
+        // TODO(b/199410900): update logic once metrics configs have expiration dates
+        return STATUS_METRICS_CONFIG_SUCCESS;
     }
 
     /**
@@ -286,8 +294,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             } else if (error != null) {
                 sendError(key, error);
             } else {
-                Slogf.w(CarLog.TAG_TELEMETRY, "config " + key.getName()
-                        + " did not produce any results");
+                Slogf.i(CarLog.TAG_TELEMETRY,
+                        "config " + key.getName() + " did not produce any results");
             }
             mTelemetryThreadTraceLog.traceEnd();
         });
@@ -304,6 +312,72 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         if (DEBUG) {
             Slogf.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
         }
+    }
+
+    /**
+     * Adds the MetricsConfig. This methods is expected to be used only by {@code CarShellCommand}
+     * class, because CarTelemetryService supports only a single listener and the shell command
+     * shouldn't replace the existing listener. Other usages are not supported.
+     *
+     * @param key config key.
+     * @param config config body serialized as a binary protobuf.
+     * @param statusConsumer receives the status code.
+     */
+    public void addMetricsConfig(
+            @NonNull MetricsConfigKey key,
+            @NonNull byte[] config,
+            @NonNull IntConsumer statusConsumer) {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
+        mTelemetryHandler.post(() -> statusConsumer.accept(addMetricsConfigInternal(key, config)));
+    }
+
+    /**
+     * Returns the finished reports. This methods is expected to be used only by {@code
+     * CarShellCommand} class, because CarTelemetryService supports only a single listener and the
+     * shell command shouldn't replace the existing listener. Other usages are not supported.
+     *
+     * <p>It sends {@code ErrorType.UNSPECIFIED} if there are no results.
+     *
+     * @param metricsConfigName MetricsConfig name.
+     * @param deleteResult if true, the result will be deleted from the storage.
+     * @param consumer receives the final result or error.
+     */
+    public void getFinishedReports(
+            @NonNull String metricsConfigName,
+            boolean deleteResult,
+            @NonNull BiConsumer<PersistableBundle, TelemetryProto.TelemetryError> consumer) {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "getFinishedReports");
+        mTelemetryHandler.post(() -> {
+            PersistableBundle result = mResultStore.getFinalResult(metricsConfigName, deleteResult);
+            TelemetryProto.TelemetryError error =
+                    mResultStore.getErrorResult(metricsConfigName, deleteResult);
+            if (result != null) {
+                consumer.accept(result, null);
+            } else if (error != null) {
+                consumer.accept(null, error);
+            } else {
+                // TODO(b/209469238): Create a NO_RESULT error type
+                TelemetryProto.TelemetryError unknownError =
+                        TelemetryProto.TelemetryError.newBuilder()
+                                .setErrorType(
+                                        TelemetryProto.TelemetryError.ErrorType.UNSPECIFIED)
+                                .setMessage("No results")
+                                .build();
+                consumer.accept(null, unknownError);
+            }
+        });
+    }
+
+    /**
+     * Returns the list of config names and versions. This methods is expected to be used only by
+     * {@code CarShellCommand} class. Other usages are not supported.
+     */
+    public List<String> getActiveMetricsConfigDetails() {
+        return mMetricsConfigStore.getActiveMetricsConfigs().stream()
+                .map((config) -> config.getName() + " version=" + config.getVersion())
+                .collect(toList());
     }
 
     private void sendFinalResult(MetricsConfigKey key, PersistableBundle result) {

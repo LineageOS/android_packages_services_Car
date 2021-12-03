@@ -48,6 +48,8 @@ import android.car.content.pm.CarPackageManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
+import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.MetricsConfigKey;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
@@ -84,6 +86,8 @@ import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.os.Binder;
+import android.os.FileUtils;
+import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -108,12 +112,19 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.telemetry.CarTelemetryService;
+import com.android.car.telemetry.TelemetryProto.TelemetryError;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 import com.android.modules.utils.BasicShellCommandHandler;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -124,6 +135,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 final class CarShellCommand extends BasicShellCommandHandler {
 
@@ -216,6 +228,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_DRIVING_SAFETY_SET_REGION =
             "set-drivingsafety-region";
+
+    private static final String COMMAND_TELEMETRY = "telemetry";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -363,6 +377,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CUSTOM_INPUT_FUNCTION_ARGS.put("f10", CustomInputEvent.INPUT_CODE_F10);
     }
 
+    // CarTelemetryManager may not send result back if there are not results for the given
+    // metrics config.
+    private static final Duration TELEMETRY_RESULT_WAIT_TIMEOUT = Duration.ofSeconds(5);
+
     @NonNull
     private static String getHelpString(@NonNull String name, @NonNull SparseArray<String> values) {
         StringBuilder help = new StringBuilder("Valid ").append(name).append(" are: ");
@@ -392,6 +410,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarEvsService mCarEvsService;
     private final CarWatchdogService mCarWatchdogService;
+    private final CarTelemetryService mCarTelemetryService;
     private long mKeyDownTime;
 
     CarShellCommand(Context context,
@@ -409,7 +428,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
             CarUserService carUserService,
             CarOccupantZoneService carOccupantZoneService,
             CarEvsService carEvsService,
-            CarWatchdogService carWatchdogService) {
+            CarWatchdogService carWatchdogService,
+            CarTelemetryService carTelemetryService) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -426,6 +446,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         mCarOccupantZoneService = carOccupantZoneService;
         mCarEvsService = carEvsService;
         mCarWatchdogService = carWatchdogService;
+        mCarTelemetryService = carTelemetryService;
     }
 
     @Override
@@ -660,6 +681,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
         pw.println("\t  Set driving safety region.");
         pw.println("\t  Skipping REGION_STRING leads into resetting to all regions");
+
+        pw.printf("\t%s <subcommand>", COMMAND_TELEMETRY);
+        pw.println("\t  Telemetry commands.");
+        pw.println("\t  Provide -h to see the list of sub-commands.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1013,6 +1038,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_DRIVING_SAFETY_SET_REGION:
                 setDrivingSafetyRegion(args, writer);
+                break;
+            case COMMAND_TELEMETRY:
+                handleTelemetryCommands(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -2358,6 +2386,142 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         mCarWatchdogService.controlProcessHealthCheck(args[1].equals("disable"));
         writer.printf("Watchdog health checking is now %sd \n", args[1]);
+    }
+
+    private void printTelemetryHelp(IndentingPrintWriter writer) {
+        writer.println("A CLI to interact with CarTelemetryService.");
+        writer.println("\nUSAGE: adb shell cmd car_service telemetry <subcommand> [options]");
+        writer.println("\n\t-h");
+        writer.println("\t  Print this help text.");
+        writer.println("\tadd <name> <version>");
+        writer.println("\t  Adds MetricsConfig from STDIN. Only a binary proto is supported.");
+        writer.println("\tremove <name> <version>");
+        writer.println("\t  Removes metrics config.");
+        writer.println("\tlist");
+        writer.println("\t  Lists the config metrics in the service.");
+        writer.println("\tget-results [-d] [-w] <name>");
+        writer.println("\t  Gets the results for the metrics config.");
+        writer.println("\t  Pass -d to delete the fetched results from the storage.");
+        writer.println("\t  Pass -w to wait for the result.");
+        writer.println("\nEXAMPLES:");
+        writer.println("\t$ adb shell cmd car_service telemetry add mykey 1 < config1.protobin");
+        writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
+        writer.println("\n\t$ adb shell cmd car_service telemetry get-results mykey");
+    }
+
+    private void handleTelemetryCommands(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            printTelemetryHelp(writer);
+            return;
+        }
+        String cmd = args[1];
+        switch (cmd) {
+            case "add":
+                if (args.length != 4) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                try (BufferedInputStream in = new BufferedInputStream(
+                                new FileInputStream(getInFileDescriptor()));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                    FileUtils.copy(in, out);
+                    MetricsConfigKey key = new MetricsConfigKey(args[2], Integer.parseInt(args[3]));
+                    CountDownLatch latch = new CountDownLatch(1);
+                    mCarTelemetryService.addMetricsConfig(key, out.toByteArray(), statusCode -> {
+                        if (statusCode == CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS) {
+                            writer.printf("MetricsConfig %s is added.\n", args[2]);
+                        } else {
+                            writer.printf("Failed to add %s. Status is %d.\n", args[2], statusCode);
+                        }
+                        latch.countDown();
+                    });
+                    writer.printf("Adding %s... Please see logcat for details.\n", args[2]);
+                    latch.await(TELEMETRY_RESULT_WAIT_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+                } catch (IOException | InterruptedException | NumberFormatException e) {
+                    writer.println("Failed to read from stdin: " + e);
+                }
+                break;
+            case "remove":
+                if (args.length != 4) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                MetricsConfigKey key = new MetricsConfigKey(args[2], Integer.parseInt(args[3]));
+                mCarTelemetryService.removeMetricsConfig(key);
+                writer.printf("Removing %s... Please see logcat for details.\n", args[2]);
+                break;
+            case "list":
+                writer.println("Active metric configs:");
+                mCarTelemetryService.getActiveMetricsConfigDetails().forEach((configDetails) -> {
+                    writer.printf("- %s\n", configDetails);
+                });
+                break;
+            case "get-results":
+                if (args.length < 3 || args.length > 5) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                String configName = null;
+                boolean deleteResults = false;
+                boolean waitForResults = false;
+                for (int i = 2; i < args.length; i++) {
+                    switch (args[i]) {
+                        case "-d":
+                            deleteResults = true;
+                            break;
+                        case "-w":
+                            waitForResults = true;
+                            break;
+                        default:
+                            configName = args[i];
+                    }
+                }
+                if (configName == null) {
+                    writer.println("Config name is required.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                if (waitForResults) {
+                    writer.println("Waiting for the result...");
+                    writer.flush();
+                }
+                while (true) {
+                    CountDownLatch latch = new CountDownLatch(1);
+                    AtomicReference<PersistableBundle> finalResult = new AtomicReference<>(null);
+                    AtomicReference<TelemetryError> finalError = new AtomicReference<>(null);
+                    mCarTelemetryService.getFinishedReports(configName, deleteResults,
+                            (result, error) -> {
+                                finalResult.set(result);
+                                finalError.set(error);
+                                latch.countDown();
+                            });
+                    try {
+                        latch.await(TELEMETRY_RESULT_WAIT_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        writer.println("Result await error: " + e);
+                        return;
+                    }
+                    if (finalError.get() != null) {
+                        // TODO(b/209469238): Create a NO_RESULT error type
+                        boolean isEmptyResult = finalError.get().getErrorType().equals(
+                                TelemetryError.ErrorType.UNSPECIFIED);
+                        if (waitForResults && isEmptyResult) {
+                            SystemClock.sleep(2000);  // do not spam CarTelemetryService
+                            continue; // continue the loop
+                        }
+                        writer.println("Error: " + finalError.get().getErrorType().name() + ": "
+                                + finalError.get().getMessage());
+                    } else {
+                        writer.println(finalResult.get());
+                    }
+                    return;
+                }
+            default:
+                printTelemetryHelp(writer);
+        }
     }
 
     // Check if the given property is global
