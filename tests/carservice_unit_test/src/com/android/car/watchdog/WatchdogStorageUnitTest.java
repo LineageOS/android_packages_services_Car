@@ -296,6 +296,7 @@ public final class WatchdogStorageUnitTest {
 
         List<AtomsProto.CarWatchdogDailyIoUsageSummary> actual =
                 mService.getDailySystemIoUsageSummaries(
+                        /* minSystemTotalWrittenBytes= */ 600_000,
                         /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
                         /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
 
@@ -308,6 +309,29 @@ public final class WatchdogStorageUnitTest {
         }
 
         assertWithMessage("Daily system I/O usage summary stats").that(actual).isEqualTo(expected);
+    }
+
+    @Test
+    public void testGetDailySystemIoUsageSummariesWithLowSystemTotalWrittenBytes()
+            throws Exception {
+        injectSampleUserPackageSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        for (int i = 1; i <= 30; ++i) {
+            entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
+                    /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
+        }
+
+        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+
+        List<AtomsProto.CarWatchdogDailyIoUsageSummary> actual =
+                mService.getDailySystemIoUsageSummaries(
+                        /* minSystemTotalWrittenBytes= */ 4_000_000,
+                        /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
+                        /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
+
+        assertWithMessage("Daily system I/O usage summary stats").that(actual).isNull();
     }
 
     @Test
@@ -325,6 +349,7 @@ public final class WatchdogStorageUnitTest {
 
         List<AtomsProto.CarWatchdogDailyIoUsageSummary> actual =
                 mService.getDailySystemIoUsageSummaries(
+                        /* minSystemTotalWrittenBytes= */ 600_000,
                         /* includingStartEpochSeconds= */ currentDate.minusDays(15).toEpochSecond(),
                         /* excludingEndEpochSeconds= */ currentDate.minusDays(7).toEpochSecond());
 

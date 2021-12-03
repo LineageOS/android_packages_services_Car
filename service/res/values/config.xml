@@ -180,6 +180,14 @@
          recurring overuse.  -->
     <integer name="recurringResourceOveruseTimes">2</integer>
 
+    <!-- The number of top UID I/O usage summaries to report on car watchdog I/O usage
+         summary atom pull.  -->
+    <integer name="uidIoUsageSummaryTopCount">10</integer>
+
+    <!-- The minimum number of total bytes written to disk by the system required to
+         report the stats on car watchdog I/O usage summary atom pull. Currently 500 MiB.  -->
+    <integer name="ioUsageSummaryMinSystemTotalWrittenBytes">524288000</integer>
+
     <!-- The name of an intent to be notified by CarService whenever it detects too many
          samples with excessive I/O activity. Value must either be an empty string, which
          means that no notification will take place, or be in the format of a flattened
