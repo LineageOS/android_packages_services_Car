@@ -46,9 +46,6 @@ java_sdk_library {
         "modules-utils-preconditions",
         "framework-wifi",
     ],
-    static_libs: [
-        "android.car.internal.eventlogtag",
-    ],
     // Stub build drops module api and breaks build. Add it here.
     stub_only_libs: [
         "framework-wifi",

@@ -35,6 +35,7 @@ import android.car.CarManagerBase;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.util.concurrent.AndroidAsyncFuture;
 import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
@@ -44,12 +45,10 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
-import android.util.EventLog;
 import android.util.Log;
 
 import com.android.car.internal.common.CommonConstants;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
-import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.ArrayUtils;
@@ -358,7 +357,7 @@ public final class CarUserManager extends CarManagerBase {
                 @Override
                 protected void onCompleted(UserSwitchResult result, Throwable err) {
                     if (result != null) {
-                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESP, uid,
+                        EventLogHelper.writeCarUserManagerSwitchUserResp(uid,
                                 result.getStatus(), result.getErrorMessage());
                     } else {
                         Log.w(TAG, "switchUser(" + targetUserId + ") failed: " + err);
@@ -366,7 +365,7 @@ public final class CarUserManager extends CarManagerBase {
                     super.onCompleted(result, err);
                 }
             };
-            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
+            EventLogHelper.writeCarUserManagerSwitchUserReq(uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
         } catch (SecurityException e) {
@@ -393,7 +392,7 @@ public final class CarUserManager extends CarManagerBase {
                 @Override
                 protected void onCompleted(UserCreationResult result, Throwable err) {
                     if (result != null) {
-                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_RESP, uid,
+                        EventLogHelper.writeCarUserManagerCreateUserResp(uid,
                                 result.getStatus(), result.getErrorMessage());
                     } else {
                         Log.w(TAG, "createUser(" + userType + "," + flags
@@ -402,7 +401,7 @@ public final class CarUserManager extends CarManagerBase {
                     super.onCompleted(result, err);
                 };
             };
-            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_REQ, uid,
+            EventLogHelper.writeCarUserManagerCreateUserReq(uid,
                     UserHelperLite.safeName(name), userType, flags);
             mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
@@ -451,7 +450,7 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     public void updatePreCreatedUsers() {
         int uid = myUid();
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_PRE_CREATE_USER_REQ, uid);
+        EventLogHelper.writeCarUserManagerPreCreateUserReq(uid);
         try {
             mService.updatePreCreatedUsers();
         } catch (SecurityException e) {
@@ -475,7 +474,7 @@ public final class CarUserManager extends CarManagerBase {
     @NonNull
     public UserRemovalResult removeUser(@UserIdInt int userId) {
         int uid = myUid();
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
+        EventLogHelper.writeCarUserManagerRemoveUserReq(uid, userId);
         int status = UserRemovalResult.STATUS_ANDROID_FAILURE;
         try {
             AndroidFuture<UserRemovalResult> future = new AndroidFuture<UserRemovalResult>();
@@ -495,7 +494,7 @@ public final class CarUserManager extends CarManagerBase {
             return handleExceptionFromCarService(e,
                     new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
         } finally {
-            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_RESP, uid, status);
+            EventLogHelper.writeCarUserManagerRemoveUserResp(uid, status);
         }
     }
 
@@ -526,7 +525,7 @@ public final class CarUserManager extends CarManagerBase {
             if (mReceiver == null) {
                 mReceiver = new LifecycleResultReceiver();
                 try {
-                    EventLog.writeEvent(EventLogTags.CAR_USER_MGR_ADD_LISTENER, uid, packageName);
+                    EventLogHelper.writeCarUserManagerAddListener(uid, packageName);
                     if (DBG) {
                         Log.d(TAG, "Setting lifecycle receiver for uid " + uid + " and package "
                                 + packageName);
@@ -591,7 +590,7 @@ public final class CarUserManager extends CarManagerBase {
                 return;
             }
 
-            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_LISTENER, uid, packageName);
+            EventLogHelper.writeCarUserManagerRemoveListener(uid, packageName);
             if (DBG) {
                 Log.d(TAG, "Removing lifecycle receiver for uid=" + uid + " and package "
                         + packageName);
@@ -629,14 +628,13 @@ public final class CarUserManager extends CarManagerBase {
     public UserIdentificationAssociationResponse getUserIdentificationAssociation(
             @UserIdentificationAssociationType int... types) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_REQ, types.length);
+        EventLogHelper.writeCarUserManagerGetUserAuthReq(convertToObjectArray(types));
         try {
             UserIdentificationAssociationResponse response =
                     mService.getUserIdentificationAssociation(types);
             if (response != null) {
                 int[] values = response.getValues();
-                EventLog.writeEvent(EventLogTags.CAR_USER_MGR_GET_USER_AUTH_RESP,
-                        values != null ? values.length : 0);
+                EventLogHelper.writeCarUserManagerGetUserAuthResp(convertToObjectArray(values));
             }
             return response;
         } catch (SecurityException e) {
@@ -645,6 +643,15 @@ public final class CarUserManager extends CarManagerBase {
             return handleExceptionFromCarService(e,
                     UserIdentificationAssociationResponse.forFailure(e.getMessage()));
         }
+    }
+
+    private Object[] convertToObjectArray(int[] input) {
+        if (input == null) return null;
+        Object[] output = new Object[input.length];
+        for (int i = 0; i < input.length; i++) {
+            output[i] = input[i];
+        }
+        return output;
     }
 
     /**
@@ -670,7 +677,7 @@ public final class CarUserManager extends CarManagerBase {
             loggedValues[i * 2] = types[i];
             loggedValues[i * 2 + 1 ] = values[i];
         }
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_REQ, loggedValues);
+        EventLogHelper.writeCarUserManagerSetUserAuthReq(loggedValues);
 
         try {
             AndroidFuture<UserIdentificationAssociationResponse> future =
@@ -686,8 +693,7 @@ public final class CarUserManager extends CarManagerBase {
                             for (int i = 0; i < rawValues.length; i++) {
                                 loggedValues[i] = rawValues[i];
                             }
-                            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SET_USER_AUTH_RESP,
-                                    loggedValues);
+                            EventLogHelper.writeCarUserManagerSetUserAuthResp(loggedValues);
                         }
                     } else {
                         Log.w(TAG, "setUserIdentificationAssociation(" + Arrays.toString(types)
@@ -767,8 +773,7 @@ public final class CarUserManager extends CarManagerBase {
                 listeners = new ArrayMap<>(mListeners);
             }
             int size = listeners.size();
-            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_NOTIFY_LIFECYCLE_LISTENER,
-                    size, eventType, from, to);
+            EventLogHelper.writeCarUserManagerNotifyLifecycleListener(size, eventType, from, to);
             for (int i = 0; i < size; i++) {
                 UserLifecycleListener listener = listeners.keyAt(i);
                 Executor executor = listeners.valueAt(i);
