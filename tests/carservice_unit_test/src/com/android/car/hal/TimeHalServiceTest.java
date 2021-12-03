@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 import android.app.time.ExternalTimeSuggestion;
 import android.app.time.TimeManager;
 import android.car.test.util.FakeContext;
-import android.car.test.util.VehicleHalTestingHelper;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;

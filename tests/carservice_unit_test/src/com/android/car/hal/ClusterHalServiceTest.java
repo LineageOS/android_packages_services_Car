@@ -21,9 +21,9 @@ import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
-import static android.car.test.util.VehicleHalTestingHelper.newSubscribableConfig;
 
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
+import static com.android.car.hal.VehicleHalTestingHelper.newSubscribableConfig;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -101,20 +101,16 @@ public class ClusterHalServiceTest {
         return intValues;
     }
 
-    private static HalPropConfig newSubscribablePropConfig(int prop) {
-        return new AidlHalPropConfig(newSubscribableConfig(prop));
-    }
-
     @Before
     public void setUp() {
         when(mVehicleHal.getHalPropValueBuilder()).thenReturn(PROP_VALUE_BUILDER);
         mClusterHalService = new ClusterHalService(mVehicleHal);
         mClusterHalService.takeProperties(Arrays.asList(
-                newSubscribablePropConfig(CLUSTER_SWITCH_UI),
-                newSubscribablePropConfig(CLUSTER_DISPLAY_STATE),
-                newSubscribablePropConfig(CLUSTER_REPORT_STATE),
-                newSubscribablePropConfig(CLUSTER_REQUEST_DISPLAY),
-                newSubscribablePropConfig(CLUSTER_NAVIGATION_STATE)));
+                newSubscribableConfig(CLUSTER_SWITCH_UI),
+                newSubscribableConfig(CLUSTER_DISPLAY_STATE),
+                newSubscribableConfig(CLUSTER_REPORT_STATE),
+                newSubscribableConfig(CLUSTER_REQUEST_DISPLAY),
+                newSubscribableConfig(CLUSTER_NAVIGATION_STATE)));
 
         mClusterHalService.init();
         mClusterHalService.setCallback(mHalEventListener);
@@ -143,9 +139,9 @@ public class ClusterHalServiceTest {
     @Test
     public void testTakeProperties_doNotTakePartialProperties() {
         mClusterHalService.takeProperties(Arrays.asList(
-                newSubscribablePropConfig(CLUSTER_SWITCH_UI),
-                newSubscribablePropConfig(CLUSTER_DISPLAY_STATE),
-                newSubscribablePropConfig(CLUSTER_REPORT_STATE)));
+                newSubscribableConfig(CLUSTER_SWITCH_UI),
+                newSubscribableConfig(CLUSTER_DISPLAY_STATE),
+                newSubscribableConfig(CLUSTER_REPORT_STATE)));
         assertThat(mClusterHalService.isCoreSupported()).isFalse();
         assertThat(mClusterHalService.isNavigationStateSupported()).isFalse();
     }
@@ -153,10 +149,10 @@ public class ClusterHalServiceTest {
     @Test
     public void testTakeProperties_coreProperties() {
         mClusterHalService.takeProperties(Arrays.asList(
-                newSubscribablePropConfig(CLUSTER_SWITCH_UI),
-                newSubscribablePropConfig(CLUSTER_DISPLAY_STATE),
-                newSubscribablePropConfig(CLUSTER_REPORT_STATE),
-                newSubscribablePropConfig(CLUSTER_REQUEST_DISPLAY)));
+                newSubscribableConfig(CLUSTER_SWITCH_UI),
+                newSubscribableConfig(CLUSTER_DISPLAY_STATE),
+                newSubscribableConfig(CLUSTER_REPORT_STATE),
+                newSubscribableConfig(CLUSTER_REQUEST_DISPLAY)));
         assertThat(mClusterHalService.isCoreSupported()).isTrue();
         assertThat(mClusterHalService.isNavigationStateSupported()).isFalse();
     }
@@ -164,11 +160,11 @@ public class ClusterHalServiceTest {
     @Test
     public void testTakeProperties_fullProperties() {
         mClusterHalService.takeProperties(Arrays.asList(
-                newSubscribablePropConfig(CLUSTER_SWITCH_UI),
-                newSubscribablePropConfig(CLUSTER_DISPLAY_STATE),
-                newSubscribablePropConfig(CLUSTER_REPORT_STATE),
-                newSubscribablePropConfig(CLUSTER_REQUEST_DISPLAY),
-                newSubscribablePropConfig(CLUSTER_NAVIGATION_STATE)));
+                newSubscribableConfig(CLUSTER_SWITCH_UI),
+                newSubscribableConfig(CLUSTER_DISPLAY_STATE),
+                newSubscribableConfig(CLUSTER_REPORT_STATE),
+                newSubscribableConfig(CLUSTER_REQUEST_DISPLAY),
+                newSubscribableConfig(CLUSTER_NAVIGATION_STATE)));
         assertThat(mClusterHalService.isCoreSupported()).isTrue();
         assertThat(mClusterHalService.isNavigationStateSupported()).isTrue();
     }
