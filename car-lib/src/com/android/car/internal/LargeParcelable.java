@@ -221,6 +221,7 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         dest.setDataPosition(startPosition);
         emptyPayload.writeToParcel(dest, flags);
+        dest.setDataSize(dest.dataPosition());
         if (DBG_PAYLOAD) {
             Log.d(TAG, "serializeStableAIDLParcelable added shared memory, start position:"
                     + startPosition + " last position:" + dest.dataPosition()

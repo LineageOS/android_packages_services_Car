@@ -108,7 +108,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         if (DBG_PAYLOAD) {
             Log.d(TAG, "Read, start:" + startPosition + " totalPayloadSize:" + totalPayloadSize
                     + " sharedMemoryPosition:" + sharedMemoryPosition
-                    + " hasSharedMemory:" + hasSharedMemory);
+                    + " hasSharedMemory:" + hasSharedMemory + " dataAvail:" + in.dataAvail());
         }
     }
 
@@ -162,7 +162,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
             Log.d(TAG, "Write, start:" + startPosition + " totalPayloadSize:" + totalPayloadSize
                     + " sharedMemoryPosition:" + sharedMemoryPosition
                     + " hasNonNullPayload:" + hasNonNullPayload
-                    + " hasSharedMemory:" + !noSharedMemory);
+                    + " hasSharedMemory:" + !noSharedMemory + " dataSize:" + dest.dataSize());
         }
     }
 
@@ -172,6 +172,7 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         dest.setDataPosition(startPosition);
         dest.writeInt(totalPayloadSize);
         dest.setDataPosition(lastPosition);
+        dest.setDataSize(lastPosition);
         return totalPayloadSize;
     }
 
