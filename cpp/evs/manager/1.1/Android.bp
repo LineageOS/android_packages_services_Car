@@ -14,14 +14,14 @@
 //
 //
 
-package {
-    default_applicable_licenses: ["Android-Apache-2.0"],
+package{
+    default_applicable_licenses : ["Android-Apache-2.0"],
 }
 
-cc_defaults {
-    name: "android.automotive.evs.manager_defaults",
+cc_defaults{
+    name : "android.automotive.evs.manager_defaults",
 
-    shared_libs: [
+    shared_libs : [
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
         "libbase",
@@ -36,9 +36,9 @@ cc_defaults {
         "libutils",
     ],
 
-    static_libs: ["libc++fs"],
+    static_libs : ["libc++fs"],
 
-    cflags: [
+    cflags : [
         "-DLOG_TAG=\"EvsManagerV1_1\"",
         "-DGL_GLEXT_PROTOTYPES",
         "-DEGL_EGLEXT_PROTOTYPES",
@@ -50,24 +50,24 @@ cc_defaults {
         "-Wthread-safety",
     ],
 
-    export_include_dirs: [
+    export_include_dirs : [
         "./",
         "stats/",
     ],
 
-    product_variables: {
-        debuggable: {
-            cflags: [
+    product_variables : {
+        debuggable : {
+            cflags : [
                 "-DEVS_DEBUG",
             ]
         }
     },
 }
 
-filegroup {
-    name: "android.automotive.evs.manager_sources",
+filegroup{
+    name : "android.automotive.evs.manager_sources",
 
-    srcs: [
+    srcs : [
         "Enumerator.cpp",
         "HalCamera.cpp",
         "HalDisplay.cpp",
@@ -80,28 +80,17 @@ filegroup {
     ],
 }
 
-cc_library_static {
-    name: "libevsmanager_static",
-
-    defaults: ["android.automotive.evs.manager_defaults"],
-
-    srcs: [":android.automotive.evs.manager_sources"],
-
-    export_include_dirs: ["."],
-
+cc_library_static{
+    name : "libevsmanager_static",
+    defaults : ["android.automotive.evs.manager_defaults"],
+    srcs : [":android.automotive.evs.manager_sources"],
+    export_include_dirs : ["."],
 }
 
-cc_binary {
-    name: "android.automotive.evs.manager@1.1",
-
-    defaults: ["android.automotive.evs.manager_defaults"],
-
-    srcs: [
-        ":android.automotive.evs.manager_sources",
-        "service.cpp"
-    ],
-
-    init_rc: ["android.automotive.evs.manager@1.1.rc"],
-
-    vintf_fragments: ["manifest_android.automotive.evs.manager@1.1.xml"],
+cc_binary{
+    name : "android.automotive.evs.manager@1.1",
+    defaults : ["android.automotive.evs.manager_defaults"],
+    srcs : [ ":android.automotive.evs.manager_sources", "service.cpp" ],
+    init_rc : ["android.automotive.evs.manager@1.1.rc"],
+    vintf_fragments : ["manifest_android.automotive.evs.manager@1.1.xml"],
 }
