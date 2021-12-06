@@ -14,32 +14,26 @@
  * limitations under the License.
  */
 
-#include <unistd.h>
+#include "Enumerator.h"
+#include "ServiceNames.h"
 
 #include <android-base/logging.h>
 #include <hidl/HidlTransportSupport.h>
 #include <utils/Errors.h>
-#include <utils/StrongPointer.h>
 #include <utils/Log.h>
+#include <utils/StrongPointer.h>
 
-#include "ServiceNames.h"
-#include "Enumerator.h"
+#include <unistd.h>
 
-
-// libhidl:
+using android::OK;
+using android::status_t;
+using android::automotive::evs::V1_1::implementation::Enumerator;
 using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
-
-// Generated HIDL files
-using android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 using android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 
-// The namespace in which all our implementation code lives
-using namespace android::automotive::evs::V1_1::implementation;
-using namespace android;
-
-
-static void startService(const char *hardwareServiceName, const char * managerServiceName) {
+static void startService(const char* hardwareServiceName, const char* managerServiceName) {
     LOG(INFO) << "EVS managed service connecting to hardware service at " << hardwareServiceName;
     android::sp<Enumerator> service = new Enumerator();
     if (!service->init(hardwareServiceName)) {
@@ -52,14 +46,13 @@ static void startService(const char *hardwareServiceName, const char * managerSe
     LOG(INFO) << "EVS managed service is starting as " << managerServiceName;
     status_t status = service->registerAsService(managerServiceName);
     if (status != OK) {
-        LOG(ERROR) << "Could not register service " << managerServiceName
-                   << " status = " << status << " - quitting from registrationThread";
+        LOG(ERROR) << "Could not register service " << managerServiceName << " status = " << status
+                   << " - quitting from registrationThread";
         exit(2);
     }
 
     LOG(INFO) << "Registration complete";
 }
-
 
 int main(int argc, char** argv) {
     LOG(INFO) << "EVS manager starting";
@@ -71,7 +64,7 @@ int main(int argc, char** argv) {
     // Set up default behavior, then check for command line options
     bool printHelp = false;
     const char* evsHardwareServiceName = kHardwareEnumeratorName;
-    for (int i=1; i< argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--mock") == 0) {
             evsHardwareServiceName = kMockEnumeratorName;
         } else if (strcmp(argv[i], "--target") == 0) {
@@ -93,7 +86,6 @@ int main(int argc, char** argv) {
         printf("  --mock                   Connect to the mock driver at EvsEnumeratorHw-Mock\n");
         printf("  --target <service_name>  Connect to the named IEvsEnumerator service");
     }
-
 
     // Prepare the RPC serving thread pool.  We're configuring it with no additional
     // threads beyond the main thread which will "join" the pool below.

@@ -83,8 +83,8 @@ bool DoInitialization() {
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
     FuzzedDataProvider fdp(data, size);
 
-    vector<sp<IEvsCamera_1_0>> vVirtualCameras;
-    vector<sp<IEvsDisplay_1_0>> vDisplays;
+    std::vector<sp<IEvsCamera_1_0>> vVirtualCameras;
+    std::vector<sp<IEvsDisplay_1_0>> vDisplays;
 
     // Inititialize the enumerator that we are going to test
     static bool initialized = DoInitialization();
