@@ -32,6 +32,19 @@
 
 namespace {
 
+using ::android::base::EqualsIgnoreCase;
+using ::android::base::Error;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
+using ::android::hardware::hidl_handle;
+using ::android::hardware::Void;
+using ::android::hardware::automotive::evs::V1_0::DisplayState;
+using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
+using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
+using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
+using ::android::hardware::camera::device::V3_2::Stream;
+
 const char* kSingleIndent = "\t";
 const char* kDumpOptionAll = "all";
 const char* kDumpDeviceCamera = "camera";
@@ -53,19 +66,11 @@ const std::regex kEmulatedCameraNamePattern("emulated/[0-9]+", std::regex_consta
 
 // Display ID 255 is reserved for the special purpose.
 constexpr int kExclusiveMainDisplayId = 255;
+
 }  // namespace
 
 namespace android::automotive::evs::V1_1::implementation {
 
-using ::android::base::EqualsIgnoreCase;
-using ::android::base::Error;
-using ::android::base::StringAppendF;
-using ::android::base::StringPrintf;
-using ::android::base::WriteStringToFd;
-using ::android::hardware::Void;
-using ::android::hardware::automotive::evs::V1_0::DisplayState;
-using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
-using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 Enumerator::~Enumerator() {
     if (mClientsMonitor != nullptr) {
