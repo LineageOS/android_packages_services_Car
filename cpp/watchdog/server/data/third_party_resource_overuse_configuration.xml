@@ -20,9 +20,9 @@
     <!-- Default thresholds in MiB for all third-party packages that don't have app category
          specific thresholds. -->
     <componentLevelThresholds>
-      <state id="foreground_mode"> 3072 </state>
-      <state id="background_mode"> 2048 </state>
-      <state id="garage_mode"> 4096 </state>
+      <state id="foreground_mode"> 1100000 </state>
+      <state id="background_mode"> 1100000 </state>
+      <state id="garage_mode"> 1100000 </state>
     </componentLevelThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>
