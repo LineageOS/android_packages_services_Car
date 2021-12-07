@@ -19,29 +19,19 @@ package com.android.car.pm;
 import android.accessibilityservice.AccessibilityService;
 import android.view.accessibility.AccessibilityEvent;
 
-import com.android.car.ServiceProxy;
 import com.android.car.UpdatablePackageContext;
 import com.android.car.UpdatablePackageDependency;
+import com.android.car.internal.CarSafetyAccessibilityServiceImplBase;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /** Proxy for CarSafetyAccessibilityServiceImpl */
 public class CarSafetyAccessibilityService extends AccessibilityService {
-    private final ServiceProxy mProxy = new ServiceProxy(
-            UpdatablePackageDependency.CAR_ACCESSIBILITY_IMPL_CLASS);
-
-    private UpdatablePackageContext mUpdatablePackageContext;
-    private Object mImpl;
-    private Method mOnAccessibilityEventMethod;
+    private CarSafetyAccessibilityServiceImplBase mImpl;
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        try {
-            mOnAccessibilityEventMethod.invoke(mImpl, new Object[]{event});
-        } catch (Exception e) {
-            throw new RuntimeException("Cannot call onAccessibilityEvent", e);
-        }
+        mImpl.onAccessibilityEvent(event);
     }
 
     @Override
@@ -56,10 +46,7 @@ public class CarSafetyAccessibilityService extends AccessibilityService {
                     UpdatablePackageDependency.CAR_ACCESSIBILITY_IMPL_CLASS);
             // Use default constructor always
             Constructor constructor = implClass.getConstructor();
-            mImpl = constructor.newInstance();
-            mOnAccessibilityEventMethod = implClass.getMethod(
-                    UpdatablePackageDependency.CAR_ACCESSIBILITY_ON_ACCESSIBILITY_EVENT,
-                    new Class[]{AccessibilityEvent.class});
+            mImpl = (CarSafetyAccessibilityServiceImplBase) constructor.newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Cannot load impl class", e);
         }

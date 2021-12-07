@@ -29,7 +29,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.UserHandle;
 
-import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;

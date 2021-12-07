@@ -21,9 +21,6 @@ import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_S
 import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT;
 import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_SHOWN;
 import static com.android.car.admin.CarDevicePolicyService.newUserDisclaimerStatusToString;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CANCEL_USER_DISCLAIMER_NOTIFICATION;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_SHOW_USER_DISCLAIMER_NOTIFICATION;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -31,11 +28,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,9 +52,9 @@ import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarServiceUtils;
 import com.android.car.user.CarUserService;
-import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -84,6 +78,12 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     @Mock
     private DevicePolicyManager mDpm;
 
+    @Mock
+    private ClassLoader mClassLoader;
+
+    @Mock
+    private NotificationHelper mNotificationHelper;
+
     private CarDevicePolicyService mService;
 
     private AndroidFuture<UserRemovalResult> mUserRemovalResult = new AndroidFuture<>();
@@ -98,12 +98,19 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(CarServiceUtils.class);
         session.spyStatic(ActivityManager.class);
+        session.spyStatic(BuiltinPackageDependency.class);
     }
 
     @Before
-    public void setFixtures() {
+    public void setFixtures() throws Exception {
         when(mContext.getSystemService(DevicePolicyManager.class)).thenReturn(mDpm);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mBuiltinPackageContext.getClassLoader()).thenReturn(mClassLoader);
+        // when . thenReturn does not work when returning class
+        doReturn(NotificationHelper.class).when(mClassLoader).loadClass(any());
+        doReturn(mNotificationHelper)
+                .when(() -> BuiltinPackageDependency.createNotificationHelper(
+                        mBuiltinPackageContext));
 
         mService = new CarDevicePolicyService(mContext, mBuiltinPackageContext, mCarUserService);
     }
@@ -175,9 +182,6 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     @Test
     public void testShowDisclaimerWhenIntentReceived() {
         int userId = 10;
-        doReturn(null)
-                .when(() -> CarServiceUtils.executeAMethod(any(), anyString(), anyString(), any(),
-                        any(), any(), anyBoolean()));
         doAnswer(inv -> userId).when(() -> ActivityManager.getCurrentUser());
         when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN))
                 .thenReturn(true);
@@ -185,15 +189,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
         sendShowNewUserDisclaimerBroadcast(receiver, userId);
 
-        ExtendedMockito.verify(() -> CarServiceUtils.executeAMethod(
-                /* classloader= */ eq(mBuiltinPackageContext.getClassLoader()),
-                /* className= */ eq(NOTIFICATION_HELPER_CLASS),
-                /* methodName= */ eq(NOTIFICATION_HELPER_SHOW_USER_DISCLAIMER_NOTIFICATION),
-                /* instance= */ isNull(),
-                /* argClasses= */ eq(new Class[]{int.class, Context.class}),
-                /* args= */ eq(new Object[]{userId, mBuiltinPackageContext}),
-                /* ignoreFailure= */ eq(false)
-        ));
+        verify(mNotificationHelper).showUserDisclaimerNotification(UserHandle.of(userId));
         assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT);
     }
 
@@ -210,22 +206,10 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
         int userId = 10;
         when(mContext.createContextAsUser(UserHandle.of(userId), 0)).thenReturn(mContext);
 
-        doReturn(null)
-                .when(() -> CarServiceUtils.executeAMethod(any(), anyString(), anyString(), any(),
-                        any(), any(), anyBoolean()));
-
         mService.setUserDisclaimerAcknowledged(userId);
 
         assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_ACKED);
-        ExtendedMockito.verify(() -> CarServiceUtils.executeAMethod(
-                /* classloader= */ eq(mBuiltinPackageContext.getClassLoader()),
-                /* className= */ eq(NOTIFICATION_HELPER_CLASS),
-                /* methodName= */ eq(NOTIFICATION_HELPER_CANCEL_USER_DISCLAIMER_NOTIFICATION),
-                /* instance= */ isNull(),
-                /* argClasses= */ eq(new Class[]{int.class, Context.class}),
-                /* args= */ eq(new Object[]{userId, mBuiltinPackageContext}),
-                /* ignoreFailure= */ eq(false)
-        ));
+        verify(mNotificationHelper).cancelUserDisclaimerNotification(UserHandle.of(userId));
         verify(mDpm).acknowledgeNewUserDisclaimer();
     }
 

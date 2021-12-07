@@ -17,7 +17,7 @@ package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 
-import static com.android.car.bluetooth.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
+import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.util.Utils.getContentResolverForUser;
 
@@ -54,7 +54,6 @@ import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
-import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.hal.InputHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

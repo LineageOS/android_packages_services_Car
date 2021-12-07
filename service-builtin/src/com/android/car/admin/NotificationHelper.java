@@ -16,8 +16,6 @@
 
 package com.android.car.admin;
 
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
-
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.Notification;
@@ -38,7 +36,7 @@ import android.util.SparseArray;
 
 import com.android.car.R;
 import com.android.car.admin.ui.ManagedDeviceTextView;
-import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.NotificationHelperBase;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -49,23 +47,12 @@ import java.util.Objects;
 /**
  * Helper for notification-related tasks
  */
-public final class NotificationHelper {
+public final class NotificationHelper extends NotificationHelperBase {
     // TODO: Move these constants to a common place. Right now a copy of these is present in
     // CarSettings' FactoryResetActivity.
     public static final String EXTRA_FACTORY_RESET_CALLBACK = "factory_reset_callback";
     public static final int FACTORY_RESET_NOTIFICATION_ID = 42;
     public static final int NEW_USER_DISCLAIMER_NOTIFICATION_ID = 108;
-
-    /*
-     * NOTE: IDs in the range {@code [RESOURCE_OVERUSE_NOTIFICATION_BASE_ID,
-     * RESOURCE_OVERUSE_NOTIFICATION_BASE_ID + RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET)} are
-     * reserved for car watchdog's resource overuse notifications.
-     */
-    /** Base notification id for car watchdog's resource overuse notifications. */
-    public static final int RESOURCE_OVERUSE_NOTIFICATION_BASE_ID = 150;
-
-    /** Maximum notification offset for car watchdog's resource overuse notifications. */
-    public static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 20;
 
     public static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
     public static final String CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
@@ -120,37 +107,32 @@ public final class NotificationHelper {
         return new Notification.Builder(context, channelId).addExtras(extras);
     }
 
-    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE,
-            details = "private constructor")
-    private NotificationHelper() {
-        throw new UnsupportedOperationException("Contains only static methods");
+    public NotificationHelper(Context context) {
+        super(context);
     }
 
-    /**
-     * Cancels a specific notification as a user.
-     */
-    public static void cancelNotificationAsUser(Context context, UserHandle user,
-            int notificationId) {
+    @Override
+    public void cancelNotificationAsUser(UserHandle user, int notificationId) {
         if (DEBUG) {
             Slogf.d(TAG, "Canceling notification %d for user %s", notificationId, user);
         }
-        context.getSystemService(NotificationManager.class).cancelAsUser(TAG, notificationId, user);
+        getContext().getSystemService(NotificationManager.class).cancelAsUser(TAG, notificationId,
+                user);
     }
 
-    /**
-     * Shows the user disclaimer notification.
-     */
-    public static void showUserDisclaimerNotification(int userId, Context context) {
+    @Override
+    public void showUserDisclaimerNotification(UserHandle user) {
         // TODO(b/175057848) persist status so it's shown again if car service crashes?
-        PendingIntent pendingIntent = getPendingUserDisclaimerIntent(context, /* extraFlags= */ 0,
-                userId);
+        PendingIntent pendingIntent = getPendingUserDisclaimerIntent(getContext(),
+                /* extraFlags= */ 0, user);
 
         Notification notification = NotificationHelper
-                .newNotificationBuilder(context, NotificationManager.IMPORTANCE_DEFAULT)
+                .newNotificationBuilder(getContext(), NotificationManager.IMPORTANCE_DEFAULT)
                 // TODO(b/177552737): Use a better icon?
                 .setSmallIcon(R.drawable.car_ic_mode)
-                .setContentTitle(context.getString(R.string.new_user_managed_notification_title))
-                .setContentText(ManagedDeviceTextView.getManagedDeviceText(context))
+                .setContentTitle(
+                        getContext().getString(R.string.new_user_managed_notification_title))
+                .setContentText(ManagedDeviceTextView.getManagedDeviceText(getContext()))
                 .setCategory(Notification.CATEGORY_CAR_INFORMATION)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
@@ -158,24 +140,23 @@ public final class NotificationHelper {
 
         if (DEBUG) {
             Slogf.d(TAG, "Showing new managed notification (id "
-                    + NEW_USER_DISCLAIMER_NOTIFICATION_ID + " on user " + context.getUser());
+                    + NEW_USER_DISCLAIMER_NOTIFICATION_ID + " on user " + user);
         }
-        context.getSystemService(NotificationManager.class)
+        getContext().getSystemService(NotificationManager.class)
                 .notifyAsUser(TAG, NEW_USER_DISCLAIMER_NOTIFICATION_ID,
-                        notification, UserHandle.of(userId));
+                        notification, user);
     }
 
-    /**
-     * Cancels the user disclaimer notification.
-     */
-    public static void cancelUserDisclaimerNotification(int userId, Context context) {
+    @Override
+    public void cancelUserDisclaimerNotification(UserHandle user) {
         if (DEBUG) {
             Slogf.d(TAG, "Canceling notification " + NEW_USER_DISCLAIMER_NOTIFICATION_ID
-                    + " for user " + context.getUser());
+                    + " for user " + user);
         }
-        context.getSystemService(NotificationManager.class)
-                .cancelAsUser(TAG, NEW_USER_DISCLAIMER_NOTIFICATION_ID, UserHandle.of(userId));
-        getPendingUserDisclaimerIntent(context, PendingIntent.FLAG_UPDATE_CURRENT, userId).cancel();
+        getContext().getSystemService(NotificationManager.class)
+                .cancelAsUser(TAG, NEW_USER_DISCLAIMER_NOTIFICATION_ID, user);
+        getPendingUserDisclaimerIntent(getContext(),
+                PendingIntent.FLAG_UPDATE_CURRENT, user).cancel();
     }
 
     /**
@@ -183,19 +164,17 @@ public final class NotificationHelper {
      */
     @VisibleForTesting
     public static PendingIntent getPendingUserDisclaimerIntent(Context context, int extraFlags,
-            int userId) {
+            UserHandle user) {
         return PendingIntent
                 .getActivityAsUser(context, NEW_USER_DISCLAIMER_NOTIFICATION_ID,
                 new Intent().setComponent(ComponentName.unflattenFromString(
                         context.getString(R.string.config_newUserDisclaimerActivity)
                 )),
-                PendingIntent.FLAG_IMMUTABLE | extraFlags, null, UserHandle.of(userId));
+                PendingIntent.FLAG_IMMUTABLE | extraFlags, null, user);
     }
 
-    /**
-     * Shows the user car watchdog's resource overuse notifications.
-     */
-    public static void showResourceOveruseNotificationsAsUser(Context context,
+    @Override
+    public void showResourceOveruseNotificationsAsUser(
             UserHandle user, SparseArray<String> headsUpNotificationPackagesById,
             SparseArray<String> notificationCenterPackagesById) {
         Preconditions.checkArgument(user.getIdentifier() >= 0,
@@ -206,42 +185,40 @@ public final class NotificationHelper {
                 headsUpNotificationPackagesById);
         packagesByImportance.put(NotificationManager.IMPORTANCE_DEFAULT,
                 notificationCenterPackagesById);
-        showResourceOveruseNotificationsAsUser(context, user, packagesByImportance);
+        showResourceOveruseNotificationsAsUser(getContext(), user, packagesByImportance);
     }
 
-    /**
-     * Sends the notification warning the user about the factory reset.
-     */
-    public static void showFactoryResetNotification(Context context, ICarResultReceiver callback) {
+    @Override
+    public void showFactoryResetNotification(ICarResultReceiver callback) {
         // The factory request is received by CarService - which runs on system user - but the
         // notification will be sent to all users.
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
 
         ComponentName factoryResetActivity = ComponentName.unflattenFromString(
-                context.getString(R.string.config_factoryResetActivity));
+                getContext().getString(R.string.config_factoryResetActivity));
         @SuppressWarnings("deprecation")
         Intent intent = new Intent()
                 .setComponent(factoryResetActivity)
                 .putExtra(EXTRA_FACTORY_RESET_CALLBACK, callback.asBinder());
-        PendingIntent pendingIntent = PendingIntent.getActivityAsUser(context,
+        PendingIntent pendingIntent = PendingIntent.getActivityAsUser(getContext(),
                 FACTORY_RESET_NOTIFICATION_ID, intent, PendingIntent.FLAG_IMMUTABLE,
                 /* options= */ null, currentUser);
 
         Notification notification = NotificationHelper
-                .newNotificationBuilder(context, NotificationManager.IMPORTANCE_HIGH)
+                .newNotificationBuilder(getContext(), NotificationManager.IMPORTANCE_HIGH)
                 .setSmallIcon(R.drawable.car_ic_warning)
-                .setColor(context.getColor(R.color.red_warning))
-                .setContentTitle(context.getString(R.string.factory_reset_notification_title))
-                .setContentText(context.getString(R.string.factory_reset_notification_text))
+                .setColor(getContext().getColor(R.color.red_warning))
+                .setContentTitle(getContext().getString(R.string.factory_reset_notification_title))
+                .setContentText(getContext().getString(R.string.factory_reset_notification_text))
                 .setCategory(Notification.CATEGORY_CAR_WARNING)
                 .setOngoing(true)
                 .addAction(/* icon= */ 0,
-                        context.getString(R.string.factory_reset_notification_button),
+                        getContext().getString(R.string.factory_reset_notification_button),
                         pendingIntent)
                 .build();
 
         Slogf.i(TAG, "Showing factory reset notification on all users");
-        context.getSystemService(NotificationManager.class)
+        getContext().getSystemService(NotificationManager.class)
                 .notifyAsUser(TAG, FACTORY_RESET_NOTIFICATION_ID, notification, UserHandle.ALL);
     }
 

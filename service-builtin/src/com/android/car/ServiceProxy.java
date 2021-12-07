@@ -16,21 +16,16 @@
 
 package com.android.car;
 
-import static com.android.car.UpdatablePackageDependency.PROXIED_SERVICE_DO_ATTACH_BASE_CONTEXT;
-import static com.android.car.UpdatablePackageDependency.PROXIED_SERVICE_DO_DUMP;
-import static com.android.car.UpdatablePackageDependency.PROXIED_SERVICE_SET_BUILTIN_PACKAGE_CONTEXT;
-
-import android.annotation.Nullable;
 import android.app.Service;
-import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import com.android.car.internal.ProxiedService;
+
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 
 /**
  * Base class to wrap Service lifecycle with real Service code loaded from updatable car service
@@ -44,7 +39,7 @@ public class ServiceProxy extends Service {
 
     private UpdatablePackageContext mUpdatablePackageContext;
     private Class mRealServiceClass;
-    private Service mRealService;
+    private ProxiedService mRealService;
 
     public ServiceProxy(String realServiceClassName) {
         mRealServiceClassName = realServiceClassName;
@@ -82,9 +77,7 @@ public class ServiceProxy extends Service {
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
-        executeAMethod(PROXIED_SERVICE_DO_DUMP,
-                new Class[]{FileDescriptor.class, PrintWriter.class, args.getClass()},
-                new Object[]{fd, writer, args}, true);
+        mRealService.doDump(fd, writer, args);
     }
 
     private void init() {
@@ -94,31 +87,11 @@ public class ServiceProxy extends Service {
                     mRealServiceClassName);
             // Use default constructor always
             Constructor constructor = mRealServiceClass.getConstructor();
-            mRealService = (Service) constructor.newInstance();
-            executeAMethod(PROXIED_SERVICE_DO_ATTACH_BASE_CONTEXT, new Class[]{Context.class},
-                    new Object[]{mUpdatablePackageContext}, false);
-            executeAMethod(PROXIED_SERVICE_SET_BUILTIN_PACKAGE_CONTEXT, new Class[]{Context.class},
-                    new Object[]{this}, false);
+            mRealService = (ProxiedService) constructor.newInstance();
+            mRealService.doAttachBaseContext(mUpdatablePackageContext);
+            mRealService.setBuiltinPackageContext(this);
         } catch (Exception e) {
             throw new RuntimeException("Cannot load class:" + mRealServiceClassName, e);
-        }
-    }
-
-    /** Reflecion helper */
-    @Nullable
-    public Object executeAMethod(String methodName, Class[] argClasses, Object[] args,
-            boolean ignoreFailure) {
-        try {
-            Method m = mRealServiceClass.getMethod(methodName, argClasses);
-            return m.invoke(mRealService, args);
-        } catch (Exception e) {
-            String msg = "cannot load method:" + methodName + " for:" + mRealServiceClassName;
-            if (ignoreFailure) {
-                Slogf.w(TAG, msg, e);
-                return null;
-            } else {
-                throw new RuntimeException(msg, e);
-            }
         }
     }
 

@@ -19,16 +19,14 @@ package com.android.car.pm;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.android.car.CarLocalServices;
+import com.android.car.internal.CarSafetyAccessibilityServiceImplBase;
 
 /**
  * An accessibility service to notify the Car Service of any change in the window state. The car
  * safety related code can read the events sent from this service and take the necessary actions.
  */
-public class CarSafetyAccessibilityServiceImpl {
-    /**
-     * Check {@link android.accessibilityservice.AccessibilityService#onAccessibilityEvent(
-     * android.view.accessibility.AccessibilityEvent)}
-     */
+public final class CarSafetyAccessibilityServiceImpl extends CarSafetyAccessibilityServiceImplBase {
+    @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         CarPackageManagerService carPackageManagerService =
                 CarLocalServices.getService(CarPackageManagerService.class);

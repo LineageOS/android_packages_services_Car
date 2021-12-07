@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.internal;
 
 import android.app.Service;
 import android.content.Context;
@@ -24,6 +24,12 @@ import java.io.PrintWriter;
 
 /**
  * Helper class for {@code Service} that is proxied from car service to car service updated.
+ *
+ * <p> This is used as an interface between builtin and updatable car service. Do not change it
+ * without compatibility check. Adding a new method is ok but should have no-op default
+ * implementation.
+ *
+ * @hide
  */
 public abstract class ProxiedService extends Service {
 
@@ -34,10 +40,12 @@ public abstract class ProxiedService extends Service {
         attachBaseContext(newBase);
     }
 
+    /** Used by builtin CarService to set builtin {@code Context}. */
     public void setBuiltinPackageContext(Context context) {
         mCarServiceBuiltinPackageContext = context;
     }
 
+    /** Returns the {@code Context} of builtin car service */
     public Context getBuiltinPackageContext() {
         return mCarServiceBuiltinPackageContext;
     }

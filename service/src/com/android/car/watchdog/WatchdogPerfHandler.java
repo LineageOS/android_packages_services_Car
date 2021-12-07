@@ -45,11 +45,6 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
@@ -116,12 +111,14 @@ import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.view.Display;
 
+import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.NotificationHelperBase;
 import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -313,15 +310,9 @@ public final class WatchdogPerfHandler {
                 .getInteger(R.integer.recurringResourceOverusePeriodInDays);
         mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
         mResourceOveruseNotificationBaseId =
-                (int) CarServiceUtils.getDeclaredField(mBuiltinPackageContext.getClassLoader(),
-                        NOTIFICATION_HELPER_CLASS,
-                        NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID,
-                        /* instance= */ null, /* ignoreFailure= */ false);
+                NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
         mResourceOveruseNotificationMaxOffset =
-                (int) CarServiceUtils.getDeclaredField(mBuiltinPackageContext.getClassLoader(),
-                        NOTIFICATION_HELPER_CLASS,
-                        NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET,
-                        /* instance= */ null, /* ignoreFailure= */ false);
+                NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
     }
 
     /** Initializes the handler. */
@@ -1649,25 +1640,15 @@ public final class WatchdogPerfHandler {
                 && notificationCenterPackagesById.size() == 0) {
             return;
         }
-        CarServiceUtils.executeAMethod(mBuiltinPackageContext.getClassLoader(),
-                NOTIFICATION_HELPER_CLASS,
-                NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER,
-                /* instance= */null,
-                new Class[]{Context.class, UserHandle.class, SparseArray.class, SparseArray.class},
-                new Object[]{mBuiltinPackageContext,
-                        UserHandle.of(userId), headsUpNotificationPackagesById,
-                        notificationCenterPackagesById},
-                /* ignoreFailure= */ false);
+        BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
+                .showResourceOveruseNotificationsAsUser(
+                        UserHandle.of(userId),
+                        headsUpNotificationPackagesById, notificationCenterPackagesById);
     }
 
     private void cancelNotificationAsUser(int notificationId, UserHandle userHandle) {
-        CarServiceUtils.executeAMethod(mBuiltinPackageContext.getClassLoader(),
-                NOTIFICATION_HELPER_CLASS,
-                NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER,
-                /* instance= */null,
-                new Class[]{Context.class, UserHandle.class, int.class},
-                new Object[]{mBuiltinPackageContext, userHandle, notificationId},
-                /* ignoreFailure= */ false);
+        BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
+                        .cancelNotificationAsUser(userHandle, notificationId);
     }
 
     /** Disables a package for specific user until used. */

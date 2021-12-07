@@ -24,16 +24,6 @@ package com.android.car;
 public class UpdatablePackageDependency {
     private UpdatablePackageDependency() {}
 
-    /** {@code com.android.car.ProxiedService#doAttachBaseContext()} method */
-    public static final String PROXIED_SERVICE_DO_ATTACH_BASE_CONTEXT = "doAttachBaseContext";
-
-    /** {@code com.android.car.ProxiedService#setBuiltinPackageContext()} method */
-    public static final String PROXIED_SERVICE_SET_BUILTIN_PACKAGE_CONTEXT =
-            "setBuiltinPackageContext";
-
-    /** {@code com.android.car.ProxiedService#doDump()} method */
-    public static final String PROXIED_SERVICE_DO_DUMP = "doDump";
-
     /** {@code com.android.car.CarServiceImpl} class */
     public static final String CAR_SERVICE_IMPL_CLASS = "com.android.car.CarServiceImpl";
 
@@ -44,9 +34,4 @@ public class UpdatablePackageDependency {
     /** {@code com.android.car.pm.CarSafetyAccessibilityServiceImpl} class */
     public static final String CAR_ACCESSIBILITY_IMPL_CLASS =
             "com.android.car.pm.CarSafetyAccessibilityServiceImpl";
-
-    /**
-     * {@code com.android.car.pm.CarSafetyAccessibilityServiceImpl#onAccessibilityEvent()} method
-     */
-    public static final String CAR_ACCESSIBILITY_ON_ACCESSIBILITY_EVENT = "onAccessibilityEvent";
 }
