@@ -21,10 +21,15 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.timeout;
@@ -51,6 +56,7 @@ import android.os.UserManager;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
@@ -81,6 +87,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private static final int INVALID_SESSION_ID = -1;
     private static final int RECURRING_OVERUSE_TIMES = 2;
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
+    private static final int RESOURCE_OVERUSE_NOTIFICATION_BASE_ID = 10;
+    private static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 10;
 
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor =
@@ -128,6 +136,14 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
         doReturn(mMockCarPowerManagementService)
                 .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
+        doReturn(RESOURCE_OVERUSE_NOTIFICATION_BASE_ID)
+                .when(() -> CarServiceUtils.getDeclaredField(any(), eq(NOTIFICATION_HELPER_CLASS),
+                        eq(NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID), any(),
+                        anyBoolean()));
+        doReturn(RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET)
+                .when(() -> CarServiceUtils.getDeclaredField(any(), eq(NOTIFICATION_HELPER_CLASS),
+                        eq(NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET), any(),
+                        anyBoolean()));
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mMockUserManager, 100, true);
@@ -146,6 +162,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
             .spyStatic(CarLocalServices.class)
+            .spyStatic(CarServiceUtils.class)
             .spyStatic(ServiceManager.class)
             .spyStatic(UserHandle.class);
     }

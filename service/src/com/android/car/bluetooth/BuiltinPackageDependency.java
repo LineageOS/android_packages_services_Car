@@ -37,6 +37,10 @@ public class BuiltinPackageDependency {
     /** {@code com.android.car.am.ContinuousBlankActivity} */
     public static final String BLANK_ACTIVITY_CLASS = "com.android.car.am.ContinuousBlankActivity";
 
+    /** {@code com.android.car.admin.NotificationHelper#cancelNotificationAsUser()} */
+    public static final String NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER =
+            "cancelNotificationAsUser";
+
     /** {@code com.android.car.admin.NotificationHelper#showFactoryResetNotification()} */
     public static final String NOTIFICATION_HELPER_SHOW_FACTORY_RESET_NOTIFICATION =
             "showFactoryResetNotification";
@@ -52,6 +56,14 @@ public class BuiltinPackageDependency {
     /** {@code com.android.car.admin.NotificationHelper#showResourceOveruseNotificationsAsUser()} */
     public static final String NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER =
             "showResourceOveruseNotificationsAsUser";
+
+    /** {@code com.android.car.admin.NotificationHelper.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID} */
+    public static final String NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID =
+            "RESOURCE_OVERUSE_NOTIFICATION_BASE_ID";
+
+    /** {@code com.android.car.admin.NotificationHelper.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET} */
+    public static final String NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET =
+            "RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET";
 
     /** {@code com.android.car.pm.CarSafetyAccessibilityService} */
     public static final String CAR_ACCESSIBILITY_SERVICE_CLASS =

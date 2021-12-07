@@ -24,9 +24,12 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+import static android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS;
 
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__KILL_REASON__KILLED_ON_IO_OVERUSE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYSTEM_STATE__GARAGE_MODE;
@@ -34,9 +37,17 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER;
+import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
+import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
+import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -129,7 +140,6 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
-import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 
@@ -175,6 +185,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 3;
     private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
+    private static final int RESOURCE_OVERUSE_NOTIFICATION_BASE_ID = 10;
+    private static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 10;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
 
@@ -205,6 +217,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             mResourceOveruseConfigurationsCaptor;
     @Captor private ArgumentCaptor<SparseArray<List<String>>> mPackagesByUserIdCaptor;
     @Captor private ArgumentCaptor<StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
+    @Captor private ArgumentCaptor<Intent> mIntentCaptor;
     @Captor private ArgumentCaptor<int[]> mIntArrayCaptor;
     @Captor private  ArgumentCaptor<Object[]> mObjectArrayCaptor;
     @Captor private ArgumentCaptor<byte[]> mOveruseStatsCaptor;
@@ -283,9 +296,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(mMockCarUxRestrictionsManagerService)
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
         doReturn(mSpiedPackageManager).when(() -> ActivityThread.getPackageManager());
-        doReturn(null).when(
-                () -> CarServiceUtils.executeAMethod(any(), anyString(), anyString(), any(), any(),
-                        any(), anyBoolean()));
+        doReturn(null)
+                .when(() -> CarServiceUtils.executeAMethod(any(), anyString(), anyString(), any(),
+                        any(), any(), anyBoolean()));
+        doReturn(RESOURCE_OVERUSE_NOTIFICATION_BASE_ID)
+                .when(() -> CarServiceUtils.getDeclaredField(any(), eq(NOTIFICATION_HELPER_CLASS),
+                        eq(NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID), any(),
+                        anyBoolean()));
+        doReturn(RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET)
+                .when(() -> CarServiceUtils.getDeclaredField(any(), eq(NOTIFICATION_HELPER_CLASS),
+                        eq(NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET), any(),
+                        anyBoolean()));
 
         when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
                 .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
@@ -424,47 +445,156 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testDisableAppBroadcast() throws Exception {
+        String packageName = "system_package";
+        UserHandle userHandle = UserHandle.of(100);
+
         mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, "system_package")
-                .putExtra(Intent.EXTRA_USER, UserHandle.of(100)));
+                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+                .putExtra(Intent.EXTRA_USER, userHandle)
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
 
-        verify(mSpiedPackageManager).getApplicationEnabledSetting(eq("system_package"), eq(100));
+        verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName,
+                userHandle.getIdentifier());
 
-        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("system_package"),
-                eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0), eq(100), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq(packageName),
+                eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0),
+                eq(userHandle.getIdentifier()), anyString());
 
         verifyNoMoreInteractions(mSpiedPackageManager);
+        captureAndVerifyCancelNotificationAsUser(userHandle, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID);
     }
 
     @Test
     public void testDisableAppBroadcastWithDisabledPackage() throws Exception {
+        String packageName = "system_package";
+        UserHandle userHandle = UserHandle.of(100);
+
         doReturn(COMPONENT_ENABLED_STATE_DISABLED).when(mSpiedPackageManager)
-                .getApplicationEnabledSetting("system_package", 100);
+                .getApplicationEnabledSetting(packageName, userHandle.getIdentifier());
 
         mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, "system_package")
-                .putExtra(Intent.EXTRA_USER, UserHandle.of(100)));
+                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+                .putExtra(Intent.EXTRA_USER, userHandle)
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
 
-        verify(mSpiedPackageManager).getApplicationEnabledSetting("system_package", 100);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName,
+                userHandle.getIdentifier());
 
         verifyNoMoreInteractions(mSpiedPackageManager);
+        captureAndVerifyCancelNotificationAsUser(userHandle, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID);
     }
 
     @Test
-    public void testDisableAppBroadcastWithNullPackageName() throws Exception {
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_USER, UserHandle.of(100)));
+    public void testLaunchAppSettingsBroadcast() throws Exception {
+        String packageName = "system_package";
+        UserHandle userHandle = UserHandle.of(100);
+
+        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_LAUNCH_APP_SETTINGS)
+                .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+                .putExtra(Intent.EXTRA_USER, userHandle)
+                .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+
+        verify(mMockBuiltinPackageContext)
+                .startActivityAsUser(mIntentCaptor.capture(), eq(userHandle));
+
+        Intent actualIntent = mIntentCaptor.getValue();
+
+        assertWithMessage("Launch app settings intent action").that(actualIntent.getAction())
+                .isEqualTo(ACTION_APPLICATION_DETAILS_SETTINGS);
+
+        assertWithMessage("Launch app settings intent data string")
+                .that(actualIntent.getDataString()).contains(packageName);
+
+        assertWithMessage("Launch app settings intent flags").that(actualIntent.getFlags())
+                .isEqualTo(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
 
         verifyNoMoreInteractions(mSpiedPackageManager);
+        captureAndVerifyCancelNotificationAsUser(userHandle, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID);
     }
 
     @Test
-    public void testDisableAppBroadcastWithInvalidUserId() throws Exception {
-        mBroadcastReceiver.onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                .putExtra(Intent.EXTRA_PACKAGE_NAME, "system_package")
-                .putExtra(Intent.EXTRA_USER, UserHandle.of(-1)));
+    public void testDismissUserNotificationBroadcast() throws Exception {
+        String packageName = "system_package";
+        UserHandle userHandle = UserHandle.of(100);
+
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent(ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION)
+                        .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+                        .putExtra(Intent.EXTRA_USER, userHandle)
+                        .putExtra(INTENT_EXTRA_NOTIFICATION_ID,
+                                RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
 
         verifyNoMoreInteractions(mSpiedPackageManager);
+        captureAndVerifyCancelNotificationAsUser(userHandle, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID);
+    }
+
+    @Test
+    public void testUserNotificationActionBroadcastsWithNullPackageName() throws Exception {
+        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+
+        for (String action : actions) {
+            mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
+                    .putExtra(Intent.EXTRA_USER, UserHandle.of(100))
+                    .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+        }
+
+        verify(mMockBuiltinPackageContext, never()).startActivityAsUser(any(), any());
+        verifyNoMoreInteractions(mSpiedPackageManager);
+        verify(() -> CarServiceUtils.executeAMethod(any(ClassLoader.class),
+                eq(NOTIFICATION_HELPER_CLASS),
+                eq(NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER), isNull(),
+                any(Class[].class), any(Object[].class), anyBoolean()), never());
+    }
+
+    @Test
+    public void testUserNotificationActionBroadcastsWithInvalidUserId() throws Exception {
+        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+
+        for (String action : actions) {
+            mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
+                    .putExtra(Intent.EXTRA_PACKAGE_NAME, "system_package")
+                    .putExtra(Intent.EXTRA_USER, UserHandle.of(-1))
+                    .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+        }
+
+        verify(mMockBuiltinPackageContext, never()).startActivityAsUser(any(), any());
+        verifyNoMoreInteractions(mSpiedPackageManager);
+        verify(() -> CarServiceUtils.executeAMethod(any(ClassLoader.class),
+                eq(NOTIFICATION_HELPER_CLASS),
+                eq(NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER), isNull(),
+                any(Class[].class), any(Object[].class), anyBoolean()), never());
+    }
+
+    @Test
+    public void testUserNotificationActionBroadcastsWithMissingNotificationId() throws Exception {
+        String packageName = "system_package";
+        UserHandle userHandle = UserHandle.of(100);
+
+        List<String> actions = Arrays.asList(ACTION_RESOURCE_OVERUSE_DISABLE_APP,
+                ACTION_LAUNCH_APP_SETTINGS, ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION);
+
+        for (String action : actions) {
+            mBroadcastReceiver.onReceive(mMockContext, new Intent(action)
+                    .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
+                    .putExtra(Intent.EXTRA_USER, userHandle));
+        }
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting(packageName,
+                userHandle.getIdentifier());
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq(packageName),
+                eq(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED), eq(0),
+                eq(userHandle.getIdentifier()), anyString());
+
+        verify(mMockBuiltinPackageContext).startActivityAsUser(any(), any());
+
+        verifyNoMoreInteractions(mSpiedPackageManager);
+        verify(() -> CarServiceUtils.executeAMethod(any(ClassLoader.class),
+                eq(NOTIFICATION_HELPER_CLASS),
+                eq(NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER), isNull(),
+                any(Class[].class), any(Object[].class), anyBoolean()), never());
     }
 
     @Test
@@ -2284,9 +2414,32 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         captureAndVerifyUserNotifications(
                 Collections.singletonList(new UserNotificationReflectionCall(UserHandle.of(100),
-                        Arrays.asList("vendor_package.non_critical", "third_party_package.A",
-                                "third_party_package.B"), /* hasHeadsUpNotification= */ true,
-                        /* idOffset= */ 0)));
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "vendor_package.non_critical", "third_party_package.A",
+                                "third_party_package.B"), /* hasHeadsUpNotification= */ true)));
+    }
+
+    @Test
+    public void testNoDuplicateUserNotificationOnRepeatedRecurrentOveruse()
+            throws Exception {
+        mockAmGetCurrentUser(100);
+        setDisplayStateEnabled(true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        List<PackageIoOveruseStats> ioOveruseStats =
+                sampleIoOveruseStats(/* requireRecurrentOveruseStats= */ true);
+
+        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
+        // Should not produce resource overuse notifications.
+        pushLatestIoOveruseStatsAndWait(ioOveruseStats);
+
+        captureAndVerifyUserNotifications(
+                Collections.singletonList(new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "vendor_package.non_critical", "third_party_package.A",
+                                "third_party_package.B"), /* hasHeadsUpNotification= */ true)));
     }
 
     @Test
@@ -2311,12 +2464,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         List<UserNotificationReflectionCall> userNotificationReflectionCalls = Arrays.asList(
                 new UserNotificationReflectionCall(UserHandle.of(100),
-                        Arrays.asList("vendor_package.non_critical", "third_party_package.A",
-                                "third_party_package.B"), /* hasHeadsUpNotification= */ true,
-                        /* idOffset= */ 0),
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "vendor_package.non_critical", "third_party_package.A",
+                                "third_party_package.B"), /* hasHeadsUpNotification= */ true),
                 new UserNotificationReflectionCall(UserHandle.of(100),
-                        Collections.singletonList("system_package.non_critical"),
-                        /* hasHeadsUpNotification= */ false, /* idOffset= */ 3));
+                        constructPackagesByNotificationId(/* idOffset= */ 3,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ false));
 
         captureAndVerifyUserNotifications(userNotificationReflectionCalls);
     }
@@ -2397,23 +2551,40 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         captureAndVerifyUserNotifications(Collections.singletonList(
                 new UserNotificationReflectionCall(UserHandle.of(100),
-                        Arrays.asList("third_party_package.A", "third_party_package.B"),
-                        /* hasHeadsUpNotification= */ true, /* idOffset= */ 0)));
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "third_party_package.A", "third_party_package.B"),
+                        /* hasHeadsUpNotification= */ true)));
     }
 
-    /* TODO(b/195425666): Test resource overuse notifications taking into considerations
-     *  historical overuses.
-     *
-     *  @Test
-     *  public void testUserNotificationOnHistoricalRecurrentOveruse() throws Exception {
-     *    1. Setup historical stats with RECURRING_OVERUSE_THRESHOLD overuses by mocking
-     *       WatchdogStorage calls.
-     *    2. Set display to enabled and UX restriction to requires distraction optimization.
-     *    3. Push some I/O stats with non-recurrent overuse and wait.
-     *    4. Set UX restriction to not require distraction optimization.
-     *    5. Verify no user notification.
-     *  }
-     */
+    @Test
+    public void testUserNotificationOnHistoricalRecurrentOveruse() throws Exception {
+        when(mMockWatchdogStorage
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS))
+                .thenReturn(Arrays.asList(new WatchdogStorage.NotForgivenOverusesEntry(100,
+                        "system_package.non_critical", 2)));
+
+        // Force CarWatchdogService to fetch historical not forgiven overuses.
+        restartService(/* totalRestarts= */ 1);
+        mockAmGetCurrentUser(100);
+        setDisplayStateEnabled(true);
+        setRequiresDistractionOptimization(false);
+
+        setUpSampleUserAndPackages();
+
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(
+                constructPackageIoOveruseStats(/* uid= */ 10010002, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 200, 300),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(300, 600, 900),
+                                /* totalOveruses= */ 1))));
+
+        captureAndVerifyUserNotifications(Collections.singletonList(
+                new UserNotificationReflectionCall(UserHandle.of(100),
+                        constructPackagesByNotificationId(/* idOffset= */ 10,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ true)));
+    }
 
     @Test
     public void testUserNotificationWithDisabledDisplay() throws Exception {
@@ -2433,8 +2604,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         captureAndVerifyUserNotifications(Collections.singletonList(
                 new UserNotificationReflectionCall(UserHandle.of(100),
-                        Collections.singletonList("system_package.non_critical"),
-                        /* hasHeadsUpNotification= */ false, /* idOffset= */ 0)));
+                        constructPackagesByNotificationId(/* idOffset= */ 0,
+                                "system_package.non_critical"),
+                        /* hasHeadsUpNotification= */ false)));
     }
 
     @Test
@@ -3870,13 +4042,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         CarServiceUtils.runOnLooperSync(CarServiceUtils.getHandlerThread(CarWatchdogService.class
                 .getSimpleName()).getLooper(), () -> {});
 
-        String methodName =
-                BuiltinPackageDependency
-                        .NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER;
         verify(() -> CarServiceUtils.executeAMethod(any(ClassLoader.class),
-                eq(BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS),
-                eq(methodName), isNull(), any(Class[].class), mObjectArrayCaptor.capture(),
-                anyBoolean()), times(expectedNotifications.size()));
+                eq(NOTIFICATION_HELPER_CLASS),
+                eq(NOTIFICATION_HELPER_SHOW_RESOURCE_OVERUSE_NOTIFICATIONS_AS_USER), isNull(),
+                any(Class[].class), mObjectArrayCaptor.capture(), anyBoolean()),
+                times(expectedNotifications.size()));
 
         if (expectedNotifications.isEmpty()) {
             return;
@@ -3887,14 +4057,14 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             Object[] args = argsList.get(i);
 
             assertWithMessage("CarServiceUtils.executeAMethod's args").that(args).asList()
-                    .hasSize(5);
+                    .hasSize(4);
 
             UserNotificationReflectionCall expectedNotification = expectedNotifications.get(i);
 
             UserHandle userHandle = (UserHandle) args[1];
-            ArrayList<String> actualHeadsUpNotificationPackages = (ArrayList<String>) args[2];
-            ArrayList<String> actualNotificationPackages = (ArrayList<String>) args[3];
-            int actualIdOffset = (int) args[4];
+            SparseArray<String> actualHeadsUpNotificationPackagesById =
+                    (SparseArray<String>) args[2];
+            SparseArray<String> actualPackagesById = (SparseArray<String>) args[3];
 
             assertWithMessage("Current user id for resource overuse notifications")
                     .that(userHandle).isEqualTo(expectedNotification.userHandle);
@@ -3902,16 +4072,53 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             int expectedHeadsUpSize = expectedNotification.hasHeadsUpNotification ? 1 : 0;
 
             assertWithMessage("Resource overuse heads up packages size")
-                    .that(actualHeadsUpNotificationPackages).hasSize(expectedHeadsUpSize);
+                    .that(actualHeadsUpNotificationPackagesById.size())
+                    .isEqualTo(expectedHeadsUpSize);
 
-            actualNotificationPackages.addAll(actualHeadsUpNotificationPackages);
-            assertWithMessage("Resource overuse notification packages")
-                    .that(actualNotificationPackages)
-                    .containsExactlyElementsIn(expectedNotification.packages);
+            if (expectedNotification.hasHeadsUpNotification) {
+                int headsUpNotificationId = actualHeadsUpNotificationPackagesById.keyAt(0);
+                actualPackagesById.put(headsUpNotificationId,
+                        actualHeadsUpNotificationPackagesById.valueAt(0));
+            }
 
-            assertWithMessage("Notifications id offset").that(actualIdOffset)
-                    .isEqualTo(expectedNotification.idOffset);
+            int expectedSize = expectedNotification.packagesById.size();
+
+            assertWithMessage("Resource overuse notification size")
+                    .that(actualPackagesById.size()).isEqualTo(expectedSize);
+
+            ArraySet<String> expectedPackages = new ArraySet<>(expectedSize);
+            ArraySet<String> actualPackages = new ArraySet<>(expectedSize);
+            for (int j = 0; j < expectedNotification.packagesById.size(); j++) {
+                int expectedNotificationId = expectedNotification.packagesById.keyAt(j);
+
+                assertWithMessage("Resource overuse notification id")
+                        .that(actualPackagesById.get(expectedNotificationId)).isNotNull();
+
+                expectedPackages.add(expectedNotification.packagesById.valueAt(j));
+                actualPackages.add(actualPackagesById.valueAt(j));
+            }
+
+            assertWithMessage("Resource overuse notification package names")
+                    .that(actualPackages).isEqualTo(expectedPackages);
         }
+    }
+
+    private void captureAndVerifyCancelNotificationAsUser(UserHandle expectedUserHandle,
+            int expectedNotificationId) {
+        verify(() -> CarServiceUtils.executeAMethod(any(ClassLoader.class),
+                eq(NOTIFICATION_HELPER_CLASS),
+                eq(NOTIFICATION_HELPER_CANCEL_NOTIFICATION_AS_USER), isNull(),
+                any(Class[].class), mObjectArrayCaptor.capture(), anyBoolean()));
+
+        Object[] args = mObjectArrayCaptor.getValue();
+
+        UserHandle actualUserHandle = (UserHandle) args[1];
+        int actualNotificationId = (int) args[2];
+
+        assertWithMessage("Cancelled notification user").that(actualUserHandle)
+                .isEqualTo(expectedUserHandle);
+        assertWithMessage("Cancelled notification id").that(actualNotificationId)
+                .isEqualTo(expectedNotificationId);
     }
 
     private static List<AtomsProto.CarWatchdogIoOveruseStatsReported> sampleReportedOveruseStats() {
@@ -4513,6 +4720,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return packageInfo;
     }
 
+    private static SparseArray<String> constructPackagesByNotificationId(int idOffset,
+            String... packages) {
+        SparseArray<String> packagesById = new SparseArray<>();
+        idOffset = idOffset < 0 ? 0 : idOffset % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+        for (String packageName : packages) {
+            packagesById.put(RESOURCE_OVERUSE_NOTIFICATION_BASE_ID + idOffset, packageName);
+            idOffset = ++idOffset % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+        }
+        return packagesById;
+    }
+
     private static final class TestTimeSource extends TimeSource {
         private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
         private Instant mNow;
@@ -4538,16 +4756,14 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     private static final class UserNotificationReflectionCall {
         public final UserHandle userHandle;
-        public final List<String> packages;
+        public final SparseArray<String> packagesById;
         public final boolean hasHeadsUpNotification;
-        public final int idOffset;
 
-        UserNotificationReflectionCall(UserHandle userHandle, List<String> packages,
-                boolean hasHeadsUpNotification, int idOffset) {
+        UserNotificationReflectionCall(UserHandle userHandle, SparseArray<String> packagesById,
+                boolean hasHeadsUpNotification) {
             this.userHandle = userHandle;
-            this.packages = packages;
+            this.packagesById = packagesById;
             this.hasHeadsUpNotification = hasHeadsUpNotification;
-            this.idOffset = idOffset;
         }
     }
 }

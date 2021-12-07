@@ -33,6 +33,7 @@ import android.util.ArrayMap;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -427,6 +428,27 @@ public final class CarServiceUtils {
             } else {
                 throw new RuntimeException(msg, e);
             }
+        }
+    }
+
+    /** Reflection helper */
+    @Nullable
+    public static Object getDeclaredField(ClassLoader classloader,
+            String className, String fieldName, @Nullable Object instance, boolean ignoreFailure) {
+        try {
+            Class loadedClass = classloader.loadClass(className);
+            Field field = loadedClass.getDeclaredField(fieldName);
+            return field.get(instance);
+        } catch (Exception e) {
+            String msg = "cannot load class:" + className + " field:" + fieldName;
+            if (ignoreFailure) {
+                Slogf.e(TAG, msg, e);
+                return null;
+            }
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new RuntimeException(msg, e);
         }
     }
 }
