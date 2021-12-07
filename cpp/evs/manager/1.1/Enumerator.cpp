@@ -71,6 +71,14 @@ constexpr int kExclusiveMainDisplayId = 255;
 
 namespace android::automotive::evs::V1_1::implementation {
 
+std::unique_ptr<Enumerator> Enumerator::build(const char* hardwareServiceName) {
+    // TODO(b/206829268): Fully deprecate init and move construction logic here.
+    if (!hardwareServiceName) {
+        return nullptr;
+    } else {
+        return std::make_unique<Enumerator>(hardwareServiceName);
+    }
+}
 
 Enumerator::~Enumerator() {
     if (mClientsMonitor != nullptr) {
@@ -78,11 +86,13 @@ Enumerator::~Enumerator() {
     }
 }
 
-bool Enumerator::init(const char* hardwareServiceName) {
+bool Enumerator::init(const char*) {
     LOG(DEBUG) << "init";
 
-    // Connect with the underlying hardware enumerator
-    mHwEnumerator = IEvsEnumerator::getService(hardwareServiceName);
+    // Connect with the underlying hardware enumerator.
+    // TODO(b/206829268): Refactor init into constructor as init is always
+    // called immediately following construction.
+    mHwEnumerator = mServiceFactory->getService();
     bool result = (mHwEnumerator != nullptr);
     if (result) {
         // Get an internal display identifier.

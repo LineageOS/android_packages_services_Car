@@ -1,0 +1,36 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include "Enumerator.h"
+#include "MockServiceFactory.h"
+#include "ServiceFactory.h"
+
+#include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
+#include <gmock/gmock.h>
+#include <gtest/gtest.h>
+
+using ::android::automotive::evs::V1_1::implementation::Enumerator;
+using ::android::automotive::evs::V1_1::implementation::MockServiceFactory;
+
+TEST(Enumerator, BuildsNullObjectWithoutServiceNameProvided) {
+    EXPECT_EQ(Enumerator::build(nullptr), nullptr);
+}
+
+TEST(Enumerator, ConstructsAndDestroys) {
+    Enumerator enumerator{std::make_unique<MockServiceFactory>()};
+}
+
+// TODO(b/206829268): Implement remaining unit tests.

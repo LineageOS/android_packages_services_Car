@@ -94,3 +94,20 @@ cc_binary{
     init_rc : ["android.automotive.evs.manager@1.1.rc"],
     vintf_fragments : ["manifest_android.automotive.evs.manager@1.1.xml"],
 }
+
+////////////////////////////////////////////////////////////////////////////////
+// Tests
+////////////////////////////////////////////////////////////////////////////////
+cc_test {
+    name: "EvsEnumeratorTest",
+    srcs : [ "test/unit/EvsEnumeratorTest.cpp" ],
+    static_libs : [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults : ["android.automotive.evs.manager_defaults"],
+
+    // TODO(b/206829268):  This target should allow for host supported testing, but
+    // currently has platform specific dependencies.
+    // host_supported: true,
+}
