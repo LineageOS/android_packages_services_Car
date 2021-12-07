@@ -37,7 +37,7 @@ cc_defaults {
         "packagemanager_aidl-cpp",
     ],
     static_libs: [
-        "android.automotive.watchdog.internal-cpp",
+        "android.automotive.watchdog.internal-V1-cpp",
         "android.automotive.watchdog-V3-cpp",
     ],
     header_libs: [
