@@ -128,6 +128,21 @@ public class CarProjectionServiceTest {
         when(mContext.getSystemService(eq(WifiManager.class)))
                 .thenReturn(mWifiManager);
 
+        when(mContext.getResources()).thenReturn(mResources);
+
+        when(mResources.getInteger(com.android.car.R.integer.config_projectionUiMode))
+                .thenReturn(ProjectionOptions.UI_MODE_FULL_SCREEN);
+        when(mResources.getString(com.android.car.R.string.config_projectionConsentActivity))
+                .thenReturn("");
+        when(mResources.getInteger(com.android.car.R.integer.config_projectionActivityDisplayId))
+                .thenReturn(-1);
+        when(mResources.getIntArray(com.android.car.R.array.config_projectionActivityLaunchBounds))
+                .thenReturn(new int[0]);
+        when(mResources.getBoolean(com.android.car.R.bool.config_stableLocalOnlyHotspotConfig))
+                .thenReturn(false);
+        when(mResources.getBoolean(com.android.car.R.bool.config_projectionAccessPointTethering))
+                .thenReturn(false);
+
         mService = new CarProjectionService(mContext, mHandler, mCarInputService,
                 mCarBluetoothService);
 
@@ -313,24 +328,39 @@ public class CarProjectionServiceTest {
 
     @Test
     public void getProjectionOptions_defaults() {
-        when(mContext.getResources()).thenReturn(mResources);
-        final int uiMode = ProjectionOptions.UI_MODE_FULL_SCREEN;
+        ProjectionOptions options = new ProjectionOptions(mService.getProjectionOptions());
 
-        when(mResources.getInteger(com.android.car.R.integer.config_projectionUiMode))
-                .thenReturn(uiMode);
-        when(mResources.getString(com.android.car.R.string.config_projectionConsentActivity))
-                .thenReturn("");
-        when(mResources.getInteger(com.android.car.R.integer.config_projectionActivityDisplayId))
-                .thenReturn(-1);
-        when(mResources.getIntArray(com.android.car.R.array.config_projectionActivityLaunchBounds))
-                .thenReturn(new int[0]);
-
-        Bundle bundle = mService.getProjectionOptions();
-
-        ProjectionOptions options = new ProjectionOptions(bundle);
         assertThat(options.getActivityOptions()).isNull();
         assertThat(options.getConsentActivity()).isNull();
-        assertThat(options.getUiMode()).isEqualTo(uiMode);
+        assertThat(options.getUiMode()).isEqualTo(ProjectionOptions.UI_MODE_FULL_SCREEN);
+        assertThat(options.getProjectionAccessPointMode()).isEqualTo(
+                ProjectionOptions.AP_MODE_LOHS_DYNAMIC_CREDENTIALS);
+    }
+
+    @Test
+    public void getProjectionOptions_staticLohsCredentialsApMode() {
+        when(mResources.getBoolean(com.android.car.R.bool.config_stableLocalOnlyHotspotConfig))
+                .thenReturn(true);
+        mService = new CarProjectionService(mContext, mHandler, mCarInputService,
+                mCarBluetoothService);
+
+        ProjectionOptions options = new ProjectionOptions(mService.getProjectionOptions());
+
+        assertThat(options.getProjectionAccessPointMode()).isEqualTo(
+                ProjectionOptions.AP_MODE_LOHS_STATIC_CREDENTIALS);
+    }
+
+    @Test
+    public void getProjectionOptions_tetheredApMode() {
+        when(mResources.getBoolean(com.android.car.R.bool.config_projectionAccessPointTethering))
+                .thenReturn(true);
+        mService = new CarProjectionService(mContext, mHandler, mCarInputService,
+                mCarBluetoothService);
+
+        ProjectionOptions options = new ProjectionOptions(mService.getProjectionOptions());
+
+        assertThat(options.getProjectionAccessPointMode()).isEqualTo(
+                ProjectionOptions.AP_MODE_TETHERED);
     }
 
     @Test

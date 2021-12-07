@@ -1077,8 +1077,13 @@ package android.car.projection {
     ctor public ProjectionOptions(android.os.Bundle);
     method @Nullable public android.app.ActivityOptions getActivityOptions();
     method @Nullable public android.content.ComponentName getConsentActivity();
+    method public int getProjectionAccessPointMode();
     method public int getUiMode();
     method @NonNull public android.os.Bundle toBundle();
+    field public static final int AP_MODE_LOHS_DYNAMIC_CREDENTIALS = 2; // 0x2
+    field public static final int AP_MODE_LOHS_STATIC_CREDENTIALS = 3; // 0x3
+    field public static final int AP_MODE_NOT_SPECIFIED = 0; // 0x0
+    field public static final int AP_MODE_TETHERED = 1; // 0x1
     field public static final int UI_MODE_BLENDED = 1; // 0x1
     field public static final int UI_MODE_FULL_SCREEN = 0; // 0x0
   }
