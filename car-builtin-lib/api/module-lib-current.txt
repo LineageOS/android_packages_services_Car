@@ -153,6 +153,45 @@ package android.car.builtin.media {
 
 }
 
+package android.car.builtin.net {
+
+  public final class NetworkStatsHelper {
+    method public static long getElapsedRealtime(@NonNull android.net.NetworkStats);
+    method @NonNull public static android.net.NetworkStats.Entry getValues(@NonNull android.net.NetworkStats, int, @Nullable android.net.NetworkStats.Entry);
+    method public static int size(@NonNull android.net.NetworkStats);
+  }
+
+  public static final class NetworkStatsHelper.EntryHelper {
+    method public static boolean equals(@NonNull android.net.NetworkStats.Entry, @Nullable android.net.NetworkStats.Entry);
+    method public static int getDefaultNetwork(@NonNull android.net.NetworkStats.Entry);
+    method @Nullable public static String getIface(@NonNull android.net.NetworkStats.Entry);
+    method public static int getMetered(@NonNull android.net.NetworkStats.Entry);
+    method public static long getOperations(@NonNull android.net.NetworkStats.Entry);
+    method public static int getRoaming(@NonNull android.net.NetworkStats.Entry);
+    method public static long getRxBytes(@NonNull android.net.NetworkStats.Entry);
+    method public static long getRxPackets(@NonNull android.net.NetworkStats.Entry);
+    method public static int getSet(@NonNull android.net.NetworkStats.Entry);
+    method public static int getTag(@NonNull android.net.NetworkStats.Entry);
+    method public static long getTxBytes(@NonNull android.net.NetworkStats.Entry);
+    method public static long getTxPackets(@NonNull android.net.NetworkStats.Entry);
+    method public static int getUid(@NonNull android.net.NetworkStats.Entry);
+    method public static boolean isEmpty(@NonNull android.net.NetworkStats.Entry);
+  }
+
+  public final class NetworkStatsServiceHelper {
+    ctor public NetworkStatsServiceHelper();
+    method @NonNull public android.net.NetworkStats getSummaryForAllUid(int, int, long, long, @NonNull String) throws android.os.RemoteException;
+    field public static final int OEM_MANAGED_ALL = -1; // 0xffffffff
+    field public static final int OEM_MANAGED_NO = 0; // 0x0
+    field public static final int OEM_MANAGED_YES = -2; // 0xfffffffe
+    field public static final int TRANSPORT_BLUETOOTH = 2; // 0x2
+    field public static final int TRANSPORT_CELLULAR = 0; // 0x0
+    field public static final int TRANSPORT_ETHERNET = 3; // 0x3
+    field public static final int TRANSPORT_WIFI = 1; // 0x1
+  }
+
+}
+
 package android.car.builtin.os {
 
   public final class BinderHelper {
