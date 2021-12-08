@@ -68,6 +68,8 @@ public final class NotificationHelper {
     public static final int RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET = 20;
 
     public static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
+    public static final String CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION =
+            "com.android.car.watchdog.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION";
     public static final String CAR_WATCHDOG_ACTION_LAUNCH_APP_SETTINGS =
             "com.android.car.watchdog.ACTION_LAUNCH_APP_SETTINGS";
     public static final String CAR_WATCHDOG_ACTION_RESOURCE_OVERUSE_DISABLE_APP =
@@ -297,6 +299,9 @@ public final class NotificationHelper {
                     Slogf.e(TAG, e, "Package '%s' not found for user %s", packageName, user);
                     continue;
                 }
+                PendingIntent deletePendingIntent = getPendingIntent(context,
+                        CAR_WATCHDOG_ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION, user,
+                        packageName, notificationId);
                 Notification notification = NotificationHelper
                         .newNotificationBuilder(context, importance)
                         .setSmallIcon(R.drawable.car_ic_warning)
@@ -307,6 +312,7 @@ public final class NotificationHelper {
                                 actionTitlePrioritizeApp, positiveActionPendingIntent).build())
                         .addAction(new Notification.Action.Builder(/* icon= */ null,
                                 negativeActionText, negativeActionPendingIntent).build())
+                        .setDeleteIntent(deletePendingIntent)
                         .build();
 
                 notificationManager.notifyAsUser(TAG, notificationId, notification, user);
