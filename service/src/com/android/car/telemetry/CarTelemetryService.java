@@ -112,8 +112,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     @Override
     public void release() {
-        // TODO(b/197969149): prevent threading issue, block main thread
         mTelemetryHandler.post(() -> mResultStore.flushToDisk());
+        mTelemetryThread.quitSafely();
     }
 
     @Override
