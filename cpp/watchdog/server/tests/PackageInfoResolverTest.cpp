@@ -112,7 +112,7 @@ private:
             if (packageName == nullptr) {
                 continue;
             }
-            memset(packageName, 0, sizeof(packageName));
+            memset(packageName, 0, sizeof(*packageName));
             snprintf(packageName, it.second.size() + 1, "%s", it.second.c_str());
 
             struct passwd pwd {
