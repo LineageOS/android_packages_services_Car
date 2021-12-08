@@ -27,6 +27,8 @@ import android.hardware.automotive.vehicle.GetValueResult;
 import android.hardware.automotive.vehicle.GetValueResults;
 import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.IVehicleCallback;
+import android.hardware.automotive.vehicle.SetValueRequest;
+import android.hardware.automotive.vehicle.SetValueRequests;
 import android.hardware.automotive.vehicle.SetValueResult;
 import android.hardware.automotive.vehicle.SetValueResults;
 import android.hardware.automotive.vehicle.StatusCode;
@@ -227,7 +229,7 @@ final class AidlVehicleStub extends VehicleStub {
                     "thread interrupted, possibly exiting the thread");
         } catch (ExecutionException e) {
             throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
-                    "failed to resolve GetValue future, error: " + e.toString());
+                    "failed to resolve GetValue future, error: " + e);
         }
     }
 
@@ -240,8 +242,41 @@ final class AidlVehicleStub extends VehicleStub {
      */
     @Override
     public void set(HalPropValue propValue) throws RemoteException, ServiceSpecificException {
-        // TODO(b/205774940): Call AIDL APIs.
-        return;
+        SetValueRequest request = new SetValueRequest();
+        long requestId = mRequestId.getAndIncrement();
+
+        AndroidFuture<SetValueResult> resultFuture = new AndroidFuture();
+        synchronized (mLock) {
+            mPendingSetValueRequests.put(requestId, resultFuture);
+        }
+
+        request.requestId = requestId;
+        request.value = (VehiclePropValue) propValue.toVehiclePropValue();
+        SetValueRequests requests = new SetValueRequests();
+        requests.payloads = new SetValueRequest[]{request};
+        requests = (SetValueRequests) LargeParcelable.toLargeParcelable(requests, () -> {
+            SetValueRequests newRequests = new SetValueRequests();
+            newRequests.payloads = new SetValueRequest[0];
+            return newRequests;
+        });
+
+        mAidlVehicle.setValues(mGetSetValuesCallback, requests);
+
+        AndroidAsyncFuture<SetValueResult> asyncResultFuture = new AndroidAsyncFuture(resultFuture);
+        try {
+            SetValueResult result = asyncResultFuture.get();
+            if (result.status != StatusCode.OK) {
+                throw new ServiceSpecificException(
+                        result.status, "failed to set value: " + request.value);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "thread interrupted, possibly exiting the thread");
+        } catch (ExecutionException e) {
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "failed to resolve SetValue future, error: " + e);
+        }
     }
 
     @Nullable
@@ -338,6 +373,28 @@ final class AidlVehicleStub extends VehicleStub {
         }
     }
 
+    private void onSetValues(SetValueResults responses) {
+        SetValueResults origResponses = (SetValueResults)
+                LargeParcelable.reconstructStableAIDLParcelable(responses,
+                        /*keepSharedMemory=*/false);
+        for (SetValueResult result : origResponses.payloads) {
+            long requestId = result.requestId;
+            AndroidFuture<SetValueResult> pendingRequest;
+            synchronized (mLock) {
+                pendingRequest = mPendingSetValueRequests.get(requestId);
+                mPendingSetValueRequests.remove(requestId);
+            }
+            if (pendingRequest == null) {
+                Slogf.w(CarLog.TAG_SERVICE, "No pending request for ID: " + requestId
+                        + ", possibly already timed out");
+                return;
+            }
+            mHandler.post(() -> {
+                pendingRequest.complete(result);
+            });
+        }
+    }
+
     private final class GetSetValuesCallback extends IVehicleCallback.Stub {
 
         @Override
@@ -347,7 +404,7 @@ final class AidlVehicleStub extends VehicleStub {
 
         @Override
         public void onSetValues(SetValueResults responses) throws RemoteException {
-            // TODO(b/205774940): Implement this.
+            AidlVehicleStub.this.onSetValues(responses);
         }
 
         @Override
