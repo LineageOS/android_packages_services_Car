@@ -25,6 +25,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
+import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
@@ -398,8 +399,9 @@ public abstract class InstrumentClusterRenderingService extends Service {
         Intent intent = new Intent(Intent.ACTION_MAIN)
                 .addCategory(Car.CAR_CATEGORY_NAVIGATION)
                 .setPackage(packageName);
-        List<ResolveInfo> resolveList = packageManager.queryIntentActivitiesAsUser(intent,
-                PackageManager.GET_RESOLVED_FILTER, UserHandle.CURRENT);
+        List<ResolveInfo> resolveList = packageManager.queryIntentActivitiesAsUser(
+                intent, PackageManager.GET_RESOLVED_FILTER,
+                UserHandle.of(ActivityManager.getCurrentUser()));
         if (resolveList == null || resolveList.isEmpty()
                 || resolveList.get(0).activityInfo == null) {
             Log.i(TAG, "Failed to resolve an intent: " + intent);
@@ -424,7 +426,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             startFixedActivityModeForDisplayAndUser(intent, mActivityOptions,
-                    UserHandle.CURRENT.getIdentifier());
+                    ActivityManager.getCurrentUser());
             Log.i(TAG, String.format("Activity launched: %s (options: %s, displayId: %d)",
                     mActivityOptions, intent, mActivityOptions.getLaunchDisplayId()));
         } catch (ActivityNotFoundException e) {

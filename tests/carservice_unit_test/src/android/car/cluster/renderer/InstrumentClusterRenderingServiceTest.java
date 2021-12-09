@@ -168,7 +168,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
                 PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName);
         doReturn(createActivityResolveInfo(packageName)).when(mService.mSpyPackageManager)
                 .queryIntentActivitiesAsUser(any(), eq(GET_RESOLVED_FILTER),
-                        eq(UserHandle.CURRENT));
+                        eq(UserHandle.of(userId)));
 
         mRendererBinder.setNavigationContextOwner(userId, 123);
 
@@ -180,21 +180,12 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     public void setNavigationContextOwner_navigationComponentAlreadyLaunched_doesNothing()
             throws Exception {
         int userId = 10;
-        String packageName = "com.test";
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
                 .create(/* visible= */ true, /* unobscuredBounds= */new Rect(1, 2, 3, 4));
         mService.setClusterActivityState(clusterActivityState);
-
-        doReturn(new String[]{packageName})
-                .when(mService.mSpyPackageManager).getPackagesForUid(userId);
-        doReturn(PERMISSION_GRANTED)
-                .when(mService.mSpyPackageManager).checkPermission(
-                PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName);
-        doReturn(createActivityResolveInfo(packageName)).when(mService.mSpyPackageManager)
-                .queryIntentActivitiesAsUser(any(), eq(GET_RESOLVED_FILTER),
-                        eq(UserHandle.CURRENT));
+        mockPackageManagerInteraction(userId);
 
         mRendererBinder.setNavigationContextOwner(userId, 123);
         InstrumentationRegistry.getInstrumentation().waitForIdleSync();
@@ -305,7 +296,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
                 PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName);
         doReturn(createActivityResolveInfo(packageName)).when(mService.mSpyPackageManager)
                 .queryIntentActivitiesAsUser(any(), eq(GET_RESOLVED_FILTER),
-                        eq(UserHandle.CURRENT));
+                        eq(UserHandle.of(userId)));
     }
 
     @Test
