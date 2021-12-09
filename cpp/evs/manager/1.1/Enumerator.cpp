@@ -101,6 +101,13 @@ bool Enumerator::init(const char*) {
                 mDisplayPorts.push_back(port);
             }
 
+            if (mDisplayPorts.empty()) {
+                LOG(WARNING) << "No display is available to EVS service.";
+            } else {
+                // The first element must be the internal display
+                mInternalDisplayPort = mDisplayPorts.front();
+            }
+
             // The first element is the internal display
             mInternalDisplayPort = mDisplayPorts.front();
             if (mDisplayPorts.size() < 1) {
