@@ -19,15 +19,14 @@ package com.android.car.user;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.EventLog;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
-import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -67,7 +66,7 @@ public final class UserPreCreator {
         // First gets how many pre-createad users are defined by the OEM
         int numberRequestedGuests = CarSystemProperties.getNumberPreCreatedGuests().orElse(0);
         int numberRequestedUsers = CarSystemProperties.getNumberPreCreatedUsers().orElse(0);
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_PRE_CREATION_REQUESTED, numberRequestedUsers,
+        EventLogHelper.writeCarUserServicePreCreationRequested(numberRequestedUsers,
                 numberRequestedGuests);
         Slogf.d(TAG, "managePreCreatedUsers(): OEM asked for " + numberRequestedGuests
                 + " guests and " + numberRequestedUsers + " users");
@@ -134,7 +133,7 @@ public final class UserPreCreator {
         int numberUsersToRemove = numberExistingUsers - numberRequestedUsers;
         int numberInvalidUsersToRemove = invalidPreCreatedUsers.size();
 
-        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_PRE_CREATION_STATUS,
+        EventLogHelper.writeCarUserServicePreCreationStatus(
                 numberExistingUsers, numberUsersToAdd, numberUsersToRemove,
                 numberExistingGuests, numberGuestsToAdd, numberGuestsToRemove,
                 numberInvalidUsersToRemove);

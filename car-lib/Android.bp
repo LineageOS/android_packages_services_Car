@@ -40,19 +40,6 @@ java_library {
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
-// TODO(b/195961388) Remove this when merging android.car-module
-// Added as eventlogtags cannot be passed as filegroup
-java_library {
-    name: "android.car.internal.eventlogtag",
-    srcs: ["src/com/android/car/internal/common/EventLogTags.logtags"],
-    sdk_version: "module_current",
-    min_sdk_version: "31",
-    apex_available: [
-        "//apex_available:platform",
-        "com.android.car.framework",
-    ],
-}
-
 filegroup {
     name: "android.car-full-src",
     srcs: [
@@ -80,9 +67,6 @@ java_library {
         "framework-annotations-lib",
         "modules-utils-preconditions",
         "framework-wifi",
-    ],
-    static_libs: [
-        "android.car.internal.eventlogtag",
     ],
     product_variables: {
         pdk: {
