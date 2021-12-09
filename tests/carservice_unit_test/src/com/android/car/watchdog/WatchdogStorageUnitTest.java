@@ -85,6 +85,55 @@ public final class WatchdogStorageUnitTest {
     }
 
     @Test
+    public void testStartWrite() {
+        assertWithMessage("Start write on clean db").that(mService.startWrite()).isFalse();
+
+        mService.markDirty();
+
+        assertWithMessage("Start write on a dirty DB").that(mService.startWrite()).isTrue();
+
+        mService.markWriteSuccessful();
+        mService.endWrite();
+
+        assertWithMessage("Start write again").that(mService.startWrite()).isFalse();
+    }
+
+    @Test
+    public void testStartWriteAndMarkDirty() {
+        mService.markDirty();
+
+        assertWithMessage("Start database write").that(mService.startWrite()).isTrue();
+
+        mService.markDirty();
+        mService.markWriteSuccessful();
+        mService.endWrite();
+
+        assertWithMessage("Start write again").that(mService.startWrite()).isTrue();
+    }
+
+    @Test
+    public void testStartWriteTwice() {
+        mService.markDirty();
+
+        assertWithMessage("Start database write").that(mService.startWrite()).isTrue();
+        assertWithMessage("Start database write twice").that(mService.startWrite())
+                .isFalse();
+
+        mService.endWrite();
+    }
+
+    @Test
+    public void testMarkSuccessfulWriteWithNoWriteInProgress() {
+        mService.markDirty();
+
+        // Database not marked as clean since, no write in progress
+        mService.markWriteSuccessful();
+
+        // Write successful since database is still dirty.
+        assertWithMessage("Start database write").that(mService.startWrite()).isTrue();
+    }
+
+    @Test
     public void testSaveUserPackageSettings() throws Exception {
         List<WatchdogStorage.UserPackageSettingsEntry> expected = sampleSettings();
 
