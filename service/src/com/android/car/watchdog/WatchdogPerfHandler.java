@@ -215,6 +215,10 @@ public final class WatchdogPerfHandler {
     private final int mRecurringOveruseTimes;
     private final TimeSource mTimeSource;
     private final Object mLock = new Object();
+    /**
+     * Tracks user packages' resource usage. When cache is updated, call
+     * {@link WatchdogStorage#markDirty()} to notify database is out of sync.
+     */
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -223,7 +227,11 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private final SparseArray<ArrayList<ResourceOveruseListenerInfo>>
             mOveruseSystemListenerInfosByUid = new SparseArray<>();
-    /** Default killable state for packages. Updated only for {@link UserHandle.ALL} user handle. */
+    /**
+     * Default killable state for packages. Updated only for {@link UserHandle#ALL} user handle.
+     * When cache is updated, call {@link WatchdogStorage#markDirty()} to notify database is out of
+     * sync.
+     */
     @GuardedBy("mLock")
     private final ArraySet<String> mDefaultNotKillableGenericPackages = new ArraySet<>();
     /** Keys in {@link mUsageByUserPackage} for user notification on resource overuse. */
@@ -248,8 +256,6 @@ public final class WatchdogPerfHandler {
             mPendingSetResourceOveruseConfigurationsRequest = null;
     @GuardedBy("mLock")
     private boolean mIsConnectedToDaemon;
-    @GuardedBy("mLock")
-    private boolean mIsWrittenToDatabase = true;
     @GuardedBy("mLock")
     private @UxStateType int mCurrentUxState = UX_STATE_NO_DISTRACTION;
     @GuardedBy("mLock")
@@ -556,16 +562,14 @@ public final class WatchdogPerfHandler {
         }
         String key = getUserPackageUniqueId(userId, genericPackageName);
         synchronized (mLock) {
-            /*
-             * When the queried package is not cached in {@link mUsageByUserPackage}, the set API
-             * will update the killable state even when the package should never be killed.
-             * But the get API will return the correct killable state. This behavior is tolerable
-             * because in production the set API should be called only after the get API.
-             * For instance, when this case happens by mistake and the package overuses resource
-             * between the set and the get API calls, the daemon will provide correct killable
-             * state when pushing the latest stats. Ergo, the invalid killable state doesn't have
-             * any effect.
-             */
+            // When the queried package is not cached in {@link mUsageByUserPackage}, the set API
+            // will update the killable state even when the package should never be killed.
+            // But the get API will return the correct killable state. This behavior is tolerable
+            // because in production the set API should be called only after the get API.
+            // For instance, when this case happens by mistake and the package overuses resource
+            // between the set and the get API calls, the daemon will provide correct killable
+            // state when pushing the latest stats. Ergo, the invalid killable state doesn't have
+            // any effect.
             PackageResourceUsage usage = mUsageByUserPackage.get(key);
             if (usage == null) {
                 usage = new PackageResourceUsage(userId, genericPackageName,
@@ -578,6 +582,7 @@ public final class WatchdogPerfHandler {
             }
             mUsageByUserPackage.put(key, usage);
         }
+        mWatchdogStorage.markDirty();
         if (DEBUG) {
             Slogf.d(TAG, "Successfully set killable package state for user %d", userId);
         }
@@ -611,6 +616,7 @@ public final class WatchdogPerfHandler {
                 } else {
                     mDefaultNotKillableGenericPackages.remove(genericPackageName);
                 }
+                mWatchdogStorage.markDirty();
             }
         }
         if (DEBUG) {
@@ -768,8 +774,10 @@ public final class WatchdogPerfHandler {
         SparseArray<String> genericPackageNamesByUid = mPackageInfoHandler.getNamesForUids(uids);
         ArraySet<String> overusingUserPackageKeys = new ArraySet<>();
         checkAndHandleDateChange();
+        if (genericPackageNamesByUid.size() > 0) {
+            mWatchdogStorage.markDirty();
+        }
         synchronized (mLock) {
-            mIsWrittenToDatabase &= genericPackageNamesByUid.size() == 0;
             for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
                 PackageIoOveruseStats stats = packageIoOveruseStats.get(i);
                 String genericPackageName = genericPackageNamesByUid.get(stats.uid);
@@ -793,8 +801,7 @@ public final class WatchdogPerfHandler {
                     continue;
                 }
                 overusingUserPackageKeys.add(usage.getUniqueId());
-                int killableState = usage.getKillableState();
-                if (killableState == KILLABLE_STATE_NEVER) {
+                if (usage.getKillableState() == KILLABLE_STATE_NEVER) {
                     continue;
                 }
                 if (usage.ioUsage.getNotForgivenOveruses() > mRecurringOveruseTimes) {
@@ -1119,31 +1126,58 @@ public final class WatchdogPerfHandler {
         }
     }
 
-    /** Writes user package settings and stats to database. */
+    /**
+     * Writes user package settings and stats to database. If database is marked as clean,
+     * no writing is executed.
+     */
     public void writeToDatabase() {
-        synchronized (mLock) {
-            if (mIsWrittenToDatabase) {
-                return;
+        if (!mWatchdogStorage.startWrite()) {
+            return;
+        }
+        try {
+            List<WatchdogStorage.UserPackageSettingsEntry> userPackageSettingsEntries =
+                    new ArrayList<>();
+            List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = new ArrayList<>();
+            SparseArray<List<String>> forgivePackagesByUserId = new SparseArray<>();
+            synchronized (mLock) {
+                for (int i = 0; i < mUsageByUserPackage.size(); i++) {
+                    PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
+                    userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
+                            usage.userId, usage.genericPackageName, usage.getKillableState()));
+                    if (!usage.ioUsage.hasUsage()) {
+                        continue;
+                    }
+                    if (usage.ioUsage.shouldForgiveHistoricalOveruses()) {
+                        List<String> packagesToForgive = forgivePackagesByUserId.get(usage.userId);
+                        if (packagesToForgive == null) {
+                            packagesToForgive = new ArrayList<>();
+                        }
+                        packagesToForgive.add(usage.genericPackageName);
+                        forgivePackagesByUserId.put(usage.userId, packagesToForgive);
+                    }
+                    ioUsageStatsEntries.add(new WatchdogStorage.IoUsageStatsEntry(usage.userId,
+                            usage.genericPackageName, usage.ioUsage));
+                }
+                for (int i = 0; i < mDefaultNotKillableGenericPackages.size(); i++) {
+                    String packageName = mDefaultNotKillableGenericPackages.valueAt(i);
+                    userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
+                            UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO));
+                }
             }
-            List<WatchdogStorage.UserPackageSettingsEntry>  entries =
-                    new ArrayList<>(mUsageByUserPackage.size());
-            for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
-                PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-                entries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                        usage.userId, usage.genericPackageName, usage.getKillableState()));
-            }
-            for (String packageName : mDefaultNotKillableGenericPackages) {
-                entries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                        UserHandle.USER_ALL, packageName, KILLABLE_STATE_NO));
-            }
-            if (!mWatchdogStorage.saveUserPackageSettings(entries)) {
+            boolean userPackageSettingResult =
+                    mWatchdogStorage.saveUserPackageSettings(userPackageSettingsEntries);
+            if (!userPackageSettingResult) {
                 Slogf.e(TAG, "Failed to write user package settings to database");
             } else {
                 Slogf.i(TAG, "Successfully saved %d user package settings to database",
-                        entries.size());
+                        userPackageSettingsEntries.size());
             }
-            writeStatsLocked();
-            mIsWrittenToDatabase = true;
+            if (writeStats(ioUsageStatsEntries, forgivePackagesByUserId)
+                    && userPackageSettingResult) {
+                mWatchdogStorage.markWriteSuccessful();
+            }
+        } finally {
+            mWatchdogStorage.endWrite();
         }
     }
 
@@ -1153,36 +1187,19 @@ public final class WatchdogPerfHandler {
                 ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
     }
 
-    @GuardedBy("mLock")
-    private void writeStatsLocked() {
-        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries =
-                new ArrayList<>(mUsageByUserPackage.size());
-        SparseArray<List<String>> forgivePackagesByUserId = new SparseArray<>();
-        for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
-            PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-            if (!usage.ioUsage.hasUsage()) {
-                continue;
-            }
-            if (usage.ioUsage.shouldForgiveHistoricalOveruses()) {
-                List<String> packagesToForgive = forgivePackagesByUserId.get(usage.userId);
-                if (packagesToForgive == null) {
-                    packagesToForgive = new ArrayList<>();
-                }
-                packagesToForgive.add(usage.genericPackageName);
-                forgivePackagesByUserId.put(usage.userId, packagesToForgive);
-            }
-            ioUsageStatsEntries.add(new WatchdogStorage.IoUsageStatsEntry(usage.userId,
-                    usage.genericPackageName, usage.ioUsage));
-        }
+    private boolean writeStats(List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries,
+            SparseArray<List<String>> forgivePackagesByUserId) {
         // Forgive historical overuses before writing the latest stats to disk to avoid forgiving
         // the latest stats when the write is triggered after date change.
         if (forgivePackagesByUserId.size() != 0) {
             mWatchdogStorage.forgiveHistoricalOveruses(forgivePackagesByUserId,
                     mRecurringOverusePeriodInDays);
-            Slogf.e(TAG, "Attempted to forgive historical overuses for %d users.",
+            Slogf.i(TAG, "Attempted to forgive historical overuses for %d users.",
                     forgivePackagesByUserId.size());
         }
-
+        if (ioUsageStatsEntries.isEmpty()) {
+            return true;
+        }
         int result = mWatchdogStorage.saveIoUsageStats(ioUsageStatsEntries);
         if (result == WatchdogStorage.FAILED_TRANSACTION) {
             Slogf.e(TAG, "Failed to write %d I/O overuse stats to database",
@@ -1191,6 +1208,7 @@ public final class WatchdogPerfHandler {
             Slogf.i(TAG, "Successfully saved %d/%d I/O overuse stats to database",
                     result, ioUsageStatsEntries.size());
         }
+        return result != WatchdogStorage.FAILED_TRANSACTION;
     }
 
     @GuardedBy("mLock")
@@ -1219,6 +1237,7 @@ public final class WatchdogPerfHandler {
         int killableState = usage.syncAndFetchKillableState(
                 componentType, isSafeToKill, defaultKillableState);
         mUsageByUserPackage.put(key, usage);
+        mWatchdogStorage.markDirty();
         return killableState;
     }
 
@@ -1252,16 +1271,13 @@ public final class WatchdogPerfHandler {
             if (currentDate.equals(mLatestStatsReportDate)) {
                 return;
             }
-            // After the first database read or on the first stats sync from the daemon, whichever
-            // happens first, the cached stats would either be empty or initialized from the
-            // database. In either case, don't write to database.
-            if (mLatestStatsReportDate != null && !mIsWrittenToDatabase) {
-                writeToDatabase();
-            }
-            for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
+            mLatestStatsReportDate = currentDate;
+        }
+        writeToDatabase();
+        synchronized (mLock) {
+            for (int i = 0; i < mUsageByUserPackage.size(); i++) {
                 mUsageByUserPackage.valueAt(i).resetStats();
             }
-            mLatestStatsReportDate = currentDate;
         }
         syncHistoricalNotForgivenOveruses();
         if (DEBUG) {
