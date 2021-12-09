@@ -19,7 +19,7 @@ package {
 }
 
 android_test {
-    name: "ScriptExecutorUnitTests",
+    name: "ScriptExecutorNonSystemUserTests",
 
     srcs: ["src/**/*.java"],
 
@@ -38,33 +38,4 @@ android_test {
     ],
 
     test_suites: ["general-tests"],
-
-    jni_libs: [
-        "libscriptexecutorjni",
-        "libscriptexecutorjniutils-test",
-    ],
-}
-
-cc_library {
-    name: "libscriptexecutorjniutils-test",
-
-    cflags: [
-        "-Wno-unused-parameter",
-    ],
-
-    srcs: [
-        "src/com/android/car/scriptexecutortest/unit/JniUtilsTestHelper.cpp",
-    ],
-
-    stl: "libc++_static",
-
-    shared_libs: [
-        "libbase",
-        "libnativehelper",
-    ],
-
-    static_libs: [
-        "libscriptexecutorjni",
-        "liblua",
-    ],
 }
