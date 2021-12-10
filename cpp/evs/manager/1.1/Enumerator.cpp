@@ -143,11 +143,7 @@ bool Enumerator::checkPermission() {
     hardware::IPCThreadState* ipc = hardware::IPCThreadState::self();
     const auto userId = ipc->getCallingUid() / AID_USER_OFFSET;
     const auto appId = ipc->getCallingUid() % AID_USER_OFFSET;
-#ifdef EVS_DEBUG
     if (AID_AUTOMOTIVE_EVS != appId && AID_ROOT != appId && AID_SYSTEM != appId) {
-#else
-    if (AID_AUTOMOTIVE_EVS != appId && AID_SYSTEM != appId) {
-#endif
         LOG(ERROR) << "EVS access denied? "
                    << "pid = " << ipc->getCallingPid() << ", userId = " << userId
                    << ", appId = " << appId;
