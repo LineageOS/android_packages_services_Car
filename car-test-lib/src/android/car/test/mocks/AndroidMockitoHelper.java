@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -73,6 +72,14 @@ public final class AndroidMockitoHelper {
      */
     public static void mockAmGetCurrentUser(@UserIdInt int userId) {
         doReturn(userId).when(() -> ActivityManager.getCurrentUser());
+    }
+
+    /**
+     * Mocks a call to {@link ActivityManager#switchUser}.
+     */
+    public static void mockAmSwitchUser(@NonNull ActivityManager am,
+            @NonNull UserHandle user, boolean result) throws Exception {
+        when(am.switchUser(user)).thenReturn(result);
     }
 
     /**
