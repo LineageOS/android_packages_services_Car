@@ -1090,11 +1090,17 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testLegacyUserSwitch_ok() throws Exception {
         mockExistingUsers(mExistingUsers);
+        int targetUserId = mRegularUser.getIdentifier();
+        int sourceUserId = mAdminUser.getIdentifier();
 
-        sendUserSwitchingEvent(mAdminUser.getIdentifier(), mRegularUser.getIdentifier());
+        mockCallerUid(Binder.getCallingUid(), true);
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
+
+        sendUserSwitchingEvent(sourceUserId, targetUserId);
 
         verify(mUserHal).legacyUserSwitch(
-                isSwitchUserRequest(0, mAdminUser.getIdentifier(), mRegularUser.getIdentifier()));
+                isSwitchUserRequest(/* requestId= */ 0, sourceUserId, targetUserId));
+        verify(mSwitchUserUiReceiver).send(targetUserId, null);
     }
 
     @Test
@@ -1106,13 +1112,17 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUser.getIdentifier(), mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
-        switchUser(mGuestUser.getIdentifier(), mAsyncCallTimeoutMs, mUserSwitchFuture);
+        int targetUserId = mGuestUser.getIdentifier();
+        mockCallerUid(Binder.getCallingUid(), true);
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
+        switchUser(targetUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // Act - trigger legacy switch
-        sendUserSwitchingEvent(mAdminUser.getIdentifier(), mGuestUser.getIdentifier());
+        sendUserSwitchingEvent(mAdminUser.getIdentifier(), targetUserId);
 
         // Assert
         verify(mUserHal, never()).legacyUserSwitch(any());
+        verify(mSwitchUserUiReceiver).send(targetUserId, null);
     }
 
     @Test
@@ -1121,12 +1131,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int callerId = Binder.getCallingUid();
         mockCallerUid(callerId, true);
         int requestId = 42;
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
+
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUser.getIdentifier(), mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mMockedActivityManager, mGuestUser, true);
 
-        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
         switchUser(mGuestUser.getIdentifier(), mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // update current user due to successful user switch
