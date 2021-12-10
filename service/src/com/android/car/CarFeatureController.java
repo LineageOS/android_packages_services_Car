@@ -95,13 +95,13 @@ public final class CarFeatureController implements CarServiceBase {
             Car.STORAGE_MONITORING_SERVICE,
             Car.VEHICLE_MAP_SERVICE,
             Car.CAR_TELEMETRY_SERVICE,
+            Car.CAR_EVS_SERVICE,
             // All items below here are deprecated, but still could be supported
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE
     ));
 
     // This is a feature still under development and cannot be enabled in user build.
     private static final HashSet<String> NON_USER_ONLY_FEATURES = new HashSet<>(Arrays.asList(
-            Car.CAR_EVS_SERVICE,
             Car.CAR_TELEMETRY_SERVICE
     ));
 
