@@ -172,9 +172,10 @@ public final class WatchdogPerfHandler {
 
     private static final PullAtomMetadata PULL_ATOM_METADATA =
             new PullAtomMetadata.Builder()
-                    // Summary atoms are populated only once a week. So, a longer cool down duration
-                    // is sufficient.
-                    .setCoolDownMillis(TimeUnit.MILLISECONDS.convert(1L, TimeUnit.HOURS))
+                    // Summary atoms are populated only once a week, so a longer duration is
+                    // tolerable. However, the cool down duration should be smaller than a short
+                    // drive, so summary atoms can be pulled with short drives.
+                    .setCoolDownMillis(TimeUnit.MILLISECONDS.convert(5L, TimeUnit.MINUTES))
                     // When summary atoms are populated once a week, watchdog needs additional time
                     // for reading from disk/DB.
                     .setTimeoutMillis(10_000)
