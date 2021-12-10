@@ -21,15 +21,10 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
-import static com.android.car.bluetooth.BuiltinPackageDependency.NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.timeout;
@@ -136,14 +131,6 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
                 .when(() -> CarLocalServices.getService(CarUxRestrictionsManagerService.class));
         doReturn(mMockCarPowerManagementService)
                 .when(() -> CarLocalServices.getService(CarPowerManagementService.class));
-        doReturn(RESOURCE_OVERUSE_NOTIFICATION_BASE_ID)
-                .when(() -> CarServiceUtils.getDeclaredField(any(), eq(NOTIFICATION_HELPER_CLASS),
-                        eq(NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_BASE_ID), any(),
-                        anyBoolean()));
-        doReturn(RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET)
-                .when(() -> CarServiceUtils.getDeclaredField(any(), eq(NOTIFICATION_HELPER_CLASS),
-                        eq(NOTIFICATION_HELPER_RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET), any(),
-                        anyBoolean()));
 
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mMockUserManager, 100, true);

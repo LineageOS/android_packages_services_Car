@@ -87,6 +87,8 @@ public final class NotificationHelperTest {
 
     private Context mSpiedContext;
 
+    private  NotificationHelper mNotificationHelper;
+
     @Mock private PackageManager mMockPackageManager;
     @Mock private NotificationManager mMockNotificationManager;
 
@@ -100,6 +102,7 @@ public final class NotificationHelperTest {
         when(mSpiedContext.getSystemService(NotificationManager.class))
                 .thenReturn(mMockNotificationManager);
         mockPackageManager();
+        mNotificationHelper = new NotificationHelper(mSpiedContext);
     }
 
     @Test
@@ -114,8 +117,7 @@ public final class NotificationHelperTest {
     public void testCancelNotificationAsUser() {
         UserHandle userHandle = UserHandle.of(100);
 
-        NotificationHelper.cancelNotificationAsUser(mSpiedContext, userHandle,
-                /* notificationId= */ 150);
+        mNotificationHelper.cancelNotificationAsUser(userHandle, /* notificationId= */ 150);
 
         verify(mMockNotificationManager).cancelAsUser(NotificationHelper.TAG, /* id= */ 150,
                 userHandle);
@@ -124,7 +126,7 @@ public final class NotificationHelperTest {
     @Test
     public void testShowUserDisclaimerNotification() {
         int userId = 11;
-        NotificationHelper.showUserDisclaimerNotification(userId, mSpiedContext);
+        mNotificationHelper.showUserDisclaimerNotification(UserHandle.of(userId));
 
         ArgumentCaptor<Notification> captor = ArgumentCaptor.forClass(Notification.class);
         verify(mMockNotificationManager).notifyAsUser(eq(NotificationHelper.TAG),
@@ -138,18 +140,16 @@ public final class NotificationHelperTest {
 
     @Test
     public void testCancelUserDisclaimerNotification() throws Exception {
-        int userId = 11;
+        UserHandle user = UserHandle.of(11);
         PendingIntent pendingIntent = NotificationHelper.getPendingUserDisclaimerIntent(
-                mSpiedContext, /* extraFlags = */ 0, userId);
+                mSpiedContext, /* extraFlags = */ 0, user);
         CountDownLatch cancelLatch = new CountDownLatch(1);
         pendingIntent.registerCancelListener(pi -> cancelLatch.countDown());
 
-        NotificationHelper.cancelUserDisclaimerNotification(userId, mSpiedContext);
+        mNotificationHelper.cancelUserDisclaimerNotification(user);
 
         verify(mMockNotificationManager).cancelAsUser(NotificationHelper.TAG,
-                NEW_USER_DISCLAIMER_NOTIFICATION_ID,
-                UserHandle.of(userId)
-        );
+                NEW_USER_DISCLAIMER_NOTIFICATION_ID, user);
 
         // Assert pending intent was canceled (latch is counted down by the CancelListener)
         JavaMockitoHelper.await(cancelLatch, TIMEOUT_MS);
@@ -183,7 +183,7 @@ public final class NotificationHelperTest {
                 constructApplicationInfo("third_party_package.B",
                         UserHandle.getUid(100, 2002), /* infoFlags= */ 0)));
 
-        NotificationHelper.showResourceOveruseNotificationsAsUser(mSpiedContext, userHandle,
+        mNotificationHelper.showResourceOveruseNotificationsAsUser(userHandle,
                 expectedHeadsUpPackagesById, expectedNotificationCenterPackagesById);
 
         SparseArray<Notification> expectedNotificationsById = new SparseArray<>();

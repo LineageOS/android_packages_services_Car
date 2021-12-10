@@ -29,6 +29,7 @@ import android.os.IBinder;
 import android.os.Process;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ProxiedService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.util.LimitedTimingsTraceLog;
 

@@ -27,6 +27,7 @@ import android.os.IBinder;
 
 import com.android.car.bluetooth.CarBluetoothUserService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ProxiedService;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.io.FileDescriptor;
