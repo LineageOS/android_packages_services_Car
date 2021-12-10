@@ -219,6 +219,7 @@ public final class WatchdogPerfHandler {
     private final int mRecurringOveruseTimes;
     private final int mResourceOveruseNotificationBaseId;
     private final int mResourceOveruseNotificationMaxOffset;
+    private final TimeSource mTimeSource;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
@@ -254,9 +255,9 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private boolean mIsConnectedToDaemon;
     @GuardedBy("mLock")
-    private boolean mIsWrittenToDatabase;
+    private boolean mIsWrittenToDatabase = true;
     @GuardedBy("mLock")
-    private @UxStateType int mCurrentUxState;
+    private @UxStateType int mCurrentUxState = UX_STATE_NO_DISTRACTION;
     @GuardedBy("mLock")
     private CarUxRestrictions mCurrentUxRestrictions;
     @GuardedBy("mLock")
@@ -264,13 +265,9 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private int mCurrentOveruseNotificationIdOffset;
     @GuardedBy("mLock")
-    private @GarageMode int mCurrentGarageMode;
+    private @GarageMode int mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
     @GuardedBy("mLock")
-    private TimeSource mTimeSource;
-    @GuardedBy("mLock")
-    private long mOveruseHandlingDelayMills;
-    @GuardedBy("mLock")
-    private long mRecurringOveruseThreshold;
+    private long mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
     @GuardedBy("mLock")
     private ZonedDateTime mLastSystemIoUsageSummaryReportedDate;
     @GuardedBy("mLock")
@@ -300,9 +297,6 @@ public final class WatchdogPerfHandler {
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
         mTimeSource = timeSource;
-        mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
-        mCurrentUxState = UX_STATE_NO_DISTRACTION;
-        mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
         Resources resources = mContext.getResources();
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
         mIoUsageSummaryMinSystemTotalWrittenBytes = resources
@@ -318,7 +312,7 @@ public final class WatchdogPerfHandler {
 
     /** Initializes the handler. */
     public void init() {
-        /* First database read is expensive, so post it on a separate handler thread. */
+        // First database read is expensive, so post it on a separate handler thread.
         mServiceHandler.post(() -> {
             readFromDatabase();
             // Set atom pull callbacks only after the internal datastructures are updated. When the
@@ -786,6 +780,7 @@ public final class WatchdogPerfHandler {
         ArraySet<String> overusingUserPackageKeys = new ArraySet<>();
         checkAndHandleDateChange();
         synchronized (mLock) {
+            mIsWrittenToDatabase &= genericPackageNamesByUid.size() == 0;
             for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
                 PackageIoOveruseStats stats = packageIoOveruseStats.get(i);
                 String genericPackageName = genericPackageNamesByUid.get(stats.uid);
@@ -831,7 +826,6 @@ public final class WatchdogPerfHandler {
                         performOveruseHandlingLocked();
                     }}, mOveruseHandlingDelayMills);
             }
-            mIsWrittenToDatabase = false;
         }
         if (!overusingUserPackageKeys.isEmpty()) {
             pushIoOveruseMetrics(overusingUserPackageKeys);
@@ -1076,6 +1070,10 @@ public final class WatchdogPerfHandler {
         List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries =
                 mWatchdogStorage.getUserPackageSettings();
         Slogf.i(TAG, "Read %d user package settings from database", settingsEntries.size());
+        // Get date before |WatchdogStorage.getTodayIoUsageStats| such that if date changes between
+        // call to database and caching of the date, future calls to |latestIoOveruseStats| will
+        // catch the change and sync the database with the in-memory cache.
+        ZonedDateTime curReportDate = mTimeSource.getCurrentDate();
         List<WatchdogStorage.IoUsageStatsEntry> ioStatsEntries =
                 mWatchdogStorage.getTodayIoUsageStats();
         Slogf.i(TAG, "Read %d I/O usage stats from database", ioStatsEntries.size());
@@ -1097,7 +1095,6 @@ public final class WatchdogPerfHandler {
                 usage.setKillableState(entry.killableState);
                 mUsageByUserPackage.put(key, usage);
             }
-            ZonedDateTime curReportDate = mTimeSource.getCurrentDate();
             for (int i = 0; i < ioStatsEntries.size(); ++i) {
                 WatchdogStorage.IoUsageStatsEntry entry = ioStatsEntries.get(i);
                 String key = getUserPackageUniqueId(entry.userId, entry.packageName);
@@ -1202,12 +1199,14 @@ public final class WatchdogPerfHandler {
             Slogf.e(TAG, "Attempted to forgive historical overuses for %d users.",
                     forgivePackagesByUserId.size());
         }
-        if (!mWatchdogStorage.saveIoUsageStats(ioUsageStatsEntries)) {
+
+        int result = mWatchdogStorage.saveIoUsageStats(ioUsageStatsEntries);
+        if (result == WatchdogStorage.FAILED_TRANSACTION) {
             Slogf.e(TAG, "Failed to write %d I/O overuse stats to database",
                     ioUsageStatsEntries.size());
         } else {
-            Slogf.i(TAG, "Successfully saved %d I/O overuse stats to database",
-                    ioUsageStatsEntries.size());
+            Slogf.i(TAG, "Successfully saved %d/%d I/O overuse stats to database",
+                    result, ioUsageStatsEntries.size());
         }
     }
 
@@ -1274,7 +1273,7 @@ public final class WatchdogPerfHandler {
             // happens first, the cached stats would either be empty or initialized from the
             // database. In either case, don't write to database.
             if (mLatestStatsReportDate != null && !mIsWrittenToDatabase) {
-                writeStatsLocked();
+                writeToDatabase();
             }
             for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
                 mUsageByUserPackage.valueAt(i).resetStats();
@@ -1834,10 +1833,7 @@ public final class WatchdogPerfHandler {
     private void pullAtomsForWeeklyPeriodsSinceReportedDate(ZonedDateTime reportedDate,
             List<StatsEvent> data, BiConsumer<Pair<ZonedDateTime, ZonedDateTime>,
             List<StatsEvent>> pullAtomCallback) {
-        ZonedDateTime now;
-        synchronized (mLock) {
-            now = mTimeSource.getCurrentDate();
-        }
+        ZonedDateTime now = mTimeSource.getCurrentDate();
         ZonedDateTime nextReportWeekStartDate = reportedDate.with(ChronoField.DAY_OF_WEEK, 1)
                 .truncatedTo(ChronoUnit.DAYS);
         while (ChronoUnit.WEEKS.between(nextReportWeekStartDate, now) > 0) {

@@ -122,7 +122,7 @@ public final class WatchdogStorageUnitTest {
 
         assertWithMessage("Saved I/O usage stats successfully")
                 .that(mService.saveIoUsageStats(sampleStatsForDate(startTime, /* duration= */ 60)))
-                .isTrue();
+                .isEqualTo(4);
 
         long expectedDuration = mTimeSource.getCurrentDateTime().toEpochSecond() - startTime;
         List<WatchdogStorage.IoUsageStatsEntry> expected = sampleStatsForDate(
@@ -141,7 +141,7 @@ public final class WatchdogStorageUnitTest {
                 startTime, /* duration= */ 60);
 
         assertWithMessage("Saved I/O usage stats successfully")
-                .that(mService.saveIoUsageStats(entries)).isTrue();
+                .that(mService.saveIoUsageStats(entries)).isEqualTo(entries.size());
 
         long expectedStartTime = mTimeSource.getCurrentDate().toEpochSecond();
         long expectedDuration =
@@ -172,7 +172,8 @@ public final class WatchdogStorageUnitTest {
                         /* totalTimesKilled= */ 1));
 
         assertWithMessage("Saved I/O usage stats successfully")
-                .that(mService.saveIoUsageStats(statsBeforeOverwrite)).isTrue();
+                .that(mService.saveIoUsageStats(statsBeforeOverwrite))
+                .isEqualTo(statsBeforeOverwrite.size());
 
         IoUsageStatsEntrySubject.assertWithMessage(
                 mService.getTodayIoUsageStats(), "I/O usage stats fetched from database")
@@ -191,7 +192,8 @@ public final class WatchdogStorageUnitTest {
                         /* totalTimesKilled= */ 2));
 
         assertWithMessage("Saved I/O usage stats successfully")
-                .that(mService.saveIoUsageStats(statsAfterOverwrite)).isTrue();
+                .that(mService.saveIoUsageStats(statsAfterOverwrite))
+                .isEqualTo(statsAfterOverwrite.size());
 
         IoUsageStatsEntrySubject.assertWithMessage(
                 mService.getTodayIoUsageStats(), "Cached in memory I/O usage stats")
@@ -217,7 +219,7 @@ public final class WatchdogStorageUnitTest {
         assertWithMessage("Saved I/O usage stats successfully")
                 .that(mService.saveIoUsageStats(sampleStatsBetweenDates(
                         /* includingStartDaysAgo= */ retentionDaysAgo,
-                        /* excludingEndDaysAgo= */ retentionDaysAgo + 1))).isTrue();
+                        /* excludingEndDaysAgo= */ retentionDaysAgo + 1))).isEqualTo(0);
 
         assertWithMessage("Didn't fetch I/O overuse stats outside retention period")
                 .that(mService.getHistoricalIoOveruseStats(
@@ -230,7 +232,7 @@ public final class WatchdogStorageUnitTest {
         injectSampleUserPackageSettings();
 
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
-                /* includingStartDaysAgo= */ 0, /* excludingEndDaysAgo= */ 5))).isTrue();
+                /* includingStartDaysAgo= */ 0, /* excludingEndDaysAgo= */ 5))).isEqualTo(20);
 
         IoOveruseStats actual  = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
@@ -258,7 +260,7 @@ public final class WatchdogStorageUnitTest {
         injectSampleUserPackageSettings();
 
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
-                /* includingStartDaysAgo= */ 3, /* excludingEndDaysAgo= */ 5))).isTrue();
+                /* includingStartDaysAgo= */ 3, /* excludingEndDaysAgo= */ 5))).isEqualTo(8);
 
         IoOveruseStats actual  = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
@@ -285,12 +287,13 @@ public final class WatchdogStorageUnitTest {
     public void testGetDailySystemIoUsageSummaries() throws Exception {
         injectSampleUserPackageSettings();
         List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 1; i <= 30; ++i) {
+        for (int i = 1; i < 30; i++) {
             entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
 
-        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+        assertWithMessage("Saved I/O usage stats").that(mService.saveIoUsageStats(entries))
+                .isEqualTo(entries.size());
 
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
 
@@ -316,12 +319,13 @@ public final class WatchdogStorageUnitTest {
             throws Exception {
         injectSampleUserPackageSettings();
         List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 1; i <= 30; ++i) {
+        for (int i = 1; i < 30; ++i) {
             entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
 
-        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries))
+                .isEqualTo(entries.size());
 
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
 
@@ -343,7 +347,8 @@ public final class WatchdogStorageUnitTest {
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
 
-        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+        assertWithMessage("Saved I/O usage stats").that(mService.saveIoUsageStats(entries))
+                .isEqualTo(entries.size());
 
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
 
@@ -360,12 +365,13 @@ public final class WatchdogStorageUnitTest {
     public void testGetTopUsersDailyIoUsageSummaries() throws Exception {
         injectSampleUserPackageSettings();
         List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 1; i <= 30; ++i) {
+        for (int i = 1; i < 30; i++) {
             entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
 
-        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+        assertWithMessage("Saved I/O usage stats").that(mService.saveIoUsageStats(entries))
+                .isEqualTo(entries.size());
 
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
 
@@ -412,12 +418,13 @@ public final class WatchdogStorageUnitTest {
             throws Exception {
         injectSampleUserPackageSettings();
         List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 1; i <= 30; ++i) {
+        for (int i = 1; i < 30; i++) {
             entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
 
-        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+        assertWithMessage("Saved I/O usage stats").that(mService.saveIoUsageStats(entries))
+                .isEqualTo(entries.size());
 
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
 
@@ -439,7 +446,8 @@ public final class WatchdogStorageUnitTest {
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
 
-        assertWithMessage("Save I/O usage stats").that(mService.saveIoUsageStats(entries)).isTrue();
+        assertWithMessage("Saved I/O usage stats").that(mService.saveIoUsageStats(entries))
+                .isEqualTo(entries.size());
 
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
 
@@ -458,7 +466,8 @@ public final class WatchdogStorageUnitTest {
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
 
         assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
-        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries))
+                .isEqualTo(ioUsageStatsEntries.size());
 
         int deleteUserId = 100;
         String deletePackageName = "system_package.non_critical.A";
@@ -483,7 +492,8 @@ public final class WatchdogStorageUnitTest {
         injectSampleUserPackageSettings();
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
 
-        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries))
+                .isEqualTo(ioUsageStatsEntries.size());
 
         int deleteUserId = 100;
         String deletePackageName = "system_package.non_existent.A";
@@ -507,7 +517,7 @@ public final class WatchdogStorageUnitTest {
 
         assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
-                /* includingStartDaysAgo= */ 1, /* excludingEndDaysAgo= */ 6))).isTrue();
+                /* includingStartDaysAgo= */ 1, /* excludingEndDaysAgo= */ 6))).isEqualTo(20);
 
         int deleteUserId = 100;
         String deletePackageName = "system_package.non_critical.A";
@@ -532,7 +542,8 @@ public final class WatchdogStorageUnitTest {
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
 
         assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
-        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries))
+                .isEqualTo(ioUsageStatsEntries.size());
 
         mService.syncUsers(/* aliveUserIds= */ new int[] {101});
 
@@ -552,7 +563,7 @@ public final class WatchdogStorageUnitTest {
 
         assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
-                /* includingStartDaysAgo= */ 1, /* excludingEndDaysAgo= */ 6))).isTrue();
+                /* includingStartDaysAgo= */ 1, /* excludingEndDaysAgo= */ 6))).isEqualTo(20);
 
         mService.syncUsers(/* aliveUserIds= */ new int[] {101});
 
@@ -578,7 +589,8 @@ public final class WatchdogStorageUnitTest {
         List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
 
         assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
-        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries))
+                .isEqualTo(ioUsageStatsEntries.size());
 
         mService.syncUsers(/* aliveUserIds= */ new int[] {100, 101});
 
@@ -595,7 +607,7 @@ public final class WatchdogStorageUnitTest {
 
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
                 /* includingStartDaysAgo= */ 0, /* excludingEndDaysAgo= */ 40),
-                /* shouldCheckRetention= */ false)).isTrue();
+                /* shouldCheckRetention= */ false)).isEqualTo(160);
 
         IoOveruseStats actual  = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 40);
@@ -637,7 +649,7 @@ public final class WatchdogStorageUnitTest {
         injectSampleUserPackageSettings();
 
         assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(/* includingStartDaysAgo= */ 1,
-                /* excludingEndDaysAgo= */ 3))).isTrue();
+                /* excludingEndDaysAgo= */ 3))).isEqualTo(8);
 
         List<WatchdogStorage.NotForgivenOverusesEntry> expectedOveruses = Arrays.asList(
                 new WatchdogStorage.NotForgivenOverusesEntry(100, "system_package.non_critical.A",
