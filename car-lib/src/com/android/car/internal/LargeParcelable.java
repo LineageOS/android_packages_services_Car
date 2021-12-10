@@ -28,6 +28,7 @@ import android.util.Log;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.concurrent.Callable;
 
 /**
  * Utility to pass any {@code Parcelable} through binder with automatic conversion into shared
@@ -37,7 +38,7 @@ import java.lang.reflect.Method;
  * interface with C++ world. For such usage, child class will only add its own {@code CREATOR} impl
  * and a constructor taking {@code Parcel in}.
  * <p>For stable AIDL, this class also provides two methods for serialization {@link
- * #serializeStableAIDLParcelable(Parcel, Parcelable, int, boolean)} and deserialization
+ * #toLargeParcelable(Parcelable)} and deserialization
  * {@link #reconstructStableAIDLParcelable(Parcelable, boolean)}. Plz check included test for the
  * usage.
  *
@@ -146,32 +147,38 @@ public class LargeParcelable extends LargeParcelableBase {
             };
 
     /**
-     * Serializes a {@code Parcelable} defined from Stable AIDL into {@code Parcel}.
-     *
-     * <p>>If payload size is big, it will be passed over the shared memory. The {@code Parcelable}
-     * should have a public member having name of {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} with
-     * {@code ParcelFileDescriptor} type. It also should have default constructor.
-     *
-     * <p>If {@code Parcelable} already contains shared memory fd, the shared memory would be
-     * serialized to {@code Parcel} and other payload would be ignored.
-     *
-     * @param p                {@code Parcelable} to serialize.
-     * @param flags            flags same with flags in {@link Parcel#writeParcelable(Parcelable,
-     *                         int)}.
-     * @param keepSharedMemory Whether to keep created shared memory in the original {@code
-     *                         Parcelable}. Set to {@code true} if this {@code Parcelable} is sent
-     *                         across binder repeatedly.
-     * @param dest Target {@code Parcel} to serialize.
+     * @see #toLargeParcelable(Parcelable, Callable<Parcelable>)
      */
-    public static void serializeStableAIDLParcelable(@NonNull Parcel dest, @Nullable Parcelable p,
-            int flags, boolean keepSharedMemory) {
+    @Nullable
+    public static Parcelable toLargeParcelable(@Nullable Parcelable p) {
+        return toLargeParcelable(p, null);
+    }
+
+    /**
+     * Prepare a {@code Parcelable} defined from Stable AIDL to be able to sent through binder.
+     *
+     * <p>The {@code Parcelable} should have a public member having name of
+     * {@link #STABLE_AIDL_SHARED_MEMORY_MEMBER} with {@code ParcelFileDescriptor} type.
+     *
+     * <p>If payload size is big, the input would be serialized to a shared memory file and a
+     * an empty {@code Parcelable} with only the file descriptor set would be returned. If the
+     * payload size is small enough to be sent across binder or the input already contains a shared
+     * memory file, the original input would be returned.
+     *
+     * @param p {@code Parcelable} the input to convert that might contain large data.
+     * @param constructEmptyParcelable a callable to create an empty Parcelable with the same type
+     *      as input. If this is null, the default initializer for the input type would be used.
+     * @return a {@code Parcelable} that could be sent through binder despite memory limitation.
+     */
+    @Nullable
+    public static Parcelable toLargeParcelable(
+            @Nullable Parcelable p, @Nullable Callable<Parcelable> constructEmptyParcelable) {
         if (p == null) {
-            // do  not write anything for null. Null marking should be handled before this.
-            return;
+            return null;
         }
         Class parcelableClass = p.getClass();
         if (DBG_STABLE_AIDL_CLASS) {
-            Log.d(TAG, "serializeStableAIDLParcelable stable AIDL Parcelable:"
+            Log.d(TAG, "toLargeParcelable stable AIDL Parcelable:"
                     + parcelableClass.getSimpleName());
         }
         Field field;
@@ -183,50 +190,45 @@ public class LargeParcelable extends LargeParcelableBase {
             throw new IllegalArgumentException("Cannot access " + STABLE_AIDL_SHARED_MEMORY_MEMBER,
                     e);
         }
-        int startPosition = dest.dataPosition();
-        if (sharedMemoryFd == null) {
-            p.writeToParcel(dest, flags);
-            int payloadSize = dest.dataPosition() - startPosition;
-            if (payloadSize <= LargeParcelableBase.MAX_DIRECT_PAYLOAD_SIZE) {
-                // direct path, no re-write to shared memory.
-                if (DBG_PAYLOAD) {
-                    Log.d(TAG, "serializeStableAIDLParcelable send directly, payload size:"
-                            + payloadSize);
-                }
-                return;
-            }
-            SharedMemory memory = LargeParcelableBase.serializeParcelToSharedMemory(dest,
-                    startPosition, dest.dataPosition() - startPosition);
-            sharedMemoryFd = SharedMemoryHelper.createParcelFileDescriptor(memory);
-            if (keepSharedMemory) {
-                try {
-                    field.set(p, sharedMemoryFd);
-                } catch (Exception e) {
-                    throw new IllegalArgumentException("Cannot access "
-                            + STABLE_AIDL_SHARED_MEMORY_MEMBER, e);
-                }
-            }
+        if (sharedMemoryFd != null) {
+            return p;
         }
-        // now write empty payload with only fd set, create with default constructor for that.
-        Parcelable emptyPayload;
-        ParcelFileDescriptor sentFd = null;
-        try {
-            emptyPayload = (Parcelable) parcelableClass.newInstance();
-            field.set(emptyPayload, sharedMemoryFd);
+        Parcel dataParcel = Parcel.obtain();
+        p.writeToParcel(dataParcel, 0);
+        int payloadSize = dataParcel.dataSize();
+        if (payloadSize <= LargeParcelableBase.MAX_DIRECT_PAYLOAD_SIZE) {
+            // direct path, no re-write to shared memory.
             if (DBG_PAYLOAD) {
-                sentFd = (ParcelFileDescriptor) field.get(emptyPayload);
+                Log.d(TAG, "toLargeParcelable send directly, payload size:" + payloadSize);
             }
+            return p;
+        }
+        SharedMemory memory = LargeParcelableBase.serializeParcelToSharedMemory(dataParcel);
+        dataParcel.recycle();
+        sharedMemoryFd = SharedMemoryHelper.createParcelFileDescriptor(memory);
+
+        Parcelable emptyPayload;
+        if (constructEmptyParcelable != null) {
+            try {
+                emptyPayload = constructEmptyParcelable.call();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Cannot use Parcelable constructor", e);
+            }
+        } else {
+            try {
+                emptyPayload = (Parcelable) parcelableClass.newInstance();
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Cannot access Parcelable constructor", e);
+            }
+        }
+
+        try {
+            field.set(emptyPayload, sharedMemoryFd);
         } catch (Exception e) {
-            throw new IllegalArgumentException("Cannot access Parcelable constructor/member", e);
+            throw new IllegalArgumentException("Cannot access Parcelable member for FD", e);
         }
-        dest.setDataPosition(startPosition);
-        emptyPayload.writeToParcel(dest, flags);
-        dest.setDataSize(dest.dataPosition());
-        if (DBG_PAYLOAD) {
-            Log.d(TAG, "serializeStableAIDLParcelable added shared memory, start position:"
-                    + startPosition + " last position:" + dest.dataPosition()
-                    + " sharedMemoryFd:" + sentFd);
-        }
+
+        return emptyPayload;
     }
 
     /**

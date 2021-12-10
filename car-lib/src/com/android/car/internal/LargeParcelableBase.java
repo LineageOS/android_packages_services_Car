@@ -133,17 +133,20 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
             }
             return;
         }
-        serialize(dest, flags);
-        int lastPosition = dest.dataPosition();
-        int payloadSize = lastPosition - payloadStartPosition;
+        Parcel dataParcel = Parcel.obtain();
+        serialize(dataParcel, flags);
+        int payloadSize = dataParcel.dataSize();
         boolean noSharedMemory = payloadSize <= MAX_DIRECT_PAYLOAD_SIZE;
         int sharedMemoryPosition;
         boolean hasNonNullPayload = true;
         if (noSharedMemory) {
+            dest.appendFrom(dataParcel, 0, payloadSize);
+            dataParcel.recycle();
             sharedMemoryPosition = dest.dataPosition();
             writeSharedMemoryCompatibleToParcel(dest, null, 0); // direct payload, no shared memory
         } else {
-            sharedMemory = serializeParcelToSharedMemory(dest, payloadStartPosition, payloadSize);
+            sharedMemory = serializeParcelToSharedMemory(dataParcel);
+            dataParcel.recycle();
             synchronized (mLock) {
                 // If it is already set, let sharedMemory go and GV will close it later.
                 // This is ok as this kind of race should not happen often.
@@ -151,7 +154,6 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
                     mSharedMemory = sharedMemory;
                 }
             }
-            dest.setDataPosition(payloadStartPosition);
             serializeNullPayload(dest);
             sharedMemoryPosition = dest.dataPosition();
             hasNonNullPayload = false;
@@ -218,26 +220,31 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         }
     }
 
-    protected static SharedMemory serializeParcelToSharedMemory(Parcel p, int start, int size) {
+    protected static SharedMemory serializeParcelToSharedMemory(Parcel p) {
         SharedMemory memory = null;
         ByteBuffer buffer = null;
+        int size = p.dataSize();
         try {
             memory = SharedMemory.create(LargeParcelableBase.class.getSimpleName(), size);
             buffer = memory.mapReadWrite();
             byte[] data = p.marshall();
-            buffer.put(data, start, size);
+            buffer.put(data, 0, size);
             if (DBG_PAYLOAD) {
                 int dumpSize = Math.min(DBG_DUMP_LENGTH, data.length);
                 StringBuilder bd = new StringBuilder();
                 bd.append("marshalled:");
                 for (int i = 0; i < dumpSize; i++) {
-                    bd.append(data[start + i]);
-                    if (i != dumpSize - 1) bd.append(',');
+                    bd.append(data[i]);
+                    if (i != dumpSize - 1) {
+                        bd.append(',');
+                    }
                 }
                 bd.append("=memory:");
                 for (int i = 0; i < dumpSize; i++) {
                     bd.append(buffer.get(i));
-                    if (i != dumpSize - 1) bd.append(',');
+                    if (i != dumpSize - 1) {
+                        bd.append(',');
+                    }
                 }
                 Log.d(TAG, bd.toString());
             }
