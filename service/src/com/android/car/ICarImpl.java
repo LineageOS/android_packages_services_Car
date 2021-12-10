@@ -171,7 +171,7 @@ public class ICarImpl extends ICar.Stub {
             SystemInterface systemInterface, String vehicleInterfaceName) {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
-                /* powerPolicyDaemon= */ null);
+                /* garageModeService= */ null, /* powerPolicyDaemon= */ null);
     }
 
     @VisibleForTesting
@@ -179,6 +179,7 @@ public class ICarImpl extends ICar.Stub {
             SystemInterface systemInterface, String vehicleInterfaceName,
             @Nullable CarUserService carUserService,
             @Nullable CarWatchdogService carWatchdogService,
+            @Nullable GarageModeService garageModeService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
@@ -281,8 +282,12 @@ public class ICarImpl extends ICar.Stub {
         mCarProjectionService = constructWithTrace(t, CarProjectionService.class,
                 () -> new CarProjectionService(serviceContext, null /* handler */, mCarInputService,
                         mCarBluetoothService));
-        mGarageModeService = constructWithTrace(t, GarageModeService.class,
-                () -> new GarageModeService(mContext));
+        if (garageModeService == null) {
+            mGarageModeService = constructWithTrace(t, GarageModeService.class,
+                    () -> new GarageModeService(mContext));
+        } else {
+            mGarageModeService = garageModeService;
+        }
         mAppFocusService = constructWithTrace(t, AppFocusService.class,
                 () -> new AppFocusService(serviceContext, mSystemActivityMonitoringService));
         mCarAudioService = constructWithTrace(t, CarAudioService.class,

@@ -18,6 +18,9 @@ package com.android.car.power;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import android.car.Car;
+import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
@@ -153,6 +156,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     @UiThreadTest
     public void testImmediateShutdownFromShutdownPrepare() throws Exception {
         assertWaitForVhal();
+        registerListenerToFakeGarageMode();
+
         // Put device into SHUTDOWN_PREPARE
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -226,6 +231,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     @UiThreadTest
     public void testInvalidTransitionsFromPrepareShutdown() throws Exception {
         assertWaitForVhal();
+        registerListenerToFakeGarageMode();
+
         // Transition to SHUTDOWN_PREPARE first
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
@@ -382,7 +389,30 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertEquals(0, first[1]);
     }
 
-    private final class MockDisplayInterface implements DisplayInterface {
+    private void registerListenerToFakeGarageMode() {
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+        ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state) {
+                switch (state) {
+                    case CarPowerStateListener.PRE_SHUTDOWN_PREPARE:
+                        cpms.finished(this);
+                        break;
+                    case CarPowerStateListener.SHUTDOWN_PREPARE:
+                        // Do not call finished() to stay in shutdown prepare, when Garage Mode is
+                        // running.
+                        if (cpms.garageModeShouldExitImmediately()) {
+                            cpms.finished(this);
+                        }
+                        return;
+                }
+            }
+        };
+        cpms.registerListenerWithCompletion(listener);
+    }
+
+    private static final class MockDisplayInterface implements DisplayInterface {
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
         private CarPowerManagementService mCarPowerManagementService;
