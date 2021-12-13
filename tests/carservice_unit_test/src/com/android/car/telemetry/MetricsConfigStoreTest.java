@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry;
 
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -71,7 +71,7 @@ public class MetricsConfigStoreTest {
     public void testAddMetricsConfig_shouldWriteConfigToDisk() throws Exception {
         int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_FOO);
 
-        assertThat(status).isEqualTo(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE);
+        assertThat(status).isEqualTo(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS);
         assertThat(readConfigFromFile(NAME_FOO)).isEqualTo(METRICS_CONFIG_FOO);
     }
 
@@ -82,14 +82,14 @@ public class MetricsConfigStoreTest {
 
         int status = mMetricsConfigStore.addMetricsConfig(invalidConfig);
 
-        assertThat(status).isEqualTo(CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD);
+        assertThat(status).isEqualTo(CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD);
         assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
     }
 
     @Test
     public void testRemoveMetricsConfig_shouldDeleteConfigFromDisk() {
         int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_BAR);
-        assertThat(status).isEqualTo(ERROR_METRICS_CONFIG_NONE);
+        assertThat(status).isEqualTo(STATUS_METRICS_CONFIG_SUCCESS);
 
         mMetricsConfigStore.removeMetricsConfig(KEY_BAR);
 

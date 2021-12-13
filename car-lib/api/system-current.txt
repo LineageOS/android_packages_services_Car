@@ -1272,12 +1272,12 @@ package android.car.telemetry {
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void sendAllFinishedReports();
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void sendFinishedReports(@NonNull android.car.telemetry.MetricsConfigKey);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void setListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.CarTelemetryResultsListener);
-    field public static final int ERROR_METRICS_CONFIG_ALREADY_EXISTS = 1; // 0x1
-    field public static final int ERROR_METRICS_CONFIG_NONE = 0; // 0x0
-    field public static final int ERROR_METRICS_CONFIG_PARSE_FAILED = 3; // 0x3
-    field public static final int ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4; // 0x4
-    field public static final int ERROR_METRICS_CONFIG_UNKNOWN = 5; // 0x5
-    field public static final int ERROR_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
+    field public static final int STATUS_METRICS_CONFIG_ALREADY_EXISTS = 1; // 0x1
+    field public static final int STATUS_METRICS_CONFIG_PARSE_FAILED = 3; // 0x3
+    field public static final int STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4; // 0x4
+    field public static final int STATUS_METRICS_CONFIG_SUCCESS = 0; // 0x0
+    field public static final int STATUS_METRICS_CONFIG_UNKNOWN = 5; // 0x5
+    field public static final int STATUS_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
   }
 
   public static interface CarTelemetryManager.CarTelemetryResultsListener {
