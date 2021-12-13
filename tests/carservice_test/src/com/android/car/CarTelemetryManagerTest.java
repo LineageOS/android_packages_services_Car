@@ -16,10 +16,10 @@
 
 package com.android.car;
 
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS;
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED;
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -123,29 +123,29 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         mCarTelemetryManager.addMetricsConfig(KEY_V1, INVALID_METRICS_CONFIG);
         waitForHandlerThreadToFinish();
         assertThat(mListener.getAddConfigStatus(KEY_V1)).isEqualTo(
-                ERROR_METRICS_CONFIG_PARSE_FAILED);
+                STATUS_METRICS_CONFIG_PARSE_FAILED);
 
         // new valid config, should succeed
         mCarTelemetryManager.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(KEY_V1)).isEqualTo(ERROR_METRICS_CONFIG_NONE);
+        assertThat(mListener.getAddConfigStatus(KEY_V1)).isEqualTo(STATUS_METRICS_CONFIG_SUCCESS);
 
         // duplicate config, should fail
         mCarTelemetryManager.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         waitForHandlerThreadToFinish();
         assertThat(mListener.getAddConfigStatus(KEY_V1)).isEqualTo(
-                ERROR_METRICS_CONFIG_ALREADY_EXISTS);
+                STATUS_METRICS_CONFIG_ALREADY_EXISTS);
 
         // newer version of the config should replace older version
         mCarTelemetryManager.addMetricsConfig(KEY_V2, METRICS_CONFIG_V2.toByteArray());
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(KEY_V2)).isEqualTo(ERROR_METRICS_CONFIG_NONE);
+        assertThat(mListener.getAddConfigStatus(KEY_V2)).isEqualTo(STATUS_METRICS_CONFIG_SUCCESS);
 
         // older version of the config should not be accepted
         mCarTelemetryManager.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         waitForHandlerThreadToFinish();
         assertThat(mListener.getAddConfigStatus(KEY_V1)).isEqualTo(
-                ERROR_METRICS_CONFIG_VERSION_TOO_OLD);
+                STATUS_METRICS_CONFIG_VERSION_TOO_OLD);
     }
 
     private void waitForHandlerThreadToFinish() throws Exception {

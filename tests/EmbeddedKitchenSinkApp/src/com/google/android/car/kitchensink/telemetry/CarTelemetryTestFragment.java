@@ -624,15 +624,15 @@ public class CarTelemetryTestFragment extends Fragment {
 
         private String statusCodeToString(int statusCode) {
             switch (statusCode) {
-                case CarTelemetryManager.ERROR_METRICS_CONFIG_NONE:
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS:
                     return "SUCCESS";
-                case CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS:
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS:
                     return "ERROR ALREADY_EXISTS";
-                case CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD:
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD:
                     return "ERROR VERSION_TOO_OLD";
-                case CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED:
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED:
                     return "ERROR PARSE_FAILED";
-                case CarTelemetryManager.ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED:
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED:
                     return "ERROR SIGNATURE_VERIFICATION_FAILED";
                 default:
                     return "ERROR UNKNOWN";
