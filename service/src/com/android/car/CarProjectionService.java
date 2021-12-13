@@ -565,6 +565,17 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
 
         builder.setUiMode(res.getInteger(R.integer.config_projectionUiMode));
+
+        int apMode = ProjectionOptions.AP_MODE_NOT_SPECIFIED;
+        if (mWifiMode == WIFI_MODE_TETHERED) {
+            apMode = ProjectionOptions.AP_MODE_TETHERED;
+        } else if (mWifiMode == WIFI_MODE_LOCALONLY) {
+            apMode = mStableLocalOnlyHotspotConfig
+                    ? ProjectionOptions.AP_MODE_LOHS_STATIC_CREDENTIALS
+                    : ProjectionOptions.AP_MODE_LOHS_DYNAMIC_CREDENTIALS;
+        }
+        builder.setAccessPointMode(apMode);
+
         return builder;
     }
 
