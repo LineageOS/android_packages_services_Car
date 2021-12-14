@@ -50,6 +50,7 @@
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <!-- Allow querying and writing to any property -->
     <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.PERMISSION_CONTROL_ENERGY_PORTS" />
