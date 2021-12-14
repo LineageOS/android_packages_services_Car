@@ -13,7 +13,6 @@ package android.car.builtin.app {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
     method @Deprecated public android.util.Pair<android.content.Intent,java.lang.Integer> findRootTask(int);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
-    method @Deprecated @Nullable public static android.content.Intent getIntent(@NonNull android.app.PendingIntent);
     method @Deprecated @Nullable public android.util.SparseArray<android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer> getTopTasks();
     method public void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     method @Deprecated public void registerTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
