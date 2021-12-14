@@ -149,6 +149,8 @@
     <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA"/>
     <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS"/>
 
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+
     <application android:label="@string/app_title"
          android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
@@ -161,6 +163,15 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.DIAL" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="tel" />
             </intent-filter>
         </activity>
 
@@ -283,6 +294,17 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <service android:name=".bluetooth.InCallServiceImpl"
+                 android:exported="false"
+                 android:permission="android.permission.BIND_INCALL_SERVICE">
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_UI" android:value="true" />
+            <meta-data android:name="android.telecom.IN_CALL_SERVICE_RINGING"
+                       android:value="true" />
+            <intent-filter>
+                <action android:name="android.telecom.InCallService"/>
+            </intent-filter>
+        </service>
 
     </application>
 </manifest>
