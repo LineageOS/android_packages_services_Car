@@ -178,16 +178,17 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
     private void pullAndForwardNetstatsToSubscribers(
             QueryParam param, ArrayList<DataSubscriber> subscribers) {
-        NetworkStats netstats;
+        NetworkStats current;
         try {
-            netstats = getSummaryForAllUid(param);
+            current = getSummaryForAllUid(param);
         } catch (RemoteException | NullPointerException e) {
             // If the NetworkStatsService is not available, it retries in the next pull.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
             return;
         }
         NetworkStats baseline = mTransportPreviousNetstats.get(param);
-        mTransportPreviousNetstats.put(param, netstats); // update the baseline
+        // Update the baseline, so that next pull will calculate diff from the current.
+        mTransportPreviousNetstats.put(param, current);
         if (baseline == null) {
             Slogf.w(
                     CarLog.TAG_TELEMETRY,
@@ -195,11 +196,24 @@ public class ConnectivityPublisher extends AbstractPublisher {
                     param);
             return;
         }
-        NetworkStats diff = netstats.subtract(baseline); // network usage since last pull
+        NetworkStats diff = current.subtract(baseline); // network usage since last pull
         // TODO(b/197905656): Convert to persistable bundle.
+        // NOTE: Counting total using the following method might not be the right way,
+        //       see NetworkStats.java how internally it's done. Either way, it should provide
+        //       the raw data to scripts, and it will be the scripts job to calculate final netstats
+        //       properly.
+        long totalRxBytes = 0;
+        long totalTxBytes = 0;
+        for (int i = 0; i < NetworkStatsHelper.size(diff); i++) {
+            NetworkStats.Entry entry = NetworkStatsHelper.getValues(diff, i, null);
+            totalRxBytes += NetworkStatsHelper.EntryHelper.getRxBytes(entry);
+            totalTxBytes += NetworkStatsHelper.EntryHelper.getTxBytes(entry);
+        }
         PersistableBundle data = new PersistableBundle();
         data.putLong("tmp_size", NetworkStatsHelper.size(diff));
         data.putLong("tmp_duration_millis", NetworkStatsHelper.getElapsedRealtime(diff));
+        data.putLong("tmp_total_rx_bytes", totalRxBytes);
+        data.putLong("tmp_total_tx_bytes", totalTxBytes);
         for (DataSubscriber subscriber : subscribers) {
             subscriber.push(data);
         }
