@@ -19,7 +19,6 @@ package com.android.car.telemetry.systemmonitor;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
@@ -50,7 +49,7 @@ public class SystemMonitorTest {
 
     @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    private static final String TEST_LOADAVG = "1.2 3.4 2.2 123/1452 21348";
+    private static final String TEST_LOADAVG = "0.2 3.4 2.2 123/1452 21348";
     private static final String TEST_LOADAVG_BAD_FORMAT = "1.2 3.4";
     private static final String TEST_LOADAVG_NOT_FLOAT = "1.2 abc 2.1 12/231 2";
 
@@ -64,7 +63,8 @@ public class SystemMonitorTest {
 
     @Before
     public void setup() {
-        when(mMockContext.getSystemService(anyString())).thenReturn(mMockActivityManager);
+        when(mMockContext.getSystemService(Context.ACTIVITY_SERVICE))
+                .thenReturn(mMockActivityManager);
         when(mMockHandler.post(any(Runnable.class))).thenAnswer(i -> {
             Runnable runnable = i.getArgument(0);
             runnable.run();
@@ -153,7 +153,7 @@ public class SystemMonitorTest {
 
         verify(mMockCallback, atLeastOnce()).onSystemMonitorEvent(mEventCaptor.capture());
         SystemMonitorEvent event = mEventCaptor.getValue();
-        // from TEST_LOADAVG, cpu load = 1.2 / numProcessors, CPU usage should be low
+        // from TEST_LOADAVG, cpu load = 0.2 / numProcessors, CPU usage should be low
         assertThat(event.getCpuUsageLevel()).isEqualTo(SystemMonitorEvent.USAGE_LEVEL_LOW);
         // 1 - 5_000_000 / 10_000_000 = 0.5, memory usage should be low
         assertThat(event.getMemoryUsageLevel()).isEqualTo(SystemMonitorEvent.USAGE_LEVEL_LOW);
