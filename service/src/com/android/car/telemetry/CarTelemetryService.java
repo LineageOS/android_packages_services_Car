@@ -15,8 +15,8 @@
  */
 package com.android.car.telemetry;
 
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
@@ -178,11 +178,11 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
             } catch (InvalidProtocolBufferException e) {
                 Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
-                status = ERROR_METRICS_CONFIG_PARSE_FAILED;
+                status = STATUS_METRICS_CONFIG_PARSE_FAILED;
             }
             // If no error (config is added to MetricsConfigStore), remove legacy data and add
             // config to data broker for metrics collection
-            if (status == ERROR_METRICS_CONFIG_NONE) {
+            if (status == STATUS_METRICS_CONFIG_SUCCESS) {
                 mResultStore.removeResult(key);
                 mDataBroker.removeMetricsConfig(key);
                 mDataBroker.addMetricsConfig(key, metricsConfig);

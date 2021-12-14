@@ -62,48 +62,48 @@ public final class CarTelemetryManager extends CarManagerBase {
     /**
      * Status to indicate that MetricsConfig was added successfully.
      */
-    public static final int ERROR_METRICS_CONFIG_NONE = 0;
+    public static final int STATUS_METRICS_CONFIG_SUCCESS = 0;
 
     /**
      * Status to indicate that add MetricsConfig failed because the same MetricsConfig based on the
      * ManifestKey already exists.
      */
-    public static final int ERROR_METRICS_CONFIG_ALREADY_EXISTS = 1;
+    public static final int STATUS_METRICS_CONFIG_ALREADY_EXISTS = 1;
 
     /**
      * Status to indicate that add MetricsConfig failed because a newer version of the MetricsConfig
      * exists.
      */
-    public static final int ERROR_METRICS_CONFIG_VERSION_TOO_OLD = 2;
+    public static final int STATUS_METRICS_CONFIG_VERSION_TOO_OLD = 2;
 
     /**
      * Status to indicate that add MetricsConfig failed because CarTelemetryService is unable to
      * parse the given byte array into a MetricsConfig.
      */
-    public static final int ERROR_METRICS_CONFIG_PARSE_FAILED = 3;
+    public static final int STATUS_METRICS_CONFIG_PARSE_FAILED = 3;
 
     /**
      * Status to indicate that add MetricsConfig failed because of failure to verify the signature
      * of the MetricsConfig.
      */
-    public static final int ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4;
+    public static final int STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4;
 
     /**
      * Status to indicate that add MetricsConfig failed because of a general error in cars.
      */
-    public static final int ERROR_METRICS_CONFIG_UNKNOWN = 5;
+    public static final int STATUS_METRICS_CONFIG_UNKNOWN = 5;
 
     /** @hide */
-    @IntDef(prefix = {"ERROR_METRICS_CONFIG_"}, value = {
-            ERROR_METRICS_CONFIG_NONE,
-            ERROR_METRICS_CONFIG_ALREADY_EXISTS,
-            ERROR_METRICS_CONFIG_VERSION_TOO_OLD,
-            ERROR_METRICS_CONFIG_PARSE_FAILED,
-            ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED,
-            ERROR_METRICS_CONFIG_UNKNOWN
+    @IntDef(prefix = {"STATUS_METRICS_CONFIG_"}, value = {
+            STATUS_METRICS_CONFIG_SUCCESS,
+            STATUS_METRICS_CONFIG_ALREADY_EXISTS,
+            STATUS_METRICS_CONFIG_VERSION_TOO_OLD,
+            STATUS_METRICS_CONFIG_PARSE_FAILED,
+            STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED,
+            STATUS_METRICS_CONFIG_UNKNOWN
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface MetricsConfigError {
+    public @interface MetricsConfigStatus {
     }
 
     /**
@@ -136,10 +136,10 @@ public final class CarTelemetryManager extends CarManagerBase {
          * Sends the {@link #addMetricsConfig(MetricsConfigKey, byte[])} status to the client.
          *
          * @param key        the {@link MetricsConfigKey} that the status is associated with
-         * @param statusCode See {@link MetricsConfigError}.
+         * @param statusCode See {@link MetricsConfigStatus}.
          */
         void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
-                @MetricsConfigError int statusCode);
+                @MetricsConfigStatus int statusCode);
     }
 
     /**
@@ -174,7 +174,7 @@ public final class CarTelemetryManager extends CarManagerBase {
 
         @Override
         public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
-                @MetricsConfigError int statusCode) {
+                @MetricsConfigStatus int statusCode) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
