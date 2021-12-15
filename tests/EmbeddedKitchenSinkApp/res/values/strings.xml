@@ -395,10 +395,11 @@
     <string name="app_crash_occurred_config" translate="false">app_crash_occurred:</string>
     <string name="anr_occurred_config" translate="false">anr_occurred:</string>
     <string name="wtf_occurred_config" translate="false">wtf_occurred:</string>
+    <string name="wifi_netstats_config" translate="false">wifi_netstats:</string>
     <string name="add_metrics_config" translatable="false">Add MetricsConfig</string>
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="get_report" translatable="false">Get Report</string>
-    <string name="show_mem_info" translate="false">Show Memory Info</string>
+    <string name="print_mem_info" translate="false">Print Memory Info</string>
 
     <!-- Watchdog Test -->
     <string name="non_recurring_io_overuse" translate="false">Non-recurring I/O overuse</string>

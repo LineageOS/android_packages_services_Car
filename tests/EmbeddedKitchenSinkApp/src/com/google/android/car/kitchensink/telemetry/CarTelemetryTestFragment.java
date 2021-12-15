@@ -32,14 +32,17 @@ import android.car.telemetry.MetricsConfigKey;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Bundle;
 import android.os.PersistableBundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
@@ -53,6 +56,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class CarTelemetryTestFragment extends Fragment {
+    private static final String TAG = CarTelemetryTestFragment.class.getSimpleName();;
+
     private static final int SCRIPT_EXECUTION_PRIORITY_HIGH = 0;
     private static final int SCRIPT_EXECUTION_PRIORITY_LOW = 100;
 
@@ -340,19 +345,55 @@ public class CarTelemetryTestFragment extends Fragment {
                     METRICS_CONFIG_WTF_OCCURRED_V1.getName(),
                     METRICS_CONFIG_WTF_OCCURRED_V1.getVersion());
 
+    /** Wifi Netstats */
+    private static final String LUA_SCRIPT_ON_WIFI_NETSTATS =
+            new StringBuilder()
+                    .append("function onWifiNetstats(published_data, state)\n")
+                    .append("    on_script_finished(published_data)\n")
+                    .append("end\n")
+                    .toString();
+    private static final TelemetryProto.Publisher WIFI_NETSTATS_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setConnectivity(
+                            TelemetryProto.ConnectivityPublisher.newBuilder()
+                                    .setTransport(ConnectivityPublisher.Transport.TRANSPORT_WIFI)
+                                    .setOemType(ConnectivityPublisher.OemType.OEM_NONE)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_WIFI_NETSTATS =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("wifi_netstats_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_WIFI_NETSTATS)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onWifiNetstats")
+                                    .setPublisher(WIFI_NETSTATS_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final MetricsConfigKey WIFI_NETSTATS_KEY =
+            new MetricsConfigKey(
+                    METRICS_CONFIG_WIFI_NETSTATS.getName(),
+                    METRICS_CONFIG_WIFI_NETSTATS.getVersion());
+
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     private CarTelemetryManager mCarTelemetryManager;
     private CarTelemetryResultsListenerImpl mListener;
     private KitchenSinkActivity mActivity;
     private TextView mOutputTextView;
+    private Button mTootleConfigsBtn;
+    private View mConfigButtonsView;  // MetricsConfig buttons
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         mActivity = (KitchenSinkActivity) getActivity();
         mCarTelemetryManager = mActivity.getCarTelemetryManager();
         mListener = new CarTelemetryResultsListenerImpl();
-        mCarTelemetryManager.setListener(mExecutor, mListener);
+        if (mCarTelemetryManager != null) {
+            mCarTelemetryManager.setListener(mExecutor, mListener);
+        } else {
+            showOutput("CarTelemetryManages is null");
+        }
         super.onCreate(savedInstanceState);
     }
 
@@ -364,68 +405,91 @@ public class CarTelemetryTestFragment extends Fragment {
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.car_telemetry_test, container, false);
         mOutputTextView = view.findViewById(R.id.output_textview);
+        mConfigButtonsView = view.findViewById(R.id.metrics_config_buttons_view);
+        mTootleConfigsBtn = view.findViewById(R.id.toggle_metrics_configs_btn);
+        mTootleConfigsBtn.setOnClickListener(this::toggleMetricsConfigButtons);
+        /** VehiclePropertyPublisher on_gear_change */
         view.findViewById(R.id.send_on_gear_change_config)
                 .setOnClickListener(this::onSendGearChangeConfigBtnClick);
         view.findViewById(R.id.remove_on_gear_change_config)
                 .setOnClickListener(this::onRemoveGearChangeConfigBtnClick);
         view.findViewById(R.id.get_on_gear_change_report)
                 .setOnClickListener(this::onGetGearChangeReportBtnClick);
+        /** StatsPublisher process_memory */
         view.findViewById(R.id.send_on_process_memory_config)
                 .setOnClickListener(this::onSendProcessMemoryConfigBtnClick);
         view.findViewById(R.id.remove_on_process_memory_config)
                 .setOnClickListener(this::onRemoveProcessMemoryConfigBtnClick);
         view.findViewById(R.id.get_on_process_memory_report)
                 .setOnClickListener(this::onGetProcessMemoryReportBtnClick);
+        /** StatsPublisher app_start_memory_state */
         view.findViewById(R.id.send_on_app_start_memory_state_captured_config)
                 .setOnClickListener(this::onSendAppStartMemoryStateCapturedConfigBtnClick);
         view.findViewById(R.id.remove_on_app_start_memory_state_captured_config)
                 .setOnClickListener(this::onRemoveAppStartMemoryStateCapturedConfigBtnClick);
         view.findViewById(R.id.get_on_app_start_memory_state_captured_report)
                 .setOnClickListener(this::onGetAppStartMemoryStateCapturedReportBtnClick);
+        /** StatsPublisher activity_foreground_state_change */
         view.findViewById(R.id.send_on_activity_foreground_state_changed_config)
                 .setOnClickListener(this::onSendActivityForegroundStateChangedConfigBtnClick);
         view.findViewById(R.id.remove_on_activity_foreground_state_changed_config)
                 .setOnClickListener(this::onRemoveActivityForegroundStateChangedConfigBtnClick);
         view.findViewById(R.id.get_on_activity_foreground_state_changed_report)
                 .setOnClickListener(this::onGetActivityForegroundStateChangedReportBtnClick);
+        /** StatsPublisher process_cpu_time */
         view.findViewById(R.id.send_on_process_cpu_time_config)
                 .setOnClickListener(this::onSendProcessCpuTimeConfigBtnClick);
         view.findViewById(R.id.remove_on_process_cpu_time_config)
                 .setOnClickListener(this::onRemoveProcessCpuTimeConfigBtnClick);
         view.findViewById(R.id.get_on_process_cpu_time_report)
                 .setOnClickListener(this::onGetProcessCpuTimeReportBtnClick);
-        /** AppCrashOccurred section */
+        /** StatsPublisher AppCrashOccurred section */
         view.findViewById(R.id.send_on_app_crash_occurred_config)
                 .setOnClickListener(this::onSendAppCrashOccurredConfigBtnClick);
         view.findViewById(R.id.remove_on_app_crash_occurred_config)
                 .setOnClickListener(this::onRemoveAppCrashOccurredConfigBtnClick);
         view.findViewById(R.id.get_on_app_crash_occurred_report)
                 .setOnClickListener(this::onGetAppCrashOccurredReportBtnClick);
-        /** ANROccurred section */
+        /** StatsPublisher ANROccurred section */
         view.findViewById(R.id.send_on_anr_occurred_config)
                 .setOnClickListener(this::onSendAnrOccurredConfigBtnClick);
         view.findViewById(R.id.remove_on_anr_occurred_config)
                 .setOnClickListener(this::onRemoveAnrOccurredConfigBtnClick);
         view.findViewById(R.id.get_on_anr_occurred_report)
                 .setOnClickListener(this::onGetAnrOccurredReportBtnClick);
-        /** WTFOccurred section */
+        /** StatsPublisher WTFOccurred section */
         view.findViewById(R.id.send_on_wtf_occurred_config)
                 .setOnClickListener(this::onSendWtfOccurredConfigBtnClick);
         view.findViewById(R.id.remove_on_wtf_occurred_config)
                 .setOnClickListener(this::onRemoveWtfOccurredConfigBtnClick);
         view.findViewById(R.id.get_on_wtf_occurred_report)
                 .setOnClickListener(this::onGetWtfOccurredReportBtnClick);
-        view.findViewById(R.id.show_mem_info_btn).setOnClickListener(this::onShowMemInfoBtnClick);
+        /** ConnectivityPublisher wifi_netstats section */
+        view.findViewById(R.id.send_on_wifi_netstats_config)
+                .setOnClickListener(this::onSendWifiNetstatsConfigBtnClick);
+        view.findViewById(R.id.remove_on_wifi_netstats_config)
+                .setOnClickListener(this::onRemoveWifiNetstatsConfigBtnClick);
+        view.findViewById(R.id.get_on_wifi_netstats_report)
+                .setOnClickListener(this::onGetWifiNetstatsReportBtnClick);
+        /** Print mem info button */
+        view.findViewById(R.id.print_mem_info_btn).setOnClickListener(this::onPrintMemInfoBtnClick);
         return view;
     }
 
     private void showOutput(String s) {
+        String now = LocalDateTime.now()
+                .format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+        String text = now + " : " + s;
+        Log.i(TAG, text);
         mActivity.runOnUiThread(() -> {
-            String now = LocalDateTime.now()
-                    .format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
-            mOutputTextView.setText(
-                    now + " : " + s + "\n" + mOutputTextView.getText());
+            mOutputTextView.setText(text + "\n" + mOutputTextView.getText());
         });
+    }
+
+    private void toggleMetricsConfigButtons(View view) {
+        boolean visible = mConfigButtonsView.getVisibility() == View.VISIBLE;
+        mConfigButtonsView.setVisibility(visible ? View.GONE : View.VISIBLE);
+        mTootleConfigsBtn.setText(visible ? "Configs ▶" : "Configs ▼");
     }
 
     private void onSendGearChangeConfigBtnClick(View view) {
@@ -564,6 +628,23 @@ public class CarTelemetryTestFragment extends Fragment {
         mCarTelemetryManager.sendFinishedReports(WTF_OCCURRED_KEY_V1);
     }
 
+    private void onSendWifiNetstatsConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for wifi netstats...");
+        mCarTelemetryManager.addMetricsConfig(
+                WIFI_NETSTATS_KEY, METRICS_CONFIG_WIFI_NETSTATS.toByteArray());
+    }
+
+    private void onRemoveWifiNetstatsConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for wifi netstats...");
+        mCarTelemetryManager.removeMetricsConfig(WIFI_NETSTATS_KEY);
+    }
+
+    private void onGetWifiNetstatsReportBtnClick(View view) {
+        showOutput("Fetching report for wifi netstats... If nothing shows up within 5 "
+                + "seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(WIFI_NETSTATS_KEY);
+    }
+
     /** Gets a MemoryInfo object for the device's current memory status. */
     private ActivityManager.MemoryInfo getAvailableMemory() {
         ActivityManager activityManager = getActivity().getSystemService(ActivityManager.class);
@@ -572,7 +653,7 @@ public class CarTelemetryTestFragment extends Fragment {
         return memoryInfo;
     }
 
-    private void onShowMemInfoBtnClick(View view) {
+    private void onPrintMemInfoBtnClick(View view) {
         // Use android's "alloc-stress" system tool to create an artificial memory pressure.
         ActivityManager.MemoryInfo info = getAvailableMemory();
         showOutput("MemoryInfo availMem=" + (info.availMem / 1024 / 1024) + "/"
