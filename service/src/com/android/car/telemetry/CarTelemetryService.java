@@ -29,8 +29,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
+import android.os.Trace;
 import android.util.IndentingPrintWriter;
-
+import android.util.TimingsTraceLog;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
@@ -77,6 +78,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private ResultStore mResultStore;
     private StatsManagerProxy mStatsManagerProxy;
     private SystemMonitor mSystemMonitor;
+    private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
     public CarTelemetryService(Context context, CarPropertyService carPropertyService) {
         mContext = context;
@@ -86,6 +88,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     @Override
     public void init() {
         mTelemetryHandler.post(() -> {
+            mTelemetryThreadTraceLog = new TimingsTraceLog(
+                    CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
+            mTelemetryThreadTraceLog.traceBegin("init");
             SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
             // full root directory path is /data/system/car/telemetry
             File rootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
@@ -98,18 +103,24 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                     mContext.getSystemService(StatsManager.class));
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
                     mStatsManagerProxy, publisherDirectory);
-            mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore);
+            mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
+                    mTelemetryThreadTraceLog);
             mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
             // controller starts metrics collection after boot complete
             mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
                     mMetricsConfigStore, mSystemMonitor,
                     systemInterface.getSystemStateInterface());
+            mTelemetryThreadTraceLog.traceEnd();
         });
     }
 
     @Override
     public void release() {
-        mTelemetryHandler.post(() -> mResultStore.flushToDisk());
+        mTelemetryHandler.post(() -> {
+            mTelemetryThreadTraceLog.traceBegin("release");
+            mResultStore.flushToDisk();
+            mTelemetryThreadTraceLog.traceEnd();
+        });
         mTelemetryThread.quitSafely();
     }
 
@@ -167,6 +178,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             }
             Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config: " + key.getName()
                     + " to car telemetry service");
+            mTelemetryThreadTraceLog.traceBegin("addMetricsConfig");
             TelemetryProto.MetricsConfig metricsConfig = null;
             int status;
             try {
@@ -189,6 +201,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             } catch (RemoteException e) {
                 Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
             }
+            mTelemetryThreadTraceLog.traceEnd();
         });
     }
 
@@ -203,12 +216,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeMetricsConfig");
         mTelemetryHandler.post(() -> {
+            mTelemetryThreadTraceLog.traceBegin("removeMetricsConfig");
             Slogf.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
                     + " from car telemetry service");
             if (mMetricsConfigStore.removeMetricsConfig(key)) {
                 mDataBroker.removeMetricsConfig(key);
                 mResultStore.removeResult(key);
             }
+            mTelemetryThreadTraceLog.traceEnd();
         });
     }
 
@@ -220,11 +235,13 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeAllMetricsConfigs");
         mTelemetryHandler.post(() -> {
+            mTelemetryThreadTraceLog.traceBegin("removeAllMetricsConfig");
             Slogf.d(CarLog.TAG_TELEMETRY,
                     "Removing all metrics config from car telemetry service");
             mDataBroker.removeAllMetricsConfigs();
             mMetricsConfigStore.removeAllMetricsConfigs();
             mResultStore.removeAllResults();
+            mTelemetryThreadTraceLog.traceEnd();
         });
     }
 
@@ -248,6 +265,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Slogf.d(CarLog.TAG_TELEMETRY,
                         "Flushing reports for metrics config " + key.getName());
             }
+            mTelemetryThreadTraceLog.traceBegin("sendFinishedReports");
             PersistableBundle result = mResultStore.getFinalResult(key.getName(), true);
             TelemetryProto.TelemetryError error = mResultStore.getErrorResult(key.getName(), true);
             if (result != null) {
@@ -258,6 +276,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Slogf.w(CarLog.TAG_TELEMETRY, "config " + key.getName()
                         + " did not produce any results");
             }
+            mTelemetryThreadTraceLog.traceEnd();
         });
     }
 
