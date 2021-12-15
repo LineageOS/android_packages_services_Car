@@ -27,7 +27,7 @@ cc_defaults {
     ],
     shared_libs: [
         "android.frameworks.automotive.powerpolicy-V1-cpp",
-        "android.frameworks.automotive.powerpolicy.internal-cpp",
+        "android.frameworks.automotive.powerpolicy.internal-V1-cpp",
         "android.hardware.automotive.vehicle@2.0",
         "libbase",
         "libbinder",

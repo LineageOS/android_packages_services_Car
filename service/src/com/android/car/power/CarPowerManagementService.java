@@ -123,7 +123,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final long CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
     private static final int CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY = 3;
     private static final String CAR_POWER_POLICY_DAEMON_INTERFACE =
-            "carpowerpolicy_system_notification";
+            "android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification/"
+                    + "default";
 
     // TODO:  Make this OEM configurable.
     private static final int SHUTDOWN_POLLING_INTERVAL_MS = 2000;
