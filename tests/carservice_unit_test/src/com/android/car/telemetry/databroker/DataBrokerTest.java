@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.Nullable;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.hardware.CarPropertyConfig;
 import android.car.telemetry.MetricsConfigKey;
 import android.content.Context;
@@ -103,7 +104,6 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final MetricsConfigKey KEY_BAR = new MetricsConfigKey(
             METRICS_CONFIG_BAR.getName(), METRICS_CONFIG_BAR.getVersion());
 
-
     // when count reaches 0, all handler messages are scheduled to be dispatched after current time
     private CountDownLatch mIdleHandlerLatch = new CountDownLatch(1);
     private PersistableBundle mData = new PersistableBundle();
@@ -126,6 +126,8 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private IBinder mMockScriptExecutorBinder;
     @Mock
     private ResultStore mMockResultStore;
+    @Mock
+    private TimingsTraceLog mMockTimingsTraceLog;
 
     @Before
     public void setUp() throws Exception {
@@ -134,7 +136,8 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         PublisherFactory factory = new PublisherFactory(
                 mMockCarPropertyService, mMockHandler, mMockStatsManager,
                 Files.createTempDirectory("telemetry_test").toFile());
-        mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
+        mDataBroker = new DataBrokerImpl(
+                mMockContext, factory, mMockResultStore, mMockTimingsTraceLog);
         mDataBroker.setOnScriptFinishedCallback(mMockScriptFinishedCallback);
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {
@@ -284,6 +287,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
         verify(mMockResultStore).putErrorResult(
                 eq(METRICS_CONFIG_FOO.getName()), eq(expectedError));
+        verify(mMockScriptFinishedCallback).onScriptFinished(eq(KEY_FOO));
     }
 
     @Test

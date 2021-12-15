@@ -17,6 +17,7 @@
 package com.android.car.telemetry.databroker;
 
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.telemetry.MetricsConfigKey;
 import android.content.ComponentName;
 import android.content.Context;
@@ -113,6 +114,13 @@ public class DataBrokerImpl implements DataBroker {
     private IScriptExecutor mScriptExecutor;
     private ScriptFinishedCallback mScriptFinishedCallback;
 
+    /**
+     * Used only for the purpose of tracking the duration of running a script. The duration
+     * starts before the ScriptExecutor binder call and ends when a status is returned via
+     * ScriptExecutorListener or when the binder call throws an exception.
+     */
+    private TimingsTraceLog mScriptExecutionTraceLog;
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -126,19 +134,24 @@ public class DataBrokerImpl implements DataBroker {
         public void onServiceDisconnected(ComponentName name) {
             // TODO(b/198684473): clean up the state after script executor disconnects
             mTelemetryHandler.post(() -> {
+                // if a script ran and crashed ScriptExecutor, end trace log
+                if (mCurrentMetricsConfigKey != null) {
+                    mScriptExecutionTraceLog.traceEnd();
+                }
                 mScriptExecutor = null;
                 unbindScriptExecutor();
             });
         }
     };
 
-    public DataBrokerImpl(
-            Context context, PublisherFactory publisherFactory, ResultStore resultStore) {
+    public DataBrokerImpl(Context context, PublisherFactory publisherFactory,
+            ResultStore resultStore, TimingsTraceLog traceLog) {
         mContext = context;
         mPublisherFactory = publisherFactory;
         mResultStore = resultStore;
         mScriptExecutorListener = new ScriptExecutorListener(this);
         mPublisherFactory.setFailureListener(this::onPublisherFailure);
+        mScriptExecutionTraceLog = traceLog;
     }
 
     private void onPublisherFailure(
@@ -362,6 +375,8 @@ public class DataBrokerImpl implements DataBroker {
         // update current config key because a script is currently running
         mCurrentMetricsConfigKey = new MetricsConfigKey(task.getMetricsConfig().getName(),
                 task.getMetricsConfig().getVersion());
+        mScriptExecutionTraceLog.traceBegin(
+                "executing script " + mCurrentMetricsConfigKey.getName());
         try {
             if (task.isLargeData()) {
                 Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor for large input");
@@ -376,10 +391,12 @@ public class DataBrokerImpl implements DataBroker {
                         mScriptExecutorListener);
             }
         } catch (RemoteException e) {
+            mScriptExecutionTraceLog.traceEnd();
             Slogf.w(CarLog.TAG_TELEMETRY, "remote exception occurred invoking script", e);
             unbindScriptExecutor();
             addTaskToQueue(task); // will trigger scheduleNextTask() and re-binding scriptexecutor
         } catch (IOException e) {
+            mScriptExecutionTraceLog.traceEnd();
             Slogf.w(CarLog.TAG_TELEMETRY, "Either unable to create pipe or failed to pipe data"
                     + " to ScriptExecutor. Skipping the published data", e);
             mCurrentMetricsConfigKey = null;
@@ -432,6 +449,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores final metrics and schedules the next task. */
     private void onScriptFinished(PersistableBundle result) {
         mTelemetryHandler.post(() -> {
+            mScriptExecutionTraceLog.traceEnd(); // end trace as soon as script completes running
             mResultStore.putFinalResult(mCurrentMetricsConfigKey.getName(), result);
             mScriptFinishedCallback.onScriptFinished(mCurrentMetricsConfigKey);
             mCurrentMetricsConfigKey = null;
@@ -442,6 +460,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores interim metrics and schedules the next task. */
     private void onScriptSuccess(PersistableBundle stateToPersist) {
         mTelemetryHandler.post(() -> {
+            mScriptExecutionTraceLog.traceEnd(); // end trace as soon as script completes running
             mResultStore.putInterimResult(mCurrentMetricsConfigKey.getName(), stateToPersist);
             mCurrentMetricsConfigKey = null;
             scheduleNextTask();
@@ -451,6 +470,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores telemetry error and schedules the next task. */
     private void onScriptError(int errorType, String message, String stackTrace) {
         mTelemetryHandler.post(() -> {
+            mScriptExecutionTraceLog.traceEnd(); // end trace as soon as script completes running
             TelemetryProto.TelemetryError.Builder error = TelemetryProto.TelemetryError.newBuilder()
                     .setErrorType(TelemetryProto.TelemetryError.ErrorType.forNumber(errorType))
                     .setMessage(message);
@@ -458,6 +478,7 @@ public class DataBrokerImpl implements DataBroker {
                 error.setStackTrace(stackTrace);
             }
             mResultStore.putErrorResult(mCurrentMetricsConfigKey.getName(), error.build());
+            mScriptFinishedCallback.onScriptFinished(mCurrentMetricsConfigKey);
             mCurrentMetricsConfigKey = null;
             scheduleNextTask();
         });
