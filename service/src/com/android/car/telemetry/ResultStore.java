@@ -66,7 +66,11 @@ public class ResultStore {
 
     /** Reads interim results into memory for faster access. */
     private void loadInterimResultsIntoMemory() {
-        for (File file : mInterimResultDirectory.listFiles()) {
+        File[] files = mInterimResultDirectory.listFiles();
+        if (files == null) {
+            return;
+        }
+        for (File file : files) {
             try {
                 PersistableBundle interimResultBundle = IoUtils.readBundle(file);
                 mInterimResultCache.put(file.getName(), new InterimResult(interimResultBundle));
@@ -116,6 +120,29 @@ public class ResultStore {
     }
 
     /**
+     * Retrieves all final results, mapped to each config name.
+     *
+     * @return the final results mapped to config names.
+     */
+    public Map<String, PersistableBundle> getFinalResults() {
+        Map<String, PersistableBundle> results = new ArrayMap<>();
+        File[] files = mFinalResultDirectory.listFiles();
+        if (files == null) {
+            return results;
+        }
+        for (File file : files) {
+            try {
+                PersistableBundle finalResultBundle = IoUtils.readBundle(file);
+                results.put(file.getName(), finalResultBundle);
+            } catch (IOException e) {
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to read from disk.", e);
+                // TODO(b/197153560): record failure
+            }
+        }
+        return results;
+    }
+
+    /**
      * Returns the error result produced by the metrics config if exists, null otherwise.
      *
      * @param metricsConfigName name of the MetricsConfig.
@@ -141,6 +168,30 @@ public class ResultStore {
             // TODO(b/197153560): record failure
         }
         return null;
+    }
+
+    /**
+     * Retrieves all errors, mapped to each config name.
+     *
+     * @return the map of errors to each config.
+     */
+    public Map<String, TelemetryProto.TelemetryError> getErrorResults() {
+        Map<String, TelemetryProto.TelemetryError> errors = new ArrayMap<>();
+        File[] files = mErrorResultDirectory.listFiles();
+        if (files == null) {
+            return errors;
+        }
+        for (File file : files) {
+            try {
+                TelemetryProto.TelemetryError error =
+                        TelemetryProto.TelemetryError.parseFrom(new AtomicFile(file).readFully());
+                errors.put(file.getName(), error);
+            } catch (IOException e) {
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to read errors from disk.", e);
+                // TODO(b/197153560): record failure
+            }
+        }
+        return errors;
     }
 
     /**
