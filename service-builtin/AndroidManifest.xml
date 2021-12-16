@@ -892,6 +892,14 @@
                 android:label="@string/car_permission_label_control_car_power_policy"
                 android:description="@string/car_permission_desc_control_car_power_policy"/>
 
+    <!-- Allows an application to adjust the showdown process.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_adjust_shutdown_process"
+                android:description="@string/car_permission_desc_adjust_shutdown_process"/>
+
     <!-- Allows an application to render template-based UI metadata on behalf of another
          application.
          <p>Protection level: signature|privileged

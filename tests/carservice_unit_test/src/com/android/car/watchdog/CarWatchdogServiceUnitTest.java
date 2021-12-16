@@ -95,7 +95,7 @@ import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
@@ -410,7 +410,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, 101, 102);
         mockUmIsUserRunning(mMockUserManager, /* userId= */ 101, /* isRunning= */ false);
         mockUmIsUserRunning(mMockUserManager, /* userId= */ 102, /* isRunning= */ true);
-        setCarPowerState(CarPowerStateListener.SHUTDOWN_ENTER);
+        setCarPowerState(CarPowerManager.STATE_SHUTDOWN_ENTER);
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_ON));
 
@@ -3659,8 +3659,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void restartService(int totalRestarts, int wantedDbWrites) throws Exception {
-        setCarPowerState(CarPowerStateListener.SHUTDOWN_PREPARE);
-        setCarPowerState(CarPowerStateListener.SHUTDOWN_ENTER);
+        setCarPowerState(CarPowerManager.STATE_SHUTDOWN_PREPARE);
+        setCarPowerState(CarPowerManager.STATE_SHUTDOWN_ENTER);
         mCarWatchdogService.release();
         verify(mMockWatchdogStorage, times(wantedDbWrites)).saveIoUsageStats(any());
         verify(mMockWatchdogStorage, times(wantedDbWrites)).saveUserPackageSettings(any());
@@ -3857,7 +3857,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     private void setCarPowerState(int powerState) throws Exception {
         when(mMockCarPowerManagementService.getPowerState()).thenReturn(powerState);
-        mCarPowerStateListener.onStateChanged(powerState);
+        mCarPowerStateListener.onStateChanged(powerState, /* timeoutMs= */ -1);
     }
 
     private void setDisplayStateEnabled(boolean isEnabled) throws Exception {

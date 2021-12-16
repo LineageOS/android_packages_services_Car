@@ -232,7 +232,7 @@ public final class FixedActivityService implements CarServiceBase {
     private CarPowerManager mCarPowerManager;
 
     private final CarPowerManager.CarPowerStateListener mCarPowerStateListener = (state) -> {
-        if (state != CarPowerManager.CarPowerStateListener.ON) {
+        if (state != CarPowerManager.STATE_ON) {
             return;
         }
         synchronized (mLock) {
@@ -323,7 +323,7 @@ public final class FixedActivityService implements CarServiceBase {
         mAm.registerTaskStackChangeListener(mTaskStackChangeListener);
         mAm.registerProcessObserverCallback(mProcessObserver);
         try {
-            carPowerManager.setListener(mCarPowerStateListener);
+            carPowerManager.setListener(mContext.getMainExecutor(), mCarPowerStateListener);
         } catch (Exception e) {
             // should not happen
             Slogf.e(TAG_AM, "Got exception from CarPowerManager", e);

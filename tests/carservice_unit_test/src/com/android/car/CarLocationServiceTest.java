@@ -35,7 +35,8 @@ import static org.mockito.Mockito.when;
 import android.car.IPerUserCarService;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -64,7 +65,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
@@ -322,7 +322,6 @@ public class CarLocationServiceTest {
         mCarLocationService.init();
         mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
-        mLatch = new CountDownLatch(1);
 
         long currentTime = System.currentTimeMillis();
         long elapsedTime = SystemClock.elapsedRealtimeNanos();
@@ -334,13 +333,12 @@ public class CarLocationServiceTest {
         timbuktu.setElapsedRealtimeNanos(elapsedTime);
         when(mMockLocationManagerProxy.getLastKnownLocation(LocationManager.GPS_PROVIDER))
                 .thenReturn(timbuktu);
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        CompletablePowerStateChangeFutureImpl future = new CompletablePowerStateChangeFutureImpl();
 
-        mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, future);
-        mLatch.await();
+        mCarLocationService.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, future);
 
         verify(mMockLocationManagerProxy).getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        assertTrue(future.isDone());
+        assertTrue(future.isCompleted());
         String actualContents = readCacheFile();
         long oneDayMs = 24 * 60 * 60 * 1000;
         long granularCurrentTime = (currentTime / oneDayMs) * oneDayMs;
@@ -355,14 +353,21 @@ public class CarLocationServiceTest {
     @Test
     public void testDoesNotThrowExceptionUponPowerStateChanged() {
         try {
-            mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_ENTER, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.ON, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.WAIT_FOR_VHAL, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.HIBERNATION_EXIT, null);
-            mCarLocationService.onStateChanged(CarPowerStateListener.HIBERNATION_ENTER, null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_SUSPEND_ENTER,
+                    /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_SUSPEND_EXIT,
+                    /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_SHUTDOWN_ENTER,
+                    /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_ON, /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_WAIT_FOR_VHAL,
+                    /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_SHUTDOWN_CANCELLED,
+                    /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_HIBERNATION_EXIT,
+                    /* future= */ null);
+            mCarLocationService.onStateChanged(CarPowerManager.STATE_HIBERNATION_ENTER,
+                    /* future= */ null);
         } catch (Exception e) {
             fail("onStateChanged should not throw an exception: " + e);
         }
@@ -378,16 +383,14 @@ public class CarLocationServiceTest {
         mCarLocationService.init();
         mUserServiceCallback.onServiceConnected(mMockIPerUserCarService);
         mLatch.await();
-        mLatch = new CountDownLatch(1);
 
         when(mMockLocationManagerProxy.getLastKnownLocation(LocationManager.GPS_PROVIDER))
                 .thenReturn(null);
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        CompletablePowerStateChangeFutureImpl future = new CompletablePowerStateChangeFutureImpl();
 
-        mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, future);
-        mLatch.await();
+        mCarLocationService.onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE, future);
 
-        assertTrue(future.isDone());
+        assertTrue(future.isCompleted());
         verify(mMockLocationManagerProxy).getLastKnownLocation(LocationManager.GPS_PROVIDER);
         assertFalse(getLocationCacheFile().exists());
     }
@@ -427,12 +430,12 @@ public class CarLocationServiceTest {
         when(mMockCarDrivingStateService.getCurrentDrivingState()).thenReturn(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING, 0));
         writeCacheFile("{\"provider\":\"latitude\":16.7666,\"longitude\": \"accuracy\":1.0}");
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        CompletablePowerStateChangeFutureImpl future = new CompletablePowerStateChangeFutureImpl();
         assertTrue(getLocationCacheFile().exists());
 
-        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, future);
+        mCarLocationService.onStateChanged(CarPowerManager.STATE_SUSPEND_EXIT, future);
 
-        assertTrue(future.isDone());
+        assertTrue(future.isCompleted());
         verify(mMockLocationManagerProxy, times(0)).isLocationEnabled();
         assertFalse(getLocationCacheFile().exists());
     }
@@ -447,11 +450,11 @@ public class CarLocationServiceTest {
         when(mMockLocationManagerProxy.isLocationEnabled()).thenReturn(false);
         when(mMockCarDrivingStateService.getCurrentDrivingState()).thenReturn(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_PARKED, 0));
-        CompletableFuture<Void> future = new CompletableFuture<>();
+        CompletablePowerStateChangeFutureImpl future = new CompletablePowerStateChangeFutureImpl();
 
-        mCarLocationService.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, future);
+        mCarLocationService.onStateChanged(CarPowerManager.STATE_SUSPEND_EXIT, future);
 
-        assertTrue(future.isDone());
+        assertTrue(future.isCompleted());
         verify(mMockLocationManagerProxy, times(0)).isLocationEnabled();
         // One of the registrations should happen during init and another during onStateChanged.
         verify(mMockCarDrivingStateService, times(2)).registerDrivingStateChangeListener(any());
@@ -498,5 +501,25 @@ public class CarLocationServiceTest {
 
     private File getLocationCacheFile() {
         return new File(mTempDirectory, TEST_FILENAME);
+    }
+
+    private static final class CompletablePowerStateChangeFutureImpl
+            implements CompletablePowerStateChangeFuture {
+        private boolean mCompleted;
+
+        @Override
+        public void complete() {
+            mCompleted = true;
+        }
+
+        @Override
+        public long getExpirationTime() {
+            // Returns the timeout of 1 second.
+            return SystemClock.uptimeMillis() + 1_000;
+        }
+
+        public boolean isCompleted() {
+            return mCompleted;
+        }
     }
 }

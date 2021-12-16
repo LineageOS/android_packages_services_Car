@@ -34,7 +34,7 @@ import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
 import android.car.builtin.util.Slogf;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -170,7 +170,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final ICarPowerStateListener mCarPowerStateListener =
             new ICarPowerStateListener.Stub() {
         @Override
-        public void onStateChanged(int state) {
+        public void onStateChanged(int state, long expirationTimeMs) {
             CarPowerManagementService powerService =
                     CarLocalServices.getService(CarPowerManagementService.class);
             if (powerService == null) {
@@ -672,14 +672,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private static @PowerCycle int carPowerStateToPowerCycle(int powerState) {
         switch (powerState) {
             // SHUTDOWN_PREPARE covers suspend and shutdown.
-            case CarPowerStateListener.SHUTDOWN_PREPARE:
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
                 return PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE;
-            case CarPowerStateListener.SHUTDOWN_ENTER:
-            case CarPowerStateListener.SUSPEND_ENTER:
-            case CarPowerStateListener.HIBERNATION_ENTER:
+            case CarPowerManager.STATE_SHUTDOWN_ENTER:
+            case CarPowerManager.STATE_SUSPEND_ENTER:
+            case CarPowerManager.STATE_HIBERNATION_ENTER:
                 return PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
             // ON covers resume.
-            case CarPowerStateListener.ON:
+            case CarPowerManager.STATE_ON:
                 return PowerCycle.POWER_CYCLE_RESUME;
         }
         return PowerCycle.NUM_POWER_CYLES;
