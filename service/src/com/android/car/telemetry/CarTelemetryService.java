@@ -56,7 +56,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 
@@ -131,7 +133,47 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        writer.println("Car Telemetry service");
+        writer.println("*CarTelemetryService*");
+        writer.println();
+        // Print active configs with their interim results and errors.
+        writer.println("Active Configs");
+        writer.println();
+        for (TelemetryProto.MetricsConfig config : mMetricsConfigStore.getActiveMetricsConfigs()) {
+            writer.println("    Name: " + config.getName());
+            writer.println("    Version: " + config.getVersion());
+            PersistableBundle interimResult = mResultStore.getInterimResult(config.getName());
+            if (interimResult != null) {
+                writer.println("    Interim Result");
+                writer.println("        Bundle keys: "
+                        + Arrays.toString(interimResult.keySet().toArray()));
+            }
+            writer.println();
+        }
+        // Print info on stored final results. Configs are inactive after producing final result.
+        Map<String, PersistableBundle> finalResults = mResultStore.getFinalResults();
+        writer.println("Final Results");
+        writer.println();
+        for (Map.Entry<String, PersistableBundle> entry : finalResults.entrySet()) {
+            writer.println("    Config name: " + entry.getKey());
+            writer.println("    Bundle keys: "
+                    + Arrays.toString(entry.getValue().keySet().toArray()));
+            writer.println();
+        }
+        // Print info on stored errors. Configs are inactive after producing errors.
+        Map<String, TelemetryProto.TelemetryError> errors = mResultStore.getErrorResults();
+        writer.println("Errors");
+        writer.println();
+        for (Map.Entry<String, TelemetryProto.TelemetryError> entry : errors.entrySet()) {
+            writer.println("    Config name: " + entry.getKey());
+            TelemetryProto.TelemetryError error = entry.getValue();
+            writer.println("    Error");
+            writer.println("        Type: " + error.getErrorType());
+            writer.println("        Message: " + error.getMessage());
+            if (error.hasStackTrace() && !error.getStackTrace().isEmpty()) {
+                writer.println("        Stack trace: " + error.getStackTrace());
+            }
+            writer.println();
+        }
     }
 
     /**

@@ -21,6 +21,7 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SU
 import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_UNKNOWN;
 import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
 
+import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
 import android.car.telemetry.MetricsConfigKey;
 import android.util.ArrayMap;
@@ -68,6 +69,7 @@ public class MetricsConfigStore {
     /**
      * Returns all active {@link TelemetryProto.MetricsConfig} from disk.
      */
+    @NonNull
     public List<TelemetryProto.MetricsConfig> getActiveMetricsConfigs() {
         return new ArrayList<>(mActiveConfigs.values());
     }
