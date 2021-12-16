@@ -38,6 +38,7 @@ allow carservice_app {
     media_communication_service
     netstats_service  # for CarTelemetryService
     network_management_service
+    overlay_service
     power_service
     procfsinspector_service
     sensorservice_service

@@ -1203,6 +1203,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             writer.println(mCurrentDrivingSafetyRegion);
             writer.print("mTempAllowedActivities:");
             writer.println(mTempAllowedActivities);
+            writer.println("Car service overlay package name: "
+                    + SystemProperties.get(
+                            PackageManagerHelper.PROPERTY_CAR_SERVICE_OVERLAY_PACKAGE_NAME,
+                            /* default= */ null));
         }
     }
 
