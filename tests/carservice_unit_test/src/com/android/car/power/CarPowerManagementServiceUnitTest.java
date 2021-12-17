@@ -51,6 +51,7 @@ import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemN
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
+import android.net.wifi.WifiManager;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
@@ -130,6 +131,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     private Resources mResources;
     @Mock
     private CarUserService mUserService;
+    @Mock
+    private WifiManager mWifiManager;
 
     public CarPowerManagementServiceUnitTest() throws Exception {
         mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
@@ -173,6 +176,9 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
      */
     private void setService() throws Exception {
         doReturn(mResources).when(mContext).getResources();
+        // During the test, changing Wifi state according to a power policy takes long time, leading
+        // to timeout. Also, we don't want to actually change Wifi state.
+        doReturn(mWifiManager).when(mContext).getSystemService(WifiManager.class);
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
         doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
@@ -462,8 +468,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
             @Override
             public void onStateChanged(int state, long expirationTimeMs) {
                 stateMapToCompletion.put(state, true);
-                // TODO(b/210010903): Use CarPowerManagementService.isCompletionAllowed().
-                if (CarPowerManager.isCompletionAllowed(state)) {
+                if (CarPowerManagementService.isCompletionAllowed(state)) {
                     mService.finished(state, this);
                 }
             }

@@ -69,6 +69,7 @@ import com.android.car.R;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserNoticeService;
@@ -87,8 +88,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -106,6 +107,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public static final String SILENT_MODE_FORCED_NON_SILENT =
             SilentModeHandler.SILENT_MODE_FORCED_NON_SILENT;
     public static final String SILENT_MODE_NON_FORCED = SilentModeHandler.SILENT_MODE_NON_FORCED;
+
+    public static final long INVALID_TIMEOUT = -1L;
 
     private static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
     private static final String WIFI_STATE_FILENAME = "wifi_state";
@@ -145,8 +148,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // Default timeout for listener completion during shutdown.
     private static final int DEFAULT_COMPLETION_WAIT_TIMEOUT = 5_000;
 
-    private static final long TIMEOUT_NOT_USED = -1L;
-
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
 
@@ -161,9 +162,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final PowerManagerCallbackList<ICarPowerStateListener>
             mPowerManagerListenersWithCompletion = new PowerManagerCallbackList<>(
                     l -> CarPowerManagementService.this.doUnregisterListener(l));
+    // The internal listeners that must indicates asynchronous completion by calling
+    // completeStateChangeHandling(). Note that they are not binder objects.
+    @GuardedBy("mLock")
+    private final ArrayList<ICarPowerStateListener> mInternalPowerListeners = new ArrayList<>();
 
     @GuardedBy("mLock")
-    private final Set<IBinder> mListenersWeAreWaitingFor = new ArraySet<>();
+    private final PowerListenerSet mListenersWeAreWaitingFor = new PowerListenerSet();
     @GuardedBy("mLock")
     private final LinkedList<CpmsState> mPendingPowerStates = new LinkedList<>();
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -507,7 +512,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // TODO(b/177478420): Restore Wifi, Audio, Location, and Bluetooth, if they are artificially
         // modified for S2R.
         mSilentModeHandler.querySilentModeHwState();
-        sendPowerManagerEvent(carPowerStateListenerState, TIMEOUT_NOT_USED);
+        sendPowerManagerEvent(carPowerStateListenerState, INVALID_TIMEOUT);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
         switch (carPowerStateListenerState) {
             case CarPowerManager.STATE_WAIT_FOR_VHAL:
@@ -573,7 +578,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     PolicyReader.POWER_POLICY_ID_ALL_ON);
         }
 
-        sendPowerManagerEvent(CarPowerManager.STATE_ON, TIMEOUT_NOT_USED);
+        sendPowerManagerEvent(CarPowerManager.STATE_ON, INVALID_TIMEOUT);
 
         mHal.sendOn();
 
@@ -618,7 +623,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         if (policy == null && fallbackPolicyId == null) {
             Slogf.w(TAG, "No default power policy for %s is found",
-                    PolicyReader.powerStateToString(state));
+                    PolicyReader.vhalPowerStateToString(state));
             return;
         }
         String policyId = policy == null ? fallbackPolicyId : policy.getPolicyId();
@@ -686,15 +691,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         : "starting shutdown prepare without Garage Mode"));
 
         long timeoutMs = getPreShutdownPrepareTimeoutConfig();
-        sendPowerManagerEvent(CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE, timeoutMs);
+        int state = CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
+        sendPowerManagerEvent(state, timeoutMs);
         Runnable taskAtCompletion = () -> {
             // The next power state is still SHUTDOWN_PREPARE, and the listener state is
             // SHUTDOW_PREPARE.
-            Slogf.i(TAG, "All listeners completed for PreShutdownPrepare");
+            Slogf.i(TAG, "All listeners completed for %s", powerStateToString(state));
             onApPowerStateChange(CpmsState.SHUTDOWN_PREPARE,
                     CarPowerManager.STATE_SHUTDOWN_PREPARE);
         };
-        Slogf.i(TAG, "Start waiting for listener completion for PreShutdownPrepare");
+        Slogf.i(TAG, "Start waiting for listener completion for %s", powerStateToString(state));
         waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
                 /* intervalMs= */ -1);
     }
@@ -736,7 +742,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         sendPowerManagerEvent(state.mCarPowerStateListenerState, timeoutMs);
         Runnable taskAtCompletion = () -> {
             Slogf.i(TAG, "All listeners completed for %s",
-                    listenerStateToString(state.mCarPowerStateListenerState));
+                    powerStateToString(state.mCarPowerStateListenerState));
             int wakeupSec;
             synchronized (mLock) {
                 // If we're shutting down immediately, don't schedule a wakeup time.
@@ -755,7 +761,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         };
         Slogf.i(TAG, "Start waiting for listener completion for %s",
-                listenerStateToString(state.mCarPowerStateListenerState));
+                powerStateToString(state.mCarPowerStateListenerState));
         waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
                 /* intervalMs= */ -1);
     }
@@ -781,11 +787,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int timeoutMs = getPostShutdownEnterTimeoutConfig();
         sendPowerManagerEvent(listenerState, timeoutMs);
         Runnable taskAtCompletion = () -> {
-            Slogf.i(TAG, "All listeners completed for %s", listenerStateToString(listenerState));
+            Slogf.i(TAG, "All listeners completed for %s", powerStateToString(listenerState));
             doHandleFinish();
         };
         Slogf.i(TAG, "Start waiting for listener completion for %s",
-                listenerStateToString(listenerState));
+                powerStateToString(listenerState));
         waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
                 /* intervalMs= */ -1);
     }
@@ -899,14 +905,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void waitForShutdownPrepareListenersToComplete(long timeoutMs, long intervalMs) {
+        int state = CarPowerManager.STATE_SHUTDOWN_PREPARE;
         Runnable taskAtCompletion = () -> {
             finishShutdownPrepare();
-            Slogf.i(TAG, "All listeners completed for ShutdownPrepare");
+            Slogf.i(TAG, "All listeners completed for %s", powerStateToString(state));
         };
         Runnable taskAtInterval = () -> {
             mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
         };
-        Slogf.i(TAG, "Start waiting for listeners to complete for Shutdown Prepare");
+        Slogf.i(TAG, "Start waiting for listeners to complete for %s", powerStateToString(state));
         waitForCompletion(taskAtCompletion, taskAtInterval, timeoutMs, intervalMs);
 
         // allowUserSwitch value doesn't matter for onSuspend = true
@@ -989,15 +996,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void sendPowerManagerEvent(@CarPowerManager.CarPowerState int newState,
             long timeoutMs) {
         // Broadcasts to the listeners that do not signal completion.
-        notifyListeners(mPowerManagerListeners, newState, TIMEOUT_NOT_USED);
+        notifyListeners(mPowerManagerListeners, newState, INVALID_TIMEOUT);
 
         boolean allowCompletion = false;
-        long expirationTimeMs = TIMEOUT_NOT_USED;
+        boolean isShutdownPrepare = newState == CarPowerManager.STATE_SHUTDOWN_PREPARE;
+        long internalListenerExpirationTimeMs = INVALID_TIMEOUT;
+        long binderListenerExpirationTimeMs = INVALID_TIMEOUT;
+
+        // Fully populates mListenersWeAreWaitingFor before calling any onStateChanged()
+        // for the listeners that signal completion.
+        // Otherwise, if the first listener calls finish() synchronously, we will
+        // see the list go empty and we will think that we are done.
+        PowerManagerCallbackList<ICarPowerStateListener> completingInternalListeners =
+                new PowerManagerCallbackList(l -> { });
+        PowerManagerCallbackList<ICarPowerStateListener> completingBinderListeners =
+                new PowerManagerCallbackList(l -> { });
         synchronized (mLock) {
-            // TODO(b/210010903): Define a isCompletionAllowedInternal here which allows
-            // completion for shutdown prepare, because CarPowerManager.isCompletionAllowed will not
-            // cover shutdown prepare.
-            if (CarPowerManager.isCompletionAllowed(newState)) {
+            if (isCompletionAllowed(newState)) {
                 if (timeoutMs < 0) {
                     Slogf.wtf(TAG, "Completion timeout(%d) for state(%d) should be "
                             + "non-negative", timeoutMs, newState);
@@ -1005,26 +1020,28 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
                 mStateForCompletion = newState;
                 allowCompletion = true;
-                expirationTimeMs = SystemClock.elapsedRealtime() + timeoutMs;
+                internalListenerExpirationTimeMs = SystemClock.elapsedRealtime() + timeoutMs;
+                binderListenerExpirationTimeMs =
+                        isShutdownPrepare ? INVALID_TIMEOUT : internalListenerExpirationTimeMs;
             } else {
                 mStateForCompletion = CarPowerManager.STATE_INVALID;
             }
-        }
 
-        // Fully populates mListenersWeAreWaitingFor before calling any onStateChanged()
-        // for the listeners that signal completion.
-        // Otherwise, if the first listener calls finish() synchronously, we will
-        // see the list go empty and we will think that we are done.
-        PowerManagerCallbackList<ICarPowerStateListener> completingListeners =
-                new PowerManagerCallbackList(l -> { });
-        synchronized (mLock) {
             mListenersWeAreWaitingFor.clear();
+            for (int i = 0; i < mInternalPowerListeners.size(); i++) {
+                ICarPowerStateListener listener = mInternalPowerListeners.get(i);
+                completingInternalListeners.register(listener);
+                if (allowCompletion) {
+                    mListenersWeAreWaitingFor.add(listener);
+                }
+            }
             int idx = mPowerManagerListenersWithCompletion.beginBroadcast();
             while (idx-- > 0) {
                 ICarPowerStateListener listener =
                         mPowerManagerListenersWithCompletion.getBroadcastItem(idx);
-                completingListeners.register(listener);
-                if (allowCompletion) {
+                completingBinderListeners.register(listener);
+                // For binder listeners, listener completion is not allowed for SHUTDOWN_PREPARE.
+                if (allowCompletion && !isShutdownPrepare) {
                     mListenersWeAreWaitingFor.add(listener.asBinder());
                 }
             }
@@ -1033,7 +1050,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // Resets the semaphore's available permits to 0.
         mListenerCompletionSem.drainPermits();
         // Broadcasts to the listeners that DO signal completion.
-        notifyListeners(completingListeners, newState, expirationTimeMs);
+        notifyListeners(completingInternalListeners, newState, internalListenerExpirationTimeMs);
+        notifyListeners(completingBinderListeners, newState, binderListenerExpirationTimeMs);
     }
 
     private void notifyListeners(PowerManagerCallbackList<ICarPowerStateListener> listenerList,
@@ -1185,7 +1203,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * Send display brightness to VHAL.
+     * Sends display brightness to VHAL.
      * @param brightness value 0-100%
      */
     public void sendDisplayBrightness(int brightness) {
@@ -1193,11 +1211,47 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * Get the PowerHandler that we use to change power states
+     * Gets the PowerHandler that we use to change power states
      */
     public Handler getHandler() {
         return mHandler;
 
+    }
+
+    /**
+     * Registers power state change listeners running in CarService, which is not a binder
+     * interfaces.
+     */
+    public void registerInternalListener(ICarPowerStateListener listener) {
+        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
+        synchronized (mLock) {
+            mInternalPowerListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters power state change listeners running in CarService, which is not a binder
+     * interface.
+     */
+    public void unregisterInternalListener(ICarPowerStateListener listener) {
+        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
+        boolean found = false;
+        synchronized (mLock) {
+            found = mInternalPowerListeners.remove(listener);
+        }
+        if (found) {
+            removeListenerFromWaitingList(listener);
+        }
+    }
+
+    /**
+     * Tells {@link CarPowerManagementService} that the listener running in CarService completes
+     * handling power state change.
+     */
+    public void completeHandlingPowerStateChange(int state, ICarPowerStateListener listener) {
+        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
+        handleListenerCompletion(state, listener,
+                new ArraySet(new Integer[] {CarPowerManager.STATE_INVALID}));
     }
 
     // Binder interface for general use.
@@ -1213,7 +1267,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void registerListenerWithCompletion(ICarPowerStateListener listener) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS);
-        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
 
         mPowerManagerListenersWithCompletion.register(listener);
         // TODO: Need to send current state to newly registered listener? If so, need to handle
@@ -1222,7 +1275,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void unregisterListener(ICarPowerStateListener listener) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertAnyPermission(mContext, Car.PERMISSION_CAR_POWER,
+                Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS);
         doUnregisterListener(listener);
     }
 
@@ -1237,20 +1291,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void finished(int state, ICarPowerStateListener listener) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS);
-        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
-        synchronized (mLock) {
-            if (mStateForCompletion == CarPowerManager.STATE_INVALID) {
-                Slogf.w(TAG, "The current state(%d) doesn't allow listener completion",
-                        mStateForCompletion);
-                return;
-            }
-            if (state != mStateForCompletion) {
-                Slogf.w(TAG, "Given state(%d) doesn't match the current state(%d) for completion",
-                        state, mStateForCompletion);
-                return;
-            }
-        }
-        removeListener(listener.asBinder());
+        handleListenerCompletion(state, listener, new ArraySet(new Integer[]
+                {CarPowerManager.STATE_INVALID, CarPowerManager.STATE_SHUTDOWN_PREPARE}));
     }
 
     @Override
@@ -1351,18 +1393,36 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
+    private void handleListenerCompletion(int state, Object listener,
+            ArraySet<Integer> notAllowedStates) {
+        synchronized (mLock) {
+            if (notAllowedStates.contains(mStateForCompletion)) {
+                Slogf.w(TAG, "The current state(%d) doesn't allow listener completion",
+                        mStateForCompletion);
+                return;
+            }
+            if (state != mStateForCompletion) {
+                Slogf.w(TAG, "Given state(%d) doesn't match the current state(%d) for completion",
+                        state, mStateForCompletion);
+                return;
+            }
+        }
+        removeListenerFromWaitingList(listener);
+    }
+
+
     private void doUnregisterListener(ICarPowerStateListener listener) {
         mPowerManagerListeners.unregister(listener);
         boolean found = mPowerManagerListenersWithCompletion.unregister(listener);
         if (found) {
             // Remove this from the completion list (if it's there)
-            removeListener(listener.asBinder());
+            removeListenerFromWaitingList(listener.asBinder());
         }
     }
 
-    private void removeListener(IBinder binder) {
+    private void removeListenerFromWaitingList(Object listener) {
         synchronized (mLock) {
-            mListenersWeAreWaitingFor.remove(binder);
+            mListenersWeAreWaitingFor.remove(listener);
         }
         // Signals a thread to check if all listeners complete.
         mListenerCompletionSem.release();
@@ -1762,6 +1822,35 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     service.doHandleProcessingComplete();
                     break;
             }
+        }
+    }
+
+    private static final class PowerListenerSet {
+
+        private final ArraySet<Object> mListeners = new ArraySet();
+
+        public void clear() {
+            mListeners.clear();
+        }
+
+        public boolean isEmpty() {
+            return mListeners.isEmpty();
+        }
+
+        public void add(Object listener) {
+            if (isSupportedListener(listener)) {
+                mListeners.add(listener);
+            }
+        }
+
+        public void remove(Object listener) {
+            if (isSupportedListener(listener)) {
+                mListeners.remove(listener);
+            }
+        }
+
+        private boolean isSupportedListener(Object listener) {
+            return listener instanceof IBinder || listener instanceof ICarPowerStateListener;
         }
     }
 
@@ -2225,6 +2314,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mSilentModeHandler.dump(writer);
     }
 
+    /**
+     * Returns whether a listener completion is allowed for the given state.
+     *
+     * <p>This method is used internally and is different from
+     * {@link CarPowerManager.isCompletionAllowed} in that listener completion is allowed for
+     * SHUTDOWN_PREPARE.
+     */
+    public static boolean isCompletionAllowed(@CarPowerManager.CarPowerState int state) {
+        return CarPowerManager.isCompletionAllowed(state)
+                || state == CarPowerManager.STATE_SHUTDOWN_PREPARE;
+    }
+
+    /**
+     * Returns a corresponding string of the given power state.
+     */
+    public static String powerStateToString(int state) {
+        return DebugUtils.valueToString(CarPowerManager.class, "STATE_", state);
+    }
+
     // In a real Deep Sleep, the hardware removes power from the CPU (but retains power
     // on the RAM). This puts the processor to sleep. Upon some external signal, power
     // is re-applied to the CPU, and processing resumes right where it left off.
@@ -2268,39 +2376,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private int getCompletionWaitTimeoutConfig(int resourceId) {
         int timeout = mContext.getResources().getInteger(resourceId);
         return timeout >= 0 ? timeout : DEFAULT_COMPLETION_WAIT_TIMEOUT;
-    }
-
-    private static String listenerStateToString(int state) {
-        switch (state) {
-            case CarPowerManager.STATE_WAIT_FOR_VHAL:
-                return "WaitForVhal";
-            case CarPowerManager.STATE_SUSPEND_ENTER:
-                return "SuspendEnter";
-            case CarPowerManager.STATE_SUSPEND_EXIT:
-                return "SuspendExit";
-            case CarPowerManager.STATE_SHUTDOWN_ENTER:
-                return "ShutdownEnter";
-            case CarPowerManager.STATE_ON:
-                return "On";
-            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
-                return "ShutdownPrepare";
-            case CarPowerManager.STATE_SHUTDOWN_CANCELLED:
-                return "ShutdownCancelled";
-            case CarPowerManager.STATE_HIBERNATION_ENTER:
-                return "HibernationEnter";
-            case CarPowerManager.STATE_HIBERNATION_EXIT:
-                return "HibernationdExit";
-            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
-                return "PreShutdownPrepare";
-            case CarPowerManager.STATE_POST_SUSPEND_ENTER:
-                return "PostSuspendEnter";
-            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
-                return "PostShutdownEnter";
-            case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
-                return "PostHibernationEnter";
-            default:
-                return "Unknown";
-        }
     }
 
     private static String actionOnFinishToString(int actionOnFinish) {

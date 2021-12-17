@@ -265,7 +265,7 @@ public final class PolicyReader {
             if (!mRegisteredPowerPolicies.containsKey(policyId)) {
                 int error = PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
                 Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId + " for "
-                        + powerStateToString(state)));
+                        + vhalPowerStateToString(state)));
                 return error;
             }
         }
@@ -289,7 +289,7 @@ public final class PolicyReader {
             writer.increaseIndent();
             SparseArray<String> group = entry.getValue();
             for (int i = 0; i < group.size(); i++) {
-                writer.printf("- %s --> %s\n", powerStateToString(group.keyAt(i)),
+                writer.printf("- %s --> %s\n", vhalPowerStateToString(group.keyAt(i)),
                         group.valueAt(i));
             }
             writer.decreaseIndent();
@@ -725,7 +725,7 @@ public final class PolicyReader {
         }
     }
 
-    static String powerStateToString(int state) {
+    static String vhalPowerStateToString(int state) {
         switch (state) {
             case VehicleApPowerStateReport.WAIT_FOR_VHAL:
                 return POWER_STATE_WAIT_FOR_VHAL;
