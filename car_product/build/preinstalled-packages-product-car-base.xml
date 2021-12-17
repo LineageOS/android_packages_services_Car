@@ -353,4 +353,7 @@
     <install-in-user-type package="com.android.supplemental.process">
         <install-in user-type="FULL" />
     </install-in-user-type>
+        <install-in-user-type package="com.android.nearby.halfsheet">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
