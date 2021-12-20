@@ -52,7 +52,6 @@ import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -88,7 +87,8 @@ public class DataBrokerImpl implements DataBroker {
      * Maps MetricsConfig's unique identifier to its subscriptions. This map is useful when
      * removing a MetricsConfig.
      */
-    private final Map<MetricsConfigKey, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
+    private final ArrayMap<MetricsConfigKey, List<DataSubscriber>> mSubscriptionMap =
+            new ArrayMap<>();
 
     /**
      * If something irrecoverable happened, DataBroker should enter into a disabled state to prevent
@@ -334,8 +334,8 @@ public class DataBrokerImpl implements DataBroker {
     }
 
     @VisibleForTesting
-    Map<MetricsConfigKey, List<DataSubscriber>> getSubscriptionMap() {
-        return new ArrayMap<>((ArrayMap<MetricsConfigKey, List<DataSubscriber>>) mSubscriptionMap);
+    ArrayMap<MetricsConfigKey, List<DataSubscriber>> getSubscriptionMap() {
+        return new ArrayMap<>(mSubscriptionMap);
     }
 
     @VisibleForTesting

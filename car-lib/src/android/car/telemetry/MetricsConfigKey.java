@@ -76,12 +76,17 @@ public final class MetricsConfigKey implements Parcelable {
             return false;
         }
         MetricsConfigKey other = (MetricsConfigKey) o;
-        return mName.equals(other.getName()) && mVersion == other.getVersion();
+        return mName.equals(other.mName) && mVersion == other.mVersion;
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(mName, mVersion);
+    }
+
+    @Override
+    public String toString() {
+        return "MetricsConfigKey(" + mName + ", " + mVersion + ")";
     }
 
     public static final @NonNull Parcelable.Creator<MetricsConfigKey> CREATOR =

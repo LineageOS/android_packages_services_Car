@@ -188,7 +188,16 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             int status;
             try {
                 metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
-                status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
+                if (!metricsConfig.getName().equals(key.getName())
+                        || metricsConfig.getVersion() != key.getVersion()) {
+                    Slogf.e(CarLog.TAG_TELEMETRY,
+                            "Argument key " + key + " doesn't match name/version in MetricsConfig ("
+                                    + metricsConfig.getName() + ", "
+                                    + metricsConfig.getVersion() + ").");
+                    status = STATUS_METRICS_CONFIG_PARSE_FAILED;
+                } else {
+                    status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
+                }
             } catch (InvalidProtocolBufferException e) {
                 Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
                 status = STATUS_METRICS_CONFIG_PARSE_FAILED;
