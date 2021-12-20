@@ -48,15 +48,6 @@ public final class UserManagerHelper {
     /** A user id constant to indicate the "system" user of the device */
     public static final @UserIdInt int USER_SYSTEM = UserHandle.USER_SYSTEM;
 
-    // TODO(b/197181121): Move it after making systemAPI
-    /**
-     * Type for Guest user
-     *
-     * @deprecated Move it after making systemAPI
-     */
-    @Deprecated
-    public static final String USER_TYPE_FULL_GUEST = UserManager.USER_TYPE_FULL_GUEST;
-
     // Flags copied from UserInfo.
     public static final int FLAG_PRIMARY = UserInfo.FLAG_PRIMARY;
     public static final int FLAG_ADMIN = UserInfo.FLAG_ADMIN;
@@ -321,16 +312,6 @@ public final class UserManagerHelper {
     public static int removeUserOrSetEphemeral(@NonNull UserManager userManager, int userId,
             boolean evenWhenDisallowed) {
         return userManager.removeUserOrSetEphemeral(userId, evenWhenDisallowed);
-    }
-
-    /**
-     * Gets maximum supported users
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    public static int getMaxSupportedUsers() {
-        return UserManager.getMaxSupportedUsers();
     }
 
     /**

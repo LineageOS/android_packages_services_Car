@@ -1137,7 +1137,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
             int flags, int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
             boolean hasCallerRestrictions) {
-        boolean isGuest = userType.equals(UserManagerHelper.USER_TYPE_FULL_GUEST);
+        boolean isGuest = userType.equals(UserManager.USER_TYPE_FULL_GUEST);
         if (isGuest && flags != 0) {
             // Non-zero flags are not allowed when creating a guest user.
             Slogf.e(TAG, "Invalid flags %d specified when creating a guest user %s", flags, name);
@@ -1155,7 +1155,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     validCombination = flags == 0
                         || (flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN;
                     break;
-                case UserManagerHelper.USER_TYPE_FULL_GUEST:
+                case UserManager.USER_TYPE_FULL_GUEST:
                     validCombination = true;
                     break;
                 default:

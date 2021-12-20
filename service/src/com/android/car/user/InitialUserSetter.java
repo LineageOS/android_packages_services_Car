@@ -597,7 +597,7 @@ final class InitialUserSetter {
         // sets all guests as ephemeral - should it fail or just warn?
 
         int flags = UserHalHelper.toUserInfoFlags(halFlags);
-        String type = UserHalHelper.isGuest(halFlags) ? UserManagerHelper.USER_TYPE_FULL_GUEST
+        String type = UserHalHelper.isGuest(halFlags) ? UserManager.USER_TYPE_FULL_GUEST
                 : UserManager.USER_TYPE_FULL_SECONDARY;
 
         if (DBG) {

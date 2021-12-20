@@ -422,7 +422,7 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createGuest(@Nullable String name) {
-        return createUser(name, UserManagerHelper.USER_TYPE_FULL_GUEST, /* flags= */ 0);
+        return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
     }
 
     /**
