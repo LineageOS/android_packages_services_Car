@@ -47,15 +47,28 @@ public class EventMetricDataConverter {
      */
     static PersistableBundle convertEventDataList(
                 List<StatsLogProto.EventMetricData> eventDataList)
-                throws StatsConversionException {
-        long[] elapsedTimes = new long[eventDataList.size()];
+                        throws StatsConversionException {
+        List<Long> elapsedTimes = new ArrayList<>(eventDataList.size());
         List<AtomsProto.Atom> atoms = new ArrayList<>(eventDataList.size());
-        for (int i = 0; i < eventDataList.size(); ++i) {
-            elapsedTimes[i] = eventDataList.get(i).getElapsedTimestampNanos();
-            atoms.add(eventDataList.get(i).getAtom());
+        for (StatsLogProto.EventMetricData eventData : eventDataList) {
+            if (eventData.hasAggregatedAtomInfo()) {
+                StatsLogProto.AggregatedAtomInfo aggregate = eventData.getAggregatedAtomInfo();
+                AtomsProto.Atom atom = aggregate.getAtom();
+                for (long elapsedTime : aggregate.getElapsedTimestampNanosList()) {
+                    elapsedTimes.add(elapsedTime);
+                    atoms.add(atom);
+                }
+            } else {
+                elapsedTimes.add(eventData.getElapsedTimestampNanos());
+                atoms.add(eventData.getAtom());
+            }
         }
         PersistableBundle bundle = AtomListConverter.convert(atoms, null, null, null);
-        bundle.putLongArray(ELAPSED_TIME_NANOS, elapsedTimes);
+        long[] elapsedTimesArray = new long[elapsedTimes.size()];
+        for (int i = 0; i < elapsedTimes.size(); ++i) {
+            elapsedTimesArray[i] = elapsedTimes.get(i);
+        }
+        bundle.putLongArray(ELAPSED_TIME_NANOS, elapsedTimesArray);
         return bundle;
     }
 }
