@@ -74,6 +74,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.NewUserRequest;
+import android.os.NewUserResponse;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -1137,8 +1139,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
             int flags, int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
             boolean hasCallerRestrictions) {
-        boolean isGuest = userType.equals(UserManager.USER_TYPE_FULL_GUEST);
-        if (isGuest && flags != 0) {
+        if (userType.equals(UserManager.USER_TYPE_FULL_GUEST) && flags != 0) {
             // Non-zero flags are not allowed when creating a guest user.
             Slogf.e(TAG, "Invalid flags %d specified when creating a guest user %s", flags, name);
             sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
@@ -1185,23 +1186,34 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
         }
 
+        NewUserRequest newUserRequest;
+        try {
+            newUserRequest = getCreateUserRequest(name, userType, flags);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Error creating new user request. name: %s UserType: %s and flags: %s",
+                    name, userType, flags);
+            sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
+            return;
+        }
+
         UserHandle newUser;
         try {
-            newUser = isGuest
-                    ? UserManagerHelper.createGuest(mContext, mUserManager, name)
-                    : UserManagerHelper.createUser(mUserManager, name, userType, flags);
-            if (newUser == null) {
+            NewUserResponse newUserResponse = mUserManager.createUser(newUserRequest);
+
+            if (!newUserResponse.isSuccessful()) {
                 Slogf.w(TAG, "um.createUser() returned null for user of type " + userType
                         + " and flags " + flags);
                 sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
                 return;
             }
+
+            newUser = newUserResponse.getUser();
+
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slogf.d(TAG, "Created user: " + newUser.toString());
+                Slogf.d(TAG, "Created user: " + newUser);
             }
-            // TODO(b/196179969): enabled the log
-            // EventLogHelper.writeCarUserService(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_CREATED
-            // newUser.id, UserHelperLite.safeName(newUser.name), newUser.userType, newUser.flags);
+            EventLogHelper.writeCarUserServiceCreateUserUserCreated(newUser.getIdentifier(), name,
+                    userType, flags);
         } catch (RuntimeException e) {
             Slogf.e(TAG, "Error creating user of type " + userType + " and flags"
                     + flags, e);
@@ -1271,6 +1283,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             removeCreatedUser(newUser, "mHal.createUser() failed");
             sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         }
+    }
+
+    private NewUserRequest getCreateUserRequest(String name, String userType, int flags) {
+        NewUserRequest.Builder builder = new NewUserRequest.Builder().setName(name)
+                .setUserType(userType);
+        if ((flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN) {
+            builder.setAdmin();
+        }
+
+        if ((flags & UserManagerHelper.FLAG_EPHEMERAL) == UserManagerHelper.FLAG_EPHEMERAL) {
+            builder.setEphemeral();
+        }
+
+        return builder.build();
     }
 
     private void removeCreatedUser(@NonNull UserHandle user, @NonNull String reason) {

@@ -239,9 +239,6 @@ package android.car.builtin.os {
 
   public final class UserManagerHelper {
     method public static android.graphics.Bitmap assignDefaultIconForUser(@NonNull android.content.Context, @NonNull android.os.UserHandle);
-    method @Deprecated @Nullable public static android.os.UserHandle createGuest(@NonNull android.content.Context, @NonNull android.os.UserManager, @Nullable String);
-    method @Deprecated @Nullable public static android.os.UserHandle createUser(@NonNull android.os.UserManager, @Nullable String, @NonNull String, int);
-    method @Deprecated @Nullable public static android.os.UserHandle createUser(@NonNull android.os.UserManager, @Nullable String, int);
     method @NonNull public static String getDefaultUserName(@NonNull android.content.Context);
     method public static String getDefaultUserTypeForUserInfoFlags(int);
     method public static int getMaxRunningUsers(@NonNull android.content.Context);

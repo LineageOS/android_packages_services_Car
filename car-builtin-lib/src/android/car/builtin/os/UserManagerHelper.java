@@ -265,45 +265,6 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Creates guest
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    @Nullable
-    public static UserHandle createGuest(@NonNull Context context, @NonNull UserManager userManager,
-            @Nullable String name) {
-        UserInfo userInfo = userManager.createGuest(context, name);
-        return userInfo == null ? null : userInfo.getUserHandle();
-    }
-
-    /**
-     * Creates user
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    @Nullable
-    public static UserHandle createUser(@NonNull UserManager userManager, @Nullable String name,
-            @NonNull String userType, int flags) {
-        UserInfo userInfo = userManager.createUser(name, userType, flags);
-        return userInfo == null ? null : userInfo.getUserHandle();
-    }
-
-    /**
-     * Creates user
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    @Nullable
-    public static UserHandle createUser(@NonNull UserManager userManager, @Nullable String name,
-            int flags) {
-        UserInfo userInfo = userManager.createUser(name, flags);
-        return userInfo == null ? null : userInfo.getUserHandle();
-    }
-
-    /**
      * Removes users or sets it as ephemeral if {@code userId} is current user.
      *
      * @deprecated Would be removed after converting to system API

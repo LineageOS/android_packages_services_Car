@@ -128,7 +128,6 @@ public final class UserHandleHelper {
         return UserManagerHelper.isPreCreatedUser(mUserManager, user);
     }
 
-
     /**
      * Get profile group Id for the user
      */

@@ -19,9 +19,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -30,7 +28,6 @@ import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.test.util.UserTestingHelper;
-import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.car.test.util.Visitor;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -213,45 +210,6 @@ public final class AndroidMockitoHelper {
             boolean isRunning) {
         when(um.isUserRunning(userId)).thenReturn(isRunning);
         when(um.isUserRunning(UserHandle.of(userId))).thenReturn(isRunning);
-    }
-
-    /**
-     * Mocks a successful call to {@code UserManager#createUser(String, String, int)}
-     */
-    @NonNull
-    public static void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull UserHandle user) {
-        UserInfo userInfo = new UserInfoBuilder(user.getIdentifier())
-                .setName(name)
-                .setType(userType)
-                .setFlags(flags)
-                .build();
-        when(um.createUser(name, userType, flags)).thenReturn(userInfo);
-    }
-
-    /**
-     * Mocks a call to {@code UserManager#createUser(String, String, int)} that throws the given
-     * runtime exception.
-     */
-    @NonNull
-    public static void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull RuntimeException e) {
-        when(um.createUser(name, userType, flags)).thenThrow(e);
-    }
-
-    /**
-     * Mocks a call to {@code UserManager#createGuest(Context, String)}.
-     */
-    @NonNull
-    public static UserInfo mockUmCreateGuest(
-            @NonNull UserManager um, @Nullable String name, @UserIdInt int userId) {
-        UserInfo userInfo = new UserInfoBuilder(userId)
-                .setName(name)
-                .setType(UserManager.USER_TYPE_FULL_GUEST)
-                .setFlags(0)
-                .build();
-        when(um.createGuest(any(Context.class), eq(name))).thenReturn(userInfo);
-        return userInfo;
     }
 
     /**
