@@ -50,6 +50,7 @@ import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerController;
 import com.android.car.telemetry.databroker.DataBrokerImpl;
 import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -91,6 +92,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
+    private SessionController mSessionController;
     private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
@@ -113,6 +115,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // initialize all necessary components
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(rootDirectory);
+            mSessionController = new SessionController(mContext, mTelemetryHandler);
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
                     mContext, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
@@ -140,6 +143,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mTelemetryThreadTraceLog.traceBegin("release");
             mResultStore.flushToDisk();
             mOnShutdownReboot.release();
+            mSessionController.release();
             mTelemetryThreadTraceLog.traceEnd();
         });
         mTelemetryThread.quitSafely();
