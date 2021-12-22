@@ -188,6 +188,17 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
+    public void testAddMetricsConfig_invalidNameVersion_shouldFail() throws Exception {
+        MetricsConfigKey wrongKey = new MetricsConfigKey("wrong-name", 5);
+
+        mService.addMetricsConfig(wrongKey, METRICS_CONFIG_V1.toByteArray());
+
+        waitForHandlerThreadToFinish();
+        verify(mMockListener).onAddMetricsConfigStatus(
+                eq(wrongKey), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED));
+    }
+
+    @Test
     public void testRemoveMetricsConfig_shouldDeleteConfigAndResult() throws Exception {
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
