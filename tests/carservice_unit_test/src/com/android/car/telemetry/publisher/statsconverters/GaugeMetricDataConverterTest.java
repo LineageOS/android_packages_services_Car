@@ -96,7 +96,7 @@ public class GaugeMetricDataConverterTest {
         Map<Long, String> hashToStringMap = Map.of(
                 hash1, "process.name.1",
                 hash2, "process.name.2");
-        SparseArray<AtomFieldAccessor<AtomsProto.ProcessMemoryState>> accessorMap =
+        SparseArray<AtomFieldAccessor<AtomsProto.ProcessMemoryState, ?>> accessorMap =
                 new ProcessMemoryStateConverter().getAtomFieldAccessorMap();
 
         PersistableBundle bundle = GaugeMetricDataConverter.convertGaugeDataList(
@@ -181,7 +181,7 @@ public class GaugeMetricDataConverterTest {
         Map<Long, String> hashToStringMap = Map.of(
                 hash1, "process.name.1",
                 hash2, "process.name.2");
-        SparseArray<AtomFieldAccessor<AtomsProto.ProcessMemoryState>> accessorMap =
+        SparseArray<AtomFieldAccessor<AtomsProto.ProcessMemoryState, ?>> accessorMap =
                 new ProcessMemoryStateConverter().getAtomFieldAccessorMap();
 
         PersistableBundle bundle = GaugeMetricDataConverter.convertGaugeDataList(
