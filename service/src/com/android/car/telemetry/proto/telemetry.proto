@@ -102,12 +102,40 @@ message StatsPublisher {
   optional SystemMetric system_metric = 1;
 }
 
+// Publisher for connectivity stats.
+// It pulls connectivity metrics every 1 minute (configurable via android
+// properties).
+// TODO(b/197905656): pull netstats when driving session changes.
+message ConnectivityPublisher {
+  // Transports are from android.net.NetworkCapabilities.
+  enum Transport {
+    TRANSPORT_UNDEFINED = 0;  // default value, not used
+    TRANSPORT_CELLULAR = 1;
+    TRANSPORT_WIFI = 2;
+    TRANSPORT_BLUETOOTH = 3;
+    TRANSPORT_ETHERNET = 4;
+  }
+
+  enum OemType {
+    OEM_UNDEFINED = 0;  // default value, not used
+    OEM_NONE = 1;       // non-OEM networks only
+    OEM_MANAGED = 2;    // OEM managed networks only
+  }
+
+  // Required. Network transport.
+  optional Transport transport = 1;
+
+  // Required. OEM network type.
+  optional OemType oem_type = 2;
+}
+
 // Specifies data publisher and its parameters.
 message Publisher {
   oneof publisher {
     VehiclePropertyPublisher vehicle_property = 1;
     CarTelemetrydPublisher cartelemetryd = 2;
     StatsPublisher stats = 3;
+    ConnectivityPublisher connectivity = 4;
   }
 }
 

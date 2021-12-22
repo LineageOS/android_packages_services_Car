@@ -16,6 +16,9 @@
 
 package com.android.car.telemetry.publisher;
 
+import android.app.StatsManager;
+import android.car.builtin.net.NetworkStatsServiceHelper;
+import android.content.Context;
 import android.os.Handler;
 
 import com.android.car.CarPropertyService;
@@ -37,21 +40,21 @@ public class PublisherFactory {
     private final CarPropertyService mCarPropertyService;
     private final File mPublisherDirectory;
     private final Handler mTelemetryHandler;
-    private final StatsManagerProxy mStatsManager;
+    private final Context mContext;  // CarService context
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
     private StatsPublisher mStatsPublisher;
-
+    private ConnectivityPublisher mConnectivityPublisher;
     private AbstractPublisher.PublisherFailureListener mFailureListener;
 
     public PublisherFactory(
             CarPropertyService carPropertyService,
             Handler handler,
-            StatsManagerProxy statsManager,
+            Context context,
             File publisherDirectory) {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
-        mStatsManager = statsManager;
+        mContext = context;
         mPublisherDirectory = publisherDirectory;
     }
 
@@ -74,11 +77,23 @@ public class PublisherFactory {
                     return mCarTelemetrydPublisher;
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
+                        StatsManagerProxy statsManager = new StatsManagerImpl(
+                                mContext.getSystemService(StatsManager.class));
                         mStatsPublisher = new StatsPublisher(
-                                mFailureListener, mStatsManager, mPublisherDirectory,
-                                mTelemetryHandler);
+                                mFailureListener, statsManager, mPublisherDirectory,
+                                        mTelemetryHandler);
                     }
                     return mStatsPublisher;
+                case TelemetryProto.Publisher.CONNECTIVITY_FIELD_NUMBER:
+                    if (mConnectivityPublisher == null) {
+                        mConnectivityPublisher =
+                                new ConnectivityPublisher(
+                                        mFailureListener,
+                                        new NetworkStatsServiceHelper(),
+                                        mTelemetryHandler,
+                                        mContext);
+                    }
+                    return mConnectivityPublisher;
                 default:
                     throw new IllegalArgumentException(
                             "Publisher type " + type + " is not supported");

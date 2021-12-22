@@ -44,7 +44,6 @@ import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
-import com.android.car.telemetry.publisher.StatsManagerProxy;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
@@ -121,8 +120,6 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     @Mock
     private Handler mMockHandler;
     @Mock
-    private StatsManagerProxy mMockStatsManager;
-    @Mock
     private IBinder mMockScriptExecutorBinder;
     @Mock
     private ResultStore mMockResultStore;
@@ -134,7 +131,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
         PublisherFactory factory = new PublisherFactory(
-                mMockCarPropertyService, mMockHandler, mMockStatsManager,
+                mMockCarPropertyService, mMockHandler, mMockContext,
                 Files.createTempDirectory("telemetry_test").toFile());
         mDataBroker = new DataBrokerImpl(
                 mMockContext, factory, mMockResultStore, mMockTimingsTraceLog);

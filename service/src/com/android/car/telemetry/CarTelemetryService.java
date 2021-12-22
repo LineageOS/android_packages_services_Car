@@ -21,7 +21,6 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SU
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
-import android.app.StatsManager;
 import android.car.Car;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
@@ -47,8 +46,6 @@ import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerController;
 import com.android.car.telemetry.databroker.DataBrokerImpl;
 import com.android.car.telemetry.publisher.PublisherFactory;
-import com.android.car.telemetry.publisher.StatsManagerImpl;
-import com.android.car.telemetry.publisher.StatsManagerProxy;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -64,7 +61,8 @@ import java.io.IOException;
  */
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
-    private static final boolean DEBUG = false;
+    public static final boolean DEBUG = true; // STOPSHIP if true
+
     private static final String PUBLISHER_DIR = "publisher";
     public static final String TELEMETRY_DIR = "telemetry";
 
@@ -80,7 +78,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private MetricsConfigStore mMetricsConfigStore;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
-    private StatsManagerProxy mStatsManagerProxy;
     private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
@@ -103,10 +100,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // initialize all necessary components
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(rootDirectory);
-            mStatsManagerProxy = new StatsManagerImpl(
-                    mContext.getSystemService(StatsManager.class));
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
-                    mStatsManagerProxy, publisherDirectory);
+                    mContext, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
                     mTelemetryThreadTraceLog);
             mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
@@ -181,8 +176,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
                 return;
             }
-            Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config: " + key.getName()
-                    + " to car telemetry service");
+            if (DEBUG) {
+                Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config: " + key.getName()
+                        + " to car telemetry service");
+            }
             mTelemetryThreadTraceLog.traceBegin("addMetricsConfig");
             TelemetryProto.MetricsConfig metricsConfig = null;
             int status;
@@ -221,9 +218,11 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeMetricsConfig");
         mTelemetryHandler.post(() -> {
+            if (DEBUG) {
+                Slogf.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
+                        + " from car telemetry service");
+            }
             mTelemetryThreadTraceLog.traceBegin("removeMetricsConfig");
-            Slogf.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
-                    + " from car telemetry service");
             if (mMetricsConfigStore.removeMetricsConfig(key)) {
                 mDataBroker.removeMetricsConfig(key);
                 mResultStore.removeResult(key);
