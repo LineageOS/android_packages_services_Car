@@ -18,6 +18,7 @@ package com.android.car.telemetry.publisher;
 
 import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
+import android.annotation.NonNull;
 import android.car.builtin.net.NetworkStatsHelper;
 import android.car.builtin.net.NetworkStatsServiceHelper;
 import android.car.builtin.util.Slogf;
@@ -80,10 +81,10 @@ public class ConnectivityPublisher extends AbstractPublisher {
     private boolean mIsPullingNetstats = false;
 
     ConnectivityPublisher(
-            PublisherFailureListener failureListener,
-            NetworkStatsServiceHelper networkStatsService,
-            Handler telemetryHandler,
-            Context context) {
+            @NonNull PublisherFailureListener failureListener,
+            @NonNull NetworkStatsServiceHelper networkStatsService,
+            @NonNull Handler telemetryHandler,
+            @NonNull Context context) {
         super(failureListener);
         mNetworkStatsService = networkStatsService;
         mTelemetryHandler = telemetryHandler;
@@ -105,7 +106,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void addDataSubscriber(DataSubscriber subscriber) {
+    public void addDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase() == PublisherCase.CONNECTIVITY,
@@ -123,7 +124,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void removeDataSubscriber(DataSubscriber subscriber) {
+    public void removeDataSubscriber(@NonNull DataSubscriber subscriber) {
         mSubscribers.get(QueryParam.forSubscriber(subscriber)).remove(subscriber);
         if (isSubscribersEmpty()) {
             mIsPullingNetstats = false;
@@ -141,7 +142,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     @Override
-    public boolean hasDataSubscriber(DataSubscriber subscriber) {
+    public boolean hasDataSubscriber(@NonNull DataSubscriber subscriber) {
         return mSubscribers.get(QueryParam.forSubscriber(subscriber)).contains(subscriber);
     }
 
@@ -177,7 +178,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     private void pullAndForwardNetstatsToSubscribers(
-            QueryParam param, ArrayList<DataSubscriber> subscribers) {
+            @NonNull QueryParam param, @NonNull ArrayList<DataSubscriber> subscribers) {
         NetworkStats current;
         try {
             current = getSummaryForAllUid(param);
@@ -229,7 +230,8 @@ public class ConnectivityPublisher extends AbstractPublisher {
      *
      * <p>TODO(b/197905656): run this method on a separate thread for better performance.
      */
-    private NetworkStats getSummaryForAllUid(QueryParam param) throws RemoteException {
+    @NonNull
+    private NetworkStats getSummaryForAllUid(@NonNull QueryParam param) throws RemoteException {
         long currentTimeInMillis = System.currentTimeMillis();
         long elapsedMillisSinceBoot = SystemClock.elapsedRealtime(); // including sleep
 
@@ -262,13 +264,15 @@ public class ConnectivityPublisher extends AbstractPublisher {
         private int mTransport;
         private int mOemManaged;
 
-        static QueryParam forSubscriber(DataSubscriber subscriber) {
+        @NonNull
+        static QueryParam forSubscriber(@NonNull DataSubscriber subscriber) {
             TelemetryProto.ConnectivityPublisher publisher =
                     subscriber.getPublisherParam().getConnectivity();
             return build(publisher.getTransport(), publisher.getOemType());
         }
 
-        static QueryParam build(Transport transport, OemType oemType) {
+        @NonNull
+        static QueryParam build(@NonNull Transport transport, @NonNull OemType oemType) {
             return new QueryParam(getNetstatsTransport(transport), getNetstatsOemManaged(oemType));
         }
 
@@ -285,7 +289,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
             return mOemManaged;
         }
 
-        private static int getNetstatsTransport(Transport transport) {
+        private static int getNetstatsTransport(@NonNull Transport transport) {
             switch (transport) {
                 case TRANSPORT_CELLULAR:
                     return NetworkStatsServiceHelper.TRANSPORT_CELLULAR;
@@ -300,7 +304,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
             }
         }
 
-        private static int getNetstatsOemManaged(OemType oemType) {
+        private static int getNetstatsOemManaged(@NonNull OemType oemType) {
             switch (oemType) {
                 case OEM_NONE:
                     return NetworkStatsServiceHelper.OEM_MANAGED_NO;

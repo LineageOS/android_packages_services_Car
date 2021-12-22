@@ -23,6 +23,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
@@ -116,7 +117,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                     mContext, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
                     mTelemetryThreadTraceLog);
-            mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
+            ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
+            mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
             // controller starts metrics collection after boot complete
             mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
                     mMetricsConfigStore, mSystemMonitor,
@@ -429,13 +431,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      * Returns the list of config names and versions. This methods is expected to be used only by
      * {@code CarShellCommand} class. Other usages are not supported.
      */
+    @NonNull
     public List<String> getActiveMetricsConfigDetails() {
         return mMetricsConfigStore.getActiveMetricsConfigs().stream()
                 .map((config) -> config.getName() + " version=" + config.getVersion())
                 .collect(toList());
     }
 
-    private void sendFinalResult(MetricsConfigKey key, PersistableBundle result) {
+    private void sendFinalResult(@NonNull MetricsConfigKey key, @NonNull PersistableBundle result) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             result.writeToStream(bos);
             mListener.onResult(key, bos.toByteArray());
@@ -446,7 +449,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         }
     }
 
-    private void sendError(MetricsConfigKey key, TelemetryProto.TelemetryError error) {
+    private void sendError(
+            @NonNull MetricsConfigKey key, @NonNull TelemetryProto.TelemetryError error) {
         try {
             mListener.onError(key, error.toByteArray());
         } catch (RemoteException e) {

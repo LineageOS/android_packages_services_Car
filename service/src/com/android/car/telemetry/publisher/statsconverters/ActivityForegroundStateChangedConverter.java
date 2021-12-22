@@ -16,10 +16,12 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import android.annotation.NonNull;
 import android.util.SparseArray;
 
 import com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged;
 import com.android.car.telemetry.AtomsProto.Atom;
+import com.android.internal.util.Preconditions;
 
 /**
  * Atom data converter for atoms of type {@link ActivityForegroundStateChanged}.
@@ -57,16 +59,22 @@ public class ActivityForegroundStateChangedConverter
     }
 
     @Override
+    @NonNull
     SparseArray<AtomFieldAccessor<ActivityForegroundStateChanged>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 
     @Override
-    ActivityForegroundStateChanged getAtomData(Atom atom) {
+    @NonNull
+    ActivityForegroundStateChanged getAtomData(@NonNull Atom atom) {
+        Preconditions.checkArgument(
+                atom.hasActivityForegroundStateChanged(),
+                "Atom doesn't contain ActivityForegroundStateChanged");
         return atom.getActivityForegroundStateChanged();
     }
 
     @Override
+    @NonNull
     String getAtomDataClassName() {
         return ActivityForegroundStateChanged.class.getSimpleName();
     }

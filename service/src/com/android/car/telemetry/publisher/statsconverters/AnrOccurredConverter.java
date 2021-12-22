@@ -16,10 +16,12 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import android.annotation.NonNull;
 import android.util.SparseArray;
 
 import com.android.car.telemetry.AtomsProto;
 import com.android.car.telemetry.AtomsProto.ANROccurred;
+import com.android.internal.util.Preconditions;
 
 /**
  * Atom data converter for atoms of type {@link ANROccurred}.
@@ -144,16 +146,20 @@ public class AnrOccurredConverter extends AbstractAtomConverter<ANROccurred> {
         super();
     }
     @Override
+    @NonNull
     SparseArray<AtomFieldAccessor<ANROccurred>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 
     @Override
-    ANROccurred getAtomData(AtomsProto.Atom atom) {
+    @NonNull
+    ANROccurred getAtomData(@NonNull AtomsProto.Atom atom) {
+        Preconditions.checkArgument(atom.hasAnrOccurred(), "Atom doesn't contain AnrOccurred");
         return atom.getAnrOccurred();
     }
 
     @Override
+    @NonNull
     String getAtomDataClassName() {
         return ANROccurred.class.getSimpleName();
     }
