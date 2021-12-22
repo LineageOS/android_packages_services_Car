@@ -113,16 +113,13 @@ ScopedAStatus checkSystemPermission() {
 
 std::shared_ptr<CarPowerPolicyServer> CarPowerPolicyServer::sCarPowerPolicyServer = nullptr;
 
-HidlDeathRecipient::HidlDeathRecipient(const std::shared_ptr<CarPowerPolicyServer>& service) :
-      mService(service) {}
+HidlDeathRecipient::HidlDeathRecipient(CarPowerPolicyServer* service) : mService(service) {}
 
 void HidlDeathRecipient::serviceDied(uint64_t /*cookie*/, const wp<IBase>& who) {
     mService->handleHidlDeath(who);
 }
 
-PropertyChangeListener::PropertyChangeListener(
-        const std::shared_ptr<CarPowerPolicyServer>& service) :
-      mService(service) {}
+PropertyChangeListener::PropertyChangeListener(CarPowerPolicyServer* service) : mService(service) {}
 
 Return<void> PropertyChangeListener::onPropertyEvent(const hidl_vec<VehiclePropValue>& propValues) {
     for (const auto& value : propValues) {
@@ -154,8 +151,7 @@ Return<void> PropertyChangeListener::onPropertySetError(StatusCode /*status*/, i
     return Return<void>();
 }
 
-MessageHandlerImpl::MessageHandlerImpl(const std::shared_ptr<CarPowerPolicyServer>& service) :
-      mService(service) {}
+MessageHandlerImpl::MessageHandlerImpl(CarPowerPolicyServer* service) : mService(service) {}
 
 void MessageHandlerImpl::handleMessage(const Message& message) {
     switch (message.what) {
@@ -167,26 +163,50 @@ void MessageHandlerImpl::handleMessage(const Message& message) {
     }
 }
 
-CarServiceNotificationHandler::CarServiceNotificationHandler(
-        const std::shared_ptr<CarPowerPolicyServer>& service) :
+CarServiceNotificationHandler::CarServiceNotificationHandler(CarPowerPolicyServer* service) :
       mService(service) {}
 
+void CarServiceNotificationHandler::terminate() {
+    Mutex::Autolock lock(mMutex);
+    mService = nullptr;
+}
+
 binder_status_t CarServiceNotificationHandler::dump(int fd, const char** args, uint32_t numArgs) {
+    Mutex::Autolock lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip dumping, CarPowerPolicyServer is ending");
+        return STATUS_OK;
+    }
     return mService->dump(fd, args, numArgs);
 }
 
 ScopedAStatus CarServiceNotificationHandler::notifyCarServiceReady(PolicyState* policyState) {
+    Mutex::Autolock lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip notifying CarServiceReady, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
     return mService->notifyCarServiceReady(policyState);
 }
 
 ScopedAStatus CarServiceNotificationHandler::notifyPowerPolicyChange(const std::string& policyId,
                                                                      bool force) {
+    Mutex::Autolock lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip notifying PowerPolicyChange, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
     return mService->notifyPowerPolicyChange(policyId, force);
 }
 
 ScopedAStatus CarServiceNotificationHandler::notifyPowerPolicyDefinition(
         const std::string& policyId, const std::vector<std::string>& enabledComponents,
         const std::vector<std::string>& disabledComponents) {
+    Mutex::Autolock lock(mMutex);
+    if (mService == nullptr) {
+        ALOGD("Skip notifying PowerPolicyDefinition, CarPowerPolicyServer is ending");
+        return ScopedAStatus::ok();
+    }
     return mService->notifyPowerPolicyDefinition(policyId, enabledComponents, disabledComponents);
 }
 
@@ -221,16 +241,13 @@ CarPowerPolicyServer::CarPowerPolicyServer() :
       mIsPowerPolicyLocked(false),
       mIsCarServiceInOperation(false),
       mIsFirstConnectionToVhal(false) {
-    std::shared_ptr<CarPowerPolicyServer> thisRef = this->ref<CarPowerPolicyServer>();
-    mMessageHandler = new MessageHandlerImpl(thisRef);
+    mMessageHandler = new MessageHandlerImpl(this);
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onBinderDied));
     AIBinder_DeathRecipient_setOnUnlinked(mDeathRecipient.get(),
                                           &CarPowerPolicyServer::onBinderUnlinked);
-    mHidlDeathRecipient = new HidlDeathRecipient(thisRef);
-    mPropertyChangeListener = new PropertyChangeListener(thisRef);
-    mCarServiceNotificationHandler =
-            ::ndk::SharedRefBase::make<CarServiceNotificationHandler>(thisRef);
+    mHidlDeathRecipient = new HidlDeathRecipient(this);
+    mPropertyChangeListener = new PropertyChangeListener(this);
     mLinkUnlinkImpl = std::make_unique<AIBinderLinkUnlinkImpl>();
 }
 
@@ -446,24 +463,24 @@ status_t CarPowerPolicyServer::dump(int fd, const char** args, uint32_t numArgs)
 
 Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     AIBinder* binderCarService = AServiceManager_checkService(kCarServiceInterface);
-    {
-        // Before initializing power policy daemon, we need to update mIsCarServiceInOperation
-        // according to whether CPMS is running.
-        Mutex::Autolock lock(mMutex);
-        mIsCarServiceInOperation = binderCarService != nullptr;
-    }
+
+    Mutex::Autolock lock(mMutex);
+    // Before initializing power policy daemon, we need to update mIsCarServiceInOperation
+    // according to whether CPMS is running.
+    mIsCarServiceInOperation = binderCarService != nullptr;
 
     mHandlerLooper = looper;
     mPolicyManager.init();
     mComponentHandler.init();
     mSilentModeHandler.init();
+    mCarServiceNotificationHandler =
+            ::ndk::SharedRefBase::make<CarServiceNotificationHandler>(this);
 
     binder_exception_t err =
             AServiceManager_addService(this->asBinder().get(), kCarPowerPolicyServerInterface);
     if (err != EX_NONE) {
         return Error(err) << "Failed to add carpowerpolicyd to ServiceManager";
     }
-
     err = AServiceManager_addService(mCarServiceNotificationHandler->asBinder().get(),
                                      kCarPowerPolicySystemNotificationInterface);
     if (err != EX_NONE) {
@@ -475,13 +492,26 @@ Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
 }
 
 void CarPowerPolicyServer::terminate() {
-    {
-        Mutex::Autolock lock(mMutex);
-        mPolicyChangeCallbacks.clear();
+    Mutex::Autolock lock(mMutex);
+    mPolicyChangeCallbacks.clear();
+    if (mVhalService != nullptr) {
+        mVhalService->unlinkToDeath(mHidlDeathRecipient);
+        mVhalService->unsubscribe(mPropertyChangeListener,
+                                  static_cast<int32_t>(VehicleProperty::POWER_POLICY_REQ));
+        mVhalService->unsubscribe(mPropertyChangeListener,
+                                  static_cast<int32_t>(VehicleProperty::POWER_POLICY_GROUP_REQ));
     }
+
+    if (mCarServiceNotificationHandler != nullptr) {
+        mCarServiceNotificationHandler->terminate();
+        mCarServiceNotificationHandler = nullptr;
+    }
+
     // Delete the deathRecipient so that all binders would be unlinked.
     mDeathRecipient = ScopedAIBinder_DeathRecipient();
     mSilentModeHandler.release();
+    // Remove the messages so that mMessageHandler would no longer be used.
+    mHandlerLooper->removeMessages(mMessageHandler);
 }
 
 void CarPowerPolicyServer::onBinderDied(void* cookie) {
