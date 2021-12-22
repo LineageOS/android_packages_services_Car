@@ -49,7 +49,7 @@ public class MetricsConfigStore {
     private final File mConfigDirectory;
     private Map<String, TelemetryProto.MetricsConfig> mActiveConfigs;
 
-    public MetricsConfigStore(File rootDirectory) {
+    public MetricsConfigStore(@NonNull File rootDirectory) {
         mConfigDirectory = new File(rootDirectory, METRICS_CONFIG_DIR);
         mConfigDirectory.mkdirs();
         mActiveConfigs = new ArrayMap<>();
@@ -81,7 +81,7 @@ public class MetricsConfigStore {
      * @param metricsConfig the config to be persisted to disk.
      * @return {@link android.car.telemetry.CarTelemetryManager.MetricsConfigStatus} status code.
      */
-    public int addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
+    public int addMetricsConfig(@NonNull TelemetryProto.MetricsConfig metricsConfig) {
         // TODO(b/197336485): Check expiration date for MetricsConfig
         if (metricsConfig.getVersion() <= 0) {
             return STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
@@ -111,7 +111,7 @@ public class MetricsConfigStore {
      * @param key the unique identifier of the metrics config that should be deleted.
      * @return true for successful removal, false otherwise.
      */
-    public boolean removeMetricsConfig(MetricsConfigKey key) {
+    public boolean removeMetricsConfig(@NonNull MetricsConfigKey key) {
         String metricsConfigName = key.getName();
         if (!mActiveConfigs.containsKey(key.getName())
                 || mActiveConfigs.get(key.getName()).getVersion() != key.getVersion()) {

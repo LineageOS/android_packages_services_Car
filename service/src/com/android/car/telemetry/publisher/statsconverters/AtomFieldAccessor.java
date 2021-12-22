@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import android.annotation.NonNull;
+
 import com.google.protobuf.MessageLite;
 
 import java.util.function.Function;
@@ -31,9 +33,9 @@ public class AtomFieldAccessor<T extends MessageLite> {
     private final Function<T, Object> mGetField;
 
     AtomFieldAccessor(
-            String fieldName,
-            Function<T, Boolean> hasField,
-            Function<T, Object> getField) {
+            @NonNull String fieldName,
+            @NonNull Function<T, Boolean> hasField,
+            @NonNull Function<T, Object> getField) {
         mFieldName = fieldName;
         mHasField = hasField;
         mGetField = getField;
@@ -44,6 +46,7 @@ public class AtomFieldAccessor<T extends MessageLite> {
      *
      * @return field name as string.
      */
+    @NonNull
     String getFieldName() {
         return mFieldName;
     }
@@ -54,7 +57,8 @@ public class AtomFieldAccessor<T extends MessageLite> {
      * @param atomData the atom data in which to check if the field is set.
      * @return whether the field is set.
      */
-    Boolean hasField(T atomData) {
+    @NonNull
+    boolean hasField(@NonNull T atomData) {
         return mHasField.apply(atomData);
     }
 
@@ -64,7 +68,8 @@ public class AtomFieldAccessor<T extends MessageLite> {
      * @param atomData the atom data for which to get the field value from.
      * @return the field value Object.
      */
-    Object getField(T atomData) {
+    @NonNull
+    Object getField(@NonNull T atomData) {
         return mGetField.apply(atomData);
     }
 }
