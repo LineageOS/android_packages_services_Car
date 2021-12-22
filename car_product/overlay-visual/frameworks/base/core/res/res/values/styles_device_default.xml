@@ -104,6 +104,7 @@
 
     <style name="Widget.DeviceDefault.CompoundButton.CheckBox" parent="android:Widget.Material.CompoundButton.CheckBox">
         <item name="android:button">@*android:drawable/car_checkbox</item>
+        <item name="android:buttonTint">@color/car_checkbox_color</item>
     </style>
 
     <style name="Widget.DeviceDefault.CompoundButton.RadioButton"
