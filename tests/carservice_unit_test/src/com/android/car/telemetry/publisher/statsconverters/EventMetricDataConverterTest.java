@@ -62,7 +62,7 @@ public class EventMetricDataConverterTest {
                                                 .setRssInBytes(2345L)))
                         .build()
         );
-        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> accessorMap =
+        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured, ?>> accessorMap =
                 new AppStartMemoryStateCapturedConverter().getAtomFieldAccessorMap();
 
         PersistableBundle bundle = EventMetricDataConverter.convertEventDataList(eventDataList);
@@ -106,7 +106,7 @@ public class EventMetricDataConverterTest {
                                 .addElapsedTimestampNanos(23456789L))
                         .build());
 
-        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> accessorMap =
+        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured, ?>> accessorMap =
                 new AppStartMemoryStateCapturedConverter().getAtomFieldAccessorMap();
 
         PersistableBundle bundle = EventMetricDataConverter.convertEventDataList(eventDataList);

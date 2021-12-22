@@ -28,7 +28,7 @@ import com.android.internal.util.Preconditions;
  */
 public class AppCrashOccurredConverter extends AbstractAtomConverter<AppCrashOccurred> {
 
-    private static final SparseArray<AtomFieldAccessor<AppCrashOccurred>> sAtomFieldAccessorMap =
+    private static final SparseArray<AtomFieldAccessor<AppCrashOccurred, ?>> sAtomFieldAccessorMap =
             new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
@@ -149,7 +149,7 @@ public class AppCrashOccurredConverter extends AbstractAtomConverter<AppCrashOcc
 
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<AppCrashOccurred>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<AppCrashOccurred, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 

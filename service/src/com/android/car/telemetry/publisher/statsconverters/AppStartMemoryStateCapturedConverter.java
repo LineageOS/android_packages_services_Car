@@ -29,7 +29,7 @@ import com.android.internal.util.Preconditions;
 public class AppStartMemoryStateCapturedConverter
         extends AbstractAtomConverter<AppStartMemoryStateCaptured> {
     private static final SparseArray<
-            AtomFieldAccessor<AppStartMemoryStateCaptured>> sAtomFieldAccessorMap =
+            AtomFieldAccessor<AppStartMemoryStateCaptured, ?>> sAtomFieldAccessorMap =
             new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
@@ -80,7 +80,7 @@ public class AppStartMemoryStateCapturedConverter
 
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 
