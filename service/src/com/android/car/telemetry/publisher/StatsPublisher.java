@@ -23,6 +23,7 @@ import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_C
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_CPU_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.WTF_OCCURRED_FIELD_NUMBER;
+import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
 import static java.nio.charset.StandardCharsets.UTF_16;
 
@@ -217,8 +218,10 @@ public class StatsPublisher extends AbstractPublisher {
         addStatsConfig(configKey, subscriber);
 
         if (!mIsPullingReports) {
-            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
-                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+            if (DEBUG) {
+                Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+                        + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+            }
             mIsPullingReports = true;
             mTelemetryHandler.postDelayed(
                     mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
@@ -337,10 +340,8 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void pullReportsPeriodically() {
-        if (mIsPullingReports) {
-            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
-                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
-            mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+        if (!mIsPullingReports) {
+            return;
         }
 
         TimingsTraceLog traceLog = new TimingsTraceLog(
@@ -362,6 +363,12 @@ public class StatsPublisher extends AbstractPublisher {
             // If the StatsD is not available, retry in the next pullReportsPeriodically call.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
         }
+
+        if (DEBUG) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+        }
+        mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
     }
 
     private List<Long> getActiveConfigKeys() {
