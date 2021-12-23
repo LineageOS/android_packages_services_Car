@@ -42,6 +42,7 @@ java_sdk_library {
     ],
 
     stub_only_libs: [
+        "framework-bluetooth",
         // For generating stubs that contains NetworkStats definition.
         "framework-connectivity-tiramisu.stubs.module_lib",
     ],
