@@ -49,6 +49,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -94,6 +95,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock CarBluetoothService mCarBluetoothService;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
+    @Mock private Resources mMockResources;
     @Spy Handler mHandler = new Handler(Looper.getMainLooper());
 
     @Mock CarUserService mCarUserService;
@@ -114,6 +116,8 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(true).when(mHandler).sendMessageAtTime(any(), anyLong());
 
         when(mShouldCallButtonEndOngoingCallSupplier.getAsBoolean()).thenReturn(false);
+
+        when(mContext.getResources()).thenReturn(mMockResources);
     }
 
     @Override
@@ -362,6 +366,64 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
         // NOTE: extend mockito doesn't provide verifyNoMoreInteractions(), so we'd need to
         // explicitly call verify() and verify(never()). But since AssistUtilHelper only has one
         // static method, we don't need the latter.
+        verify(() -> AssistUtilsHelper.showPushToTalkSessionForActiveService(eq(mContext), any()));
+    }
+
+    /**
+     * Testing long press triggers Bluetooth voice recognition.
+     *
+     * Based on current implementation of {@link CarInputService#handleVoiceAssistLongPress},
+     * long press of the button should trigger Bluetooth voice recognition if:
+     *   (a) {@link CarProjectionManager.ProjectionKeyEventHandler} did not subscribe for the
+     *       event, or if the key event handler does not exit; and
+     *   (b) Bluetooth voice recognition is enabled.
+     *
+     * Preconditions:
+     *     - Bluetooth voice recognition is enabled.
+     *     - No {@link CarProjectionManager.ProjectionKeyEventHandler} registered for the key event.
+     * Action:
+     *     - Long press the voice assistant key.
+     * Results:
+     *     - Bluetooth voice recognition is invoked.
+     */
+    @Test
+    public void voiceKey_longPress_bluetoothVoiceRecognitionIsEnabled_triggersBluetoothAssist() {
+        mockEnableLongPressBluetoothVoiceRecognitionProperty(true);
+
+        send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+        flushHandler();
+
+        send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+
+        verify(mCarBluetoothService, times(1)).startBluetoothVoiceRecognition();
+    }
+
+    /**
+     * Testing short press does not trigger Bluetooth voice recognition.
+     *
+     * Based on current implementation of {@link CarInputService#handleVoiceAssistKey},
+     * short press of the button should not trigger Bluetooth, and instead launch the default
+     * voice assistant handler.
+     *
+     * Preconditions:
+     *     - Bluetooth voice recognition is enabled.
+     * Action:
+     *     - Short press the voice assistant key.
+     * Results:
+     *     - Bluetooth voice recognition is not invoked.
+     *     - Default assistant handler is invoked instead.
+     */
+    @Test
+    public void voiceKey_shortPress_bluetoothVoiceRecognitionIsEnabled_triggersAssistUtils() {
+        mockEnableLongPressBluetoothVoiceRecognitionProperty(true);
+
+        doReturn(true).when(
+                () -> AssistUtilsHelper.showPushToTalkSessionForActiveService(eq(mContext), any()));
+
+        send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+        send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
+
+        verify(mCarBluetoothService, never()).startBluetoothVoiceRecognition();
         verify(() -> AssistUtilsHelper.showPushToTalkSessionForActiveService(eq(mContext), any()));
     }
 
@@ -765,5 +827,10 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
         }
 
         clearInvocations(mHandler);
+    }
+
+    private void mockEnableLongPressBluetoothVoiceRecognitionProperty(boolean enabledOrNot) {
+        when(mMockResources.getBoolean(R.bool.enableLongPressBluetoothVoiceRecognition))
+                .thenReturn(enabledOrNot);
     }
 }

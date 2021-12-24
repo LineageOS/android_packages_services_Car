@@ -585,9 +585,16 @@ public class CarBluetoothService implements CarServiceBase {
     }
 
     /**
-     * Trigger Bluetooth to start a BVRA session with the default HFP Client device.
+     * Triggers Bluetooth to start a BVRA session with the default HFP Client device.
      */
     public boolean startBluetoothVoiceRecognition() {
+        synchronized (mPerUserLock) {
+            try {
+                return mCarBluetoothUserService.startBluetoothVoiceRecognition();
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Remote Service Exception on BVRA", e);
+            }
+        }
         return false;
     }
 
