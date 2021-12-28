@@ -30,20 +30,26 @@ import com.android.internal.util.Preconditions;
 import java.io.File;
 
 /**
- * Lazy factory class for Publishers. It's expected to have a single factory instance.
- * Must be called from the telemetry thread.
+ * Lazy factory class for Publishers. It's expected to have a single factory instance. Must be
+ * called from the telemetry thread.
  *
- * <p>It doesn't instantiate all the publishers right away, as in some cases some publishers are
- * not needed.
+ * <p>It doesn't instantiate all the publishers right away, as in some cases some publishers are not
+ * needed.
  *
  * <p>Methods in this class must be called on telemetry thread unless specified as thread-safe.
  */
 public class PublisherFactory {
+    // Some publishers must be initialized as early as possible during boot.
+    private static final TelemetryProto.Publisher.PublisherCase[] sForceInitPublishers = {
+        TelemetryProto.Publisher.PublisherCase.CONNECTIVITY
+    };
+
     private final Object mLock = new Object();
     private final CarPropertyService mCarPropertyService;
     private final File mPublisherDirectory;
     private final Handler mTelemetryHandler;
     private final Context mContext;  // CarService context
+
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
     private StatsPublisher mStatsPublisher;
@@ -64,6 +70,7 @@ public class PublisherFactory {
     /** Returns the publisher by given type. This method is thread-safe. */
     @NonNull
     public AbstractPublisher getPublisher(@NonNull TelemetryProto.Publisher.PublisherCase type) {
+        Preconditions.checkState(mFailureListener != null, "PublisherFactory is not initialized");
         // No need to optimize locks, as this method is infrequently called.
         synchronized (mLock) {
             switch (type.getNumber()) {
@@ -125,12 +132,16 @@ public class PublisherFactory {
     }
 
     /**
-     * Sets the publisher failure listener for all the publishers. This is expected to be called
-     * before {@link #getPublisher} method, because the listener is set after
-     * {@code PublisherFactory} initialized. This is not the best approach, but it suits for this
-     * case.
+     * Initializes the factory and sets the publisher failure listener for all the publishers.
+     * This is expected to be called before {@link #getPublisher} method. This is not the best
+     * approach, but it suits for this case.
      */
-    public void setFailureListener(@NonNull AbstractPublisher.PublisherFailureListener listener) {
+    public void initialize(@NonNull AbstractPublisher.PublisherFailureListener listener) {
+        Preconditions.checkState(
+                mFailureListener == null, "PublisherFactory is already initialized");
         mFailureListener = listener;
+        for (TelemetryProto.Publisher.PublisherCase publisher: sForceInitPublishers) {
+            getPublisher(publisher);
+        }
     }
 }
