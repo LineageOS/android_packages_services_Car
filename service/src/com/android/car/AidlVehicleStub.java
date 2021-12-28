@@ -19,10 +19,17 @@ package com.android.car;
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.util.concurrent.AndroidAsyncFuture;
+import android.car.util.concurrent.AndroidFuture;
+import android.hardware.automotive.vehicle.GetValueRequest;
+import android.hardware.automotive.vehicle.GetValueRequests;
+import android.hardware.automotive.vehicle.GetValueResult;
 import android.hardware.automotive.vehicle.GetValueResults;
 import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.IVehicleCallback;
+import android.hardware.automotive.vehicle.SetValueResult;
 import android.hardware.automotive.vehicle.SetValueResults;
+import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfigs;
@@ -30,8 +37,11 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehiclePropErrors;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropValues;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.LongSparseArray;
 
 import com.android.car.hal.AidlHalPropConfig;
 import com.android.car.hal.HalClientCallback;
@@ -39,9 +49,12 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.internal.LargeParcelable;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicLong;
 
 final class AidlVehicleStub extends VehicleStub {
 
@@ -50,6 +63,17 @@ final class AidlVehicleStub extends VehicleStub {
 
     private final IVehicle mAidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
+    private final GetSetValuesCallback mGetSetValuesCallback;
+    private final HandlerThread mHandlerThread;
+    private final Handler mHandler;
+    private final AtomicLong mRequestId = new AtomicLong(0);
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private final LongSparseArray<AndroidFuture<GetValueResult>> mPendingGetValueRequests =
+            new LongSparseArray();
+    @GuardedBy("mLock")
+    private final LongSparseArray<AndroidFuture<SetValueResult>> mPendingSetValueRequests =
+            new LongSparseArray();
 
     AidlVehicleStub() {
         this(getAidlVehicle());
@@ -59,6 +83,9 @@ final class AidlVehicleStub extends VehicleStub {
     AidlVehicleStub(IVehicle aidlVehicle) {
         mAidlVehicle = aidlVehicle;
         mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+        mHandlerThread = CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName());
+        mHandler = new Handler(mHandlerThread.getLooper());
+        mGetSetValuesCallback = new GetSetValuesCallback();
     }
 
 
@@ -167,8 +194,41 @@ final class AidlVehicleStub extends VehicleStub {
     @Nullable
     public HalPropValue get(HalPropValue requestedPropValue)
             throws RemoteException, ServiceSpecificException {
-        // TODO(b/205774940): Call AIDL APIs.
-        return null;
+        GetValueRequest request = new GetValueRequest();
+        long requestId = mRequestId.getAndIncrement();
+
+        AndroidFuture<GetValueResult> resultFuture = new AndroidFuture();
+        synchronized (mLock) {
+            mPendingGetValueRequests.put(requestId, resultFuture);
+        }
+
+        request.requestId = requestId;
+        request.prop = (VehiclePropValue) requestedPropValue.toVehiclePropValue();
+        GetValueRequests requests = new GetValueRequests();
+        requests.payloads = new GetValueRequest[]{request};
+        requests = (GetValueRequests) LargeParcelable.toLargeParcelable(requests, () -> {
+            GetValueRequests newRequests = new GetValueRequests();
+            newRequests.payloads = new GetValueRequest[0];
+            return newRequests;
+        });
+        mAidlVehicle.getValues(mGetSetValuesCallback, requests);
+
+        AndroidAsyncFuture<GetValueResult> asyncResultFuture = new AndroidAsyncFuture(resultFuture);
+        try {
+            GetValueResult result = asyncResultFuture.get();
+            if (result.status != StatusCode.OK) {
+                throw new ServiceSpecificException(
+                        result.status, "failed to get value: " + request.prop);
+            }
+            return mPropValueBuilder.build(result.prop);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt(); // Restore the interrupted status
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "thread interrupted, possibly exiting the thread");
+        } catch (ExecutionException e) {
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "failed to resolve GetValue future, error: " + e.toString());
+        }
     }
 
     /**
@@ -253,6 +313,54 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public void unsubscribe(int prop) throws RemoteException, ServiceSpecificException {
             mAidlVehicle.unsubscribe(this, new int[]{prop});
+        }
+    }
+
+    private void onGetValues(GetValueResults responses) {
+        GetValueResults origResponses = (GetValueResults)
+                LargeParcelable.reconstructStableAIDLParcelable(responses,
+                        /* keepSharedMemory= */ false);
+        for (GetValueResult result : origResponses.payloads) {
+            long requestId = result.requestId;
+            AndroidFuture<GetValueResult> pendingRequest;
+            synchronized (mLock) {
+                pendingRequest = mPendingGetValueRequests.get(requestId);
+                mPendingGetValueRequests.remove(requestId);
+            }
+            if (pendingRequest == null) {
+                Slogf.w(CarLog.TAG_SERVICE, "No pending request for ID: " + requestId
+                        + ", possibly already timed out");
+                return;
+            }
+            mHandler.post(() -> {
+                pendingRequest.complete(result);
+            });
+        }
+    }
+
+    private final class GetSetValuesCallback extends IVehicleCallback.Stub {
+
+        @Override
+        public void onGetValues(GetValueResults responses) throws RemoteException {
+            AidlVehicleStub.this.onGetValues(responses);
+        }
+
+        @Override
+        public void onSetValues(SetValueResults responses) throws RemoteException {
+            // TODO(b/205774940): Implement this.
+        }
+
+        @Override
+        public void onPropertyEvent(VehiclePropValues propValues, int sharedMemoryFileCount)
+                throws RemoteException {
+            throw new UnsupportedOperationException(
+                    "GetSetValuesCallback only support onGetValues or onSetValues");
+        }
+
+        @Override
+        public void onPropertySetError(VehiclePropErrors errors) throws RemoteException {
+            throw new UnsupportedOperationException(
+                    "GetSetValuesCallback only support onGetValues or onSetValues");
         }
     }
 }

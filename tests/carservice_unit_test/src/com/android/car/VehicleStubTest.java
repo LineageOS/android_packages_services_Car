@@ -26,6 +26,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.hardware.automotive.vehicle.GetValueRequest;
+import android.hardware.automotive.vehicle.GetValueRequests;
+import android.hardware.automotive.vehicle.GetValueResult;
+import android.hardware.automotive.vehicle.GetValueResults;
 import android.hardware.automotive.vehicle.IVehicle;
 import android.hardware.automotive.vehicle.IVehicleCallback;
 import android.hardware.automotive.vehicle.RawPropValues;
@@ -37,6 +41,8 @@ import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehiclePropErrors;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropValues;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -78,6 +84,10 @@ public class VehicleStubTest {
     private VehicleStub mAidlVehicleStub;
     private VehicleStub mHidlVehicleStub;
 
+    private final HandlerThread mHandlerThread = new HandlerThread(
+            VehicleStubTest.class.getSimpleName());
+    private Handler mHandler;
+
     private int[] getTestIntValues(int length) {
         int[] values = new int[length];
         for (int i = 0; i < length; i++) {
@@ -95,6 +105,9 @@ public class VehicleStubTest {
 
         assertThat(mAidlVehicleStub.isValid()).isTrue();
         assertThat(mHidlVehicleStub.isValid()).isTrue();
+
+        mHandlerThread.start();
+        mHandler = new Handler(mHandlerThread.getLooper());
     }
 
     @Test
@@ -339,6 +352,151 @@ public class VehicleStubTest {
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
 
         mHidlVehicleStub.get(value);
+    }
+
+    @Test
+    public void testGetAidlSmallData() throws Exception {
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws RemoteException {
+                Object[] args = invocation.getArguments();
+                GetValueRequests requests = (GetValueRequests) args[1];
+                assertThat(requests.payloads.length).isEqualTo(1);
+                GetValueRequest request = requests.payloads[0];
+                assertThat(request.requestId).isEqualTo(0);
+                assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+                GetValueResults results = new GetValueResults();
+                GetValueResult result = new GetValueResult();
+                result.status = StatusCode.OK;
+                result.prop = request.prop;
+                result.requestId = request.requestId;
+                results.payloads = new GetValueResult[]{result};
+
+                callback.onGetValues(results);
+                return null;
+            }
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        HalPropValue gotValue = mAidlVehicleStub.get(value);
+
+        assertThat(gotValue).isEqualTo(value);
+    }
+
+    @Test
+    public void testGetAidlLargeData() throws Exception {
+        int dataSize = 2000;
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws RemoteException {
+                Object[] args = invocation.getArguments();
+                GetValueRequests requests = (GetValueRequests) args[1];
+                assertThat(requests.payloads.length).isEqualTo(0);
+                assertThat(requests.sharedMemoryFd).isNotNull();
+                requests = (GetValueRequests)
+                        LargeParcelable.reconstructStableAIDLParcelable(
+                                requests, /*keepSharedMemory=*/false);
+                assertThat(requests.payloads.length).isEqualTo(1);
+                GetValueRequest request = requests.payloads[0];
+
+                GetValueResults results = new GetValueResults();
+                GetValueResult result = new GetValueResult();
+                result.status = StatusCode.OK;
+                result.prop = request.prop;
+                result.requestId = request.requestId;
+                results.payloads = new GetValueResult[]{result};
+
+                results = (GetValueResults) LargeParcelable.toLargeParcelable(
+                        results, () -> {
+                            GetValueResults newResults = new GetValueResults();
+                            newResults.payloads = new GetValueResult[0];
+                            return newResults;
+                        });
+
+                assertThat(results.sharedMemoryFd).isNotNull();
+
+                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+                callback.onGetValues(results);
+                return null;
+            }
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(TEST_PROP, 0, 0, 0, getTestIntValues(dataSize));
+
+        HalPropValue gotValue = mAidlVehicleStub.get(value);
+
+        assertThat(gotValue).isEqualTo(value);
+    }
+
+    @Test(expected = ServiceSpecificException.class)
+    public void testGetAidlError() throws Exception {
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws RemoteException {
+                Object[] args = invocation.getArguments();
+                GetValueRequests requests = (GetValueRequests) args[1];
+                assertThat(requests.payloads.length).isEqualTo(1);
+                GetValueRequest request = requests.payloads[0];
+                assertThat(request.requestId).isEqualTo(0);
+                assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+                GetValueResults results = new GetValueResults();
+                GetValueResult result = new GetValueResult();
+                result.status = StatusCode.INVALID_ARG;
+                result.requestId = request.requestId;
+                results.payloads = new GetValueResult[]{result};
+
+                callback.onGetValues(results);
+                return null;
+            }
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        mAidlVehicleStub.get(value);
+    }
+
+    @Test
+    public void testGetAidlAsyncCallback() throws Exception {
+        doAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) throws RemoteException {
+                Object[] args = invocation.getArguments();
+                GetValueRequests requests = (GetValueRequests) args[1];
+                assertThat(requests.payloads.length).isEqualTo(1);
+                GetValueRequest request = requests.payloads[0];
+                assertThat(request.requestId).isEqualTo(0);
+                assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+                GetValueResults results = new GetValueResults();
+                GetValueResult result = new GetValueResult();
+                result.status = StatusCode.OK;
+                result.prop = request.prop;
+                result.requestId = request.requestId;
+                results.payloads = new GetValueResult[]{result};
+
+                // Call callback after 100ms.
+                mHandler.postDelayed(() -> {
+                    try {
+                        callback.onGetValues(results);
+                    } catch (RemoteException e) {
+                        // ignore.
+                    }
+                }, 100);
+                return null;
+            }
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        HalPropValue gotValue = mAidlVehicleStub.get(value);
+
+        assertThat(gotValue).isEqualTo(value);
     }
 
     @Test
