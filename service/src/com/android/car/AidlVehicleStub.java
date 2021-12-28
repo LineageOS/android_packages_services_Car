@@ -19,16 +19,29 @@ package com.android.car;
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.hardware.automotive.vehicle.GetValueResults;
 import android.hardware.automotive.vehicle.IVehicle;
+import android.hardware.automotive.vehicle.IVehicleCallback;
+import android.hardware.automotive.vehicle.SetValueResults;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropConfigs;
+import android.hardware.automotive.vehicle.VehiclePropError;
+import android.hardware.automotive.vehicle.VehiclePropErrors;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropValues;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
+import com.android.car.hal.AidlHalPropConfig;
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.internal.LargeParcelable;
 import com.android.internal.annotations.VisibleForTesting;
+
+import java.util.ArrayList;
 
 final class AidlVehicleStub extends VehicleStub {
 
@@ -85,7 +98,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Register a death recipient that would be called when vehicle HAL died.
+     * Registers a death recipient that would be called when vehicle HAL died.
      *
      * @param recipient A death recipient.
      * @throws IllegalStateException If unable to register the death recipient.
@@ -100,7 +113,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Unlink a previously linked death recipient.
+     * Unlinks a previously linked death recipient.
      *
      * @param recipient A previously linked death recipient.
      */
@@ -110,7 +123,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Get all property configs.
+     * Gets all property configs.
      *
      * @return All the property configs.
      * @throws RemoteException if the remote operation fails.
@@ -119,54 +132,31 @@ final class AidlVehicleStub extends VehicleStub {
     @Override
     public HalPropConfig[] getAllPropConfigs()
             throws RemoteException, ServiceSpecificException {
-        // TODO(b/205774940): Call AIDL APIs.
-        return null;
+        VehiclePropConfigs propConfigs = (VehiclePropConfigs)
+                LargeParcelable.reconstructStableAIDLParcelable(
+                        mAidlVehicle.getAllPropConfigs(), /* keepSharedMemory= */ false);
+        VehiclePropConfig[] payloads = propConfigs.payloads;
+        int size = payloads.length;
+        HalPropConfig[] configs = new HalPropConfig[size];
+        for (int i = 0; i < size; i++) {
+            configs[i] = new AidlHalPropConfig(payloads[i]);
+        }
+        return configs;
     }
 
     /**
-     * Subscribe to a property.
-     *
-     * @param callback The VehicleStubCallback that would be called for subscribe events.
-     * @param options The list of subscribe options.
-     * @throws RemoteException if the remote operation fails.
-     * @throws ServiceSpecificException if VHAL returns service specific error.
-     */
-    @Override
-    public void subscribe(VehicleStubCallback callback, SubscribeOptions[] options)
-            throws RemoteException, ServiceSpecificException {
-        // TODO(b/205774940): Call AIDL APIs.
-        return;
-    }
-
-    /**
-     * Unsubscribe to a property.
-     *
-     * @param callback The previously subscribed callback to unsubscribe.
-     * @param prop The ID for the property to unsubscribe.
-     * @throws RemoteException if the remote operation fails.
-     * @throws ServiceSpecificException if VHAL returns service specific error.
-     */
-    @Override
-    public void unsubscribe(VehicleStubCallback callback, int prop)
-            throws RemoteException, ServiceSpecificException {
-        // TODO(b/205774940): Call AIDL APIs.
-        return;
-    }
-
-    /**
-     * Get a new {@code VehicleStubCallback} that could be used to subscribe/unsubscribe.
+     * Gets a new {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      *
      * @param callback A callback that could be used to receive events.
-     * @return a {@code VehicleStubCallback} that could be passed to subscribe/unsubscribe.
+     * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
     @Override
-    public VehicleStubCallback newCallback(HalClientCallback callback) {
-        // TODO(b/205774940): Return AIDL callback.
-        return null;
+    public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
+        return new AidlSubscriptionClient(callback, mPropValueBuilder);
     }
 
     /**
-     * Get a property.
+     * Gets a property.
      *
      * @param requestedPropValue The property to get.
      * @return The vehicle property value.
@@ -182,7 +172,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Set a property.
+     * Sets a property.
      *
      * @param propValue The property to set.
      * @throws RemoteException if the remote operation fails.
@@ -203,5 +193,66 @@ final class AidlVehicleStub extends VehicleStub {
             Slogf.w(CarLog.TAG_SERVICE, "Failed to get \"" + AIDL_VHAL_SERVICE + "\" service", e);
         }
         return null;
+    }
+
+    private class AidlSubscriptionClient extends IVehicleCallback.Stub
+            implements SubscriptionClient {
+        private final HalClientCallback mCallback;
+        private final HalPropValueBuilder mBuilder;
+
+        AidlSubscriptionClient(HalClientCallback callback, HalPropValueBuilder builder) {
+            mCallback = callback;
+            mBuilder = builder;
+        }
+
+        @Override
+        public void onGetValues(GetValueResults responses) throws RemoteException {
+            // We use GetSetValuesCallback for getValues and setValues operation.
+            throw new UnsupportedOperationException(
+                    "onGetValues should never be called on AidlSubscriptionClient");
+        }
+
+        @Override
+        public void onSetValues(SetValueResults responses) throws RemoteException {
+            // We use GetSetValuesCallback for getValues and setValues operation.
+            throw new UnsupportedOperationException(
+                    "onSetValues should never be called on AidlSubscriptionClient");
+        }
+
+        @Override
+        public void onPropertyEvent(VehiclePropValues propValues, int sharedMemoryFileCount)
+                throws RemoteException {
+            VehiclePropValues origPropValues = (VehiclePropValues)
+                    LargeParcelable.reconstructStableAIDLParcelable(propValues,
+                            /* keepSharedMemory= */ false);
+            ArrayList<HalPropValue> values = new ArrayList<>(origPropValues.payloads.length);
+            for (VehiclePropValue value : origPropValues.payloads) {
+                values.add(mBuilder.build(value));
+            }
+            mCallback.onPropertyEvent(values);
+        }
+
+        @Override
+        public void onPropertySetError(VehiclePropErrors errors) throws RemoteException {
+            VehiclePropErrors origErrors = (VehiclePropErrors)
+                    LargeParcelable.reconstructStableAIDLParcelable(errors,
+                            /* keepSharedMemory= */ false);
+            ArrayList<VehiclePropError> errorList = new ArrayList<>(origErrors.payloads.length);
+            for (VehiclePropError error : origErrors.payloads) {
+                errorList.add(error);
+            }
+            mCallback.onPropertySetError(errorList);
+        }
+
+        @Override
+        public void subscribe(SubscribeOptions[] options)
+                throws RemoteException, ServiceSpecificException {
+            mAidlVehicle.subscribe(this, options, /* maxSharedMemoryFileCount= */ 2);
+        }
+
+        @Override
+        public void unsubscribe(int prop) throws RemoteException, ServiceSpecificException {
+            mAidlVehicle.unsubscribe(this, new int[]{prop});
+        }
     }
 }

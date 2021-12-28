@@ -30,7 +30,7 @@ import android.os.ServiceSpecificException;
 
 import com.android.car.CarLog;
 import com.android.car.VehicleStub;
-import com.android.car.VehicleStub.VehicleStubCallback;
+import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.internal.util.DebugUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -54,7 +54,7 @@ final class HalClient {
     private static final int SLEEP_BETWEEN_RETRIABLE_INVOKES_MS = 50;
 
     private final VehicleStub mVehicle;
-    private final VehicleStubCallback mVehicleStubCallback;
+    private final SubscriptionClient mSubscriptionClient;
     private final VehicleCallback mInternalCallback;
     private final int mWaitCapMs;
     private final int mSleepMs;
@@ -81,7 +81,7 @@ final class HalClient {
         mVehicle = vehicle;
         Handler handler = new CallbackHandler(looper, callback);
         mInternalCallback = new VehicleCallback(handler);
-        mVehicleStubCallback = vehicle.newCallback(mInternalCallback);
+        mSubscriptionClient = vehicle.newSubscriptionClient(mInternalCallback);
         mWaitCapMs = waitCapMs;
         mSleepMs = sleepMs;
     }
@@ -97,11 +97,11 @@ final class HalClient {
 
     public void subscribe(SubscribeOptions... options)
             throws RemoteException, ServiceSpecificException {
-        mVehicle.subscribe(mVehicleStubCallback, options);
+        mSubscriptionClient.subscribe(options);
     }
 
     public void unsubscribe(int prop) throws RemoteException, ServiceSpecificException {
-        mVehicle.unsubscribe(mVehicleStubCallback, prop);
+        mSubscriptionClient.unsubscribe(prop);
     }
 
     public void setValue(HalPropValue propValue)

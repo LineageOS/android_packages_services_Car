@@ -37,7 +37,7 @@ import android.os.ServiceSpecificException;
 import android.os.test.TestLooper;
 
 import com.android.car.VehicleStub;
-import com.android.car.VehicleStub.VehicleStubCallback;
+import com.android.car.VehicleStub.SubscriptionClient;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,14 +59,14 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Mock VehicleStub mIVehicle;
     @Mock HalClientCallback mHalClientCallback;
-    @Mock VehicleStubCallback mVehicleStubCallback;
+    @Mock SubscriptionClient mSubscriptionClient;
 
     private HalClient mClient;
     private TestLooper mLooper = new TestLooper();
 
     @Before
     public void setFixtures() {
-        when(mIVehicle.newCallback(any())).thenReturn(mVehicleStubCallback);
+        when(mIVehicle.newSubscriptionClient(any())).thenReturn(mSubscriptionClient);
         mClient = new HalClient(mIVehicle, mLooper.getLooper(), mHalClientCallback,
                 WAIT_CAP_FOR_RETRIABLE_RESULT_MS, SLEEP_BETWEEN_RETRIABLE_INVOKES_MS);
     }
@@ -209,7 +209,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
 
         mClient.subscribe(option);
 
-        verify(mIVehicle).subscribe(mVehicleStubCallback, new SubscribeOptions[]{option});
+        verify(mSubscriptionClient).subscribe(new SubscribeOptions[]{option});
     }
 
     @Test
@@ -218,7 +218,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
 
         mClient.unsubscribe(1);
 
-        verify(mIVehicle).unsubscribe(mVehicleStubCallback, 1);
+        verify(mSubscriptionClient).unsubscribe(1);
     }
 
     @Test

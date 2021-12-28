@@ -33,20 +33,31 @@ import com.android.car.hal.HalPropValueBuilder;
  * underlying IVehicle service is in.
  */
 public abstract class VehicleStub {
-    /** VehicleStubCallback is either an AIDL or a HIDL callback. */
-    public interface VehicleStubCallback {
+    /**
+     * SubscriptionClient represents a client that could subscribe/unsubscribe to properties.
+     */
+    public interface SubscriptionClient {
         /**
-         *  Get the callback interface for AIDL backend.
+         * Subscribes to a property.
+         *
+         * @param options The list of subscribe options.
+         * @throws RemoteException if the remote operation fails.
+         * @throws ServiceSpecificException if VHAL returns service specific error.
          */
-        android.hardware.automotive.vehicle.IVehicleCallback getAidlCallback();
+        void subscribe(SubscribeOptions[] options) throws RemoteException, ServiceSpecificException;
+
         /**
-         * Get the callback interface for HIDL backend.
+         * Unsubscribes from a property.
+         *
+         * @param prop The ID for the property to unsubscribe.
+         * @throws RemoteException if the remote operation fails.
+         * @throws ServiceSpecificException if VHAL returns service specific error.
          */
-        android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub getHidlCallback();
+        void unsubscribe(int prop) throws RemoteException, ServiceSpecificException;
     }
 
     /**
-     * Create a new VehicleStub to connect to Vehicle HAL.
+     * Creates a new VehicleStub to connect to Vehicle HAL.
      *
      * Create a new VehicleStub to connect to Vehicle HAL according to which backend (AIDL or HIDL)
      * is available. Caller must call isValid to check the returned {@code VehicleStub} before using
@@ -87,7 +98,7 @@ public abstract class VehicleStub {
     public abstract String getInterfaceDescriptor() throws IllegalStateException;
 
     /**
-     * Register a death recipient that would be called when vehicle HAL died.
+     * Registers a death recipient that would be called when vehicle HAL died.
      *
      * @param recipient A death recipient.
      * @throws IllegalStateException If unable to register the death recipient.
@@ -95,14 +106,14 @@ public abstract class VehicleStub {
     public abstract void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException;
 
     /**
-     * Unlink a previously linked death recipient.
+     * Unlinks a previously linked death recipient.
      *
      * @param recipient A previously linked death recipient.
      */
     public abstract void unlinkToDeath(IVehicleDeathRecipient recipient);
 
     /**
-     * Get all property configs.
+     * Gets all property configs.
      *
      * @return All the property configs.
      * @throws RemoteException if the remote operation fails.
@@ -112,37 +123,15 @@ public abstract class VehicleStub {
             throws RemoteException, ServiceSpecificException;
 
     /**
-     * Subscribe to a property.
-     *
-     * @param callback The VehicleStubCallback that would be called for subscribe events.
-     * @param options The list of subscribe options.
-     * @throws RemoteException if the remote operation fails.
-     * @throws ServiceSpecificException if VHAL returns service specific error.
-     */
-    public abstract void subscribe(VehicleStubCallback callback,
-            SubscribeOptions[] options) throws RemoteException, ServiceSpecificException;
-
-    /**
-     * Unsubscribe to a property.
-     *
-     * @param callback The previously subscribed callback to unsubscribe.
-     * @param prop The ID for the property to unsubscribe.
-     * @throws RemoteException if the remote operation fails.
-     * @throws ServiceSpecificException if VHAL returns service specific error.
-     */
-    public abstract void unsubscribe(VehicleStubCallback callback, int prop)
-            throws RemoteException, ServiceSpecificException;
-
-    /**
-     * Get a new {@code VehicleStubCallback} that could be used to subscribe/unsubscribe.
+     * Gets a new {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      *
      * @param callback A callback that could be used to receive events.
-     * @return a {@code VehicleStubCallback} that could be passed to subscribe/unsubscribe.
+     * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
-    public abstract VehicleStubCallback newCallback(HalClientCallback callback);
+    public abstract SubscriptionClient newSubscriptionClient(HalClientCallback callback);
 
     /**
-     * Get a property.
+     * Gets a property.
      *
      * @param requestedPropValue The property to get.
      * @return The vehicle property value.
@@ -154,7 +143,7 @@ public abstract class VehicleStub {
             throws RemoteException, ServiceSpecificException;
 
     /**
-     * Set a property.
+     * Sets a property.
      *
      * @param propValue The property to set.
      * @throws RemoteException if the remote operation fails.

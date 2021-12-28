@@ -27,9 +27,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.hardware.automotive.vehicle.IVehicle;
+import android.hardware.automotive.vehicle.IVehicleCallback;
+import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropConfigs;
 import android.hardware.automotive.vehicle.VehiclePropError;
+import android.hardware.automotive.vehicle.VehiclePropErrors;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropValues;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -38,6 +45,7 @@ import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.internal.LargeParcelable;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +77,14 @@ public class VehicleStubTest {
 
     private VehicleStub mAidlVehicleStub;
     private VehicleStub mHidlVehicleStub;
+
+    private int[] getTestIntValues(int length) {
+        int[] values = new int[length];
+        for (int i = 0; i < length; i++) {
+            values[i] = TEST_VALUE;
+        }
+        return values;
+    }
 
     @Before
     public void setUp() {
@@ -174,6 +190,55 @@ public class VehicleStubTest {
     }
 
     @Test
+    public void testGetAllProdConfigsAidlSmallData() throws Exception {
+        VehiclePropConfigs aidlConfigs = new VehiclePropConfigs();
+        VehiclePropConfig aidlConfig = new VehiclePropConfig();
+        aidlConfig.prop = TEST_PROP;
+        aidlConfig.access = TEST_ACCESS;
+        aidlConfigs.sharedMemoryFd = null;
+        aidlConfigs.payloads = new VehiclePropConfig[]{aidlConfig};
+
+        when(mAidlVehicle.getAllPropConfigs()).thenReturn(aidlConfigs);
+
+        HalPropConfig[] configs = mAidlVehicleStub.getAllPropConfigs();
+
+        assertThat(configs.length).isEqualTo(1);
+        assertThat(configs[0].getPropId()).isEqualTo(TEST_PROP);
+        assertThat(configs[0].getAccess()).isEqualTo(TEST_ACCESS);
+    }
+
+    @Test
+    public void testGetAllPropConfigsAidlLargeData() throws Exception {
+        int configSize = 1000;
+        VehiclePropConfigs aidlConfigs = new VehiclePropConfigs();
+        VehiclePropConfig aidlConfig = new VehiclePropConfig();
+        aidlConfig.prop = TEST_PROP;
+        aidlConfig.access = TEST_ACCESS;
+        aidlConfigs.payloads = new VehiclePropConfig[configSize];
+        for (int i = 0; i < configSize; i++) {
+            aidlConfigs.payloads[i] = aidlConfig;
+        }
+
+        aidlConfigs = (VehiclePropConfigs) LargeParcelable.toLargeParcelable(aidlConfigs, () -> {
+            VehiclePropConfigs newConfigs = new VehiclePropConfigs();
+            newConfigs.payloads = new VehiclePropConfig[0];
+            return newConfigs;
+        });
+
+        assertThat(aidlConfigs.sharedMemoryFd).isNotNull();
+
+        when(mAidlVehicle.getAllPropConfigs()).thenReturn(aidlConfigs);
+
+        HalPropConfig[] configs = mAidlVehicleStub.getAllPropConfigs();
+
+        assertThat(configs.length).isEqualTo(configSize);
+        for (int i = 0; i < configSize; i++) {
+            assertThat(configs[i].getPropId()).isEqualTo(TEST_PROP);
+            assertThat(configs[i].getAccess()).isEqualTo(TEST_ACCESS);
+        }
+    }
+
+    @Test
     public void testSubscribeHidl() throws Exception {
         SubscribeOptions aidlOptions = new SubscribeOptions();
         aidlOptions.propId = TEST_PROP;
@@ -185,24 +250,51 @@ public class VehicleStubTest {
         hidlOptions.flags = android.hardware.automotive.vehicle.V2_0.SubscribeFlags.EVENTS_FROM_CAR;
 
         HalClientCallback callback = mock(HalClientCallback.class);
-        VehicleStub.VehicleStubCallback stubCallback = mHidlVehicleStub.newCallback(callback);
+        VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
 
-        mHidlVehicleStub.subscribe(stubCallback, new SubscribeOptions[]{aidlOptions});
+        client.subscribe(new SubscribeOptions[]{aidlOptions});
 
         verify(mHidlVehicle).subscribe(
-                stubCallback.getHidlCallback(),
+                (android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub) client,
                 new ArrayList<android.hardware.automotive.vehicle.V2_0.SubscribeOptions>(
                         Arrays.asList(hidlOptions)));
     }
 
     @Test
+    public void testSubscribeAidl() throws Exception {
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = TEST_PROP;
+        option.sampleRate = TEST_SAMPLE_RATE;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+
+        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+
+        client.subscribe(options);
+
+        verify(mAidlVehicle).subscribe((IVehicleCallback) client, options,
+                /*maxSharedMemoryFileCount=*/2);
+    }
+
+    @Test
     public void testUnsubscribeHidl() throws Exception {
         HalClientCallback callback = mock(HalClientCallback.class);
-        VehicleStub.VehicleStubCallback stubCallback = mHidlVehicleStub.newCallback(callback);
+        VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
 
-        mHidlVehicleStub.unsubscribe(stubCallback, TEST_PROP);
+        client.unsubscribe(TEST_PROP);
 
-        verify(mHidlVehicle).unsubscribe(stubCallback.getHidlCallback(), TEST_PROP);
+        verify(mHidlVehicle).unsubscribe(
+                (android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub) client, TEST_PROP);
+    }
+
+    @Test
+    public void testUnsubscribeAidl() throws Exception {
+        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+
+        client.unsubscribe(TEST_PROP);
+
+        verify(mAidlVehicle).unsubscribe((IVehicleCallback) client, new int[]{TEST_PROP});
     }
 
     @Test
@@ -283,8 +375,9 @@ public class VehicleStubTest {
     @Test
     public void testHidlVehicleCallbackOnPropertyEvent() throws Exception {
         HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
         android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub hidlCallback =
-                mHidlVehicleStub.newCallback(callback).getHidlCallback();
+                (android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub) client;
         android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
                 new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
         propValue.prop = TEST_PROP;
@@ -302,8 +395,9 @@ public class VehicleStubTest {
     @Test
     public void testHidlVehicleCallbackOnPropertySetError() throws Exception {
         HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
         android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub hidlCallback =
-                mHidlVehicleStub.newCallback(callback).getHidlCallback();
+                (android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub) client;
         VehiclePropError error = new VehiclePropError();
         error.propId = TEST_PROP;
         error.areaId = TEST_AREA;
@@ -312,5 +406,101 @@ public class VehicleStubTest {
         hidlCallback.onPropertySetError(TEST_STATUS, TEST_PROP, TEST_AREA);
 
         verify(callback).onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(error)));
+    }
+
+    @Test
+    public void testAidlVehicleCallbackOnPropertyEventSmallData() throws Exception {
+        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        IVehicleCallback aidlCallback = (IVehicleCallback) client;
+        VehiclePropValues propValues = new VehiclePropValues();
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = TEST_PROP;
+        propValue.value = new RawPropValues();
+        propValue.value.int32Values = new int[]{TEST_VALUE};
+        propValues.payloads = new VehiclePropValue[]{propValue};
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue halPropValue = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        aidlCallback.onPropertyEvent(propValues, /*sharedMemoryFileCount=*/0);
+
+        verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(halPropValue)));
+    }
+
+    @Test
+    public void testAidlVehicleCallbackOnPropertyEventLargeData() throws Exception {
+        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        IVehicleCallback aidlCallback = (IVehicleCallback) client;
+        VehiclePropValues propValues = new VehiclePropValues();
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = TEST_PROP;
+        int dataSize = 2000;
+        int[] intValues = getTestIntValues(dataSize);
+        propValue.value = new RawPropValues();
+        propValue.value.int32Values = intValues;
+        propValues.payloads = new VehiclePropValue[]{propValue};
+        propValues = (VehiclePropValues) LargeParcelable.toLargeParcelable(propValues, () -> {
+            VehiclePropValues newValues = new VehiclePropValues();
+            newValues.payloads = new VehiclePropValue[0];
+            return newValues;
+        });
+        assertThat(propValues.sharedMemoryFd).isNotNull();
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue halPropValue = builder.build(TEST_PROP, 0, 0, 0, intValues);
+
+        aidlCallback.onPropertyEvent(propValues, /*sharedMemoryFileCount=*/0);
+
+        verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(halPropValue)));
+    }
+
+    @Test
+    public void testAidlVehicleCallbackOnPropertySetErrorSmallData() throws Exception {
+        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        IVehicleCallback aidlCallback = (IVehicleCallback) client;
+        VehiclePropErrors errors = new VehiclePropErrors();
+        VehiclePropError error = new VehiclePropError();
+        error.propId = TEST_PROP;
+        error.areaId = TEST_AREA;
+        error.errorCode = TEST_STATUS;
+        errors.payloads = new VehiclePropError[]{error};
+
+        aidlCallback.onPropertySetError(errors);
+
+        verify(callback).onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(error)));
+    }
+
+    @Test
+    public void testAidlVehicleCallbackOnPropertySetErrorLargeData() throws Exception {
+        HalClientCallback callback = mock(HalClientCallback.class);
+        VehicleStub.SubscriptionClient client = mAidlVehicleStub.newSubscriptionClient(callback);
+        IVehicleCallback aidlCallback = (IVehicleCallback) client;
+        VehiclePropErrors errors = new VehiclePropErrors();
+        VehiclePropError error = new VehiclePropError();
+        error.propId = TEST_PROP;
+        error.areaId = TEST_AREA;
+        error.errorCode = TEST_STATUS;
+        int errorCount = 1000;
+        errors.payloads = new VehiclePropError[errorCount];
+        for (int i = 0; i < errorCount; i++) {
+            errors.payloads[i] = error;
+        }
+        errors = (VehiclePropErrors) LargeParcelable.toLargeParcelable(errors, () -> {
+            VehiclePropErrors newErrors = new VehiclePropErrors();
+            newErrors.payloads = new VehiclePropError[0];
+            return newErrors;
+        });
+        assertThat(errors.sharedMemoryFd).isNotNull();
+
+        ArrayList<VehiclePropError> expectErrors = new ArrayList<VehiclePropError>(errorCount);
+        for (int i = 0; i < errorCount; i++) {
+            expectErrors.add(error);
+        }
+
+        aidlCallback.onPropertySetError(errors);
+
+        verify(callback).onPropertySetError(expectErrors);
     }
 }
