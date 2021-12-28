@@ -18,7 +18,8 @@ package com.android.car.telemetry.publisher.statsconverters;
 
 import android.os.PersistableBundle;
 
-import com.android.car.telemetry.AtomsProto;
+import com.android.car.telemetry.AtomsProto.Atom;
+import com.android.car.telemetry.StatsLogProto.AggregatedAtomInfo;
 import com.android.car.telemetry.StatsLogProto.DimensionsValue;
 import com.android.car.telemetry.StatsLogProto.GaugeBucketInfo;
 import com.android.car.telemetry.StatsLogProto.GaugeMetricData;
@@ -58,17 +59,29 @@ public class GaugeMetricDataConverter {
             List<Integer> dimensionsFieldsIds,
             Map<Long, String> hashToStringMap) throws StatsConversionException {
         List<Long> elapsedTimes = new ArrayList<>();
-        List<AtomsProto.Atom> atoms = new ArrayList<>();
+        List<Atom> atoms = new ArrayList<>();
         // This list contains dimensionsValues for each atom, matching in index and list size.
         List<List<DimensionsValue>> dimensionsValuesList = new ArrayList<>();
         for (GaugeMetricData gaugeData : gaugeDataList) {
             // The dimensionsValue is same for all stoms in the same GaugeMetricData.
             List<DimensionsValue> dimensionsValues = gaugeData.getDimensionLeafValuesInWhatList();
             for (GaugeBucketInfo bi : gaugeData.getBucketInfoList()) {
-                elapsedTimes.addAll(bi.getElapsedTimestampNanosList());
-                for (AtomsProto.Atom atom : bi.getAtomList()) {
-                    atoms.add(atom);
-                    dimensionsValuesList.add(dimensionsValues);
+                if (bi.getAggregatedAtomInfoCount() > 0) {
+                    List<AggregatedAtomInfo> aggregateList = bi.getAggregatedAtomInfoList();
+                    for (AggregatedAtomInfo aggregate : aggregateList) {
+                        Atom atom = aggregate.getAtom();
+                        for (long elapsedTime : aggregate.getElapsedTimestampNanosList()) {
+                            elapsedTimes.add(elapsedTime);
+                            atoms.add(atom);
+                            dimensionsValuesList.add(dimensionsValues);
+                        }
+                    }
+                } else {
+                    elapsedTimes.addAll(bi.getElapsedTimestampNanosList());
+                    for (Atom atom : bi.getAtomList()) {
+                        atoms.add(atom);
+                        dimensionsValuesList.add(dimensionsValues);
+                    }
                 }
             }
         }
