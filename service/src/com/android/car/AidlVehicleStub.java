@@ -56,12 +56,16 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 
 final class AidlVehicleStub extends VehicleStub {
 
     private static final String AIDL_VHAL_SERVICE =
             "android.hardware.automotive.vehicle.IVehicle/default";
+    // default timeout: 10s
+    private static final long DEFAULT_TIMEOUT_MS = 10_000;
 
     private final IVehicle mAidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
@@ -76,6 +80,7 @@ final class AidlVehicleStub extends VehicleStub {
     @GuardedBy("mLock")
     private final LongSparseArray<AndroidFuture<SetValueResult>> mPendingSetValueRequests =
             new LongSparseArray();
+    private long mTimeoutMs = DEFAULT_TIMEOUT_MS;
 
     AidlVehicleStub() {
         this(getAidlVehicle());
@@ -90,6 +95,20 @@ final class AidlVehicleStub extends VehicleStub {
         mGetSetValuesCallback = new GetSetValuesCallback();
     }
 
+    /**
+     * Sets the timeout for getValue/setValue requests in milliseconds.
+     */
+    @VisibleForTesting
+    void setTimeoutMs(long timeoutMs) {
+        mTimeoutMs = timeoutMs;
+    }
+
+    @VisibleForTesting
+    int countPendingRequests() {
+        synchronized (mLock) {
+            return mPendingGetValueRequests.size() + mPendingSetValueRequests.size();
+        }
+    }
 
     /**
      * Gets a HalPropValueBuilder that could be used to build a HalPropValue.
@@ -217,7 +236,7 @@ final class AidlVehicleStub extends VehicleStub {
 
         AndroidAsyncFuture<GetValueResult> asyncResultFuture = new AndroidAsyncFuture(resultFuture);
         try {
-            GetValueResult result = asyncResultFuture.get();
+            GetValueResult result = asyncResultFuture.get(mTimeoutMs, TimeUnit.MILLISECONDS);
             if (result.status != StatusCode.OK) {
                 throw new ServiceSpecificException(
                         result.status, "failed to get value: " + request.prop);
@@ -230,6 +249,12 @@ final class AidlVehicleStub extends VehicleStub {
         } catch (ExecutionException e) {
             throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
                     "failed to resolve GetValue future, error: " + e);
+        } catch (TimeoutException e) {
+            synchronized (mLock) {
+                mPendingGetValueRequests.remove(requestId);
+            }
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "get value request timeout for property: " + request.prop);
         }
     }
 
@@ -264,7 +289,7 @@ final class AidlVehicleStub extends VehicleStub {
 
         AndroidAsyncFuture<SetValueResult> asyncResultFuture = new AndroidAsyncFuture(resultFuture);
         try {
-            SetValueResult result = asyncResultFuture.get();
+            SetValueResult result = asyncResultFuture.get(mTimeoutMs, TimeUnit.MILLISECONDS);
             if (result.status != StatusCode.OK) {
                 throw new ServiceSpecificException(
                         result.status, "failed to set value: " + request.value);
@@ -276,6 +301,12 @@ final class AidlVehicleStub extends VehicleStub {
         } catch (ExecutionException e) {
             throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
                     "failed to resolve SetValue future, error: " + e);
+        } catch (TimeoutException e) {
+            synchronized (mLock) {
+                mPendingSetValueRequests.remove(requestId);
+            }
+            throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
+                    "set value request timeout for property: " + request.value);
         }
     }
 
@@ -368,6 +399,7 @@ final class AidlVehicleStub extends VehicleStub {
                 return;
             }
             mHandler.post(() -> {
+                // This might fail if the request already timed out.
                 pendingRequest.complete(result);
             });
         }
@@ -390,6 +422,7 @@ final class AidlVehicleStub extends VehicleStub {
                 return;
             }
             mHandler.post(() -> {
+                // This might fail if the request already timed out.
                 pendingRequest.complete(result);
             });
         }

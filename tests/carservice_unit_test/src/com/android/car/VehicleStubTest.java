@@ -56,14 +56,13 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.internal.LargeParcelable;
+import com.android.compatibility.common.util.PollingCheck;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,7 +84,7 @@ public class VehicleStubTest {
     @Mock
     private android.hardware.automotive.vehicle.V2_0.IVehicle mHidlVehicle;
 
-    private VehicleStub mAidlVehicleStub;
+    private AidlVehicleStub mAidlVehicleStub;
     private VehicleStub mHidlVehicleStub;
 
     private final HandlerThread mHandlerThread = new HandlerThread(
@@ -316,17 +315,15 @@ public class VehicleStubTest {
 
     @Test
     public void testGetHidl() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
-                        (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) args[0];
-                assertThat(propValue.prop).isEqualTo(TEST_PROP);
-                android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback callback =
-                        (android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback) args[1];
-                callback.onValues(StatusCode.OK, propValue);
-                return null;
-            }
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                    (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) args[0];
+            assertThat(propValue.prop).isEqualTo(TEST_PROP);
+            android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback callback =
+                    (android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback) args[1];
+            callback.onValues(StatusCode.OK, propValue);
+            return null;
         }).when(mHidlVehicle).get(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
@@ -339,17 +336,15 @@ public class VehicleStubTest {
 
     @Test(expected = ServiceSpecificException.class)
     public void testGetHidlError() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) {
-                Object[] args = invocation.getArguments();
-                android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
-                        (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) args[0];
-                assertThat(propValue.prop).isEqualTo(TEST_PROP);
-                android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback callback =
-                        (android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback) args[1];
-                callback.onValues(StatusCode.INVALID_ARG, propValue);
-                return null;
-            }
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                    (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) args[0];
+            assertThat(propValue.prop).isEqualTo(TEST_PROP);
+            android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback callback =
+                    (android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback) args[1];
+            callback.onValues(StatusCode.INVALID_ARG, propValue);
+            return null;
         }).when(mHidlVehicle).get(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
@@ -360,26 +355,24 @@ public class VehicleStubTest {
 
     @Test
     public void testGetAidlSmallData() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                GetValueRequests requests = (GetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(1);
-                GetValueRequest request = requests.payloads[0];
-                assertThat(request.requestId).isEqualTo(0);
-                assertThat(request.prop.prop).isEqualTo(TEST_PROP);
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
 
-                GetValueResults results = new GetValueResults();
-                GetValueResult result = new GetValueResult();
-                result.status = StatusCode.OK;
-                result.prop = request.prop;
-                result.requestId = request.requestId;
-                results.payloads = new GetValueResult[]{result};
+            GetValueResults results = new GetValueResults();
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.OK;
+            result.prop = request.prop;
+            result.requestId = request.requestId;
+            results.payloads = new GetValueResult[]{result};
 
-                callback.onGetValues(results);
-                return null;
-            }
+            callback.onGetValues(results);
+            return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
@@ -388,43 +381,42 @@ public class VehicleStubTest {
         HalPropValue gotValue = mAidlVehicleStub.get(value);
 
         assertThat(gotValue).isEqualTo(value);
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test
     public void testGetAidlLargeData() throws Exception {
         int dataSize = 2000;
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                GetValueRequests requests = (GetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(0);
-                assertThat(requests.sharedMemoryFd).isNotNull();
-                requests = (GetValueRequests)
-                        LargeParcelable.reconstructStableAIDLParcelable(
-                                requests, /*keepSharedMemory=*/false);
-                assertThat(requests.payloads.length).isEqualTo(1);
-                GetValueRequest request = requests.payloads[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(0);
+            assertThat(requests.sharedMemoryFd).isNotNull();
+            requests = (GetValueRequests)
+                    LargeParcelable.reconstructStableAIDLParcelable(
+                            requests, /*keepSharedMemory=*/false);
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
 
-                GetValueResults results = new GetValueResults();
-                GetValueResult result = new GetValueResult();
-                result.status = StatusCode.OK;
-                result.prop = request.prop;
-                result.requestId = request.requestId;
-                results.payloads = new GetValueResult[]{result};
+            GetValueResults results = new GetValueResults();
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.OK;
+            result.prop = request.prop;
+            result.requestId = request.requestId;
+            results.payloads = new GetValueResult[]{result};
 
-                results = (GetValueResults) LargeParcelable.toLargeParcelable(
-                        results, () -> {
-                            GetValueResults newResults = new GetValueResults();
-                            newResults.payloads = new GetValueResult[0];
-                            return newResults;
-                        });
+            results = (GetValueResults) LargeParcelable.toLargeParcelable(
+                    results, () -> {
+                        GetValueResults newResults = new GetValueResults();
+                        newResults.payloads = new GetValueResult[0];
+                        return newResults;
+                    });
 
-                assertThat(results.sharedMemoryFd).isNotNull();
+            assertThat(results.sharedMemoryFd).isNotNull();
 
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
-                callback.onGetValues(results);
-                return null;
-            }
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+            callback.onGetValues(results);
+            return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
@@ -433,66 +425,64 @@ public class VehicleStubTest {
         HalPropValue gotValue = mAidlVehicleStub.get(value);
 
         assertThat(gotValue).isEqualTo(value);
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test(expected = ServiceSpecificException.class)
     public void testGetAidlError() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                GetValueRequests requests = (GetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(1);
-                GetValueRequest request = requests.payloads[0];
-                assertThat(request.requestId).isEqualTo(0);
-                assertThat(request.prop.prop).isEqualTo(TEST_PROP);
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
 
-                GetValueResults results = new GetValueResults();
-                GetValueResult result = new GetValueResult();
-                result.status = StatusCode.INVALID_ARG;
-                result.requestId = request.requestId;
-                results.payloads = new GetValueResult[]{result};
+            GetValueResults results = new GetValueResults();
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.INVALID_ARG;
+            result.requestId = request.requestId;
+            results.payloads = new GetValueResult[]{result};
 
-                callback.onGetValues(results);
-                return null;
-            }
+            callback.onGetValues(results);
+            return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
 
         mAidlVehicleStub.get(value);
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test
     public void testGetAidlAsyncCallback() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                GetValueRequests requests = (GetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(1);
-                GetValueRequest request = requests.payloads[0];
-                assertThat(request.requestId).isEqualTo(0);
-                assertThat(request.prop.prop).isEqualTo(TEST_PROP);
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
 
-                GetValueResults results = new GetValueResults();
-                GetValueResult result = new GetValueResult();
-                result.status = StatusCode.OK;
-                result.prop = request.prop;
-                result.requestId = request.requestId;
-                results.payloads = new GetValueResult[]{result};
+            GetValueResults results = new GetValueResults();
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.OK;
+            result.prop = request.prop;
+            result.requestId = request.requestId;
+            results.payloads = new GetValueResult[]{result};
 
-                // Call callback after 100ms.
-                mHandler.postDelayed(() -> {
-                    try {
-                        callback.onGetValues(results);
-                    } catch (RemoteException e) {
-                        // ignore.
-                    }
-                }, 100);
-                return null;
-            }
+            // Call callback after 100ms.
+            mHandler.postDelayed(() -> {
+                try {
+                    callback.onGetValues(results);
+                } catch (RemoteException e) {
+                    // ignore.
+                }
+            }, /* delayMillis= */ 100);
+            return null;
         }).when(mAidlVehicle).getValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
@@ -501,6 +491,53 @@ public class VehicleStubTest {
         HalPropValue gotValue = mAidlVehicleStub.get(value);
 
         assertThat(gotValue).isEqualTo(value);
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetAidlTimeout() throws Exception {
+        mAidlVehicleStub.setTimeoutMs(100);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.prop.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+            GetValueResults results = new GetValueResults();
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.OK;
+            result.prop = request.prop;
+            result.requestId = request.requestId;
+            results.payloads = new GetValueResult[]{result};
+
+            // Call callback after 200ms.
+            mHandler.postDelayed(() -> {
+                try {
+                    callback.onGetValues(results);
+                } catch (RemoteException e) {
+                    // ignore.
+                }
+            }, /* delayMillis= */ 200);
+            return null;
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        ServiceSpecificException exception = assertThrows(ServiceSpecificException.class, () -> {
+            mAidlVehicleStub.get(value);
+        });
+        assertThat(exception.errorCode).isEqualTo(StatusCode.INTERNAL_ERROR);
+        assertThat(exception.getMessage()).contains("request timeout");
+
+        PollingCheck.check("callback is not called", 1000, () -> {
+            return !mHandler.hasMessagesOrCallbacks();
+        });
+
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test
@@ -536,129 +573,174 @@ public class VehicleStubTest {
 
     @Test
     public void testSetAidlSmallData() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                SetValueRequests requests = (SetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(1);
-                SetValueRequest request = requests.payloads[0];
-                assertThat(request.requestId).isEqualTo(0);
-                assertThat(request.value.prop).isEqualTo(TEST_PROP);
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            SetValueRequests requests = (SetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            SetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.value.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
 
-                SetValueResults results = new SetValueResults();
-                SetValueResult result = new SetValueResult();
-                result.status = StatusCode.OK;
-                result.requestId = request.requestId;
-                results.payloads = new SetValueResult[]{result};
+            SetValueResults results = new SetValueResults();
+            SetValueResult result = new SetValueResult();
+            result.status = StatusCode.OK;
+            result.requestId = request.requestId;
+            results.payloads = new SetValueResult[]{result};
 
-                callback.onSetValues(results);
-                return null;
-            }
+            callback.onSetValues(results);
+            return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
 
         mAidlVehicleStub.set(value);
+
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test
     public void testSetAidlLargeData() throws Exception {
         int dataSize = 2000;
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                SetValueRequests requests = (SetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(0);
-                assertThat(requests.sharedMemoryFd).isNotNull();
-                requests = (SetValueRequests)
-                        LargeParcelable.reconstructStableAIDLParcelable(
-                                requests, /*keepSharedMemory=*/false);
-                assertThat(requests.payloads.length).isEqualTo(1);
-                SetValueRequest request = requests.payloads[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            SetValueRequests requests = (SetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(0);
+            assertThat(requests.sharedMemoryFd).isNotNull();
+            requests = (SetValueRequests)
+                    LargeParcelable.reconstructStableAIDLParcelable(
+                            requests, /*keepSharedMemory=*/false);
+            assertThat(requests.payloads.length).isEqualTo(1);
+            SetValueRequest request = requests.payloads[0];
 
-                SetValueResults results = new SetValueResults();
-                SetValueResult result = new SetValueResult();
-                result.status = StatusCode.OK;
-                result.requestId = request.requestId;
-                results.payloads = new SetValueResult[]{result};
+            SetValueResults results = new SetValueResults();
+            SetValueResult result = new SetValueResult();
+            result.status = StatusCode.OK;
+            result.requestId = request.requestId;
+            results.payloads = new SetValueResult[]{result};
 
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
-                callback.onSetValues(results);
-                return null;
-            }
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+            callback.onSetValues(results);
+            return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         HalPropValue value = builder.build(TEST_PROP, 0, 0, 0, getTestIntValues(dataSize));
 
         mAidlVehicleStub.set(value);
+
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test(expected = ServiceSpecificException.class)
     public void testSetAidlError() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                SetValueRequests requests = (SetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(1);
-                SetValueRequest request = requests.payloads[0];
-                assertThat(request.requestId).isEqualTo(0);
-                assertThat(request.value.prop).isEqualTo(TEST_PROP);
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            SetValueRequests requests = (SetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            SetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.value.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
 
-                SetValueResults results = new SetValueResults();
-                SetValueResult result = new SetValueResult();
-                result.status = StatusCode.INVALID_ARG;
-                result.requestId = request.requestId;
-                results.payloads = new SetValueResult[]{result};
+            SetValueResults results = new SetValueResults();
+            SetValueResult result = new SetValueResult();
+            result.status = StatusCode.INVALID_ARG;
+            result.requestId = request.requestId;
+            results.payloads = new SetValueResult[]{result};
 
-                callback.onSetValues(results);
-                return null;
-            }
+            callback.onSetValues(results);
+            return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
 
         mAidlVehicleStub.set(value);
+
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test
     public void testSetAidlAsyncCallback() throws Exception {
-        doAnswer(new Answer() {
-            public Object answer(InvocationOnMock invocation) throws RemoteException {
-                Object[] args = invocation.getArguments();
-                SetValueRequests requests = (SetValueRequests) args[1];
-                assertThat(requests.payloads.length).isEqualTo(1);
-                SetValueRequest request = requests.payloads[0];
-                assertThat(request.requestId).isEqualTo(0);
-                assertThat(request.value.prop).isEqualTo(TEST_PROP);
-                IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            SetValueRequests requests = (SetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            SetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.value.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
 
-                SetValueResults results = new SetValueResults();
-                SetValueResult result = new SetValueResult();
-                result.status = StatusCode.OK;
-                result.requestId = request.requestId;
-                results.payloads = new SetValueResult[]{result};
+            SetValueResults results = new SetValueResults();
+            SetValueResult result = new SetValueResult();
+            result.status = StatusCode.OK;
+            result.requestId = request.requestId;
+            results.payloads = new SetValueResult[]{result};
 
-                // Call callback after 100ms.
-                mHandler.postDelayed(() -> {
-                    try {
-                        callback.onSetValues(results);
-                    } catch (RemoteException e) {
-                        // ignore.
-                    }
-                }, 100);
-                return null;
-            }
+            // Call callback after 100ms.
+            mHandler.postDelayed(() -> {
+                try {
+                    callback.onSetValues(results);
+                } catch (RemoteException e) {
+                    // ignore.
+                }
+            }, /* delayMillis= */ 100);
+            return null;
         }).when(mAidlVehicle).setValues(any(), any());
 
         HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
         HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
 
         mAidlVehicleStub.set(value);
+
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
+    }
+
+    @Test
+    public void testSetAidlTimeout() throws Exception {
+        mAidlVehicleStub.setTimeoutMs(100);
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            SetValueRequests requests = (SetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            SetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.value.prop).isEqualTo(TEST_PROP);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+            SetValueResults results = new SetValueResults();
+            SetValueResult result = new SetValueResult();
+            result.status = StatusCode.OK;
+            result.requestId = request.requestId;
+            results.payloads = new SetValueResult[]{result};
+
+            // Call callback after 200ms.
+            mHandler.postDelayed(() -> {
+                try {
+                    callback.onSetValues(results);
+                } catch (RemoteException e) {
+                    // ignore.
+                }
+            }, /* delayMillis= */ 200);
+            return null;
+        }).when(mAidlVehicle).setValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        ServiceSpecificException exception = assertThrows(ServiceSpecificException.class, () -> {
+            mAidlVehicleStub.set(value);
+        });
+        assertThat(exception.errorCode).isEqualTo(StatusCode.INTERNAL_ERROR);
+        assertThat(exception.getMessage()).contains("request timeout");
+
+        PollingCheck.check("callback is not called", 1000, () -> {
+            return !mHandler.hasMessagesOrCallbacks();
+        });
+
+        assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
     }
 
     @Test
