@@ -51,6 +51,7 @@ public class DisplayAreaButton extends CarSystemBarButton {
     public DisplayAreaButton(Context context, AttributeSet attrs) {
         super(context, attrs);
         context.registerReceiver(mBroadcastReceiver,
-                new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED));
+                new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED),
+                Context.RECEIVER_EXPORTED_UNAUDITED);
     }
 }
