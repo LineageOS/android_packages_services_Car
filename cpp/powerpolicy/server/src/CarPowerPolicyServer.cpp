@@ -78,7 +78,8 @@ constexpr const char* kCarServiceInterface = "car_service";
 constexpr const char* kCarPowerPolicyServerInterface =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
 constexpr const char* kCarPowerPolicySystemNotificationInterface =
-        "carpowerpolicy_system_notification";
+        "android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification/"
+        "default";
 
 std::string toString(const CallbackInfo& callback) {
     return StringPrintf("callback(pid %d, filter: %s)", callback.pid,
