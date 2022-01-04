@@ -19,6 +19,7 @@ package com.android.car.user;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserOrSetEphemeral;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -105,6 +106,7 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -1719,6 +1721,22 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertNoHalUserCreation();
+        assertNoHalUserRemoval();
+    }
+
+    @Test
+    public void testCreateUser_disallowAddUser() throws Exception {
+        mockUmHasUserRestrictionForUser(mMockedUserManager, Process.myUserHandle(),
+                UserManager.DISALLOW_ADD_USER, /* value= */ true);
+        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
+                /* flags= */ 0, 42);
+
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, /* flags= */ 0,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+
+        UserCreationResult result = getUserCreationResult();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
         assertNoHalUserCreation();
         assertNoHalUserRemoval();
     }
