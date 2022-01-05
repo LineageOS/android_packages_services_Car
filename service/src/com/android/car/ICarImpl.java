@@ -82,6 +82,7 @@ import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -700,6 +701,9 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--list-hals".equals(args[0])) {
             mHal.dumpListHals(writer);
             return;
+        } else if ("--data-dir".equals(args[0])) {
+            dumpDataDir(writer);
+            return;
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
@@ -740,14 +744,22 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  dumps just the specified HALs (or all of them if none specified),");
         writer.println("\t  where HAL is just the class name (like UserHalService)");
         writer.println("--user-metrics");
-        writer.println("\t  dumps user switching and stopping metrics ");
+        writer.println("\t  dumps user switching and stopping metrics");
         writer.println("--first-user-metrics");
         writer.println("\t  dumps how long it took to unlock first user since Android started\n");
         writer.println("\t  (or -1 if not unlocked)");
+        writer.println("--data-dir");
+        writer.println("\t  dumps CarService data dir (and whether it exists)");
         writer.println("-h");
         writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
         writer.println("[ANYTHING ELSE]");
         writer.println("\t  runs the given command (use --h to see the available commands)");
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpDataDir(IndentingPrintWriter writer) {
+        File dataDir = mContext.getDataDir();
+        writer.printf("Data dir: %s Exists: %b\n", dataDir.getAbsolutePath(), dataDir.exists());
     }
 
     @Override
