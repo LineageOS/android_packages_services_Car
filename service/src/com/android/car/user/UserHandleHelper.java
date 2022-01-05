@@ -111,7 +111,7 @@ public final class UserHandleHelper {
      * Is user for a profile?
      */
     public boolean isProfileUser(UserHandle user) {
-        return UserManagerHelper.isProfileUser(mUserManager, user);
+        return getUserContextAwareUserManager(user.getIdentifier()).isProfile();
     }
 
     /**
@@ -127,7 +127,6 @@ public final class UserHandleHelper {
     public boolean isPreCreatedUser(UserHandle user) {
         return UserManagerHelper.isPreCreatedUser(mUserManager, user);
     }
-
 
     /**
      * Get profile group Id for the user

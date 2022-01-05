@@ -255,7 +255,6 @@ package android.car.builtin.os {
     method @Deprecated public static boolean isGuestUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static boolean isPreCreatedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated public static boolean isProfileUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static boolean markGuestForDeletion(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Nullable public static android.os.UserHandle preCreateUser(@NonNull android.os.UserManager, @NonNull String);
     method @Deprecated public static int removeUserOrSetEphemeral(@NonNull android.os.UserManager, int, boolean);
