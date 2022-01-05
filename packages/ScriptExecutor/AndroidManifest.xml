@@ -17,10 +17,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
      package="com.android.car.scriptexecutor">
 
-     <!-- TODO(b/206487052): SHIPSTOP - remove android:debuggable added for CheckJNI-->
     <application android:label="@string/app_title"
-         android:allowBackup="false"
-         android:debuggable="true">
+         android:allowBackup="false">
 
         <service android:name=".ScriptExecutor"
             android:exported="true"
