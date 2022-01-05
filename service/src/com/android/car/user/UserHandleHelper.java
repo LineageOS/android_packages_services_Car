@@ -76,14 +76,14 @@ public final class UserHandleHelper {
      * Is User a guest user?
      */
     public boolean isGuestUser(UserHandle user) {
-        return UserManagerHelper.isGuestUser(mUserManager, user);
+        return getUserContextAwareUserManager(user.getIdentifier()).isGuestUser();
     }
 
     /**
      * Is User an admin user?
      */
     public boolean isAdminUser(UserHandle user) {
-        return UserManagerHelper.isAdminUser(mUserManager, user);
+        return getUserContextAwareUserManager(user.getIdentifier()).isAdminUser();
     }
 
     /**
@@ -127,7 +127,6 @@ public final class UserHandleHelper {
     public boolean isPreCreatedUser(UserHandle user) {
         return UserManagerHelper.isPreCreatedUser(mUserManager, user);
     }
-
 
     /**
      * Get profile group Id for the user

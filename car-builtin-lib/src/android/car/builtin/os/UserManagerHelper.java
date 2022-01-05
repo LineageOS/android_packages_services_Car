@@ -172,28 +172,6 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Would be removed after more research in existing API.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static boolean isAdminUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).isAdmin();
-    }
-
-    /**
-     * Would be removed after more research in existing API.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static boolean isGuestUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).isGuest();
-    }
-
-    /**
      * Checks if a user is precreated.
      */
     public static boolean isPreCreatedUser(@NonNull UserManager userManager,
