@@ -90,7 +90,7 @@ public final class UserManagerHelper {
      * @deprecated Would be after converting to system API
      */
     @Deprecated
-    public static final int REMOVE_RESULT_SET_EPHEMERAL = UserManager.REMOVE_RESULT_SET_EPHEMERAL;
+    public static final int REMOVE_RESULT_DEFERRED = UserManager.REMOVE_RESULT_DEFERRED;
 
     /** Assign default Icon for a given user. */
     public static Bitmap assignDefaultIconForUser(@NonNull Context context,
