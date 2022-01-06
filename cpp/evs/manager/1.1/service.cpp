@@ -47,8 +47,8 @@ static void startService(Context* context) {
     LOG(INFO) << "EVS managed service connecting to hardware service at "
               << context->hardwareServiceName;
     std::lock_guard<std::mutex> lock_guard{context->lock};
-    context->enumerator.reset(new Enumerator(context->hardwareServiceName));
-    if (!context->enumerator->init(context->hardwareServiceName)) {
+    context->enumerator = Enumerator::build(context->hardwareServiceName);
+    if (!context->enumerator) {
         LOG(ERROR) << "Failed to connect to hardware service - quitting from registrationThread";
         exit(1);
     }

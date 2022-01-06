@@ -29,8 +29,20 @@ TEST(Enumerator, BuildsNullObjectWithoutServiceNameProvided) {
     EXPECT_EQ(Enumerator::build(nullptr), nullptr);
 }
 
+TEST(Enumerator, ReturnsNullWhenNullNamePassed) {
+    EXPECT_EQ(Enumerator::build(static_cast<const char*>(nullptr)), nullptr);
+}
+
+TEST(Enumerator, ReturnsNullWhenServiceNotAvailable) {
+    auto mockServiceFactory = std::make_unique<MockServiceFactory>();
+    ON_CALL(*mockServiceFactory, getService).WillByDefault(::testing::Invoke([&]() {
+        return nullptr;
+    }));
+    EXPECT_EQ(Enumerator::build(std::move(mockServiceFactory)), nullptr);
+}
+
 TEST(Enumerator, ConstructsAndDestroys) {
-    Enumerator enumerator{std::make_unique<MockServiceFactory>()};
+    EXPECT_NE(Enumerator::build(std::make_unique<MockServiceFactory>()), nullptr);
 }
 
 // TODO(b/206829268): Implement remaining unit tests.

@@ -39,25 +39,24 @@ namespace android::automotive::evs::V1_1::implementation {
 class ProdServiceFactory : public ServiceFactory {
 public:
     explicit ProdServiceFactory(const char* hardwareServiceName) :
-          mHardwareServiceName(hardwareServiceName) {}
+          mService(IEvsEnumerator::getService(hardwareServiceName)) {}
     virtual ~ProdServiceFactory() = default;
 
-    sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator> getService() override {
-        return IEvsEnumerator::getService(mHardwareServiceName.data());
+    ::android::hardware::automotive::evs::V1_1::IEvsEnumerator* getService() override {
+        return mService.get();
     }
 
-    const std::string mHardwareServiceName;
+private:
+    sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator> mService;
 };
 
 class Enumerator : public IEvsEnumerator {
 public:
-    explicit Enumerator(const char* hardwareServiceName) :
-          mServiceFactory(new ProdServiceFactory(hardwareServiceName)) {}
-
-    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory) :
-          mServiceFactory(std::move(serviceFactory)) {}
+    // For testing.
+    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory);
 
     static std::unique_ptr<Enumerator> build(const char* hardwareServiceName);
+    static std::unique_ptr<Enumerator> build(std::unique_ptr<ServiceFactory> serviceFactory);
 
     virtual ~Enumerator();
 
@@ -92,8 +91,6 @@ public:
     hardware::Return<void> debug(const hardware::hidl_handle& fd,
                                  const hidl_vec<hardware::hidl_string>& options) override;
 
-    bool init(const char* hardwareServiceName);
-
 private:
     bool inline checkPermission();
     bool isLogicalCamera(const camera_metadata_t* metadata);
@@ -101,7 +98,6 @@ private:
 
     const std::unique_ptr<ServiceFactory> mServiceFactory;
 
-    sp<hardware::automotive::evs::V1_1::IEvsEnumerator> mHwEnumerator;
     wp<hardware::automotive::evs::V1_0::IEvsDisplay> mActiveDisplay;
 
     // List of active camera proxy objects that wrap hw cameras

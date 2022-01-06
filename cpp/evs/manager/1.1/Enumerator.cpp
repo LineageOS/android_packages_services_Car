@@ -67,76 +67,86 @@ const std::regex kEmulatedCameraNamePattern("emulated/[0-9]+", std::regex_consta
 // Display ID 255 is reserved for the special purpose.
 constexpr int kExclusiveMainDisplayId = 255;
 
+// This surprisingly is not included in STL until C++20.
+template <template <class> class Container, typename T>
+constexpr bool contains(const Container<T>& container, const T& value) {
+    return (std::find(container.begin(), container.end(), value) != container.end());
+}
+
+// Removes the target value if present, and optionally executes a lambda.
+template <typename Container, typename T, typename RemovalLambda>
+constexpr void removeIfPresent(
+        Container* container, const T& value, RemovalLambda removalLambda = []() {}) {
+    auto it = std::find(container->begin(), container->end(), value);
+    if (it != container->end()) {
+        container->erase(it);
+        removalLambda();
+    }
+}
+
 }  // namespace
 
 namespace android::automotive::evs::V1_1::implementation {
 
+Enumerator::Enumerator(std::unique_ptr<ServiceFactory> serviceFactory) :
+      mServiceFactory(std::move(serviceFactory)) {
+    // Get an internal display identifier.
+    mServiceFactory->getService()->getDisplayIdList([this](const auto& displayPorts) {
+        for (auto& port : displayPorts) {
+            mDisplayPorts.push_back(port);
+        }
+
+        if (mDisplayPorts.empty()) {
+            LOG(WARNING) << "No display is available to EVS service.";
+        } else {
+            // The first element must be the internal display
+            mInternalDisplayPort = mDisplayPorts.front();
+        }
+
+        // The first element is the internal display
+        mInternalDisplayPort = mDisplayPorts.front();
+        if (mDisplayPorts.size() < 1) {
+            LOG(WARNING) << "No display is available to EVS service.";
+        }
+    });
+
+    removeIfPresent(&mDisplayPorts, kExclusiveMainDisplayId, []() {
+        LOG(WARNING) << kExclusiveMainDisplayId
+                     << " is reserved so will not be available for EVS service.";
+    });
+    mDisplayOwnedExclusively = false;
+
+    // Starts the statistics collection
+    mMonitorEnabled = false;
+    mClientsMonitor = new StatsCollector();
+    if (auto result = mClientsMonitor->startCollection(); result.ok()) {
+        mMonitorEnabled = true;
+    } else {
+        LOG(ERROR) << "Failed to start the usage monitor: " << result.error();
+    }
+}
+
+std::unique_ptr<Enumerator> Enumerator::build(std::unique_ptr<ServiceFactory> serviceFactory) {
+    // Connect with the underlying hardware enumerator.
+    if (!serviceFactory->getService()) {
+        return nullptr;
+    }
+
+    return std::unique_ptr<Enumerator>{new Enumerator(std::move(serviceFactory))};
+}
+
 std::unique_ptr<Enumerator> Enumerator::build(const char* hardwareServiceName) {
-    // TODO(b/206829268): Fully deprecate init and move construction logic here.
     if (!hardwareServiceName) {
         return nullptr;
-    } else {
-        return std::make_unique<Enumerator>(hardwareServiceName);
     }
+
+    return build(std::make_unique<ProdServiceFactory>(hardwareServiceName));
 }
 
 Enumerator::~Enumerator() {
     if (mClientsMonitor != nullptr) {
         mClientsMonitor->stopCollection();
     }
-}
-
-bool Enumerator::init(const char*) {
-    LOG(DEBUG) << "init";
-
-    // Connect with the underlying hardware enumerator.
-    // TODO(b/206829268): Refactor init into constructor as init is always
-    // called immediately following construction.
-    mHwEnumerator = mServiceFactory->getService();
-    bool result = (mHwEnumerator != nullptr);
-    if (result) {
-        // Get an internal display identifier.
-        mHwEnumerator->getDisplayIdList([this](const auto& displayPorts) {
-            for (auto& port : displayPorts) {
-                mDisplayPorts.push_back(port);
-            }
-
-            if (mDisplayPorts.empty()) {
-                LOG(WARNING) << "No display is available to EVS service.";
-            } else {
-                // The first element must be the internal display
-                mInternalDisplayPort = mDisplayPorts.front();
-            }
-
-            // The first element is the internal display
-            mInternalDisplayPort = mDisplayPorts.front();
-            if (mDisplayPorts.size() < 1) {
-                LOG(WARNING) << "No display is available to EVS service.";
-            }
-        });
-    }
-
-    auto it = std::find(mDisplayPorts.begin(), mDisplayPorts.end(), kExclusiveMainDisplayId);
-    if (it != mDisplayPorts.end()) {
-        LOG(WARNING) << kExclusiveMainDisplayId << " is reserved for the special purpose "
-                     << "so will not be available for EVS service.";
-        mDisplayPorts.erase(it);
-    }
-    mDisplayOwnedExclusively = false;
-
-    // Starts the statistics collection
-    mMonitorEnabled = false;
-    mClientsMonitor = new StatsCollector();
-    if (mClientsMonitor != nullptr) {
-        auto result = mClientsMonitor->startCollection();
-        if (!result.ok()) {
-            LOG(ERROR) << "Failed to start the usage monitor: " << result.error();
-        } else {
-            mMonitorEnabled = true;
-        }
-    }
-
-    return result;
 }
 
 bool Enumerator::checkPermission() {
@@ -228,7 +238,7 @@ std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::stri
 // Methods from ::android::hardware::automotive::evs::V1_0::IEvsEnumerator follow.
 Return<void> Enumerator::getCameraList(getCameraList_cb list_cb) {
     hardware::hidl_vec<CameraDesc_1_0> cameraList;
-    mHwEnumerator->getCameraList_1_1([&cameraList](auto cameraList_1_1) {
+    mServiceFactory->getService()->getCameraList_1_1([&cameraList](auto cameraList_1_1) {
         cameraList.resize(cameraList_1_1.size());
         unsigned i = 0;
         for (auto&& cam : cameraList_1_1) {
@@ -262,7 +272,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
                                                    mEmulatedCameraDevices[cameraId]);
             }
         } else {
-            device = IEvsCamera_1_1::castFrom(mHwEnumerator->openCamera(cameraId))
+            device = IEvsCamera_1_1::castFrom(mServiceFactory->getService()->openCamera(cameraId))
                              .withDefault(nullptr);
         }
         if (device == nullptr) {
@@ -274,7 +284,7 @@ Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
             hwCamera = new HalCamera(device, cameraId, recordId);
             if (hwCamera == nullptr) {
                 LOG(ERROR) << "Failed to allocate camera wrapper object";
-                mHwEnumerator->closeCamera(device);
+                mServiceFactory->getService()->closeCamera(device);
             }
         }
     }
@@ -320,7 +330,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
             // NOTE:  This should drop our last reference to the camera, resulting in its
             //        destruction.
             mActiveCameras.erase(halCamera->getId());
-            mHwEnumerator->closeCamera(halCamera->getHwCamera());
+            mServiceFactory->getService()->closeCamera(halCamera->getHwCamera());
             if (mMonitorEnabled) {
                 mClientsMonitor->unregisterClientToMonitor(halCamera->getId());
             }
@@ -360,7 +370,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                     device = EvsEmulatedCamera::Create(id.c_str(), mEmulatedCameraDevices[id]);
                 }
             } else {
-                device = mHwEnumerator->openCamera_1_1(id, streamCfg);
+                device = mServiceFactory->getService()->openCamera_1_1(id, streamCfg);
             }
 
             if (device == nullptr) {
@@ -374,7 +384,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
                 hwCamera = new HalCamera(device, id, recordId, streamCfg);
                 if (hwCamera == nullptr) {
                     LOG(ERROR) << "Failed to allocate camera wrapper object";
-                    mHwEnumerator->closeCamera(device);
+                    mServiceFactory->getService()->closeCamera(device);
                     success = false;
                     break;
                 }
@@ -435,7 +445,7 @@ Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb) {
     }
 
     hardware::hidl_vec<CameraDesc_1_1> hidlCameras;
-    mHwEnumerator->getCameraList_1_1(
+    mServiceFactory->getService()->getCameraList_1_1(
             [&hidlCameras](hardware::hidl_vec<CameraDesc_1_1> enumeratedCameras) {
                 hidlCameras.resize(enumeratedCameras.size());
                 unsigned count = 0;
@@ -481,7 +491,7 @@ Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
     // create/destroy order and provides a cleaner restart sequence if the previous owner
     // is non-responsive for some reason.
     // Request exclusive access to the EVS display
-    sp<IEvsDisplay_1_0> pActiveDisplay = mHwEnumerator->openDisplay();
+    sp<IEvsDisplay_1_0> pActiveDisplay = mServiceFactory->getService()->openDisplay();
     if (pActiveDisplay == nullptr) {
         LOG(ERROR) << "EVS Display unavailable";
 
@@ -510,7 +520,7 @@ Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& disp
     } else {
         // Pass this request through to the hardware layer
         sp<HalDisplay> halDisplay = reinterpret_cast<HalDisplay*>(pActiveDisplay.get());
-        mHwEnumerator->closeDisplay(halDisplay->getHwDisplay());
+        mServiceFactory->getService()->closeDisplay(halDisplay->getHwDisplay());
         mActiveDisplay = nullptr;
         mDisplayOwnedExclusively = false;
     }
@@ -563,7 +573,7 @@ Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
     // create/destroy order and provides a cleaner restart sequence if the previous owner
     // is non-responsive for some reason.
     // Request exclusive access to the EVS display
-    sp<IEvsDisplay_1_1> pActiveDisplay = mHwEnumerator->openDisplay_1_1(id);
+    sp<IEvsDisplay_1_1> pActiveDisplay = mServiceFactory->getService()->openDisplay_1_1(id);
     if (pActiveDisplay == nullptr) {
         LOG(ERROR) << "EVS Display unavailable";
 
@@ -582,7 +592,7 @@ Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
 }
 
 Return<void> Enumerator::getDisplayIdList(getDisplayIdList_cb _list_cb) {
-    return mHwEnumerator->getDisplayIdList(_list_cb);
+    return mServiceFactory->getService()->getDisplayIdList(_list_cb);
 }
 
 // TODO(b/149874793): Add implementation for EVS Manager and Sample driver
@@ -703,10 +713,10 @@ void Enumerator::cmdList(int fd, const hidl_vec<hidl_string>& options) {
     }
 
     if (listDisplays) {
-        if (mHwEnumerator != nullptr) {
+        if (mServiceFactory->getService() != nullptr) {
             StringAppendF(&buffer, "Display devices available to EVS service:\n");
             // Get an internal display identifier.
-            mHwEnumerator->getDisplayIdList([&](const auto& displayPorts) {
+            mServiceFactory->getService()->getDisplayIdList([&](const auto& displayPorts) {
                 for (auto&& port : displayPorts) {
                     StringAppendF(&buffer, "%sdisplay port %u\n", kSingleIndent,
                                   static_cast<unsigned>(port));
