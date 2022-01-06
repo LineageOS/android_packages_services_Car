@@ -15,7 +15,6 @@
  */
 package com.android.car;
 
-import static android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
@@ -25,6 +24,7 @@ import android.annotation.NonNull;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.app.Instrumentation.ActivityMonitor;
+import android.app.TaskInfo;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -153,7 +153,7 @@ public class SystemActivityMonitoringServiceTest {
     }
 
     private boolean topTasksHasComponent(ComponentName component) {
-        for (TopTaskInfoContainer topTaskInfoContainer : mService.getTopTasks()) {
+        for (TaskInfo topTaskInfoContainer : mService.getTopTasks()) {
             if (topTaskInfoContainer.topActivity.equals(component)) {
                 return true;
             }
@@ -178,11 +178,11 @@ public class SystemActivityMonitoringServiceTest {
 
     public static class BlockingActivity extends TempActivity {}
 
-    private Context getContext() {
+    private static Context getContext() {
         return getInstrumentation().getTargetContext();
     }
 
-    private Context getTestContext() {
+    private static Context getTestContext() {
         return getInstrumentation().getContext();
     }
 
@@ -190,11 +190,11 @@ public class SystemActivityMonitoringServiceTest {
         return ComponentName.createRelative(ctx, cls.getName());
     }
 
-    private Activity startActivity(ComponentName name) {
+    private static Activity startActivity(ComponentName name) {
         return startActivity(name, Display.DEFAULT_DISPLAY);
     }
 
-    private Activity startActivity(ComponentName name, int displayId) {
+    private static Activity startActivity(ComponentName name, int displayId) {
         ActivityMonitor monitor = new ActivityMonitor(name.getClassName(), null, false);
         getInstrumentation().addMonitor(monitor);
 
@@ -214,7 +214,7 @@ public class SystemActivityMonitoringServiceTest {
 
         private final ComponentName mDesiredComponent;
         private final CountDownLatch mActivityLaunched = new CountDownLatch(1);
-        private TopTaskInfoContainer mTopTask;
+        private TaskInfo mTopTask;
 
         /**
          * Creates an instance of an
@@ -226,7 +226,7 @@ public class SystemActivityMonitoringServiceTest {
         }
 
         @Override
-        public void onActivityLaunch(TopTaskInfoContainer topTask) {
+        public void onActivityLaunch(TaskInfo topTask) {
             // Ignore activities outside of this test case
             if (!getTestContext().getPackageName().equals(topTask.topActivity.getPackageName())) {
                 Log.d(TAG, "Component launched from other package: "
