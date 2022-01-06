@@ -16,16 +16,24 @@
 
 package com.android.car;
 
+import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.content.om.OverlayManager;
 import android.content.pm.PackageInfo;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
+import android.os.SystemProperties;
+import android.os.UserHandle;
+import android.text.TextUtils;
 
 /** Context for updatable package */
 public class UpdatablePackageContext extends ContextWrapper {
 
     public static final String UPDATABLE_CAR_SERVICE_PACKAGE_NAME = "com.android.car.updatable";
+
+    private static final String TAG = UpdatablePackageContext.class.getSimpleName();
 
     // This is the package context of the com.android.car.updatable
     private final Context mPackageContext;
@@ -42,6 +50,10 @@ public class UpdatablePackageContext extends ContextWrapper {
                         "Updated car service package is not usable:" + ((info == null)
                                 ? "do not exist" : info.applicationInfo));
             }
+
+            // Enable correct RRO package
+            enableRROForCarServiceUpdatable(baseContext);
+
             // CONTEXT_IGNORE_SECURITY: UID is different but ok as the package is trustable system
             // app
             packageContext = baseContext.createPackageContext(
@@ -52,6 +64,49 @@ public class UpdatablePackageContext extends ContextWrapper {
         }
 
         return new UpdatablePackageContext(baseContext, packageContext);
+    }
+
+    private static void enableRROForCarServiceUpdatable(Context baseContext) {
+        String packageName = SystemProperties.get(
+                PackageManagerHelper.PROPERTY_CAR_SERVICE_OVERLAY_PACKAGE_NAME,
+                /* default= */ null);
+        if (TextUtils.isEmpty(packageName)) {
+            // read only property not defined. No need to dynamically overlay resources.
+            Slogf.i(TAG, " %s is not set. No need to dynamically overlay resources.",
+                    PackageManagerHelper.PROPERTY_CAR_SERVICE_OVERLAY_PACKAGE_NAME);
+            return;
+        }
+
+        // check package
+        try {
+            PackageInfo info = baseContext.getPackageManager().getPackageInfo(packageName, 0);
+            if (info == null || info.applicationInfo == null
+                    || !(PackageManagerHelper.isSystemApp(info.applicationInfo)
+                            || PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)
+                            || PackageManagerHelper.isOemApp(info.applicationInfo)
+                            || PackageManagerHelper.isOdmApp(info.applicationInfo)
+                            || PackageManagerHelper.isVendorApp(info.applicationInfo)
+                            || PackageManagerHelper.isProductApp(info.applicationInfo)
+                            || PackageManagerHelper.isSystemExtApp(info.applicationInfo))) {
+                Slogf.i(TAG, "%s is not usable: %s", packageName, ((info == null)
+                                ? "package do not exist" : info.applicationInfo));
+                return;
+            }
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "couldn't find package: %s", packageName);
+            return;
+        }
+
+        // package is valid. Enable RRO. This class is called for each user, so need to enable RRO
+        // for system and current user separately.
+        UserHandle user = baseContext.getUser();
+        try {
+            OverlayManager manager = baseContext.getSystemService(OverlayManager.class);
+            manager.setEnabled(packageName, true, user);
+            Slogf.i(TAG, "RRO package %s is enabled for User %s", packageName, user);
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "RRO package %s is NOT enabled for User %s", packageName, user);
+        }
     }
 
     private UpdatablePackageContext(Context baseContext, Context packageContext) {

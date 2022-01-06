@@ -39,6 +39,9 @@ import android.text.TextUtils;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class PackageManagerHelper {
 
+    public static final String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGE_NAME =
+            "ro.android.car.service.overlay.package";
+
     private PackageManagerHelper() {
         throw new UnsupportedOperationException("provides only static methods");
     }

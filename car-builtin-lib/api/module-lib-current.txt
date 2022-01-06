@@ -89,6 +89,7 @@ package android.car.builtin.content.pm {
     method public static boolean isUpdatedSystemApp(@NonNull android.content.pm.ApplicationInfo);
     method public static boolean isVendorApp(@NonNull android.content.pm.ApplicationInfo);
     method public static void setApplicationEnabledSettingForUser(@NonNull String, int, int, int, @NonNull String) throws android.os.RemoteException;
+    field public static final String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGE_NAME = "ro.android.car.service.overlay.package";
   }
 
 }
