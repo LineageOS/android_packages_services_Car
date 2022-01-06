@@ -143,8 +143,6 @@ droidstubs {
 android_app {
     name: "CarServiceModule",
 
-    manifest: "AndroidManifestForModuleBuildTest.xml",
-
     srcs: [
         // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
         ":android.car.cluster.navigation-src",

@@ -239,9 +239,6 @@ USE_CAR_FRAMEWORK_APEX := true
 ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_PACKAGES += com.android.car.framework
 
-    # TODO(b/202031799) Remove this when jni issue is resolved
-    PRODUCT_PACKAGES += CarServiceUpdatable
-
     PRODUCT_APEX_BOOT_JARS += com.android.car.framework:android.car-module
     PRODUCT_APEX_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
 
