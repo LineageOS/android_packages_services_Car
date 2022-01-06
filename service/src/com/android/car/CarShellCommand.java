@@ -87,6 +87,8 @@ import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.os.Binder;
 import android.os.FileUtils;
+import android.os.NewUserRequest;
+import android.os.NewUserResponse;
 import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.RemoteException;
@@ -1587,23 +1589,26 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CreateUserRequest request = new CreateUserRequest();
 
         UserManager um = mContext.getSystemService(UserManager.class);
-        UserHandle newUser;
 
+        NewUserRequest newUserRequest;
         try {
-            newUser = isGuest ? UserManagerHelper.createGuest(mContext, um, name)
-                    : UserManagerHelper.createUser(um, name, flags);
-        } catch (NullPointerException e) {
-            // TODO(b/196179969): in the following CLs createGuest and createUser would be
-            // replaced by the call which would return UserHandle. For now, it is possible
-            // that current call return null.
-            Slogf.w(TAG, "NullPointerException while creating User: ", e);
-            newUser = null;
+            newUserRequest = getCreateUserRequest(name, isGuest, flags);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Error creating new user request. name: %s isGuest: %b and flags: %s",
+                    name, isGuest, flags);
+            writer.println("Failed to create user");
+            return;
         }
 
-        if (newUser == null) {
+        NewUserResponse newUserResponse = um.createUser(newUserRequest);
+
+        if (!newUserResponse.isSuccessful()) {
             writer.printf("Failed to create user");
             return;
         }
+
+        UserHandle newUser = newUserResponse.getUser();
+
         writer.printf("New user: %s\n", newUser);
         Slogf.i(TAG, "Created new user: " + newUser);
 
@@ -1640,6 +1645,23 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.printf("User removed: %b\n", removed);
             }
         }
+    }
+
+    private NewUserRequest getCreateUserRequest(String name, boolean isGuest, int flags) {
+        NewUserRequest.Builder builder = new NewUserRequest.Builder().setName(name);
+        if ((flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN) {
+            builder.setAdmin();
+        }
+
+        if ((flags & UserManagerHelper.FLAG_EPHEMERAL) == UserManagerHelper.FLAG_EPHEMERAL) {
+            builder.setEphemeral();
+        }
+
+        if (isGuest) {
+            builder.setUserType(UserManager.USER_TYPE_FULL_GUEST);
+        }
+
+        return builder.build();
     }
 
     private void removeUser(String[] args, IndentingPrintWriter writer) {

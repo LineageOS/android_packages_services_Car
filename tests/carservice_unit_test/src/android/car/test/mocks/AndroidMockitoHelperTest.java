@@ -21,8 +21,6 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUs
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockSmGetService;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
@@ -80,10 +78,6 @@ public final class AndroidMockitoHelperTest {
                 .spyStatic(Binder.class)
                 .startMocking();
 
-        UserHandle testUserHandle = UserHandle.of(TEST_USER_ID);
-        mockUmCreateUser(mMockedUserManager, "testUser",
-                UserManager.USER_TYPE_FULL_SYSTEM, UserInfo.FLAG_ADMIN,
-                testUserHandle);
         //TODO(b/196179969): remove UserInfo
         mTestUser = new UserInfo(TEST_USER_ID, "testUser", "", UserInfo.FLAG_ADMIN,
                 UserManager.USER_TYPE_FULL_SYSTEM);
@@ -92,24 +86,6 @@ public final class AndroidMockitoHelperTest {
     @After
     public void tearDown() {
         mMockSession.finishMocking();
-    }
-
-    @Test
-    public void testMockUmCreateUser() {
-        assertThat(mMockedUserManager.createUser(mTestUser.name, mTestUser.userType,
-                mTestUser.flags).getUserHandle()).isEqualTo(mTestUser.getUserHandle());
-    }
-
-    @Test
-    public void testMockUmCreateGuest() {
-        Context mockContext = mock(Context.class);
-        int userId = 101;
-        String name = "guestUser";
-
-        UserInfo guestUser = mockUmCreateGuest(mMockedUserManager, name, userId);
-
-        assertThat(mMockedUserManager.createGuest(mockContext, name).getUserHandle())
-                .isEqualTo(guestUser.getUserHandle());
     }
 
     @Test
