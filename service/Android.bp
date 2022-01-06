@@ -87,10 +87,6 @@ android_app {
 
     static_libs: common_lib_deps,
 
-    jni_libs: [
-        "libcarservicejni",
-    ],
-
     aidl: {
         include_dirs: [
             // TODO(b/198195711): Remove once we compile against SDK.

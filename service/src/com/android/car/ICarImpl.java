@@ -372,7 +372,8 @@ public class ICarImpl extends ICar.Stub {
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_EVS_SERVICE)) {
             mCarEvsService = constructWithTrace(t, CarEvsService.class,
-                    () -> new CarEvsService(serviceContext, mHal.getEvsHal(), mCarPropertyService));
+                    () -> new CarEvsService(serviceContext, mCarServiceBuiltinPackageContext,
+                            mHal.getEvsHal(), mCarPropertyService));
         } else {
             mCarEvsService = null;
         }
