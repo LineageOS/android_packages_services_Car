@@ -21,6 +21,7 @@
 #include "ServiceFactory.h"
 #include "VirtualCamera.h"
 #include "emul/EvsEmulatedCamera.h"
+#include "stats/IStatsCollector.h"
 #include "stats/StatsCollector.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
@@ -53,12 +54,14 @@ private:
 class Enumerator : public IEvsEnumerator {
 public:
     // For testing.
-    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory);
+    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
+                        std::unique_ptr<IStatsCollector> statsCollector);
 
     static std::unique_ptr<Enumerator> build(const char* hardwareServiceName);
-    static std::unique_ptr<Enumerator> build(std::unique_ptr<ServiceFactory> serviceFactory);
+    static std::unique_ptr<Enumerator> build(std::unique_ptr<ServiceFactory> serviceFactory,
+                                             std::unique_ptr<IStatsCollector> statsCollector);
 
-    virtual ~Enumerator();
+    virtual ~Enumerator() = default;
 
     // Methods from hardware::automotive::evs::V1_0::IEvsEnumerator follow.
     hardware::Return<void> getCameraList(getCameraList_cb _hidl_cb) override;
@@ -112,14 +115,14 @@ private:
     // Display port the internal display is connected to.
     uint8_t mInternalDisplayPort;
 
-    // Collecting camera usage statistics from clients
-    sp<StatsCollector> mClientsMonitor;
+    // Collecting camera usage statistics from clients.
+    std::unique_ptr<IStatsCollector> mStatsCollector;
 
-    // Boolean flag to tell whether the camera usages are being monitored or not
-    bool mMonitorEnabled;
+    // Boolean flag to tell whether the camera usages are being monitored or not.
+    bool mMonitorEnabled = false;
 
-    // Boolean flag to tell whether EvsDisplay is owned exclusively or not
-    bool mDisplayOwnedExclusively;
+    // Boolean flag to tell whether EvsDisplay is owned exclusively or not.
+    bool mDisplayOwnedExclusively = false;
 
     // LSHAL dump
     void cmdDump(int fd, const hidl_vec<hardware::hidl_string>& options);

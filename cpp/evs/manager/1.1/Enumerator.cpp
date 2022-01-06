@@ -18,6 +18,7 @@
 
 #include "HalDisplay.h"
 #include "emul/EvsEmulatedCamera.h"
+#include "stats/StatsCollector.h"
 
 #include <android-base/chrono_utils.h>
 #include <android-base/file.h>
@@ -88,51 +89,47 @@ constexpr void removeIfPresent(
 
 namespace android::automotive::evs::V1_1::implementation {
 
-Enumerator::Enumerator(std::unique_ptr<ServiceFactory> serviceFactory) :
-      mServiceFactory(std::move(serviceFactory)) {
+Enumerator::Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
+                       std::unique_ptr<IStatsCollector> statsCollector) :
+      mServiceFactory(std::move(serviceFactory)), mStatsCollector(std::move(statsCollector)) {
     // Get an internal display identifier.
-    mServiceFactory->getService()->getDisplayIdList([this](const auto& displayPorts) {
-        for (auto& port : displayPorts) {
-            mDisplayPorts.push_back(port);
-        }
+    mServiceFactory->getService()->getDisplayIdList(
+            [this](const android::hardware::hidl_vec<unsigned char>& displayPorts) {
+                for (unsigned char port : displayPorts) {
+                    mDisplayPorts.push_back(port);
+                }
 
-        if (mDisplayPorts.empty()) {
-            LOG(WARNING) << "No display is available to EVS service.";
-        } else {
-            // The first element must be the internal display
-            mInternalDisplayPort = mDisplayPorts.front();
-        }
+                if (mDisplayPorts.empty()) {
+                    LOG(WARNING) << "No display is available to EVS service.";
+                } else {
+                    // The first element must be the internal display
+                    mInternalDisplayPort = mDisplayPorts.front();
+                }
 
-        // The first element is the internal display
-        mInternalDisplayPort = mDisplayPorts.front();
-        if (mDisplayPorts.size() < 1) {
-            LOG(WARNING) << "No display is available to EVS service.";
-        }
-    });
+                // The first element is the internal display
+                mInternalDisplayPort = mDisplayPorts.front();
+                if (mDisplayPorts.size() < 1) {
+                    LOG(WARNING) << "No display is available to EVS service.";
+                }
+            });
 
     removeIfPresent(&mDisplayPorts, kExclusiveMainDisplayId, []() {
         LOG(WARNING) << kExclusiveMainDisplayId
                      << " is reserved so will not be available for EVS service.";
     });
-    mDisplayOwnedExclusively = false;
 
-    // Starts the statistics collection
-    mMonitorEnabled = false;
-    mClientsMonitor = new StatsCollector();
-    if (auto result = mClientsMonitor->startCollection(); result.ok()) {
-        mMonitorEnabled = true;
-    } else {
-        LOG(ERROR) << "Failed to start the usage monitor: " << result.error();
-    }
+    mMonitorEnabled = mStatsCollector->startCollection().ok();
 }
 
-std::unique_ptr<Enumerator> Enumerator::build(std::unique_ptr<ServiceFactory> serviceFactory) {
+std::unique_ptr<Enumerator> Enumerator::build(std::unique_ptr<ServiceFactory> serviceFactory,
+                                              std::unique_ptr<IStatsCollector> statsCollector) {
     // Connect with the underlying hardware enumerator.
     if (!serviceFactory->getService()) {
         return nullptr;
     }
 
-    return std::unique_ptr<Enumerator>{new Enumerator(std::move(serviceFactory))};
+    return std::unique_ptr<Enumerator>{
+            new Enumerator(std::move(serviceFactory), std::move(statsCollector))};
 }
 
 std::unique_ptr<Enumerator> Enumerator::build(const char* hardwareServiceName) {
@@ -140,13 +137,8 @@ std::unique_ptr<Enumerator> Enumerator::build(const char* hardwareServiceName) {
         return nullptr;
     }
 
-    return build(std::make_unique<ProdServiceFactory>(hardwareServiceName));
-}
-
-Enumerator::~Enumerator() {
-    if (mClientsMonitor != nullptr) {
-        mClientsMonitor->stopCollection();
-    }
+    return build(std::make_unique<ProdServiceFactory>(hardwareServiceName),
+                 std::make_unique<StatsCollector>());
 }
 
 bool Enumerator::checkPermission() {
@@ -332,7 +324,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
             mActiveCameras.erase(halCamera->getId());
             mServiceFactory->getService()->closeCamera(halCamera->getHwCamera());
             if (mMonitorEnabled) {
-                mClientsMonitor->unregisterClientToMonitor(halCamera->getId());
+                mStatsCollector->unregisterClientToMonitor(halCamera->getId());
             }
         }
     }
@@ -393,7 +385,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
             // Add the hardware camera to our list, which will keep it alive via ref count
             mActiveCameras.try_emplace(id, hwCamera);
             if (mMonitorEnabled) {
-                mClientsMonitor->registerClientToMonitor(hwCamera);
+                mStatsCollector->registerClientToMonitor(hwCamera);
             }
 
             sourceCameras.push_back(hwCamera);
@@ -789,14 +781,9 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
             }
         } else if (EqualsIgnoreCase(command, kDumpCameraCommandCollected)) {
             // Reads the usage statistics from active HalCamera objects
-            std::unordered_map<std::string, std::string> usageStrings;
             if (mMonitorEnabled) {
-                auto result = mClientsMonitor->toString(&usageStrings, kSingleIndent);
-                if (!result.ok()) {
-                    LOG(ERROR) << "Failed to get the monitoring result";
-                    return;
-                }
-
+                std::unordered_map<std::string, std::string> usageStrings =
+                        mStatsCollector->toString(kSingleIndent);
                 if (!dumpAllCameras) {
                     cameraInfo += usageStrings[deviceId];
                 } else {
@@ -843,7 +830,7 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
                 }
 
                 // Starts a custom collection
-                auto result = mClientsMonitor->startCustomCollection(interval, duration);
+                auto result = mStatsCollector->startCustomCollection(interval, duration);
                 if (!result.ok()) {
                     LOG(ERROR) << "Failed to start a custom collection.  " << result.error();
                     StringAppendF(&cameraInfo, "Failed to start a custom collection. %s\n",
@@ -855,7 +842,7 @@ void Enumerator::cmdDumpDevice(int fd, const hidl_vec<hidl_string>& options) {
                     return;
                 }
 
-                auto result = mClientsMonitor->stopCustomCollection(deviceId);
+                auto result = mStatsCollector->stopCustomCollection(deviceId);
                 if (!result.ok()) {
                     LOG(ERROR) << "Failed to stop a custom collection.  " << result.error();
                     StringAppendF(&cameraInfo, "Failed to stop a custom collection. %s\n",
