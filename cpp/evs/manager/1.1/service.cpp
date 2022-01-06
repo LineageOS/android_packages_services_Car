@@ -25,6 +25,9 @@
 
 #include <unistd.h>
 
+#include <mutex>  // NOLINT
+#include <string>
+
 using android::OK;
 using android::status_t;
 using android::automotive::evs::V1_1::implementation::Enumerator;
@@ -33,22 +36,30 @@ using android::hardware::joinRpcThreadpool;
 using android::hardware::automotive::evs::V1_0::IEvsDisplay;
 using android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 
-static void startService(const char* hardwareServiceName, const char* managerServiceName) {
-    LOG(INFO) << "EVS managed service connecting to hardware service at " << hardwareServiceName;
-    android::sp<Enumerator> service = new Enumerator(hardwareServiceName);
+struct Context {
+    mutable std::mutex lock;
+    const char* hardwareServiceName;
+    const char* managerServiceName;
+    std::unique_ptr<Enumerator> enumerator = nullptr;
+};
 
-    if (!service->init(hardwareServiceName)) {
+static void startService(Context* context) {
+    LOG(INFO) << "EVS managed service connecting to hardware service at "
+              << context->hardwareServiceName;
+    std::lock_guard<std::mutex> lock_guard{context->lock};
+    context->enumerator.reset(new Enumerator(context->hardwareServiceName));
+    if (!context->enumerator->init(context->hardwareServiceName)) {
         LOG(ERROR) << "Failed to connect to hardware service - quitting from registrationThread";
         exit(1);
     }
 
     // Register our service -- if somebody is already registered by our name,
     // they will be killed (their thread pool will throw an exception).
-    LOG(INFO) << "EVS managed service is starting as " << managerServiceName;
-    status_t status = service->registerAsService(managerServiceName);
-    if (status != OK) {
-        LOG(ERROR) << "Could not register service " << managerServiceName << " status = " << status
-                   << " - quitting from registrationThread";
+    LOG(INFO) << "EVS managed service is starting as " << context->managerServiceName;
+    if (status_t status = context->enumerator->registerAsService(context->managerServiceName);
+        status != OK) {
+        LOG(ERROR) << "Could not register service " << context->managerServiceName
+                   << " status = " << status << " - quitting from registrationThread";
         exit(2);
     }
 
@@ -94,7 +105,11 @@ int main(int argc, char** argv) {
 
     // The connection to the underlying hardware service must happen on a dedicated thread to ensure
     // that the hwbinder response can be processed by the thread pool without blocking.
-    std::thread registrationThread(startService, evsHardwareServiceName, kManagedEnumeratorName);
+    Context context{.hardwareServiceName = evsHardwareServiceName,
+                    .managerServiceName = kManagedEnumeratorName,
+                    .enumerator = nullptr};
+
+    std::thread registrationThread(startService, &context);
 
     // Send this main thread to become a permanent part of the thread pool.
     // This is not expected to return.
