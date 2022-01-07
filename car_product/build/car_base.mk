@@ -25,9 +25,6 @@ ifeq ($(DISABLE_CAR_PRODUCT_VISUAL_OVERLAY),)
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/car_product/overlay-visual
 endif
 
-PRODUCT_COPY_FILES += \
-    packages/services/Car/car_product/build/component-overrides.xml:$(TARGET_COPY_OUT_VENDOR)/etc/sysconfig/component-overrides.xml \
-
 PRODUCT_PACKAGES += \
     com.android.wifi \
     Home \
@@ -57,7 +54,6 @@ PRODUCT_PACKAGES += \
     libnfc_ndef \
     libpowermanager \
     libvariablespeed \
-    A2dpSinkService \
     PackageInstaller \
     carbugreportd \
     vehicle_binding_util \
