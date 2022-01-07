@@ -31,6 +31,8 @@ genrule {
 
 car_service_sources = [
     ":iscriptexecutor_aidl",
+    "proto/**/*.proto",
+    ":cartelemetry-cardata-proto-srcs",
     "src/**/*.java",
     ":statslog-Car-java-gen",
 ]
@@ -51,7 +53,6 @@ common_lib_deps = [
     "android.hardware.automotive.occupant_awareness-V1-java",
     "vehicle-hal-support-lib",
     "com.android.car.procfsinspector-client",
-    "cartelemetry-protos",
     "carwatchdog-protos",
 ]
 
@@ -86,6 +87,10 @@ android_app {
     ],
 
     static_libs: common_lib_deps,
+
+    proto: {
+        type: "lite",
+    },
 
     aidl: {
         include_dirs: [
@@ -151,9 +156,9 @@ android_app {
         ":com.android.car.procfsinspector-client-src",
         ":statslog-Car-java-gen",
         ":vehicle-hal-support-lib-src",
-        "src/com/android/car/telemetry/proto/*.proto",
         "src/com/android/car/watchdog/proto/*.proto",
         ":iscriptexecutor_aidl",
+        "proto/**/*.proto",
         "src/**/*.java",
         ],
 
@@ -201,6 +206,10 @@ android_app {
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
     ],
+
+    proto: {
+        type: "lite",
+    },
 
     optimize: {
         proguard_flags_files: ["proguard.flags"],
