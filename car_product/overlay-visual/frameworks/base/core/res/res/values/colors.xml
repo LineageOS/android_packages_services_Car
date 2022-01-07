@@ -71,4 +71,8 @@
     <color name="car_seekbar_thumb">#FFFFFF</color>
     <!-- The SeekBar thumb color when disabled. Use for the dark theme. -->
     <color name="car_seekbar_thumb_disabled_on_dark">#757575</color>
+    <!-- The checkbox fill color. -->
+    <color name="car_checkbox_fill_color">#66B5FF</color>
+    <!-- The checkbox border color. -->
+    <color name="car_checkbox_border_color">#FFFFFF</color>
 </resources>
