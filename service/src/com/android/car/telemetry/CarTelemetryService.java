@@ -39,6 +39,7 @@ import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.OnShutdownReboot;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerController;
@@ -76,10 +77,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             CarTelemetryService.class.getSimpleName());
     private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
 
+    // accessed and updated on the main thread
+    private boolean mReleased = false;
+
     private ICarTelemetryServiceListener mListener;
     private DataBroker mDataBroker;
     private DataBrokerController mDataBrokerController;
     private MetricsConfigStore mMetricsConfigStore;
+    private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
     private SystemMonitor mSystemMonitor;
@@ -114,14 +119,22 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                     mMetricsConfigStore, mSystemMonitor,
                     systemInterface.getSystemStateInterface());
             mTelemetryThreadTraceLog.traceEnd();
+            // save state at reboot and shutdown
+            mOnShutdownReboot = new OnShutdownReboot(mContext);
+            mOnShutdownReboot.addAction((context, intent) -> release());
         });
     }
 
     @Override
     public void release() {
+        if (mReleased) {
+            return;
+        }
+        mReleased = true;
         mTelemetryHandler.post(() -> {
             mTelemetryThreadTraceLog.traceBegin("release");
             mResultStore.flushToDisk();
+            mOnShutdownReboot.release();
             mTelemetryThreadTraceLog.traceEnd();
         });
         mTelemetryThread.quitSafely();
