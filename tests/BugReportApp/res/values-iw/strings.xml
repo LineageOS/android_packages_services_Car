@@ -29,7 +29,7 @@
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"להצגת דוחות על באגים"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"סגירה"</string>
     <string name="bugreport_dialog_title" msgid="3315160684205929910">"דיבור ותיאור של הבעיה"</string>
-    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"הודעת האודיו בנושא הדוח על באג ב-%s"</string>
+    <string name="bugreport_dialog_add_audio_to_existing" msgid="4958460267276935700">"ההודעה הקולית בנושא הדוח על באג ב-%s"</string>
     <string name="bugreport_dialog_recording_finished" msgid="3982335902169398758">"ההקלטה הסתיימה"</string>
     <string name="bugreport_dialog_in_progress_title" msgid="1663500052146177338">"הדוח על הבאג נמצא בתהליך"</string>
     <string name="bugreport_dialog_in_progress_title_finished" msgid="1610236990020413471">"נאסף דוח על באג"</string>
