@@ -50,13 +50,14 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class CarTelemetryTestFragment extends Fragment {
-    private static final String TAG = CarTelemetryTestFragment.class.getSimpleName();;
+    private static final String TAG = CarTelemetryTestFragment.class.getSimpleName();
 
     private static final int SCRIPT_EXECUTION_PRIORITY_HIGH = 0;
     private static final int SCRIPT_EXECUTION_PRIORITY_LOW = 100;
@@ -375,6 +376,38 @@ public class CarTelemetryTestFragment extends Fragment {
                     METRICS_CONFIG_WIFI_NETSTATS.getName(),
                     METRICS_CONFIG_WIFI_NETSTATS.getVersion());
 
+    /**
+     * PROCESS_CPU_TIME + PROCESS_MEMORY + WIFI_NETSTATS section.
+     * Reuses the same publisher configuration that were defined above for PROCESS_CPU_TIME,
+     * PROCESS_MEMORY, and WIFI_NETSTATS.
+     * Its script is R.raw.telemetry_stats_and_connectivity_script which is loaded at runtime. The
+     * script produces a final report when it receives atoms PROCESS_MEMORY and PROCESS_CPU_TIME,
+     * and more than 5 pieces of data from connectivity publisher.
+     */
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("stats_and_connectivity_metrics_config")
+                    .setVersion(1)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onProcessMemory")
+                                    .setPublisher(PROCESS_MEMORY_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onProcessCpuTime")
+                                    .setPublisher(PROCESS_CPU_TIME_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onWifiNetstats")
+                                    .setPublisher(WIFI_NETSTATS_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final MetricsConfigKey STATS_AND_CONNECTIVITY_KEY = new MetricsConfigKey(
+            METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.getName(),
+            METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.getVersion());
+
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     private CarTelemetryManager mCarTelemetryManager;
@@ -471,6 +504,13 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveWifiNetstatsConfigBtnClick);
         view.findViewById(R.id.get_on_wifi_netstats_report)
                 .setOnClickListener(this::onGetWifiNetstatsReportBtnClick);
+        /** StatsPublisher + ConnectivityPublisher section */
+        view.findViewById(R.id.send_stats_and_connectivity_config)
+                .setOnClickListener(this::onSendStatsAndConnectivityConfigBtnClick);
+        view.findViewById(R.id.remove_stats_and_connectivity_config)
+                .setOnClickListener(this::onRemoveStatsAndConnectivityConfigBtnClick);
+        view.findViewById(R.id.get_stats_and_connectivity_report)
+                .setOnClickListener(this::onGetStatsAndConnectivityReportBtnClick);
         /** Print mem info button */
         view.findViewById(R.id.print_mem_info_btn).setOnClickListener(this::onPrintMemInfoBtnClick);
         return view;
@@ -645,6 +685,37 @@ public class CarTelemetryTestFragment extends Fragment {
         mCarTelemetryManager.sendFinishedReports(WIFI_NETSTATS_KEY);
     }
 
+    private void onSendStatsAndConnectivityConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for stats & connectivity data...");
+        String luaScript;
+        try (InputStream is = getResources().openRawResource(
+                R.raw.telemetry_stats_and_connectivity_script)) {
+            byte[] bytes = new byte[is.available()];
+            is.read(bytes);
+            luaScript = new String(bytes);
+        } catch (IOException e) {
+            showOutput(
+                    "Unable to send MetricsConfig that combines Memory and CPU atoms, because "
+                            + "reading Lua script from file failed.");
+            return;
+        }
+        TelemetryProto.MetricsConfig config =
+                METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.toBuilder().setScript(luaScript).build();
+        mCarTelemetryManager.addMetricsConfig(
+                STATS_AND_CONNECTIVITY_KEY, config.toByteArray());
+    }
+
+    private void onRemoveStatsAndConnectivityConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for stats data & connectivity data...");
+        mCarTelemetryManager.removeMetricsConfig(STATS_AND_CONNECTIVITY_KEY);
+    }
+
+    private void onGetStatsAndConnectivityReportBtnClick(View view) {
+        showOutput("Fetching report for " + STATS_AND_CONNECTIVITY_KEY
+                + "... If nothing shows up within 5 seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(STATS_AND_CONNECTIVITY_KEY);
+    }
+
     /** Gets a MemoryInfo object for the device's current memory status. */
     private ActivityManager.MemoryInfo getAvailableMemory() {
         ActivityManager activityManager = getActivity().getSystemService(ActivityManager.class);
@@ -699,7 +770,7 @@ public class CarTelemetryTestFragment extends Fragment {
 
         @Override
         public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key, int statusCode) {
-            showOutput("Add MetricsConfig status for " + key.getName() + ": "
+            showOutput("Add MetricsConfig status for " + key + ": "
                     + statusCodeToString(statusCode));
         }
 

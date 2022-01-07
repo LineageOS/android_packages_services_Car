@@ -396,6 +396,7 @@
     <string name="anr_occurred_config" translate="false">anr_occurred:</string>
     <string name="wtf_occurred_config" translate="false">wtf_occurred:</string>
     <string name="wifi_netstats_config" translate="false">wifi_netstats:</string>
+    <string name="stats_and_connectivity_config" translate="false">stats and connectivity:</string>
     <string name="add_metrics_config" translatable="false">Add MetricsConfig</string>
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="get_report" translatable="false">Get Report</string>
