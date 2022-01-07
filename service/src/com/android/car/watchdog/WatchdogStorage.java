@@ -101,24 +101,34 @@ public final class WatchdogStorage {
 
     /** Saves the given user package settings entries and returns whether the change succeeded. */
     public boolean saveUserPackageSettings(List<UserPackageSettingsEntry> entries) {
-        List<ContentValues> rows = new ArrayList<>(entries.size());
-        /* Capture only unique user ids. */
         ArraySet<Integer> usersWithMissingIds = new ArraySet<>();
-        for (int i = 0; i < entries.size(); ++i) {
-            UserPackageSettingsEntry entry = entries.get(i);
-            if (mUserPackagesByKey.get(UserPackage.getKey(entry.userId, entry.packageName))
-                    == null) {
-                usersWithMissingIds.add(entry.userId);
-            }
-            rows.add(UserPackageSettingsTable.getContentValues(entry));
-        }
+        boolean isWriteSuccessful = false;
         try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            if (!atomicReplaceEntries(db, UserPackageSettingsTable.TABLE_NAME, rows)) {
-                return false;
+            try {
+                db.beginTransaction();
+                for (int i = 0; i < entries.size(); ++i) {
+                    UserPackageSettingsEntry entry = entries.get(i);
+                    // Note: DO NOT replace existing entries in the UserPackageSettingsTable because
+                    // the replace operation deletes the old entry and inserts a new entry in the
+                    // table. This deletes the entries (in other tables) that are associated with
+                    // the old userPackageId. And also the userPackageId is auto-incremented.
+                    if (mUserPackagesByKey.get(UserPackage.getKey(entry.userId, entry.packageName))
+                            != null && UserPackageSettingsTable.updateEntry(db, entry)) {
+                        continue;
+                    }
+                    usersWithMissingIds.add(entry.userId);
+                    if (!UserPackageSettingsTable.replaceEntry(db, entry)) {
+                        return false;
+                    }
+                }
+                db.setTransactionSuccessful();
+                isWriteSuccessful = true;
+            } finally {
+                db.endTransaction();
             }
             populateUserPackages(db, usersWithMissingIds);
         }
-        return true;
+        return isWriteSuccessful;
     }
 
     /** Returns the user package setting entries. */
@@ -129,11 +139,12 @@ public final class WatchdogStorage {
         }
         List<UserPackageSettingsEntry> entries = new ArrayList<>(entriesById.size());
         for (int i = 0; i < entriesById.size(); ++i) {
-            String rowId = entriesById.keyAt(i);
+            String userPackageId = entriesById.keyAt(i);
             UserPackageSettingsEntry entry = entriesById.valueAt(i);
-            UserPackage userPackage = new UserPackage(rowId, entry.userId, entry.packageName);
+            UserPackage userPackage = new UserPackage(userPackageId, entry.userId,
+                    entry.packageName);
             mUserPackagesByKey.put(userPackage.getKey(), userPackage);
-            mUserPackagesById.put(userPackage.getUniqueId(), userPackage);
+            mUserPackagesById.put(userPackage.userPackageId, userPackage);
             entries.add(entry);
         }
         return entries;
@@ -158,16 +169,16 @@ public final class WatchdogStorage {
                         excludingEndEpochSeconds);
             }
             for (int i = 0; i < ioUsagesById.size(); ++i) {
-                String id = ioUsagesById.keyAt(i);
-                UserPackage userPackage = mUserPackagesById.get(id);
+                String userPackageId = ioUsagesById.keyAt(i);
+                UserPackage userPackage = mUserPackagesById.get(userPackageId);
                 if (userPackage == null) {
                     Slogf.i(TAG,
-                            "Failed to find user id and package name for unique database id: '%s'",
-                            id);
+                            "Failed to find user id and package name for user package id: '%s'",
+                            userPackageId);
                     continue;
                 }
                 mTodayIoUsageStatsEntries.add(new IoUsageStatsEntry(
-                        userPackage.getUserId(), userPackage.getPackageName(),
+                        userPackage.userId, userPackage.packageName,
                         ioUsagesById.valueAt(i)));
             }
             return new ArrayList<>(mTodayIoUsageStatsEntries);
@@ -178,12 +189,12 @@ public final class WatchdogStorage {
     public void deleteUserPackage(@UserIdInt int userId, String packageName) {
         UserPackage userPackage = mUserPackagesByKey.get(UserPackage.getKey(userId, packageName));
         if (userPackage == null) {
-            Slogf.w(TAG, "Failed to find unique database id for user id '%d' and package '%s",
+            Slogf.w(TAG, "Failed to find user package id for user id '%d' and package '%s",
                     userId, packageName);
             return;
         }
         mUserPackagesByKey.remove(userPackage.getKey());
-        mUserPackagesById.remove(userPackage.getUniqueId());
+        mUserPackagesById.remove(userPackage.userPackageId);
         try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
             UserPackageSettingsTable.deleteUserPackage(db, userId, packageName);
         }
@@ -206,8 +217,9 @@ public final class WatchdogStorage {
                 /* Packages without historical stats don't have userPackage entry. */
                 return null;
             }
-            return IoUsageStatsTable.queryIoOveruseStatsForUniqueId(db, userPackage.getUniqueId(),
-                    includingStartEpochSeconds, excludingEndEpochSeconds);
+            return IoUsageStatsTable.queryIoOveruseStatsForUserPackageId(db,
+                    userPackage.userPackageId, includingStartEpochSeconds,
+                    excludingEndEpochSeconds);
         }
     }
 
@@ -249,12 +261,12 @@ public final class WatchdogStorage {
             UserPackage userPackage = mUserPackagesById.get(id);
             if (userPackage == null) {
                 Slogf.i(TAG,
-                        "Failed to find user id and package name for unique database id: '%s'",
+                        "Failed to find user id and package name for user package id: '%s'",
                         id);
                 continue;
             }
-            userPackageDailySummaries.add(new UserPackageDailySummaries(userPackage.getUserId(),
-                    userPackage.getPackageName(), summariesById.valueAt(i)));
+            userPackageDailySummaries.add(new UserPackageDailySummaries(userPackage.userId,
+                    userPackage.packageName, summariesById.valueAt(i)));
         }
         userPackageDailySummaries
                 .sort(Comparator.comparingLong(UserPackageDailySummaries::getTotalWrittenBytes)
@@ -283,12 +295,12 @@ public final class WatchdogStorage {
             UserPackage userPackage = mUserPackagesById.get(id);
             if (userPackage == null) {
                 Slogf.w(TAG,
-                        "Failed to find user id and package name for unique database id: '%s'",
+                        "Failed to find user id and package name for user package id: '%s'",
                         id);
                 continue;
             }
-            notForgivenOverusesEntries.add(new NotForgivenOverusesEntry(userPackage.getUserId(),
-                    userPackage.getPackageName(), notForgivenOverusesById.valueAt(i)));
+            notForgivenOverusesEntries.add(new NotForgivenOverusesEntry(userPackage.userId,
+                    userPackage.packageName, notForgivenOverusesById.valueAt(i)));
         }
         return notForgivenOverusesEntries;
     }
@@ -307,7 +319,7 @@ public final class WatchdogStorage {
                 mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
         long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
         long excludingEndEpochSeconds = currentDate.toEpochSecond();
-        List<String> uniqueIds = new ArrayList<>();
+        List<String> userPackageIds = new ArrayList<>();
         for (int i = 0; i < packagesByUserId.size(); i++) {
             int userId = packagesByUserId.keyAt(i);
             List<String> packages = packagesByUserId.valueAt(i);
@@ -318,11 +330,11 @@ public final class WatchdogStorage {
                     // Packages without historical stats don't have userPackage entry.
                     continue;
                 }
-                uniqueIds.add(userPackage.getUniqueId());
+                userPackageIds.add(userPackage.userPackageId);
             }
         }
         try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
-            IoUsageStatsTable.forgiveHistoricalOverusesForPackage(db, uniqueIds,
+            IoUsageStatsTable.forgiveHistoricalOverusesForPackage(db, userPackageIds,
                     includingStartEpochSeconds, excludingEndEpochSeconds);
         }
     }
@@ -336,9 +348,9 @@ public final class WatchdogStorage {
         IntArray aliveUsers = IntArray.wrap(aliveUserIds);
         for (int i = mUserPackagesByKey.size() - 1; i >= 0; --i) {
             UserPackage userPackage = mUserPackagesByKey.valueAt(i);
-            if (aliveUsers.indexOf(userPackage.getUserId()) == -1) {
+            if (aliveUsers.indexOf(userPackage.userId) == -1) {
                 mUserPackagesByKey.removeAt(i);
-                mUserPackagesById.remove(userPackage.getUniqueId());
+                mUserPackagesById.remove(userPackage.userPackageId);
             }
         }
         try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
@@ -355,7 +367,7 @@ public final class WatchdogStorage {
             UserPackage userPackage = mUserPackagesByKey.get(
                     UserPackage.getKey(entry.userId, entry.packageName));
             if (userPackage == null) {
-                Slogf.i(TAG, "Failed to find unique database id for user id '%d' and package '%s",
+                Slogf.i(TAG, "Failed to find user package id for user id '%d' and package '%s",
                         entry.userId, entry.packageName);
                 continue;
             }
@@ -369,7 +381,7 @@ public final class WatchdogStorage {
             }
             long statsDateEpochSeconds = statsDate.toEpochSecond();
             rows.add(IoUsageStatsTable.getContentValues(
-                    userPackage.getUniqueId(), entry, statsDateEpochSeconds));
+                    userPackage.userPackageId, entry, statsDateEpochSeconds));
         }
         try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
             return atomicReplaceEntries(db, IoUsageStatsTable.TABLE_NAME, rows);
@@ -378,15 +390,18 @@ public final class WatchdogStorage {
 
     private void populateUserPackages(SQLiteDatabase db, ArraySet<Integer> users) {
         List<UserPackage> userPackages = UserPackageSettingsTable.queryUserPackages(db, users);
+        if (userPackages == null) {
+            return;
+        }
         for (int i = 0; i < userPackages.size(); ++i) {
             UserPackage userPackage = userPackages.get(i);
             mUserPackagesByKey.put(userPackage.getKey(), userPackage);
-            mUserPackagesById.put(userPackage.getUniqueId(), userPackage);
+            mUserPackagesById.put(userPackage.userPackageId, userPackage);
         }
     }
 
-    private static boolean atomicReplaceEntries(
-            SQLiteDatabase db, String tableName, List<ContentValues> rows) {
+    private static boolean atomicReplaceEntries(SQLiteDatabase db, String tableName,
+            List<ContentValues> rows) {
         if (rows.isEmpty()) {
             return true;
         }
@@ -520,7 +535,7 @@ public final class WatchdogStorage {
      */
     static final class UserPackageSettingsTable {
         public static final String TABLE_NAME = "user_package_settings";
-        public static final String COLUMN_ROWID = "rowid";
+        public static final String COLUMN_USER_PACKAGE_ID = "user_package_id";
         public static final String COLUMN_PACKAGE_NAME = "package_name";
         public static final String COLUMN_USER_ID = "user_id";
         public static final String COLUMN_KILLABLE_STATE = "killable_state";
@@ -528,28 +543,56 @@ public final class WatchdogStorage {
         public static void createTable(SQLiteDatabase db) {
             StringBuilder createCommand = new StringBuilder();
             createCommand.append("CREATE TABLE ").append(TABLE_NAME).append(" (")
+                    // Maximum value for COLUMN_USER_PACKAGE_ID is the max integer size supported by
+                    // the database. Thus, the number of entries that can be inserted into this
+                    // table is bound by this upper limit for the lifetime of the device
+                    // (i.e., Even when a userId is reused, the previous user_package_ids for
+                    // the corresponding userId won't be reused). When the IDs are exhausted,
+                    // any new insert operation will result in the error "database or disk is full".
+                    .append(COLUMN_USER_PACKAGE_ID).append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
                     .append(COLUMN_PACKAGE_NAME).append(" TEXT NOT NULL, ")
                     .append(COLUMN_USER_ID).append(" INTEGER NOT NULL, ")
                     .append(COLUMN_KILLABLE_STATE).append(" INTEGER NOT NULL, ")
-                    .append("PRIMARY KEY (").append(COLUMN_PACKAGE_NAME)
+                    .append("UNIQUE(").append(COLUMN_PACKAGE_NAME)
                     .append(", ").append(COLUMN_USER_ID).append("))");
             db.execSQL(createCommand.toString());
             Slogf.i(TAG, "Successfully created the %s table in the %s database version %d",
                     TABLE_NAME, WatchdogDbHelper.DATABASE_NAME, WatchdogDbHelper.DATABASE_VERSION);
         }
 
-        public static ContentValues getContentValues(UserPackageSettingsEntry entry) {
+        public static boolean updateEntry(SQLiteDatabase db, UserPackageSettingsEntry entry) {
+            ContentValues values = new ContentValues();
+            values.put(COLUMN_KILLABLE_STATE, entry.killableState);
+
+            StringBuilder whereClause = new StringBuilder(COLUMN_PACKAGE_NAME).append(" = ? AND ")
+                            .append(COLUMN_USER_ID).append(" = ?");
+            String[] whereArgs = new String[]{entry.packageName, String.valueOf(entry.userId)};
+
+            if (db.update(TABLE_NAME, values, whereClause.toString(), whereArgs) < 1) {
+                Slogf.e(TAG, "Failed to update %d entry with package name: %s and user id: %d",
+                        TABLE_NAME, entry.packageName, entry.userId);
+                return false;
+            }
+            return true;
+        }
+
+        public static boolean replaceEntry(SQLiteDatabase db, UserPackageSettingsEntry entry) {
             ContentValues values = new ContentValues();
             values.put(COLUMN_USER_ID, entry.userId);
             values.put(COLUMN_PACKAGE_NAME, entry.packageName);
             values.put(COLUMN_KILLABLE_STATE, entry.killableState);
-            return values;
+
+            if (db.replaceOrThrow(UserPackageSettingsTable.TABLE_NAME, null, values) == -1) {
+                Slogf.e(TAG, "Failed to replaced %s entry [%s]", TABLE_NAME, values);
+                return false;
+            }
+            return true;
         }
 
         public static ArrayMap<String, UserPackageSettingsEntry> querySettings(SQLiteDatabase db) {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT ")
-                    .append(COLUMN_ROWID).append(", ")
+                    .append(COLUMN_USER_PACKAGE_ID).append(", ")
                     .append(COLUMN_USER_ID).append(", ")
                     .append(COLUMN_PACKAGE_NAME).append(", ")
                     .append(COLUMN_KILLABLE_STATE)
@@ -566,27 +609,35 @@ public final class WatchdogStorage {
             }
         }
 
-        public static List<UserPackage> queryUserPackages(
-                SQLiteDatabase db, ArraySet<Integer> users) {
+        /**
+         * Returns the UserPackage entries for the given users. When no users are provided or no
+         * data returned by the DB query, returns null.
+         */
+        @Nullable
+        public static List<UserPackage> queryUserPackages(SQLiteDatabase db,
+                ArraySet<Integer> users) {
+            int numUsers = users.size();
+            if (numUsers == 0) {
+                return null;
+            }
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT ")
-                    .append(COLUMN_ROWID).append(", ")
+                    .append(COLUMN_USER_PACKAGE_ID).append(", ")
                     .append(COLUMN_USER_ID).append(", ")
                     .append(COLUMN_PACKAGE_NAME)
-                    .append(" FROM ").append(TABLE_NAME);
-            for (int i = 0; i < users.size(); ++i) {
-                if (i == 0) {
-                    queryBuilder.append(" WHERE ").append(COLUMN_USER_ID).append(" IN (");
-                } else {
+                    .append(" FROM ").append(TABLE_NAME)
+                    .append(" WHERE ").append(COLUMN_USER_ID).append(" IN (");
+            for (int i = 0; i < numUsers; ++i) {
+                queryBuilder.append(users.valueAt(i));
+                if (i < numUsers - 1) {
                     queryBuilder.append(", ");
                 }
-                queryBuilder.append(users.valueAt(i));
-                if (i == users.size() - 1) {
-                    queryBuilder.append(")");
-                }
             }
-
+            queryBuilder.append(")");
             try (Cursor cursor = db.rawQuery(queryBuilder.toString(), new String[]{})) {
+                if (cursor.getCount() == 0) {
+                    return null;
+                }
                 List<UserPackage> userPackages = new ArrayList<>(cursor.getCount());
                 while (cursor.moveToNext()) {
                     userPackages.add(new UserPackage(
@@ -726,7 +777,8 @@ public final class WatchdogStorage {
                     .append(COLUMN_DATE_EPOCH).append("), FOREIGN KEY (")
                     .append(COLUMN_USER_PACKAGE_ID).append(") REFERENCES ")
                     .append(UserPackageSettingsTable.TABLE_NAME).append(" (")
-                    .append(UserPackageSettingsTable.COLUMN_ROWID).append(") ON DELETE CASCADE )");
+                    .append(UserPackageSettingsTable.COLUMN_USER_PACKAGE_ID)
+                    .append(") ON DELETE CASCADE)");
             db.execSQL(createCommand.toString());
             Slogf.i(TAG, "Successfully created the %s table in the %s database version %d",
                     TABLE_NAME, WatchdogDbHelper.DATABASE_NAME, WatchdogDbHelper.DATABASE_VERSION);
@@ -818,8 +870,9 @@ public final class WatchdogStorage {
             return ioUsageById;
         }
 
-        public static @Nullable IoOveruseStats queryIoOveruseStatsForUniqueId(SQLiteDatabase db,
-                String uniqueId, long includingStartEpochSeconds, long excludingEndEpochSeconds) {
+        public static @Nullable IoOveruseStats queryIoOveruseStatsForUserPackageId(
+                SQLiteDatabase db, String userPackageId, long includingStartEpochSeconds,
+                long excludingEndEpochSeconds) {
             StringBuilder queryBuilder = new StringBuilder();
             queryBuilder.append("SELECT SUM(").append(COLUMN_NUM_OVERUSES).append("), ")
                     .append("SUM(").append(COLUMN_NUM_TIMES_KILLED).append("), ")
@@ -831,7 +884,7 @@ public final class WatchdogStorage {
                     .append(COLUMN_USER_PACKAGE_ID).append("=? and ")
                     .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
                     .append(COLUMN_DATE_EPOCH).append("< ?");
-            String[] selectionArgs = new String[]{uniqueId,
+            String[] selectionArgs = new String[]{userPackageId,
                     String.valueOf(includingStartEpochSeconds),
                     String.valueOf(excludingEndEpochSeconds)};
             long totalOveruses = 0;
@@ -887,10 +940,10 @@ public final class WatchdogStorage {
         }
 
         public static void forgiveHistoricalOverusesForPackage(SQLiteDatabase db,
-                List<String> uniqueIds, long includingStartEpochSeconds,
+                List<String> userPackageIds, long includingStartEpochSeconds,
                 long excludingEndEpochSeconds) {
-            if (uniqueIds.isEmpty()) {
-                Slogf.e(TAG, "No unique ids provided to forgive historical overuses.");
+            if (userPackageIds.isEmpty()) {
+                Slogf.e(TAG, "No user package ids provided to forgive historical overuses.");
                 return;
             }
             StringBuilder updateQueryBuilder = new StringBuilder("UPDATE ").append(TABLE_NAME)
@@ -900,15 +953,15 @@ public final class WatchdogStorage {
                     .append(COLUMN_DATE_EPOCH).append(">= ").append(includingStartEpochSeconds)
                     .append(" and ")
                     .append(COLUMN_DATE_EPOCH).append("< ").append(excludingEndEpochSeconds);
-            for (int i = 0; i < uniqueIds.size(); i++) {
+            for (int i = 0; i < userPackageIds.size(); i++) {
                 if (i == 0) {
                     updateQueryBuilder.append(" and ").append(COLUMN_USER_PACKAGE_ID)
                             .append(" IN (");
                 } else {
                     updateQueryBuilder.append(", ");
                 }
-                updateQueryBuilder.append(uniqueIds.get(i));
-                if (i == uniqueIds.size() - 1) {
+                updateQueryBuilder.append(userPackageIds.get(i));
+                if (i == userPackageIds.size() - 1) {
                     updateQueryBuilder.append(")");
                 }
             }
@@ -1079,7 +1132,7 @@ public final class WatchdogStorage {
     static final class WatchdogDbHelper extends SQLiteOpenHelper {
         public static final String DATABASE_NAME = "car_watchdog.db";
 
-        private static final int DATABASE_VERSION = 1;
+        private static final int DATABASE_VERSION = 2;
 
         private ZonedDateTime mLatestShrinkDate;
         private TimeSource mTimeSource;
@@ -1102,9 +1155,13 @@ public final class WatchdogStorage {
             IoUsageStatsTable.createTable(db);
         }
 
+        @Override
+        public void onConfigure(SQLiteDatabase db) {
+            db.setForeignKeyConstraintsEnabled(true);
+        }
+
         public synchronized void close() {
             super.close();
-
             mLatestShrinkDate = null;
         }
 
@@ -1121,40 +1178,104 @@ public final class WatchdogStorage {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int currentVersion) {
-            /* Still on the 1st version so no upgrade required. */
+            if (oldVersion != 1) {
+                return;
+            }
+            // Upgrade logic from version 1 to 2.
+            int upgradeVersion = oldVersion;
+            db.beginTransaction();
+            try {
+                upgradeToVersion2(db);
+                db.setTransactionSuccessful();
+                upgradeVersion = currentVersion;
+                Slogf.i(TAG, "Successfully upgraded database from version %d to %d", oldVersion,
+                        upgradeVersion);
+            } finally {
+                db.endTransaction();
+            }
+            if (upgradeVersion != currentVersion) {
+                Slogf.i(TAG, "Failed to upgrade database from version %d to %d. "
+                        + "Attempting to recreate database.", oldVersion, currentVersion);
+                recreateDatabase(db);
+            }
+        }
+
+        /**
+         * Upgrades the given {@code db} to version 2.
+         *
+         * <p>Database version 2 replaces the primary key in {@link UserPackageSettingsTable} with
+         * an auto-incrementing integer ID and uses the ID (instead of its rowid) as one of
+         * the primary keys in {@link IoUsageStatsTable} along with a foreign key dependency.
+         *
+         * <p>Only the entries from {@link UserPackageSettingsTable} are migrated to the version 2
+         * database because in version 1 only the current day's entries in {@link IoUsageStatsTable}
+         * are mappable to the former table and dropping these entries is tolerable.
+         */
+        private void upgradeToVersion2(SQLiteDatabase db) {
+            String oldUserPackageSettingsTable = UserPackageSettingsTable.TABLE_NAME + "_old_v1";
+            StringBuilder execSql = new StringBuilder("ALTER TABLE ")
+                    .append(UserPackageSettingsTable.TABLE_NAME)
+                    .append(" RENAME TO ").append(oldUserPackageSettingsTable);
+            db.execSQL(execSql.toString());
+
+            execSql = new StringBuilder("DROP TABLE IF EXISTS ")
+                    .append(IoUsageStatsTable.TABLE_NAME);
+            db.execSQL(execSql.toString());
+
+            UserPackageSettingsTable.createTable(db);
+            IoUsageStatsTable.createTable(db);
+
+            execSql = new StringBuilder("INSERT INTO ").append(UserPackageSettingsTable.TABLE_NAME)
+                    .append(" (").append(UserPackageSettingsTable.COLUMN_PACKAGE_NAME).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_USER_ID).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_KILLABLE_STATE).append(") ")
+                    .append("SELECT ").append(UserPackageSettingsTable.COLUMN_PACKAGE_NAME)
+                    .append(", ").append(UserPackageSettingsTable.COLUMN_USER_ID).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_KILLABLE_STATE).append(" FROM ")
+                    .append(oldUserPackageSettingsTable);
+            db.execSQL(execSql.toString());
+
+            execSql = new StringBuilder("DROP TABLE IF EXISTS ")
+                    .append(oldUserPackageSettingsTable);
+            db.execSQL(execSql.toString());
+        }
+
+        private void recreateDatabase(SQLiteDatabase db) {
+            db.execSQL(new StringBuilder("DROP TABLE IF EXISTS ")
+                    .append(UserPackageSettingsTable.TABLE_NAME).toString());
+            db.execSQL(new StringBuilder("DROP TABLE IF EXISTS ")
+                    .append(IoUsageStatsTable.TABLE_NAME).toString());
+
+            onCreate(db);
+            Slogf.e(TAG, "Successfully recreated database version %d", DATABASE_VERSION);
         }
     }
 
+
     private static final class UserPackage {
-        private final String mUniqueId;
-        private final int mUserId;
-        private final String mPackageName;
+        public final String userPackageId;
+        public final @UserIdInt int userId;
+        public final String packageName;
 
-        UserPackage(String uniqueId, int userId, String packageName) {
-            mUniqueId = uniqueId;
-            mUserId = userId;
-            mPackageName = packageName;
+        UserPackage(String userPackageId, @UserIdInt int userId, String packageName) {
+            this.userPackageId = userPackageId;
+            this.userId = userId;
+            this.packageName = packageName;
         }
 
-        String getKey() {
-            return getKey(mUserId, mPackageName);
+        public String getKey() {
+            return getKey(userId, packageName);
         }
 
-        static String getKey(int userId, String packageName) {
+        public static String getKey(int userId, String packageName) {
             return String.format(Locale.ENGLISH, "%d:%s", userId, packageName);
         }
 
-        public String getUniqueId() {
-            return mUniqueId;
+        @Override
+        public String toString() {
+            return new StringBuilder("UserPackage{userPackageId: ").append(userPackageId)
+                    .append(", userId: ").append(userId)
+                    .append(", packageName: ").append(packageName).append("}").toString();
         }
-
-        public int getUserId() {
-            return mUserId;
-        }
-
-        public String getPackageName() {
-            return mPackageName;
-        }
-
     }
 }
