@@ -16,6 +16,10 @@
 
 package com.android.car.vehiclehal;
 
+import static android.car.VehiclePropertyIds.OBD2_FREEZE_FRAME;
+import static android.car.VehiclePropertyIds.OBD2_LIVE_FRAME;
+
+import static com.android.car.vehiclehal.DiagnosticJsonReader.FRAME_TYPE_FREEZE;
 import static com.android.car.vehiclehal.DiagnosticJsonReader.FRAME_TYPE_LIVE;
 import static com.android.car.vehiclehal.DiagnosticJsonTestUtils.ANY_TIMESTAMP_VALUE;
 import static com.android.car.vehiclehal.DiagnosticJsonTestUtils.buildEmptyVehiclePropertyValue;
@@ -23,7 +27,6 @@ import static com.android.car.vehiclehal.DiagnosticJsonTestUtils.buildEmptyVehic
 import static com.google.common.truth.Truth.assertThat;
 
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.VehicleProperty;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
@@ -33,34 +36,39 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-public final class DiagnosticJsonTest {
-
-    private static final int SOME_VEHICLE_PROPERTY = VehicleProperty.HVAC_POWER_ON;
-
-    private static final String ANY_TYPE = FRAME_TYPE_LIVE;
+public final class DiagnosticJsonReaderTest {
 
     @Test
-    public void testBuild_passingBuilder() throws IOException {
-        DiagnosticJson diagnosticJson = buildEmptyDiagnosticJson();
-        DiagnosticEventBuilder eventBuilder = new DiagnosticEventBuilder(SOME_VEHICLE_PROPERTY);
+    public void testBuild_freezeFrame() throws IOException {
+        JsonReader jsonReader = buildEmptyFrameJsonReader(FRAME_TYPE_FREEZE, ANY_TIMESTAMP_VALUE);
+        DiagnosticJsonReader diagnosticJsonReader = new DiagnosticJsonReader();
 
-        VehiclePropValue actual = diagnosticJson.build(eventBuilder);
+        VehiclePropValue actual = diagnosticJsonReader.build(jsonReader);
 
-        VehiclePropValue expected = buildEmptyVehiclePropertyValue(
-                SOME_VEHICLE_PROPERTY, ANY_TIMESTAMP_VALUE);
-        assertThat(actual).isEqualTo(expected);
+        assertThat(actual).isEqualTo(
+                buildEmptyVehiclePropertyValue(OBD2_FREEZE_FRAME, ANY_TIMESTAMP_VALUE));
     }
 
-    private DiagnosticJson buildEmptyDiagnosticJson() throws IOException {
+    @Test
+    public void testBuild_liveFrame() throws IOException {
+        JsonReader jsonReader = buildEmptyFrameJsonReader(FRAME_TYPE_LIVE, ANY_TIMESTAMP_VALUE);
+        DiagnosticJsonReader diagnosticJsonReader = new DiagnosticJsonReader();
+
+        VehiclePropValue actual = diagnosticJsonReader.build(jsonReader);
+
+        assertThat(actual).isEqualTo(
+                buildEmptyVehiclePropertyValue(OBD2_LIVE_FRAME, ANY_TIMESTAMP_VALUE));
+    }
+
+    private JsonReader buildEmptyFrameJsonReader(String frameType, int timestampValue)
+            throws IOException {
         StringWriter stringWriter = new StringWriter(1024);
         JsonWriter jsonWriter = new JsonWriter(stringWriter);
         jsonWriter.beginObject()
                 .name("type")
-                .value(ANY_TYPE)  // Arbitrarily setting to live property type
+                .value(frameType)
                 .name("timestamp")
-                .value(ANY_TIMESTAMP_VALUE).endObject();
-        JsonReader reader = new JsonReader(new StringReader(stringWriter.toString()));
-        DiagnosticJson diagnosticJson = DiagnosticJson.build(reader);
-        return diagnosticJson;
+                .value(timestampValue).endObject();
+        return new JsonReader(new StringReader(stringWriter.toString()));
     }
 }
