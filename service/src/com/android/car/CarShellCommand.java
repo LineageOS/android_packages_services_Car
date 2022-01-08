@@ -41,6 +41,7 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -63,6 +64,7 @@ import android.car.watchdog.ResourceOveruseConfiguration;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
@@ -232,6 +234,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
             "set-drivingsafety-region";
 
     private static final String COMMAND_TELEMETRY = "telemetry";
+    private static final String COMMAND_CONTROL_COMPONENT_ENABLED_STATE =
+            "control-component-enabled-state";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -314,6 +318,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK,
                 PERMISSION_USE_CAR_WATCHDOG);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CONTROL_COMPONENT_ENABLED_STATE,
+                android.Manifest.permission.CHANGE_COMPONENT_ENABLED_STATE);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -687,6 +693,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s <subcommand>", COMMAND_TELEMETRY);
         pw.println("\t  Telemetry commands.");
         pw.println("\t  Provide -h to see the list of sub-commands.");
+
+        pw.printf("\t%s get|default|enable|disable_until_used <PACKAGE_NAME>\n",
+                COMMAND_CONTROL_COMPONENT_ENABLED_STATE);
+        pw.println("\t  Gets the current EnabledState, or changes the Application EnabledState"
+                + " to DEFAULT, ENABLED or DISABLED_UNTIL_USED.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1043,6 +1054,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_TELEMETRY:
                 handleTelemetryCommands(args, writer);
+                break;
+            case COMMAND_CONTROL_COMPONENT_ENABLED_STATE:
+                controlComponentEnabledState(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -2552,5 +2566,79 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return false;
         }
         return (Integer.decode(property) & VehicleArea.MASK) == VehicleArea.GLOBAL;
+    }
+
+    private void controlComponentEnabledState(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        String packageName = args[2];
+        int currentUserId = ActivityManager.getCurrentUser();
+
+        if ("get".equals(args[1])) {
+            try {
+                int curState = PackageManagerHelper
+                        .getApplicationEnabledSettingForUser(packageName, currentUserId);
+                writer.println("Current State: " + getAppEnabledStateName(curState));
+            } catch (Exception e) {
+                writer.printf("%s: getting package enabled state failed with error: %s\n",
+                        TAG, e.toString());
+            }
+            return;
+        }
+
+        int newState = 0;
+        switch (args[1]) {
+            case "default":
+                newState = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+                break;
+            case "enable":
+                newState = PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+                break;
+            case "disable_until_used":
+                newState = PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
+                break;
+            default:
+                writer.println("unsupported state action: " + args[1]);
+                return;
+        }
+
+        String callingPackageName = mContext.getPackageManager().getNameForUid(Process.myUid());
+        try {
+            PackageManagerHelper.setApplicationEnabledSettingForUser(packageName, newState,
+                    /* EnabledFlag */ 0, currentUserId, callingPackageName);
+        } catch (Exception e) {
+            writer.printf("%s: setting package enabled state failed with error: %s\n",
+                    TAG, e.toString());
+            return;
+        }
+        writer.println("New State: " + getAppEnabledStateName(newState));
+    }
+
+    private String getAppEnabledStateName(int enabledState) {
+        String stateName = "COMPONENT_ENABLED_STATE_";
+        switch (enabledState) {
+            case PackageManager.COMPONENT_ENABLED_STATE_DEFAULT:
+                stateName += "DEFAULT";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_ENABLED:
+                stateName += "ENABLED";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_DISABLED:
+                stateName += "DISABLED";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER:
+                stateName += "DISABLED_USER";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED:
+                stateName += "DISABLED_UNTIL_USED";
+                break;
+            default:
+                stateName += "UNSUPPORTED";
+                break;
+        }
+        return stateName;
     }
 }
