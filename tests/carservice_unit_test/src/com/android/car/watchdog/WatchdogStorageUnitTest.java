@@ -31,6 +31,8 @@ import android.automotive.watchdog.PerStateBytes;
 import android.car.builtin.util.Slogf;
 import android.car.watchdog.IoOveruseStats;
 import android.content.Context;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.SparseArray;
 
 import androidx.test.InstrumentationRegistry;
@@ -229,20 +231,33 @@ public final class WatchdogStorageUnitTest {
 
     @Test
     public void testGetHistoricalIoOveruseStats() throws Exception {
-        injectSampleUserPackageSettings();
+        List<WatchdogStorage.UserPackageSettingsEntry> userPackageSettingEntries = sampleSettings();
 
-        assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
-                /* includingStartDaysAgo= */ 0, /* excludingEndDaysAgo= */ 5))).isEqualTo(20);
+        for (int i = 4; i >= 0; i--) {
+            mTimeSource.updateNow(/* numDaysAgo= */ i);
+            // When writing settings and stats for the previous days, mock the behaviour of
+            // the caller to ensure the settings and stats are retrievable after multiple days.
+            assertWithMessage("Save user package settings for " + mTimeSource)
+                    .that(mService.saveUserPackageSettings(userPackageSettingEntries)).isTrue();
+            List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
+            assertWithMessage("Save I/O usage stats for " + mTimeSource)
+                    .that(mService.saveIoUsageStats(ioUsageStatsEntries))
+                    .isEqualTo(ioUsageStatsEntries.size());
+            mService.release();
+            mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false, mTimeSource);
+            assertWithMessage("User package settings for " + mTimeSource)
+                    .that(mService.getUserPackageSettings()).isNotNull();
+        }
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
 
         IoOveruseStats actual  = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
 
-        assertWithMessage("Fetched I/O overuse stats").that(actual).isNotNull();
+        assertWithMessage("Historical I/O overuse stats for the past week").that(actual)
+                .isNotNull();
 
-        /*
-         * Returned stats shouldn't include stats for the current date as WatchdogPerfHandler fills
-         * the current day's stats.
-         */
+        // Returned stats shouldn't include stats for the current date as WatchdogPerfHandler fills
+        // the current day's stats.
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         long startTime = currentDate.minus(4, STATS_TEMPORAL_UNIT).toEpochSecond();
         long duration = currentDate.toEpochSecond() - startTime;
@@ -257,20 +272,33 @@ public final class WatchdogStorageUnitTest {
 
     @Test
     public void testGetHistoricalIoOveruseStatsWithNoRecentStats() throws Exception {
-        injectSampleUserPackageSettings();
+        List<WatchdogStorage.UserPackageSettingsEntry> userPackageSettingEntries = sampleSettings();
 
-        assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
-                /* includingStartDaysAgo= */ 3, /* excludingEndDaysAgo= */ 5))).isEqualTo(8);
+        for (int i = 4; i >= 3; i--) {
+            mTimeSource.updateNow(/* numDaysAgo= */ i);
+            // When writing settings and stats for the previous days, mock the behaviour of
+            // the caller to ensure the settings and stats are retrievable after multiple days.
+            assertWithMessage("Save user package settings for " + mTimeSource)
+                    .that(mService.saveUserPackageSettings(userPackageSettingEntries)).isTrue();
+            List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
+            assertWithMessage("Save I/O usage stats for " + mTimeSource)
+                    .that(mService.saveIoUsageStats(ioUsageStatsEntries))
+                    .isEqualTo(ioUsageStatsEntries.size());
+            mService.release();
+            mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false, mTimeSource);
+            assertWithMessage("User package settings for " + mTimeSource)
+                    .that(mService.getUserPackageSettings()).isNotNull();
+        }
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
 
         IoOveruseStats actual  = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
 
-        assertWithMessage("Fetched I/O overuse stats").that(actual).isNotNull();
+        assertWithMessage("Historical I/O overuse stats for the past week").that(actual)
+                .isNotNull();
 
-        /*
-         * Returned stats shouldn't include stats for the current date as WatchdogPerfHandler fills
-         * the current day's stats.
-         */
+        // Returned stats shouldn't include stats for the current date as WatchdogPerfHandler fills
+        // the current day's stats.
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         long startTime = currentDate.minus(4, STATS_TEMPORAL_UNIT).toEpochSecond();
         long duration = currentDate.toEpochSecond() - startTime;
@@ -680,10 +708,50 @@ public final class WatchdogStorageUnitTest {
                 .containsExactlyElementsIn(expectedOveruses);
     }
 
-    private void injectSampleUserPackageSettings() throws Exception {
-        List<WatchdogStorage.UserPackageSettingsEntry> expected = sampleSettings();
+    @Test
+    public void testUserPackageSettingsAfterUpgradeToVersion2() throws Exception {
+        SQLiteDatabase db = createDatabaseAndUpgradeToVersion2();
 
-        assertThat(mService.saveUserPackageSettings(expected)).isTrue();
+        List<WatchdogStorage.UserPackageSettingsEntry> actual = new ArrayList<>();
+        try (Cursor cursor = db.rawQuery("SELECT user_id, package_name, killable_state FROM "
+                + WatchdogStorage.UserPackageSettingsTable.TABLE_NAME, null, null)) {
+            while (cursor.moveToNext()) {
+                actual.add(new WatchdogStorage.UserPackageSettingsEntry(cursor.getInt(0),
+                        cursor.getString(1), cursor.getInt(2)));
+            }
+        }
+
+        List<WatchdogStorage.UserPackageSettingsEntry> expected =
+                Arrays.asList(new WatchdogStorage.UserPackageSettingsEntry(100, "package_A", 1),
+                        new WatchdogStorage.UserPackageSettingsEntry(101, "package_B", 2));
+
+        assertWithMessage("User package settings").that(actual).containsExactlyElementsIn(expected);
+    }
+
+    @Test
+    public void testTablesAfterUpgradeToVersion2() throws Exception {
+        SQLiteDatabase db = createDatabaseAndUpgradeToVersion2();
+
+        List<String> actual = new ArrayList<>();
+        try (Cursor cursor = db.query(/* table= */ "sqlite_master",
+                /* columns= */ new String[]{"name"},
+                /* selection= */ "name != ? and name not like ?",
+                /* selectionArgs= */ new String[]{"android_metadata", "sqlite_%"},
+                /* groupBy= */ null, /* having= */ null, /* orderBy= */null)) {
+            while (cursor.moveToNext()) {
+                actual.add(cursor.getString(0));
+            }
+        }
+
+        assertWithMessage("Table names").that(actual).containsExactlyElementsIn(
+                Arrays.asList(WatchdogStorage.UserPackageSettingsTable.TABLE_NAME,
+                        WatchdogStorage.IoUsageStatsTable.TABLE_NAME));
+    }
+
+    private void injectSampleUserPackageSettings() throws Exception {
+        List<WatchdogStorage.UserPackageSettingsEntry> userPackageSettingEntries = sampleSettings();
+
+        assertThat(mService.saveUserPackageSettings(userPackageSettingEntries)).isTrue();
     }
 
     private static ArrayList<WatchdogStorage.UserPackageSettingsEntry> sampleSettings() {
@@ -788,6 +856,18 @@ public final class WatchdogStorageUnitTest {
         return stats;
     }
 
+    private SQLiteDatabase createDatabaseAndUpgradeToVersion2() {
+        SQLiteDatabase db = SQLiteDatabase.create(null);
+        assertWithMessage("Create database version 1").that(DatabaseVersion1.create(db)).isTrue();
+
+        WatchdogStorage.WatchdogDbHelper dbHelper =
+                new WatchdogStorage.WatchdogDbHelper(mContext, /* useDataSystemCarDir= */ false,
+                        mTimeSource);
+        dbHelper.onUpgrade(db, /*oldVersion=*/ 1, /*newVersion=*/ 2);
+
+        return db;
+    }
+
     private static final class TestTimeSource extends TimeSource {
         private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
         private Instant mNow;
@@ -810,4 +890,33 @@ public final class WatchdogStorageUnitTest {
             mNow = TEST_DATE_TIME.minus(numDaysAgo, ChronoUnit.DAYS);
         }
     };
+
+    private static final class DatabaseVersion1 {
+        private static final String CREATE_TABLE_SQL =
+                "CREATE TABLE user_package_settings (user_id INTEGER NOT NULL, "
+                + "package_name TEXT NOT NULL, killable_state INTEGER NOT NULL, PRIMARY KEY "
+                + "(package_name, user_id))";
+
+        private static final String[] INSERT_SQLS = new String[] {
+                "INSERT INTO user_package_settings (user_id, package_name, killable_state) "
+                + "VALUES (100, \"package_A\", 1)",
+                "INSERT INTO user_package_settings (user_id, package_name, killable_state) "
+                + "VALUES (101, \"package_B\", 2)"};
+
+        public static boolean create(SQLiteDatabase db) {
+            boolean isSuccessful = false;
+            db.beginTransaction();
+            try {
+                db.execSQL(CREATE_TABLE_SQL);
+                for (String insertSql : INSERT_SQLS) {
+                    db.execSQL(insertSql);
+                }
+                db.setTransactionSuccessful();
+                isSuccessful = true;
+            } finally {
+                db.endTransaction();
+            }
+            return isSuccessful;
+        }
+    }
 }
