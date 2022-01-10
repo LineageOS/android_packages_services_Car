@@ -25,10 +25,11 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.TaskInfo;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
-import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
+import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -360,7 +361,7 @@ public final class FixedActivityService implements CarServiceBase {
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
     private boolean launchIfNecessary(int displayId) {
-        SparseArray<TopTaskInfoContainer> infos = mAm.getTopTasks();
+        SparseArray<TaskInfo> infos = mAm.getTopTasks();
         if (infos == null) {
             Slogf.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;
@@ -408,14 +409,16 @@ public final class FixedActivityService implements CarServiceBase {
                 mRunningActivities.removeAt(i);
             }
             for (int i = 0, size = infos.size(); i < size; ++i) {
-                TopTaskInfoContainer taskInfo = infos.valueAt(i);
-                RunningActivityInfo activityInfo = mRunningActivities.get(taskInfo.displayId);
+                TaskInfo taskInfo = infos.valueAt(i);
+                int taskDisplayId = TaskInfoHelper.getDisplayId(taskInfo);
+                RunningActivityInfo activityInfo = mRunningActivities.get(taskDisplayId);
                 if (activityInfo == null) {
                     continue;
                 }
-                int topUserId = taskInfo.userId;
-                if (activityInfo.intent.getComponent().equals(taskInfo.topActivity)
-                        && activityInfo.userId == topUserId) {
+                int taskUserId = TaskInfoHelper.getUserId(taskInfo);
+                ComponentName expectedTopActivity = activityInfo.intent.getComponent();
+                if (expectedTopActivity.equals(taskInfo.topActivity)
+                        && activityInfo.userId == taskUserId) {
                     // top one is matching.
                     activityInfo.isVisible = true;
                     activityInfo.taskId = taskInfo.taskId;
@@ -424,13 +427,8 @@ public final class FixedActivityService implements CarServiceBase {
                 activityInfo.previousTaskId = taskInfo.taskId;
                 Slogf.i(TAG_AM, "Unmatched top activity will be removed:"
                         + taskInfo.topActivity + " top task id:" + activityInfo.previousTaskId
-                        + " user:" + topUserId + " display:" + taskInfo.displayId);
-                activityInfo.inBackground = false;
-                for (int j = 0; j < taskInfo.childTaskIds.length - 1; j++) {
-                    if (activityInfo.taskId == taskInfo.childTaskIds[j]) {
-                        activityInfo.inBackground = true;
-                    }
-                }
+                        + " user:" + taskUserId + " display:" + taskDisplayId);
+                activityInfo.inBackground = expectedTopActivity.equals(taskInfo.baseActivity);
                 if (!activityInfo.inBackground) {
                     activityInfo.taskId = INVALID_TASK_ID;
                 }

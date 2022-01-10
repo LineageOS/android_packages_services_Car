@@ -18,7 +18,6 @@ package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
 import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
-import static android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
@@ -32,8 +31,10 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
+import android.app.TaskInfo;
 import android.car.Car;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
@@ -543,21 +544,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (activityName == null) return false;
         if (!callerCanQueryPackage(activityName.getPackageName())) return false;
 
-        TopTaskInfoContainer info = mSystemActivityMonitoringService.getTaskInfoForTopActivity(
+        TaskInfo info = mSystemActivityMonitoringService.getTaskInfoForTopActivity(
                 activityName);
+        if (DBG) {
+            Slogf.d(TAG, "isActivityBackedBySafeActivity: info=%s",
+                    TaskInfoHelper.toString(info));
+        }
         if (info == null) { // not top in focused stack
             return true;
         }
-        if (!isUxRestrictedOnDisplay(info.displayId)) {
+        if (!isUxRestrictedOnDisplay(TaskInfoHelper.getDisplayId(info))) {
             return true;
         }
-        if (info.childTaskNames.length <= 1) { // nothing below this.
+        if (info.baseActivity == null
+                || info.baseActivity.equals(activityName)) {  // nothing below this.
             return false;
         }
-        ComponentName activityBehind = ComponentName.unflattenFromString(
-                info.childTaskNames[info.childTaskNames.length - 2]);
-        return isActivityDistractionOptimized(activityBehind.getPackageName(),
-                activityBehind.getClassName());
+        return isActivityDistractionOptimized(info.baseActivity.getPackageName(),
+                info.baseActivity.getClassName());
     }
 
     public Looper getLooper() {
@@ -1277,8 +1281,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private void blockTopActivitiesIfNecessary() {
-        List<TopTaskInfoContainer> topTasks = mSystemActivityMonitoringService.getTopTasks();
-        for (TopTaskInfoContainer topTask : topTasks) {
+        List<TaskInfo> topTasks = mSystemActivityMonitoringService.getTopTasks();
+        for (TaskInfo topTask : topTasks) {
             if (topTask == null) {
                 Slogf.e(TAG, "Top tasks contains null.");
                 continue;
@@ -1287,22 +1291,23 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
-    private void blockTopActivityIfNecessary(TopTaskInfoContainer topTask) {
+    private void blockTopActivityIfNecessary(TaskInfo topTask) {
+        int displayId = TaskInfoHelper.getDisplayId(topTask);
         synchronized (mLock) {
             if (!Objects.equals(mActivityBlockingActivity, topTask.topActivity)
-                    && mTopActivityWithDialogPerDisplay.contains(topTask.displayId)
+                    && mTopActivityWithDialogPerDisplay.contains(displayId)
                     && !topTask.topActivity.equals(
-                            mTopActivityWithDialogPerDisplay.get(topTask.displayId))) {
+                            mTopActivityWithDialogPerDisplay.get(displayId))) {
                 // Clear top activity-with-dialog if the activity has changed on this display.
-                mTopActivityWithDialogPerDisplay.remove(topTask.displayId);
+                mTopActivityWithDialogPerDisplay.remove(displayId);
             }
         }
-        if (isUxRestrictedOnDisplay(topTask.displayId)) {
+        if (isUxRestrictedOnDisplay(displayId)) {
             doBlockTopActivityIfNotAllowed(topTask);
         }
     }
 
-    private void doBlockTopActivityIfNotAllowed(TopTaskInfoContainer topTask) {
+    private void doBlockTopActivityIfNotAllowed(TaskInfo topTask) {
         if (topTask.topActivity == null) {
             return;
         }
@@ -1315,14 +1320,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         if (!mEnableActivityBlocking) {
             Slogf.d(TAG, "Current activity " + topTask.topActivity
-                    + " not allowed, blocking disabled. Number of tasks in stack:"
-                    + topTask.childTaskIds.length);
+                    + " not allowed, blocking disabled.");
             return;
         }
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Current activity " + topTask.topActivity
-                    + " not allowed, will block, number of tasks in stack:"
-                    + topTask.childTaskIds.length);
+                    + " not allowed, will block.");
         }
 
         // Figure out the root task of blocked task.
@@ -1335,7 +1338,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
 
         Intent newActivityIntent = createBlockingActivityIntent(
-                mActivityBlockingActivity, topTask.displayId,
+                mActivityBlockingActivity, TaskInfoHelper.getDisplayId(topTask),
                 topTask.topActivity.flattenToShortString(), topTask.taskId,
                 rootTaskActivityName.flattenToString(), isRootDO);
 
@@ -1348,7 +1351,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mSystemActivityMonitoringService.blockActivity(topTask, newActivityIntent);
     }
 
-    private boolean isActivityAllowed(TopTaskInfoContainer topTaskInfoContainer) {
+    private boolean isActivityAllowed(TaskInfo topTaskInfoContainer) {
         ComponentName activityName = topTaskInfoContainer.topActivity;
         boolean isDistractionOptimized = isActivityDistractionOptimized(
                 activityName.getPackageName(),
@@ -1358,7 +1361,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         return !(mPreventTemplatedAppsFromShowingDialog
                 && isTemplateActivity(activityName)
-                && isActivityShowingADialogOnDisplay(activityName, topTaskInfoContainer.displayId));
+                && isActivityShowingADialogOnDisplay(activityName,
+                        TaskInfoHelper.getDisplayId(topTaskInfoContainer)));
     }
 
     private boolean isTemplateActivity(ComponentName activityName) {
@@ -1657,7 +1661,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private class ActivityLaunchListener
             implements SystemActivityMonitoringService.ActivityLaunchListener {
         @Override
-        public void onActivityLaunch(TopTaskInfoContainer topTask) {
+        public void onActivityLaunch(TaskInfo topTask) {
             if (topTask == null) {
                 Slogf.e(TAG, "Received callback with null top task.");
                 return;

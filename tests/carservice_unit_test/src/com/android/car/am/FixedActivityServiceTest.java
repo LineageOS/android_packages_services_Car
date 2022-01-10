@@ -33,9 +33,9 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.TaskInfo;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
-import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
@@ -421,7 +421,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
-        SparseArray<TopTaskInfoContainer> rootTaskInfo =  createRootTaskInfo(intent, userId,
+        SparseArray<TaskInfo> rootTaskInfo = createRootTaskInfo(intent, userId,
                 mValidDisplayId, taskId);
         expectRootTaskInfo(rootTaskInfo);
 
@@ -516,27 +516,27 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         when(mActivityManager.getTopTasks()).thenReturn(createEmptyTaskInfo());
     }
 
-    private void expectRootTaskInfo(SparseArray<TopTaskInfoContainer>... taskInfos)
+    private void expectRootTaskInfo(SparseArray<TaskInfo>... taskInfos)
             throws Exception {
-        OngoingStubbing<SparseArray<TopTaskInfoContainer>> stub = when(
+        OngoingStubbing<SparseArray<TaskInfo>> stub = when(
                 mActivityManager.getTopTasks());
-        for (SparseArray<TopTaskInfoContainer> taskInfo : taskInfos) {
+        for (SparseArray<TaskInfo> taskInfo : taskInfos) {
             stub = stub.thenReturn(taskInfo);
         }
     }
 
-    private SparseArray<TopTaskInfoContainer> createEmptyTaskInfo() {
+    private SparseArray<TaskInfo> createEmptyTaskInfo() {
         return new SparseArray<>();
     }
 
-    private SparseArray<TopTaskInfoContainer> createRootTaskInfo(Intent intent,
-            @UserIdInt int userId,
-            int displayId, int taskId) {
-        TopTaskInfoContainer taskInfo = new TopTaskInfoContainer(intent.getComponent().clone(),
-                taskId, userId, /* rootTaskId= */ -1, /* rootTaskUserId= */ -1, displayId,
-                /* position= */ 0, /* baseActivity= */ null, /* childTaskIds= */ new int[]{taskId},
-                /* childTaskNames= */null);
-        SparseArray<TopTaskInfoContainer> topTasks = new SparseArray<>();
+    private SparseArray<TaskInfo> createRootTaskInfo(Intent intent,
+            @UserIdInt int userId, int displayId, int taskId) {
+        TaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
+        taskInfo.topActivity = intent.getComponent().clone();
+        taskInfo.taskId = taskId;
+        taskInfo.userId = userId;
+        taskInfo.displayId = displayId;
+        SparseArray<TaskInfo> topTasks = new SparseArray<>();
         topTasks.put(displayId, taskInfo);
         return topTasks;
     }

@@ -25,9 +25,9 @@ import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
+import android.app.TaskInfo;
 import android.app.TaskStackListener;
 import android.car.builtin.util.Slogf;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.RemoteException;
 import android.util.Pair;
@@ -37,7 +37,6 @@ import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
@@ -156,54 +155,6 @@ public final class ActivityManagerHelper {
         return new IllegalStateException(msg, e);
     }
 
-    /**
-     * Container to hold info on top task in an Activity stack
-     */
-    @Deprecated  // Will be replaced with TaskOrganizer based implementation
-    public static class TopTaskInfoContainer {
-        @Nullable public final ComponentName topActivity;
-        public final int taskId;
-        public final int rootTaskId;
-        public final int userId;
-        public final int rootTaskUserId;
-        public final int displayId;
-        public final int position;
-        @Nullable public final ComponentName baseActivity;
-        public final int[] childTaskIds;
-        public final String[] childTaskNames;
-
-        public TopTaskInfoContainer(ComponentName topActivity, int taskId, int userId,
-                int rootTaskId, int rootTaskUserId, int displayId, int position,
-                ComponentName baseActivity, int[] childTaskIds, String[] childTaskNames) {
-            this.topActivity = topActivity;
-            this.taskId = taskId;
-            this.userId = userId;
-            this.rootTaskId = rootTaskId;
-            this.rootTaskUserId = rootTaskUserId;
-            this.displayId = displayId;
-            this.position = position;
-            this.baseActivity = baseActivity;
-            this.childTaskIds = childTaskIds;
-            this.childTaskNames = childTaskNames;
-        }
-
-        public boolean isMatching(TopTaskInfoContainer taskInfo) {
-            return taskInfo != null
-                    && Objects.equals(this.topActivity, taskInfo.topActivity)
-                    && this.taskId == taskInfo.taskId
-                    && this.displayId == taskInfo.displayId
-                    && this.position == taskInfo.position
-                    && this.userId == taskInfo.userId;
-        }
-
-        @Override
-        public String toString() {
-            return String.format(
-                    "TaskInfoContainer [topActivity=%s, taskId=%d, userId=%d, displayId=%d, "
-                            + "position=%d]", topActivity, taskId, userId, displayId, position);
-        }
-    }
-
     private final Object mLock = new Object();
 
     @Deprecated  // Will be replaced with TaskOrganizer based implementation
@@ -273,15 +224,15 @@ public final class ActivityManagerHelper {
 
     /**
      * Gets the top visible tasks of each display.
-     * @return A {@link SparseArray} that maps displayId to {@link TopTaskInfoContainer}
+     * @return A {@link SparseArray} that maps displayId to {@link android.app.TaskInfo}
      */
     @Deprecated  // Will be replaced with TaskOrganizer based implementation
     @Nullable
-    public SparseArray<TopTaskInfoContainer> getTopTasks() {
+    public SparseArray<TaskInfo> getTopTasks() {
         List<ActivityTaskManager.RootTaskInfo> infos = getAllRootTaskInfos();
         if (infos == null) return null;
 
-        SparseArray<TopTaskInfoContainer> topTasks = new SparseArray<>();
+        SparseArray<TaskInfo> topTasks = new SparseArray<>();
         for (int i = 0, size = infos.size(); i < size; ++i) {
             ActivityTaskManager.RootTaskInfo info = infos.get(i);
             int displayId = info.displayId;
@@ -289,16 +240,10 @@ public final class ActivityManagerHelper {
                     || !info.visible) { // empty stack or not shown
                 continue;
             }
-            TopTaskInfoContainer currentTopTaskInfo = topTasks.get(displayId);
-
+            ActivityTaskManager.RootTaskInfo currentTopTaskInfo =
+                    (ActivityTaskManager.RootTaskInfo) topTasks.get(displayId);
             if (currentTopTaskInfo == null || info.position > currentTopTaskInfo.position) {
-                TopTaskInfoContainer newTopTaskInfo = new TopTaskInfoContainer(
-                        info.topActivity, info.childTaskIds[info.childTaskIds.length - 1],
-                        info.childTaskUserIds[info.childTaskUserIds.length - 1],
-                        info.taskId, info.userId, info.displayId, info.position, info.baseActivity,
-                        info.childTaskIds, info.childTaskNames);
-                topTasks.put(displayId, newTopTaskInfo);
-                Slogf.i(TAG, "Updating top task to: " + newTopTaskInfo);
+                topTasks.put(displayId, info);
             }
         }
         return topTasks;
