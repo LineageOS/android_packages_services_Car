@@ -70,42 +70,46 @@ public:
         std::unique_ptr<MockLinkUnlinkImpl> impl = std::make_unique<MockLinkUnlinkImpl>();
         // We know this would be alive as long as server is alive.
         mLinkUnlinkImpl = impl.get();
-        mServer = ::ndk::SharedRefBase::make<CarPowerPolicyServer>();
-        mServer->setLinkUnlinkImpl(std::move(impl));
-        mBinder = mServer->asBinder();
-        mServerProxy = ICarPowerPolicyServer::fromBinder(mBinder);
+        server = ::ndk::SharedRefBase::make<CarPowerPolicyServer>();
+        server->setLinkUnlinkImpl(std::move(impl));
+        binder = server->asBinder();
+        client = ICarPowerPolicyServer::fromBinder(binder);
     }
 
     ScopedAStatus getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) {
-        return mServerProxy->getCurrentPowerPolicy(aidlReturn);
+        return client->getCurrentPowerPolicy(aidlReturn);
     }
 
     ScopedAStatus registerPowerPolicyChangeCallback(
             const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback,
             const CarPowerPolicyFilter& filter) {
-        return mServerProxy->registerPowerPolicyChangeCallback(callback, filter);
+        return client->registerPowerPolicyChangeCallback(callback, filter);
     }
 
     ScopedAStatus unregisterPowerPolicyChangeCallback(
             const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback) {
-        return mServerProxy->unregisterPowerPolicyChangeCallback(callback);
+        return client->unregisterPowerPolicyChangeCallback(callback);
     }
 
-    void onBinderDied(void* cookie) { mServer->onBinderDied(cookie); }
+    void onBinderDied(void* cookie) { server->onBinderDied(cookie); }
 
-    void onBinderUnlinked(void* cookie) { mServer->onBinderUnlinked(cookie); }
+    void onBinderUnlinked(void* cookie) { server->onBinderUnlinked(cookie); }
 
     std::vector<CallbackInfo> getPolicyChangeCallbacks() {
-        return mServer->getPolicyChangeCallbacks();
+        return server->getPolicyChangeCallbacks();
     }
 
-    size_t countOnBinderDiedContexts() { return mServer->countOnBinderDiedContexts(); }
+    size_t countOnBinderDiedContexts() { return server->countOnBinderDiedContexts(); }
 
     std::unordered_set<void*> getCookies() { return mLinkUnlinkImpl->getCookies(); }
 
     void expectLinkToDeathStatus(AIBinder* binder, status_t linkToDeathResult) {
         mLinkUnlinkImpl->expectLinkToDeathStatus(binder, linkToDeathResult);
     }
+
+    std::shared_ptr<CarPowerPolicyServer> server;
+    std::shared_ptr<ICarPowerPolicyServer> client;
+    SpAIBinder binder;
 
 private:
     class MockLinkUnlinkImpl : public CarPowerPolicyServer::LinkUnlinkImpl {
@@ -144,9 +148,6 @@ private:
     };
 
     MockLinkUnlinkImpl* mLinkUnlinkImpl;
-    std::shared_ptr<CarPowerPolicyServer> mServer;
-    std::shared_ptr<ICarPowerPolicyServer> mServerProxy;
-    SpAIBinder mBinder;
 };
 
 }  // namespace internal

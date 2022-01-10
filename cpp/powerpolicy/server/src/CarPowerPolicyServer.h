@@ -65,19 +65,19 @@ class CarPowerPolicyServer;
 
 class HidlDeathRecipient : public android::hardware::hidl_death_recipient {
 public:
-    explicit HidlDeathRecipient(CarPowerPolicyServer* service);
+    explicit HidlDeathRecipient(const std::shared_ptr<CarPowerPolicyServer>& service);
 
     void serviceDied(uint64_t cookie,
                      const android::wp<android::hidl::base::V1_0::IBase>& who) override;
 
 private:
-    CarPowerPolicyServer* mService;
+    std::shared_ptr<CarPowerPolicyServer> mService;
 };
 
 class PropertyChangeListener :
       public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
 public:
-    explicit PropertyChangeListener(CarPowerPolicyServer* service);
+    explicit PropertyChangeListener(const std::shared_ptr<CarPowerPolicyServer>& service);
 
     android::hardware::Return<void> onPropertyEvent(
             const android::hardware::hidl_vec<
@@ -89,24 +89,24 @@ public:
             int32_t areaId);
 
 private:
-    CarPowerPolicyServer* mService;
+    std::shared_ptr<CarPowerPolicyServer> mService;
 };
 
 class MessageHandlerImpl : public android::MessageHandler {
 public:
-    explicit MessageHandlerImpl(CarPowerPolicyServer* service);
+    explicit MessageHandlerImpl(const std::shared_ptr<CarPowerPolicyServer>& service);
 
     void handleMessage(const android::Message& message) override;
 
 private:
-    CarPowerPolicyServer* mService;
+    std::shared_ptr<CarPowerPolicyServer> mService;
 };
 
 class CarServiceNotificationHandler :
       public ::aidl::android::frameworks::automotive::powerpolicy::internal::
               BnCarPowerPolicySystemNotification {
 public:
-    explicit CarServiceNotificationHandler(CarPowerPolicyServer* server);
+    explicit CarServiceNotificationHandler(const std::shared_ptr<CarPowerPolicyServer>& server);
 
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
     ::ndk::ScopedAStatus notifyCarServiceReady(
@@ -117,11 +117,8 @@ public:
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents) override;
 
-    void terminate();
-
 private:
-    android::Mutex mMutex;
-    CarPowerPolicyServer* mService GUARDED_BY(mMutex);
+    std::shared_ptr<CarPowerPolicyServer> mService;
 };
 
 /**
@@ -229,6 +226,7 @@ private:
 
     CarPowerPolicyServer();
 
+    android::base::Result<void> init(const sp<android::Looper>& looper);
     void terminate();
     bool isRegisteredLocked(const AIBinder* binder);
     void connectToVhal();
@@ -242,7 +240,6 @@ private:
     android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
     bool isPropertySupported(const int32_t prop);
     bool isPowerPolicyAppliedLocked() const;
-    android::base::Result<void> init(const sp<android::Looper>& looper);
 
     static void onBinderDied(void* cookie);
     static void onBinderUnlinked(void* cookie);
@@ -274,16 +271,12 @@ private:
     // No thread-safety guard is needed because only accessed through main thread handler.
     bool mIsFirstConnectionToVhal;
     std::unordered_map<int32_t, bool> mSupportedProperties;
-    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient GUARDED_BY(mMutex);
-    // Thread-safe because only initialized once.
+    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
     android::sp<HidlDeathRecipient> mHidlDeathRecipient;
-    // Thread-safe because only initialized once.
     android::sp<PropertyChangeListener> mPropertyChangeListener;
-    std::shared_ptr<CarServiceNotificationHandler> mCarServiceNotificationHandler
-            GUARDED_BY(mMutex);
+    std::shared_ptr<CarServiceNotificationHandler> mCarServiceNotificationHandler;
     int32_t mRemainingConnectionRetryCount;
     // A stub for link/unlink operation. Can be replaced with mock implementation for testing.
-    // Thread-safe because only initialized once or modified in test.
     std::unique_ptr<LinkUnlinkImpl> mLinkUnlinkImpl;
 
     // A map of callback ptr to context that is required for handleBinderDeath.
