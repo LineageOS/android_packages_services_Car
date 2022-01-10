@@ -188,6 +188,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             getClass().getSimpleName());
     protected final Handler mHandler = new Handler(mHandlerThread.getLooper());
 
+    protected BaseCarUserServiceTestCase(String... logTags) {
+        super(logTags);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder

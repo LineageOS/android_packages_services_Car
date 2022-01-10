@@ -38,6 +38,7 @@ import static org.testng.Assert.assertThrows;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.car.CarLibLog;
 import android.car.cluster.ClusterActivityState;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ActivityNotFoundException;
@@ -98,6 +99,10 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     private TestableInstrumentClusterRenderingService mService;
     private TestableInstrumentClusterHelper mTestableInstrumentClusterHelper;
     private IInstrumentCluster mRendererBinder;
+
+    public InstrumentClusterRenderingServiceTest() {
+        super(CarLibLog.TAG_CLUSTER);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
