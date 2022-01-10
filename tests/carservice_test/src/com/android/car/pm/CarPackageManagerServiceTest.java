@@ -16,6 +16,9 @@
 
 package com.android.car.pm;
 
+import static android.app.WindowConfiguration.ACTIVITY_TYPE_UNDEFINED;
+import static android.app.WindowConfiguration.WINDOWING_MODE_FULLSCREEN;
+
 import static androidx.car.app.activity.CarAppActivity.ACTION_SHOW_DIALOG;
 import static androidx.car.app.activity.CarAppActivity.ACTION_START_SECOND_INSTANCE;
 import static androidx.car.app.activity.CarAppActivity.SECOND_INSTANCE_TITLE;
@@ -24,10 +27,13 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.ActivityTaskManager;
 import android.app.AlertDialog;
+import android.app.IActivityTaskManager;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
@@ -37,6 +43,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.Configurator;
 import android.support.test.uiautomator.UiDevice;
@@ -74,6 +81,7 @@ public class CarPackageManagerServiceTest {
 
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarPackageManager mCarPackageManager;
+    private IActivityTaskManager mAtm;
 
     private UiDevice mDevice;
 
@@ -82,6 +90,7 @@ public class CarPackageManagerServiceTest {
 
     @Before
     public void setUp() throws Exception {
+        mAtm = ActivityTaskManager.getService();
         Car car = Car.createCar(getContext());
         mCarDrivingStateManager = (CarDrivingStateManager)
                 car.getCarManager(Car.CAR_DRIVING_STATE_SERVICE);
@@ -236,6 +245,49 @@ public class CarPackageManagerServiceTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
+    @Test
+    public void testIsActivityBackedBySafeActivity_notMoving_nonDoActivity_returnsTrue()
+            throws Exception {
+        setDrivingStateParked();
+
+        startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
+        ComponentName nonDoActivity = toComponentName(getTestContext(), NonDoActivity.class);
+        waitForActivityCreated(nonDoActivity);
+
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isTrue();
+    }
+
+    @Test
+    public void testIsActivityBackedBySafeActivity_moving_rootNonDoActivity_returnsFalse()
+            throws Exception {
+        startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
+        ComponentName nonDoActivity = toComponentName(getTestContext(), NonDoActivity.class);
+        waitForActivityCreated(nonDoActivity);
+
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isFalse();
+    }
+
+    @Test
+    public void testIsActivityBackedBySafeActivity_moving_nonDoActivityBackedByDo_returnsTrue()
+            throws Exception {
+        startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO);
+        // DoActivity will launch NonDoActivity consecutively.
+        ComponentName nonDoActivity = toComponentName(getTestContext(), NonDoActivity.class);
+        waitForActivityCreated(nonDoActivity);
+
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isTrue();
+    }
+
+    @Test
+    public void testIsActivityBackedBySafeActivity_moving_doActivity_returnsFalse()
+            throws Exception {
+        startDoActivity(/* extra= */ null);
+        ComponentName doActivity = toComponentName(getTestContext(), DoActivity.class);
+        waitForActivityCreated(doActivity);
+
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(doActivity)).isFalse();
+    }
+
     private void assertBlockingActivityNotFound() {
         assertThat(mDevice.wait(Until.gone(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
                 NOT_FOUND_UI_TIMEOUT_MS)).isNotNull();
@@ -249,6 +301,25 @@ public class CarPackageManagerServiceTest {
         assertThat(button.getText()).isEqualTo(exitLabel);
 
         button.click();
+    }
+
+    // In some isActivityBackedBySafeActivity tests, the target Activity will be blocked by ABA
+    // as soon as it'll show up, so we need to call the test api just in the moment when it is
+    // created. To catch the exact moment, we'll poll ActivityTaskManager.
+    private void waitForActivityCreated(ComponentName activity) throws Exception {
+        long start = SystemClock.uptimeMillis();
+        while (SystemClock.uptimeMillis() - start < UI_TIMEOUT_MS) {
+            if (isActivityCreated(activity)) {
+                return;
+            }
+        }
+        fail("Can't find Activity");
+    }
+
+    private boolean isActivityCreated(ComponentName targetActivity) throws Exception {
+        ActivityTaskManager.RootTaskInfo rootTaskInfo = mAtm.getRootTaskInfoOnDisplay(
+                WINDOWING_MODE_FULLSCREEN, ACTIVITY_TYPE_UNDEFINED, Display.DEFAULT_DISPLAY);
+        return rootTaskInfo != null && targetActivity.equals(rootTaskInfo.topActivity);
     }
 
     private void startActivity(ComponentName name) {
