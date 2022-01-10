@@ -97,6 +97,9 @@ cc_binary{
 
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
+// TODO(b/206829268):  This target should allow for host supported testing, but
+// currently has platform specific dependencies.
+// host_supported: true,
 ////////////////////////////////////////////////////////////////////////////////
 cc_test {
     name: "EvsEnumeratorTest",
@@ -107,7 +110,19 @@ cc_test {
     ],
     defaults : ["android.automotive.evs.manager_defaults"],
 
-    // TODO(b/206829268):  This target should allow for host supported testing, but
-    // currently has platform specific dependencies.
+    // TODO(b/206829268):  See above.
+    // host_supported: true,
+}
+
+cc_test {
+    name: "StatsCollectorTest",
+    srcs : [ "test/unit/StatsCollectorTest.cpp" ],
+    static_libs : [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults : ["android.automotive.evs.manager_defaults"],
+
+    // TODO(b/206829268):  See above.
     // host_supported: true,
 }

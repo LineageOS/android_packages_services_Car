@@ -31,13 +31,15 @@ class MockServiceFactory : public ServiceFactory {
 public:
     MockServiceFactory() {
         ON_CALL(*this, getService).WillByDefault(::testing::Invoke([&]() {
-            return Return<sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator>>{
-                    new android::automotive::evs::V1_1::implementation::MockEvsEnumerator{}};
+            return &mockEvsEnumerator;
         }));
     }
     ~MockServiceFactory() override = default;
 
-    MOCK_METHOD((sp<IEvsEnumerator>), getService, (), (override));
+    MOCK_METHOD(IEvsEnumerator*, getService, (), (override));
+
+private:
+    android::automotive::evs::V1_1::implementation::MockEvsEnumerator mockEvsEnumerator;
 };
 
 }  // namespace android::automotive::evs::V1_1::implementation
