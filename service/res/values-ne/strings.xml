@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ्ल्यास भण्डारणको प्रयोगको अनुगमन गर्ने"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ड्राइभिङको स्थिति सुन्ने"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ड्राइभिङको स्थितिमा हुने परिवर्तनहरू सुन्ने।"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"कारको टेलिमेट्री सेवा प्रयोग गर्न दिइयोस्"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"कारको प्रणालीको अवस्थासम्बन्धी डेटा सङ्कलन गर्न दिइयोस्।"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार EVS सेवा प्रयोग गर्नुहोस्"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS भिडियो स्ट्रिमको सदस्यता लिनुहोस्"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS प्रिभ्यू गतिविधि अनुरोध गर्ने"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कारको विक्रेतासम्बन्धी अनुमतिको जानकारीमाथि पहुँच राख्नुहोस्।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कारका बाहिरी बत्तीहरूको स्थिति पढ्ने"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कारका बाहिरी बत्तीहरूको स्थितिमाथि पहुँच राख्ने।"</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"कारको UNIX समय हेर्ने"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"कारको UNIX समय हेर्ने।"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"कारको epoch समय हेर्न दिनुहोस्"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"कारको epoch समय हेर्न दिनुहोस्।"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कारका बाहिरी बत्तीहरूको अवस्थाबारे जानकारी प्राप्त गर्ने"</string>
