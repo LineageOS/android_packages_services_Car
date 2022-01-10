@@ -17,33 +17,26 @@
 #ifndef CPP_POWERPOLICY_SERVER_SRC_POLICYMANAGER_H_
 #define CPP_POWERPOLICY_SERVER_SRC_POLICYMANAGER_H_
 
-#include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 #include <android-base/result.h>
+#include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
-#include <utils/Vector.h>
 
 #include <tinyxml2.h>
 
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace android {
 namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
-std::string toString(
-        const ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy& policy);
-std::string toString(
-        const std::vector<::aidl::android::frameworks::automotive::powerpolicy::PowerComponent>&
-                components);
-
+std::string toString(const CarPowerPolicy& policy);
+std::string toString(const std::vector<PowerComponent>& components);
 bool isSystemPowerPolicy(const std::string& policyId);
 
-using CarPowerPolicyPtr =
-        std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy>;
+using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
 using PolicyGroup = std::unordered_map<int32_t, std::string>;
 
 constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";

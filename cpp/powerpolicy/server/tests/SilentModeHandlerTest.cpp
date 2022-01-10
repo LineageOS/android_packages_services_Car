@@ -32,17 +32,11 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
-using ::aidl::android::frameworks::automotive::powerpolicy::BnCarPowerPolicyServer;
-using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
-using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter;
-using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyChangeCallback;
-using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
-
 using ::android::sp;
 using ::android::base::ReadFileToString;
 using ::android::base::Trim;
 using ::android::base::WriteStringToFd;
-using ::ndk::ScopedAStatus;
+using ::android::binder::Status;
 using ::testing::_;
 
 namespace {
@@ -97,25 +91,23 @@ private:
 
 class MockCarPowerPolicyServer : public ISilentModeChangeHandler, public BnCarPowerPolicyServer {
 public:
-    MOCK_METHOD(ScopedAStatus, getCurrentPowerPolicy, (CarPowerPolicy * aidlReturn), (override));
-    MOCK_METHOD(ScopedAStatus, getPowerComponentState,
-                (PowerComponent componentId, bool* aidlReturn), (override));
-    MOCK_METHOD(ScopedAStatus, registerPowerPolicyChangeCallback,
-                (const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback,
+    MOCK_METHOD(Status, getCurrentPowerPolicy, (CarPowerPolicy * aidlReturn), (override));
+    MOCK_METHOD(Status, getPowerComponentState, (PowerComponent componentId, bool* aidlReturn),
+                (override));
+    MOCK_METHOD(Status, registerPowerPolicyChangeCallback,
+                (const sp<ICarPowerPolicyChangeCallback>& callback,
                  const CarPowerPolicyFilter& filter),
                 (override));
-    MOCK_METHOD(ScopedAStatus, unregisterPowerPolicyChangeCallback,
-                (const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback), (override));
+    MOCK_METHOD(Status, unregisterPowerPolicyChangeCallback,
+                (const sp<ICarPowerPolicyChangeCallback>& callback), (override));
     MOCK_METHOD(void, notifySilentModeChange, (const bool silent), (override));
 };
 
 class SilentModeHandlerTest : public ::testing::Test {
 public:
-    SilentModeHandlerTest() {
-        carPowerPolicyServer = ::ndk::SharedRefBase::make<MockCarPowerPolicyServer>();
-    }
+    SilentModeHandlerTest() { carPowerPolicyServer = new MockCarPowerPolicyServer(); }
 
-    std::shared_ptr<MockCarPowerPolicyServer> carPowerPolicyServer;
+    sp<MockCarPowerPolicyServer> carPowerPolicyServer;
 };
 
 TEST_F(SilentModeHandlerTest, TestRebootForForcedSilentMode) {

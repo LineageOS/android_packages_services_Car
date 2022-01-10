@@ -29,9 +29,6 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
-using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
-using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
-
 using ::testing::UnorderedElementsAreArray;
 
 namespace {
@@ -64,7 +61,7 @@ public:
 TEST_F(PowerComponentHandlerTest, TestInitialPowerComponentStates) {
     CarPowerPolicyPtr policy = handler.getAccumulatedPolicy();
     std::vector<PowerComponent> allComponents;
-    for (auto componentId : ::ndk::enum_range<PowerComponent>()) {
+    for (auto componentId : enum_range<PowerComponent>()) {
         allComponents.push_back(componentId);
     }
 

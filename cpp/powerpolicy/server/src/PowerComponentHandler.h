@@ -17,8 +17,8 @@
 #ifndef CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTHANDLER_H_
 #define CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTHANDLER_H_
 
-#include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 #include <android-base/result.h>
+#include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
 #include <utils/Mutex.h>
 
 #include <memory>
@@ -29,8 +29,7 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
-using CarPowerPolicyPtr =
-        std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy>;
+using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
 
 class PowerComponentHandler final {
 public:
@@ -41,9 +40,7 @@ public:
     // Applies the given power policy and updates the latest state of all power components.
     void applyPowerPolicy(const CarPowerPolicyPtr& powerPolicy);
     // Gets the current state of the given power component.
-    android::base::Result<bool> getPowerComponentState(
-            const ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent componentId)
-            const;
+    android::base::Result<bool> getPowerComponentState(const PowerComponent componentId) const;
     // Gets the accumulated state of all components after applying power policies.
     CarPowerPolicyPtr getAccumulatedPolicy() const;
     // Dumps the internal status.
