@@ -21,7 +21,7 @@
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
-#include <utils/Log.h>
+#include <binder/Enums.h>
 
 #include <tinyxml2.h>
 
@@ -33,9 +33,6 @@ namespace android {
 namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
-
-using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
-using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
 
 using android::base::Error;
 using android::base::Result;
@@ -130,7 +127,7 @@ const std::unordered_set<PowerComponent> kNoUserInteractionConfigurableComponent
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};
 
 void iterateAllPowerComponents(const std::function<bool(PowerComponent)>& processor) {
-    for (const auto component : ::ndk::enum_range<PowerComponent>()) {
+    for (const auto component : enum_range<PowerComponent>()) {
         if (!processor(component)) {
             break;
         }
@@ -610,7 +607,7 @@ void PolicyManager::initRegularPowerPolicy() {
                                                   kNoComponents));
 
     std::vector<PowerComponent> initialOnDisabledComponents;
-    for (const auto component : ::ndk::enum_range<PowerComponent>()) {
+    for (const auto component : enum_range<PowerComponent>()) {
         if (std::find(kInitialOnComponents.begin(), kInitialOnComponents.end(), component) ==
             kInitialOnComponents.end()) {
             initialOnDisabledComponents.push_back(component);
