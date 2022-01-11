@@ -111,7 +111,7 @@ public final class UserHandleHelper {
      * Is user for a profile?
      */
     public boolean isProfileUser(UserHandle user) {
-        return UserManagerHelper.isProfileUser(mUserManager, user);
+        return getUserContextAwareUserManager(user.getIdentifier()).isProfile();
     }
 
     /**

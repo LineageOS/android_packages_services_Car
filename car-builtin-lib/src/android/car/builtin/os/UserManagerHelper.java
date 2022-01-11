@@ -189,17 +189,6 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Would be removed after more research in existing API.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static boolean isProfileUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).isProfile();
-    }
-
-    /**
      * It may be replaced by isSameProfileGroup. Need to check.
      *
      * @deprecated Would be removed
