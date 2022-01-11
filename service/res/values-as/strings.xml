@@ -89,10 +89,12 @@
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS বাৰ্তাৰ গ্ৰাহকভুক্তি কৰিব পাৰে"</string>
     <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ক্লায়েণ্ট সেৱা"</string>
     <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ক্লায়েণ্টৰ সৈতে সংযুক্ত হ’ব পাৰে"</string>
-    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"সঞ্চয়াগাৰ নিৰীক্ষণ কৰিব"</string>
-    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"সঞ্চয়াগাৰ ব্যৱহাৰৰ তথ্য নিৰীক্ষণ কৰিব"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ফ্লেশ্ব ষ্ট’ৰেজ নিৰীক্ষণ কৰা"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ফ্লেশ্ব ষ্ট’ৰেজৰ ব্যৱহাৰ নিৰীক্ষণ কৰক"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব।"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"গাড়ীৰ টেলিমেট্ৰী সেৱা ব্যৱহাৰ কৰক"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"গাড়ীৰ ছিষ্টেমৰ অৱস্থা সম্পৰ্কীয় ডেটা সংগ্ৰহ কৰক।"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"গাড়ীৰ EVS ছাৰ্ভিচ ব্যৱহাৰ কৰক"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ভিডিঅ’ ষ্ট্ৰীম ছাবস্ক্ৰাইব কৰক"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS পূৰ্বদৰ্শন কাৰ্যটোৰ অনুৰোধ জনাওক"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"গাড়ীৰ বিক্ৰেতাৰ অনুমতি সম্পৰ্কীয় তথ্য এক্সেছ কৰক।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি পঢ়িব"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি এক্সেছ কৰিব।"</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"গাড়ীৰ UNIX সময় এক্সেছ কৰক"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"গাড়ীৰ UNIX সময় এক্সেছ কৰক।"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"গাড়ীৰ ইপক সময় এক্সেছ কৰিবলৈ দিয়ক"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"গাড়ীৰ ইপক সময় এক্সেছ কৰিবলৈ দিয়ক।"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"গাড়ীৰ এনক্ৰিপশ্বন বাইণ্ডিং ছীড এক্সেছ কৰক"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"গাড়ীৰ এনক্ৰিপশ্বন বাইণ্ডিং ছীড এক্সেছ কৰক।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"গাড়ীৰ বাহ্যিক লাইট পঢ়িব"</string>
