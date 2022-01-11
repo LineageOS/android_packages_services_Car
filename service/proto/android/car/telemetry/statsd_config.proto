@@ -19,7 +19,7 @@
 
 syntax = "proto2";
 
-package android.car.telemetry.statsd;
+package android.car.telemetry;
 
 option java_package = "com.android.car.telemetry";
 option java_outer_classname = "StatsdConfigProto";

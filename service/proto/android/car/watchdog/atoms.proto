@@ -19,7 +19,7 @@
 
 syntax = "proto2";
 
-package android.car.watchdog.statsd;
+package android.car.watchdog;
 option java_package = "com.android.car.watchdog";
 option java_outer_classname = "AtomsProto";
 
