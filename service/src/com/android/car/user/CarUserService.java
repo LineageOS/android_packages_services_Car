@@ -987,10 +987,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // int / enum to indicate if it's called from CarUserManager or CarDevicePolicyManager), as
         // it's counter-intuitive that it's "allowed even when disallowed" when it
         // "has caller restrictions"
-        boolean evenWhenDisallowed = hasCallerRestrictions;
-        int result = UserManagerHelper.removeUserOrSetEphemeral(mUserManager, userId,
-                evenWhenDisallowed);
-        if (result == UserManagerHelper.REMOVE_RESULT_ERROR) {
+        boolean overrideDevicePolicy = hasCallerRestrictions;
+        int result = mUserManager.removeUserWhenPossible(user, overrideDevicePolicy);
+        if (result == UserManager.REMOVE_RESULT_ERROR) {
             sendUserRemovalResult(userId, UserRemovalResult.STATUS_ANDROID_FAILURE, receiver);
             return;
         }
@@ -1001,13 +1000,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         switch (result) {
-            case UserManagerHelper.REMOVE_RESULT_REMOVED:
-            case UserManagerHelper.REMOVE_RESULT_ALREADY_BEING_REMOVED:
+            case UserManager.REMOVE_RESULT_REMOVED:
+            case UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED:
                 sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
                                 : UserRemovalResult.STATUS_SUCCESSFUL, receiver);
                 break;
-            case UserManagerHelper.REMOVE_RESULT_DEFERRED:
+            case UserManager.REMOVE_RESULT_DEFERRED:
                 sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL
                                 : UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL, receiver);

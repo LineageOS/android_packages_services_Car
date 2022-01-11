@@ -17,7 +17,7 @@
 package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserOrSetEphemeral;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 
 import static com.android.car.user.MockedUserHandleBuilder.expectAdminUserExists;
@@ -479,26 +479,26 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void mockRemoveUser(@NonNull UserHandle user, @RemoveResult int result) {
-        mockRemoveUser(user, /* evenWhenDisallowed= */ false, result);
+        mockRemoveUser(user, /* overrideDevicePolicy= */ false, result);
     }
 
-    protected void mockRemoveUser(@NonNull UserHandle user, boolean evenWhenDisallowed) {
-        mockRemoveUser(user, evenWhenDisallowed, UserManager.REMOVE_RESULT_REMOVED);
+    protected void mockRemoveUser(@NonNull UserHandle user, boolean overrideDevicePolicy) {
+        mockRemoveUser(user, overrideDevicePolicy, UserManager.REMOVE_RESULT_REMOVED);
     }
 
-    protected void mockRemoveUser(@NonNull UserHandle user, boolean evenWhenDisallowed,
+    protected void mockRemoveUser(@NonNull UserHandle user, boolean overrideDevicePolicy,
             @RemoveResult int result) {
-        mockUmRemoveUserOrSetEphemeral(mMockedUserManager, user, evenWhenDisallowed, result,
+        mockUmRemoveUserWhenPossible(mMockedUserManager, user, overrideDevicePolicy, result,
                 (u) -> mCarUserService.onUserRemoved(u));
     }
 
     protected void mockRemoveUserNoCallback(@NonNull UserHandle user, @RemoveResult int result) {
-        mockRemoveUserNoCallback(user, /* evenWhenDisallowed= */ false, result);
+        mockRemoveUserNoCallback(user, /* overrideDevicePolicy= */ false, result);
     }
 
-    protected void mockRemoveUserNoCallback(@NonNull UserHandle user, boolean evenWhenDisallowed,
+    protected void mockRemoveUserNoCallback(@NonNull UserHandle user, boolean overrideDevicePolicy,
             @RemoveResult int result) {
-        mockUmRemoveUserOrSetEphemeral(mMockedUserManager, user, evenWhenDisallowed, result,
+        mockUmRemoveUserWhenPossible(mMockedUserManager, user, overrideDevicePolicy, result,
                 /* listener= */ null);
     }
 
@@ -767,7 +767,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void verifyNoUserRemoved() {
-        verify(mMockedUserManager, never()).removeUserOrSetEphemeral(anyInt(), anyBoolean());
+        verify(mMockedUserManager, never()).removeUserWhenPossible(any(), anyBoolean());
         verify(mMockedUserManager, never()).removeUser(any());
     }
 
@@ -845,13 +845,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected void assertHalRemove(@NonNull UserHandle currentUser,
             @NonNull UserHandle removeUser) {
-        assertHalRemove(currentUser, removeUser, /* evenWhenDisallowed= */ false);
+        assertHalRemove(currentUser, removeUser, /* overrideDevicePolicy= */ false);
     }
 
     protected void assertHalRemove(@NonNull UserHandle currentUser, @NonNull UserHandle removeUser,
-            boolean evenWhenDisallowed) {
-        verify(mMockedUserManager).removeUserOrSetEphemeral(removeUser.getIdentifier(),
-                evenWhenDisallowed);
+            boolean overrideDevicePolicy) {
+        verify(mMockedUserManager).removeUserWhenPossible(removeUser, overrideDevicePolicy);
         ArgumentCaptor<RemoveUserRequest> requestCaptor =
                 ArgumentCaptor.forClass(RemoveUserRequest.class);
         verify(mUserHal).removeUser(requestCaptor.capture());

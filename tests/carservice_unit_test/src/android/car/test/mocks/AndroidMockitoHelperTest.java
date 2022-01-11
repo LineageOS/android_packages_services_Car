@@ -27,7 +27,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserOrSetEphemeral;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
@@ -191,13 +191,14 @@ public final class AndroidMockitoHelperTest {
     }
 
     @Test
-    public void testMockUmRemoveUserOrSetEphemeral() {
+    public void testMockUmRemoveUserWhenPossible() {
         VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
 
-        mockUmRemoveUserOrSetEphemeral(mMockedUserManager, mTestUser,
-                /* evenWhenDisallowed= */ true, /* result= */ 1, visitor);
+        mockUmRemoveUserWhenPossible(mMockedUserManager, mTestUser,
+                /* overrideDevicePolicy= */ true, /* result= */ 1, visitor);
 
-        mMockedUserManager.removeUserOrSetEphemeral(TEST_USER_ID, /* evenWhenDisallowed= */ true);
+        mMockedUserManager.removeUserWhenPossible(UserHandle.of(TEST_USER_ID),
+                /* overrideDevicePolicy= */ true);
 
         assertThat(visitor.mVisited).isEqualTo(mTestUser);
     }
