@@ -78,6 +78,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     private final Context mContext;
     private final CarPropertyService mCarPropertyService;
+    private final Dependencies mDependencies;
     private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
             CarTelemetryService.class.getSimpleName());
     private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
@@ -96,9 +97,25 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
+    static class Dependencies {
+        /**
+         * Get a PublisherFactory instance.
+         */
+        public PublisherFactory getPublisherFactory(CarPropertyService carPropertyService,
+                Handler handler, Context context, File publisherDirectory) {
+            return new PublisherFactory(carPropertyService, handler, context, publisherDirectory);
+        }
+    }
+
     public CarTelemetryService(Context context, CarPropertyService carPropertyService) {
+        this(context, carPropertyService, new Dependencies());
+    }
+
+    @VisibleForTesting
+    CarTelemetryService(Context context, CarPropertyService carPropertyService, Dependencies deps) {
         mContext = context;
         mCarPropertyService = carPropertyService;
+        mDependencies = deps;
     }
 
     @Override
@@ -116,8 +133,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(rootDirectory);
             mSessionController = new SessionController(mContext, mTelemetryHandler);
-            mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
-                    mContext, publisherDirectory);
+            mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
+                    mTelemetryHandler, mContext, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
                     mTelemetryThreadTraceLog);
             ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);

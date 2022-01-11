@@ -16,41 +16,29 @@
 
 package com.android.car.telemetry.publisher;
 
-import static android.net.NetworkIdentity.OEM_NONE;
-import static android.net.NetworkIdentity.OEM_PAID;
-import static android.net.NetworkIdentity.OEM_PRIVATE;
+import static android.car.builtin.net.NetworkStatsServiceHelper.TRANSPORT_CELLULAR;
+import static android.car.builtin.net.NetworkStatsServiceHelper.TRANSPORT_WIFI;
 import static android.net.NetworkStats.TAG_NONE;
-
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static android.net.NetworkTemplate.OEM_MANAGED_ALL;
+import static android.net.NetworkTemplate.OEM_MANAGED_NO;
+import static android.net.NetworkTemplate.OEM_MANAGED_PAID;
+import static android.net.NetworkTemplate.OEM_MANAGED_PRIVATE;
+import static android.net.NetworkTemplate.OEM_MANAGED_YES;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import android.annotation.Nullable;
 import android.car.builtin.net.NetworkStatsServiceHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
-import android.net.ConnectivityManager;
-import android.net.INetworkStatsService;
-import android.net.INetworkStatsSession;
-import android.net.NetworkIdentity;
 import android.net.NetworkStats;
-import android.net.NetworkTemplate;
-import android.os.IBinder;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
-import android.telephony.TelephonyManager;
 
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
@@ -132,6 +120,7 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     private static final int UID_4 = 4;
 
     @Mock private Context mMockContext;
+    @Mock private NetworkStatsServiceHelper.Dependencies mNetworkStatsDependencies;
 
     private final long mNow = System.currentTimeMillis(); // since epoch
 
@@ -156,14 +145,14 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     @Before
     public void setUp() throws Exception {
         mPublisher = createRestartedPublisher();
-        mFakeService = new FakeNetworkStatsService();
+        mFakeService = new FakeNetworkStatsService(mNetworkStatsDependencies);
     }
 
     /** Emulates a restart by creating a new ConnectivityPublisher. */
     private ConnectivityPublisher createRestartedPublisher() {
         return new ConnectivityPublisher(
                 this::onPublisherFailure,
-                new NetworkStatsServiceHelper(),
+                new NetworkStatsServiceHelper(mNetworkStatsDependencies),
                 mFakeHandlerWrapper.getMockHandler(),
                 mMockContext);
     }
@@ -260,10 +249,10 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testPullsMobileStats() {
         mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls empty baseline netstats
-        mFakeService.addMobileStats(UID_1, TAG_1, 5000, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_1, TAG_2, 30, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_2, TAG_2, 10, OEM_PAID, mNow);
-        mFakeService.addWifiStats(UID_3, TAG_2, 6, OEM_PRIVATE, mNow);
+        mFakeService.addMobileStats(UID_1, TAG_1, 5000, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_1, TAG_2, 30, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_2, TAG_2, 10, OEM_MANAGED_PAID, mNow);
+        mFakeService.addWifiStats(UID_3, TAG_2, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberCell);
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
@@ -283,10 +272,10 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testPullsOemManagedWifiStats() {
         mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls empty baseline netstats
-        mFakeService.addMobileStats(UID_1, TAG_2, 5000, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_1, TAG_1, 30, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_2, TAG_NONE, 10, OEM_PAID, mNow);
-        mFakeService.addWifiStats(UID_3, TAG_2, 6, OEM_PRIVATE, mNow);
+        mFakeService.addMobileStats(UID_1, TAG_2, 5000, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_1, TAG_1, 30, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_2, TAG_NONE, 10, OEM_MANAGED_PAID, mNow);
+        mFakeService.addWifiStats(UID_3, TAG_2, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifiOemManaged);
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
@@ -306,10 +295,10 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testPullsOemNotManagedWifiStats() {
         mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls empty baseline netstats
-        mFakeService.addMobileStats(UID_4, TAG_2, 5000, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_1, TAG_1, 30, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_2, TAG_1, 10, OEM_PAID, mNow);
-        mFakeService.addWifiStats(UID_3, TAG_1, 6, OEM_PRIVATE, mNow);
+        mFakeService.addMobileStats(UID_4, TAG_2, 5000, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_1, TAG_1, 30, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_2, TAG_1, 10, OEM_MANAGED_PAID, mNow);
+        mFakeService.addWifiStats(UID_3, TAG_1, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
@@ -332,10 +321,10 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
         long mBootTimeMillis = mNow - SystemClock.elapsedRealtime(); // since epoch
         long bootMinus30Mins = mBootTimeMillis - Duration.ofMinutes(30).toMillis();
         long bootMinus5Hours = mBootTimeMillis - Duration.ofHours(5).toMillis();
-        mFakeService.addMobileStats(UID_1, TAG_2, 5000, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_1, TAG_1, 10, OEM_NONE, mNow);
-        mFakeService.addWifiStats(UID_2, TAG_1, 10, OEM_NONE, bootMinus30Mins);
-        mFakeService.addWifiStats(UID_3, TAG_1, 7, OEM_NONE, bootMinus5Hours);
+        mFakeService.addMobileStats(UID_1, TAG_2, 5000, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_1, TAG_1, 10, OEM_MANAGED_NO, mNow);
+        mFakeService.addWifiStats(UID_2, TAG_1, 10, OEM_MANAGED_NO, bootMinus30Mins);
+        mFakeService.addWifiStats(UID_3, TAG_1, 7, OEM_MANAGED_NO, bootMinus5Hours);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
@@ -356,7 +345,7 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testPushesDataAsNotLarge() {
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
-        mFakeService.addWifiStats(UID_1, TAG_1, 10, OEM_NONE, mNow);
+        mFakeService.addWifiStats(UID_1, TAG_1, 10, OEM_MANAGED_NO, mNow);
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
@@ -367,16 +356,15 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testSubtractsFromInitialPull() {
         long someTimeAgo = mNow - Duration.ofMinutes(1).toMillis();
-        mFakeService.addWifiStats(UID_4, TAG_1, 10, OEM_PRIVATE, someTimeAgo);
-        mFakeService.addWifiStats(UID_4, TAG_1, 11, OEM_PAID, someTimeAgo);
-        mFakeService.addWifiStats(UID_4, TAG_1, 12, OEM_NONE, someTimeAgo);
-        mFakeHandlerWrapper.dispatchQueuedMessages();  // pulls 10, 11, 12 bytes.
+        mFakeService.addWifiStats(UID_4, TAG_1, 10, OEM_MANAGED_PRIVATE, someTimeAgo);
+        mFakeService.addWifiStats(UID_4, TAG_1, 11, OEM_MANAGED_PAID, someTimeAgo);
+        mFakeService.addWifiStats(UID_4, TAG_1, 12, OEM_MANAGED_NO, someTimeAgo);
+        mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls 10, 11, 12 bytes.
 
         // A hack to force the publisher to compute the diff from the initial pull.
         // Otherwise we'll get "(100 + 12) - 12".
         mFakeService.clearNetworkStats();
-
-        mFakeService.addWifiStats(UID_4, TAG_1, 100, OEM_NONE, mNow);
+        mFakeService.addWifiStats(UID_4, TAG_1, 100, OEM_MANAGED_NO, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
@@ -395,13 +383,13 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     public void testSubtractsFromThePreviousPull() {
         // ==== 0th (initial) pull.
         long someTimeAgo = mNow - Duration.ofMinutes(1).toMillis();
-        mFakeService.addWifiStats(UID_4, TAG_1, 12, OEM_NONE, someTimeAgo);
-        mFakeHandlerWrapper.dispatchQueuedMessages();  // pulls 12 bytes
+        mFakeService.addWifiStats(UID_4, TAG_1, 12, OEM_MANAGED_NO, someTimeAgo);
+        mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls 12 bytes
 
         // ==== 1st pull.
-        mFakeService.addWifiStats(UID_4, TAG_1, 200, OEM_NONE, someTimeAgo);
+        mFakeService.addWifiStats(UID_4, TAG_1, 200, OEM_MANAGED_NO, someTimeAgo);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
-        mFakeHandlerWrapper.dispatchQueuedMessages();  // pulls 200 + 12 bytes
+        mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls 200 + 12 bytes
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
@@ -412,8 +400,8 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
         assertThat(result.getLongArray("txBytes")).asList().containsExactly(200L);
 
         // ==== 2nd pull.
-        mFakeService.addWifiStats(UID_4, TAG_1, 1000, OEM_NONE, mNow);
-        mFakeHandlerWrapper.dispatchQueuedMessages();  // pulls 200 + 12 + 1000 bytes
+        mFakeService.addWifiStats(UID_4, TAG_1, 1000, OEM_MANAGED_NO, mNow);
+        mFakeHandlerWrapper.dispatchQueuedMessages(); // pulls 200 + 12 + 1000 bytes
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(2);
         result = mDataSubscriberWifi.get(1);
@@ -460,74 +448,68 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     }
 
     /**
-     * A fake for {@link INetworkStatsService} and {@link INetworkStatsSession}.
+     * A fake for {@link NetworkStatsServiceHelper.Dependencies}.
      *
      * <p>Internally {@link android.net.NetworkStatsService} uses multiple recorders for tagged,
      * untagged and other netstats. That's why {@link NetworkStats#getTotal()} may not work as
      * expected, it filters out tagged entries.
      *
-     * <p>It returns an empty {@link NetworkStats} unless fake stats not added using
-     * {@link #addWifiStats()} or {@link #addMobileStats()}.
+     * <p>It returns an empty {@link NetworkStats} unless fake stats not added using {@link
+     * #addWifiStats()} or {@link #addMobileStats()}.
      */
     private static class FakeNetworkStatsService {
-        private final IBinder mMockBinder = mock(IBinder.class);
-        private final INetworkStatsService mMockNetworkStatsService =
-                mock(INetworkStatsService.class);
-        private final INetworkStatsSession mMockNetworkStatsSession =
-                mock(INetworkStatsSession.class);
-        private final ArrayList<NetworkStatsExt> mNetworkStats = new ArrayList<>();
+        private final NetworkStatsServiceHelper.Dependencies mMockDeps;
+        private final ArrayList<NetworkStatsExt> mNetworkStatsExts = new ArrayList<>();
         private final HashMap<String, Integer> mMethodCallCount = new HashMap<>();
 
-        private FakeNetworkStatsService() throws RemoteException {
-            when(mMockBinder.queryLocalInterface(anyString())).thenReturn(mMockNetworkStatsService);
-            doReturn(mMockBinder)
-                    .when(() -> ServiceManager.getService(Context.NETWORK_STATS_SERVICE));
-            when(mMockNetworkStatsService.openSessionForUsageStats(anyInt(), any()))
-                    .thenReturn(mMockNetworkStatsSession);
-            doAnswer(this::getSummaryForAllUidInternal)
-                    .when(mMockNetworkStatsSession)
-                    .getSummaryForAllUid(any(), anyLong(), anyLong(), anyBoolean());
+        private FakeNetworkStatsService(NetworkStatsServiceHelper.Dependencies mockDeps) {
+            mMockDeps = mockDeps;
+            doAnswer(this::getSummaryForAllUid)
+                    .when(mMockDeps)
+                    .getSummaryForAllUid(anyInt(), anyInt(), anyLong(), anyLong());
+        }
+
+        private NetworkStats makeStats(int uid, int tag, int rxTx) {
+            final NetworkStats stats =
+                    new NetworkStats(/* elapsedRealTime= */ 0L, /* initialSize= */ 0);
+            return stats.addEntry(
+                    new NetworkStats.Entry(
+                            /* iface= */ null,
+                            uid,
+                            NetworkStats.SET_FOREGROUND,
+                            tag,
+                            NetworkStats.METERED_YES,
+                            NetworkStats.ROAMING_YES,
+                            NetworkStats.DEFAULT_NETWORK_YES,
+                            /* rxBytes= */ rxTx,
+                            /* rxPackets= */ rxTx,
+                            /* txBytes= */ rxTx,
+                            /* txPackets= */ rxTx,
+                            /* operations= */ 0));
         }
 
         /** Adds {@link NetworkStatsExt} that will be returned by {@code getSummaryForAllUid()}. */
         public void addWifiStats(int uid, int tag, int rxTx, int oemManaged, long timestampMillis) {
-            NetworkStatsExt stats =
+            NetworkStatsExt statsExt =
                     new NetworkStatsExt(
-                            new NetworkIdentity(
-                                    ConnectivityManager.TYPE_WIFI,
-                                    NetworkIdentity.SUBTYPE_COMBINED, // not used in matching
-                                    /* subscriberId= */ null,
-                                    /* networkId= */ "guest-wifi",
-                                    /* roaming= */ false,
-                                    /* metered= */ false,
-                                    /* defaultNetwork= */ false,
-                                    oemManaged),
-                            timestampMillis);
-            stats.insertEntry(/* iface= */ "iface0", uid, tag, rxTx);
-            mNetworkStats.add(stats);
+                            TRANSPORT_WIFI, oemManaged, timestampMillis, makeStats(uid, tag, rxTx));
+            mNetworkStatsExts.add(statsExt);
         }
 
         /** Adds {@link NetworkStatsExt} that will be returned by {@code getSummaryForAllUid()}. */
         public void addMobileStats(
                 int uid, int tag, int rxTx, int oemManaged, long timestampMillis) {
-            NetworkStatsExt stats =
+            NetworkStatsExt statsExt =
                     new NetworkStatsExt(
-                            new NetworkIdentity(
-                                    ConnectivityManager.TYPE_MOBILE,
-                                    /* subType= */ TelephonyManager.NETWORK_TYPE_GPRS,
-                                    /* subscriberId= */ "subscriber1",
-                                    /* networkId= */ null,
-                                    /* roaming= */ false,
-                                    /* metered= */ false,
-                                    /* defaultNetwork= */ true,
-                                    oemManaged),
-                            timestampMillis);
-            stats.insertEntry(/* iface= */ "iface1", uid, tag, rxTx);
-            mNetworkStats.add(stats);
+                            TRANSPORT_CELLULAR,
+                            oemManaged,
+                            timestampMillis,
+                            makeStats(uid, tag, rxTx));
+            mNetworkStatsExts.add(statsExt);
         }
 
         public void clearNetworkStats() {
-            mNetworkStats.clear();
+            mNetworkStatsExts.clear();
         }
 
         /** Returns the map of API calls count. */
@@ -535,26 +517,33 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
             return new HashMap<>(mMethodCallCount);
         }
 
-        private NetworkStats getSummaryForAllUidInternal(InvocationOnMock invocation) {
+        private NetworkStats getSummaryForAllUid(InvocationOnMock invocation) {
             increaseMethodCall("getSummaryForAllUid", 1);
-            NetworkTemplate template = invocation.getArgument(0);
-            long start = invocation.getArgument(1);
-            long end = invocation.getArgument(2);
-            boolean includeTags = invocation.getArgument(3);
-            assertThat(includeTags).isTrue(); // ConnectiityPublisher always needs network tags.
+            int transport = invocation.getArgument(0);
+            int oemManaged = invocation.getArgument(1);
+            long start = invocation.getArgument(2);
+            long end = invocation.getArgument(3);
             // This is how NetworkStats is initialized in the original service.
             NetworkStats result = new NetworkStats(end - start, /* initialSize= */ 0);
-            for (NetworkStatsExt stats : mNetworkStats) {
+            for (NetworkStatsExt statsExt : mNetworkStatsExts) {
                 // NOTE: the actual implementation uses network buckets instead of simple time
                 //       range checking.
-                if (stats.mTimestampMillis < start || stats.mTimestampMillis > end) {
+                if (statsExt.mTimestampMillis < start || statsExt.mTimestampMillis > end) {
                     continue;
                 }
-                if (template.matches(stats.mIdentity)) {
-                    result = result.add(stats.mNetworkStats);
+                if (matches(transport, oemManaged, statsExt)) {
+                    result = result.add(statsExt.mNetworkStats);
                 }
             }
             return result;
+        }
+
+        // Works similar to android.net.NetworkTemplate.matches().
+        private boolean matches(int transport, int oemManaged, NetworkStatsExt statsExt) {
+            if (transport != statsExt.mTransport) return false;
+            return (oemManaged == OEM_MANAGED_ALL)
+                    || (oemManaged == OEM_MANAGED_YES && statsExt.mOemManaged != OEM_MANAGED_NO)
+                    || (oemManaged == statsExt.mOemManaged);
         }
 
         private void increaseMethodCall(String methodName, int count) {
@@ -563,46 +552,25 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     }
 
     /**
-     * A wrapper for {@link NetworkStats} identified with {@link NetworkIdentity}. It's used by a
-     * fake {@code getSummaryForAllUidInternal()} above to find the matching {@link NetworkStats} by
-     * the given {@link NetworkTemplate} predicate. It uses the same {@code rxTx} values for
-     * received/transmitted bytes and packets for simplifying the tests.
+     * A wrapper for {@link NetworkStats} identified with conditions. It's used by a fake {@code
+     * getSummaryForAllUid()} above to find the matching {@link NetworkStats} by the given
+     * conditions. It uses the same {@code rxTx} values for received/transmitted bytes and packets
+     * for simplifying the tests.
      *
      * <p>Think of its instance as a "network usage data" for the bunch of similar packets
      * transmitted over the same socket.
      */
     private static class NetworkStatsExt {
-        private final NetworkStats mNetworkStats;
-        private final NetworkIdentity mIdentity;
+        private final int mTransport;
+        private final int mOemManaged;
         private final long mTimestampMillis;
+        private final NetworkStats mNetworkStats;
 
-        NetworkStatsExt(NetworkIdentity identity, long timestampMillis) {
-            mIdentity = identity;
+        NetworkStatsExt(int transport, int oemManaged, long timestampMillis, NetworkStats stats) {
+            mTransport = transport;
+            mOemManaged = oemManaged;
             mTimestampMillis = timestampMillis;
-            mNetworkStats = new NetworkStats(/* elapsedRealtime= */ 0, /* initialSize= */ 0);
-        }
-
-        void insertEntry(@Nullable String iface, int uid, int tag, int rxTx) {
-            mNetworkStats.insertEntry(
-                    new NetworkStats.Entry(
-                            iface,
-                            uid,
-                            /* set= */ NetworkStats.SET_DEFAULT, // background usage
-                            tag,
-                            mIdentity.getMetered()
-                                    ? NetworkStats.METERED_YES
-                                    : NetworkStats.METERED_NO,
-                            mIdentity.getRoaming()
-                                    ? NetworkStats.ROAMING_YES
-                                    : NetworkStats.ROAMING_NO,
-                            mIdentity.getDefaultNetwork()
-                                    ? NetworkStats.DEFAULT_NETWORK_YES
-                                    : NetworkStats.DEFAULT_NETWORK_NO,
-                            /* rxBytes= */ rxTx,
-                            /* rxPackets= */ rxTx,
-                            /* txBytes= */ rxTx,
-                            /* txPackets= */ rxTx,
-                            /* operations= */ 0));
+            mNetworkStats = stats;
         }
     }
 }
