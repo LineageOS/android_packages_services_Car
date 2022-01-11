@@ -128,14 +128,6 @@ public final class UserHandleHelper {
         return UserManagerHelper.isPreCreatedUser(mUserManager, user);
     }
 
-    /**
-     * Get profile group Id for the user
-     */
-    @UserIdInt
-    public int getProfileGroupId(UserHandle user) {
-        return UserManagerHelper.getProfileGroupId(mUserManager, user);
-    }
-
     private UserManager getUserContextAwareUserManager(@UserIdInt int userId) {
         Context userContext = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
         return userContext.getSystemService(UserManager.class);

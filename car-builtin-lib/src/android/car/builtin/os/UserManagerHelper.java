@@ -147,17 +147,6 @@ public final class UserManagerHelper {
     }
 
     /**
-     * It may be replaced by isSameProfileGroup. Need to check.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static int getProfileGroupId(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).profileGroupId;
-    }
-
-    /**
      * Gets DefaultUserType given userInfo flags.
      */
     public static String getDefaultUserTypeForUserInfoFlags(int userInfoFlag) {

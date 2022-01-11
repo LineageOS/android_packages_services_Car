@@ -307,7 +307,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             return !UserHelperLite.isHeadlessSystemUser(user.getIdentifier())
                     && mUserHandleHelper.isEnabledUser(user)
                     && mUserHandleHelper.isManagedProfile(user)
-                    && mUserHandleHelper.getProfileGroupId(user) == driverId;
+                    && mUserManager.isSameProfileGroup(user, UserHandle.of(driverId));
         });
     }
 
@@ -376,7 +376,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             }
             if (checkCurrentDriver) {
                 int currentUserId = ActivityManager.getCurrentUser();
-                if (mUserHandleHelper.getProfileGroupId(passenger) != currentUserId) {
+                if (!mUserManager.isSameProfileGroup(passenger, UserHandle.of(currentUserId))) {
                     Slogf.w(TAG, "passenger %d is not a profile of the current user %d",
                             passengerId, currentUserId);
                     return false;
@@ -447,7 +447,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         int managedProfilesCount = 0;
         for (UserHandle user : users) {
             if (mUserHandleHelper.isManagedProfile(user)
-                    && mUserHandleHelper.getProfileGroupId(user) == userId) {
+                    && mUserManager.isSameProfileGroup(user, UserHandle.of(userId))) {
                 managedProfilesCount++;
             }
         }

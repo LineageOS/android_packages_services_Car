@@ -310,7 +310,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     protected void associateParentChild(UserHandle parent, UserHandle child) {
-        when(mMockedUserHandleHelper.getProfileGroupId(child)).thenReturn(parent.getIdentifier());
+        when(mMockedUserManager.isSameProfileGroup(parent, child)).thenReturn(true);
+        when(mMockedUserManager.isSameProfileGroup(child, parent)).thenReturn(true);
     }
 
     protected void assertInvalidArgumentsFailure() throws Exception {
