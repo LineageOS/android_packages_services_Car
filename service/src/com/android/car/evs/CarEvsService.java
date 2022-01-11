@@ -680,7 +680,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             unlinkToDeathStreamCallbackLocked();
             mStreamCallback = null;
             Slogf.i(TAG_EVS, "Last stream client has been disconnected.");
-            mHalWrapper.requestToStartVideoStream();
+            mHalWrapper.requestToStopVideoStream();
         }
     }
 
