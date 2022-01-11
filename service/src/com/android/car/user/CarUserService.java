@@ -1006,7 +1006,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
                                 : UserRemovalResult.STATUS_SUCCESSFUL, receiver);
                 break;
-            case UserManagerHelper.REMOVE_RESULT_SET_EPHEMERAL:
+            case UserManagerHelper.REMOVE_RESULT_DEFERRED:
                 sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL
                                 : UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL, receiver);
