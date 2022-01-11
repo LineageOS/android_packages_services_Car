@@ -85,6 +85,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
 
+    public CarUserServiceTest() {
+        super(CarUserService.TAG);
+    }
+
     @Test
     public void testInitAndRelease() {
         // init()

@@ -81,6 +81,10 @@ import org.mockito.Mock;
 
 public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
+    public UserHalHelperTest() {
+        super(UserHalHelper.TAG);
+    }
+
     @Mock
     private UserManager mUm;
 

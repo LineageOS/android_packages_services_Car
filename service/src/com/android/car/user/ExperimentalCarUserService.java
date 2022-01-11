@@ -72,7 +72,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class ExperimentalCarUserService extends IExperimentalCarUserService.Stub
         implements CarServiceBase {
 
-    private static final String TAG = CarLog.tagFor(ExperimentalCarUserService.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(ExperimentalCarUserService.class);
 
     private final int mHalTimeoutMs = CarSystemProperties.getUserHalTimeout().orElse(5_000);
 

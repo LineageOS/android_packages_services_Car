@@ -70,6 +70,10 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
 
     private ExperimentalCarUserService mExperimentalCarUserService;
 
+    public ExperimentalCarUserServiceTest() {
+        super(ExperimentalCarUserService.TAG);
+    }
+
     @Before
     public void setUp() {
         mExperimentalCarUserService =

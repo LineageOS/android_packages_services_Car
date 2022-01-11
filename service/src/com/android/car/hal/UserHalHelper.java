@@ -47,6 +47,7 @@ import android.util.Log;
 import com.android.car.hal.HalCallback.HalCallbackStatus;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.user.UserHandleHelper;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.util.Arrays;
@@ -58,8 +59,8 @@ import java.util.Objects;
  */
 public final class UserHalHelper {
 
-    private static final String TAG = UserHalHelper.class.getSimpleName();
-    private static final boolean DEBUG = false;
+    @VisibleForTesting
+    static final String TAG = UserHalHelper.class.getSimpleName();
 
     public static final int INITIAL_USER_INFO_PROPERTY = 299896583;
     public static final int SWITCH_USER_PROPERTY = 299896584;
@@ -67,7 +68,7 @@ public final class UserHalHelper {
     public static final int REMOVE_USER_PROPERTY = 299896586;
     public static final int USER_IDENTIFICATION_ASSOCIATION_PROPERTY = 299896587;
 
-
+    private static final boolean DEBUG = false;
     private static final String STRING_SEPARATOR = "\\|\\|";
 
     /**
