@@ -419,7 +419,8 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     /** Returns all users who are matched by the given filter. */
     private List<UserHandle> getUsersHandle(UserFilter filter) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false);
+                /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated */ true);
         List<UserHandle> usersFiltered = new ArrayList<UserHandle>();
 
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
@@ -440,7 +441,8 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
 
     private int getNumberOfManagedProfiles(@UserIdInt int userId) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false);
+                /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated */ true);
         // Count all users that are managed profiles of the given user.
         int managedProfilesCount = 0;
         for (UserHandle user : users) {

@@ -237,7 +237,6 @@ package android.car.builtin.os {
     method public static String getDefaultUserTypeForUserInfoFlags(int);
     method public static int getMaxRunningUsers(@NonNull android.content.Context);
     method @Deprecated public static int getProfileGroupId(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean);
     method @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean, boolean);
     method public static int getUserId(int);
     method @Deprecated public static boolean isEnabledUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);

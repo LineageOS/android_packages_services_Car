@@ -121,19 +121,6 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Would be removed after making getUserHandle a system API with parameters.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    @NonNull
-    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
-            boolean excludePartial, boolean excludeDying) {
-        return getUserHandles(userManager, excludePartial, excludeDying,
-                /* excludePreCreated= */ true);
-    }
-
-    /**
      * Returns all users based on the boolean flags.
      */
     @NonNull
