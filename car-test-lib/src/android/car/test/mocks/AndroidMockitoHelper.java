@@ -213,33 +213,33 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, and notifies
-     * {@code listener} when it's called.
+     * Mocks a successful call to {@code UserManager#removeUserWhenPossible(UserHandle, boolean)},
+     * and notifies {@code listener} when it's called.
      */
-    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
-            @NonNull UserInfo user, boolean evenWhenDisallowed, @RemoveResult int result,
+    public static void mockUmRemoveUserWhenPossible(@NonNull UserManager um,
+            @NonNull UserInfo user, boolean overrideDevicePolicy, @RemoveResult int result,
             @Nullable Visitor<UserInfo> listener) {
-        int userId = user.id;
-        when(um.removeUserOrSetEphemeral(userId, evenWhenDisallowed)).thenAnswer((inv) -> {
-            if (listener != null) {
-                Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);
-                listener.visit(user);
-            }
-            return result;
-        });
+        when(um.removeUserWhenPossible(user.getUserHandle(), overrideDevicePolicy))
+                .thenAnswer((inv) -> {
+                    if (listener != null) {
+                        Log.v(TAG, "mockUmRemoveUserWhenPossible(" + user + "): notifying "
+                                + listener);
+                        listener.visit(user);
+                    }
+                    return result;
+                });
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, and notifies
-     * {@code listener} when it's called.
+     * Mocks a successful call to {@code UserManager#removeUserWhenPossible(UserHandle, boolean)},
+     * and notifies {@code listener} when it's called.
      */
-    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
-            @NonNull UserHandle user, boolean evenWhenDisallowed, @RemoveResult int result,
+    public static void mockUmRemoveUserWhenPossible(@NonNull UserManager um,
+            @NonNull UserHandle user, boolean overrideDevicePolicy, @RemoveResult int result,
             @Nullable Visitor<UserHandle> listener) {
-        int userId = user.getIdentifier();
-        when(um.removeUserOrSetEphemeral(userId, evenWhenDisallowed)).thenAnswer((inv) -> {
+        when(um.removeUserWhenPossible(user, overrideDevicePolicy)).thenAnswer((inv) -> {
             if (listener != null) {
-                Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);
+                Log.v(TAG, "mockUmRemoveUserWhenPossible(" + user + "): notifying " + listener);
                 listener.visit(user);
             }
             return result;

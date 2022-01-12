@@ -618,7 +618,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserHandle removeUser = mAdminUser;
         mockGetCallingUserHandle(currentUser.getIdentifier());
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUser(removeUser, /* evenWhenDisallowed= */ true);
+        mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
         assertThrows(SecurityException.class,
                 () -> removeUser(removeUser.getIdentifier(), HAS_CALLER_RESTRICTIONS,
@@ -631,7 +631,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserHandle removeUser = mAnotherRegularUser;
         mockGetCallingUserHandle(currentUser.getIdentifier());
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUser(removeUser, /* evenWhenDisallowed= */ true);
+        mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
         assertThrows(SecurityException.class,
                 () -> removeUser(removeUser.getIdentifier(), HAS_CALLER_RESTRICTIONS,
@@ -644,7 +644,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserHandle removeUser = mRegularUser;
         mockGetCallingUserHandle(currentUser.getIdentifier());
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUserNoCallback(removeUser, /* evenWhenDisallowed= */ true,
+        mockRemoveUserNoCallback(removeUser, /* overrideDevicePolicy= */ true,
                 UserManager.REMOVE_RESULT_DEFERRED);
 
         removeUser(removeUser.getIdentifier(), HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
@@ -660,12 +660,12 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserHandle removeUser = mAnotherAdminUser;
         mockGetCallingUserHandle(currentUser.getIdentifier());
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUser(removeUser, /* evenWhenDisallowed= */ true);
+        mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
         removeUser(removeUser.getIdentifier(), HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
 
         assertUserRemovalResultStatus(getUserRemovalResult(), UserRemovalResult.STATUS_SUCCESSFUL);
-        assertHalRemove(currentUser, removeUser, /* evenWhenDisallowed= */ true);
+        assertHalRemove(currentUser, removeUser, /* overrideDevicePolicy= */ true);
     }
 
     @Test
@@ -674,12 +674,12 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserHandle removeUser = mRegularUser;
         mockGetCallingUserHandle(currentUser.getIdentifier());
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUser(removeUser, /* evenWhenDisallowed= */ true);
+        mockRemoveUser(removeUser, /* overrideDevicePolicy= */ true);
 
         removeUser(removeUser.getIdentifier(), HAS_CALLER_RESTRICTIONS, mUserRemovalFuture);
 
         assertUserRemovalResultStatus(getUserRemovalResult(), UserRemovalResult.STATUS_SUCCESSFUL);
-        assertHalRemove(currentUser, removeUser, /* evenWhenDisallowed= */ true);
+        assertHalRemove(currentUser, removeUser, /* overrideDevicePolicy= */ true);
     }
 
     @Test
@@ -688,7 +688,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         UserHandle removeUser = mAdminUser;
         mockGetCallingUserHandle(currentUser.getIdentifier());
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        mockRemoveUserNoCallback(removeUser, /* evenWhenDisallowed= */ true,
+        mockRemoveUserNoCallback(removeUser, /* overrideDevicePolicy= */ true,
                 UserManager.REMOVE_RESULT_DEFERRED);
 
         removeUser(removeUser.getIdentifier(),
