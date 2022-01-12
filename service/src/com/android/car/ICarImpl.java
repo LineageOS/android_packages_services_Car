@@ -29,6 +29,7 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.ICarResultReceiver;
+import android.car.builtin.CarBuiltin;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
@@ -45,6 +46,7 @@ import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemN
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -668,10 +670,14 @@ public class ICarImpl extends ICar.Stub {
     private void dumpIndenting(FileDescriptor fd, IndentingPrintWriter writer, String[] args) {
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
+            dumpVersions(writer);
             dumpAllServices(writer);
             dumpAllHals(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
+            return;
+        } else if ("--version".equals(args[0])) {
+            dumpVersions(writer);
             return;
         } else if ("--services".equals(args[0])) {
             if (args.length < 2) {
@@ -713,6 +719,18 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpVersions(IndentingPrintWriter writer) {
+        writer.println("*Dump versions*");
+        writer.println("Android SDK_INT:" + Build.VERSION.SDK_INT);
+        writer.println("Car API major:" + Car.API_VERSION_MAJOR_INT);
+        writer.println("Car API minor:" + Car.API_VERSION_MINOR_INT);
+        writer.println("Car builtin API minor:" + CarBuiltin.API_VERSION_MINOR_INT);
+        writer.println("Car service builtin minor:"
+                + BuiltinPackageDependency.getBuiltinServiceMinorVersion(
+                mCarServiceBuiltinPackageContext));
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAllHals(IndentingPrintWriter writer) {
         writer.println("*Dump Vehicle HAL*");
         writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
@@ -732,6 +750,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  dumps everything (all services and HALs)");
         writer.println("--help");
         writer.println("\t  shows this help");
+        writer.println("--version");
+        writer.println("\t  shows the version of all car components");
         writer.println("--list");
         writer.println("\t  lists the name of all services");
         writer.println("--list-hals");

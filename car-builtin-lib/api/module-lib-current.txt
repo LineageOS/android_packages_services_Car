@@ -1,6 +1,10 @@
 // Signature format: 2.0
 package android.car.builtin {
 
+  public final class CarBuiltin {
+    field public static final int API_VERSION_MINOR_INT = 0; // 0x0
+  }
+
   public final class PermissionHelper {
     field public static final String MONITOR_INPUT = "android.permission.MONITOR_INPUT";
   }
