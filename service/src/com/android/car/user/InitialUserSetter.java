@@ -780,7 +780,7 @@ final class InitialUserSetter {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.SYSTEM.getIdentifier());
         } else {
             return UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                    /* excludeDying= */ false);
+                    /* excludeDying= */ false, /* excludePreCreated */ true);
         }
     }
 
@@ -792,7 +792,7 @@ final class InitialUserSetter {
      */
     private List<UserHandle> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                /* excludeDying= */ false);
+                /* excludeDying= */ false, /* excludePreCreated */ true);
 
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
             UserHandle user = iterator.next();

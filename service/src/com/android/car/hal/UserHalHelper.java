@@ -604,7 +604,7 @@ public final class UserHalHelper {
         Preconditions.checkArgument(userHandleHelper != null, "UserHandleHelper cannot be null");
 
         List<UserHandle> users = UserManagerHelper.getUserHandles(um, /* excludePartial= */ false,
-                /* excludeDying= */ false);
+                /* excludeDying= */ false, /* excludePreCreated= */ true);
 
         if (users == null || users.isEmpty()) {
             Log.w(TAG, "newUsersInfo(): no users");
