@@ -583,8 +583,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                     (AndroidFuture<UserCreationResult>) invocation.getArguments()[4];
             UserInfo newUser = new UserTestingHelper.UserInfoBuilder(108)
                     .setName(name).setType(userType).setFlags(flags).build();
-            future.complete(new UserCreationResult(status, newUser.getUserHandle(),
-                    /* errorMessage=*/ null));
+            future.complete(new UserCreationResult(status, newUser.getUserHandle()));
             return null;
         }).when(mService).createUser(eq(name), eq(userType), eq(flags), anyInt(), notNull());
     }

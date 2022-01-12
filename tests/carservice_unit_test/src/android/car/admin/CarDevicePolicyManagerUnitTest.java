@@ -195,8 +195,7 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
             @SuppressWarnings("unchecked")
             AndroidFuture<UserCreationResult> future =
                     (AndroidFuture<UserCreationResult>) invocation.getArguments()[2];
-            future.complete(
-                    new UserCreationResult(status, user.getUserHandle(), /* errorMessage= */ null));
+            future.complete(new UserCreationResult(status, user.getUserHandle()));
             return null;
         }).when(mService).createUser(eq(name), eq(user.id), notNull());
     }

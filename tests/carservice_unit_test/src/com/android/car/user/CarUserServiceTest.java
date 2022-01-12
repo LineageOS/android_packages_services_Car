@@ -65,6 +65,7 @@ import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.Binder;
+import android.os.NewUserResponse;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -1216,7 +1217,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testCreateUser_nullType() throws Exception {
         assertThrows(NullPointerException.class, () -> mCarUserService
-                .createUser("dude", null, 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                .createUser("dude", null, 108, mAsyncCallTimeoutMs, new AndroidFuture<>(),
                         NO_CALLER_RESTRICTIONS));
     }
 
@@ -1229,15 +1230,20 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testCreateUser_umCreateReturnsNull() throws Exception {
-        // No need to mock um.createUser() to return null
+        NewUserResponse response = new NewUserResponse(/* user= */ null,
+                UserManager.USER_OPERATION_ERROR_MAX_USERS);
+        mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, response);
 
-        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
+        assertThat(result.getAndroidFailureStatus())
+                .isEqualTo(UserManager.USER_OPERATION_ERROR_MAX_USERS);
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
         assertNoHalUserCreation();
         verifyNoUserRemoved();
         assertNoHalUserRemoval();
@@ -1245,16 +1251,19 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testCreateUser_umCreateThrowsException() throws Exception {
-        mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108,
-                new RuntimeException("D'OH!"));
+        RuntimeException exception = new RuntimeException("D'OH!");
+        mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, exception);
 
-        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
+        assertThat(result.getAndroidFailureStatus())
+                .isEqualTo(UserManager.USER_OPERATION_ERROR_UNKNOWN);
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isEqualTo(exception.toString());
         assertNoHalUserCreation();
         verifyNoUserRemoved();
         assertNoHalUserRemoval();
@@ -1267,13 +1276,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalCreateUser(HalCallback.STATUS_INVALID, /* not_used_status= */ -1);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
         verifyUserRemoved(newUser.getIdentifier());
         assertNoHalUserRemoval();
     }
@@ -1285,13 +1296,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.FAILURE);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_FAILURE);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
 
         verifyUserRemoved(newUser.getIdentifier());
         assertNoHalUserRemoval();
@@ -1301,16 +1314,19 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testCreateUser_halServiceThrowsRuntimeException() throws Exception {
         UserHandle newUser = UserHandle.of(42);
         mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, newUser);
-        mockHalCreateUserThrowsRuntimeException();
+        Exception exception = new RuntimeException("D'OH!");
+        mockHalCreateUserThrowsRuntimeException(exception);
         mockRemoveUser(newUser);
 
-        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs,
-                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isEqualTo(exception.toString());
 
         verifyUserRemoved(newUser.getIdentifier());
         assertNoHalUserRemoval();
@@ -1322,14 +1338,18 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(mAdminUser);
         int userId = mRegularUserId;
         mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
-                UserManagerHelper.FLAG_EPHEMERAL, UserHandle.of(userId));
+                UserManagerHelper.FLAG_EPHEMERAL, mRegularUser);
 
-        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY,
-                UserManagerHelper.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
-                NO_CALLER_RESTRICTIONS);
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_EPHEMERAL,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getAndroidFailureStatus()).isNull();
+        assertThat(result.getUser()).isEqualTo(mRegularUser);
+        assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
+
         assertNoHalUserCreation();
         assertNoHalUserRemoval();
     }
@@ -1344,8 +1364,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, /* flags= */ 0,
                 mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
-        UserCreationResult result = getUserCreationResult();
-        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
+        assertUserCreationWithInternalErrorMessage(mUserCreationFuture,
+                UserCreationResult.STATUS_ANDROID_FAILURE,
+                CarUserService.ERROR_TEMPLATE_DISALLOW_ADD_USER, Process.myUserHandle(),
+                UserManager.DISALLOW_ADD_USER);
         assertNoHalUserCreation();
         assertNoHalUserRemoval();
     }
@@ -1361,9 +1383,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         ArgumentCaptor<CreateUserRequest> requestCaptor =
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY,
-                UserManagerHelper.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
-                NO_CALLER_RESTRICTIONS);
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_EPHEMERAL,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -1375,7 +1396,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
         UserHandle newUser = result.getUser();
         assertThat(newUser).isNotNull();
         assertThat(newUser.getIdentifier()).isEqualTo(userId);
@@ -1393,8 +1416,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         ArgumentCaptor<CreateUserRequest> requestCaptor =
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        createUser("guest", UserManager.USER_TYPE_FULL_GUEST,
-                0, mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+        createUser("guest", UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -1406,7 +1429,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
         UserHandle newUser = result.getUser();
         assertThat(newUser).isNotNull();
         assertThat(newUser.getIdentifier()).isEqualTo(userId);
@@ -1420,11 +1445,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testCreateUser_guest_failsWithNonZeroFlags() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
 
-        createUser("guest", UserManager.USER_TYPE_FULL_GUEST,
-                UserManagerHelper.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
-                NO_CALLER_RESTRICTIONS);
+        String name = "guest";
+        int flags = UserManagerHelper.FLAG_EPHEMERAL;
+        createUser(name, UserManager.USER_TYPE_FULL_GUEST, flags, mAsyncCallTimeoutMs,
+                mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
-        assertInvalidArgumentsFailure();
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(mUserCreationFuture,
+                CarUserService.ERROR_TEMPLATE_INVALID_FLAGS_FOR_GUEST_CREATION, flags, name);
     }
 
     @Test
@@ -1439,9 +1466,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         ArgumentCaptor<CreateUserRequest> requestCaptor =
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        createUser(nullName, UserManager.USER_TYPE_FULL_SECONDARY,
-                UserManagerHelper.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
-                NO_CALLER_RESTRICTIONS);
+        createUser(nullName, UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_EPHEMERAL,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
 
         // Assert request
         CreateUserRequest request = requestCaptor.getValue();
@@ -1453,7 +1479,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
 
         UserHandle newUser = result.getUser();
         assertThat(newUser).isNotNull();
@@ -1482,12 +1510,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockExistingUsersAndCurrentUser(currentUser);
         mockGetCallingUserHandle(currentUser.getIdentifier());
 
-        createUser("name", UserManager.USER_TYPE_FULL_SECONDARY,
-                UserManagerHelper.FLAG_ADMIN, mAsyncCallTimeoutMs,
-                mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
-        assertInvalidArgumentsFailure();
-    }
+        createUser("name", UserManager.USER_TYPE_FULL_SECONDARY, UserManagerHelper.FLAG_ADMIN,
+                mAsyncCallTimeoutMs, mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
 
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(mUserCreationFuture,
+                CarUserService.ERROR_TEMPLATE_NON_ADMIN_CANNOT_CREATE_ADMIN_USERS,
+                mRegularUser.getIdentifier());
+    }
 
     @Test
     public void testCreateUserWithRestrictions_invalidTypes() throws Exception {

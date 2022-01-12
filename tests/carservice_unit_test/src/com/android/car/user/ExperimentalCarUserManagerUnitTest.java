@@ -192,7 +192,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
     private void expectCreateDriverSucceed(String name, @UserIdInt int userId) throws Exception {
         AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
         future.complete(new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL,
-                UserTestingHelper.newUser(userId).getUserHandle(), null));
+                UserTestingHelper.newUser(userId).getUserHandle()));
         when(mService.createDriver(eq(name), anyBoolean())).thenReturn(future);
     }
 
