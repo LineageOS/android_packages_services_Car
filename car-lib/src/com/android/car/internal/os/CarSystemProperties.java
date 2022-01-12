@@ -33,6 +33,7 @@ public final class CarSystemProperties {
             "android.car.number_pre_created_users";
     private static final String PROP_NUMBER_PRE_CREATED_GUESTS =
             "android.car.number_pre_created_guests";
+    private static final String PROP_USER_HAL_ENABLED = "android.car.user_hal_enabled";
     private static final String PROP_USER_HAL_TIMEOUT = "android.car.user_hal_timeout";
     private static final String PROP_DEVICE_POLICY_MANAGER_TIMEOUT =
             "android.car.device_policy_manager_timeout";
@@ -57,6 +58,12 @@ public final class CarSystemProperties {
     public static Optional<Integer> getNumberPreCreatedGuests() {
         return Optional.ofNullable(tryParseInteger(SystemProperties.get(
                 PROP_NUMBER_PRE_CREATED_GUESTS)));
+    }
+
+
+    /** Check {@code system/libsysprop/srcs/android/sysprop/CarProperties.sysprop} */
+    public static Optional<Boolean> getUserHalEnabled() {
+        return Optional.ofNullable(Boolean.valueOf(SystemProperties.get(PROP_USER_HAL_ENABLED)));
     }
 
     /** Check {@code system/libsysprop/srcs/android/sysprop/CarProperties.sysprop} */

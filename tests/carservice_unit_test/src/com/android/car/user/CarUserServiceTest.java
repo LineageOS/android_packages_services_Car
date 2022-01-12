@@ -1804,7 +1804,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
-                    && info.userLocales == null;
+                    && info.userLocales == null && info.supportsOverrideUserIdProperty;
         }));
     }
 
