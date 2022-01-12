@@ -193,7 +193,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     public void testSetListener() throws Exception {
         setPowerOn();
 
-        WaitablePowerStateListener listener = new WaitablePowerStateListener(2);
+        WaitablePowerStateListener listener = new WaitablePowerStateListener(3);
 
         setPowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
@@ -557,7 +557,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         List<Integer> await() throws Exception {
             JavaMockitoHelper.await(mLatch, mTimeoutValue);
-            return mReceivedStates;
+            return List.copyOf(mReceivedStates);
         }
     }
 
