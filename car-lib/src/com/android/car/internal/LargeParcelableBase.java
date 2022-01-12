@@ -90,6 +90,8 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
         // payload size + Parcelable / payload + 1:has shared memory + 0 + file
         //                                       0:no shared memory
         // 0 + file makes it compatible with ParcelFileDescrpitor
+        // file contains:
+        // file size + Parcelable / payload + 0
         int startPosition = in.dataPosition();
         int totalPayloadSize = in.readInt();
         deserialize(in);
@@ -115,35 +117,31 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     @Override
     public final void writeToParcel(@NonNull Parcel dest, int flags) {
         int startPosition = dest.dataPosition();
-        dest.writeInt(0); // payload size
-        int payloadStartPosition = dest.dataPosition();
         SharedMemory sharedMemory;
         synchronized (mLock) {
             sharedMemory = mSharedMemory;
         }
+        int totalPayloadSize = 0;
         if (sharedMemory != null) {
             // optimized path for resending the same Parcelable multiple times with already
             // created shared memory
-            serializeNullPayload(dest);
-            dest.writeParcelable(sharedMemory, flags);
-            int totalPayloadSize = updatePayloadSize(dest, startPosition);
+            totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dest, flags, sharedMemory);
             if (DBG_PAYLOAD) {
                 Log.d(TAG, "Write, reusing shared memory, start:" + startPosition
                         + " totalPayloadSize:" + totalPayloadSize);
             }
             return;
         }
+
+        // dataParcel is the parcel that would be serialized to the shared memory file.
         Parcel dataParcel = Parcel.obtain();
-        serialize(dataParcel, flags);
-        int payloadSize = dataParcel.dataSize();
-        boolean noSharedMemory = payloadSize <= MAX_DIRECT_PAYLOAD_SIZE;
-        int sharedMemoryPosition;
+        totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dataParcel, flags, null);
+
+        boolean noSharedMemory = totalPayloadSize <= MAX_DIRECT_PAYLOAD_SIZE;
         boolean hasNonNullPayload = true;
         if (noSharedMemory) {
-            dest.appendFrom(dataParcel, 0, payloadSize);
+            dest.appendFrom(dataParcel, 0, totalPayloadSize);
             dataParcel.recycle();
-            sharedMemoryPosition = dest.dataPosition();
-            writeSharedMemoryCompatibleToParcel(dest, null, 0); // direct payload, no shared memory
         } else {
             sharedMemory = serializeParcelToSharedMemory(dataParcel);
             dataParcel.recycle();
@@ -154,15 +152,11 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
                     mSharedMemory = sharedMemory;
                 }
             }
-            serializeNullPayload(dest);
-            sharedMemoryPosition = dest.dataPosition();
-            hasNonNullPayload = false;
-            writeSharedMemoryCompatibleToParcel(dest, sharedMemory, flags);
+
+            totalPayloadSize = serializeMemoryFdOrPayloadToParcel(dest, flags, sharedMemory);
         }
-        int totalPayloadSize = updatePayloadSize(dest, startPosition);
         if (DBG_PAYLOAD) {
             Log.d(TAG, "Write, start:" + startPosition + " totalPayloadSize:" + totalPayloadSize
-                    + " sharedMemoryPosition:" + sharedMemoryPosition
                     + " hasNonNullPayload:" + hasNonNullPayload
                     + " hasSharedMemory:" + !noSharedMemory + " dataSize:" + dest.dataSize());
         }
@@ -313,15 +307,42 @@ public abstract class LargeParcelableBase implements Parcelable, Closeable {
     }
 
     private void deserializeSharedMemoryAndClose(SharedMemory memory) {
+        // The shared memory file contains a serialized largeParcelable.
+        // size + payload + 0 (no shared memory).
         Parcel in = null;
         try {
             in = copyFromSharedMemory(memory);
+            // Even if we don't need the file size, we have to read it from the parcel to advance
+            // the data position.
+            int fileSize = in.readInt();
+            if (DBG_PAYLOAD) {
+                Log.d(TAG, "file size in shared memory file: " + fileSize);
+            }
             deserialize(in);
+            // There is an additional 0 in the parcel, but we ignore that.
         } finally {
             memory.close();
             if (in != null) {
                 in.recycle();
             }
         }
+    }
+
+    // If sharedMemory is not null, serialize null payload and shared memory to parcel.
+    // Otherwise, serialize the actual payload to parcel.
+    private int serializeMemoryFdOrPayloadToParcel(
+            Parcel dest, int flags, @Nullable SharedMemory sharedMemory) {
+        int startPosition = dest.dataPosition();
+        dest.writeInt(0); // payload size
+
+        if (sharedMemory != null) {
+            serializeNullPayload(dest);
+            writeSharedMemoryCompatibleToParcel(dest, sharedMemory, flags);
+        } else {
+            serialize(dest, flags);
+            writeSharedMemoryCompatibleToParcel(dest, null, flags);
+        }
+
+        return updatePayloadSize(dest, startPosition);
     }
 }

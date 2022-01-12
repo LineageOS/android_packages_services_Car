@@ -21,6 +21,8 @@ import android.annotation.SystemApi;
 import android.os.ParcelFileDescriptor;
 import android.os.SharedMemory;
 
+import java.io.IOException;
+
 /**
  * Helper for {@link SharedMemory}.
  *
@@ -35,7 +37,9 @@ public final class SharedMemoryHelper {
     /** Returns the backing file for the shared memory wrapped in {@code ParcelFileDescriptor}*/
     @NonNull
     public static ParcelFileDescriptor createParcelFileDescriptor(
-            @NonNull SharedMemory memory) {
-        return new ParcelFileDescriptor(memory.getFileDescriptor());
+            @NonNull SharedMemory memory) throws IOException {
+        // Must duplicate the file descriptor because it is currently owned by memory, and we also
+        // want the returned ParcelFileDescriptor to own it.
+        return memory.getFdDup();
     }
 }

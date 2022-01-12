@@ -25,6 +25,7 @@ import android.os.Parcelable;
 import android.os.SharedMemory;
 import android.util.Log;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -205,7 +206,12 @@ public class LargeParcelable extends LargeParcelableBase {
         }
         SharedMemory memory = LargeParcelableBase.serializeParcelToSharedMemory(dataParcel);
         dataParcel.recycle();
-        sharedMemoryFd = SharedMemoryHelper.createParcelFileDescriptor(memory);
+
+        try {
+            sharedMemoryFd = SharedMemoryHelper.createParcelFileDescriptor(memory);
+        } catch (IOException e) {
+            throw new IllegalArgumentException("unable to duplicate shared memory fd", e);
+        }
 
         Parcelable emptyPayload;
         if (constructEmptyParcelable != null) {
