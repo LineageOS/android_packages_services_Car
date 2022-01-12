@@ -45,10 +45,12 @@ java_sdk_library {
         "framework-annotations-lib",
         "modules-utils-preconditions",
         "framework-wifi",
+        "framework-bluetooth",
     ],
     // Stub build drops module api and breaks build. Add it here.
     stub_only_libs: [
         "framework-wifi",
+        "framework-bluetooth",
     ],
 
     api_lint: {
