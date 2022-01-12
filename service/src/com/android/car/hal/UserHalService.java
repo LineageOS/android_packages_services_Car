@@ -238,6 +238,8 @@ public final class UserHalService extends HalServiceBase {
      * Checks if the Vehicle HAL supports core user management actions.
      */
     public boolean isSupported() {
+        if (!CarProperties.user_hal_enabled().orElse(false)) return false;
+
         synchronized (mLock) {
             if (mProperties == null) return false;
 
@@ -1117,6 +1119,7 @@ public final class UserHalService extends HalServiceBase {
 
         writer.printf("Relevant CarProperties\n");
         dumpSystemProperty(writer, indent, "user_hal_timeout", CarProperties.user_hal_timeout());
+        dumpSystemProperty(writer, indent, "user_hal_enabled", CarProperties.user_hal_enabled());
 
         synchronized (mLock) {
             if (!isSupported()) {
