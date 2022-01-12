@@ -189,9 +189,12 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
                 .build();
         mCarUserManager.addListener(Runnable::run, listener1);
-        switchUser(guestUserId);
-        listener1.waitForEvents();
-        mCarUserManager.removeListener(listener1);
+        try {
+            switchUser(guestUserId);
+            listener1.waitForEvents();
+        } finally {
+            mCarUserManager.removeListener(listener1);
+        }
 
         BlockingUserLifecycleListener listener2 = BlockingUserLifecycleListener
                 .forSpecificEvents()
@@ -199,24 +202,27 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 .setTimeout(SWITCH_TIMEOUT_MS)
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
                 .build();
-        // Make sure listener callback was executed in the proper threaqd
+        // Make sure listener callback was executed in the proper thread
         mCarUserManager.addListener(Runnable::run, listener2);
 
-        // Emulate suspend to RAM
-        suspendToRamAndResume(/* disableBackgroundUsersStart=*/ true);
-        UserLifecycleEvent event = listener2.waitForEvents().get(0);
+        try {
+            // Emulate suspend to RAM
+            suspendToRamAndResume();
+            UserLifecycleEvent event = listener2.waitForEvents().get(0);
 
-        int newGuestId = event.getUserId();
+            int newGuestId = event.getUserId();
 
-        assertWithMessage("userId on event %s", event).that(newGuestId)
-                .isNotEqualTo(guestUserId);
-        assertWithMessage("current user id").that(newGuestId).isEqualTo(getCurrentUserId());
-        UserInfo newGuest = mUserManager.getUserInfo(newGuestId);
-        assertWithMessage("new user (%s) is a guest", newGuest.toFullString())
-                .that(newGuest.isGuest()).isTrue();
-        assertWithMessage("name of new guest(%s)", newGuest.toFullString())
-                .that(newGuest.name).isNotEqualTo(guestUser.name);
-        mCarUserManager.removeListener(listener2);
+            assertWithMessage("userId on event %s", event).that(newGuestId)
+                    .isNotEqualTo(guestUserId);
+            assertWithMessage("current user id").that(newGuestId).isEqualTo(getCurrentUserId());
+            UserInfo newGuest = mUserManager.getUserInfo(newGuestId);
+            assertWithMessage("new user (%s) is a guest", newGuest.toFullString())
+                    .that(newGuest.isGuest()).isTrue();
+            assertWithMessage("name of new guest(%s)", newGuest.toFullString())
+                    .that(newGuest.name).isNotEqualTo(guestUser.name);
+        } finally {
+            mCarUserManager.removeListener(listener2);
+        }
     }
 
     /**
@@ -238,15 +244,18 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 .build();
         mCarUserManager.addListener(Runnable::run, listener);
 
-        switchUser(guestUserId);
+        try {
+            switchUser(guestUserId);
 
-        listener.waitForEvents();
-        mCarUserManager.removeListener(listener);
+            listener.waitForEvents();
+        } finally {
+            mCarUserManager.removeListener(listener);
+        }
 
         setUserLockCredentials(guestUserId, PIN);
         try {
             // Emulate suspend to RAM
-            suspendToRamAndResume(/* disableBackgroundUsersStart=*/ true);
+            suspendToRamAndResume();
 
             assertWithMessage("current user remains guest user (%s)", guestUser)
                     .that(getCurrentUserId()).isEqualTo(guestUserId);
@@ -268,16 +277,18 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
                 .build();
         mCarUserManager.addListener(Runnable::run, listener);
-        switchUser(newUserId);
-        listener.waitForEvents();
+        try {
+            switchUser(newUserId);
+            listener.waitForEvents();
 
-        // Emulate suspend to RAM
-        suspendToRamAndResume(/* disableBackgroundUsersStart=*/ true);
+            // Emulate suspend to RAM
+            suspendToRamAndResume();
 
-        listener.waitForEvents();
-        assertWithMessage("current user remains new user (%s)", newUserId)
-                .that(ActivityManager.getCurrentUser()).isEqualTo(newUserId);
-
-        mCarUserManager.removeListener(listener);
+            listener.waitForEvents();
+            assertWithMessage("current user remains new user (%s)", newUserId)
+                    .that(ActivityManager.getCurrentUser()).isEqualTo(newUserId);
+        } finally {
+            mCarUserManager.removeListener(listener);
+        }
     }
 }
