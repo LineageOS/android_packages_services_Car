@@ -15,11 +15,8 @@ package android.car.builtin.app {
 
   public final class ActivityManagerHelper {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
-    method @Deprecated public android.util.Pair<android.content.Intent,java.lang.Integer> findRootTask(int);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
-    method @Deprecated @Nullable public android.util.SparseArray<android.app.TaskInfo> getTopTasks();
     method public void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
-    method @Deprecated public void registerTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
     method public boolean removeTask(int);
     method public void setFocusedRootTask(int);
     method public boolean startUserInBackground(int);
@@ -28,12 +25,7 @@ package android.car.builtin.app {
     method public int stopUserWithDelayedLocking(int, boolean);
     method public boolean unlockUser(int);
     method public void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
-    method @Deprecated public void unregisterTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
     field public static final int INVALID_TASK_ID = -1; // 0xffffffff
-  }
-
-  @Deprecated public static interface ActivityManagerHelper.OnTaskStackChangeListener {
-    method @Deprecated public default void onTaskStackChanged();
   }
 
   public static interface ActivityManagerHelper.ProcessObserverCallback {

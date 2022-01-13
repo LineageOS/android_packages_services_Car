@@ -37,7 +37,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarUxRestrictionsManagerService;
-import com.android.car.SystemActivityMonitoringService;
+import com.android.car.am.CarActivityService;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock
     private CarUxRestrictionsManagerService mMockUxrService;
     @Mock
-    private SystemActivityMonitoringService mMockSamService;
+    private CarActivityService mMockActivityService;
     @Mock
     private CarOccupantZoneService mMockCarOccupantZoneService;
     @Mock
@@ -76,7 +76,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         mService = new CarPackageManagerService(mContext,
-                mMockUxrService, mMockSamService, mMockCarOccupantZoneService);
+                mMockUxrService, mMockActivityService, mMockCarOccupantZoneService);
     }
 
     @Test
