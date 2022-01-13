@@ -220,7 +220,7 @@ package android.car.builtin.os {
   }
 
   public final class SharedMemoryHelper {
-    method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory);
+    method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory) throws java.io.IOException;
   }
 
   public final class SystemPropertiesHelper {
