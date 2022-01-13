@@ -19,7 +19,6 @@ package androidx.car.app.activity;
 
 import static com.android.car.pm.CarPackageManagerServiceTest.DoActivity.DIALOG_TITLE;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,10 +28,12 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.android.car.pm.CarPackageManagerServiceTest;
+
 /**
  * An activity to represent a template activity in tests.
  */
-public class CarAppActivity extends Activity {
+public class CarAppActivity extends CarPackageManagerServiceTest.TempActivity {
     public static final String ACTION_SHOW_DIALOG = "SHOW_DIALOG";
     public static final String ACTION_START_SECOND_INSTANCE = "START_SECOND_INSTANCE";
     public static final String SECOND_INSTANCE_TITLE = "Second Instance";
