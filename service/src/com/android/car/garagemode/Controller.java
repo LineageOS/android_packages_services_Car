@@ -85,7 +85,7 @@ public class Controller implements CarPowerStateListenerWithCompletion {
                 break;
             case CarPowerManager.STATE_SHUTDOWN_ENTER:
                 Slogf.d(TAG, "CPM state changed to SHUTDOWN_ENTER");
-                handleShutdownEnter();
+                handleShutdownEnter(future);
                 break;
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
                 Slogf.d(TAG, "CPM state changed to PRE_SHUTDOWN_PREPARE");
@@ -97,7 +97,7 @@ public class Controller implements CarPowerStateListenerWithCompletion {
                 break;
             case CarPowerManager.STATE_SUSPEND_ENTER:
                 Slogf.d(TAG, "CPM state changed to SUSPEND_ENTER");
-                handleSuspendEnter();
+                handleSuspendEnter(future);
                 break;
             case CarPowerManager.STATE_SUSPEND_EXIT:
                 Slogf.d(TAG, "CPM state changed to SUSPEND_EXIT");
@@ -105,11 +105,23 @@ public class Controller implements CarPowerStateListenerWithCompletion {
                 break;
             case CarPowerManager.STATE_HIBERNATION_ENTER:
                 Slogf.d(TAG, "CPM state changed to HIBERNATION_ENTER");
-                handleHibernationEnter();
+                handleHibernationEnter(future);
                 break;
             case CarPowerManager.STATE_HIBERNATION_EXIT:
                 Slogf.d(TAG, "CPM state changed to HIBERNATION_EXIT");
                 handleHibernationExit();
+                break;
+            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
+                Slogf.d(TAG, "CPM state changed to POST_SHUTDOWN_ENTER");
+                handlePostShutdownEnter(future);
+                break;
+            case CarPowerManager.STATE_POST_SUSPEND_ENTER:
+                Slogf.d(TAG, "CPM state changed to POST_SUSPEND_ENTER");
+                handlePostSuspendEnter(future);
+                break;
+            case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
+                Slogf.d(TAG, "CPM state changed to POST_HIBERNATION_ENTER");
+                handlePostHibernationEnter(future);
                 break;
             default:
         }
@@ -177,12 +189,16 @@ public class Controller implements CarPowerStateListenerWithCompletion {
         resetGarageMode();
     }
 
-    private void handleSuspendEnter() {
+    private void handleSuspendEnter(CompletablePowerStateChangeFuture future) {
         resetGarageMode();
+        // Garage Mode doesn't do more for suspend enter.
+        if (future != null) future.complete();
     }
 
-    private void handleShutdownEnter() {
+    private void handleShutdownEnter(CompletablePowerStateChangeFuture future) {
         resetGarageMode();
+        // Garage Mode doesn't do more for shutdown enter.
+        if (future != null) future.complete();
     }
 
     private void handlePreShutdownPrepare(CompletablePowerStateChangeFuture future) {
@@ -198,12 +214,28 @@ public class Controller implements CarPowerStateListenerWithCompletion {
         resetGarageMode();
     }
 
-
     private void handleHibernationExit() {
         resetGarageMode();
     }
 
-    private void handleHibernationEnter() {
+    private void handleHibernationEnter(CompletablePowerStateChangeFuture future) {
         resetGarageMode();
+        // Garage Mode doesn't do more for hibernation enter.
+        if (future != null) future.complete();
+    }
+
+    private void handlePostShutdownEnter(CompletablePowerStateChangeFuture future) {
+        // Garage Mode doesn't do more for post shutdown enter.
+        if (future != null) future.complete();
+    }
+
+    private void handlePostSuspendEnter(CompletablePowerStateChangeFuture future) {
+        // Garage Mode doesn't do more for post suspend enter.
+        if (future != null) future.complete();
+    }
+
+    private void handlePostHibernationEnter(CompletablePowerStateChangeFuture future) {
+        // Garage Mode doesn't do more for post hibernation enter.
+        if (future != null) future.complete();
     }
 }

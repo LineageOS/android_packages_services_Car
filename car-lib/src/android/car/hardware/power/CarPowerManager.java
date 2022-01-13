@@ -24,6 +24,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.IBinder;
@@ -646,6 +647,29 @@ public class CarPowerManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Returns whether listen completion is allowed for {@code state}.
+     *
+     * @hide
+     */
+    @TestApi
+    public static boolean isCompletionAllowed(@CarPowerState int state) {
+        // TODO(b/210010903): Remove STATE_SHUTDOWN_PREPARE.
+        switch (state) {
+            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
+            case CarPowerManager.STATE_SHUTDOWN_ENTER:
+            case CarPowerManager.STATE_SUSPEND_ENTER:
+            case CarPowerManager.STATE_HIBERNATION_ENTER:
+            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
+            case CarPowerManager.STATE_POST_SUSPEND_ENTER:
+            case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     @GuardedBy("mLock")
     private void setServiceForListenerLocked(boolean useCompletion) {
         if (mListenerToService == null) {
@@ -700,7 +724,7 @@ public class CarPowerManager extends CarManagerBase {
     @GuardedBy("mLock")
     private void updateFutureLocked(@CarPowerState int state, long expirationTimeMs) {
         cleanupFutureLocked();
-        if (state == STATE_PRE_SHUTDOWN_PREPARE || state == STATE_SHUTDOWN_PREPARE) {
+        if (isCompletionAllowed(state)) {
             // Creates a CompletablePowerStateChangeFuture and passes it to the listener.
             // When the listener completes, tells CarPowerManagementService that this action is
             // finished.

@@ -579,8 +579,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                     (state, future) -> {
                         mReceivedStates.add(state);
                         mRemainingCount--;
-                        if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE
-                                || state == CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE) {
+                        if (CarPowerManager.isCompletionAllowed(state)) {
                             assertThat(future).isNotNull();
                             future.complete();
                         } else {

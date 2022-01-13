@@ -107,6 +107,14 @@ package android.car.drivingstate {
 
 }
 
+package android.car.hardware.power {
+
+  public class CarPowerManager {
+    method public static boolean isCompletionAllowed(int);
+  }
+
+}
+
 package android.car.media {
 
   public final class CarAudioManager {

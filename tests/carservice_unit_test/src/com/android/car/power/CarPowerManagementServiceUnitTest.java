@@ -462,8 +462,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
             @Override
             public void onStateChanged(int state, long expirationTimeMs) {
                 stateMapToCompletion.put(state, true);
-                if (state == CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE
-                        || state == CarPowerManager.STATE_SHUTDOWN_PREPARE) {
+                // TODO(b/210010903): Use CarPowerManagementService.isCompletionAllowed().
+                if (CarPowerManager.isCompletionAllowed(state)) {
                     mService.finished(state, this);
                 }
             }
@@ -490,6 +490,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
                 .get(CarPowerManager.STATE_SHUTDOWN_PREPARE)).isTrue();
         assertWithMessage("SHUTDOWN_ENTER notification").that(stateMapToCompletion
                 .get(CarPowerManager.STATE_SHUTDOWN_ENTER)).isTrue();
+        assertWithMessage("POST_SHUTDOWN_ENTER notification").that(stateMapToCompletion
+                .get(CarPowerManager.STATE_POST_SHUTDOWN_ENTER)).isTrue();
     }
 
     @Test
