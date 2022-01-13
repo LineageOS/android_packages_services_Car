@@ -33,6 +33,7 @@ apex_defaults {
 
     apps: [
         "CarServiceModule",
+        "ScriptExecutor",
     ],
     compile_multilib: "both",
     name: "com.android.car.framework-defaults",
