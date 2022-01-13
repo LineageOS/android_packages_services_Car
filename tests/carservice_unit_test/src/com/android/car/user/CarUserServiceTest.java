@@ -394,9 +394,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
         stopUser(userId, userStopResult);
 
-        assertThat(getResult(userStopResult).getStatus())
+        assertThat(getUserStopResult(userStopResult, userId).getStatus())
                 .isEqualTo(UserStopResult.STATUS_SUCCESSFUL);
-        assertThat(getResult(userStopResult).isSuccess()).isTrue();
+        assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isTrue();
     }
 
     @Test
@@ -444,22 +444,22 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
         stopUser(userId, userStopResult);
 
-        assertThat(getResult(userStopResult).getStatus())
+        assertThat(getUserStopResult(userStopResult, userId).getStatus())
                 .isEqualTo(UserStopResult.STATUS_USER_DOES_NOT_EXIST);
-        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+        assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isFalse();
     }
 
     @Test
     public void testStopUser_systemUser() throws Exception {
-        mockStopUserWithDelayedLocking(
-                UserHandle.USER_SYSTEM, ActivityManager.USER_OP_ERROR_IS_SYSTEM);
+        int userId = UserHandle.USER_SYSTEM;
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_ERROR_IS_SYSTEM);
 
         AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
-        stopUser(UserHandle.USER_SYSTEM, userStopResult);
+        stopUser(userId, userStopResult);
 
-        assertThat(getResult(userStopResult).getStatus())
+        assertThat(getUserStopResult(userStopResult, userId).getStatus())
                 .isEqualTo(UserStopResult.STATUS_FAILURE_SYSTEM_USER);
-        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+        assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isFalse();
     }
 
     @Test
@@ -470,9 +470,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
         stopUser(userId, userStopResult);
 
-        assertThat(getResult(userStopResult).getStatus())
+        assertThat(getUserStopResult(userStopResult, userId).getStatus())
                 .isEqualTo(UserStopResult.STATUS_FAILURE_CURRENT_USER);
-        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+        assertThat(getUserStopResult(userStopResult, userId).isSuccess()).isFalse();
     }
 
     @Test
@@ -1504,16 +1504,17 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testStartUserInBackground_success() throws Exception {
+        int userId = 101;
         mockCurrentUser(mRegularUser);
-        UserHandle newUser = expectRegularUserExists(mMockedUserHandleHelper, 101);
+        UserHandle newUser = expectRegularUserExists(mMockedUserHandleHelper, userId);
         mockAmStartUserInBackground(newUser.getIdentifier(), true);
 
         AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
         startUserInBackground(newUser.getIdentifier(), userStartResult);
 
-        assertThat(getResult(userStartResult).getStatus())
+        assertThat(getUserStartResult(userStartResult, userId).getStatus())
                 .isEqualTo(UserStartResult.STATUS_SUCCESSFUL);
-        assertThat(getResult(userStartResult).isSuccess()).isTrue();
+        assertThat(getUserStartResult(userStartResult, userId).isSuccess()).isTrue();
     }
 
     @Test
@@ -1537,23 +1538,24 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
         startUserInBackground(userId, userStartResult);
 
-        assertThat(getResult(userStartResult).getStatus())
+        assertThat(getUserStartResult(userStartResult, userId).getStatus())
                 .isEqualTo(UserStartResult.STATUS_ANDROID_FAILURE);
-        assertThat(getResult(userStartResult).isSuccess()).isFalse();
+        assertThat(getUserStartResult(userStartResult, userId).isSuccess()).isFalse();
     }
 
     @Test
     public void testStartUserInBackground_currentUser() throws Exception {
-        UserHandle newUser = expectRegularUserExists(mMockedUserHandleHelper, 101);
+        int userId = 101;
+        UserHandle newUser = expectRegularUserExists(mMockedUserHandleHelper, userId);
         mockGetCurrentUser(newUser.getIdentifier());
         mockAmStartUserInBackground(newUser.getIdentifier(), true);
 
         AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
         startUserInBackground(newUser.getIdentifier(), userStartResult);
 
-        assertThat(getResult(userStartResult).getStatus())
+        assertThat(getUserStartResult(userStartResult, userId).getStatus())
                 .isEqualTo(UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER);
-        assertThat(getResult(userStartResult).isSuccess()).isTrue();
+        assertThat(getUserStartResult(userStartResult, userId).isSuccess()).isTrue();
     }
 
     @Test
@@ -1565,9 +1567,9 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
         startUserInBackground(userId, userStartResult);
 
-        assertThat(getResult(userStartResult).getStatus())
+        assertThat(getUserStartResult(userStartResult, userId).getStatus())
                 .isEqualTo(UserStartResult.STATUS_USER_DOES_NOT_EXIST);
-        assertThat(getResult(userStartResult).isSuccess()).isFalse();
+        assertThat(getUserStartResult(userStartResult, userId).isSuccess()).isFalse();
     }
 
     @Test
@@ -1982,5 +1984,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertWithMessage("Constant %s",
                 DebugUtils.constantToString(CarUserService.class, "USER_OP_", carConstant))
                 .that(carConstant).isEqualTo(amConstant);
+    }
+
+    private UserStartResult getUserStartResult(AndroidFuture<UserStartResult> future, int userId) {
+        return getResult(future, "starting user %d", userId);
+    }
+
+    private UserStopResult getUserStopResult(AndroidFuture<UserStopResult> future, int userId) {
+        return getResult(future, "stopping user %d", userId);
     }
 }

@@ -89,34 +89,11 @@ public final class JavaMockitoHelper {
     /**
      * Gets the result of a future, or throw a {@link IllegalStateException} if it times out after
      * {@value #ASYNC_TIMEOUT_MS} ms.
-     *
-     * @deprecated use {@link #getResult(Future, String, Object...)} instead.
-     */
-    @NonNull
-    @Deprecated
-    public static <T> T getResult(@NonNull Future<T> future) {
-        return getResult(future, ASYNC_TIMEOUT_MS);
-    }
-
-    /**
-     * Gets the result of a future, or throw a {@link IllegalStateException} if it times out after
-     * {@value #ASYNC_TIMEOUT_MS} ms.
      */
     @NonNull
     public static <T> T getResult(@NonNull Future<T> future,
             @NonNull String messageFormat, @Nullable Object...messageArgs) {
         return getResult(future, ASYNC_TIMEOUT_MS, messageFormat, messageArgs);
-    }
-
-    /**
-     * Gets the result of a future, or throw a {@link IllegalStateException} if it times out.
-     *
-     * @deprecated use {@link #getResult(Future, long, String, Object...)} instead.
-     */
-    @NonNull
-    @Deprecated
-    public static <T> T getResult(@NonNull Future<T> future, long timeoutMs) {
-        return getResult(future, timeoutMs, "UNDEFINED");
     }
 
     /**

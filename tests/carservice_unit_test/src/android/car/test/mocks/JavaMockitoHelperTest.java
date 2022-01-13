@@ -91,35 +91,6 @@ public final class JavaMockitoHelperTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
-    public void testGetResult_deprecated() throws Exception {
-        when(mFuture.get(anyLong(), any())).thenReturn("done");
-
-        assertThat(JavaMockitoHelper.getResult(mFuture)).isEqualTo("done");
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testGetResult_deprecated_nullFuture() throws Exception {
-        assertThrows(NullPointerException.class, ()->JavaMockitoHelper.getResult(null));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testGetResult_withCustomTimeout_deprecated() throws Exception {
-        when(mFuture.get(anyLong(), any(TimeUnit.class))).thenReturn("done");
-
-        assertThat(JavaMockitoHelper.getResult(mFuture, TIMEOUT_MS)).isEqualTo("done");
-        verify(mFuture).get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    public void testGetResult_withCustomTimeout_deprecated_nullFuture() throws Exception {
-        assertThrows(NullPointerException.class, ()->JavaMockitoHelper.getResult(null, TIMEOUT_MS));
-    }
-
-    @Test
     public void testGetResult_nullFuture() throws Exception {
         assertThrows(NullPointerException.class, ()->JavaMockitoHelper.getResult(null, "D'OH!"));
     }

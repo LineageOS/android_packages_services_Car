@@ -96,7 +96,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
                 mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
 
-        assertThat(getResult(future).getUser().getIdentifier()).isEqualTo(10);
+        assertThat(getCreateDriverResult(future).getUser().getIdentifier()).isEqualTo(10);
     }
 
     @Test
@@ -105,7 +105,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
         AndroidFuture<UserCreationResult> future =
                 mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
-        assertThat(getResult(future).getStatus())
+        assertThat(getCreateDriverResult(future).getStatus())
                 .isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
     }
 
@@ -119,7 +119,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
                 mExperimentalCarUserService.createDriver("testUser", false);
         waitForHandlerThreadToFinish();
 
-        UserHandle userHandle = getResult(future).getUser();
+        UserHandle userHandle = getCreateDriverResult(future).getUser();
         assertThat(userHandle.getIdentifier()).isEqualTo(10);
     }
 
@@ -301,6 +301,10 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
             }
             assertThat(expected).isEmpty();
         }
+    }
+
+    private UserCreationResult getCreateDriverResult(AndroidFuture<UserCreationResult> future) {
+        return getResult(future, "create driver");
     }
 
     private static final class FakeCarOccupantZoneService {

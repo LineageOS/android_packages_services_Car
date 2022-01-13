@@ -389,28 +389,28 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     @NonNull
     protected UserSwitchResult getUserSwitchResult() throws Exception {
-        return getResult(mUserSwitchFuture);
+        return getResult(mUserSwitchFuture, "result of user switch");
     }
 
     @NonNull
     protected UserSwitchResult getUserSwitchResult2() throws Exception {
-        return getResult(mUserSwitchFuture2);
+        return getResult(mUserSwitchFuture2, "result of 2nd user switch");
     }
 
     @NonNull
     protected UserCreationResult getUserCreationResult() throws Exception {
-        return getResult(mUserCreationFuture);
+        return getResult(mUserCreationFuture, "result of user creation");
     }
 
     @NonNull
     protected UserRemovalResult getUserRemovalResult() throws Exception {
-        return getResult(mUserRemovalFuture);
+        return getResult(mUserRemovalFuture, "result of user removal");
     }
 
     @NonNull
     protected UserIdentificationAssociationResponse getUserAssociationRespResult()
             throws Exception {
-        return getResult(mUserAssociationRespFuture);
+        return getResult(mUserAssociationRespFuture, "result of getting user association");
     }
 
     protected CarUserService newCarUserService(boolean switchGuestUserBeforeGoingSleep) {
