@@ -164,7 +164,7 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the given users.
      *
-     * TODO(b/196179969): replace UserInfo with UserHandle. getUserHandles doesn't take
+     * TODO(b/213374587): replace UserInfo with UserHandle. getUserHandles doesn't take
      * excludePartial which is required in UserHalHelper. In the next CL, UserHalHelper would be
      * updated so that current user is always available in the usersInfo.
      */
@@ -173,7 +173,7 @@ public final class AndroidMockitoHelper {
         Objects.requireNonNull(um);
         Objects.requireNonNull(users);
         when(um.getUserHandles(excludeDying)).thenReturn(users);
-        // TODO(b/196179969): Remove following code
+        // TODO(b/213374587): Remove following code
         // convert List<UserHandle> to List<UserInfos>
         List<UserInfo> userInfos = new ArrayList<UserInfo>();
         for (UserHandle userHandle : users) {

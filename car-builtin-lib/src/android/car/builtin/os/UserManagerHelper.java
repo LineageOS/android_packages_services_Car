@@ -108,22 +108,16 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Would be removed after making isUserEphemeral a system API
-     *
-     * @deprecated Would be removed
+     * Checks if a user is ephemeral.
      */
-    @Deprecated
     public static boolean isEphemeralUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.isUserEphemeral(user.getIdentifier());
     }
 
     /**
-     * Would be removed after understanding the requirement of the call.
-     *
-     * @deprecated Would be removed
+     * Checks if a user is enabled.
      */
-    @Deprecated
     public static boolean isEnabledUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.getUserInfo(user.getIdentifier()).isEnabled();
@@ -138,9 +132,8 @@ public final class UserManagerHelper {
     }
 
     /**
-     * @deprecated Would be removed after more research in existing API
+     * Checks if a user is initialized.
      */
-    @Deprecated
     public static boolean isInitializedUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.getUserInfo(user.getIdentifier()).isInitialized();
