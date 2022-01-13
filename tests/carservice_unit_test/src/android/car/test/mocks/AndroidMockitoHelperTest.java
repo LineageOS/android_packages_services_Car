@@ -78,7 +78,7 @@ public final class AndroidMockitoHelperTest {
                 .spyStatic(Binder.class)
                 .startMocking();
 
-        //TODO(b/196179969): remove UserInfo
+        //TODO(b/213374587): remove UserInfo
         mTestUser = new UserInfo(TEST_USER_ID, "testUser", "", UserInfo.FLAG_ADMIN,
                 UserManager.USER_TYPE_FULL_SYSTEM);
     }

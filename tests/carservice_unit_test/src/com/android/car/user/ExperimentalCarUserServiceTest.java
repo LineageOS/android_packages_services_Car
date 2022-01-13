@@ -124,7 +124,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
     }
 
     @Test
-    // TODO(b/196179969): remove UserInfo usages
+    // TODO(b/213374587): remove UserInfo usages
     public void testCreatePassenger() {
         // assignDefaultIconForUser is not used for testing
         doReturn(null).when(() -> UserHelper.assignDefaultIcon(any(), any()));
