@@ -15,6 +15,7 @@
  */
 
 #include "Enumerator.h"
+#include "MockPermissionsChecker.h"
 #include "MockServiceFactory.h"
 #include "MockStatsCollector.h"
 #include "ServiceFactory.h"
@@ -24,9 +25,13 @@
 #include <gtest/gtest.h>
 
 using ::android::automotive::evs::V1_1::implementation::Enumerator;
-using ::android::automotive::evs::V1_1::implementation::MockServiceFactory;
-using ::android::automotive::evs::V1_1::implementation::MockStatsCollector;
+using ::android::automotive::evs::V1_1::implementation::NiceMockPermissionsChecker;
+using ::android::automotive::evs::V1_1::implementation::NiceMockServiceFactory;
+using ::android::automotive::evs::V1_1::implementation::NiceMockStatsCollector;
 
+////////////////////////////////////////////////////////////////////////////////
+// Construction Tests.
+////////////////////////////////////////////////////////////////////////////////
 TEST(Enumerator, BuildsNullObjectWithoutServiceNameProvided) {
     EXPECT_EQ(Enumerator::build(nullptr), nullptr);
 }
@@ -36,17 +41,35 @@ TEST(Enumerator, ReturnsNullWhenNullNamePassed) {
 }
 
 TEST(Enumerator, ReturnsNullWhenServiceNotAvailable) {
-    auto mockServiceFactory = std::make_unique<MockServiceFactory>();
+    auto mockServiceFactory = std::make_unique<NiceMockServiceFactory>();
     ON_CALL(*mockServiceFactory, getService).WillByDefault(::testing::Invoke([&]() {
         return nullptr;
     }));
     EXPECT_EQ(Enumerator::build(std::move(mockServiceFactory),
-                                std::make_unique<MockStatsCollector>()),
+                                std::make_unique<NiceMockStatsCollector>(),
+                                std::make_unique<NiceMockPermissionsChecker>()),
               nullptr);
 }
 
 TEST(Enumerator, ConstructsAndDestroys) {
-    EXPECT_NE(Enumerator::build(std::make_unique<MockServiceFactory>(),
-                                std::make_unique<MockStatsCollector>()),
+    EXPECT_NE(Enumerator::build(std::make_unique<NiceMockServiceFactory>(),
+                                std::make_unique<NiceMockStatsCollector>(),
+                                std::make_unique<NiceMockPermissionsChecker>()),
               nullptr);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Behavioural Tests.
+////////////////////////////////////////////////////////////////////////////////
+TEST(Enumerator, PreventsGettingDisplayWithNoPermissions) {
+    auto mockPermissionsChecker = std::make_unique<NiceMockPermissionsChecker>();
+    ON_CALL(*mockPermissionsChecker, processHasPermissionsForEvs)
+            .WillByDefault(::testing::Return(true));
+
+    std::unique_ptr<Enumerator> enumerator =
+            Enumerator::build(std::make_unique<NiceMockServiceFactory>(),
+                              std::make_unique<NiceMockStatsCollector>(),
+                              std::move(mockPermissionsChecker));
+
+    android::sp<IEvsDisplay_1_1> evs_display = enumerator->openDisplay_1_1(-1);
 }

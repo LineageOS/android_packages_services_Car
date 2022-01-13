@@ -17,6 +17,7 @@
 #include "Enumerator.h"
 
 #include "HalDisplay.h"
+#include "IPermissionsChecker.h"
 #include "emul/EvsEmulatedCamera.h"
 #include "stats/StatsCollector.h"
 
@@ -30,15 +31,18 @@
 #include <hwbinder/IPCThreadState.h>
 
 #include <regex>  // NOLINT
+#include <vector>
 
 namespace {
 
+using ::android::automotive::evs::V1_1::implementation::IPermissionsChecker;
 using ::android::base::EqualsIgnoreCase;
 using ::android::base::Error;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 using ::android::hardware::hidl_handle;
+using ::android::hardware::IPCThreadState;
 using ::android::hardware::Void;
 using ::android::hardware::automotive::evs::V1_0::DisplayState;
 using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
@@ -85,13 +89,33 @@ constexpr void removeIfPresent(
     }
 }
 
+class ProdPermissionChecker : public IPermissionsChecker {
+public:
+    bool processHasPermissionsForEvs() override {
+        IPCThreadState* ipc = IPCThreadState::self();
+        const auto userId = ipc->getCallingUid() / AID_USER_OFFSET;
+        const auto appId = ipc->getCallingUid() % AID_USER_OFFSET;
+        if (AID_AUTOMOTIVE_EVS != appId && AID_ROOT != appId && AID_SYSTEM != appId) {
+            LOG(ERROR) << "EVS access denied? "
+                       << "pid = " << ipc->getCallingPid() << ", userId = " << userId
+                       << ", appId = " << appId;
+            return false;
+        }
+
+        return true;
+    }
+};
+
 }  // namespace
 
 namespace android::automotive::evs::V1_1::implementation {
 
 Enumerator::Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
-                       std::unique_ptr<IStatsCollector> statsCollector) :
-      mServiceFactory(std::move(serviceFactory)), mStatsCollector(std::move(statsCollector)) {
+                       std::unique_ptr<IStatsCollector> statsCollector,
+                       std::unique_ptr<IPermissionsChecker> permissionChecker) :
+      mServiceFactory(std::move(serviceFactory)),
+      mStatsCollector(std::move(statsCollector)),
+      mPermissionChecker(std::move(permissionChecker)) {
     // Get an internal display identifier.
     mServiceFactory->getService()->getDisplayIdList(
             [this](const android::hardware::hidl_vec<unsigned char>& displayPorts) {
@@ -121,15 +145,18 @@ Enumerator::Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
     mMonitorEnabled = mStatsCollector->startCollection().ok();
 }
 
-std::unique_ptr<Enumerator> Enumerator::build(std::unique_ptr<ServiceFactory> serviceFactory,
-                                              std::unique_ptr<IStatsCollector> statsCollector) {
+std::unique_ptr<Enumerator> Enumerator::build(
+        std::unique_ptr<ServiceFactory> serviceFactory,
+        std::unique_ptr<IStatsCollector> statsCollector,
+        std::unique_ptr<IPermissionsChecker> permissionChecker) {
     // Connect with the underlying hardware enumerator.
     if (!serviceFactory->getService()) {
         return nullptr;
     }
 
-    return std::unique_ptr<Enumerator>{
-            new Enumerator(std::move(serviceFactory), std::move(statsCollector))};
+    return std::unique_ptr<Enumerator>{new Enumerator(std::move(serviceFactory),
+                                                      std::move(statsCollector),
+                                                      std::move(permissionChecker))};
 }
 
 std::unique_ptr<Enumerator> Enumerator::build(const char* hardwareServiceName) {
@@ -138,21 +165,7 @@ std::unique_ptr<Enumerator> Enumerator::build(const char* hardwareServiceName) {
     }
 
     return build(std::make_unique<ProdServiceFactory>(hardwareServiceName),
-                 std::make_unique<StatsCollector>());
-}
-
-bool Enumerator::checkPermission() {
-    hardware::IPCThreadState* ipc = hardware::IPCThreadState::self();
-    const auto userId = ipc->getCallingUid() / AID_USER_OFFSET;
-    const auto appId = ipc->getCallingUid() % AID_USER_OFFSET;
-    if (AID_AUTOMOTIVE_EVS != appId && AID_ROOT != appId && AID_SYSTEM != appId) {
-        LOG(ERROR) << "EVS access denied? "
-                   << "pid = " << ipc->getCallingPid() << ", userId = " << userId
-                   << ", appId = " << appId;
-        return false;
-    }
-
-    return true;
+                 std::make_unique<StatsCollector>(), std::make_unique<ProdPermissionChecker>());
 }
 
 bool Enumerator::isLogicalCamera(const camera_metadata_t* metadata) {
@@ -245,7 +258,7 @@ Return<void> Enumerator::getCameraList(getCameraList_cb list_cb) {
 
 Return<sp<IEvsCamera_1_0>> Enumerator::openCamera(const hidl_string& cameraId) {
     LOG(DEBUG) << __FUNCTION__;
-    if (!checkPermission()) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
         return nullptr;
     }
 
@@ -339,7 +352,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
 Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraId,
                                                       const Stream& streamCfg) {
     LOG(DEBUG) << __FUNCTION__;
-    if (!checkPermission()) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
         return nullptr;
     }
 
@@ -432,7 +445,7 @@ Return<sp<IEvsCamera_1_1>> Enumerator::openCamera_1_1(const hidl_string& cameraI
 
 Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb) {
     LOG(DEBUG) << __FUNCTION__;
-    if (!checkPermission()) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
         return Void();
     }
 
@@ -468,7 +481,7 @@ Return<void> Enumerator::getCameraList_1_1(getCameraList_1_1_cb list_cb) {
 Return<sp<IEvsDisplay_1_0>> Enumerator::openDisplay() {
     LOG(DEBUG) << __FUNCTION__;
 
-    if (!checkPermission()) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
         return nullptr;
     }
 
@@ -522,7 +535,7 @@ Return<void> Enumerator::closeDisplay(const ::android::sp<IEvsDisplay_1_0>& disp
 
 Return<DisplayState> Enumerator::getDisplayState() {
     LOG(DEBUG) << __FUNCTION__;
-    if (!checkPermission()) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
         return DisplayState::DEAD;
     }
 
@@ -541,7 +554,7 @@ Return<DisplayState> Enumerator::getDisplayState() {
 Return<sp<IEvsDisplay_1_1>> Enumerator::openDisplay_1_1(uint8_t id) {
     LOG(DEBUG) << __FUNCTION__;
 
-    if (!checkPermission()) {
+    if (!mPermissionChecker->processHasPermissionsForEvs()) {
         return nullptr;
     }
 

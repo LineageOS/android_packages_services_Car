@@ -48,6 +48,8 @@ public:
                 (override));
 };
 
+using NiceMockStatsCollector = ::testing::NiceMock<MockStatsCollector>;
+
 }  // namespace android::automotive::evs::V1_1::implementation
 
 #endif  // CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKSTATSCOLLECTOR_H_
