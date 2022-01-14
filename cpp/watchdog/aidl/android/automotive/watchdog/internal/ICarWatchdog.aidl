@@ -127,8 +127,8 @@ interface ICarWatchdog {
    * Disabling the client health checking would stop killing clients on ANR.
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
-   * @param disable            When set to true, client health checking is disabled.
-   *                           Otherwise, it is enabled.
+   * @param enable            When set to true, client health checking is enabled.
+   *                          Otherwise, it is disabled.
    */
-  void controlProcessHealthCheck(in boolean disable);
+  void controlProcessHealthCheck(in boolean enable);
 }
