@@ -69,6 +69,7 @@ filegroup{
 
     srcs : [
         "Enumerator.cpp",
+        "EnumeratorProxy.cpp",
         "HalCamera.cpp",
         "HalDisplay.cpp",
         "VirtualCamera.cpp",
@@ -134,7 +135,6 @@ genrule {
 // Tests
 // TODO(b/206829268):  This target should allow for host supported testing, but
 // currently has platform specific dependencies.
-// host_supported: true,
 ////////////////////////////////////////////////////////////////////////////////
 cc_test {
     name: "EvsEnumeratorTest",
@@ -147,6 +147,16 @@ cc_test {
 
     // TODO(b/206829268):  See above.
     // host_supported: true,
+}
+
+cc_test {
+    name: "EnumeratorProxyTest",
+    srcs : [ "test/unit/EnumeratorProxyTest.cpp" ],
+    static_libs : [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults : ["android.automotive.evs.manager_defaults"],
 }
 
 cc_test {

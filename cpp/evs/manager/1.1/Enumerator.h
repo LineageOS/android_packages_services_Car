@@ -18,6 +18,7 @@
 #define CPP_EVS_MANAGER_1_1_ENUMERATOR_H_
 
 #include "HalCamera.h"
+#include "IEnumeratorManager.h"
 #include "IPermissionsChecker.h"
 #include "ServiceFactory.h"
 #include "VirtualCamera.h"
