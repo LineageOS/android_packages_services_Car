@@ -76,11 +76,11 @@ import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
-import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.CarLocalServices;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.user.CarUserService;
 
 import org.junit.After;
@@ -166,7 +166,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(CarProperties.class);
+        builder.spyStatic(CarSystemProperties.class);
     }
 
     @Before
@@ -1652,7 +1652,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockUserHalEnabled(@Nullable Boolean enabled) {
         Optional<Boolean> value = enabled != null ? Optional.of(enabled) : Optional.empty();
-        doReturn(value).when(() -> CarProperties.user_hal_enabled());
+        doReturn(value).when(() -> CarSystemProperties.getUserHalEnabled());
     }
 
     private void assertInitialUserInfoSetRequest(VehiclePropValue req, int requestType) {
