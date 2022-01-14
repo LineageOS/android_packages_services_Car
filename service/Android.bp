@@ -53,7 +53,6 @@ common_lib_deps = [
     "android.hardware.automotive.occupant_awareness-V1-java",
     "vehicle-hal-support-lib",
     "com.android.car.procfsinspector-client",
-    "carwatchdog-protos",
 ]
 
 android_app {
@@ -156,7 +155,6 @@ android_app {
         ":com.android.car.procfsinspector-client-src",
         ":statslog-Car-java-gen",
         ":vehicle-hal-support-lib-src",
-        "src/com/android/car/watchdog/proto/*.proto",
         ":iscriptexecutor_aidl",
         "proto/**/*.proto",
         "src/**/*.java",
