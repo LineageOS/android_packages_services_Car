@@ -172,10 +172,13 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected CarUserService mCarUserService;
     protected boolean mUser0TaskExecuted;
 
+    // NOTE: Futures below should be used just once per test case, otherwise they could cause
+    // failures
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
     protected final AndroidFuture<UserSwitchResult> mUserSwitchFuture2 = new AndroidFuture<>();
     protected final AndroidFuture<UserCreationResult> mUserCreationFuture = new AndroidFuture<>();
     protected final AndroidFuture<UserRemovalResult> mUserRemovalFuture = new AndroidFuture<>();
+
     protected final AndroidFuture<UserIdentificationAssociationResponse>
             mUserAssociationRespFuture = new AndroidFuture<>();
     protected final int mAsyncCallTimeoutMs = 100;
@@ -188,6 +191,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected UserHandle mRegularUser;
     protected UserHandle mAnotherRegularUser;
     protected List<UserHandle> mExistingUsers;
+
+    protected int mAdminUserId;
+    protected int mAnotherAdminUserId;
+    protected int mGuestUserId;
+    protected int mRegularUserId;
+    protected int mAnotherRegularUserId;
 
     protected final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             getClass().getSimpleName());
@@ -244,9 +253,16 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         mGuestUser = expectGuestUserExists(mMockedUserHandleHelper, 111, /* isEphemeral= */ false);
         mRegularUser = expectRegularUserExists(mMockedUserHandleHelper, 222);
         mAnotherRegularUser = expectRegularUserExists(mMockedUserHandleHelper, 333);
+
         mExistingUsers = Arrays
                 .asList(mAdminUser, mAnotherAdminUser, mGuestUser, mRegularUser,
                         mAnotherRegularUser);
+
+        mAdminUserId = mAdminUser.getIdentifier();
+        mAnotherAdminUserId = mAnotherAdminUser.getIdentifier();
+        mGuestUserId = mGuestUser.getIdentifier();
+        mRegularUserId = mRegularUser.getIdentifier();
+        mAnotherRegularUserId = mAnotherRegularUser.getIdentifier();
     }
 
     protected ICarUxRestrictionsChangeListener initService() {
@@ -388,30 +404,46 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         waitForHandlerThreadToFinish();
     }
 
+    /**
+     * Gets the result of a user switch call that was made using {@link #mUserSwitchFuture}.
+     */
     @NonNull
-    protected UserSwitchResult getUserSwitchResult() throws Exception {
-        return getResult(mUserSwitchFuture);
+    protected UserSwitchResult getUserSwitchResult(int userId) throws Exception {
+        return getResult(mUserSwitchFuture, "result of switching user %d", userId);
     }
 
+    /**
+     * Gets the result of a user switch call that was made using {@link #mUserSwitchFuture2}.
+     */
     @NonNull
-    protected UserSwitchResult getUserSwitchResult2() throws Exception {
-        return getResult(mUserSwitchFuture2);
+    protected UserSwitchResult getUserSwitchResult2(int userId) throws Exception {
+        return getResult(mUserSwitchFuture2, "result of switching user %d", userId);
     }
 
+    /**
+     * Gets the result of a user creation call that was made using {@link #mUserCreationFuture}.
+     */
     @NonNull
     protected UserCreationResult getUserCreationResult() throws Exception {
-        return getResult(mUserCreationFuture);
+        return getResult(mUserCreationFuture, "result of user creation");
     }
 
+    /**
+     * Gets the result of a user removal call that was made using {@link #mUserRemovalFuture}.
+     */
     @NonNull
-    protected UserRemovalResult getUserRemovalResult() throws Exception {
-        return getResult(mUserRemovalFuture);
+    protected UserRemovalResult getUserRemovalResult(int userId) throws Exception {
+        return getResult(mUserRemovalFuture, "result of removing user %d", userId);
     }
 
+    /**
+     * Gets the result of setting a user identification association call that was made using
+     * {@link #mUserAssociationRespFuture}.
+     */
     @NonNull
     protected UserIdentificationAssociationResponse getUserAssociationRespResult()
             throws Exception {
-        return getResult(mUserAssociationRespFuture);
+        return getResult(mUserAssociationRespFuture, "result of getting user association");
     }
 
     protected CarUserService newCarUserService(boolean switchGuestUserBeforeGoingSleep) {

@@ -96,7 +96,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
                 mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
 
-        assertThat(getResult(future).getUser().getIdentifier()).isEqualTo(10);
+        assertThat(getCreateDriverResult(future).getUser().getIdentifier()).isEqualTo(10);
     }
 
     @Test
@@ -105,7 +105,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
         AndroidFuture<UserCreationResult> future =
                 mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
-        assertThat(getResult(future).getStatus())
+        assertThat(getCreateDriverResult(future).getStatus())
                 .isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
     }
 
@@ -119,7 +119,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
                 mExperimentalCarUserService.createDriver("testUser", false);
         waitForHandlerThreadToFinish();
 
-        UserHandle userHandle = getResult(future).getUser();
+        UserHandle userHandle = getCreateDriverResult(future).getUser();
         assertThat(userHandle.getIdentifier()).isEqualTo(10);
     }
 
@@ -172,8 +172,10 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
         mockAmSwitchUser(mMockedActivityManager, mRegularUser, true);
         when(mMockedUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH))
                 .thenReturn(false);
-        mExperimentalCarUserService.switchDriver(mRegularUser.getIdentifier(), mUserSwitchFuture);
-        assertThat(getUserSwitchResult().getStatus())
+
+        mExperimentalCarUserService.switchDriver(mRegularUserId, mUserSwitchFuture);
+
+        assertThat(getUserSwitchResult(mRegularUserId).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
     }
 
@@ -183,9 +185,9 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
         mockGetUxRestrictions(/* restricted= */ true);
         initService();
 
-        mExperimentalCarUserService.switchDriver(mRegularUser.getIdentifier(), mUserSwitchFuture);
+        mExperimentalCarUserService.switchDriver(mRegularUserId, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
+        assertThat(getUserSwitchResult(mRegularUserId).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
         verifyNoUserSwitch();
         assertNoHalUserSwitch();
@@ -195,8 +197,10 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
     public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws Exception {
         when(mMockedUserManager.getUserSwitchability())
                 .thenReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED);
-        mExperimentalCarUserService.switchDriver(mRegularUser.getIdentifier(), mUserSwitchFuture);
-        assertThat(getUserSwitchResult().getStatus())
+
+        mExperimentalCarUserService.switchDriver(mRegularUserId, mUserSwitchFuture);
+
+        assertThat(getUserSwitchResult(mRegularUserId).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_INVALID_REQUEST);
     }
 
@@ -205,8 +209,10 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
         mockExistingUsersAndCurrentUser(mAdminUser);
         when(mMockedUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH))
                 .thenReturn(false);
-        mExperimentalCarUserService.switchDriver(mAdminUser.getIdentifier(), mUserSwitchFuture);
-        assertThat(getUserSwitchResult().getStatus())
+
+        mExperimentalCarUserService.switchDriver(mAdminUserId, mUserSwitchFuture);
+
+        assertThat(getUserSwitchResult(mAdminUserId).getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
     }
 
@@ -301,6 +307,10 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
             }
             assertThat(expected).isEmpty();
         }
+    }
+
+    private UserCreationResult getCreateDriverResult(AndroidFuture<UserCreationResult> future) {
+        return getResult(future, "create driver");
     }
 
     private static final class FakeCarOccupantZoneService {
