@@ -17,6 +17,7 @@
 package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 
 import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
@@ -64,6 +65,7 @@ import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
 import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.Binder;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -1333,10 +1335,26 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testCreateUser_disallowAddUser() throws Exception {
+        mockUmHasUserRestrictionForUser(mMockedUserManager, Process.myUserHandle(),
+                UserManager.DISALLOW_ADD_USER, /* value= */ true);
+        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
+                /* flags= */ 0, UserHandle.of(42));
+
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, /* flags= */ 0,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+
+        UserCreationResult result = getUserCreationResult();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
+        assertNoHalUserCreation();
+        assertNoHalUserRemoval();
+    }
+
+    @Test
     public void testCreateUser_success() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         int userId = 300;
-        UserHandle user = expectEphemeralUserExists(mMockedUserHandleHelper, userId);
+        expectEphemeralUserExists(mMockedUserHandleHelper, userId);
 
         mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
                 UserManagerHelper.FLAG_EPHEMERAL, UserHandle.of(userId));
@@ -1408,7 +1426,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertInvalidArgumentsFailure();
     }
-
 
     @Test
     public void testCreateUser_success_nullName() throws Exception {

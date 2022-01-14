@@ -1140,13 +1140,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkManageOrCreateUsersPermission(flags);
         EventLogHelper.writeCarUserServiceCreateUserReq(UserHelperLite.safeName(name), userType,
                 flags, timeoutMs, hasCallerRestrictions ? 1 : 0);
+
+        UserHandle callingUser = Binder.getCallingUserHandle();
+        if (mUserManager.hasUserRestrictionForUser(UserManager.DISALLOW_ADD_USER, callingUser)) {
+            Slogf.w(TAG, "Cannot create user because calling user %s has the '%s' restriction",
+                    callingUser, UserManager.DISALLOW_ADD_USER);
+            sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
+            return;
+        }
+
         mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, receiver,
-                hasCallerRestrictions));
+                callingUser, hasCallerRestrictions));
     }
 
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
             int flags, int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
-            boolean hasCallerRestrictions) {
+            @NonNull UserHandle callingUser, boolean hasCallerRestrictions) {
         if (userType.equals(UserManager.USER_TYPE_FULL_GUEST) && flags != 0) {
             // Non-zero flags are not allowed when creating a guest user.
             Slogf.e(TAG, "Invalid flags %d specified when creating a guest user %s", flags, name);
@@ -1181,13 +1190,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
             }
 
-            int callingUserId = Binder.getCallingUserHandle().getIdentifier();
-            UserHandle callingUser = mUserHandleHelper.getExistingUserHandle(callingUserId);
             if (!mUserHandleHelper.isAdminUser(callingUser)
                     && (flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slogf.d(TAG, "Non-admin user " + callingUserId
-                            + " can only create non-admin users");
+                    Slogf.d(TAG, "Non-admin user %s can only create non-admin users", callingUser);
                 }
                 sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
                 return;

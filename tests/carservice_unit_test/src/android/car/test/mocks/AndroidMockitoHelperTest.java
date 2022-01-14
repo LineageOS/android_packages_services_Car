@@ -25,6 +25,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
@@ -61,7 +62,11 @@ public final class AndroidMockitoHelperTest {
 
     private static final int TEST_USER_ID = 100;
 
-    private UserInfo mTestUser;
+    private final UserHandle mTestUserHandle = UserHandle.of(TEST_USER_ID);
+
+    //TODO(b/196179969): remove UserInfo
+    private final UserInfo mTestUserInfo = new UserInfo(TEST_USER_ID, "testUser", "",
+            UserInfo.FLAG_ADMIN, UserManager.USER_TYPE_FULL_SYSTEM);
 
     private StaticMockitoSession mMockSession;
 
@@ -77,10 +82,6 @@ public final class AndroidMockitoHelperTest {
                 .spyStatic(ServiceManager.class)
                 .spyStatic(Binder.class)
                 .startMocking();
-
-        //TODO(b/213374587): remove UserInfo
-        mTestUser = new UserInfo(TEST_USER_ID, "testUser", "", UserInfo.FLAG_ADMIN,
-                UserManager.USER_TYPE_FULL_SYSTEM);
     }
 
     @After
@@ -111,9 +112,9 @@ public final class AndroidMockitoHelperTest {
 
     @Test
     public void testMockUmGetUserInfo() {
-        mockUmGetUserInfo(mMockedUserManager, mTestUser);
+        mockUmGetUserInfo(mMockedUserManager, mTestUserInfo);
 
-        assertThat(mMockedUserManager.getUserInfo(TEST_USER_ID)).isSameInstanceAs(mTestUser);
+        assertThat(mMockedUserManager.getUserInfo(TEST_USER_ID)).isSameInstanceAs(mTestUserInfo);
     }
 
     @Test
@@ -165,6 +166,17 @@ public final class AndroidMockitoHelperTest {
     }
 
     @Test
+    public void testMockUmHasUserRestrictionForUser() {
+        VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
+
+        mockUmHasUserRestrictionForUser(mMockedUserManager, mTestUserHandle, "no_Homers_club",
+                /* value= */ true);
+
+        assertThat(mMockedUserManager.hasUserRestrictionForUser("no_Homers_club", mTestUserHandle))
+                .isTrue();
+    }
+
+    @Test
     public void testMockBinderGetCallingUserHandle() {
         mockBinderGetCallingUserHandle(TEST_USER_ID);
 
@@ -194,13 +206,13 @@ public final class AndroidMockitoHelperTest {
     public void testMockUmRemoveUserWhenPossible() {
         VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
 
-        mockUmRemoveUserWhenPossible(mMockedUserManager, mTestUser,
+        mockUmRemoveUserWhenPossible(mMockedUserManager, mTestUserInfo,
                 /* overrideDevicePolicy= */ true, /* result= */ 1, visitor);
 
         mMockedUserManager.removeUserWhenPossible(UserHandle.of(TEST_USER_ID),
                 /* overrideDevicePolicy= */ true);
 
-        assertThat(visitor.mVisited).isEqualTo(mTestUser);
+        assertThat(visitor.mVisited).isEqualTo(mTestUserInfo);
     }
 
     private static final class VisitorImpl<T> implements Visitor<T> {
