@@ -76,8 +76,8 @@ import java.util.concurrent.TimeUnit;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
-
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
+            "android.automotive.watchdog.internal.ICarWatchdog/default";
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final int INVALID_SESSION_ID = -1;
     private static final int RECURRING_OVERUSE_TIMES = 2;

@@ -42,7 +42,6 @@ aidl_interface {
 
 aidl_interface {
     name: "android.automotive.watchdog.internal",
-    unstable: true,
     vendor_available: false,
     srcs: [
         "android/automotive/watchdog/internal/*.aidl",

@@ -23,16 +23,18 @@ import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 
 /**
- * ICarWatchdog is an interface implemented by watchdog server. This interface is used only by the
- * internal services to communicate with the watchdog server.
+ * ICarWatchdog is an interface implemented by the watchdog server. This interface is used only by
+ * the internal services to communicate with the watchdog server.
  * Watchdog service is the counter part of the watchdog server to help communicate with
  * the car service and Java side services.
  * For health check, 3 components are involved: watchdog server, watchdog service, watchdog monitor.
  *   - watchdog server:   1. Checks clients' health status by pinging and waiting for the response.
- *                        2. Monitors I/O overuse for system, OEM and third-party applications.
- *   - watchdog service: is a watchdog client by reporting its health status to the server, and
+ *                        2. Monitors disk I/O usage by system, OEM and third-party apps and
+ *                        services.
+ *   - watchdog service:  is a watchdog client by reporting its health status to the server, and
  *                        at the same time plays a role of watchdog server by checking its clients'
- *                        health status.
+ *                        health status and performs resource overuse monitoring and notifying
+ *                        the user and the apps.
  *   - watchdog monitor:  captures and reports the process state of watchdog clients.
  */
 interface ICarWatchdog {
@@ -120,11 +122,13 @@ interface ICarWatchdog {
    */
   List<ResourceOveruseConfiguration> getResourceOveruseConfigurations();
 
-   /**
-    * Enable/disable the internal client health check process.
-    * Disabling would stop the ANR killing process.
-    *
-    * @param isEnabled            New enabled state.
-    */
-    void controlProcessHealthCheck(in boolean disable);
+  /**
+   * Enable/disable the client health checking.
+   * Disabling the client health checking would stop killing clients on ANR.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
+   *
+   * @param disable            When set to true, client health checking is disabled.
+   *                           Otherwise, it is enabled.
+   */
+  void controlProcessHealthCheck(in boolean disable);
 }
