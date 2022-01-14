@@ -80,4 +80,9 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     public void sendInitialUser(UserHandle user) {
         Log.d(TAG, "sendInitialUser " + user);
     }
+
+    @Override
+    public int getServiceHelperBuiltinMinorVersion() {
+        return 0;
+    }
 }
