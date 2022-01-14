@@ -31,7 +31,6 @@ PRODUCT_PACKAGES += \
 
 
 PRODUCT_PACKAGES += \
-    clatd \
     pppd \
     screenrecord
 
