@@ -468,7 +468,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         private final Semaphore mSubscriptionWaitSemaphore = new Semaphore(0);
         private final Semaphore mSetWaitSemaphore = new Semaphore(0);
-        private LinkedList<int[]> mSetStates = new LinkedList<>();
+        private final LinkedList<int[]> mSetStates = new LinkedList<>();
 
         public Semaphore getSetWaitSemaphore() {
             return mSetWaitSemaphore;
@@ -531,19 +531,23 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 if (!mSetWaitSemaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
                     fail("waitForStateSetAndGetAll timeout");
                 }
+                LinkedList<int[]> result = new LinkedList<>();
                 synchronized (this) {
                     boolean found = false;
-                    for (int[] state : mSetStates) {
+
+                    while (!mSetStates.isEmpty()) {
+                        int[] state = mSetStates.pop();
+                        result.add(state);
                         if (state[0] == expectedState) {
                             found = true;
                             break;
                         }
                     }
                     if (found) {
-                        LinkedList<int[]> res = mSetStates;
-                        mSetStates = new LinkedList<>();
+                        // update semaphore to actual number of events in the list
                         mSetWaitSemaphore.drainPermits();
-                        return res;
+                        mSetWaitSemaphore.release(mSetStates.size());
+                        return result;
                     }
                 }
             }
