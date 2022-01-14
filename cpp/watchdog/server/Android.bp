@@ -113,6 +113,10 @@ cc_test {
         "libwatchdog_process_service_defaults",
     ],
     test_suites: ["general-tests"],
+    tidy_disabled_srcs: [
+        // b/207508335
+        "tests/PackageInfoResolverTest.cpp",
+    ],
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",
