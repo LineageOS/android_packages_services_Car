@@ -23,6 +23,7 @@ import com.android.car.internal.NotificationHelperBase;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 /**
  * Declared all dependencies into builtin package, mostly for Activity / class / method names.
@@ -51,6 +52,12 @@ public final class BuiltinPackageDependency {
     @VisibleForTesting
     public static final String NOTIFICATION_HELPER_CLASS =
             "com.android.car.admin.NotificationHelper";
+
+    /** {@code com.android.car.CarService} class. */
+    private static final String CAR_SERVICE_CLASS = "com.android.car.CarService";
+
+    /** {@code com.android.car.CarService#VERSION_MINOR_INT} */
+    private static final String CAR_SERVICE_VERSION_MINOR_INT = "VERSION_MINOR_INT";
 
     /** Returns {@code ComponentName} string for builtin package component */
     public static String getComponentName(String className) {
@@ -81,7 +88,21 @@ public final class BuiltinPackageDependency {
             Constructor constructor = helperClass.getConstructor(new Class[]{Context.class});
             return (NotificationHelperBase) constructor.newInstance(builtinContext);
         } catch (Exception e) {
-            throw new RuntimeException("Cannot load class:" + NOTIFICATION_HELPER_CLASS, e);
+            throw new IllegalStateException("Cannot load class:" + NOTIFICATION_HELPER_CLASS, e);
+        }
+    }
+
+    /**
+     * Returns the minor version of builtin car service which is defined in
+     * {@code com.android.car.CarService#VERSION_MINOR_INT}.
+     */
+    public static int getBuiltinServiceMinorVersion(Context builtinContext) {
+        try {
+            Class carServiceClass = builtinContext.getClassLoader().loadClass(CAR_SERVICE_CLASS);
+            Field field = carServiceClass.getDeclaredField(CAR_SERVICE_VERSION_MINOR_INT);
+            return field.getInt(null);
+        } catch (Exception e) {
+            throw new IllegalStateException("Cannot read minor version from builtin", e);
         }
     }
 }
