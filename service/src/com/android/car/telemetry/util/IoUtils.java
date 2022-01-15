@@ -159,7 +159,12 @@ public class IoUtils {
     public static void deleteOldFiles(long staleThresholdMillis, @NonNull File... dirs) {
         long currTimeMs = System.currentTimeMillis();
         for (File dir : dirs) {
-            for (File file : dir.listFiles()) {
+            File[] files = dir.listFiles();
+            if (files == null) {
+                Slogf.i(CarLog.TAG_TELEMETRY, "Skip deleting the empty dir %s", dir.getName());
+                continue;
+            }
+            for (File file : files) {
                 // delete stale data
                 if (file.lastModified() + staleThresholdMillis < currTimeMs) {
                     file.delete();
