@@ -112,6 +112,7 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
@@ -1589,9 +1590,18 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     UserCreationResult.statusToString(result.getStatus()),
                     user == null ? "N/A" : user.toString(),
                     user == null ? UserManagerHelper.USER_NULL : user.getIdentifier());
+            Integer androidFailureStatus = result.getAndroidFailureStatus();
+            if (androidFailureStatus != null) {
+                writer.printf(", androidStatus=%s", DebugUtils.constantToString(UserManager.class,
+                        "USER_OPERATION_", androidFailureStatus));
+            }
             String msg = result.getErrorMessage();
             if (!TextUtils.isEmpty(msg)) {
                 writer.printf(", errorMessage=%s", msg);
+            }
+            String internalMsg = result.getInternalErrorMessage();
+            if (!TextUtils.isEmpty(internalMsg)) {
+                writer.printf(", internalErrorMessage=%s", internalMsg);
             }
             writer.println();
             return;

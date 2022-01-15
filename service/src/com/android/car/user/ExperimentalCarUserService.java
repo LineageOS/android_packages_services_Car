@@ -20,7 +20,7 @@ import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGrant
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.user.CarUserService.checkManageUsersPermission;
-import static com.android.car.user.CarUserService.sendUserCreationResultFailure;
+import static com.android.car.user.CarUserService.sendUserCreationFailure;
 import static com.android.car.user.CarUserService.sendUserSwitchResult;
 
 import android.annotation.Nullable;
@@ -214,8 +214,11 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         int flags = 0;
         if (admin) {
             if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
-                Slogf.e(TAG, "Only admin users and system user can create other admins.");
-                sendUserCreationResultFailure(future, UserCreationResult.STATUS_INVALID_REQUEST);
+                String internalErrorMsg =
+                        "Only admin users and system user can create other admins.";
+                Slogf.e(TAG, internalErrorMsg);
+                sendUserCreationFailure(future, UserCreationResult.STATUS_INVALID_REQUEST,
+                        internalErrorMsg);
                 return future;
             }
             flags = UserManagerHelper.FLAG_ADMIN;

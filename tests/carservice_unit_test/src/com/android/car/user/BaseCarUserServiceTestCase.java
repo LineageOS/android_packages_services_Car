@@ -292,6 +292,15 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     }
 
     /**
+     * Mocks a call to {@code UserManager#createUser(NewUserRequest)} that returns the given
+     * response.
+     */
+    @NonNull
+    protected void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
+            @NonNull String userType, @UserInfoFlag int flags, @NonNull NewUserResponse response) {
+        when(um.createUser(isNewUserRequest(name, userType, flags))).thenReturn(response);
+    }
+    /**
      * Mocks a call to {@code UserManager#createUser(NewUserRequest)} that throws the given
      * runtime exception.
      */
@@ -330,26 +339,58 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         when(mMockedUserManager.isSameProfileGroup(child, parent)).thenReturn(true);
     }
 
-    protected void assertInvalidArgumentsFailure() throws Exception {
-        UserCreationResult result = getUserCreationResult();
+    protected void assertUserCreationInvalidArgumentsFailure(
+            AndroidFuture<UserCreationResult> future) throws Exception {
+        UserCreationResult result = assertBasicFieldsOnUserCreationFailure(future,
+                UserCreationResult.STATUS_INVALID_REQUEST);
+        assertThat(result.getInternalErrorMessage()).isNull();
+    }
+
+    protected void assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(
+            AndroidFuture<UserCreationResult> future, String format, @Nullable Object... args)
+                    throws Exception {
+        assertUserCreationWithInternalErrorMessage(future,
+                UserCreationResult.STATUS_INVALID_REQUEST, format, args);
+    }
+
+    protected void assertUserCreationWithInternalErrorMessage(
+            AndroidFuture<UserCreationResult> future, int status, String format,
+            @Nullable Object... args) throws Exception {
+        UserCreationResult result = assertBasicFieldsOnUserCreationFailure(future, status);
+        assertThat(result.getInternalErrorMessage()).isEqualTo(String.format(format, args));
+    }
+
+    private UserCreationResult assertBasicFieldsOnUserCreationFailure(
+            AndroidFuture<UserCreationResult> future, int status) throws Exception {
+        UserCreationResult result = getResult(future, "user creation");
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
+        assertThat(result.getStatus()).isEqualTo(status);
+        assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getUser()).isNull();
+        assertThat(result.getErrorMessage()).isNull();
+        return result;
     }
 
     protected void createUserWithRestrictionsInvalidTypes(@NonNull String type) throws Exception {
-        mCarUserService.createUser("name", type, /* flags= */ 0, mAsyncCallTimeoutMs,
-                mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
+        int flags = 0;
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
+        mCarUserService.createUser("name", type, flags, mAsyncCallTimeoutMs, future,
+                HAS_CALLER_RESTRICTIONS);
         waitForHandlerThreadToFinish();
-        assertInvalidArgumentsFailure();
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(future,
+                CarUserService.ERROR_TEMPLATE_INVALID_USER_TYPE_AND_FLAGS_COMBINATION, type, flags);
     }
 
     protected void createUserWithRestrictionsInvalidTypes(int flags) throws Exception {
-        mCarUserService.createUser("name", UserManager.USER_TYPE_FULL_SECONDARY, flags,
-                mAsyncCallTimeoutMs, mUserCreationFuture, HAS_CALLER_RESTRICTIONS);
+        String userType = UserManager.USER_TYPE_FULL_SECONDARY;
+        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>();
+        mCarUserService.createUser("name", userType, flags, mAsyncCallTimeoutMs, future,
+                HAS_CALLER_RESTRICTIONS);
         waitForHandlerThreadToFinish();
-        assertInvalidArgumentsFailure();
+        assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(future,
+                CarUserService.ERROR_TEMPLATE_INVALID_USER_TYPE_AND_FLAGS_COMBINATION,
+                userType, flags);
     }
 
     protected void mockCreateProfile(int profileOwner, String profileName, UserHandle profile) {
@@ -587,9 +628,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         return captor;
     }
 
-    protected void mockHalCreateUserThrowsRuntimeException() {
-        doThrow(new RuntimeException("D'OH!"))
-                .when(mUserHal).createUser(any(), eq(mAsyncCallTimeoutMs), notNull());
+    protected void mockHalCreateUserThrowsRuntimeException(Exception exception) {
+        doThrow(exception).when(mUserHal).createUser(any(), eq(mAsyncCallTimeoutMs), notNull());
     }
 
     protected void mockCallerUid(int uid, boolean returnCorrectUid) throws Exception {
