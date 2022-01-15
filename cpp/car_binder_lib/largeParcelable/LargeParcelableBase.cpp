@@ -101,7 +101,7 @@ binder_status_t LargeParcelableBase::readFromParcel(const AParcel* in) {
 
 binder_status_t LargeParcelableBase::prepareSharedMemory(AParcel* parcel) const {
     int32_t startPosition = AParcel_getDataPosition(parcel);
-    if (binder_status_t status = serialize(parcel); status != STATUS_OK) {
+    if (binder_status_t status = serializeMemoryFdOrPayload(parcel, nullptr); status != STATUS_OK) {
         ALOGE("failed to serialize: %d", status);
         return status;
     }
@@ -128,45 +128,27 @@ binder_status_t LargeParcelableBase::writeToParcel(AParcel* dest) const {
     // Make this compatible with stable AIDL
     // payloadSize + Nullable Parcelable + Nullable ParcelFileDescriptor
     int startPosition = AParcel_getDataPosition(dest);
-    // payload size
-    AParcel_writeInt32(dest, 0);
-    int32_t payloadStartPosition = AParcel_getDataPosition(dest);
     if (!mNeedSharedMemory.has_value()) {
         if (binder_status_t status = prepareSharedMemory(dest); status != STATUS_OK) {
-            ALOGE("failed to serialize to parcel: %d", status);
+            ALOGE("failed to serialize payload to parcel: %d", status);
             return status;
         }
     }
     bool needSharedMemory = mNeedSharedMemory.value();
-    int32_t sharedMemoryPosition;
-    bool hasNonNullPayload = true;
-    if (!needSharedMemory) {
-        // direct payload, no shared memory
-        sharedMemoryPosition = AParcel_getDataPosition(dest);
-        if (binder_status_t status = writeSharedMemoryCompatibleToParcel(nullptr, dest);
-            status != STATUS_OK) {
-            ALOGE("failed to write null file descriptor to parcel: %d", status);
-            return status;
-        }
-    } else {
+    if (needSharedMemory) {
         const SharedMemory* sharedMemory = mSharedMemory.get();
-        AParcel_setDataPosition(dest, payloadStartPosition);
-        serializeNullPayload(dest);
-        sharedMemoryPosition = AParcel_getDataPosition(dest);
-        hasNonNullPayload = false;
-        if (binder_status_t status = writeSharedMemoryCompatibleToParcel(sharedMemory, dest);
+        AParcel_setDataPosition(dest, startPosition);
+        if (binder_status_t status = serializeMemoryFdOrPayload(dest, sharedMemory);
             status != STATUS_OK) {
-            ALOGE("failed to write file descriptor to parcel: %d", status);
+            ALOGE("failed to serialize shared memory fd to parcel: %d", status);
             return status;
         }
     }
 
-    int32_t totalPayloadSize = updatePayloadSize(dest, startPosition);
+    int32_t totalPayloadSize = AParcel_getDataPosition(dest) - startPosition;
     if (DBG_PAYLOAD) {
-        ALOGD("Write, start:%d totalPayloadSize:%d sharedMemoryPosition:%d "
-              "hasNonNullPayload:%d hasSharedMemory:%d",
-              payloadStartPosition, totalPayloadSize, sharedMemoryPosition, hasNonNullPayload,
-              needSharedMemory);
+        ALOGD("Write, start:%d totalPayloadSize:%d hasSharedMemory:%d", startPosition,
+              totalPayloadSize, needSharedMemory);
     }
     return OK;
 }
@@ -183,9 +165,19 @@ binder_status_t LargeParcelableBase::deserializeSharedMemoryAndClose(unique_fd m
         status != STATUS_OK) {
         return status;
     }
+    int32_t payloadSize;
+    if (binder_status_t status = AParcel_readInt32(parcel.get(), &payloadSize);
+        status != STATUS_OK) {
+        ALOGE("failed to read Int32: %d", status);
+        if (DBG_PAYLOAD) {
+            ALOGD("parse shared memory file, payload size: %d", payloadSize);
+        }
+        return status;
+    }
     if (binder_status_t status = deserialize(*(parcel.get())); status != STATUS_OK) {
         return status;
     }
+    // There is an additional 0 for null file descriptor in the parcel we would ignore.
     return STATUS_OK;
 }
 
@@ -340,6 +332,36 @@ binder_status_t LargeParcelableBase::parcelToMemoryFile(const AParcel& parcel,
 
     unique_fd fd(sharedMemory->getDupFd());
     sharedMemoryFd->set(fd.release());
+    return STATUS_OK;
+}
+
+binder_status_t LargeParcelableBase::serializeMemoryFdOrPayload(
+        AParcel* dest, const SharedMemory* sharedMemory) const {
+    // This is compatible with stable AIDL serialization:
+    // payload size + payload + nullable fd
+    // The shared Memory file might contain a serialized parcel created from this function.
+    int32_t startPosition = AParcel_getDataPosition(dest);
+    AParcel_writeInt32(dest, 0);
+    if (sharedMemory == nullptr) {
+        if (binder_status_t status = serialize(dest); status != STATUS_OK) {
+            ALOGE("failed to serialize: %d", status);
+            return status;
+        }
+    } else {
+        serializeNullPayload(dest);
+    }
+
+    if (DBG_PAYLOAD) {
+        int sharedMemoryPosition = AParcel_getDataPosition(dest) - startPosition;
+        ALOGD("Serialize shared memory fd: sharedMemoryPosition:%d hasSharedMemory:%d",
+              sharedMemoryPosition, sharedMemory != nullptr);
+    }
+    if (binder_status_t status = writeSharedMemoryCompatibleToParcel(sharedMemory, dest);
+        status != STATUS_OK) {
+        ALOGE("failed to write file descriptor to parcel: %d", status);
+        return status;
+    }
+    updatePayloadSize(dest, startPosition);
     return STATUS_OK;
 }
 

@@ -21,7 +21,7 @@ import aidl.TestStableParcelable;
 // This is compatible with 'LargeParcelableVector' library in the sense that the Parcel created from
 // 'LargeParcelableVector' library could be parsed using this parcelable, vice versa.
 //
-// This could be used as 'T2' in 'parcelableVectorToStableLargeParcelable'.
+// This could be used as 'T' in 'parcelableVectorToStableLargeParcelable'.
 parcelable TestStableLargeParcelableVector {
     TestStableParcelable[] payload;
     @nullable ParcelFileDescriptor sharedMemoryFd;
