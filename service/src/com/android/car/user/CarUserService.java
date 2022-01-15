@@ -342,6 +342,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.printf("Is UX restricted: %b\n", mUxRestricted);
             writer.printf("Start Background Users On Garage Mode=%s\n",
                     mStartBackgroundUsersOnGarageMode);
+            writer.printf("Initial user: %s\n", mInitialUser);
         }
 
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
@@ -349,7 +350,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
         writer.printf("User HAL: supported=%b, timeout=%dms\n", isUserHalSupported(),
                 mHalTimeoutMs);
-        writer.printf("Initial user: %s\n", mInitialUser);
 
         writer.println("Relevant overlayable properties");
         Resources res = mContext.getResources();
