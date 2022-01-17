@@ -145,16 +145,19 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                             accumulatedPolicy.isComponentEnabled(PowerComponent.LOCATION);
                     if (isOn) {
                         logd("Resume GNSS requests.");
-                        locationManager.setAutoGnssSuspended(false);
-                        if (locationManager.isAutoGnssSuspended()) {
+                        locationManager.setAutomotiveGnssSuspended(false);
+                        if (locationManager.isAutomotiveGnssSuspended()) {
                             Slogf.w(TAG,
-                                    "isAutoGnssSuspended is true. GNSS should NOT be suspended.");
+                                    "Failed - isAutomotiveGnssSuspended is true. "
+                                    + "GNSS should NOT be suspended.");
                         }
                     } else {
                         logd("Suspend GNSS requests.");
-                        locationManager.setAutoGnssSuspended(true);
-                        if (!locationManager.isAutoGnssSuspended()) {
-                            Slogf.w(TAG, "isAutoGnssSuspended is false. GNSS should be suspended.");
+                        locationManager.setAutomotiveGnssSuspended(true);
+                        if (!locationManager.isAutomotiveGnssSuspended()) {
+                            Slogf.w(TAG,
+                                    "Failed - isAutomotiveGnssSuspended is false. "
+                                    + "GNSS should be suspended.");
                         }
                     }
                 }
