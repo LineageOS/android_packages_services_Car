@@ -25,6 +25,7 @@ import android.car.Car;
 import android.car.ICarResultReceiver;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
@@ -407,6 +408,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void onApPowerStateChange(PowerState state) {
+        EventLogHelper.writeCarPowerManagerStateRequest(state.mState, state.mParam);
         synchronized (mLock) {
             mPendingPowerStates.addFirst(new CpmsState(state));
             mLock.notify();
@@ -470,6 +472,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
         Slogf.i(TAG, "setCurrentState %s", state);
         CarStatsLogHelper.logPowerState(state.mState);
+        EventLogHelper.writeCarPowerManagerStateChange(state.mState);
         switch (state.mState) {
             case CpmsState.WAIT_FOR_VHAL:
                 handleWaitForVhal(state);
@@ -1538,6 +1541,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void notifyPowerPolicyChange(String policyId, boolean upToDaemon, boolean force) {
+        EventLogHelper.writePowerPolicyChange(policyId);
         // Notify system clients
         if (upToDaemon) {
             notifyPowerPolicyChangeToDaemon(policyId, force);

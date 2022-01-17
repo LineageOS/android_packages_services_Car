@@ -322,6 +322,8 @@ package android.car.builtin.util {
     method public static void writeCarHelperUserSwitching(int, int);
     method public static void writeCarHelperUserUnlocked(int);
     method public static void writeCarHelperUserUnlocking(int);
+    method public static void writeCarPowerManagerStateChange(int);
+    method public static void writeCarPowerManagerStateRequest(int, int);
     method public static void writeCarServiceConnected(@Nullable String);
     method public static void writeCarServiceCreate(boolean);
     method public static void writeCarServiceDestroy(boolean);
@@ -390,6 +392,8 @@ package android.car.builtin.util {
     method public static void writeCarUserServiceSwitchUserReq(int, int);
     method public static void writeCarUserServiceSwitchUserResp(int, int, @Nullable String);
     method public static void writeCarUserServiceSwitchUserUiReq(int);
+    method public static void writeGarageModeEvent(int);
+    method public static void writePowerPolicyChange(String);
   }
 
   public final class Slogf {

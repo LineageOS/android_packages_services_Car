@@ -136,3 +136,18 @@ option java_package android.car.builtin.util
 150205 car_dp_mgr_start_user_in_background_resp (uid|1),(status|1)
 150206 car_dp_mgr_stop_user_req (uid|1),(user_id|1)
 150207 car_dp_mgr_stop_user_resp (uid|1),(status|1)
+
+#### Power manager related tags (range 150300 - 150399)
+## CarPowerManagementService power state change
+### state: CarPowerManagementService.CpmsState
+150300 car_pwr_mgr_state_change (state|1)
+## status: Garage mode start/finish events
+### 0: GarageMode.GARAGE_MODE_EVENT_LOG_START
+### 1: GarageMode.GARAGE_MODE_EVENT_LOG_FINISH
+### 2: GarageMode.GARAGE_MODE_EVENT_LOG_CANCELLED
+150301 car_pwr_mgr_garage_mode (status|1)
+150302 car_pwr_mgr_pwr_policy_change (policy|3)
+## CarPowerManagementService power state change request (AP_POWER_STATE_REQ)
+### state: state from VehicleApPowerStateReq
+### param: additional parameter from VehicleApPowerStateReq
+150303 car_pwr_mgr_state_req (state|1),(param|1)

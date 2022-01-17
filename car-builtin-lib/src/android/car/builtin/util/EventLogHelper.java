@@ -422,6 +422,22 @@ public final class EventLogHelper {
         EventLog.writeEvent(EventLogTags.CAR_DP_MGR_STOP_USER_RESP, uid, status);
     }
 
+    public static void writePowerPolicyChange(String policy) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_PWR_POLICY_CHANGE, policy);
+    }
+
+    public static void writeCarPowerManagerStateChange(int state) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_STATE_CHANGE, state);
+    }
+
+    public static void writeCarPowerManagerStateRequest(int state, int param) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_STATE_REQ, state, param);
+    }
+
+    public static void writeGarageModeEvent(int status) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_GARAGE_MODE, status);
+    }
+
     private EventLogHelper() {
         throw new UnsupportedOperationException();
     }

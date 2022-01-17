@@ -19,6 +19,7 @@ package com.android.car.garagemode;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.job.JobSchedulerHelper;
+import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture;
 import android.car.user.CarUserManager;
@@ -72,6 +73,10 @@ class GarageMode {
     private static final long JOB_SNAPSHOT_UPDATE_FREQUENCY_MS = 1_000; // 1 second
     private static final long USER_STOP_CHECK_INTERVAL_MS = 100; // 100 milliseconds
     private static final int ADDITIONAL_CHECKS_TO_DO = 1;
+    // Values for eventlog (car_pwr_mgr_garage_mode)
+    private static final int GARAGE_MODE_EVENT_LOG_START = 0;
+    private static final int GARAGE_MODE_EVENT_LOG_FINISH = 1;
+    private static final int GARAGE_MODE_EVENT_LOG_CANCELLED = 2;
 
     private final Controller mController;
     private final Object mLock = new Object();
@@ -290,6 +295,7 @@ class GarageMode {
         }
         broadcastSignalToJobScheduler(true);
         CarStatsLogHelper.logGarageModeStart();
+        EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_START);
         startMonitoringThread();
         mHandler.post(mStartBackgroundUsers);
     }
@@ -303,6 +309,7 @@ class GarageMode {
             }
             cleanupGarageModeLocked();
             Slogf.i(TAG, "GarageMode is cancelled");
+            EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_CANCELLED);
         }
     }
 
@@ -315,6 +322,7 @@ class GarageMode {
             mIdleCheckerIsRunning = false;
         }
         broadcastSignalToJobScheduler(false);
+        EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_FINISH);
         CarStatsLogHelper.logGarageModeStop();
         synchronized (mLock) {
             if (mFuture != null) {
