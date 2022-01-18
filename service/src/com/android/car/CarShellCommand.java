@@ -182,6 +182,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_CHECK_LOCK_IS_SECURE = "check-lock-is-secure";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
+    private static final String COMMAND_LOGOUT_USER = "logout-user";
     private static final String COMMAND_REMOVE_USER = "remove-user";
     private static final String COMMAND_CREATE_USER = "create-user";
     private static final String COMMAND_GET_INITIAL_USER = "get-initial-user";
@@ -258,6 +259,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SWITCH_USER,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_LOGOUT_USER,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_REMOVE_USER,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
@@ -590,6 +593,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without switching the user,");
         pw.println("\t  while the --timeout defines how long to wait for the response.");
+
+        pw.printf("\t%s [--timeout TIMEOUT_MS]\n", COMMAND_LOGOUT_USER);
+        pw.println("\t  Logout the current user (if the user was switched toby a device admin).");
+        pw.println("\t  The --timeout option defines how long to wait for the UserHal response.");
 
         pw.printf("\t%s <USER_ID> [--hal-only]\n", COMMAND_REMOVE_USER);
         pw.println("\t  Removes user with USER_ID using the HAL integration.");
@@ -1003,6 +1010,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_SWITCH_USER:
                 switchUser(args, writer);
+                break;
+            case COMMAND_LOGOUT_USER:
+                logoutUser(args, writer);
                 break;
             case COMMAND_REMOVE_USER:
                 removeUser(args, writer);
@@ -1535,6 +1545,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         CarUserManager carUserManager = getCarUserManager(mContext);
         AsyncFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
+
+        showUserSwitchResult(writer, future, timeout);
+    }
+
+    private void showUserSwitchResult(IndentingPrintWriter writer,
+            AsyncFuture<UserSwitchResult> future, int timeout) {
         UserSwitchResult result = waitForFuture(writer, future, timeout);
         if (result == null) return;
         writer.printf("UserSwitchResult: status=%s",
@@ -1544,6 +1560,30 @@ final class CarShellCommand extends BasicShellCommandHandler {
             writer.printf(", errorMessage=%s", msg);
         }
         writer.println();
+    }
+
+    private void logoutUser(String[] args, IndentingPrintWriter writer) {
+        int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
+
+        if (args.length > 1) {
+            for (int i = 1; i < args.length; i++) {
+                String arg = args[i];
+                switch (arg) {
+                    case "--timeout":
+                        timeout = Integer.parseInt(args[++i]);
+                        break;
+                    default:
+                        writer.println("Invalid option at index " + i + ": " + arg);
+                        return;
+                }
+            }
+        }
+
+        Slogf.d(TAG, "logoutUser(): timeout=%d", timeout);
+
+        CarUserManager carUserManager = getCarUserManager(mContext);
+        AsyncFuture<UserSwitchResult> future = carUserManager.logoutUser();
+        showUserSwitchResult(writer, future, timeout);
     }
 
     private void createUser(String[] args, IndentingPrintWriter writer) {
