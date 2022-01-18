@@ -330,7 +330,13 @@ import java.util.List;
         }
     }
 
-    private static Class<?> getJavaClass(int halType) {
+    /**
+     * Gets the Java Class for the given property type.
+     *
+     * @param halType One of the {@link VehiclePropertyType}.
+     * @return The java class for the type.
+     */
+    public static Class<?> getJavaClass(int halType) {
         switch (halType) {
             case VehiclePropertyType.BOOLEAN:
                 return Boolean.class;
