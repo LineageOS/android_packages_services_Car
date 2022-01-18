@@ -1262,8 +1262,9 @@ public final class Car {
      * <p>Instance created with this should be disconnected from car service by calling
      * {@link #disconnect()} before the passed {code Context} is released.
      *
-     * @param context App's Context. This should not be null. If you are passing
-     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
+     *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
+     *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param serviceConnectionListener listener for monitoring service connection.
      * @param handler the handler on which the callback should execute, or null to execute on the
@@ -1327,8 +1328,9 @@ public final class Car {
      * <p>Instance created with this should be disconnected from car service by calling
      * {@link #disconnect()} before the passed {code Context} is released.
      *
-     * @param context App's Context. This should not be null. If you are passing
-     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
+     *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
+     *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param handler the handler on which the manager's callbacks will be executed, or null to
      * execute on the application's main thread.
@@ -1418,8 +1420,9 @@ public final class Car {
      * {@link CarServiceLifecycleListener#onLifecycleChanged(Car, boolean)} and avoid the
      * needs to check if returned {@link Car} is connected or not from returned {@link Car}.</p>
      *
-     * @param context App's Context. This should not be null. If you are passing
-     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
+     *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
+     *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param handler dispatches all Car*Manager events to this Handler. Exception is
      *                {@link CarServiceLifecycleListener} which will be always dispatched to main
