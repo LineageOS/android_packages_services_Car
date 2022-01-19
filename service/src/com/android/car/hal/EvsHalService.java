@@ -68,6 +68,7 @@ public class EvsHalService extends HalServiceBase {
 
     public EvsHalService(VehicleHal hal) {
         mHal = hal;
+        mAidlSupported = false;
     }
 
     /**
@@ -109,7 +110,7 @@ public class EvsHalService extends HalServiceBase {
         synchronized (mLock) {
             for (int i = 0; i < mProperties.size(); i++) {
                 VehiclePropConfig config = mProperties.valueAt(i);
-                if (VehicleHal.isPropertySubscribable(config)) {
+                if (VehicleHal.isPropertySubscribableDeprecated(config)) {
                     mHal.subscribeProperty(this, config.prop);
                 }
             }
@@ -130,7 +131,7 @@ public class EvsHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> configs) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> configs) {
         if (configs.isEmpty()) {
             return;
         }
@@ -145,7 +146,7 @@ public class EvsHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         EvsHalEventListener listener;
         synchronized (mLock) {
             listener = mListener;

@@ -100,7 +100,7 @@ public class InputHalServiceTest {
         mInputHalService.setInputListener(mInputListener);
 
         int anyDisplay = VehicleDisplay.MAIN;
-        mInputHalService.onHalEvents(
+        mInputHalService.onHalEventsDeprecated(
                 ImmutableList.of(makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_ENTER, anyDisplay)));
         verify(mInputListener, never()).onKeyEvent(any(), anyInt());
     }
@@ -112,7 +112,7 @@ public class InputHalServiceTest {
                 HW_KEY_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        mInputHalService.takeProperties(offeredProps);
+        mInputHalService.takePropertiesDeprecated(offeredProps);
 
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
         assertThat(mInputHalService.isRotaryInputSupported()).isFalse();
@@ -126,7 +126,7 @@ public class InputHalServiceTest {
                 HW_ROTARY_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        mInputHalService.takeProperties(offeredProps);
+        mInputHalService.takePropertiesDeprecated(offeredProps);
 
         assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
         assertThat(mInputHalService.isKeyInputSupported()).isFalse();
@@ -140,7 +140,7 @@ public class InputHalServiceTest {
                 HW_CUSTOM_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        mInputHalService.takeProperties(offeredProps);
+        mInputHalService.takePropertiesDeprecated(offeredProps);
 
         assertThat(mInputHalService.isRotaryInputSupported()).isFalse();
         assertThat(mInputHalService.isKeyInputSupported()).isFalse();
@@ -156,7 +156,7 @@ public class InputHalServiceTest {
                 HW_CUSTOM_INPUT_CONFIG,
                 VehiclePropConfigBuilder.newBuilder(VehicleProperty.CURRENT_GEAR).build());
 
-        mInputHalService.takeProperties(offeredProps);
+        mInputHalService.takePropertiesDeprecated(offeredProps);
 
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
         assertThat(mInputHalService.isRotaryInputSupported()).isTrue();
@@ -197,7 +197,7 @@ public class InputHalServiceTest {
             return null;
         }).when(mInputListener).onKeyEvent(any(), eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
 
-        mInputHalService.onHalEvents(
+        mInputHalService.onHalEventsDeprecated(
                 ImmutableList.of(
                         makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_ENTER, VehicleDisplay.MAIN),
                         makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_MENU, VehicleDisplay.MAIN)));
@@ -222,7 +222,7 @@ public class InputHalServiceTest {
         }).when(mInputListener).onKeyEvent(any(),
                 eq(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER));
 
-        mInputHalService.onHalEvents(
+        mInputHalService.onHalEventsDeprecated(
                 ImmutableList.of(
                         makeKeyPropValue(Key.DOWN, KeyEvent.KEYCODE_ENTER,
                                 VehicleDisplay.INSTRUMENT_CLUSTER),
@@ -241,17 +241,17 @@ public class InputHalServiceTest {
         VehiclePropValue v = new VehiclePropValue();
         v.prop = VehicleProperty.HW_KEY_INPUT;
         // Missing action, code, display_type.
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onKeyEvent(any(),  anyInt());
 
         // Missing code, display_type.
         v.value.int32Values.add(VehicleHwKeyInputAction.ACTION_DOWN);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onKeyEvent(any(),  anyInt());
 
         // Missing display_type.
         v.value.int32Values.add(KeyEvent.KEYCODE_ENTER);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onKeyEvent(any(),  anyInt());
     }
 
@@ -403,7 +403,7 @@ public class InputHalServiceTest {
         long timestampNanos = 12_345_678_901L;
 
         // Act
-        mInputHalService.onHalEvents(ImmutableList.of(
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(
                 makeRotaryPropValue(RotaryInputType.ROTARY_INPUT_TYPE_AUDIO_VOLUME, 1,
                         timestampNanos, 0, VehicleDisplay.MAIN)));
 
@@ -437,7 +437,7 @@ public class InputHalServiceTest {
         int numberOfDetents = 3;
 
         // Act
-        mInputHalService.onHalEvents(ImmutableList.of(
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(
                 makeRotaryPropValue(RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION,
                         -numberOfDetents, timestampNanos, deltaNanos, VehicleDisplay.MAIN)));
 
@@ -461,41 +461,41 @@ public class InputHalServiceTest {
         v.prop = VehicleProperty.HW_ROTARY_INPUT;
 
         // Missing rotaryInputType, detentCount, targetDisplayType.
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
 
         // Missing detentCount, targetDisplayType.
         v.value.int32Values.add(RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
 
         // Missing targetDisplayType.
         v.value.int32Values.add(1);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
 
         // Add targetDisplayType.
         v.value.int32Values.add(VehicleDisplay.MAIN);
         // Set detentCount to 0.
         v.value.int32Values.set(1, 0);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
 
         // Set detentCount to 1.
         v.value.int32Values.set(1, 1);
         // Add additional unnecessary arguments so that the array size does not match detentCount.
         v.value.int32Values.add(0);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
 
         // Set invalid detentCount.
         v.value.int32Values.set(1, Integer.MAX_VALUE);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
 
         // Set invalid detentCount.
         v.value.int32Values.set(1, Integer.MIN_VALUE);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onRotaryEvent(any(),  anyInt());
     }
 
@@ -517,7 +517,7 @@ public class InputHalServiceTest {
                 CUSTOM_EVENT_F1, VehicleDisplay.MAIN, repeatCounter);
 
         // Act
-        mInputHalService.onHalEvents(ImmutableList.of(customInputPropValue));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(customInputPropValue));
 
         // Assert
         assertThat(events).containsExactly(new CustomInputEvent(
@@ -543,7 +543,7 @@ public class InputHalServiceTest {
                 CUSTOM_EVENT_F1, VehicleDisplay.INSTRUMENT_CLUSTER, repeatCounter);
 
         // Act
-        mInputHalService.onHalEvents(ImmutableList.of(customInputPropValue));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(customInputPropValue));
 
         // Assert
         assertThat(events).containsExactly(new CustomInputEvent(
@@ -561,17 +561,17 @@ public class InputHalServiceTest {
 
         // Missing inputCode, targetDisplayType, repeatCounter.
         v.prop = VehicleProperty.HW_CUSTOM_INPUT;
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onCustomInputEvent(any());
 
         // Missing targetDisplayType, repeatCounter.
         v.value.int32Values.add(CustomInputEvent.INPUT_CODE_F1);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onCustomInputEvent(any());
 
         // Missing repeatCounter.
         v.value.int32Values.add(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onCustomInputEvent(any());
 
         // Add repeatCounter.
@@ -579,17 +579,17 @@ public class InputHalServiceTest {
 
         // Set invalid input code.
         v.value.int32Values.set(0, CustomInputEvent.INPUT_CODE_F1 - 1);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onCustomInputEvent(any());
 
         // Set invalid input code.
         v.value.int32Values.set(0, CustomInputEvent.INPUT_CODE_F10 + 1);
-        mInputHalService.onHalEvents(ImmutableList.of(v));
+        mInputHalService.onHalEventsDeprecated(ImmutableList.of(v));
         verify(mInputListener, never()).onCustomInputEvent(any());
     }
 
     private void subscribeListener() {
-        mInputHalService.takeProperties(ImmutableSet.of(HW_KEY_INPUT_CONFIG));
+        mInputHalService.takePropertiesDeprecated(ImmutableSet.of(HW_KEY_INPUT_CONFIG));
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
 
         mInputHalService.setInputListener(mInputListener);
@@ -600,7 +600,7 @@ public class InputHalServiceTest {
             @DisplayTypeEnum int expectedDisplay) {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
-        mInputHalService.onHalEvents(
+        mInputHalService.onHalEventsDeprecated(
                 ImmutableList.of(makeKeyPropValue(action, code, actualDisplay)));
         verify(mInputListener).onKeyEvent(captor.capture(), eq(expectedDisplay));
         reset(mInputListener);
@@ -611,7 +611,7 @@ public class InputHalServiceTest {
             @DisplayTypeEnum int expectedDisplay) {
         ArgumentCaptor<KeyEvent> captor = ArgumentCaptor.forClass(KeyEvent.class);
         reset(mInputListener);
-        mInputHalService.onHalEvents(
+        mInputHalService.onHalEventsDeprecated(
                 ImmutableList.of(makeKeyPropValueWithIndents(code, indents, actualDisplay)));
         verify(mInputListener, times(indents)).onKeyEvent(captor.capture(),
                 eq(expectedDisplay));

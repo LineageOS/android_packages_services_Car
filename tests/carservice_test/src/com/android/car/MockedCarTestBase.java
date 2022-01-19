@@ -234,7 +234,7 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
 
-        mMockedVehicleStub = new VehicleStub(mMockedVehicleHal);
+        mMockedVehicleStub = new HidlVehicleStub(mMockedVehicleHal);
 
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
                 mMockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",

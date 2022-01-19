@@ -111,6 +111,7 @@ public class InputHalService extends HalServiceBase {
 
     public InputHalService(VehicleHal hal) {
         this(hal, SystemClock::uptimeMillis);
+        mAidlSupported = false;
     }
 
     @VisibleForTesting
@@ -188,7 +189,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
         for (VehiclePropConfig property : properties) {
             switch (property.prop) {
                 case HW_KEY_INPUT:
@@ -211,7 +212,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         InputListener listener;
         synchronized (mLock) {
             listener = mListener;

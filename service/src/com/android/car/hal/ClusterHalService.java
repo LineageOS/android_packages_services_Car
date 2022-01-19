@@ -108,6 +108,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     public ClusterHalService(VehicleHal hal) {
         mHal = hal;
+        mAidlSupported = false;
     }
 
     @Override
@@ -145,7 +146,7 @@ public final class ClusterHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(@NonNull Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(@NonNull Collection<VehiclePropConfig> properties) {
         IntArray supportedProperties = new IntArray(properties.size());
         for (VehiclePropConfig property : properties) {
             supportedProperties.add(property.prop);
@@ -171,7 +172,7 @@ public final class ClusterHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         Slogf.d(TAG, "handleHalEvents(): %s", values);
         ClusterHalEventCallback callback;
         synchronized (mLock) {
@@ -286,7 +287,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     private void send(VehiclePropValue request) {
         try {
-            mHal.set(request);
+            mHal.setDeprecated(request);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
             Slogf.e(TAG, "Failed to send request: " + request, e);
         }

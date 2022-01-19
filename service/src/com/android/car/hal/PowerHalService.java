@@ -281,6 +281,7 @@ public class PowerHalService extends HalServiceBase {
 
     public PowerHalService(VehicleHal hal) {
         mHal = hal;
+        mAidlSupported = false;
     }
 
     /**
@@ -478,7 +479,7 @@ public class PowerHalService extends HalServiceBase {
     public void init() {
         synchronized (mLock) {
             for (VehiclePropConfig config : mProperties.values()) {
-                if (VehicleHal.isPropertySubscribable(config)) {
+                if (VehicleHal.isPropertySubscribableDeprecated(config)) {
                     mHal.subscribeProperty(this, config.prop);
                 }
             }
@@ -508,7 +509,7 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
         if (properties.isEmpty()) {
             return;
         }
@@ -520,7 +521,7 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         PowerEventListener listener;
         synchronized (mLock) {
             if (mListener == null) {

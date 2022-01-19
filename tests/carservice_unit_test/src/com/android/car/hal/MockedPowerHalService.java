@@ -16,11 +16,13 @@
 package com.android.car.hal;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.util.Log;
 
 import com.android.car.CarServiceUtils;
+import com.android.car.VehicleStub;
 
 import java.util.LinkedList;
 
@@ -42,6 +44,9 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     private static VehicleHal createVehicleHalWithMockedServices() {
+        HalPropValueBuilder propValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+        VehicleStub vehicleStub = mock(VehicleStub.class);
+        when(vehicleStub.getHalPropValueBuilder()).thenReturn(propValueBuilder);
         VehicleHal mockedVehicleHal = new VehicleHal(
                 mock(PowerHalService.class),
                 mock(PropertyHalService.class),
@@ -52,7 +57,9 @@ public class MockedPowerHalService extends PowerHalService {
                 mock(ClusterHalService.class),
                 mock(TimeHalService.class),
                 mock(HalClient.class),
-                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()));
+                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()),
+                vehicleStub);
+
         return mockedVehicleHal;
     }
 

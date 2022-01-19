@@ -96,6 +96,7 @@ public final class TimeHalService extends HalServiceBase {
     TimeHalService(Context context, VehicleHal hal) {
         mContext = requireNonNull(context);
         mHal = requireNonNull(hal);
+        mAidlSupported = false;
         mTimeManager = requireNonNull(context.getSystemService(TimeManager.class));
         mEnableExternalCarTimeSuggestions = mContext.getResources().getBoolean(
                 R.bool.config_enableExternalCarTimeToExternalTimeSuggestion);
@@ -115,7 +116,7 @@ public final class TimeHalService extends HalServiceBase {
             }
 
             if (mExternalCarTimeSupported) {
-                VehiclePropValue propValue = mHal.get(EXTERNAL_CAR_TIME);
+                VehiclePropValue propValue = mHal.getDeprecated(EXTERNAL_CAR_TIME);
                 suggestExternalTimeLocked(propValue);
             }
         }
@@ -143,7 +144,7 @@ public final class TimeHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
         for (VehiclePropConfig property : properties) {
             switch (property.prop) {
                 case ANDROID_EPOCH_TIME:
@@ -163,7 +164,7 @@ public final class TimeHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         synchronized (mLock) {
             if (!mExternalCarTimeSupported) {
                 return;
@@ -202,7 +203,7 @@ public final class TimeHalService extends HalServiceBase {
         propValue.value.int64Values.add(timeMillis);
 
         Slogf.d(CarLog.TAG_TIME, "Writing value %d to property ANDROID_EPOCH_TIME", timeMillis);
-        mHal.set(propValue);
+        mHal.setDeprecated(propValue);
         mLastAndroidTimeReported = Instant.ofEpochMilli(timeMillis);
     }
 

@@ -203,8 +203,9 @@ public class ICarImpl extends ICar.Stub {
         t.traceBegin("VHAL.earlyInit");
         // Do this before any other service components to allow feature check. It should work
         // even without init. For that, vhal get is retried as it can be too early.
-        VehiclePropValue disabledOptionalFeatureValue = mHal.getIfAvailableOrFailForEarlyStage(
-                VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
+        VehiclePropValue disabledOptionalFeatureValue =
+                mHal.getIfAvailableOrFailForEarlyStageDeprecated(
+                        VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
         t.traceEnd();
 
         String[] disabledFeaturesFromVhal = null;

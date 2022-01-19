@@ -121,7 +121,7 @@ public class DiagnosticHalService extends HalServiceBase {
 
     public DiagnosticHalService(VehicleHal hal) {
         mVehicleHal = hal;
-
+        mAidlSupported = false;
     }
 
     @Override
@@ -130,7 +130,7 @@ public class DiagnosticHalService extends HalServiceBase {
     }
 
     @Override
-    public void takeProperties(Collection<VehiclePropConfig> properties) {
+    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
         if (DEBUG) {
             Slogf.d(CarLog.TAG_DIAGNOSTIC, "takeSupportedProperties");
         }
@@ -318,7 +318,7 @@ public class DiagnosticHalService extends HalServiceBase {
             return null;
         }
         try {
-            return mVehicleHal.get(propConfig.prop);
+            return mVehicleHal.getDeprecated(propConfig.prop);
         } catch (ServiceSpecificException e) {
             Slogf.e(CarLog.TAG_DIAGNOSTIC, "property not ready 0x" + toHexString(propConfig.prop),
                     e);
@@ -413,7 +413,7 @@ public class DiagnosticHalService extends HalServiceBase {
     private final LinkedList<CarDiagnosticEvent> mEventsToDispatch = new LinkedList<>();
 
     @Override
-    public void onHalEvents(List<VehiclePropValue> values) {
+    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
         for (VehiclePropValue value : values) {
             CarDiagnosticEvent event = createCarDiagnosticEvent(value);
             if (event != null) {
@@ -491,7 +491,7 @@ public class DiagnosticHalService extends HalServiceBase {
     @Nullable
     public CarDiagnosticEvent getCurrentLiveFrame() {
         try {
-            VehiclePropValue value = mVehicleHal.get(VehicleProperty.OBD2_LIVE_FRAME);
+            VehiclePropValue value = mVehicleHal.getDeprecated(VehicleProperty.OBD2_LIVE_FRAME);
             return createCarDiagnosticEvent(value);
         } catch (ServiceSpecificException e) {
             Slogf.e(CarLog.TAG_DIAGNOSTIC, "Failed to read OBD2_LIVE_FRAME.", e);
@@ -508,7 +508,8 @@ public class DiagnosticHalService extends HalServiceBase {
     @Nullable
     public long[] getFreezeFrameTimestamps() {
         try {
-            VehiclePropValue value = mVehicleHal.get(VehicleProperty.OBD2_FREEZE_FRAME_INFO);
+            VehiclePropValue value = mVehicleHal.getDeprecated(
+                    VehicleProperty.OBD2_FREEZE_FRAME_INFO);
             long[] timestamps = new long[value.value.int64Values.size()];
             for (int i = 0; i < timestamps.length; ++i) {
                 timestamps[i] = value.value.int64Values.get(i);
@@ -534,7 +535,7 @@ public class DiagnosticHalService extends HalServiceBase {
                 VehicleProperty.OBD2_FREEZE_FRAME);
         builder.setInt64Value(timestamp);
         try {
-            VehiclePropValue value = mVehicleHal.get(builder.build());
+            VehiclePropValue value = mVehicleHal.getDeprecated(builder.build());
             return createCarDiagnosticEvent(value);
         } catch (ServiceSpecificException e) {
             Slogf.e(CarLog.TAG_DIAGNOSTIC, "Failed to read OBD2_FREEZE_FRAME.", e);
@@ -553,7 +554,7 @@ public class DiagnosticHalService extends HalServiceBase {
                 VehicleProperty.OBD2_FREEZE_FRAME_CLEAR);
         builder.setInt64Value(timestamps);
         try {
-            mVehicleHal.set(builder.build());
+            mVehicleHal.setDeprecated(builder.build());
         } catch (ServiceSpecificException e) {
             Slogf.e(CarLog.TAG_DIAGNOSTIC, "Failed to write OBD2_FREEZE_FRAME_CLEAR.", e);
         } catch (IllegalArgumentException e) {

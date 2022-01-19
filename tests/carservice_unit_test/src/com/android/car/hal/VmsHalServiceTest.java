@@ -104,7 +104,7 @@ public class VmsHalServiceTest {
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        mHalService.takeProperties(Collections.singleton(propConfig));
+        mHalService.takePropertiesDeprecated(Collections.singleton(propConfig));
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
@@ -115,7 +115,7 @@ public class VmsHalServiceTest {
         InOrder initOrder = Mockito.inOrder(mVehicleHal);
         initOrder.verify(mVehicleHal).subscribeProperty(mHalService,
                 VehicleProperty.VEHICLE_MAP_SERVICE);
-        initOrder.verify(mVehicleHal).set(createHalMessage(
+        initOrder.verify(mVehicleHal).setDeprecated(createHalMessage(
                 VmsMessageType.START_SESSION, // Message type
                 CORE_ID,                      // Core ID
                 -1));                          // Client ID (unknown)
@@ -131,7 +131,7 @@ public class VmsHalServiceTest {
         ));
         waitForHandlerCompletion();
 
-        initOrder.verify(mVehicleHal).set(createHalMessage(
+        initOrder.verify(mVehicleHal).setDeprecated(createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE, // Message type
                 0,                                  // Sequence number
                 0));                                // # of associated layers
@@ -156,14 +156,14 @@ public class VmsHalServiceTest {
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        mHalService.takeProperties(Collections.singleton(propConfig));
+        mHalService.takePropertiesDeprecated(Collections.singleton(propConfig));
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
         mHalService.init();
         waitForHandlerCompletion();
 
-        verify(mVehicleHal).set(createHalMessage(
+        verify(mVehicleHal).setDeprecated(createHalMessage(
                 VmsMessageType.START_SESSION, // Message type
                 CORE_ID,                      // Core ID
                 -1));                          // Client ID (unknown)
@@ -176,7 +176,7 @@ public class VmsHalServiceTest {
 
         VehiclePropConfig otherPropConfig = new VehiclePropConfig();
         otherPropConfig.prop = VehicleProperty.CURRENT_GEAR;
-        mHalService.takeProperties(Arrays.asList(vmsPropConfig));
+        mHalService.takePropertiesDeprecated(Arrays.asList(vmsPropConfig));
     }
 
     /**
@@ -255,7 +255,7 @@ public class VmsHalServiceTest {
         message.value.bytes.addAll(PAYLOAD_AS_LIST);
 
         mEventCallback.onPacketReceived(PUBLISHER_ID, LAYER, PAYLOAD);
-        verify(mVehicleHal).set(message);
+        verify(mVehicleHal).setDeprecated(message);
     }
 
     /**
@@ -375,7 +375,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     /**
@@ -406,7 +406,7 @@ public class VmsHalServiceTest {
         response.value.bytes.addAll(PAYLOAD_AS_LIST);
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     /**
@@ -549,7 +549,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -572,7 +572,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
 
@@ -612,7 +612,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     /**
@@ -644,11 +644,11 @@ public class VmsHalServiceTest {
 
         InOrder inOrder = Mockito.inOrder(mVehicleHal, mVmsClient);
         inOrder.verify(mVmsClient).unregister();
-        inOrder.verify(mVehicleHal).set(response);
+        inOrder.verify(mVehicleHal).setDeprecated(response);
         assertEquals(2, mVmsInitCount);
 
         waitForHandlerCompletion();
-        inOrder.verify(mVehicleHal).set(createHalMessage(
+        inOrder.verify(mVehicleHal).setDeprecated(createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE, // Message type
                 5,                                  // Sequence number
                 0));                                // # of associated layers
@@ -683,7 +683,7 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(message);
+        verify(mVehicleHal).setDeprecated(message);
     }
 
     @Test
@@ -702,7 +702,7 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(message);
+        verify(mVehicleHal).setDeprecated(message);
     }
 
 
@@ -738,7 +738,7 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(message);
+        verify(mVehicleHal).setDeprecated(message);
     }
 
     /**
@@ -786,7 +786,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -809,7 +809,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -834,7 +834,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -879,7 +879,7 @@ public class VmsHalServiceTest {
         );
 
         sendHalMessage(request);
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     /**
@@ -918,7 +918,7 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -937,7 +937,7 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -958,7 +958,7 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
@@ -999,12 +999,12 @@ public class VmsHalServiceTest {
         );
 
         waitForHandlerCompletion();
-        verify(mVehicleHal).set(response);
+        verify(mVehicleHal).setDeprecated(response);
     }
 
     @Test
     public void testPropertySetExceptionNotPropagated_CoreStartSession() throws Exception {
-        doThrow(new RuntimeException()).when(mVehicleHal).set(any());
+        doThrow(new RuntimeException()).when(mVehicleHal).setDeprecated(any());
         initHalService(false);
 
         waitForHandlerCompletion();
@@ -1016,7 +1016,7 @@ public class VmsHalServiceTest {
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
-        doThrow(new RuntimeException()).when(mVehicleHal).set(any());
+        doThrow(new RuntimeException()).when(mVehicleHal).setDeprecated(any());
 
         VehiclePropValue request = createHalMessage(
                 VmsMessageType.START_SESSION,  // Message type
@@ -1038,7 +1038,7 @@ public class VmsHalServiceTest {
     public void testDumpMetrics_NonVendorProperty() throws Exception {
         VehiclePropValue vehicleProp = new VehiclePropValue();
         vehicleProp.value.bytes.addAll(PAYLOAD_AS_LIST);
-        when(mVehicleHal.get(anyInt())).thenReturn(vehicleProp);
+        when(mVehicleHal.getDeprecated(anyInt())).thenReturn(vehicleProp);
 
         when(mResources.getInteger(
                 R.integer.vmsHalClientMetricsProperty)).thenReturn(
@@ -1059,13 +1059,13 @@ public class VmsHalServiceTest {
 
         VehiclePropValue metricsProperty = new VehiclePropValue();
         metricsProperty.value.bytes.addAll(PAYLOAD_AS_LIST);
-        when(mVehicleHal.get(metricsPropertyId)).thenReturn(metricsProperty);
+        when(mVehicleHal.getDeprecated(metricsPropertyId)).thenReturn(metricsProperty);
 
         try (TemporaryFile dumpsysFile = new TemporaryFile("VmsHalServiceTest")) {
             FileOutputStream outputStream = new FileOutputStream(dumpsysFile.getFile());
             mHalService.dumpMetrics(outputStream.getFD());
 
-            verify(mVehicleHal).get(metricsPropertyId);
+            verify(mVehicleHal).getDeprecated(metricsPropertyId);
             FileInputStream inputStream = new FileInputStream(dumpsysFile.getFile());
             byte[] dumpsysOutput = new byte[PAYLOAD.length];
             assertEquals(PAYLOAD.length, inputStream.read(dumpsysOutput));
@@ -1081,12 +1081,12 @@ public class VmsHalServiceTest {
                 metricsPropertyId);
         setUp();
 
-        when(mVehicleHal.get(metricsPropertyId))
+        when(mVehicleHal.getDeprecated(metricsPropertyId))
                 .thenThrow(new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN,
                         "propertyId: 0x" + Integer.toHexString(metricsPropertyId)));
 
         mHalService.dumpMetrics(new FileDescriptor());
-        verify(mVehicleHal).get(metricsPropertyId);
+        verify(mVehicleHal).getDeprecated(metricsPropertyId);
     }
 
     @Test
@@ -1097,10 +1097,10 @@ public class VmsHalServiceTest {
                 metricsPropertyId);
         setUp();
 
-        when(mVehicleHal.get(metricsPropertyId)).thenReturn(null);
+        when(mVehicleHal.getDeprecated(metricsPropertyId)).thenReturn(null);
 
         mHalService.dumpMetrics(new FileDescriptor());
-        verify(mVehicleHal).get(metricsPropertyId);
+        verify(mVehicleHal).getDeprecated(metricsPropertyId);
     }
 
     private static VehiclePropValue createHalMessage(Integer... message) {
@@ -1111,7 +1111,7 @@ public class VmsHalServiceTest {
     }
 
     private void sendHalMessage(VehiclePropValue message) {
-        mHalService.onHalEvents(Collections.singletonList(message));
+        mHalService.onHalEventsDeprecated(Collections.singletonList(message));
     }
 
     private void waitForHandlerCompletion() throws Exception {
