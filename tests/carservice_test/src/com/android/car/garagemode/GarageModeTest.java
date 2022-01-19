@@ -107,7 +107,7 @@ public final class GarageModeTest {
         CountDownLatch latch = new CountDownLatch(3); // 3 for three users
         mockCarUserServiceStopUserCall(getEventListener(), latch);
 
-        mGarageMode.enterGarageMode(/* future= */ null);
+        mGarageMode.enterGarageMode(/* completor= */ null);
 
         mGarageMode.cancel();
 
@@ -122,14 +122,14 @@ public final class GarageModeTest {
     public void test_restartingGarageModeStorePreviouslyStartedUsers() throws Exception {
         ArrayList<Integer> userToStartInBackground = new ArrayList<>(Arrays.asList(101, 102, 103));
         CountDownLatch latch = mockCarUserServiceStartUsersCall(userToStartInBackground);
-        mGarageMode.enterGarageMode(/* future= */ null);
+        mGarageMode.enterGarageMode(/* completor= */ null);
 
         waitForHandlerThreadToFinish(latch);
         assertThat(mGarageMode.getStartedBackgroundUsers()).containsExactly(101, 102, 103);
 
         userToStartInBackground = new ArrayList<>(Arrays.asList(103, 104, 105));
         latch = mockCarUserServiceStartUsersCall(userToStartInBackground);
-        mGarageMode.enterGarageMode(/* future= */ null);
+        mGarageMode.enterGarageMode(/* completor= */ null);
 
         waitForHandlerThreadToFinish(latch);
         assertThat(mGarageMode.getStartedBackgroundUsers()).containsExactly(101, 102, 103, 104,
@@ -137,7 +137,7 @@ public final class GarageModeTest {
     }
 
     @Test
-    public void garageModeTestExitImmediately() throws Exception {
+    public void test_garageModeTestExitImmediately() throws Exception {
         CarPowerManagementService mockCarPowerManagementService =
                 mock(CarPowerManagementService.class);
 
@@ -146,28 +146,20 @@ public final class GarageModeTest {
         CarLocalServices.addService(CarPowerManagementService.class, mockCarPowerManagementService);
         when(mockCarPowerManagementService.garageModeShouldExitImmediately()).thenReturn(true);
 
-        // Check exit immediately without future
+        // Check exit immediately without completor
         GarageMode garageMode = new GarageMode(mContext, mController);
         garageMode.init();
-        garageMode.enterGarageMode(/* future= */ null);
+        garageMode.enterGarageMode(/* completor= */ null);
         assertThat(garageMode.isGarageModeActive()).isFalse();
 
         // Create new instance of GarageMode
         garageMode = new GarageMode(mContext, mController);
         garageMode.init();
-        // Check exit immediately with future
-        CompletablePowerStateChangeFutureImpl future = new CompletablePowerStateChangeFutureImpl();
-        garageMode.enterGarageMode(future);
+        // Check exit immediately with completor
+        CompletorImpl completor = new CompletorImpl();
+        garageMode.enterGarageMode(completor);
         assertThat(garageMode.isGarageModeActive()).isFalse();
-        assertThat(future.isCompleted()).isTrue();
-
-        // Create new instance of GarageMode
-        garageMode = new GarageMode(mContext, mController);
-        garageMode.init();
-        // Check exit immediately with completed future
-        garageMode.enterGarageMode(future);
-        assertThat(garageMode.isGarageModeActive()).isFalse();
-        assertThat(future.isCompleted()).isTrue();
+        assertThat(completor.isFinished()).isTrue();
 
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
     }
@@ -206,6 +198,19 @@ public final class GarageModeTest {
                     CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED, userId));
             return null;
         }).when(mCarUserService).stopBackgroundUserInGagageMode(anyInt());
+    }
+
+    private static final class CompletorImpl implements Runnable {
+        private boolean mFinished;
+
+        @Override
+        public void run() {
+            mFinished = true;
+        }
+
+        public boolean isFinished() {
+            return mFinished;
+        }
     }
 }
 

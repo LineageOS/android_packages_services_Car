@@ -654,10 +654,8 @@ public class CarPowerManager extends CarManagerBase {
      */
     @TestApi
     public static boolean isCompletionAllowed(@CarPowerState int state) {
-        // TODO(b/210010903): Remove STATE_SHUTDOWN_PREPARE.
         switch (state) {
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
-            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
             case CarPowerManager.STATE_SHUTDOWN_ENTER:
             case CarPowerManager.STATE_SUSPEND_ENTER:
             case CarPowerManager.STATE_HIBERNATION_ENTER:

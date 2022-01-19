@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.car.builtin.job.JobSchedulerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
-import android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -83,7 +82,6 @@ class GarageMode {
     private final Handler mHandler;
     private final JobSchedulerHelper mJobSchedulerHelper;
 
-    private CarPowerManagementService mCarPowerManagementService;
     @GuardedBy("mLock")
     private boolean mGarageModeActive;
     @GuardedBy("mLock")
@@ -190,7 +188,7 @@ class GarageMode {
     };
 
     @GuardedBy("mLock")
-    private CompletablePowerStateChangeFuture mFuture;
+    private Runnable mCompletor;
     @GuardedBy("mLock")
     private ArraySet<Integer> mStartedBackgroundUsers = new ArraySet<>();
 
@@ -273,16 +271,14 @@ class GarageMode {
         }
     }
 
-    void enterGarageMode(CompletablePowerStateChangeFuture future) {
+    void enterGarageMode(Runnable completor) {
         Slogf.i(TAG, "Entering GarageMode");
-        if (mCarPowerManagementService == null) {
-            mCarPowerManagementService = CarLocalServices.getService(
-                    CarPowerManagementService.class);
-        }
-        if (mCarPowerManagementService != null
-                && mCarPowerManagementService.garageModeShouldExitImmediately()) {
-            if (future != null) {
-                future.complete();
+        CarPowerManagementService carPowerService = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        if (carPowerService != null
+                && carPowerService.garageModeShouldExitImmediately()) {
+            if (completor != null) {
+                completor.run();
             }
             synchronized (mLock) {
                 mGarageModeActive = false;
@@ -291,7 +287,7 @@ class GarageMode {
         }
         synchronized (mLock) {
             mGarageModeActive = true;
-            mFuture = future;
+            mCompletor = completor;
         }
         broadcastSignalToJobScheduler(true);
         CarStatsLogHelper.logGarageModeStart();
@@ -303,9 +299,9 @@ class GarageMode {
     void cancel() {
         broadcastSignalToJobScheduler(false);
         synchronized (mLock) {
-            if (mFuture != null) {
-                mFuture.complete();
-                mFuture = null;
+            if (mCompletor != null) {
+                mCompletor.run();
+                mCompletor = null;
             }
             cleanupGarageModeLocked();
             Slogf.i(TAG, "GarageMode is cancelled");
@@ -325,9 +321,9 @@ class GarageMode {
         EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_FINISH);
         CarStatsLogHelper.logGarageModeStop();
         synchronized (mLock) {
-            if (mFuture != null) {
-                mFuture.complete();
-                mFuture = null;
+            if (mCompletor != null) {
+                mCompletor.run();
+                mCompletor = null;
             }
             cleanupGarageModeLocked();
             Slogf.i(TAG, "GarageMode is completed normally");
