@@ -42,6 +42,7 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
+import android.os.UserManager.UserSwitchabilityResult;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -247,12 +248,21 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a call to {@code UserManager#mockUmHasUserRestrictionForUser(String, UserHandle)} that
+     * Mocks a call to {@code UserManager#hasUserRestrictionForUser(String, UserHandle)} that
      * returns {@code value}.
      */
     public static void mockUmHasUserRestrictionForUser(@NonNull UserManager um,
             @NonNull UserHandle user, @NonNull String restrictionKey, boolean value) {
         when(um.hasUserRestrictionForUser(restrictionKey, user)).thenReturn(value);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#getUserSwitchability(int)} that
+     * returns {@code result}.
+     */
+    public static void mockUmGetUserSwitchability(@NonNull UserManager um,
+            @UserSwitchabilityResult int result) {
+        when(um.getUserSwitchability()).thenReturn(result);
     }
 
     /**
