@@ -375,6 +375,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.printf("Is UX restricted: %b\n", mUxRestricted);
             writer.printf("Start Background Users On Garage Mode=%s\n",
                     mStartBackgroundUsersOnGarageMode);
+            writer.printf("Initial user: %s\n", mInitialUser);
         }
 
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
@@ -404,8 +405,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         writer.decreaseIndent();
         writer.printf("EnablePassengerSupport: %s\n", mEnablePassengerSupport);
-        writer.printf("User HAL timeout: %dms\n",  mHalTimeoutMs);
-        writer.printf("Initial user: %s\n", mInitialUser);
+        writer.printf("User HAL: supported=%b, timeout=%dms\n", isUserHalSupported(),
+                mHalTimeoutMs);
 
         writer.println("Relevant overlayable properties");
         Resources res = mContext.getResources();
@@ -873,7 +874,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkManageUsersPermission("startInitialUser");
 
         if (!isUserHalSupported()) {
-            fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest);
+            fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest,
+                    /* supportsOverrideUserIdProperty= */ true);
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ_COMPLETE,
                     requestType);
             return;
@@ -898,7 +900,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         int userId = resp.userToSwitchOrCreate.userId;
                         if (userId <= 0) {
                             Slog.w(TAG, "invalid (or missing) user id sent by HAL: " + userId);
-                            fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest);
+                            fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest,
+                                    /* supportsOverrideUserIdProperty= */ false);
                             break;
                         }
                         info = new InitialUserSetter.Builder(InitialUserSetter.TYPE_SWITCH)
@@ -921,28 +924,33 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         break;
 
                     case InitialUserInfoResponseAction.DEFAULT:
-                        fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest);
+                        fallbackToDefaultInitialUserBehavior(userLocales, replaceGuest,
+                                /* supportsOverrideUserIdProperty= */ false);
                         break;
                     default:
                         Slog.w(TAG, "invalid response action on " + resp);
-                        fallbackToDefaultInitialUserBehavior(/* user locale */ null, replaceGuest);
+                        fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest,
+                                /* supportsOverrideUserIdProperty= */ false);
                         break;
 
                 }
             } else {
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP, status);
-                fallbackToDefaultInitialUserBehavior(/* user locale */ null, replaceGuest);
+                fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest,
+                        /* supportsOverrideUserIdProperty= */ false);
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ_COMPLETE,
                     requestType);
         });
     }
 
-    private void fallbackToDefaultInitialUserBehavior(String userLocales, boolean replaceGuest) {
+    private void fallbackToDefaultInitialUserBehavior(String userLocales, boolean replaceGuest,
+            boolean supportsOverrideUserIdProperty) {
         InitialUserInfo info = new InitialUserSetter.Builder(
                 InitialUserSetter.TYPE_DEFAULT_BEHAVIOR)
                 .setUserLocales(userLocales)
                 .setReplaceGuest(replaceGuest)
+                .setSupportsOverrideUserIdProperty(supportsOverrideUserIdProperty)
                 .build();
         mInitialUserSetter.set(info);
     }
