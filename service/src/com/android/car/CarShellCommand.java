@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.widget.LockPatternHelper;
 import android.car.content.pm.CarPackageManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -178,6 +179,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_INJECT_KEY = "inject-key";
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_INJECT_CUSTOM_INPUT = "inject-custom-input";
+    private static final String COMMAND_CHECK_LOCK_IS_SECURE = "check-lock-is-secure";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
     private static final String COMMAND_REMOVE_USER = "remove-user";
@@ -322,6 +324,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PERMISSION_USE_CAR_WATCHDOG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CONTROL_COMPONENT_ENABLED_STATE,
                 android.Manifest.permission.CHANGE_COMPONENT_ENABLED_STATE);
+        // borrow the permission to pass assertHasAtLeastOnePermission() for a user build
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CHECK_LOCK_IS_SECURE,
+                android.Manifest.permission.INJECT_EVENTS);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -700,6 +705,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 COMMAND_CONTROL_COMPONENT_ENABLED_STATE);
         pw.println("\t  Gets the current EnabledState, or changes the Application EnabledState"
                 + " to DEFAULT, ENABLED or DISABLED_UNTIL_USED.");
+        pw.printf("\t%s [user]\n", COMMAND_CHECK_LOCK_IS_SECURE);
+        pw.println("\t check if the current or given user has a lock to secure");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1059,6 +1066,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_CONTROL_COMPONENT_ENABLED_STATE:
                 controlComponentEnabledState(args, writer);
+                break;
+            case COMMAND_CHECK_LOCK_IS_SECURE:
+                checkLockIsSecure(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -2654,5 +2664,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
         }
         return stateName;
+    }
+
+    private void checkLockIsSecure(String[] args, IndentingPrintWriter writer) {
+        if ((args.length != 1) && (args.length != 2)) {
+            showInvalidArguments(writer);
+        }
+
+        int userId = UserHandle.myUserId();
+        if (args.length == 2) {
+            userId = Integer.parseInt(args[1]);
+        }
+        writer.println(LockPatternHelper.isSecure(mContext, userId));
     }
 }
