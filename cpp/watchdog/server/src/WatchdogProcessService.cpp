@@ -230,7 +230,7 @@ Status WatchdogProcessService::unregisterMonitor(const sp<aawi::ICarWatchdogMoni
                                          "The monitor has not been registered.");
     }
     curBinder->unlinkToDeath(mBinderDeathRecipient);
-    mMonitor = nullptr;
+    mMonitor.clear();
     if (DEBUG) {
         ALOGD("Car watchdog monitor is unregistered");
     }
@@ -418,9 +418,17 @@ void WatchdogProcessService::terminate() {
         sp<IBinder> binder = aawi::BnCarWatchdogMonitor::asBinder(mMonitor);
         binder->unlinkToDeath(mBinderDeathRecipient);
     }
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
     mServiceStarted = false;
     if (mVhalService != nullptr) {
+        std::vector<int32_t> propIds = {static_cast<int32_t>(VehicleProperty::VHAL_HEARTBEAT)};
+        auto result =
+                mVhalService->getSubscriptionClient(mPropertyChangeListener)->unsubscribe(propIds);
+        if (!result.ok()) {
+            ALOGW("Failed to unsubscribe from VHAL_HEARTBEAT.");
+        }
         mVhalService->removeOnBinderDiedCallback(mOnBinderDiedCallback);
+        mVhalService.reset();
     }
 }
 
@@ -602,7 +610,7 @@ void WatchdogProcessService::handleBinderDeath(const wp<IBinder>& who) {
     // Check if dead binder is monitor.
     sp<IBinder> monitor = aawi::BnCarWatchdogMonitor::asBinder(mMonitor);
     if (monitor == binder) {
-        mMonitor = nullptr;
+        mMonitor.clear();
         ALOGW("The monitor has died.");
         return;
     }
@@ -618,8 +626,9 @@ void WatchdogProcessService::handleBinderDeath(const wp<IBinder>& who) {
 void WatchdogProcessService::handleVhalDeath() {
     Mutex::Autolock lock(mMutex);
     ALOGW("VHAL has died.");
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
     // Destroying mVHalService would remove all onBinderDied callbacks.
-    mVhalService = nullptr;
+    mVhalService.reset();
 }
 
 void WatchdogProcessService::reportWatchdogAliveToVhal() {
@@ -800,6 +809,9 @@ void WatchdogProcessService::checkVhalHealth() {
     int64_t currentUptime = uptimeMillis();
     {
         Mutex::Autolock lock(mMutex);
+        if (mVhalService == nullptr) {
+            return;
+        }
         lastEventTime = mVhalHeartBeat.eventTime;
     }
     if (currentUptime > lastEventTime + mVhalHealthCheckWindowMs.count()) {
