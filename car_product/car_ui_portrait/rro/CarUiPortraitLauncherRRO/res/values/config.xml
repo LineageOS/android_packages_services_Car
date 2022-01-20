@@ -36,6 +36,9 @@
         <item>android.car.cluster/android.car.cluster.FakeFreeNavigationActivity</item>
         <item>android.car.cluster/android.car.cluster.MainClusterActivity</item>
         <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
+        <item>android.car.usb.handler/.UsbHostManagementActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.libs.uicommon.PlaceholderActivity</item>
     </string-array>
 
     <!-- TODO(b/202413464): Move GAS components to the separate RRO. -->
