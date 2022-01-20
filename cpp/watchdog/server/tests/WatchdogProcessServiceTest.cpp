@@ -15,6 +15,7 @@
  */
 
 #include "MockCarWatchdogServiceForSystem.h"
+#include "MockVehicle.h"
 #include "MockWatchdogServiceHelper.h"
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
@@ -27,11 +28,13 @@ namespace automotive {
 namespace watchdog {
 
 namespace aawi = ::android::automotive::watchdog::internal;
+namespace ahav = ::android::hardware::automotive::vehicle::V2_0;
 
 using ::android::IBinder;
 using ::android::sp;
 using ::android::binder::Status;
 using ::testing::_;
+using ::testing::ByMove;
 using ::testing::Return;
 
 namespace {
@@ -60,16 +63,40 @@ private:
 
 }  // namespace
 
+namespace internal {
+
+class WatchdogProcessServicePeer final {
+public:
+    explicit WatchdogProcessServicePeer(const sp<WatchdogProcessService>& watchdogProcessService) :
+          mWatchdogProcessService(watchdogProcessService) {}
+
+    void setVhalClient(const sp<ahav::IVehicle>& client) {
+        mWatchdogProcessService->mVhalService = client;
+    }
+
+private:
+    sp<WatchdogProcessService> mWatchdogProcessService;
+};
+
+}  // namespace internal
+
 class WatchdogProcessServiceTest : public ::testing::Test {
 protected:
     void SetUp() override {
         sp<Looper> looper(Looper::prepare(/*opts=*/0));
-        mWatchdogProcessService = new WatchdogProcessService(looper);
+        mWatchdogProcessService = sp<WatchdogProcessService>::make(looper);
+        mMockVehicle = sp<MockVehicle>::make();
+        internal::WatchdogProcessServicePeer peer(mWatchdogProcessService);
+        peer.setVhalClient(mMockVehicle);
     }
 
-    void TearDown() override { mWatchdogProcessService.clear(); }
+    void TearDown() override {
+        mWatchdogProcessService.clear();
+        mMockVehicle.clear();
+    }
 
     sp<WatchdogProcessService> mWatchdogProcessService;
+    sp<MockVehicle> mMockVehicle;
 };
 
 sp<MockCarWatchdogClient> createMockCarWatchdogClient(status_t linkToDeathResult) {
@@ -104,6 +131,14 @@ sp<MockCarWatchdogMonitor> expectNormalCarWatchdogMonitor() {
 
 sp<MockCarWatchdogMonitor> expectCarWatchdogMonitorBinderDied() {
     return createMockCarWatchdogMonitor(DEAD_OBJECT);
+}
+
+TEST_F(WatchdogProcessServiceTest, TestTerminate) {
+    EXPECT_CALL(*mMockVehicle, unlinkToDeath(_)).WillOnce(Return(ByMove(true)));
+    EXPECT_CALL(*mMockVehicle,
+                unsubscribe(_, static_cast<int32_t>(ahav::VehicleProperty::VHAL_HEARTBEAT)))
+            .WillOnce(Return(ByMove(ahav::StatusCode::OK)));
+    mWatchdogProcessService->terminate();
 }
 
 TEST_F(WatchdogProcessServiceTest, TestRegisterClient) {
