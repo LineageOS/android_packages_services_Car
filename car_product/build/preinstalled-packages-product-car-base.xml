@@ -30,12 +30,6 @@
         <install-in user-type="SYSTEM"/>
     </install-in-user-type>
 
-    <!-- Failed to complete CtsShortcutHostTestCases if LocalTransport is not
-    installed for system user  -->
-    <install-in-user-type package="com.android.localtransport">
-        <install-in user-type="SYSTEM" />
-    </install-in-user-type>
-
     <!-- This package is required for system user to test cluster_home_service -->
     <install-in-user-type package="com.android.car.cluster.home">
         <install-in user-type="SYSTEM" />
@@ -64,6 +58,12 @@
   Here the apps will have FULL and SYSTEM.
 -->
     <install-in-user-type package="android">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <!-- Failed to complete CtsShortcutHostTestCases if LocalTransport is not
+    installed for system user  -->
+    <install-in-user-type package="com.android.localtransport">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
