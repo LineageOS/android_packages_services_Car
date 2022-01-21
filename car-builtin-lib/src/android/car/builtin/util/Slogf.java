@@ -120,16 +120,6 @@ public final class Slogf {
         return Slog.wtf(tag, msg);
     }
 
-    /** Same as {@link Slog#wtfQuiet(String, String)}. */
-    public static void wtfQuiet(@NonNull String tag, @NonNull String msg) {
-        Slog.wtfQuiet(tag, msg);
-    }
-
-    /** Same as {@link Slog#wtfStack(String, String). */
-    public static int wtfStack(@NonNull String tag, @NonNull String msg) {
-        return Slog.wtfStack(tag, msg);
-    }
-
     /** Same as {@link Slog#wtf(String, Throwable). */
     public static int wtf(@NonNull String tag, @NonNull Throwable tr) {
         return Slog.wtf(tag, tr);
@@ -138,11 +128,6 @@ public final class Slogf {
     /** Same as {@link Slog#wtf(String, String, Throwable)}. */
     public static int wtf(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.wtf(tag, msg, tr);
-    }
-
-    /** Same as {@link Slog#println(int, String, String)}. */
-    public static int println(int priority, @NonNull String tag, @NonNull String msg) {
-        return Slog.println(priority, tag, msg);
     }
 
     /**

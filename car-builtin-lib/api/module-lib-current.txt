@@ -408,7 +408,6 @@ package android.car.builtin.util {
     method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static void i(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
     method public static boolean isLoggable(@NonNull String, int);
-    method public static int println(int, @NonNull String, @NonNull String);
     method public static int v(@NonNull String, @NonNull String);
     method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static void v(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
@@ -422,8 +421,6 @@ package android.car.builtin.util {
     method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static void wtf(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
     method public static void wtf(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
-    method public static void wtfQuiet(@NonNull String, @NonNull String);
-    method public static int wtfStack(@NonNull String, @NonNull String);
   }
 
   public class TimeUtils {
