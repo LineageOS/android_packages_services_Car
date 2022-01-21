@@ -29,12 +29,12 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.ActivityManager;
+import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
 import android.car.telemetry.ICarTelemetryReportReadyListener;
@@ -51,23 +51,18 @@ import com.android.car.CarServiceUtils;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.telemetry.systemmonitor.SystemMonitor;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.MockitoRule;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 
-@RunWith(MockitoJUnitRunner.class)
 @SmallTest
-public class CarTelemetryServiceTest {
+public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final String METRICS_CONFIG_NAME = "my_metrics_config";
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_V1 =
             TelemetryProto.MetricsConfig.newBuilder()
@@ -82,26 +77,21 @@ public class CarTelemetryServiceTest {
     private MetricsConfigStore mMetricsConfigStore;
     private ResultStore mResultStore;
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    @Mock
-    private ActivityManager mMockActivityManager;
-    @Mock
-    private CarPropertyService mMockCarPropertyService;
-    @Mock
-    private Context mMockContext;
-    @Mock
-    private ICarTelemetryReportListener mMockReportListener;
-    @Mock
-    private ICarTelemetryReportReadyListener mMockReportReadyListener;
-    @Mock
-    private SystemInterface mMockSystemInterface;
-    @Mock
-    private SystemStateInterface mMockSystemStateInterface;
-    @Mock
-    private ResultReceiver mMockAddMetricsConfigCallback;
-    @Mock
-    private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock private ActivityManager mMockActivityManager;
+    @Mock private CarPropertyService mMockCarPropertyService;
+    @Mock private Context mMockContext;
+    @Mock private ICarTelemetryReportListener mMockReportListener;
+    @Mock private ICarTelemetryReportReadyListener mMockReportReadyListener;
+    @Mock private SystemInterface mMockSystemInterface;
+    @Mock private SystemStateInterface mMockSystemStateInterface;
+    @Mock private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock private SystemMonitor mMockSystemMonitor;
+    @Mock private ResultReceiver mMockAddMetricsConfigCallback;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(SystemMonitor.class);
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -110,15 +100,11 @@ public class CarTelemetryServiceTest {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mMockCarPowerManagementService);
-        // ActivityManager is used by SystemMonitor
-        doAnswer(i -> {
-            ActivityManager.MemoryInfo mi = i.getArgument(0);
-            mi.availMem = 5_000_000L; // memory usage is at 50%
-            mi.totalMem = 10_000_000;
-            return null;
-        }).when(mMockActivityManager).getMemoryInfo(any(ActivityManager.MemoryInfo.class));
+
         when(mMockContext.getSystemService(ActivityManager.class))
                 .thenReturn(mMockActivityManager);
+
+        when(SystemMonitor.create(any(), any())).thenReturn(mMockSystemMonitor);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
