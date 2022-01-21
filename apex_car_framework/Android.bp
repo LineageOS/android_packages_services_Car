@@ -32,7 +32,7 @@ apex_defaults {
     //],
 
     apps: [
-        "CarServiceModule",
+        "CarServiceUpdatable",
         "ScriptExecutor",
     ],
     compile_multilib: "both",

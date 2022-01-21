@@ -16,12 +16,14 @@
 
 package com.android.car;
 
+import android.annotation.Nullable;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.om.OverlayManager;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.os.SystemProperties;
@@ -31,7 +33,9 @@ import android.text.TextUtils;
 /** Context for updatable package */
 public class UpdatablePackageContext extends ContextWrapper {
 
-    public static final String UPDATABLE_CAR_SERVICE_PACKAGE_NAME = "com.android.car.updatable";
+    // TODO(b/216134347): Find a better way to find the package.
+    private static final String[] UPDATABLE_CAR_SERVICE_PACKAGE_CANDIDATES =
+            { "com.android.car.updatable", "com.google.android.car.updatable" };
 
     private static final String TAG = UpdatablePackageContext.class.getSimpleName();
 
@@ -42,8 +46,7 @@ public class UpdatablePackageContext extends ContextWrapper {
     public static UpdatablePackageContext create(Context baseContext) {
         Context packageContext;
         try {
-            PackageInfo info = baseContext.getPackageManager().getPackageInfo(
-                    UPDATABLE_CAR_SERVICE_PACKAGE_NAME, 0);
+            PackageInfo info = findUpdatableServicePackage(baseContext);
             if (info == null || info.applicationInfo == null || !(info.applicationInfo.isSystemApp()
                     || info.applicationInfo.isUpdatedSystemApp())) {
                 throw new IllegalStateException(
@@ -56,14 +59,30 @@ public class UpdatablePackageContext extends ContextWrapper {
 
             // CONTEXT_IGNORE_SECURITY: UID is different but ok as the package is trustable system
             // app
-            packageContext = baseContext.createPackageContext(
-                    UPDATABLE_CAR_SERVICE_PACKAGE_NAME,
+            packageContext = baseContext.createPackageContext(info.packageName,
                     Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
         } catch (Exception e) {
             throw new RuntimeException("Cannot load updatable package code", e);
         }
 
         return new UpdatablePackageContext(baseContext, packageContext);
+    }
+
+    @Nullable
+    private static PackageInfo findUpdatableServicePackage(Context baseContext) {
+        PackageInfo info = null;
+        for (int i = 0; i < UPDATABLE_CAR_SERVICE_PACKAGE_CANDIDATES.length; i++) {
+            try {
+                info = baseContext.getPackageManager().getPackageInfo(
+                        UPDATABLE_CAR_SERVICE_PACKAGE_CANDIDATES[i], /* flags= */ 0);
+                if (info != null) {
+                    break;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                // ignore
+            }
+        }
+        return info;
     }
 
     private static void enableRROForCarServiceUpdatable(Context baseContext) {
@@ -82,14 +101,14 @@ public class UpdatablePackageContext extends ContextWrapper {
             PackageInfo info = baseContext.getPackageManager().getPackageInfo(packageName, 0);
             if (info == null || info.applicationInfo == null
                     || !(PackageManagerHelper.isSystemApp(info.applicationInfo)
-                            || PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)
-                            || PackageManagerHelper.isOemApp(info.applicationInfo)
-                            || PackageManagerHelper.isOdmApp(info.applicationInfo)
-                            || PackageManagerHelper.isVendorApp(info.applicationInfo)
-                            || PackageManagerHelper.isProductApp(info.applicationInfo)
-                            || PackageManagerHelper.isSystemExtApp(info.applicationInfo))) {
+                    || PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)
+                    || PackageManagerHelper.isOemApp(info.applicationInfo)
+                    || PackageManagerHelper.isOdmApp(info.applicationInfo)
+                    || PackageManagerHelper.isVendorApp(info.applicationInfo)
+                    || PackageManagerHelper.isProductApp(info.applicationInfo)
+                    || PackageManagerHelper.isSystemExtApp(info.applicationInfo))) {
                 Slogf.i(TAG, "%s is not usable: %s", packageName, ((info == null)
-                                ? "package do not exist" : info.applicationInfo));
+                        ? "package do not exist" : info.applicationInfo));
                 return;
             }
         } catch (Exception e) {

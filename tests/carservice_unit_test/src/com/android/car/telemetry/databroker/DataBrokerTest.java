@@ -33,12 +33,15 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.telemetry.MetricsConfigKey;
 import android.content.Context;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
@@ -47,6 +50,7 @@ import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +71,8 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
+    private static final String TAG = DataBrokerTest.class.getSimpleName();
+
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
     private static final int PRIORITY_HIGH = 1;
@@ -114,6 +120,8 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     @Mock
     private Context mMockContext;
     @Mock
+    private PackageManager mMockPackageManager;
+    @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
     private DataBroker.ScriptFinishedCallback mMockScriptFinishedCallback;
@@ -130,6 +138,17 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     public void setUp() throws Exception {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
+        mockPackageManager();
+
+        mFakeScriptExecutor = new FakeScriptExecutor();
+        when(mMockScriptExecutorBinder.queryLocalInterface(anyString()))
+                .thenReturn(mFakeScriptExecutor);
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenAnswer(i -> {
+            ServiceConnection conn = i.getArgument(1);
+            conn.onServiceConnected(null, mMockScriptExecutorBinder);
+            return true;
+        });
+
         PublisherFactory factory = new PublisherFactory(
                 mMockCarPropertyService, mMockHandler, mMockContext,
                 Files.createTempDirectory("telemetry_test").toFile());
@@ -139,15 +158,6 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {
             mIdleHandlerLatch.countDown();
-            return true;
-        });
-
-        mFakeScriptExecutor = new FakeScriptExecutor();
-        when(mMockScriptExecutorBinder.queryLocalInterface(anyString()))
-                .thenReturn(mFakeScriptExecutor);
-        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenAnswer(i -> {
-            ServiceConnection conn = i.getArgument(1);
-            conn.onServiceConnected(null, mMockScriptExecutorBinder);
             return true;
         });
 
@@ -161,6 +171,24 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
                 mData,
                 SystemClock.elapsedRealtime(),
                 false);
+    }
+
+    private void mockPackageManager() throws Exception {
+        when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        PackageInfo info = new PackageInfo();
+        info.packageName = "com.android.car.scriptexecutor";
+        when(mMockPackageManager.getPackageInfo(anyString(), anyInt())).thenReturn(info);
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        if (mDataBroker != null) {
+            // Remove all to make sure that those are not kicked in after test.
+            mDataBroker.getTelemetryHandler().removeMessages(DataBrokerImpl.MSG_HANDLE_TASK);
+            mDataBroker.getTelemetryHandler().removeMessages(
+                    DataBrokerImpl.MSG_BIND_TO_SCRIPT_EXECUTOR);
+        }
+        Log.i(TAG, "tearDown completed");
     }
 
     @Override
@@ -383,6 +411,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     public void testScheduleNextTask_bindScriptExecutorFailedOnce_shouldRebind()
             throws Exception {
         Mockito.reset(mMockContext);
+        mockPackageManager();
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenAnswer(
                 new Answer() {
                     private int mCount = 0;
@@ -415,6 +444,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
             throws Exception {
         // fail 6 future attempts to bind to it
         Mockito.reset(mMockContext);
+        mockPackageManager();
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any()))
                 .thenReturn(false, false, false, false, false, false);
         mDataBroker.mBindScriptExecutorDelayMillis = 0L; // immediately rebind for testing purpose

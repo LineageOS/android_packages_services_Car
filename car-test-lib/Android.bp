@@ -27,7 +27,7 @@ java_library {
         },
     },
     static_libs: [
-        "car-service-test-lib",
+        "car-service-test-static-lib",
     ],
     libs: [
         "android.car",
