@@ -18,17 +18,15 @@ package com.android.car.hal;
 
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVICE_REQUEST;
+import static android.hardware.automotive.vehicle.VehicleProperty.EVS_SERVICE_REQUEST;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
-import android.hardware.automotive.vehicle.V2_0.EvsServiceRequestIndex;
-import android.hardware.automotive.vehicle.V2_0.EvsServiceState;
-import android.hardware.automotive.vehicle.V2_0.EvsServiceType;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.EvsServiceRequestIndex;
+import android.hardware.automotive.vehicle.EvsServiceState;
+import android.hardware.automotive.vehicle.EvsServiceType;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -55,7 +53,7 @@ public class EvsHalService extends HalServiceBase {
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
-    private final SparseArray<VehiclePropConfig> mProperties = new SparseArray();
+    private final SparseArray<HalPropConfig> mProperties = new SparseArray();
 
     private final VehicleHal mHal;
 
@@ -68,7 +66,6 @@ public class EvsHalService extends HalServiceBase {
 
     public EvsHalService(VehicleHal hal) {
         mHal = hal;
-        mAidlSupported = false;
     }
 
     /**
@@ -109,9 +106,9 @@ public class EvsHalService extends HalServiceBase {
     public void init() {
         synchronized (mLock) {
             for (int i = 0; i < mProperties.size(); i++) {
-                VehiclePropConfig config = mProperties.valueAt(i);
-                if (VehicleHal.isPropertySubscribableDeprecated(config)) {
-                    mHal.subscribeProperty(this, config.prop);
+                HalPropConfig config = mProperties.valueAt(i);
+                if (VehicleHal.isPropertySubscribable(config)) {
+                    mHal.subscribeProperty(this, config.getPropId());
                 }
             }
         }
@@ -131,14 +128,14 @@ public class EvsHalService extends HalServiceBase {
     }
 
     @Override
-    public void takePropertiesDeprecated(Collection<VehiclePropConfig> configs) {
+    public void takeProperties(Collection<HalPropConfig> configs) {
         if (configs.isEmpty()) {
             return;
         }
 
         synchronized (mLock) {
-            for (VehiclePropConfig config : configs) {
-                mProperties.put(config.prop, config);
+            for (HalPropConfig config : configs) {
+                mProperties.put(config.getPropId(), config);
             }
 
             mIsEvsServiceRequestSupported = mProperties.contains(EVS_SERVICE_REQUEST);
@@ -146,7 +143,7 @@ public class EvsHalService extends HalServiceBase {
     }
 
     @Override
-    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
+    public void onHalEvents(List<HalPropValue> values) {
         EvsHalEventListener listener;
         synchronized (mLock) {
             listener = mListener;
@@ -160,29 +157,27 @@ public class EvsHalService extends HalServiceBase {
         dispatchHalEvents(values, listener);
     }
 
-    private void dispatchHalEvents(List<VehiclePropValue> values, EvsHalEventListener listener) {
+    private void dispatchHalEvents(List<HalPropValue> values, EvsHalEventListener listener) {
         for (int i = 0; i < values.size(); ++i) {
-            VehiclePropValue v = values.get(i);
+            HalPropValue v = values.get(i);
             boolean on = false;
             @CarEvsServiceType int type;
-            switch (v.prop) {
+            switch (v.getPropId()) {
                 case EVS_SERVICE_REQUEST:
                     // Sees
                     // android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVICE_REQUEST
                     try {
-                        int rawServiceType =
-                                v.value.int32Values.get(EvsServiceRequestIndex.TYPE);
+                        int rawServiceType = v.getInt32Value(EvsServiceRequestIndex.TYPE);
                         type = rawServiceType == EvsServiceType.REARVIEW
                                 ? SERVICE_TYPE_REARVIEW : SERVICE_TYPE_SURROUNDVIEW;
-                        on = v.value.int32Values.get(
-                                EvsServiceRequestIndex.STATE) == EvsServiceState.ON;
+                        on = v.getInt32Value(EvsServiceRequestIndex.STATE) == EvsServiceState.ON;
                         if (DBG) {
                             Slogf.d(TAG,
                                     "Received EVS_SERVICE_REQUEST: type = " + type + " on = " + on);
                         }
                     } catch (IndexOutOfBoundsException e) {
                         Slogf.e(TAG, "Received invalid EVS_SERVICE_REQUEST, missing type or state,"
-                                + " int32Values: " + v.value.int32Values);
+                                + " int32Values: " + v.dumpInt32Values());
                         break;
                     }
                     listener.onEvent(type, on);
