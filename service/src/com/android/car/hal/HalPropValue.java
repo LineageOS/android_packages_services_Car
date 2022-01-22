@@ -17,7 +17,6 @@
 package com.android.car.hal;
 
 import android.car.hardware.CarPropertyValue;
-import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Log;
 
@@ -171,10 +170,11 @@ public abstract class HalPropValue {
      * @param config The config for the property.
      * @return A CarPropertyValue that could be passed to upper layer.
      */
-    public CarPropertyValue toCarPropertyValue(int mgrPropId, VehiclePropConfig config) {
+    public CarPropertyValue toCarPropertyValue(int mgrPropId, HalPropConfig config) {
         if (isMixedTypeProperty(getPropId())) {
-            boolean containStringType = config.configArray[0] == 1;
-            boolean containBooleanType = config.configArray[1] == 1;
+            int[] configArray = config.getConfigArray();
+            boolean containStringType = configArray[0] == 1;
+            boolean containBooleanType = configArray[1] == 1;
             return toMixedCarPropertyValue(mgrPropId, containBooleanType, containStringType);
         }
         return toCarPropertyValue(mgrPropId);

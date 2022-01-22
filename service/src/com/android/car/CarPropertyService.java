@@ -34,6 +34,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -213,7 +214,8 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
-    public void registerListener(int propId, float rate, ICarPropertyEventListener listener) {
+    public void registerListener(int propId, float rate, ICarPropertyEventListener listener)
+            throws IllegalArgumentException {
         if (DBG) {
             Slogf.d(TAG, "registerListener: propId=0x" + toHexString(propId) + " rate=" + rate);
         }
@@ -358,8 +360,13 @@ public class CarPropertyService extends ICarProperty.Stub
             // Unsubscribe property if we did not find any other client register to this property
             mHal.unsubscribeProperty(propId);
         } else if (Float.compare(updateMaxRate, mHal.getSampleRate(propId)) != 0) {
-            // Only reset the sample rate if needed
-            mHal.subscribeProperty(propId, updateMaxRate);
+            try {
+                // Only reset the sample rate if needed
+                mHal.subscribeProperty(propId, updateMaxRate);
+            } catch (IllegalArgumentException e) {
+                Slogf.e(TAG, "failed to subscribe to propId=0x" + toHexString(propId)
+                        + ", error: " + e);
+            }
         }
     }
 
@@ -426,7 +433,8 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
-    public CarPropertyValue getProperty(int prop, int zone) {
+    public CarPropertyValue getProperty(int prop, int zone)
+            throws IllegalArgumentException, ServiceSpecificException {
         synchronized (mLock) {
             if (mConfigs.get(prop) == null) {
                 // Do not attempt to register an invalid propId
@@ -490,7 +498,8 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     @Override
-    public void setProperty(CarPropertyValue prop, ICarPropertyEventListener listener) {
+    public void setProperty(CarPropertyValue prop, ICarPropertyEventListener listener)
+            throws IllegalArgumentException, ServiceSpecificException {
         int propId = prop.getPropertyId();
         checkPropertyAccessibility(propId);
         // need an extra permission for writing display units properties.

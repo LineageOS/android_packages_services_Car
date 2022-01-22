@@ -16,10 +16,20 @@
 
 package com.android.car.hal;
 
+import android.car.VehicleAreaType;
+import android.car.hardware.CarPropertyConfig;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
+
+import java.util.ArrayList;
+
 /**
  * HalPropConfig represents a vehicle property config.
  */
 public abstract class HalPropConfig {
+
+    private static final int[] DEFAULT_AREA_IDS = {VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL};
+
     /**
      * Get the property ID.
      */
@@ -66,7 +76,96 @@ public abstract class HalPropConfig {
     public abstract Object toVehiclePropConfig();
 
     /**
-     * Get the string representation for debugging.
+     * Converts {@link HalPropConfig} to {@link CarPropertyConfig}.
+     *
+     * @param mgrPropertyId The Property ID used by Car Property Manager, different from the
+     *      property ID used by VHAL.
      */
-    public abstract String toString();
+    public CarPropertyConfig<?> toCarPropertyConfig(int mgrPropertyId) {
+        int propId = getPropId();
+        int areaType = getVehicleAreaType(propId & VehicleArea.MASK);
+
+        Class<?> clazz = CarPropertyUtils.getJavaClass(propId & VehiclePropertyType.MASK);
+        float maxSampleRate = 0f;
+        float minSampleRate = 0f;
+        if (getChangeMode() != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_STATIC) {
+            maxSampleRate = getMaxSampleRate();
+            minSampleRate = getMinSampleRate();
+        }
+
+        int[] configIntArray = getConfigArray();
+        ArrayList<Integer> configArray = new ArrayList<>(configIntArray.length);
+        for (int i = 0; i < configIntArray.length; i++) {
+            configArray.add(configIntArray[i]);
+        }
+        HalAreaConfig[] areaConfigs = getAreaConfigs();
+        if (areaConfigs.length == 0) {
+            return CarPropertyConfig
+                    .newBuilder(clazz, mgrPropertyId, areaType, /* capacity= */ 1)
+                    .addAreas(DEFAULT_AREA_IDS)
+                    .setAccess(getAccess())
+                    .setChangeMode(getChangeMode())
+                    .setConfigArray(configArray)
+                    .setConfigString(getConfigString())
+                    .setMaxSampleRate(maxSampleRate)
+                    .setMinSampleRate(minSampleRate)
+                    .build();
+        } else {
+            CarPropertyConfig.Builder builder = CarPropertyConfig
+                    .newBuilder(clazz, mgrPropertyId, areaType, /* capacity= */ areaConfigs.length)
+                    .setAccess(getAccess())
+                    .setChangeMode(getChangeMode())
+                    .setConfigArray(configArray)
+                    .setConfigString(getConfigString())
+                    .setMaxSampleRate(maxSampleRate)
+                    .setMinSampleRate(minSampleRate);
+
+            for (HalAreaConfig area : areaConfigs) {
+                int areaId = area.getAreaId();
+                if (classMatched(Integer.class, clazz)) {
+                    builder.addAreaConfig(areaId, area.getMinInt32Value(), area.getMaxInt32Value());
+                } else if (classMatched(Float.class, clazz)) {
+                    builder.addAreaConfig(areaId, area.getMinFloatValue(), area.getMaxFloatValue());
+                } else if (classMatched(Long.class, clazz)) {
+                    builder.addAreaConfig(areaId, area.getMinInt64Value(), area.getMaxInt64Value());
+                } else if (classMatched(Boolean.class, clazz)
+                        || classMatched(Float[].class, clazz)
+                        || classMatched(Integer[].class, clazz)
+                        || classMatched(Long[].class, clazz)
+                        || classMatched(String.class, clazz)
+                        || classMatched(byte[].class, clazz)
+                        || classMatched(Object[].class, clazz)) {
+                    // These property types do not have min/max values
+                    builder.addArea(areaId);
+                } else {
+                    throw new IllegalArgumentException("Unexpected type: " + clazz);
+                }
+            }
+            return builder.build();
+        }
+    }
+
+    private static @VehicleAreaType.VehicleAreaTypeValue int getVehicleAreaType(int halArea) {
+        switch (halArea) {
+            case VehicleArea.GLOBAL:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL;
+            case VehicleArea.SEAT:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_SEAT;
+            case VehicleArea.DOOR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_DOOR;
+            case VehicleArea.WINDOW:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW;
+            case VehicleArea.MIRROR:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_MIRROR;
+            case VehicleArea.WHEEL:
+                return VehicleAreaType.VEHICLE_AREA_TYPE_WHEEL;
+            default:
+                throw new RuntimeException("Unsupported area type " + halArea);
+        }
+    }
+
+    private static boolean classMatched(Class<?> class1, Class<?> class2) {
+        return class1 == class2 || class1.getComponentType() == class2;
+    }
+
 }

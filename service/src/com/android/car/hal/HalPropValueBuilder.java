@@ -23,7 +23,6 @@ import static com.android.car.CarServiceUtils.toLongArray;
 
 import android.car.hardware.CarPropertyValue;
 import android.hardware.automotive.vehicle.RawPropValues;
-import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 
 import java.util.ArrayList;
@@ -351,7 +350,7 @@ public final class HalPropValueBuilder {
      * @return a HalPropValue.
      */
     public HalPropValue build(CarPropertyValue carPropertyValue, int halPropId,
-            VehiclePropConfig config) {
+            HalPropConfig config) {
         if (mIsAidl) {
             return new AidlHalPropValue(carPropertyValue, halPropId, config);
         }
@@ -439,11 +438,11 @@ public final class HalPropValueBuilder {
             mVehiclePropValue.value.byteValues = byteValues;
         }
 
-        AidlHalPropValue(CarPropertyValue value, int halPropId, VehiclePropConfig config) {
+        AidlHalPropValue(CarPropertyValue value, int halPropId, HalPropConfig config) {
             init(halPropId, value.getAreaId(), 0, VehiclePropertyStatus.AVAILABLE);
 
             if (HalPropValue.isMixedTypeProperty(halPropId)) {
-                setMixedCarProperty(value, config.configArray);
+                setMixedCarProperty(value, config.getConfigArray());
             } else {
                 setCarProperty(value);
             }
@@ -824,11 +823,11 @@ public final class HalPropValueBuilder {
             mVehiclePropValue.value.bytes = byteArrayToList(byteValues);
         }
 
-        HidlHalPropValue(CarPropertyValue value, int halPropId, VehiclePropConfig config) {
+        HidlHalPropValue(CarPropertyValue value, int halPropId, HalPropConfig config) {
             init(halPropId, value.getAreaId(), 0, VehiclePropertyStatus.AVAILABLE);
 
             if (HalPropValue.isMixedTypeProperty(halPropId)) {
-                setMixedCarProperty(value, config.configArray);
+                setMixedCarProperty(value, config.getConfigArray());
             } else {
                 setCarProperty(value);
             }

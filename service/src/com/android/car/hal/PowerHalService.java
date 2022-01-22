@@ -15,24 +15,21 @@
  */
 package com.android.car.hal;
 
-
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AP_POWER_STATE_REPORT;
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.AP_POWER_STATE_REQ;
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.DISPLAY_BRIGHTNESS;
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REPORT;
+import static android.hardware.automotive.vehicle.VehicleProperty.AP_POWER_STATE_REQ;
+import static android.hardware.automotive.vehicle.VehicleProperty.DISPLAY_BRIGHTNESS;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReqIndex;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReqIndex;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.ServiceSpecificException;
 
 import com.android.car.CarLog;
@@ -270,10 +267,10 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @GuardedBy("mLock")
-    private final HashMap<Integer, VehiclePropConfig> mProperties = new HashMap<>();
+    private final HashMap<Integer, HalPropConfig> mProperties = new HashMap<>();
     private final VehicleHal mHal;
     @GuardedBy("mLock")
-    private LinkedList<VehiclePropValue> mQueuedEvents;
+    private LinkedList<HalPropValue> mQueuedEvents;
     @GuardedBy("mLock")
     private PowerEventListener mListener;
     @GuardedBy("mLock")
@@ -281,14 +278,13 @@ public class PowerHalService extends HalServiceBase {
 
     public PowerHalService(VehicleHal hal) {
         mHal = hal;
-        mAidlSupported = false;
     }
 
     /**
      * Sets the event listener to receive Vehicle's power events.
      */
     public void setListener(PowerEventListener listener) {
-        LinkedList<VehiclePropValue> eventsToDispatch = null;
+        LinkedList<HalPropValue> eventsToDispatch = null;
         synchronized (mLock) {
             mListener = listener;
             if (mQueuedEvents != null && mQueuedEvents.size() > 0) {
@@ -430,15 +426,15 @@ public class PowerHalService extends HalServiceBase {
      */
     @Nullable
     public PowerState getCurrentPowerState() {
-        int[] state;
+        HalPropValue value;
         try {
-            state = mHal.get(int[].class, VehicleProperty.AP_POWER_STATE_REQ);
+            value = mHal.get(VehicleProperty.AP_POWER_STATE_REQ);
         } catch (ServiceSpecificException e) {
             Slogf.e(CarLog.TAG_POWER, "Cannot get AP_POWER_STATE_REQ", e);
             return null;
         }
-        return new PowerState(state[VehicleApPowerStateReqIndex.STATE],
-                state[VehicleApPowerStateReqIndex.ADDITIONAL]);
+        return new PowerState(value.getInt32Value(VehicleApPowerStateReqIndex.STATE),
+                value.getInt32Value(VehicleApPowerStateReqIndex.ADDITIONAL));
     }
 
     /**
@@ -453,14 +449,18 @@ public class PowerHalService extends HalServiceBase {
     }
 
     private boolean isConfigFlagSet(int flag) {
-        VehiclePropConfig config;
+        HalPropConfig config;
         synchronized (mLock) {
             config = mProperties.get(VehicleProperty.AP_POWER_STATE_REQ);
         }
-        if (config == null || config.configArray.size() < 1) {
+        if (config == null) {
             return false;
         }
-        return (config.configArray.get(0) & flag) != 0;
+        int[] configArray = config.getConfigArray();
+        if (configArray.length < 1) {
+            return false;
+        }
+        return (configArray[0] & flag) != 0;
     }
 
     public boolean isDeepSleepAllowed() {
@@ -478,15 +478,16 @@ public class PowerHalService extends HalServiceBase {
     @Override
     public void init() {
         synchronized (mLock) {
-            for (VehiclePropConfig config : mProperties.values()) {
-                if (VehicleHal.isPropertySubscribableDeprecated(config)) {
-                    mHal.subscribeProperty(this, config.prop);
+            for (HalPropConfig config : mProperties.values()) {
+                if (VehicleHal.isPropertySubscribable(config)) {
+                    mHal.subscribeProperty(this, config.getPropId());
                 }
             }
-            VehiclePropConfig brightnessProperty = mProperties.get(DISPLAY_BRIGHTNESS);
+            HalPropConfig brightnessProperty = mProperties.get(DISPLAY_BRIGHTNESS);
             if (brightnessProperty != null) {
-                mMaxDisplayBrightness = brightnessProperty.areaConfigs.size() > 0
-                        ? brightnessProperty.areaConfigs.get(0).maxInt32Value : 0;
+                HalAreaConfig[] areaConfigs = brightnessProperty.getAreaConfigs();
+                mMaxDisplayBrightness = areaConfigs.length > 0
+                        ? areaConfigs[0].getMaxInt32Value() : 0;
                 if (mMaxDisplayBrightness <= 0) {
                     Slogf.w(CarLog.TAG_POWER, "Max display brightness from vehicle HAL is invalid:"
                             + mMaxDisplayBrightness);
@@ -509,19 +510,19 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @Override
-    public void takePropertiesDeprecated(Collection<VehiclePropConfig> properties) {
+    public void takeProperties(Collection<HalPropConfig> properties) {
         if (properties.isEmpty()) {
             return;
         }
         synchronized (mLock) {
-            for (VehiclePropConfig config : properties) {
-                mProperties.put(config.prop, config);
+            for (HalPropConfig config : properties) {
+                mProperties.put(config.getPropId(), config);
             }
         }
     }
 
     @Override
-    public void onHalEventsDeprecated(List<VehiclePropValue> values) {
+    public void onHalEvents(List<HalPropValue> values) {
         PowerEventListener listener;
         synchronized (mLock) {
             if (mListener == null) {
@@ -536,9 +537,9 @@ public class PowerHalService extends HalServiceBase {
         dispatchEvents(values, listener);
     }
 
-    private void dispatchEvents(List<VehiclePropValue> values, PowerEventListener listener) {
-        for (VehiclePropValue v : values) {
-            switch (v.prop) {
+    private void dispatchEvents(List<HalPropValue> values, PowerEventListener listener) {
+        for (HalPropValue v : values) {
+            switch (v.getPropId()) {
                 case AP_POWER_STATE_REPORT:
                     // Ignore this property event. It was generated inside of CarService.
                     break;
@@ -546,11 +547,11 @@ public class PowerHalService extends HalServiceBase {
                     int state;
                     int param;
                     try {
-                        state = v.value.int32Values.get(VehicleApPowerStateReqIndex.STATE);
-                        param = v.value.int32Values.get(VehicleApPowerStateReqIndex.ADDITIONAL);
+                        state = v.getInt32Value(VehicleApPowerStateReqIndex.STATE);
+                        param = v.getInt32Value(VehicleApPowerStateReqIndex.ADDITIONAL);
                     } catch (IndexOutOfBoundsException e) {
                         Slogf.e(CarLog.TAG_POWER, "Received invalid event, ignore, int32Values: "
-                                + v.value.int32Values, e);
+                                + v.dumpInt32Values(), e);
                         break;
                     }
                     Slogf.i(CarLog.TAG_POWER, "Received AP_POWER_STATE_REQ="
@@ -565,10 +566,10 @@ public class PowerHalService extends HalServiceBase {
                     }
                     int brightness;
                     try {
-                        brightness = v.value.int32Values.get(0) * MAX_BRIGHTNESS / maxBrightness;
+                        brightness = v.getInt32Value(0) * MAX_BRIGHTNESS / maxBrightness;
                     } catch (IndexOutOfBoundsException e) {
                         Slogf.e(CarLog.TAG_POWER, "Received invalid event, ignore, int32Values: "
-                                + v.value.int32Values, e);
+                                + v.dumpInt32Values(), e);
                         break;
                     }
                     if (brightness < 0) {
