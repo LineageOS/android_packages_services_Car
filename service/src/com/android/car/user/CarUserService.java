@@ -2245,8 +2245,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
         t.traceBegin("onUserSwitching-" + toUserId);
 
-        // Switch HAL users if user switch is not requested by CarUserService
-        notifyHalLegacySwitch(fromUserId, toUserId);
+        notifyLegacyUserSwitch(fromUserId, toUserId);
 
         mInitialUserSetter.setLastActiveUser(toUserId);
 
@@ -2260,17 +2259,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         t.traceEnd();
     }
 
-    private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
+    private void notifyLegacyUserSwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slog.d(TAG, "notifyHalLegacySwitch(" + fromUserId + ", " + toUserId
+                    Slogf.d(TAG, "notifyLegacyUserSwitch(" + fromUserId + ", " + toUserId
                             + "): not needed, normal switch for " + mUserIdForUserSwitchInProcess);
                 }
                 return;
             }
         }
 
+        sendUserSwitchUiCallback(toUserId);
+
+        // Switch HAL users if user switch is not requested by CarUserService
+        notifyHalLegacySwitch(fromUserId, toUserId);
+    }
+
+    private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         if (!isUserHalSupported()) return;
 
         // switch HAL user
