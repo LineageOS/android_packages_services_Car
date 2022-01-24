@@ -356,4 +356,7 @@
         <install-in-user-type package="com.android.nearby.halfsheet">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <install-in-user-type package="com.android.auxiliary">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
