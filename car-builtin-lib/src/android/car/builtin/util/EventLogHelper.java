@@ -134,12 +134,26 @@ public final class EventLogHelper {
     }
 
     public static void writeCarUserServiceSwitchUserResp(int halCallbackStatus,
-            int userSwitchStatus,
-            @Nullable String errorMessage) {
+            int userSwitchStatus, @Nullable String errorMessage) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, halCallbackStatus,
                 userSwitchStatus, errorMessage);
     }
 
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_SVC_LOGOUT_USER_REQ} event.
+     */
+    public static void writeCarUserServiceLogoutUserReq(int userId, int timeout) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_LOGOUT_USER_REQ, userId, timeout);
+    }
+
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_SVC_LOGOUT_USER_RESP} event.
+     */
+    public static void writeCarUserServiceLogoutUserResp(int halCallbackStatus,
+            int userSwitchStatus, @Nullable String errorMessage) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_LOGOUT_USER_RESP, halCallbackStatus,
+                userSwitchStatus, errorMessage);
+    }
     public static void writeCarUserServicePostSwitchUserReq(int targetUserId, int currentUserId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_POST_SWITCH_USER_REQ, targetUserId,
                 currentUserId);
@@ -342,6 +356,21 @@ public final class EventLogHelper {
     public static void writeCarUserManagerSwitchUserResp(int uid, int status,
             @Nullable String errorMessage) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESP, uid, status, errorMessage);
+    }
+
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_MGR_LOGOUT_USER_REQ} event.
+     */
+    public static void writeCarUserManagerLogoutUserReq(int uid) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_REQ, uid);
+    }
+
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_MGR_LOGOUT_USER_RESP} event.
+     */
+    public static void writeCarUserManagerLogoutUserResp(int uid, int status,
+            @Nullable String errorMessage) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_RESP, uid, status, errorMessage);
     }
 
     public static void writeCarUserManagerGetUserAuthReq(@Nullable Object[] types) {

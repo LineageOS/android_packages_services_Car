@@ -354,6 +354,8 @@ package android.car.builtin.util {
     method public static void writeCarUserManagerDisconnected(int);
     method public static void writeCarUserManagerGetUserAuthReq(@Nullable Object[]);
     method public static void writeCarUserManagerGetUserAuthResp(@Nullable Object[]);
+    method public static void writeCarUserManagerLogoutUserReq(int);
+    method public static void writeCarUserManagerLogoutUserResp(int, int, @Nullable String);
     method public static void writeCarUserManagerNotifyLifecycleListener(int, int, int, int);
     method public static void writeCarUserManagerPreCreateUserReq(int);
     method public static void writeCarUserManagerRemoveListener(int, @Nullable String);
@@ -372,6 +374,8 @@ package android.car.builtin.util {
     method public static void writeCarUserServiceInitialUserInfoReq(int, int, int, int, int);
     method public static void writeCarUserServiceInitialUserInfoReqComplete(int);
     method public static void writeCarUserServiceInitialUserInfoResp(int, int, int, int, @Nullable String, @Nullable String);
+    method public static void writeCarUserServiceLogoutUserReq(int, int);
+    method public static void writeCarUserServiceLogoutUserResp(int, int, @Nullable String);
     method public static void writeCarUserServiceNotifyAppLifecycleListener(int, @Nullable String, int, int, int);
     method public static void writeCarUserServiceNotifyInternalLifecycleListener(@Nullable String, int, int, int);
     method public static void writeCarUserServicePostSwitchUserReq(int, int);

@@ -169,6 +169,7 @@ package android.car.user {
     field public static final int STATUS_HAL_FAILURE = 3; // 0x3
     field public static final int STATUS_HAL_INTERNAL_FAILURE = 4; // 0x4
     field public static final int STATUS_INVALID_REQUEST = 5; // 0x5
+    field public static final int STATUS_NOT_LOGGED_IN = 105; // 0x69
     field public static final int STATUS_NOT_SWITCHABLE = 104; // 0x68
     field public static final int STATUS_OK_USER_ALREADY_IN_FOREGROUND = 101; // 0x65
     field public static final int STATUS_SUCCESSFUL = 1; // 0x1

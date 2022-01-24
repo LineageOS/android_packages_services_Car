@@ -268,13 +268,15 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         if (UserHelperLite.isHeadlessSystemUser(driverId)) {
             // System user doesn't associate with real person, can not be switched to.
             Slogf.w(TAG, "switching to system user in headless system user mode is not allowed");
-            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
+            sendUserSwitchResult(receiver, /* isLogout= */ false,
+                    UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         int userSwitchable = mUserManager.getUserSwitchability();
         if (userSwitchable != UserManager.SWITCHABILITY_STATUS_OK) {
             Slogf.w(TAG, "current process is not allowed to switch user");
-            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
+            sendUserSwitchResult(receiver, /* isLogout= */ false,
+                    UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         mCarUserService.switchUser(driverId, mHalTimeoutMs, receiver);

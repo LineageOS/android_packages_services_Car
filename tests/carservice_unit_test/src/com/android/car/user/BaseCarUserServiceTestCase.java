@@ -46,6 +46,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -152,6 +153,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected ActivityManager mMockedActivityManager;
     @Mock protected ActivityManagerHelper mMockedActivityManagerHelper;
     @Mock protected UserManager mMockedUserManager;
+    @Mock protected DevicePolicyManager mMockedDevicePolicyManager;
     @Mock protected Resources mMockedResources;
     @Mock protected Drawable mMockedDrawable;
     @Mock protected InitialUserSetter mInitialUserSetter;
@@ -308,6 +310,14 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
             @NonNull String userType, @UserInfoFlag int flags, @NonNull RuntimeException e) {
         when(um.createUser(isNewUserRequest(name, userType, flags))).thenThrow(e);
+    }
+
+    protected void mockNoLogoutUserId() {
+        mockLogoutUser(/* userHandle= */ null);
+    }
+
+    protected void mockLogoutUser(UserHandle userHandle) {
+        when(mMockedDevicePolicyManager.getLogoutUser()).thenReturn(userHandle);
     }
 
     /**
@@ -497,6 +507,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 mUserHal,
                 mMockedUserManager,
                 mMockedUserHandleHelper,
+                mMockedDevicePolicyManager,
                 mMockedActivityManager,
                 mMockedActivityManagerHelper,
                 /* maxRunningUsers= */ 3,

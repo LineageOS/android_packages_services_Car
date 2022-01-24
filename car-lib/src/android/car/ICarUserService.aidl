@@ -27,7 +27,8 @@ import android.car.util.concurrent.AndroidFuture;
 
 /** @hide */
 interface ICarUserService {
-    void switchUser(int tagerUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void switchUser(int targetUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void logoutUser(int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
