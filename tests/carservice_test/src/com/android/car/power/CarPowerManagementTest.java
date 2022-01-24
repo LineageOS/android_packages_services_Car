@@ -27,7 +27,6 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReqIndex;
@@ -36,6 +35,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
@@ -44,7 +44,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.MockedCarTestBase;
-import com.android.car.hal.PowerHalService;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
@@ -93,7 +92,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
         addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
-                        PowerHalService.VehicleHalStub.ENABLE_HIBERNATION_FLAG))
+                        VehicleApPowerStateConfigFlag.ENABLE_HIBERNATION_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
     }
 

@@ -85,9 +85,9 @@ public class PowerHalService extends HalServiceBase {
     @VisibleForTesting
     public static final int SHUTDOWN_ONLY = VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
     @VisibleForTesting
-    public static final int SET_HIBERNATION_ENTRY = VehicleHalStub.HIBERNATION_ENTRY;
+    public static final int SET_HIBERNATION_ENTRY = VehicleApPowerStateReport.HIBERNATION_ENTRY;
     @VisibleForTesting
-    public static final int SET_HIBERNATION_EXIT = VehicleHalStub.HIBERNATION_EXIT;
+    public static final int SET_HIBERNATION_EXIT = VehicleApPowerStateReport.HIBERNATION_EXIT;
 
     private final Object mLock = new Object();
 
@@ -140,30 +140,6 @@ public class PowerHalService extends HalServiceBase {
     }
 
     /**
-     * @deprecated
-     * Interface to stub new constants for hibernation.
-     * HIDL VHAL is closed for extension due to switch to AIDL.
-     * However, AIDL version is in development.
-     * To avoid blocking of development, new constants will be defined here.
-     * This interface need to be removed when VHAL migration to AIDL is complete.
-     */
-    // TODO(b/200967654) Revert VHAL hibernation stub in PowerHalService
-    @Deprecated
-    public static final class VehicleHalStub {
-
-        private VehicleHalStub() {
-        }
-
-        public static final int HIBERNATE_IMMEDIATELY = 5;
-        public static final int CAN_HIBERNATE = 6;
-
-        public static final int HIBERNATION_ENTRY = 9;
-        public static final int HIBERNATION_EXIT = 10;
-
-        public static final int ENABLE_HIBERNATION_FLAG = 3;
-    }
-
-    /**
      * Contains information about the Vehicle's power state.
      */
     public static final class PowerState {
@@ -200,7 +176,7 @@ public class PowerHalService extends HalServiceBase {
             }
             return (mParam != VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
                     && mParam != VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY
-                    && mParam != VehicleHalStub.HIBERNATE_IMMEDIATELY);
+                    && mParam != VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY);
         }
 
         /**
@@ -213,8 +189,8 @@ public class PowerHalService extends HalServiceBase {
             Preconditions.checkArgument(mState == VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                     "canSuspend was called in the wrong state! State = %d", mState);
 
-            return (mParam == VehicleHalStub.CAN_HIBERNATE
-                    || mParam == VehicleHalStub.HIBERNATE_IMMEDIATELY
+            return (mParam == VehicleApPowerStateShutdownParam.CAN_HIBERNATE
+                    || mParam == VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY
                     || mParam == VehicleApPowerStateShutdownParam.CAN_SLEEP
                     || mParam == VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
         }
@@ -235,8 +211,8 @@ public class PowerHalService extends HalServiceBase {
             if (mParam == VehicleApPowerStateShutdownParam.CAN_SLEEP
                     || mParam == VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY) {
                 result = SHUTDOWN_TYPE_DEEP_SLEEP;
-            } else if (mParam == VehicleHalStub.CAN_HIBERNATE
-                    || mParam == VehicleHalStub.HIBERNATE_IMMEDIATELY) {
+            } else if (mParam == VehicleApPowerStateShutdownParam.CAN_HIBERNATE
+                    || mParam == VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY) {
                 result = SHUTDOWN_TYPE_HIBERNATION;
             }
 
@@ -332,7 +308,7 @@ public class PowerHalService extends HalServiceBase {
     public void sendHibernationEntry(int wakeupTimeSec) {
         Slogf.i(CarLog.TAG_POWER, "send hibernation entry - wakeupTimeSec = %d",
                 wakeupTimeSec);
-        setPowerState(VehicleHalStub.HIBERNATION_ENTRY, wakeupTimeSec);
+        setPowerState(VehicleApPowerStateReport.HIBERNATION_ENTRY, wakeupTimeSec);
     }
 
     /**
@@ -342,7 +318,7 @@ public class PowerHalService extends HalServiceBase {
      */
     public void sendHibernationExit() {
         Slogf.i(CarLog.TAG_POWER, "send hibernation exit");
-        setPowerState(VehicleHalStub.HIBERNATION_EXIT, 0);
+        setPowerState(VehicleApPowerStateReport.HIBERNATION_EXIT, 0);
     }
 
     /**
@@ -468,7 +444,7 @@ public class PowerHalService extends HalServiceBase {
     }
 
     public boolean isHibernationAllowed() {
-        return isConfigFlagSet(VehicleHalStub.ENABLE_HIBERNATION_FLAG);
+        return isConfigFlagSet(VehicleApPowerStateConfigFlag.ENABLE_HIBERNATION_FLAG);
     }
 
     public boolean isTimedWakeupAllowed() {
