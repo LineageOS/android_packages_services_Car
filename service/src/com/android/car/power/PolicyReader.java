@@ -123,7 +123,7 @@ public final class PolicyReader {
             PowerComponent.TRUSTED_DEVICE_DETECTION));
     private static final int[] SUSPEND_TO_RAM_DISABLED_COMPONENTS = {
             PowerComponent.AUDIO, PowerComponent.BLUETOOTH, PowerComponent.WIFI,
-            PowerComponent.LOCATION
+            PowerComponent.LOCATION, PowerComponent.MICROPHONE, PowerComponent.CPU
     };
     private static final CarPowerPolicy POWER_POLICY_ALL_ON;
     private static final CarPowerPolicy POWER_POLICY_INITIAL_ON;
