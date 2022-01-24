@@ -251,7 +251,7 @@ ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_HIDDENAPI_STUBS_TEST := android.car-module.stubs.test
 else # !USE_CAR_FRAMEWORK_APEX
     PRODUCT_BOOT_JARS += android.car
-    PRODUCT_PACKAGES += android.car CarServiceUpdatable car-frameworks-service-module
+    PRODUCT_PACKAGES += android.car CarServiceUpdatableNonModule car-frameworks-service-module
     PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service-module
 
     PRODUCT_HIDDENAPI_STUBS := android.car-stubs-dex

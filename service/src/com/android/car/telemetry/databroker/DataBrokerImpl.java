@@ -25,6 +25,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -63,13 +65,17 @@ import java.util.concurrent.PriorityBlockingQueue;
  */
 public class DataBrokerImpl implements DataBroker {
 
-    private static final int MSG_HANDLE_TASK = 1;
-    private static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
+    @VisibleForTesting
+    static final int MSG_HANDLE_TASK = 1;
+    @VisibleForTesting
+    static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
 
     /** Bind to script executor 5 times before entering disabled state. */
     private static final int MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS = 5;
 
-    private static final String SCRIPT_EXECUTOR_PACKAGE = "com.android.car.scriptexecutor";
+    // TODO(b/216134347): Find a better way to find the package.
+    private static final String[] SCRIPT_EXECUTOR_PACKAGE_CANDIDATES =
+            {"com.android.car.scriptexecutor", "com.google.android.car.scriptexecutor"};
     private static final String SCRIPT_EXECUTOR_CLASS =
             "com.android.car.scriptexecutor.ScriptExecutor";
 
@@ -167,13 +173,38 @@ public class DataBrokerImpl implements DataBroker {
         Slogf.w(CarLog.TAG_TELEMETRY, "publisher failed", error);
     }
 
+    @Nullable
+    private String findExecutorPackage() {
+        PackageInfo info = null;
+        for (int i = 0; i < SCRIPT_EXECUTOR_PACKAGE_CANDIDATES.length; i++) {
+            try {
+                info = mContext.getPackageManager().getPackageInfo(
+                        SCRIPT_EXECUTOR_PACKAGE_CANDIDATES[i], /* flags= */ 0);
+                if (info != null) {
+                    break;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                // ignore
+            }
+        }
+        if (info == null) {
+            return null;
+        }
+        return info.packageName;
+    }
+
     private void bindScriptExecutor() {
         // do not re-bind if broker is in a disabled state or if script executor is nonnull
         if (mDisabled || mScriptExecutor != null) {
             return;
         }
+        String executorPackage = findExecutorPackage();
+        if (executorPackage == null) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Cannot find executor package");
+            return;
+        }
         Intent intent = new Intent();
-        intent.setComponent(new ComponentName(SCRIPT_EXECUTOR_PACKAGE, SCRIPT_EXECUTOR_CLASS));
+        intent.setComponent(new ComponentName(executorPackage, SCRIPT_EXECUTOR_CLASS));
         boolean success = mContext.bindServiceAsUser(
                 intent,
                 mServiceConnection,

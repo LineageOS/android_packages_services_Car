@@ -20,7 +20,6 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-
 genrule {
     name: "statslog-Car-java-gen",
     tools: ["stats-log-api-gen"],
@@ -29,123 +28,8 @@ genrule {
     out: ["com/android/car/CarStatsLog.java"],
 }
 
-car_service_sources = [
-    ":iscriptexecutor_aidl",
-    "proto/**/*.proto",
-    ":cartelemetry-cardata-proto-srcs",
-    "src/**/*.java",
-    ":statslog-Car-java-gen",
-]
-
-common_lib_deps = [
-    "android.automotive.telemetry.internal-V1-java",  // ICarTelemetryInternal
-    "android.car.cluster.navigation",
-    "android.car.watchdoglib",
-    "android.frameworks.automotive.powerpolicy.internal-V1-java",
-    "android.hidl.base-V1.0-java",
-    "android.hardware.automotive.audiocontrol-V1.0-java",
-    "android.hardware.automotive.audiocontrol-V2.0-java",
-    "android.hardware.automotive.audiocontrol-V1-java",
-    "android.hardware.automotive.vehicle-V2.0-java",
-    "android.hardware.automotive.vehicle-V1-java",
-    "android.hardware.health-V1.0-java",
-    "android.hardware.health-V2.0-java",
-    "android.hardware.automotive.occupant_awareness-V1-java",
-    "vehicle-hal-support-lib",
-    "com.android.car.procfsinspector-client",
-]
-
-android_app {
-    name: "CarServiceUpdatable",
-
-    srcs: car_service_sources,
-
-    resource_dirs: ["res"],
-
-    // Resource is still com.android.car.R
-    aaptflags: [
-        "--custom-package com.android.car",
-    ],
-
-    platform_apis: true,
-
-    optimize: {
-        proguard_flags_files: ["proguard.flags"],
-        enabled: false,
-    },
-
-    libs: [
-        "android.car",
-        "android.car.builtin",
-        "framework-annotations-lib",
-        "framework-connectivity",
-        "framework-statsd",
-        "framework-wifi",
-        "modules-utils-preconditions",
-        "modules-utils-shell-command-handler",
-    ],
-
-    static_libs: common_lib_deps,
-
-    proto: {
-        type: "lite",
-    },
-
-    aidl: {
-        include_dirs: [
-            // TODO(b/198195711): Remove once we compile against SDK.
-            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-        ],
-    },
-
-    required: ["allowed_privapp_com.android.car"],
-
-    // Disable build in PDK, missing aidl import breaks build
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-}
-
-// TODO(b/194941497): SHIPSTOP - remove this
-// This will generate empty stub version for the added source. This is useful to add dependency
-// which is still using hidden API. Any component added to android.car.module should be removed
-// from this.
-droidstubs {
-    name: "carservice-stub-for-hidden-api-check-docs",
-    // Code under here are still having hidden API inside
-    srcs: [
-        "src/com/android/car/CarLocalServices.java",
-        //"src/com/android/car/hal/UserHalService.java",
-        //"src/com/android/car/systeminterface/SystemStateInterface.java",
-        //"src/com/android/car/systeminterface/DisplayInterface.java",
-    ],
-    // metalava still hides hidden methods even with --hidden, so needs additional annotation
-    // to include them
-    args: "--hide CallbackInterface --hide UnhiddenSystemApi " +
-        "--stub-packages com.android.car* --package " +
-        "--show-annotation android.annotation.SystemApi " +
-        "--show-annotation com.android.internal.annotations.VisibleForTesting " +
-        "--show-annotation android.car.annotation.MandatoryFeature " +
-        "--show-annotation android.car.annotation.OptionalFeature " +
-        "--show-annotation com.android.car.internal.VisibleForHiddenApiCheck ",
-
-    installable: false,
-
-    libs: [
-        "android.car-module.impl",
-        "android.car.builtin",
-        "framework-annotations-lib",
-        "framework-statsd",
-        "modules-utils-preconditions",
-    ],
-    visibility: ["//packages/services/Car/service"],
-}
-
-// TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
-android_app {
-    name: "CarServiceModule",
+java_defaults {
+    name: "carservice-updatable-min-java-defaults",
 
     srcs: [
         // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
@@ -172,11 +56,6 @@ android_app {
     aaptflags: [
         "--custom-package com.android.car",
     ],
-
-    sdk_version: "module_current",
-    min_sdk_version: "current",
-    apex_available: ["com.android.car.framework"],
-    platform_apis: false,
 
     libs: [
         "android.car-module.impl",
@@ -213,6 +92,46 @@ android_app {
         proguard_flags_files: ["proguard.flags"],
         enabled: false,
     },
+
+    // Disable build in PDK, missing aidl import breaks build
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
+}
+
+java_defaults {
+    name: "carservice-updatable-java-defaults",
+
+    visibility: [
+        "//packages/services/Car:__subpackages__",
+    ],
+
+    defaults: [ "carservice-updatable-min-java-defaults" ],
+
+    sdk_version: "module_current",
+    // TODO(b/202884646) Change into T sdk version
+    min_sdk_version: "current",
+    platform_apis: false,
+}
+
+// Non-module build
+android_app {
+    name: "CarServiceUpdatableNonModule",
+
+    defaults: ["carservice-updatable-java-defaults"],
+
+    required: ["allowed_privapp_com.android.car"],
+}
+
+// Added to car.framework module
+android_app {
+    name: "CarServiceUpdatable",
+
+    defaults: ["carservice-updatable-java-defaults"],
+
+    apex_available: ["com.android.car.framework"],
 }
 
 java_library {
@@ -265,70 +184,7 @@ java_library {
 android_library {
     name: "car-service-test-static-lib",
 
-    srcs: car_service_sources,
-
-    resource_dirs: ["res"],
-
-    // Resource is still com.android.car.R
-    aaptflags: [
-        "--custom-package com.android.car",
-    ],
-
-    libs: [
-        "android.car",
-        "android.car.builtin",
-    ],
-
-    static_libs: common_lib_deps,
-
-    aidl: {
-        include_dirs: [
-            // TODO(b/198195711): Remove once we compile against SDK.
-            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-        ],
-    },
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-}
-
-//####################################################################################
-// Build a library to help generate a testing library for external apps.
-// We do not want to use statically linked libraries, as this will bloat the output jar with classes
-// that can conflict with the user's environment.
-//####################################################################################
-android_library {
-    name: "car-service-test-lib",
-
-    srcs: car_service_sources,
-
-    resource_dirs: ["res"],
-
-    // Resource is still com.android.car.R
-    aaptflags: [
-        "--custom-package com.android.car",
-    ],
-
-    libs: common_lib_deps + [
-        "android.car",
-        "android.car.builtin",
-    ],
-
-    aidl: {
-        include_dirs: [
-            // TODO(b/198195711): Remove once we compile against SDK.
-	    "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-	],
-    },
-
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
+    defaults: ["carservice-updatable-java-defaults"],
 }
 
 filegroup {
