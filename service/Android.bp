@@ -62,6 +62,7 @@ java_defaults {
         "android.car.builtin",
         "framework-annotations-lib",
         "framework-connectivity",
+        "framework-connectivity-tiramisu.stubs.module_lib",
         "framework-statsd",
         "framework-wifi",
         "modules-utils-os",
