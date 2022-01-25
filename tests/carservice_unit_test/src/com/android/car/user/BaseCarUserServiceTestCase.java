@@ -863,6 +863,16 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         verify(mMockedActivityManager, never()).switchUser(any());
     }
 
+    // Note: tests must explicitly call it, as Mockito would return 0 by default, which is the same
+    // value of UserManager.USER_OPERATION_SUCCESS
+    protected void verifyLogoutUser() {
+        verify(mMockedDevicePolicyManager).logoutUser();
+    }
+
+    protected void verifyNoLogoutUser() {
+        verify(mMockedDevicePolicyManager, never()).logoutUser();
+    }
+
     @NonNull
     protected UsersInfo newUsersInfo(@UserIdInt int currentUserId) {
         UsersInfo infos = new UsersInfo();

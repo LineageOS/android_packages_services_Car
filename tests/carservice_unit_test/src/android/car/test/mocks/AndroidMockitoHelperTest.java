@@ -19,6 +19,7 @@ package android.car.test.mocks;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUserHandle;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
+import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockSmGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.mock;
 
 import android.app.ActivityManager;
 import android.app.Service;
+import android.app.admin.DevicePolicyManager;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.Visitor;
 import android.content.Context;
@@ -71,6 +73,7 @@ public final class AndroidMockitoHelperTest {
     private StaticMockitoSession mMockSession;
 
     @Mock private UserManager mMockedUserManager;
+    @Mock private DevicePolicyManager mMockedDevicePolicyManager;
 
     @Before
     public void setUp() {
@@ -177,6 +180,26 @@ public final class AndroidMockitoHelperTest {
     }
 
     @Test
+    public void testMockUmRemoveUserWhenPossible() {
+        VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
+
+        mockUmRemoveUserWhenPossible(mMockedUserManager, mTestUserInfo,
+                /* overrideDevicePolicy= */ true, /* result= */ 1, visitor);
+
+        mMockedUserManager.removeUserWhenPossible(UserHandle.of(TEST_USER_ID),
+                /* overrideDevicePolicy= */ true);
+
+        assertThat(visitor.mVisited).isEqualTo(mTestUserInfo);
+    }
+
+    @Test
+    public void testMockDpmLogoutUser() {
+        mockDpmLogoutUser(mMockedDevicePolicyManager, 42);
+
+        assertThat(mMockedDevicePolicyManager.logoutUser()).isEqualTo(42);
+    }
+
+    @Test
     public void testMockBinderGetCallingUserHandle() {
         mockBinderGetCallingUserHandle(TEST_USER_ID);
 
@@ -200,19 +223,6 @@ public final class AndroidMockitoHelperTest {
 
         assertThat(ServiceManager.getService("someServiceName")).isEqualTo(someBinder);
         assertThat(someBinder.queryLocalInterface("anyString")).isEqualTo(someService);
-    }
-
-    @Test
-    public void testMockUmRemoveUserWhenPossible() {
-        VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
-
-        mockUmRemoveUserWhenPossible(mMockedUserManager, mTestUserInfo,
-                /* overrideDevicePolicy= */ true, /* result= */ 1, visitor);
-
-        mMockedUserManager.removeUserWhenPossible(UserHandle.of(TEST_USER_ID),
-                /* overrideDevicePolicy= */ true);
-
-        assertThat(visitor.mVisited).isEqualTo(mTestUserInfo);
     }
 
     private static final class VisitorImpl<T> implements Visitor<T> {
