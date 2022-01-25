@@ -78,7 +78,15 @@ public:
         int32_t areaId;
     };
 
-    explicit GetSetValueClient(int64_t timeoutInNs);
+    struct PendingSetValueRequest {
+        std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback;
+        int32_t propId;
+        int32_t areaId;
+    };
+
+    GetSetValueClient(
+            int64_t timeoutInNs,
+            std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal);
 
     ~GetSetValueClient();
 
@@ -95,25 +103,54 @@ public:
             const ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors)
             override;
 
-    // Add a new pending getValue request.
-    void addGetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
-                            std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> callback);
-    // Try to finish the pending getValue request according to the requestId. If there is an
-    // existing pending request, the request would be finished and returned. Otherwise, if the
-    // request has already timed-out, nullptr would be returned.
-    std::unique_ptr<PendingGetValueRequest> tryFinishGetValueRequest(int64_t requestId);
+    void getValue(int64_t requestId, const IHalPropValue& requestValue,
+                  std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> clientCallback,
+                  std::shared_ptr<GetSetValueClient> vhalCallback);
+    void setValue(int64_t requestId, const IHalPropValue& requestValue,
+                  std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> clientCallback,
+                  std::shared_ptr<GetSetValueClient> vhalCallback);
 
 private:
     std::mutex mLock;
     std::unordered_map<int64_t, std::unique_ptr<PendingGetValueRequest>> mPendingGetValueCallbacks
             GUARDED_BY(mLock);
+    std::unordered_map<int64_t, std::unique_ptr<PendingSetValueRequest>> mPendingSetValueCallbacks
+            GUARDED_BY(mLock);
     std::unique_ptr<hardware::automotive::vehicle::PendingRequestPool> mPendingRequestPool;
     std::shared_ptr<
             ::android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
             mOnGetValueTimeout;
+    std::shared_ptr<
+            ::android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
+            mOnSetValueTimeout;
+    std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+
+    // Add a new GetValue pending request.
+    void addGetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
+                            std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> callback);
+    // Add a new SetValue pending request.
+    void addSetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
+                            std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback);
+    // Try to finish the pending GetValue request according to the requestId. If there is an
+    // existing pending request, the request would be finished and returned. Otherwise, if the
+    // request has already timed-out, nullptr would be returned.
+    std::unique_ptr<PendingGetValueRequest> tryFinishGetValueRequest(int64_t requestId);
+    // Try to finish the pending SetValue request according to the requestId. If there is an
+    // existing pending request, the request would be finished and returned. Otherwise, if the
+    // request has already timed-out, nullptr would be returned.
+    std::unique_ptr<PendingSetValueRequest> tryFinishSetValueRequest(int64_t requestId);
+
+    template <class T>
+    std::unique_ptr<T> tryFinishRequest(int64_t requestId,
+                                        std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks)
+            REQUIRES(mLock);
 
     void onGetValue(const ::aidl::android::hardware::automotive::vehicle::GetValueResult& result);
-    void onGetValueTimeout(const std::unordered_set<int64_t>& requestIds);
+    void onSetValue(const ::aidl::android::hardware::automotive::vehicle::SetValueResult& result);
+
+    template <class T>
+    void onTimeout(const std::unordered_set<int64_t>& requestIds,
+                   std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks);
 };
 
 }  // namespace vhal

@@ -44,7 +44,10 @@ using ::aidl::android::hardware::automotive::vehicle::GetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::IVehicle;
 using ::aidl::android::hardware::automotive::vehicle::IVehicleCallback;
 using ::aidl::android::hardware::automotive::vehicle::RawPropValues;
+using ::aidl::android::hardware::automotive::vehicle::SetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
+using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
+using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
@@ -91,8 +94,28 @@ public:
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus setValues([[maybe_unused]] const CallbackType& callback,
-                            [[maybe_unused]] const SetValueRequests& requests) override {
+    ScopedAStatus setValues(const CallbackType& callback,
+                            const SetValueRequests& requests) override {
+        mSetValueRequests = requests.payloads;
+
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
+
+        if (mWaitTimeInMs == 0) {
+            callback->onSetValues(SetValueResults{.payloads = mSetValueResults});
+        } else {
+            mThreadCount++;
+            std::thread t([this, callback]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(mWaitTimeInMs));
+                callback->onSetValues(SetValueResults{.payloads = mSetValueResults});
+                mThreadCount--;
+                mCv.notify_one();
+            });
+            // Detach the thread here so we do not have to maintain the thread object. mThreadCount
+            // and mCv make sure we wait for all threads to end before we exit.
+            t.detach();
+        }
         return ScopedAStatus::ok();
     }
 
@@ -123,6 +146,10 @@ public:
 
     std::vector<GetValueRequest> getGetValueRequests() { return mGetValueRequests; }
 
+    void setSetValueResults(std::vector<SetValueResult> results) { mSetValueResults = results; }
+
+    std::vector<SetValueRequest> getSetValueRequests() { return mSetValueRequests; }
+
     void setWaitTimeInMs(int64_t waitTimeInMs) { mWaitTimeInMs = waitTimeInMs; }
 
     void setStatus(StatusCode status) { mStatus = status; }
@@ -131,6 +158,8 @@ private:
     std::mutex mLock;
     std::vector<GetValueResult> mGetValueResults;
     std::vector<GetValueRequest> mGetValueRequests;
+    std::vector<SetValueResult> mSetValueResults;
+    std::vector<SetValueRequest> mSetValueRequests;
     int64_t mWaitTimeInMs = 0;
     StatusCode mStatus = StatusCode::OK;
     std::condition_variable mCv;
@@ -362,6 +391,168 @@ TEST_F(AidlVhalClientTest, testGetValueIgnoreInvalidRequestId) {
     ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
     ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueNormal) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setWaitTimeInMs(100);
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    std::mutex lock;
+    std::condition_variable cv;
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+    bool gotResult = false;
+    bool* gotResultPtr = &gotResult;
+
+    auto callback = std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+            [&lock, &cv, resultPtr, gotResultPtr](Result<void> r) {
+                {
+                    std::lock_guard<std::mutex> lockGuard(lock);
+                    *resultPtr = std::move(r);
+                    *gotResultPtr = true;
+                }
+                cv.notify_one();
+            });
+    getClient()->setValue(propValue, callback);
+
+    std::unique_lock<std::mutex> lk(lock);
+    cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
+
+    ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_TRUE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testSetValueTimeout) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setWaitTimeInMs(100);
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    std::mutex lock;
+    std::condition_variable cv;
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+    bool gotResult = false;
+    bool* gotResultPtr = &gotResult;
+
+    // The request will time-out before the response.
+    auto vhalClient = getClient(/*timeoutInMs=*/10);
+    auto callback = std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+            [&lock, &cv, resultPtr, gotResultPtr](Result<void> r) {
+                {
+                    std::lock_guard<std::mutex> lockGuard(lock);
+                    *resultPtr = std::move(r);
+                    *gotResultPtr = true;
+                }
+                cv.notify_one();
+            });
+    vhalClient->setValue(propValue, callback);
+
+    std::unique_lock<std::mutex> lk(lock);
+    cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
+
+    ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::TRY_AGAIN));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueErrorStatus) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+
+    getClient()->setValue(propValue,
+                          std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+                                  [resultPtr](Result<void> r) { *resultPtr = std::move(r); }));
+
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::INTERNAL_ERROR));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueNonOkayResult) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::INTERNAL_ERROR,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+
+    getClient()->setValue(propValue,
+                          std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+                                  [resultPtr](Result<void> r) { *resultPtr = std::move(r); }));
+
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::INTERNAL_ERROR));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueIgnoreInvalidRequestId) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+            // This result has invalid request ID and should be ignored.
+            SetValueResult{
+                    .requestId = 1,
+                    .status = StatusCode::INTERNAL_ERROR,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+
+    getClient()->setValue(propValue,
+                          std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+                                  [resultPtr](Result<void> r) { *resultPtr = std::move(r); }));
+
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_TRUE(result.ok());
 }
 
 }  // namespace test
