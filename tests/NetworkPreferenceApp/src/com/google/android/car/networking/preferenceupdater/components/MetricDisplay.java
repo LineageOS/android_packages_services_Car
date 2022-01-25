@@ -30,7 +30,6 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkIdentity;
 import android.net.NetworkTemplate;
 import android.os.Bundle;
 import android.os.Handler;
@@ -56,8 +55,8 @@ public final class MetricDisplay {
     // Network match rules array
     private static final int[] NETWORK_MATCHING_RULES =
             new int[] {
-                NetworkTemplate.MATCH_WIFI_WILDCARD,
-                NetworkTemplate.MATCH_MOBILE_WILDCARD,
+                NetworkTemplate.MATCH_WIFI,
+                NetworkTemplate.MATCH_MOBILE,
                 NetworkTemplate.MATCH_ETHERNET,
                 NetworkTemplate.MATCH_BLUETOOTH,
                 NetworkTemplate.MATCH_PROXY,
@@ -202,8 +201,10 @@ public final class MetricDisplay {
 
     @WorkerThread
     private void updateStats() {
-        sendMessage(NetworkIdentity.OEM_PAID, combinedTrafficFor(NetworkIdentity.OEM_PAID));
-        sendMessage(NetworkIdentity.OEM_PRIVATE, combinedTrafficFor(NetworkIdentity.OEM_PRIVATE));
+        sendMessage(NetworkTemplate.OEM_MANAGED_PAID,
+                combinedTrafficFor(NetworkTemplate.OEM_MANAGED_PAID));
+        sendMessage(NetworkTemplate.OEM_MANAGED_PRIVATE,
+                combinedTrafficFor(NetworkTemplate.OEM_MANAGED_PRIVATE));
         sendMessage(
                 NetworkTemplate.OEM_MANAGED_YES,
                 combinedTrafficFor(NetworkTemplate.OEM_MANAGED_YES));

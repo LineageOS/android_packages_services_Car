@@ -16,37 +16,36 @@
 
 package android.car.builtin.net;
 
-import static android.net.NetworkStats.DEFAULT_NETWORK_ALL;
-import static android.net.NetworkStats.METERED_ALL;
-import static android.net.NetworkStats.ROAMING_ALL;
 import static android.net.NetworkTemplate.MATCH_BLUETOOTH;
 import static android.net.NetworkTemplate.MATCH_ETHERNET;
-import static android.net.NetworkTemplate.MATCH_MOBILE_WILDCARD;
-import static android.net.NetworkTemplate.MATCH_WIFI_WILDCARD;
-import static android.net.NetworkTemplate.NETWORK_TYPE_ALL;
+import static android.net.NetworkTemplate.MATCH_MOBILE;
+import static android.net.NetworkTemplate.MATCH_WIFI;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.content.Context;
-import android.net.INetworkStatsService;
-import android.net.INetworkStatsSession;
+import android.app.usage.NetworkStatsManager;
 import android.net.NetworkStats;
 import android.net.NetworkTemplate;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 
-import com.android.internal.annotations.GuardedBy;
+import com.android.net.module.util.NetworkStatsUtils;
 
 /**
- * Provides access to {@link INetworkStatsService} calls. It lazily connects to {@link
- * INetworkStatsService} when necessary.
+ * Provides access to {@link NetworkStatsManager} calls. It lazily connects to {@link
+ * NetworkStatsManager} when necessary.
+ *
+ * @deprecated NetworkStats related code is moving to the mainline module, Platform code cannot
+ *             access binder interfaces any more such as INetworkStatsService, NetworkStatsManager
+ *             will expose system APIs to fetch netstats summary instead then. See b/214304284 for
+ *             more details.
  *
  * @hide
  */
+@Deprecated
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class NetworkStatsServiceHelper {
     // Supported transports by NetworkStatsServiceHelper and underlying NetworkTemplate predicate.
-    // The values match androix.net.NetworkCapabilities
+    // The values match android.net.NetworkCapabilities
     public static final int TRANSPORT_CELLULAR = 0;
     public static final int TRANSPORT_WIFI = 1;
     public static final int TRANSPORT_BLUETOOTH = 2;
@@ -57,14 +56,57 @@ public final class NetworkStatsServiceHelper {
     public static final int OEM_MANAGED_NO = 0;  // netstats for OEM not managed networks
     public static final int OEM_MANAGED_YES = -2;  // netstats for any OEM managed networks
 
-    private final Object mLock = new Object();
+    @NonNull
+    private final Dependencies mDeps;
 
-    @GuardedBy("mLock")
-    private INetworkStatsService mService;
+    public NetworkStatsServiceHelper(@NonNull Dependencies deps) {
+        mDeps = deps;
+    }
+
+    /**
+     * The dependencies needed by {@link #NetworkStatsServiceHelper}. Methods are intent to be
+     * overridden by the test.
+     */
+    public static class Dependencies {
+        @NonNull
+        private final NetworkStatsManager mNetworkStatsManager;
+        public Dependencies(@NonNull NetworkStatsManager networkStatsManager) {
+            mNetworkStatsManager = networkStatsManager;
+        }
+
+        /**
+         * Returns the network layer usage summary per UID for traffic for given transport and
+         * oemManaged values.
+         *
+         * Note that while non-tagged statistics is returned to represent
+         * the overall traffic, tagged data is also attached to provide mode detail of tagging
+         * information.
+         */
+        @NonNull
+        public NetworkStats getSummaryForAllUid(
+                int transport, int oemManaged, long startMillis, long endMillis) {
+            final android.app.usage.NetworkStats publicNonTaggedStats =
+                    mNetworkStatsManager.querySummary(buildNetworkTemplate(transport, oemManaged),
+                            startMillis, endMillis);
+            final NetworkStats nonTaggedStats =
+                    NetworkStatsUtils.fromPublicNetworkStats(publicNonTaggedStats);
+            final android.app.usage.NetworkStats publicTaggedStats =
+                    mNetworkStatsManager.queryTaggedSummary(
+                            buildNetworkTemplate(transport, oemManaged),
+                            startMillis, endMillis);
+            final NetworkStats taggedStats = NetworkStatsUtils.fromPublicNetworkStats(
+                    publicTaggedStats);
+            return taggedStats.add(nonTaggedStats);
+        }
+    }
 
     /**
      * Returns the network layer usage summary per UID for traffic for given transport and
      * oemManaged values.
+     *
+     * Note that while non-tagged statistics is returned to represent
+     * the overall traffic, tagged data is also attached to provide mode detail of tagging
+     * information.
      *
      * @param transport - one of TRANSPORT_* constants defined above.
      * @param oemManaged - one of OEM_MANAGED_* constants defined above.
@@ -80,52 +122,21 @@ public final class NetworkStatsServiceHelper {
             long endMillis,
             @NonNull String callingPackage)
             throws RemoteException {
-        // No need to close the session, it just resets the internal state.
-        return openSessionForUsageStats(callingPackage)
-                .getSummaryForAllUid(
-                        buildNetworkTemplate(transport, oemManaged),
-                        startMillis,
-                        endMillis,
-                        /* includeTags= */ true);
+        return mDeps.getSummaryForAllUid(transport, oemManaged, startMillis, endMillis);
     }
 
-    private INetworkStatsSession openSessionForUsageStats(String callingPackage)
-            throws RemoteException {
-        INetworkStatsService service;
-        synchronized (mLock) {
-            if (mService == null) {
-                mService =
-                        INetworkStatsService.Stub.asInterface(
-                                ServiceManager.getService(Context.NETWORK_STATS_SERVICE));
-            }
-            service = mService;
-        }
-        if (service == null) {
-            throw new RemoteException("INetworkStatsService is not ready.");
-        }
-        return service.openSessionForUsageStats(/* flags= */ 0, callingPackage);
-    }
-
-    private NetworkTemplate buildNetworkTemplate(int transport, int oemManaged) {
-        return new NetworkTemplate(
-                getMatchForTransport(transport),
-                /* subscriberId= */ null,
-                /* matchSubscriberIds= */ null,
-                /* networkId= */ null,
-                METERED_ALL,
-                ROAMING_ALL,
-                DEFAULT_NETWORK_ALL,
-                NETWORK_TYPE_ALL,
-                getTemplateOemManaged(oemManaged));
+    private static NetworkTemplate buildNetworkTemplate(int transport, int oemManaged) {
+        return new NetworkTemplate.Builder(getMatchForTransport(transport)).setOemManaged(
+                getTemplateOemManaged(oemManaged)).build();
     }
 
     /** Converts the transport value to the {@link NetworkTemplate} MATCH_* value. */
-    private int getMatchForTransport(int transport) {
+    private static int getMatchForTransport(int transport) {
         switch (transport) {
             case TRANSPORT_CELLULAR:
-                return MATCH_MOBILE_WILDCARD;
+                return MATCH_MOBILE;
             case TRANSPORT_WIFI:
-                return MATCH_WIFI_WILDCARD;
+                return MATCH_WIFI;
             case TRANSPORT_BLUETOOTH:
                 return MATCH_BLUETOOTH;
             case TRANSPORT_ETHERNET:
@@ -139,7 +150,7 @@ public final class NetworkStatsServiceHelper {
      * Converts {@link NetworkStatsServiceHelper} oemManaged value to the {@link NetworkTemplate}
      * OEM_MANAGED_* value.
      */
-    private int getTemplateOemManaged(int oemManaged) {
+    private static int getTemplateOemManaged(int oemManaged) {
         switch (oemManaged) {
             case OEM_MANAGED_ALL:
                 return NetworkTemplate.OEM_MANAGED_ALL;

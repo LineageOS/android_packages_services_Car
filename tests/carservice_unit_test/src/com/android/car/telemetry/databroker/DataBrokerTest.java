@@ -46,6 +46,7 @@ import android.util.Log;
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
@@ -62,7 +63,6 @@ import org.mockito.stubbing.Answer;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
@@ -133,6 +133,10 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private ResultStore mMockResultStore;
     @Mock
     private TimingsTraceLog mMockTimingsTraceLog;
+    @Mock
+    private PublisherFactory mMockPublisherFactory;
+    @Mock
+    private AbstractPublisher mAbstractPublisher;
 
     @Before
     public void setUp() throws Exception {
@@ -149,11 +153,9 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
             return true;
         });
 
-        PublisherFactory factory = new PublisherFactory(
-                mMockCarPropertyService, mMockHandler, mMockContext,
-                Files.createTempDirectory("telemetry_test").toFile());
+        when(mMockPublisherFactory.getPublisher(any())).thenReturn(mAbstractPublisher);
         mDataBroker = new DataBrokerImpl(
-                mMockContext, factory, mMockResultStore, mMockTimingsTraceLog);
+                mMockContext, mMockPublisherFactory, mMockResultStore, mMockTimingsTraceLog);
         mDataBroker.setOnScriptFinishedCallback(mMockScriptFinishedCallback);
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {

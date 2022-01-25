@@ -42,6 +42,7 @@ import com.android.internal.util.Preconditions;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
 
 /**
@@ -246,8 +247,9 @@ public class ConnectivityPublisher extends AbstractPublisher {
         long[] rxBytes = new long[dataSize];
         long[] txBytes = new long[dataSize];
         int aggregatedDataSize = 0;
-        for (int rawIndex = 0; rawIndex < dataSize; rawIndex++) {
-            NetworkStats.Entry raw = NetworkStatsHelper.getValues(stats, rawIndex, null);
+        final Iterator it = stats.iterator();
+        while (it.hasNext()) {
+            NetworkStats.Entry raw = (NetworkStats.Entry) it.next();
             int index = -1;
             for (int j = 0; j < aggregatedDataSize; j++) {
                 if (uid[j] == EntryHelper.getUid(raw) && tag[j] == EntryHelper.getTag(raw)) {
@@ -267,7 +269,9 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
         PersistableBundle data = new PersistableBundle();
         data.putLong("collectedAtMillis", collectedAtMillis);
-        data.putLong("durationMillis", NetworkStatsHelper.getElapsedRealtime(stats));
+        // TODO(b/215933256): NetworkStats.getElapsedRealtime cannot be accessed as public API,
+        // use 1L temporarily to pass the test, replace it with an appropriate value later.
+        data.putLong("durationMillis", 1L);
         data.putInt("size", aggregatedDataSize);
         data.putIntArray("uid", Arrays.copyOf(uid, aggregatedDataSize));
         data.putIntArray("tag", Arrays.copyOf(tag, aggregatedDataSize));

@@ -21,6 +21,8 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.net.NetworkStats;
 
+import java.util.Iterator;
+
 /**
  * Helper class to get values from {@link NetworkStats}.
  *
@@ -39,12 +41,19 @@ public final class NetworkStatsHelper {
     @NonNull
     public static NetworkStats.Entry getValues(
             @NonNull NetworkStats networkStats, int i, @Nullable NetworkStats.Entry recycle) {
-        return networkStats.getValues(i, recycle);
+        throw new UnsupportedOperationException(
+                "Cannot access the hidden method NetworkStats.getValues");
     }
 
     /** Returns the number of entries in this object. */
     public static int size(@NonNull NetworkStats networkStats) {
-        return networkStats.size();
+        int count = 0;
+        final Iterator it = networkStats.iterator();
+        while (it.hasNext()) {
+            it.next();
+            count++;
+        }
+        return count;
     }
 
     /**
@@ -52,7 +61,8 @@ public final class NetworkStatsHelper {
      * method is used.
      */
     public static long getElapsedRealtime(@NonNull NetworkStats networkStats) {
-        return networkStats.getElapsedRealtime();
+        throw new UnsupportedOperationException(
+                "Cannot access the hidden method NetworkStats.getElapsedRealtime");
     }
 
     /** Helper class to access details of {@link Entry} class. */
@@ -60,73 +70,76 @@ public final class NetworkStatsHelper {
         /** Returns the interface name. Or null if not specified. */
         @Nullable
         public static String getIface(@NonNull NetworkStats.Entry entry) {
-            return entry.iface;
+            throw new UnsupportedOperationException(
+                    "Cannot access the hidden method NetworkStats.entry.getIface");
         }
 
         /** Returns the uid. */
         public static int getUid(@NonNull NetworkStats.Entry entry) {
-            return entry.uid;
+            return entry.getUid();
         }
 
         /** Returns usage state. */
         public static int getSet(@NonNull NetworkStats.Entry entry) {
-            return entry.set;
+            return entry.getSet();
         }
 
         /** Returns the tag. https://source.android.com/devices/tech/datausage/tags-explained. */
         public static int getTag(@NonNull NetworkStats.Entry entry) {
-            return entry.tag;
+            return entry.getTag();
         }
 
         /** Returns the metered state. */
         public static int getMetered(@NonNull NetworkStats.Entry entry) {
-            return entry.metered;
+            return entry.getMetered();
         }
 
         /** Returns the roaming state. */
         public static int getRoaming(@NonNull NetworkStats.Entry entry) {
-            return entry.roaming;
+            return entry.getRoaming();
         }
 
         /** Returns the default network status. */
         public static int getDefaultNetwork(@NonNull NetworkStats.Entry entry) {
-            return entry.defaultNetwork;
+            return entry.getDefaultNetwork();
         }
 
         /** Returns the number of bytes received. */
         public static long getRxBytes(@NonNull NetworkStats.Entry entry) {
-            return entry.rxBytes;
+            return entry.getRxBytes();
         }
 
         /** Returns the number of packets received. */
         public static long getRxPackets(@NonNull NetworkStats.Entry entry) {
-            return entry.rxPackets;
+            return entry.getRxPackets();
         }
 
         /** Returns the number of bytes transmitted. */
         public static long getTxBytes(@NonNull NetworkStats.Entry entry) {
-            return entry.txBytes;
+            return entry.getTxBytes();
         }
 
         /** Returns the number of bytes transmitted. */
         public static long getTxPackets(@NonNull NetworkStats.Entry entry) {
-            return entry.txPackets;
+            return entry.getTxPackets();
         }
 
         /** Returns the count of network operations performed. */
         public static long getOperations(@NonNull NetworkStats.Entry entry) {
-            return entry.operations;
+            return entry.getOperations();
         }
 
         /** Returns true if the {@link Entry} is empty. */
         public static boolean isEmpty(@NonNull NetworkStats.Entry entry) {
-            return entry.isEmpty();
+            throw new UnsupportedOperationException(
+                    "Cannot access the hidden method NetworkStats.entry.isEmpty");
         }
 
         /** Returns true of the given entries are equal. */
         public static boolean equals(
                 @NonNull NetworkStats.Entry entry, @Nullable NetworkStats.Entry other) {
-            return entry.equals(other);
+            throw new UnsupportedOperationException(
+                    "Cannot access the hidden method NetworkStats.entry.equals");
         }
 
         private EntryHelper() {}

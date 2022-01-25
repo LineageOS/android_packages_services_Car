@@ -41,6 +41,7 @@ import com.android.car.CarPropertyService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.telemetry.publisher.PublisherFactory;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -94,6 +95,10 @@ public class CarTelemetryServiceTest {
     private SystemStateInterface mMockSystemStateInterface;
     @Mock
     private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock
+    private CarTelemetryService.Dependencies mDependencies;
+    @Mock
+    private PublisherFactory mPublisherFactory;
 
     @Before
     public void setUp() throws Exception {
@@ -117,7 +122,10 @@ public class CarTelemetryServiceTest {
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
         when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        mService = new CarTelemetryService(mMockContext, mMockCarPropertyService);
+        when(mDependencies.getPublisherFactory(any(), any(), any(), any()))
+                .thenReturn(mPublisherFactory);
+
+        mService = new CarTelemetryService(mMockContext, mMockCarPropertyService, mDependencies);
         mService.init();
         mService.setListener(mMockListener);
 

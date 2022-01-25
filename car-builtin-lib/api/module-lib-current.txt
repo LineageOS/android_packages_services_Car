@@ -176,16 +176,21 @@ package android.car.builtin.net {
     method public static boolean isEmpty(@NonNull android.net.NetworkStats.Entry);
   }
 
-  public final class NetworkStatsServiceHelper {
-    ctor public NetworkStatsServiceHelper();
-    method @NonNull public android.net.NetworkStats getSummaryForAllUid(int, int, long, long, @NonNull String) throws android.os.RemoteException;
-    field public static final int OEM_MANAGED_ALL = -1; // 0xffffffff
-    field public static final int OEM_MANAGED_NO = 0; // 0x0
-    field public static final int OEM_MANAGED_YES = -2; // 0xfffffffe
-    field public static final int TRANSPORT_BLUETOOTH = 2; // 0x2
-    field public static final int TRANSPORT_CELLULAR = 0; // 0x0
-    field public static final int TRANSPORT_ETHERNET = 3; // 0x3
-    field public static final int TRANSPORT_WIFI = 1; // 0x1
+  @Deprecated public final class NetworkStatsServiceHelper {
+    ctor @Deprecated public NetworkStatsServiceHelper(@NonNull android.car.builtin.net.NetworkStatsServiceHelper.Dependencies);
+    method @Deprecated @NonNull public android.net.NetworkStats getSummaryForAllUid(int, int, long, long, @NonNull String) throws android.os.RemoteException;
+    field @Deprecated public static final int OEM_MANAGED_ALL = -1; // 0xffffffff
+    field @Deprecated public static final int OEM_MANAGED_NO = 0; // 0x0
+    field @Deprecated public static final int OEM_MANAGED_YES = -2; // 0xfffffffe
+    field @Deprecated public static final int TRANSPORT_BLUETOOTH = 2; // 0x2
+    field @Deprecated public static final int TRANSPORT_CELLULAR = 0; // 0x0
+    field @Deprecated public static final int TRANSPORT_ETHERNET = 3; // 0x3
+    field @Deprecated public static final int TRANSPORT_WIFI = 1; // 0x1
+  }
+
+  @Deprecated public static class NetworkStatsServiceHelper.Dependencies {
+    ctor @Deprecated public NetworkStatsServiceHelper.Dependencies(@NonNull android.app.usage.NetworkStatsManager);
+    method @Deprecated @NonNull public android.net.NetworkStats getSummaryForAllUid(int, int, long, long);
   }
 
 }

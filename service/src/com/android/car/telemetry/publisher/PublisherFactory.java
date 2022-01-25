@@ -18,6 +18,7 @@ package com.android.car.telemetry.publisher;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
+import android.app.usage.NetworkStatsManager;
 import android.car.builtin.net.NetworkStatsServiceHelper;
 import android.content.Context;
 import android.os.Handler;
@@ -97,10 +98,15 @@ public class PublisherFactory {
                     return mStatsPublisher;
                 case TelemetryProto.Publisher.CONNECTIVITY_FIELD_NUMBER:
                     if (mConnectivityPublisher == null) {
+                        final NetworkStatsManager networkStatsManager =
+                                mContext.getSystemService(NetworkStatsManager.class);
+                        Preconditions.checkNotNull(networkStatsManager);
+                        NetworkStatsServiceHelper.Dependencies deps =
+                                new NetworkStatsServiceHelper.Dependencies(networkStatsManager);
                         mConnectivityPublisher =
                                 new ConnectivityPublisher(
                                         mFailureListener,
-                                        new NetworkStatsServiceHelper(),
+                                        new NetworkStatsServiceHelper(deps),
                                         mTelemetryHandler,
                                         mContext);
                     }
