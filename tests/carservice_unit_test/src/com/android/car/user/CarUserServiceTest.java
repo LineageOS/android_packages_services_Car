@@ -1540,6 +1540,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
+        mockAmSwitchUser(mGuestUser, true);
         int targetUserId = mGuestUser.id;
         mockCallerUid(Binder.getCallingUid(), true);
         mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
