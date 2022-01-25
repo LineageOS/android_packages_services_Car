@@ -378,6 +378,40 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    /**
+     * Logouts the current user (if it was switched to by a device admin).
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AsyncFuture<UserSwitchResult> logoutUser() {
+        int uid = myUid();
+        try {
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
+                @Override
+                protected void onCompleted(UserSwitchResult result, Throwable err) {
+                    if (result != null) {
+                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_RESP, uid,
+                                result.getStatus(), result.getErrorMessage());
+                    } else {
+                        Log.w(TAG, "logoutUser() failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                }
+            };
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_REQ, uid);
+            mService.logoutUser(HAL_TIMEOUT_MS, future);
+            return new AndroidAsyncFuture<>(future);
+        } catch (SecurityException e) {
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            AsyncFuture<UserSwitchResult> future =
+                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+            return handleExceptionFromCarService(e, future);
+        }
+    }
+
     private AndroidAsyncFuture<UserSwitchResult> newSwitchResuiltForFailure(
             @UserSwitchResult.Status int status) {
         AndroidFuture<UserSwitchResult> future = new AndroidFuture<>();
