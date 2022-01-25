@@ -18,10 +18,8 @@ package com.android.car.hal;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
-
-import static com.android.car.hal.PowerHalService.VehicleHalStub;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 
 import org.junit.Test;
 
@@ -29,11 +27,12 @@ public final class PowerHalServiceTest {
 
     @Test
     public void testCanPostponeShutdown() throws Exception {
-        PowerHalService.PowerState powerState = createShutdownPrepare(VehicleHalStub.CAN_HIBERNATE);
+        PowerHalService.PowerState powerState = createShutdownPrepare(
+                VehicleApPowerStateShutdownParam.CAN_HIBERNATE);
         assertWithMessage("canPostponeShutdown with CAN_HIBERNATE flag")
                 .that(powerState.canPostponeShutdown()).isTrue();
 
-        powerState = createShutdownPrepare(VehicleHalStub.HIBERNATE_IMMEDIATELY);
+        powerState = createShutdownPrepare(VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY);
         assertWithMessage("canPostponeShutdown with HIBERNATE_IMMEDIATELY flag")
                 .that(powerState.canPostponeShutdown()).isFalse();
 
@@ -61,7 +60,8 @@ public final class PowerHalServiceTest {
 
     @Test
     public void testCanSuspend() throws Exception {
-        PowerHalService.PowerState powerState = createShutdownPrepare(VehicleHalStub.CAN_HIBERNATE);
+        PowerHalService.PowerState powerState = createShutdownPrepare(
+                VehicleApPowerStateShutdownParam.CAN_HIBERNATE);
         assertWithMessage("canSuspend with CAN_HIBERNATE flag")
                 .that(powerState.canSuspend()).isTrue();
 
@@ -73,11 +73,11 @@ public final class PowerHalServiceTest {
         assertWithMessage("canSuspend with SLEEP_IMMEDIATELY flag")
                 .that(powerState.canSuspend()).isTrue();
 
-        powerState = createShutdownPrepare(VehicleHalStub.HIBERNATE_IMMEDIATELY);
+        powerState = createShutdownPrepare(VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY);
         assertWithMessage("canSuspend with HIBERNATE_IMMEDIATELY flag")
                 .that(powerState.canSuspend()).isTrue();
 
-        powerState = createShutdownPrepare(VehicleHalStub.CAN_HIBERNATE);
+        powerState = createShutdownPrepare(VehicleApPowerStateShutdownParam.CAN_HIBERNATE);
         assertWithMessage("canSuspend with CAN_HIBERNATE flag")
                 .that(powerState.canSuspend()).isTrue();
 
@@ -92,12 +92,13 @@ public final class PowerHalServiceTest {
 
     @Test
     public void testGetSuspendType() throws Exception {
-        PowerHalService.PowerState powerState = createShutdownPrepare(VehicleHalStub.CAN_HIBERNATE);
+        PowerHalService.PowerState powerState = createShutdownPrepare(
+                VehicleApPowerStateShutdownParam.CAN_HIBERNATE);
         assertWithMessage("getShutdownType with CAN_HIBERNATE flag")
                 .that(powerState.getShutdownType())
                 .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION);
 
-        powerState = createShutdownPrepare(VehicleHalStub.HIBERNATE_IMMEDIATELY);
+        powerState = createShutdownPrepare(VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY);
         assertWithMessage("getShutdownType with HIBERNATE_IMMEDIATELY flag")
                 .that(powerState.getShutdownType())
                 .isEqualTo(PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION);

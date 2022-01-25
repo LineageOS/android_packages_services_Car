@@ -49,8 +49,8 @@ import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.net.wifi.WifiManager;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
@@ -245,7 +245,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
-                PowerHalService.VehicleHalStub.CAN_HIBERNATE));
+                VehicleApPowerStateShutdownParam.CAN_HIBERNATE));
         assertThat(mService.garageModeShouldExitImmediately()).isFalse();
 
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_HIBERNATION_ENTRY);
@@ -265,7 +265,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
-                PowerHalService.VehicleHalStub.HIBERNATE_IMMEDIATELY));
+                VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY));
 
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_HIBERNATION_ENTRY, 0);
         assertThat(mService.garageModeShouldExitImmediately()).isTrue();
