@@ -537,6 +537,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    @Nullable
     public String getCarManagerClassForFeature(String featureName) {
         if (mCarExperimentalFeatureServiceController == null) {
             return null;
@@ -552,6 +553,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    @Nullable
     public IBinder getCarService(String serviceName) {
         if (!mFeatureController.isFeatureEnabled(serviceName)) {
             Slogf.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);

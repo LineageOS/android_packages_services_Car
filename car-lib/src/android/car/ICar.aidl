@@ -31,7 +31,7 @@ interface ICar {
         in ICarResultReceiver receiver) = 0;
 
     // Rest of the calls are used for Apps to CarService communication
-    IBinder getCarService(in String serviceName) = 11;
+    @nullable IBinder getCarService(in String serviceName) = 11;
     int getCarConnectionType() = 12;
     boolean isFeatureEnabled(in String featureName) = 13;
     int enableFeature(in String featureName) = 14;
@@ -43,5 +43,5 @@ interface ICar {
      * Get class name for experimental feature. Class should have constructor taking (Car, IBinder)
      * and should inherit CarManagerBase.
      */
-    String getCarManagerClassForFeature(in String featureName) = 19;
+    @nullable String getCarManagerClassForFeature(in String featureName) = 19;
 }
