@@ -61,6 +61,7 @@ java_defaults {
         "android.car-module.impl",
         "android.car.builtin",
         "framework-annotations-lib",
+        "framework-bluetooth",
         "framework-connectivity",
         "framework-statsd",
         "framework-wifi",
