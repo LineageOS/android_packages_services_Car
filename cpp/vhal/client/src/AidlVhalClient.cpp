@@ -47,14 +47,44 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
+using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
 
 AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal) :
       AidlVhalClient(hal, DEFAULT_TIMEOUT_IN_SEC * 1'000) {}
 
-AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInMs) : mHal(hal) {
+AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInMs) :
+      AidlVhalClient(hal, timeoutInMs, std::make_unique<DefaultLinkUnlinkImpl>()) {}
+
+AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInMs,
+                               std::unique_ptr<ILinkUnlinkToDeath> linkUnlinkImpl) :
+      mHal(hal) {
     mGetSetValueClient = ndk::SharedRefBase::make<GetSetValueClient>(
             /*timeoutInNs=*/timeoutInMs * 1'000'000, hal);
+    mDeathRecipient = ScopedAIBinder_DeathRecipient(
+            AIBinder_DeathRecipient_new(&AidlVhalClient::onBinderDied));
+    mLinkUnlinkImpl = std::move(linkUnlinkImpl);
+    binder_status_t status =
+            mLinkUnlinkImpl->linkToDeath(hal->asBinder().get(), mDeathRecipient.get(),
+                                         static_cast<void*>(this));
+    if (status != STATUS_OK) {
+        ALOGE("failed to link to VHAL death, status: %d", static_cast<int32_t>(status));
+    }
+}
+
+AidlVhalClient::~AidlVhalClient() {
+    mLinkUnlinkImpl->unlinkToDeath(mHal->asBinder().get(), mDeathRecipient.get(),
+                                   static_cast<void*>(this));
+}
+
+binder_status_t AidlVhalClient::DefaultLinkUnlinkImpl::linkToDeath(
+        AIBinder* binder, AIBinder_DeathRecipient* recipient, void* cookie) {
+    return AIBinder_linkToDeath(binder, recipient, cookie);
+}
+
+binder_status_t AidlVhalClient::DefaultLinkUnlinkImpl::unlinkToDeath(
+        AIBinder* binder, AIBinder_DeathRecipient* recipient, void* cookie) {
+    return AIBinder_unlinkToDeath(binder, recipient, cookie);
 }
 
 void AidlVhalClient::getValue(const IHalPropValue& requestValue,
@@ -69,21 +99,53 @@ void AidlVhalClient::setValue(const IHalPropValue& requestValue,
     mGetSetValueClient->setValue(requestId, requestValue, callback, mGetSetValueClient);
 }
 
-StatusCode AidlVhalClient::linkToDeath(
-        [[maybe_unused]] std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
-    // TODO(b/214635003): implement this.
+StatusCode AidlVhalClient::addOnBinderDiedCallback(
+        std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
+    std::lock_guard<std::mutex> lk(mLock);
+    mOnBinderDiedCallbacks.insert(callback);
     return StatusCode::OK;
 }
 
-StatusCode AidlVhalClient::unlinkToDeath(
-        [[maybe_unused]] std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
-    // TODO(b/214635003): implement this.
+StatusCode AidlVhalClient::removeOnBinderDiedCallback(
+        std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
+    std::lock_guard<std::mutex> lk(mLock);
+    if (mOnBinderDiedCallbacks.find(callback) == mOnBinderDiedCallbacks.end()) {
+        return StatusCode::INVALID_ARG;
+    }
+    mOnBinderDiedCallbacks.erase(callback);
     return StatusCode::OK;
 }
 
 Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
     // TODO(b/214635003): implement this.
     return {};
+}
+
+void AidlVhalClient::onBinderDied(void* cookie) {
+    AidlVhalClient* vhalClient = reinterpret_cast<AidlVhalClient*>(cookie);
+    vhalClient->onBinderDiedWithContext();
+}
+
+void AidlVhalClient::onBinderUnlinked(void* cookie) {
+    AidlVhalClient* vhalClient = reinterpret_cast<AidlVhalClient*>(cookie);
+    vhalClient->onBinderUnlinkedWithContext();
+}
+
+void AidlVhalClient::onBinderDiedWithContext() {
+    std::lock_guard<std::mutex> lk(mLock);
+    for (auto callback : mOnBinderDiedCallbacks) {
+        (*callback)();
+    }
+}
+
+void AidlVhalClient::onBinderUnlinkedWithContext() {
+    std::lock_guard<std::mutex> lk(mLock);
+    mOnBinderDiedCallbacks.clear();
+}
+
+size_t AidlVhalClient::countOnBinderDiedCallbacks() {
+    std::lock_guard<std::mutex> lk(mLock);
+    return mOnBinderDiedCallbacks.size();
 }
 
 std::unique_ptr<ISubscriptionClient> AidlVhalClient::getSubscriptionClient(

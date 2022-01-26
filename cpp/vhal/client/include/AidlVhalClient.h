@@ -22,6 +22,8 @@
 #include <aidl/android/hardware/automotive/vehicle/BnVehicleCallback.h>
 #include <aidl/android/hardware/automotive/vehicle/IVehicle.h>
 #include <android-base/thread_annotations.h>
+#include <android/binder_auto_utils.h>
+#include <android/binder_ibinder.h>
 
 #include <PendingRequestPool.h>
 
@@ -29,11 +31,18 @@
 #include <memory>
 #include <mutex>  // NOLINT
 #include <unordered_map>
+#include <unordered_set>
 
 namespace android {
 namespace frameworks {
 namespace automotive {
 namespace vhal {
+
+namespace test {
+
+class AidlVhalClientTest;
+
+}
 
 class GetSetValueClient;
 
@@ -45,16 +54,20 @@ public:
     AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
                    int64_t timeoutInMs);
 
+    ~AidlVhalClient();
+
     void getValue(const IHalPropValue& requestValue,
                   std::shared_ptr<GetValueCallbackFunc> callback) override;
 
     void setValue(const IHalPropValue& value,
                   std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback) override;
 
-    ::aidl::android::hardware::automotive::vehicle::StatusCode linkToDeath(
+    // Add the callback that would be called when VHAL binder died.
+    ::aidl::android::hardware::automotive::vehicle::StatusCode addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
-    ::aidl::android::hardware::automotive::vehicle::StatusCode unlinkToDeath(
+    // Remove a previously added OnBinderDied callback.
+    ::aidl::android::hardware::automotive::vehicle::StatusCode removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
@@ -64,9 +77,45 @@ public:
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
 private:
+    friend class test::AidlVhalClientTest;
+
+    class ILinkUnlinkToDeath {
+    public:
+        virtual ~ILinkUnlinkToDeath() = default;
+        virtual binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                            void* cookie) = 0;
+        virtual binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                              void* cookie) = 0;
+    };
+
+    class DefaultLinkUnlinkImpl final : public ILinkUnlinkToDeath {
+    public:
+        binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                    void* cookie) override;
+        binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                      void* cookie) override;
+    };
+
     std::atomic<int64_t> mRequestId = 0;
     std::shared_ptr<GetSetValueClient> mGetSetValueClient;
     std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+    std::unique_ptr<ILinkUnlinkToDeath> mLinkUnlinkImpl;
+    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
+
+    std::mutex mLock;
+    std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mOnBinderDiedCallbacks
+            GUARDED_BY(mLock);
+
+    static void onBinderDied(void* cookie);
+    static void onBinderUnlinked(void* cookie);
+
+    void onBinderDiedWithContext();
+    void onBinderUnlinkedWithContext();
+
+    // Test-only functions:
+    AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
+                   int64_t timeoutInMs, std::unique_ptr<ILinkUnlinkToDeath> linkUnlinkImpl);
+    size_t countOnBinderDiedCallbacks();
 };
 
 class GetSetValueClient final :

@@ -15,6 +15,7 @@
  */
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
+#include <android/binder_ibinder.h>
 #include <gtest/gtest.h>
 
 #include <AidlHalPropValue.h>
@@ -168,26 +169,53 @@ private:
 
 class AidlVhalClientTest : public ::testing::Test {
 protected:
+    class TestLinkUnlinkImpl final : public AidlVhalClient::ILinkUnlinkToDeath {
+    public:
+        binder_status_t linkToDeath([[maybe_unused]] AIBinder* binder,
+                                    [[maybe_unused]] AIBinder_DeathRecipient* recipient,
+                                    void* cookie) override {
+            mCookie = cookie;
+            return STATUS_OK;
+        }
+
+        binder_status_t unlinkToDeath(AIBinder*, AIBinder_DeathRecipient*, void*) override {
+            // DO nothing.
+            return STATUS_OK;
+        }
+
+        void* getCookie() { return mCookie; }
+
+    private:
+        void* mCookie;
+    };
+
     constexpr static int32_t TEST_PROP_ID = 1;
     constexpr static int32_t TEST_AREA_ID = 2;
+    constexpr static int64_t TEST_TIMEOUT_IN_MS = 100;
 
     void SetUp() override {
         mVhal = SharedRefBase::make<MockVhal>();
-        mVhalClient = std::make_unique<AidlVhalClient>(mVhal);
+        auto impl = std::make_unique<TestLinkUnlinkImpl>();
+        // We are sure impl would be alive when we use mLinkUnlinkImpl.
+        mLinkUnlinkImpl = impl.get();
+        mVhalClient = std::unique_ptr<AidlVhalClient>(
+                new AidlVhalClient(mVhal, TEST_TIMEOUT_IN_MS, std::move(impl)));
     }
 
     AidlVhalClient* getClient() { return mVhalClient.get(); }
 
-    AidlVhalClient* getClient(int64_t timeoutInMs) {
-        mVhalClient = std::make_unique<AidlVhalClient>(mVhal, timeoutInMs);
-        return mVhalClient.get();
-    }
-
     MockVhal* getVhal() { return mVhal.get(); }
+
+    void triggerBinderDied() { AidlVhalClient::onBinderDied(mLinkUnlinkImpl->getCookie()); }
+
+    void triggerBinderUnlinked() { AidlVhalClient::onBinderUnlinked(mLinkUnlinkImpl->getCookie()); }
+
+    size_t countOnBinderDiedCallbacks() { return mVhalClient->countOnBinderDiedCallbacks(); }
 
 private:
     std::shared_ptr<MockVhal> mVhal;
     std::unique_ptr<AidlVhalClient> mVhalClient;
+    TestLinkUnlinkImpl* mLinkUnlinkImpl;
 };
 
 TEST_F(AidlVhalClientTest, testGetValueNormal) {
@@ -195,7 +223,7 @@ TEST_F(AidlVhalClientTest, testGetValueNormal) {
             .prop = TEST_PROP_ID,
             .areaId = TEST_AREA_ID,
     };
-    getVhal()->setWaitTimeInMs(100);
+    getVhal()->setWaitTimeInMs(10);
     getVhal()->setGetValueResults({
             GetValueResult{
                     .requestId = 0,
@@ -249,7 +277,8 @@ TEST_F(AidlVhalClientTest, testGetValueTimeout) {
             .prop = TEST_PROP_ID,
             .areaId = TEST_AREA_ID,
     };
-    getVhal()->setWaitTimeInMs(100);
+    // The request will time-out before the response.
+    getVhal()->setWaitTimeInMs(200);
     getVhal()->setGetValueResults({
             GetValueResult{
                     .requestId = 0,
@@ -274,8 +303,6 @@ TEST_F(AidlVhalClientTest, testGetValueTimeout) {
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
 
-    // The request will time-out before the response.
-    auto vhalClient = getClient(/*timeoutInMs=*/10);
     auto callback = std::make_shared<AidlVhalClient::GetValueCallbackFunc>(
             [&lock, &cv, resultPtr, gotResultPtr](Result<std::unique_ptr<IHalPropValue>> r) {
                 {
@@ -285,7 +312,7 @@ TEST_F(AidlVhalClientTest, testGetValueTimeout) {
                 }
                 cv.notify_one();
             });
-    vhalClient->getValue(propValue, callback);
+    getClient()->getValue(propValue, callback);
 
     std::unique_lock<std::mutex> lk(lock);
     cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
@@ -398,7 +425,7 @@ TEST_F(AidlVhalClientTest, testSetValueNormal) {
             .prop = TEST_PROP_ID,
             .areaId = TEST_AREA_ID,
     };
-    getVhal()->setWaitTimeInMs(100);
+    getVhal()->setWaitTimeInMs(10);
     getVhal()->setSetValueResults({
             SetValueResult{
                     .requestId = 0,
@@ -439,7 +466,8 @@ TEST_F(AidlVhalClientTest, testSetValueTimeout) {
             .prop = TEST_PROP_ID,
             .areaId = TEST_AREA_ID,
     };
-    getVhal()->setWaitTimeInMs(100);
+    // The request will time-out before the response.
+    getVhal()->setWaitTimeInMs(200);
     getVhal()->setSetValueResults({
             SetValueResult{
                     .requestId = 0,
@@ -455,8 +483,6 @@ TEST_F(AidlVhalClientTest, testSetValueTimeout) {
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
 
-    // The request will time-out before the response.
-    auto vhalClient = getClient(/*timeoutInMs=*/10);
     auto callback = std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
             [&lock, &cv, resultPtr, gotResultPtr](Result<void> r) {
                 {
@@ -466,7 +492,7 @@ TEST_F(AidlVhalClientTest, testSetValueTimeout) {
                 }
                 cv.notify_one();
             });
-    vhalClient->setValue(propValue, callback);
+    getClient()->setValue(propValue, callback);
 
     std::unique_lock<std::mutex> lk(lock);
     cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
@@ -553,6 +579,49 @@ TEST_F(AidlVhalClientTest, testSetValueIgnoreInvalidRequestId) {
     ASSERT_EQ(getVhal()->getSetValueRequests(),
               std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
     ASSERT_TRUE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testAddOnBinderDiedCallback) {
+    struct Result {
+        bool callbackOneCalled = false;
+        bool callbackTwoCalled = false;
+    } result;
+
+    getClient()->addOnBinderDiedCallback(std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackOneCalled = true; }));
+    getClient()->addOnBinderDiedCallback(std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackTwoCalled = true; }));
+    triggerBinderDied();
+
+    ASSERT_TRUE(result.callbackOneCalled);
+    ASSERT_TRUE(result.callbackTwoCalled);
+
+    triggerBinderUnlinked();
+
+    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testRemoveOnBinderDiedCallback) {
+    struct Result {
+        bool callbackOneCalled = false;
+        bool callbackTwoCalled = false;
+    } result;
+
+    auto callbackOne = std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackOneCalled = true; });
+    auto callbackTwo = std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackTwoCalled = true; });
+    getClient()->addOnBinderDiedCallback(callbackOne);
+    getClient()->addOnBinderDiedCallback(callbackTwo);
+    getClient()->removeOnBinderDiedCallback(callbackOne);
+    triggerBinderDied();
+
+    ASSERT_FALSE(result.callbackOneCalled);
+    ASSERT_TRUE(result.callbackTwoCalled);
+
+    triggerBinderUnlinked();
+
+    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
 }
 
 }  // namespace test
