@@ -17,6 +17,7 @@
 package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserSwitchability;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
@@ -743,7 +744,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
                 UserSwitchResult.STATUS_NOT_SWITCHABLE);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -755,7 +756,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertUserSwitchResult(getUserSwitchResult(mAdminUserId).getStatus(),
                 UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
         verifyNoUserSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -774,7 +775,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         sendUserUnlockedEvent(mRegularUserId);
         assertNoHalUserSwitch();
         assertNoPostSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -785,10 +786,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         switchUser(mRegularUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertUserSwitchResult(getUserSwitchResult(mRegularUserId),
-                UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(mRegularUserId),
+                UserManager.USER_OPERATION_ERROR_UNKNOWN);
         assertNoHalUserSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -809,7 +810,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mockCurrentUser(mGuestUser);
         sendUserUnlockedEvent(mGuestUserId);
         assertPostSwitch(requestId, mGuestUserId, mGuestUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -826,7 +827,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
                 UserSwitchResult.STATUS_ANDROID_FAILURE);
         assertPostSwitch(requestId, mAdminUserId, mGuestUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -838,11 +839,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         switchUser(mGuestUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        UserSwitchResult result = getUserSwitchResult(mGuestUserId);
-        assertUserSwitchResult(result, UserSwitchResult.STATUS_HAL_FAILURE);
-        assertThat(result.getErrorMessage()).isEqualTo(mSwitchUserResponse.errorMessage);
+        assertUserSwitchResultWithError(getUserSwitchResult(mGuestUserId),
+                UserSwitchResult.STATUS_HAL_FAILURE, mSwitchUserResponse.errorMessage);
         verifyNoUserSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -857,7 +857,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertUserSwitchResult(getUserSwitchResult(mGuestUserId),
                 UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
         verifyNoUserSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -872,7 +872,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
         assertNoHalUserSwitch();
         verifyNoUserSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -901,7 +901,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         // fail because it was called more than once()
         assertHalSwitchAnyUser();
         verifyAnyUserSwitch();
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -931,7 +931,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -965,7 +965,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertPostSwitch(newRequestId, mRegularUserId, mRegularUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -995,7 +995,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1028,7 +1028,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertPostSwitch(newRequestId, mRegularUserId, mRegularUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1062,7 +1062,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertPostSwitch(newRequestId, mRegularUserId, mRegularUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1082,7 +1082,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1104,7 +1104,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUserId, mGuestUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1132,7 +1132,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertPostSwitch(requestId, mGuestUserId, mGuestUserId);
         assertHalSwitch(mAdminUserId, mGuestUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1157,7 +1157,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         verify(mUserHal).legacyUserSwitch(
                 isSwitchUserRequest(/* requestId= */ 0, sourceUserId, targetUserId));
         verify(mSwitchUserUiReceiver).send(targetUserId, null);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1180,7 +1180,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         // Assert
         verify(mUserHal, never()).legacyUserSwitch(any());
         verify(mSwitchUserUiReceiver).send(targetUserId, null);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1222,7 +1222,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         sendUserUnlockedEvent(mRegularUserId);
 
         assertPostSwitch(requestId, mRegularUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1234,7 +1234,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mCarUserService.switchAndroidUserFromHal(requestId, mRegularUserId);
 
         assertPostSwitch(requestId, mAdminUserId, mRegularUserId);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
     }
 
     @Test
@@ -1245,15 +1245,15 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertUserSwitchResult(getResult(mUserSwitchFuture, "result of user not logged in"),
                 UserSwitchResult.STATUS_NOT_LOGGED_IN);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
+        verifyNoUserSwitch();
     }
 
     @Test
     public void testLogoutUser_halNotSupported_noUserSwitchability() throws Exception {
         mockLogoutUser(mAdminUser);
         mockUserHalSupported(false);
-        mockAmSwitchUser(mMockedActivityManager, mAdminUser, true);
-
+        mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_SUCCESS);
         mockUmGetUserSwitchability(mMockedUserManager,
                 UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
 
@@ -1261,33 +1261,36 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
                 UserSwitchResult.STATUS_SUCCESSFUL);
-        assertLogoutUserCleared();
+        verifyLogoutUser();
+        verifyNoUserSwitch();
     }
 
     @Test
     public void testLogoutUser_halNotSupported_success() throws Exception {
         mockLogoutUser(mAdminUser);
         mockUserHalSupported(false);
-        mockAmSwitchUser(mMockedActivityManager, mAdminUser, true);
+        mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_SUCCESS);
 
         logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
                 UserSwitchResult.STATUS_SUCCESSFUL);
-        assertLogoutUserCleared();
+        verifyLogoutUser();
+        verifyNoUserSwitch();
     }
 
     @Test
     public void testLogoutUser_halNotSupported_failure() throws Exception {
         mockLogoutUser(mAdminUser);
         mockUserHalSupported(false);
-        // Don't need to call mockAmSwitchUser() because it returns false by default
+        mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_ERROR_MAX_USERS);
 
         logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
-                UserSwitchResult.STATUS_ANDROID_FAILURE);
-        assertLogoutUserNotCleared();
+        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(mAdminUserId),
+                UserManager.USER_OPERATION_ERROR_MAX_USERS);
+        verifyLogoutUser();
+        verifyNoUserSwitch();
     }
 
     @Test
@@ -1305,12 +1308,13 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
                 UserSwitchResult.STATUS_SUCCESSFUL);
-        assertLogoutUserCleared();
 
         // update current user due to successful user switch
         mockCurrentUser(mAdminUser);
         sendUserUnlockedEvent(mAdminUserId);
         assertPostSwitch(requestId, mAdminUserId, mAdminUserId);
+        verifyLogoutUser();
+        verifyNoUserSwitch();
     }
 
     @Test
@@ -1322,13 +1326,14 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
-        // Don't need to call mockAmSwitchUser() because it returns false by default
+        mockDpmLogoutUser(mMockedDevicePolicyManager, UserManager.USER_OPERATION_ERROR_MAX_USERS);
 
         logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
-                UserSwitchResult.STATUS_ANDROID_FAILURE);
-        assertLogoutUserNotCleared();
+        assertUserSwitchResultForAndroidFailure(getUserSwitchResult(mAdminUserId),
+                UserManager.USER_OPERATION_ERROR_MAX_USERS);
+        verifyLogoutUser();
+        verifyNoUserSwitch();
         assertPostSwitch(requestId, mGuestUserId, mAdminUserId);
     }
 
@@ -1343,10 +1348,10 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        UserSwitchResult result = getUserSwitchResult(mAdminUserId);
-        assertUserSwitchResult(result, UserSwitchResult.STATUS_HAL_FAILURE);
-        assertThat(result.getErrorMessage()).isEqualTo(mSwitchUserResponse.errorMessage);
-        assertLogoutUserNotCleared();
+        assertUserSwitchResultWithError(getUserSwitchResult(mAdminUserId),
+                UserSwitchResult.STATUS_HAL_FAILURE, mSwitchUserResponse.errorMessage);
+
+        verifyNoLogoutUser();
         verifyNoUserSwitch();
     }
 
@@ -1360,7 +1365,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertUserSwitchResult(getUserSwitchResult(mAdminUserId),
                 UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
-        assertLogoutUserNotCleared();
+        verifyNoLogoutUser();
         assertNoHalUserSwitch();
         verifyNoUserSwitch();
     }
@@ -2220,8 +2225,34 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 ActivityManager.USER_OP_ERROR_RELATED_USERS_CANNOT_STOP);
     }
 
-    private void assertUserSwitchResult(UserSwitchResult result, int expected) {
-        assertUserSwitchResult(result.getStatus(), expected);
+    private void assertUserSwitchResult(UserSwitchResult result, int expectedStatus) {
+        assertUserSwitchResult(result.getStatus(), expectedStatus);
+        assertNoErrorMessage(result);
+        assertWithMessage("android failure status on %s", result)
+                .that(result.getAndroidFailureStatus()).isNull();
+    }
+
+    private void assertUserSwitchResultForAndroidFailure(UserSwitchResult result,
+            int expectedAndroidFailure) {
+        assertUserSwitchResult(result.getStatus(), UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertNoErrorMessage(result);
+        Integer actualAndroidFailure = result.getAndroidFailureStatus();
+        assertWithMessage("android failure status on %s", result).that(actualAndroidFailure)
+                .isNotNull();
+
+        assertWithMessage("android failure status (where %s=%s and %s=%s) on %s",
+                expectedAndroidFailure, userOperationErrorToString(expectedAndroidFailure),
+                actualAndroidFailure, userOperationErrorToString(actualAndroidFailure),
+                result).that(actualAndroidFailure).isEqualTo(expectedAndroidFailure);
+    }
+
+    private void assertUserSwitchResultWithError(UserSwitchResult result, int expectedStatus,
+            String expectedErrorMessage) {
+        assertUserSwitchResult(result.getStatus(), expectedStatus);
+        assertWithMessage("error message on %s", result).that(result.getErrorMessage())
+                .isEqualTo(expectedErrorMessage);
+        assertWithMessage("android failure status on %s", result)
+                .that(result.getAndroidFailureStatus()).isNull();
     }
 
     private void assertUserSwitchResult(int actual, int expected) {
@@ -2231,12 +2262,12 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                         .that(actual).isEqualTo(expected);
     }
 
-    private void assertLogoutUserCleared() {
-        verify(mMockedDevicePolicyManager).clearLogoutUser();
-    }
-
-    private void assertLogoutUserNotCleared() {
-        verify(mMockedDevicePolicyManager, never()).clearLogoutUser();
+    private void assertNoErrorMessage(UserSwitchResult result) {
+        String errorMessage = result.getErrorMessage();
+        if (errorMessage != null) {
+            assertWithMessage("error message on %s", result).that(result.getErrorMessage())
+                    .isEmpty();
+        }
     }
 
     protected void userOpFlagTest(int carConstant, int amConstant) {
@@ -2250,8 +2281,12 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         waitForHandlerThreadToFinish();
     }
 
-    private static String userSwitchResultToString(int status) {
-        return DebugUtils.constantToString(UserSwitchResult.class, "STATUS_", status);
+    private static String userSwitchResultToString(int result) {
+        return DebugUtils.constantToString(UserSwitchResult.class, "STATUS_", result);
+    }
+
+    private static String userOperationErrorToString(int error) {
+        return DebugUtils.constantToString(UserManager.class, "USER_OPERATION_", error);
     }
 
     private UserStartResult getUserStartResult(AndroidFuture<UserStartResult> future, int userId) {

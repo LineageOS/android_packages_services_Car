@@ -27,6 +27,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.Visitor;
 import android.content.Context;
@@ -73,11 +74,18 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a call to {@link ActivityManager#switchUser}.
+     * Mocks a call to {@link ActivityManager#switchUser(UserHandle)}.
      */
-    public static void mockAmSwitchUser(@NonNull ActivityManager am,
-            @NonNull UserHandle user, boolean result) throws Exception {
+    public static void mockAmSwitchUser(@NonNull ActivityManager am, @NonNull UserHandle user,
+            boolean result) {
         when(am.switchUser(user)).thenReturn(result);
+    }
+
+    /**
+     * Mocks a call to {@link DevicePolicyManager#logoutUser()}.
+     */
+    public static void mockDpmLogoutUser(@NonNull DevicePolicyManager dpm, int result) {
+        when(dpm.logoutUser()).thenReturn(result);
     }
 
     /**
