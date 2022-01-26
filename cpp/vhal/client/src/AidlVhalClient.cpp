@@ -16,6 +16,9 @@
 
 #include "AidlVhalClient.h"
 
+#include <android-base/strings.h>
+
+#include <AidlHalPropConfig.h>
 #include <AidlHalPropValue.h>
 #include <ParcelableUtils.h>
 #include <VehicleUtils.h>
@@ -26,7 +29,10 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+namespace {
+
 using ::android::base::Error;
+using ::android::base::Join;
 using ::android::base::Result;
 using ::android::hardware::automotive::vehicle::fromStableLargeParcelable;
 using ::android::hardware::automotive::vehicle::PendingRequestPool;
@@ -43,12 +49,24 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
 using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
+
+std::string toString(const std::vector<int32_t>& values) {
+    std::vector<std::string> strings;
+    for (int32_t value : values) {
+        strings.push_back(std::to_string(value));
+    }
+    return "[" + Join(strings, ",") + "]";
+}
+
+}  // namespace
 
 AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal) :
       AidlVhalClient(hal, DEFAULT_TIMEOUT_IN_SEC * 1'000) {}
@@ -117,8 +135,39 @@ StatusCode AidlVhalClient::removeOnBinderDiedCallback(
 }
 
 Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
-    // TODO(b/214635003): implement this.
-    return {};
+    VehiclePropConfigs configs;
+    if (ScopedAStatus status = mHal->getAllPropConfigs(&configs); !status.isOk()) {
+        return Error(status.getServiceSpecificError())
+                << "failed to get all property configs, error: " << status.getMessage();
+    }
+    return parseVehiclePropConfigs(configs);
+}
+
+Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConfigs(
+        std::vector<int32_t> propIds) {
+    VehiclePropConfigs configs;
+    if (ScopedAStatus status = mHal->getPropConfigs(propIds, &configs); !status.isOk()) {
+        return Error(status.getServiceSpecificError())
+                << "failed to prop configs for prop IDs: " << toString(propIds)
+                << ", error: " << status.getMessage();
+    }
+    return parseVehiclePropConfigs(configs);
+}
+
+Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::parseVehiclePropConfigs(
+        const VehiclePropConfigs& configs) {
+    auto parcelableResult = fromStableLargeParcelable(configs);
+    if (!parcelableResult.ok()) {
+        return Error(toInt(StatusCode::INTERNAL_ERROR))
+                << "failed to parse VehiclePropConfigs returned from VHAL, error: "
+                << parcelableResult.error().getMessage();
+    }
+    std::vector<std::unique_ptr<IHalPropConfig>> out;
+    for (const VehiclePropConfig& config : parcelableResult.value().getObject()->payloads) {
+        VehiclePropConfig configCopy = config;
+        out.push_back(std::make_unique<AidlHalPropConfig>(std::move(configCopy)));
+    }
+    return out;
 }
 
 void AidlVhalClient::onBinderDied(void* cookie) {

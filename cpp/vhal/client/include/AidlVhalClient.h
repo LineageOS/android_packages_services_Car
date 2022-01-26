@@ -72,6 +72,8 @@ public:
 
     ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
             override;
+    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
+            std::vector<int32_t> propIds) override;
 
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
@@ -111,6 +113,9 @@ private:
 
     void onBinderDiedWithContext();
     void onBinderUnlinkedWithContext();
+
+    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> parseVehiclePropConfigs(
+            const ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs& configs);
 
     // Test-only functions:
     AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,

@@ -89,6 +89,9 @@ public:
     virtual ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>>
     getAllPropConfigs() = 0;
 
+    virtual ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
+            std::vector<int32_t> propIds) = 0;
+
     virtual std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) = 0;
 };

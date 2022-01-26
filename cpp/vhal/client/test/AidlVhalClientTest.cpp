@@ -51,6 +51,7 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 
@@ -66,7 +67,12 @@ public:
         mCv.wait_for(lk, std::chrono::milliseconds(1000), [this] { return mThreadCount == 0; });
     }
 
-    ScopedAStatus getAllPropConfigs([[maybe_unused]] VehiclePropConfigs* returnConfigs) override {
+    ScopedAStatus getAllPropConfigs(VehiclePropConfigs* returnConfigs) override {
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
+
+        returnConfigs->payloads = mPropConfigs;
         return ScopedAStatus::ok();
     }
 
@@ -120,8 +126,14 @@ public:
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus getPropConfigs([[maybe_unused]] const std::vector<int32_t>& props,
-                                 [[maybe_unused]] VehiclePropConfigs* returnConfigs) override {
+    ScopedAStatus getPropConfigs(const std::vector<int32_t>& props,
+                                 VehiclePropConfigs* returnConfigs) override {
+        mGetPropConfigPropIds = props;
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
+
+        returnConfigs->payloads = mPropConfigs;
         return ScopedAStatus::ok();
     }
 
@@ -155,12 +167,18 @@ public:
 
     void setStatus(StatusCode status) { mStatus = status; }
 
+    void setPropConfigs(std::vector<VehiclePropConfig> configs) { mPropConfigs = configs; }
+
+    std::vector<int32_t> getGetPropConfigPropIds() { return mGetPropConfigPropIds; }
+
 private:
     std::mutex mLock;
     std::vector<GetValueResult> mGetValueResults;
     std::vector<GetValueRequest> mGetValueRequests;
     std::vector<SetValueResult> mSetValueResults;
     std::vector<SetValueRequest> mSetValueRequests;
+    std::vector<VehiclePropConfig> mPropConfigs;
+    std::vector<int32_t> mGetPropConfigPropIds;
     int64_t mWaitTimeInMs = 0;
     StatusCode mStatus = StatusCode::OK;
     std::condition_variable mCv;
@@ -191,6 +209,7 @@ protected:
 
     constexpr static int32_t TEST_PROP_ID = 1;
     constexpr static int32_t TEST_AREA_ID = 2;
+    constexpr static int32_t TEST_PROP_ID_2 = 3;
     constexpr static int64_t TEST_TIMEOUT_IN_MS = 100;
 
     void SetUp() override {
@@ -622,6 +641,92 @@ TEST_F(AidlVhalClientTest, testRemoveOnBinderDiedCallback) {
     triggerBinderUnlinked();
 
     ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testGetAllPropConfigs) {
+    getVhal()->setPropConfigs({
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID,
+                    .areaConfigs = {{
+                            .areaId = TEST_AREA_ID,
+                            .minInt32Value = 0,
+                            .maxInt32Value = 1,
+                    }},
+            },
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID_2,
+            },
+    });
+
+    auto result = getClient()->getAllPropConfigs();
+
+    ASSERT_TRUE(result.ok());
+    std::vector<std::unique_ptr<IHalPropConfig>> configs = std::move(result.value());
+
+    ASSERT_EQ(configs.size(), static_cast<size_t>(2));
+    ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(1));
+
+    const IHalAreaConfig* areaConfig = configs[0]->getAreaConfigs();
+    ASSERT_EQ(areaConfig->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig->getMinInt32Value(), 0);
+    ASSERT_EQ(areaConfig->getMaxInt32Value(), 1);
+
+    ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
+    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testGetAllPropConfigsError) {
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+
+    auto result = getClient()->getAllPropConfigs();
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::INTERNAL_ERROR));
+}
+
+TEST_F(AidlVhalClientTest, testGetPropConfigs) {
+    getVhal()->setPropConfigs({
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID,
+                    .areaConfigs = {{
+                            .areaId = TEST_AREA_ID,
+                            .minInt32Value = 0,
+                            .maxInt32Value = 1,
+                    }},
+            },
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID_2,
+            },
+    });
+
+    std::vector<int32_t> propIds = {TEST_PROP_ID, TEST_PROP_ID_2};
+    auto result = getClient()->getPropConfigs(propIds);
+
+    ASSERT_EQ(getVhal()->getGetPropConfigPropIds(), propIds);
+    ASSERT_TRUE(result.ok());
+    std::vector<std::unique_ptr<IHalPropConfig>> configs = std::move(result.value());
+
+    ASSERT_EQ(configs.size(), static_cast<size_t>(2));
+    ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(1));
+
+    const IHalAreaConfig* areaConfig = configs[0]->getAreaConfigs();
+    ASSERT_EQ(areaConfig->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig->getMinInt32Value(), 0);
+    ASSERT_EQ(areaConfig->getMaxInt32Value(), 1);
+
+    ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
+    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testGetPropConfigsError) {
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+
+    std::vector<int32_t> propIds = {TEST_PROP_ID, TEST_PROP_ID_2};
+    auto result = getClient()->getPropConfigs(propIds);
+
+    ASSERT_FALSE(result.ok());
 }
 
 }  // namespace test
