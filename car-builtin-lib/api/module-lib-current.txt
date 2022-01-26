@@ -463,3 +463,12 @@ package android.car.builtin.widget {
 
 }
 
+package android.car.builtin.window {
+
+  public class DisplayAreaOrganizerHelper {
+    ctor public DisplayAreaOrganizerHelper();
+    field public static final int FEATURE_UNDEFINED = -1; // 0xffffffff
+  }
+
+}
+
