@@ -207,6 +207,48 @@ private:
                    std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks);
 };
 
+class SubscriptionVehicleCallback final :
+      public ::aidl::android::hardware::automotive::vehicle::BnVehicleCallback {
+public:
+    explicit SubscriptionVehicleCallback(std::shared_ptr<ISubscriptionCallback> callback);
+
+    ::ndk::ScopedAStatus onGetValues(
+            const ::aidl::android::hardware::automotive::vehicle::GetValueResults& results)
+            override;
+    ::ndk::ScopedAStatus onSetValues(
+            const ::aidl::android::hardware::automotive::vehicle::SetValueResults& results)
+            override;
+    ::ndk::ScopedAStatus onPropertyEvent(
+            const ::aidl::android::hardware::automotive::vehicle::VehiclePropValues& values,
+            int32_t sharedMemoryCount) override;
+    ::ndk::ScopedAStatus onPropertySetError(
+            const ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors)
+            override;
+
+private:
+    std::shared_ptr<ISubscriptionCallback> mCallback;
+};
+
+class AidlSubscriptionClient final : public ISubscriptionClient {
+public:
+    ~AidlSubscriptionClient() = default;
+
+    AidlSubscriptionClient(
+            std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
+            std::shared_ptr<ISubscriptionCallback> callback);
+
+    ::android::base::Result<void> subscribe(
+            const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
+                    options) override;
+    ::android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+
+private:
+    std::shared_ptr<SubscriptionVehicleCallback> mSubscriptionCallback;
+    std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+
+    static std::string toString(const std::vector<int32_t>& values);
+};
+
 }  // namespace vhal
 }  // namespace automotive
 }  // namespace frameworks
