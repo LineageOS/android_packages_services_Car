@@ -19,20 +19,20 @@ import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.Car.PERMISSION_CAR_POWER;
 import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
 import static android.car.Car.PERMISSION_USE_CAR_WATCHDOG;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_2;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_3;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_4;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_1;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_2;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_3;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_4;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.KEY_FOB;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
+import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
 import static com.android.car.power.PolicyReader.POWER_STATE_WAIT_FOR_VHAL;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -66,28 +66,25 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
-import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
-import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetAssociation;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
-import android.hardware.automotive.vehicle.V2_0.UserInfo;
-import android.hardware.automotive.vehicle.V2_0.UsersInfo;
-import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
-import android.hardware.automotive.vehicle.V2_0.VehicleGear;
+import android.hardware.automotive.vehicle.CreateUserRequest;
+import android.hardware.automotive.vehicle.CreateUserStatus;
+import android.hardware.automotive.vehicle.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.RemoveUserRequest;
+import android.hardware.automotive.vehicle.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.SwitchUserRequest;
+import android.hardware.automotive.vehicle.SwitchUserStatus;
+import android.hardware.automotive.vehicle.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.UserIdentificationAssociationValue;
+import android.hardware.automotive.vehicle.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.UserIdentificationResponse;
+import android.hardware.automotive.vehicle.UserIdentificationSetAssociation;
+import android.hardware.automotive.vehicle.UserIdentificationSetRequest;
+import android.hardware.automotive.vehicle.UserInfo;
+import android.hardware.automotive.vehicle.UsersInfo;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleDisplay;
+import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.os.Binder;
 import android.os.FileUtils;
@@ -366,20 +363,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     static {
         VALID_USER_AUTH_TYPES = new SparseArray<>(5);
-        VALID_USER_AUTH_TYPES.put(KEY_FOB, UserIdentificationAssociationType.toString(KEY_FOB));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_1, UserIdentificationAssociationType.toString(CUSTOM_1));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_2, UserIdentificationAssociationType.toString(CUSTOM_2));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_3, UserIdentificationAssociationType.toString(CUSTOM_3));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_4, UserIdentificationAssociationType.toString(CUSTOM_4));
+        VALID_USER_AUTH_TYPES.put(KEY_FOB, "KEY_FOB");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_1, "CUSTOM_1");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_2, "CUSTOM_2");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_3, "CUSTOM_3");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_4, "CUSTOM_4");
         VALID_USER_AUTH_TYPES_HELP = getHelpString("types", VALID_USER_AUTH_TYPES);
 
         VALID_USER_AUTH_SET_VALUES = new SparseArray<>(3);
-        VALID_USER_AUTH_SET_VALUES.put(ASSOCIATE_CURRENT_USER,
-                UserIdentificationAssociationSetValue.toString(ASSOCIATE_CURRENT_USER));
-        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_CURRENT_USER,
-                UserIdentificationAssociationSetValue.toString(DISASSOCIATE_CURRENT_USER));
-        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_ALL_USERS,
-                UserIdentificationAssociationSetValue.toString(DISASSOCIATE_ALL_USERS));
+        VALID_USER_AUTH_SET_VALUES.put(ASSOCIATE_CURRENT_USER, "ASSOCIATE_CURRENT_USER");
+        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_CURRENT_USER, "DISASSOCIATE_CURRENT_USER");
+        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_ALL_USERS, "DISASSOCIATE_ALL_USERS");
         VALID_USER_AUTH_SET_VALUES_HELP = getHelpString("values", VALID_USER_AUTH_SET_VALUES);
 
         CUSTOM_INPUT_FUNCTION_ARGS = new ArrayMap<>(10);
@@ -399,8 +393,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     // metrics config.
     private static final Duration TELEMETRY_RESULT_WAIT_TIMEOUT = Duration.ofSeconds(5);
 
-    @NonNull
-    private static String getHelpString(@NonNull String name, @NonNull SparseArray<String> values) {
+    private static String getHelpString(String name, SparseArray<String> values) {
         StringBuilder help = new StringBuilder("Valid ").append(name).append(" are: ");
         int size = values.size();
         for (int i = 0; i < size; i++) {
@@ -1426,15 +1419,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     return;
                 }
                 writer.printf("Request id: %d\n", resp.requestId);
-                writer.printf("Action: %s\n",
-                        InitialUserInfoResponseAction.toString(resp.action));
+                writer.printf("Action: %s\n", DebugUtils.constantToString(
+                        InitialUserInfoResponseAction.class, resp.action));
                 if (!TextUtils.isEmpty(resp.userNameToCreate)) {
                     writer.printf("User name: %s\n", resp.userNameToCreate);
                 }
                 if (resp.userToSwitchOrCreate.userId != UserManagerHelper.USER_NULL) {
                     writer.printf("User id: %d\n", resp.userToSwitchOrCreate.userId);
                 }
-                if (resp.userToSwitchOrCreate.flags != UserFlags.NONE) {
+                if (resp.userToSwitchOrCreate.flags != 0) {
                     writer.printf("User flags: %s\n",
                             UserHalHelper.userFlagsToString(resp.userToSwitchOrCreate.flags));
                 }
@@ -1445,6 +1438,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 latch.countDown();
             }
         };
+
         UsersInfo usersInfo = generateUsersInfo();
         mHal.getUserHal().getInitialUserInfo(requestType, timeout, usersInfo, callback);
         waitForHal(writer, latch, timeout);
@@ -1510,7 +1504,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             targetUserInfo.userId = targetUserId;
             targetUserInfo.flags = getUserHalFlags(targetUserId);
 
-            SwitchUserRequest request = new SwitchUserRequest();
+            SwitchUserRequest request = UserHalHelper.emptySwitchUserRequest();
             request.targetUser = targetUserInfo;
             request.usersInfo = generateUsersInfo();
 
@@ -1523,9 +1517,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                         return;
                     }
                     writer.printf("Request id: %d\n", resp.requestId);
-                    writer.printf("Message type: %s\n",
-                            SwitchUserMessageType.toString(resp.messageType));
-                    writer.printf("Switch Status: %s\n", SwitchUserStatus.toString(resp.status));
+                    writer.printf("Message type: %s\n", DebugUtils.constantToString(
+                            SwitchUserMessageType.class, resp.messageType));
+                    writer.printf("Switch Status: %s\n", DebugUtils.constantToString(
+                            SwitchUserStatus.class, resp.status));
                     String errorMessage = resp.errorMessage;
                     if (!TextUtils.isEmpty(errorMessage)) {
                         writer.printf("Error message: %s", errorMessage);
@@ -1661,7 +1656,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CountDownLatch latch = new CountDownLatch(1);
         UserHalService userHal = mHal.getUserHal();
 
-        CreateUserRequest request = new CreateUserRequest();
+        CreateUserRequest request = UserHalHelper.emptyCreateUserRequest();
 
         UserManager um = mContext.getSystemService(UserManager.class);
 
@@ -1702,7 +1697,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 if (status == HalCallback.STATUS_OK) {
                     halOk.set(resp.status == CreateUserStatus.SUCCESS);
                     writer.printf("Request id: %d\n", resp.requestId);
-                    writer.printf("Create Status: %s\n", CreateUserStatus.toString(resp.status));
+                    writer.printf("Create Status: %s\n", DebugUtils.constantToString(
+                            CreateUserStatus.class, resp.status));
                     String errorMessage = resp.errorMessage;
                     if (!TextUtils.isEmpty(errorMessage)) {
                         writer.printf("Error message: %s", errorMessage);
@@ -1769,7 +1765,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             userInfo.userId = userId;
             userInfo.flags = getUserHalFlags(userId);
 
-            RemoveUserRequest request = new RemoveUserRequest();
+            RemoveUserRequest request = UserHalHelper.emptyRemoveUserRequest();
             request.removedUserInfo = userInfo;
             request.usersInfo = usersInfo;
 
@@ -1784,8 +1780,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 UserRemovalResult.statusToString(result.getStatus()));
     }
 
-    private static <T> T waitForFuture(@NonNull IndentingPrintWriter writer,
-            @NonNull AsyncFuture<T> future, int timeoutMs) {
+    private static <T> T waitForFuture(IndentingPrintWriter writer,
+            AsyncFuture<T> future, int timeoutMs) {
         T result = null;
         try {
             result = future.get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -1814,7 +1810,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         boolean halOnly = false;
         int userId = UserHandle.CURRENT.getIdentifier();
 
-        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        UserIdentificationGetRequest request = UserHalHelper.emptyUserIdentificationGetRequest();
+        ArrayList<Integer> associationTypes = new ArrayList<>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
@@ -1836,14 +1833,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
                                 Arrays.toString(args), arg, VALID_USER_AUTH_TYPES_HELP);
                         return;
                     }
-                    request.associationTypes.add(type);
+                    associationTypes.add(type);
             }
-
         }
+        request.associationTypes = toIntArray(associationTypes);
         if (userId == UserHandle.CURRENT.getIdentifier()) {
             userId = ActivityManager.getCurrentUser();
         }
-        int requestSize = request.associationTypes.size();
+        int requestSize = request.associationTypes.length;
         if (halOnly) {
             request.numberAssociationTypes = requestSize;
             request.userInfo.userId = userId;
@@ -1860,14 +1857,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CarUserManager carUserManager = getCarUserManager(writer, userId);
         int[] types = new int[requestSize];
         for (int i = 0; i < requestSize; i++) {
-            types[i] = request.associationTypes.get(i);
+            types[i] = request.associationTypes[i];
         }
         UserIdentificationAssociationResponse response = carUserManager
                 .getUserIdentificationAssociation(types);
         showResponse(writer, response);
     }
 
-    private CarUserManager getCarUserManager(@NonNull IndentingPrintWriter writer,
+    private CarUserManager getCarUserManager(IndentingPrintWriter writer,
             @UserIdInt int userId) {
         Context context;
         if (userId == mContext.getUser().getIdentifier()) {
@@ -1884,14 +1881,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         return getCarUserManager(context);
     }
 
-    private CarUserManager getCarUserManager(@NonNull Context context) {
+    private CarUserManager getCarUserManager(Context context) {
         Car car = Car.createCar(context);
         CarUserManager carUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
         return carUserManager;
     }
 
-    private void showResponse(@NonNull IndentingPrintWriter writer,
-            @NonNull UserIdentificationResponse response) {
+    private void showResponse(
+            IndentingPrintWriter writer, UserIdentificationResponse response) {
         if (response == null) {
             writer.println("null response");
             return;
@@ -1900,16 +1897,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
         if (!TextUtils.isEmpty(response.errorMessage)) {
             writer.printf("Error message: %s\n", response.errorMessage);
         }
-        int numberAssociations = response.associations.size();
+        int numberAssociations = response.associations.length;
         writer.printf("%d associations:\n", numberAssociations);
         for (int i = 0; i < numberAssociations; i++) {
-            UserIdentificationAssociation association = response.associations.get(i);
+            UserIdentificationAssociation association = response.associations[i];
             writer.printf("  %s\n", association);
         }
     }
 
-    private void showResponse(@NonNull IndentingPrintWriter writer,
-            @NonNull UserIdentificationAssociationResponse response) {
+    private void showResponse(IndentingPrintWriter writer,
+            UserIdentificationAssociationResponse response) {
         if (response == null) {
             writer.println("null response");
             return;
@@ -1929,7 +1926,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         writer.printf("%d associations:\n", values.length);
         for (int i = 0; i < values.length; i++) {
-            writer.printf("  %s\n", UserIdentificationAssociationValue.toString(values[i]));
+            writer.printf("  %s\n", DebugUtils.constantToString(
+                    UserIdentificationAssociationValue.class, values[i]));
         }
     }
 
@@ -1943,7 +1941,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int timeout = DEFAULT_HAL_TIMEOUT_MS;
         int userId = UserHandle.CURRENT.getIdentifier();
 
-        UserIdentificationSetRequest request = new UserIdentificationSetRequest();
+        UserIdentificationSetRequest request = UserHalHelper.emptyUserIdentificationSetRequest();
+        ArrayList<UserIdentificationSetAssociation> associations = new ArrayList<>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
@@ -1976,14 +1975,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
                                 Arrays.toString(args), arg, VALID_USER_AUTH_SET_VALUES_HELP);
                         return;
                     }
-                    request.associations.add(association);
+                    associations.add(association);
             }
-
         }
+        int requestSize = associations.size();
+        request.associations = associations.toArray(
+                new UserIdentificationSetAssociation[requestSize]);
+
         if (userId == UserHandle.CURRENT.getIdentifier()) {
             userId = ActivityManager.getCurrentUser();
         }
-        int requestSize = request.associations.size();
         if (halOnly) {
             request.numberAssociations = requestSize;
             request.userInfo.userId = userId;
@@ -2007,7 +2008,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int[] types = new int[requestSize];
         int[] values = new int[requestSize];
         for (int i = 0; i < requestSize; i++) {
-            UserIdentificationSetAssociation association = request.associations.get(i);
+            UserIdentificationSetAssociation association = request.associations[i];
             types[i] = association.type;
             values[i] = association.value;
         }
@@ -2019,7 +2020,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
     }
 
-    private static int parseAuthArg(@NonNull SparseArray<String> types, @NonNull String type) {
+    private static int parseAuthArg(SparseArray<String> types, String type) {
         for (int i = 0; i < types.size(); i++) {
             if (types.valueAt(i).equals(type)) {
                 return types.keyAt(i);

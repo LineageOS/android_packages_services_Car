@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.test.util;
+package com.android.car.hal;
 
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
@@ -41,12 +41,12 @@ public final class VehicleHalTestingHelper {
     /**
      * Creates an empty config for the given property.
      */
-    public static VehiclePropConfig newConfig(int prop) {
+    public static HalPropConfig newConfig(int prop) {
         VehiclePropConfig config = new VehiclePropConfig();
         config.prop = prop;
         config.configString = new String();
         config.configArray = new int[0];
-        return config;
+        return new AidlHalPropConfig(config);
     }
 
     /**
@@ -72,11 +72,14 @@ public final class VehicleHalTestingHelper {
      * {@link com.android.car.hal.VehicleHal.VehicleHal#isPropertySubscribable(VehiclePropConfig)}
      * criteria.
      */
-    public static VehiclePropConfig newSubscribableConfig(int prop) {
-        VehiclePropConfig config = newConfig(prop);
+    public static HalPropConfig newSubscribableConfig(int prop) {
+        VehiclePropConfig config = new VehiclePropConfig();
+        config.prop = prop;
+        config.configString = new String();
+        config.configArray = new int[0];
         config.access = VehiclePropertyAccess.READ_WRITE;
         config.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-        return config;
+        return new AidlHalPropConfig(config);
     }
 
     private VehicleHalTestingHelper() {

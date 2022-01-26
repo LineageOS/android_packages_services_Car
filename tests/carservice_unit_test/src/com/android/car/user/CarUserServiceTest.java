@@ -58,13 +58,12 @@ import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
-import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.CreateUserRequest;
+import android.hardware.automotive.vehicle.CreateUserStatus;
+import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.SwitchUserResponse;
+import android.hardware.automotive.vehicle.SwitchUserStatus;
 import android.os.Binder;
 import android.os.NewUserResponse;
 import android.os.Process;
@@ -1551,7 +1550,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         Log.d(TAG, "createUser() request: " + request);
         assertThat(request.newUserName).isEqualTo("dude");
         assertThat(request.newUserInfo.userId).isEqualTo(userId);
-        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.EPHEMERAL);
+        assertThat(request.newUserInfo.flags).isEqualTo(
+                android.hardware.automotive.vehicle.UserInfo.USER_FLAG_EPHEMERAL);
         assertDefaultUsersInfo(request.usersInfo, mAdminUser);
 
         UserCreationResult result = getUserCreationResult();
@@ -1584,7 +1584,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         Log.d(TAG, "createUser() request: " + request);
         assertThat(request.newUserName).isEqualTo("guest");
         assertThat(request.newUserInfo.userId).isEqualTo(userId);
-        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.GUEST);
+        assertThat(request.newUserInfo.flags).isEqualTo(
+                android.hardware.automotive.vehicle.UserInfo.USER_FLAG_GUEST);
         assertDefaultUsersInfo(request.usersInfo, mAdminUser);
 
         UserCreationResult result = getUserCreationResult();
@@ -1634,7 +1635,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         Log.d(TAG, "createUser() request: " + request);
         assertThat(request.newUserName).isEmpty();
         assertThat(request.newUserInfo.userId).isEqualTo(userId);
-        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.EPHEMERAL);
+        assertThat(request.newUserInfo.flags).isEqualTo(
+                android.hardware.automotive.vehicle.UserInfo.USER_FLAG_EPHEMERAL);
         assertDefaultUsersInfo(request.usersInfo, mAdminUser);
 
         UserCreationResult result = getUserCreationResult();

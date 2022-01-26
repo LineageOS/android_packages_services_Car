@@ -70,18 +70,17 @@ import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
-import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
-import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
-import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserResponse;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
-import android.hardware.automotive.vehicle.V2_0.UsersInfo;
+import android.hardware.automotive.vehicle.CreateUserRequest;
+import android.hardware.automotive.vehicle.CreateUserResponse;
+import android.hardware.automotive.vehicle.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.RemoveUserRequest;
+import android.hardware.automotive.vehicle.SwitchUserRequest;
+import android.hardware.automotive.vehicle.SwitchUserResponse;
+import android.hardware.automotive.vehicle.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.UserIdentificationResponse;
+import android.hardware.automotive.vehicle.UserIdentificationSetRequest;
+import android.hardware.automotive.vehicle.UsersInfo;
 import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
@@ -265,6 +264,15 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         mGuestUserId = mGuestUser.getIdentifier();
         mRegularUserId = mRegularUser.getIdentifier();
         mAnotherRegularUserId = mAnotherRegularUser.getIdentifier();
+    }
+
+    // The responses must never contain null values.
+    @Before
+    public void fillInDefaultValues() {
+        mGetUserInfoResponse.userToSwitchOrCreate =
+                new android.hardware.automotive.vehicle.UserInfo();
+        mGetUserInfoResponse.userLocales = new String();
+        mGetUserInfoResponse.userNameToCreate = new String();
     }
 
     protected ICarUxRestrictionsChangeListener initService() {
@@ -659,13 +667,13 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected BlockingAnswer<Void> mockHalSwitchLateResponse(@UserIdInt int currentUserId,
             @NonNull UserHandle androidTargetUser, @Nullable SwitchUserResponse response) {
-        android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
-                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        android.hardware.automotive.vehicle.UserInfo halTargetUser =
+                new android.hardware.automotive.vehicle.UserInfo();
         halTargetUser.userId = androidTargetUser.getIdentifier();
         halTargetUser.flags = UserHalHelper.convertFlags(mMockedUserHandleHelper,
                 androidTargetUser);
         UsersInfo usersInfo = newUsersInfo(currentUserId);
-        SwitchUserRequest request = new SwitchUserRequest();
+        SwitchUserRequest request = UserHalHelper.emptySwitchUserRequest();
         request.targetUser = halTargetUser;
         request.usersInfo = usersInfo;
 
@@ -684,13 +692,13 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected void mockHalSwitch(@UserIdInt int currentUserId,
             @HalCallback.HalCallbackStatus int callbackStatus,
             @Nullable SwitchUserResponse response, @NonNull UserHandle androidTargetUser) {
-        android.hardware.automotive.vehicle.V2_0.UserInfo halTargetUser =
-                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        android.hardware.automotive.vehicle.UserInfo halTargetUser =
+                new android.hardware.automotive.vehicle.UserInfo();
         halTargetUser.userId = androidTargetUser.getIdentifier();
         halTargetUser.flags = UserHalHelper.convertFlags(mMockedUserHandleHelper,
                 androidTargetUser);
         UsersInfo usersInfo = newUsersInfo(currentUserId);
-        SwitchUserRequest request = new SwitchUserRequest();
+        SwitchUserRequest request = UserHalHelper.emptySwitchUserRequest();
         request.targetUser = halTargetUser;
         request.usersInfo = usersInfo;
 
@@ -712,11 +720,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         UserIdentificationResponse response = new UserIdentificationResponse();
         response.numberAssociation = types.length;
         response.errorMessage = errorMessage;
+        response.associations = new UserIdentificationAssociation[types.length];
         for (int i = 0; i < types.length; i++) {
             UserIdentificationAssociation association = new UserIdentificationAssociation();
             association.type = types[i];
             association.value = values[i];
-            response.associations.add(association);
+            response.associations[i] = association;
         }
 
         when(mUserHal.getUserAssociation(isUserIdentificationGetRequest(user, types)))
@@ -731,11 +740,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         UserIdentificationResponse response = new UserIdentificationResponse();
         response.numberAssociation = types.length;
         response.errorMessage = errorMessage;
+        response.associations = new UserIdentificationAssociation[types.length];
         for (int i = 0; i < types.length; i++) {
             UserIdentificationAssociation association = new UserIdentificationAssociation();
             association.type = types[i];
             association.value = values[i];
-            response.associations.add(association);
+            response.associations[i] = association;
         }
 
         doAnswer((invocation) -> {
@@ -830,11 +840,11 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         assertSameUser(actual.currentUser, currentUser);
         assertThat(actual.numberUsers).isEqualTo(mExistingUsers.size());
         for (int i = 0; i < actual.numberUsers; i++) {
-            assertSameUser(actual.existingUsers.get(i), mExistingUsers.get(i));
+            assertSameUser(actual.existingUsers[i], mExistingUsers.get(i));
         }
     }
 
-    protected void assertSameUser(android.hardware.automotive.vehicle.V2_0.UserInfo halUser,
+    protected void assertSameUser(android.hardware.automotive.vehicle.UserInfo halUser,
             UserHandle androidUser) {
         assertThat(halUser.userId).isEqualTo(androidUser.getIdentifier());
 
@@ -865,24 +875,26 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     @NonNull
     protected UsersInfo newUsersInfo(@UserIdInt int currentUserId) {
-        UsersInfo infos = new UsersInfo();
+        UsersInfo infos = UserHalHelper.emptyUsersInfo();
         infos.numberUsers = mExistingUsers.size();
         boolean foundCurrentUser = false;
+        infos.existingUsers = new android.hardware.automotive.vehicle.UserInfo[infos.numberUsers];
+        int i = 0;
         for (UserHandle handle : mExistingUsers) {
-            android.hardware.automotive.vehicle.V2_0.UserInfo existingUser =
-                    new android.hardware.automotive.vehicle.V2_0.UserInfo();
-            int flags = UserFlags.NONE;
+            android.hardware.automotive.vehicle.UserInfo existingUser =
+                    new android.hardware.automotive.vehicle.UserInfo();
+            int flags = 0;
             if (handle.getIdentifier() == UserHandle.USER_SYSTEM) {
-                flags |= UserFlags.SYSTEM;
+                flags |= android.hardware.automotive.vehicle.UserInfo.USER_FLAG_SYSTEM;
             }
             if (mMockedUserHandleHelper.isAdminUser(handle)) {
-                flags |= UserFlags.ADMIN;
+                flags |= android.hardware.automotive.vehicle.UserInfo.USER_FLAG_ADMIN;
             }
             if (mMockedUserHandleHelper.isGuestUser(handle)) {
-                flags |= UserFlags.GUEST;
+                flags |= android.hardware.automotive.vehicle.UserInfo.USER_FLAG_GUEST;
             }
             if (mMockedUserHandleHelper.isEphemeralUser(handle)) {
-                flags |= UserFlags.EPHEMERAL;
+                flags |= android.hardware.automotive.vehicle.UserInfo.USER_FLAG_EPHEMERAL;
             }
             existingUser.userId = handle.getIdentifier();
             existingUser.flags = flags;
@@ -891,7 +903,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 infos.currentUser.userId = handle.getIdentifier();
                 infos.currentUser.flags = flags;
             }
-            infos.existingUsers.add(existingUser);
+            infos.existingUsers[i] = existingUser;
+            i++;
         }
         Preconditions.checkArgument(foundCurrentUser,
                 "no user with id " + currentUserId + " on " + mExistingUsers);
@@ -1053,13 +1066,13 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                         + mTypes.length);
                 return false;
             }
-            if (argument.associationTypes.size() != mTypes.length) {
+            if (argument.associationTypes.length != mTypes.length) {
                 Log.w(TAG, "wrong associationTypes size on " + argument + "; expected "
                         + mTypes.length);
                 return false;
             }
             for (int i = 0; i < mTypes.length; i++) {
-                if (argument.associationTypes.get(i) != mTypes[i]) {
+                if (argument.associationTypes[i] != mTypes[i]) {
                     Log.w(TAG, "wrong association type on index " + i + " on " + argument
                             + "; expected types: " + Arrays.toString(mTypes));
                     return false;
