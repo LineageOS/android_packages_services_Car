@@ -16,6 +16,7 @@
 
 #include "AidlVhalClient.h"
 
+#include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 
 #include <AidlHalPropConfig.h>
@@ -23,6 +24,9 @@
 #include <ParcelableUtils.h>
 #include <VehicleUtils.h>
 #include <inttypes.h>
+
+#include <string>
+#include <vector>
 
 namespace android {
 namespace frameworks {
@@ -34,6 +38,7 @@ namespace {
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::Result;
+using ::android::base::StringPrintf;
 using ::android::hardware::automotive::vehicle::fromStableLargeParcelable;
 using ::android::hardware::automotive::vehicle::PendingRequestPool;
 using ::android::hardware::automotive::vehicle::toInt;
@@ -49,14 +54,17 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
+using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropError;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
 using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
+using ::ndk::SharedRefBase;
 
 std::string toString(const std::vector<int32_t>& values) {
     std::vector<std::string> strings;
@@ -77,7 +85,7 @@ AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInM
 AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInMs,
                                std::unique_ptr<ILinkUnlinkToDeath> linkUnlinkImpl) :
       mHal(hal) {
-    mGetSetValueClient = ndk::SharedRefBase::make<GetSetValueClient>(
+    mGetSetValueClient = SharedRefBase::make<GetSetValueClient>(
             /*timeoutInNs=*/timeoutInMs * 1'000'000, hal);
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&AidlVhalClient::onBinderDied));
@@ -198,9 +206,8 @@ size_t AidlVhalClient::countOnBinderDiedCallbacks() {
 }
 
 std::unique_ptr<ISubscriptionClient> AidlVhalClient::getSubscriptionClient(
-        [[maybe_unused]] std::shared_ptr<ISubscriptionCallback> callback) {
-    // TODO(b/214635003): implement this.
-    return nullptr;
+        std::shared_ptr<ISubscriptionCallback> callback) {
+    return std::make_unique<AidlSubscriptionClient>(mHal, callback);
 }
 
 GetSetValueClient::GetSetValueClient(int64_t timeoutInNs, std::shared_ptr<IVehicle> hal) :
@@ -429,13 +436,15 @@ void GetSetValueClient::onSetValue(const SetValueResult& result) {
 
 ScopedAStatus GetSetValueClient::onPropertyEvent([[maybe_unused]] const VehiclePropValues&,
                                                  int32_t) {
-    // TODO(b/214635003): implement this.
-    return ScopedAStatus::ok();
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onPropertyEvent should never be "
+                                                              "called from GetSetValueClient");
 }
 
 ScopedAStatus GetSetValueClient::onPropertySetError([[maybe_unused]] const VehiclePropErrors&) {
-    // TODO(b/214635003): implement this.
-    return ScopedAStatus::ok();
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onPropertySetError should never be "
+                                                              "called from GetSetValueClient");
 }
 
 template <class T>
@@ -468,6 +477,111 @@ template void GetSetValueClient::onTimeout(
 template void GetSetValueClient::onTimeout(
         const std::unordered_set<int64_t>& requestIds,
         std::unordered_map<int64_t, std::unique_ptr<PendingSetValueRequest>>* callbacks);
+
+AidlSubscriptionClient::AidlSubscriptionClient(std::shared_ptr<IVehicle> hal,
+                                               std::shared_ptr<ISubscriptionCallback> callback) :
+      mHal(hal) {
+    mSubscriptionCallback = SharedRefBase::make<SubscriptionVehicleCallback>(callback);
+}
+
+std::string AidlSubscriptionClient::toString(const std::vector<int32_t>& values) {
+    std::vector<std::string> strings;
+    for (int32_t value : values) {
+        strings.push_back(std::to_string(value));
+    }
+    return "[" + Join(strings, ",") + "]";
+}
+
+Result<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOptions>& options) {
+    std::vector<int32_t> propIds;
+    for (const SubscribeOptions& option : options) {
+        propIds.push_back(option.propId);
+    }
+
+    // TODO(b/205189110): Fill in maxSharedMemoryFileCount after we support memory pool.
+    if (auto status = mHal->subscribe(mSubscriptionCallback, options,
+                                      /*maxSharedMemoryFileCount=*/0);
+        !status.isOk()) {
+        return Error(status.getServiceSpecificError())
+                << "failed to subscribe to prop IDs: " << toString(propIds)
+                << ", error: " << status.getMessage();
+    }
+    return {};
+}
+
+Result<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
+    if (auto status = mHal->unsubscribe(mSubscriptionCallback, propIds); !status.isOk()) {
+        return Error(status.getServiceSpecificError())
+                << "failed to unsubscribe to prop IDs: " << toString(propIds)
+                << ", error: " << status.getMessage();
+    }
+    return {};
+}
+
+SubscriptionVehicleCallback::SubscriptionVehicleCallback(
+        std::shared_ptr<ISubscriptionCallback> callback) :
+      mCallback(callback) {}
+
+ScopedAStatus SubscriptionVehicleCallback::onGetValues(
+        [[maybe_unused]] const GetValueResults& results) {
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onGetValues should never be called "
+                                                              "from SubscriptionVehicleCallback");
+}
+
+ScopedAStatus SubscriptionVehicleCallback::onSetValues(
+        [[maybe_unused]] const SetValueResults& results) {
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onSetValues should never be called "
+                                                              "from SubscriptionVehicleCallback");
+}
+
+ScopedAStatus SubscriptionVehicleCallback::onPropertyEvent(
+        const VehiclePropValues& values, [[maybe_unused]] int32_t sharedMemoryCount) {
+    auto parcelableResult = fromStableLargeParcelable(values);
+    if (!parcelableResult.ok()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                    StringPrintf("failed to parse "
+                                                                 "VehiclePropValues returned from "
+                                                                 "VHAL, error: %s",
+                                                                 parcelableResult.error()
+                                                                         .getMessage())
+                                                            .c_str());
+    }
+
+    std::vector<std::unique_ptr<IHalPropValue>> halPropValues;
+    for (const VehiclePropValue& value : parcelableResult.value().getObject()->payloads) {
+        VehiclePropValue valueCopy = value;
+        halPropValues.push_back(std::make_unique<AidlHalPropValue>(std::move(valueCopy)));
+    }
+    mCallback->onPropertyEvent(halPropValues);
+    return ScopedAStatus::ok();
+}
+
+ScopedAStatus SubscriptionVehicleCallback::onPropertySetError(const VehiclePropErrors& errors) {
+    auto parcelableResult = fromStableLargeParcelable(errors);
+    if (!parcelableResult.ok()) {
+        return ScopedAStatus::
+                fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                    StringPrintf("failed to parse "
+                                                                 "VehiclePropErrors returned from "
+                                                                 "VHAL, error: %s",
+                                                                 parcelableResult.error()
+                                                                         .getMessage())
+                                                            .c_str());
+    }
+    std::vector<HalPropError> halPropErrors;
+    for (const VehiclePropError& error : parcelableResult.value().getObject()->payloads) {
+        halPropErrors.push_back(HalPropError{
+                .propId = error.propId,
+                .areaId = error.areaId,
+                .status = error.errorCode,
+        });
+    }
+    mCallback->onPropertySetError(halPropErrors);
+    return ScopedAStatus::ok();
+}
 
 }  // namespace vhal
 }  // namespace automotive

@@ -53,7 +53,10 @@ using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropError;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
@@ -137,14 +140,25 @@ public:
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus subscribe([[maybe_unused]] const CallbackType& callback,
-                            [[maybe_unused]] const std::vector<SubscribeOptions>& options,
+    ScopedAStatus subscribe(const CallbackType& callback,
+                            const std::vector<SubscribeOptions>& options,
                             [[maybe_unused]] int32_t maxSharedMemoryFileCount) override {
+        mSubscriptionCallback = callback;
+        mSubscriptionOptions = options;
+
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
         return ScopedAStatus::ok();
     }
 
     ScopedAStatus unsubscribe([[maybe_unused]] const CallbackType& callback,
-                              [[maybe_unused]] const std::vector<int32_t>& propIds) override {
+                              const std::vector<int32_t>& propIds) override {
+        mUnsubscribePropIds = propIds;
+
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
         return ScopedAStatus::ok();
     }
 
@@ -171,6 +185,24 @@ public:
 
     std::vector<int32_t> getGetPropConfigPropIds() { return mGetPropConfigPropIds; }
 
+    std::vector<SubscribeOptions> getSubscriptionOptions() { return mSubscriptionOptions; }
+
+    void triggerOnPropertyEvent(const std::vector<VehiclePropValue>& values) {
+        VehiclePropValues propValues = {
+                .payloads = values,
+        };
+        mSubscriptionCallback->onPropertyEvent(propValues, /*sharedMemoryCount=*/0);
+    }
+
+    void triggerSetErrorEvent(const std::vector<VehiclePropError>& errors) {
+        VehiclePropErrors propErrors = {
+                .payloads = errors,
+        };
+        mSubscriptionCallback->onPropertySetError(propErrors);
+    }
+
+    std::vector<int32_t> getUnsubscribedPropIds() { return mUnsubscribePropIds; }
+
 private:
     std::mutex mLock;
     std::vector<GetValueResult> mGetValueResults;
@@ -183,6 +215,27 @@ private:
     StatusCode mStatus = StatusCode::OK;
     std::condition_variable mCv;
     std::atomic<int> mThreadCount = 0;
+    CallbackType mSubscriptionCallback;
+    std::vector<SubscribeOptions> mSubscriptionOptions;
+    std::vector<int32_t> mUnsubscribePropIds;
+};
+
+class MockSubscriptionCallback : public ISubscriptionCallback {
+public:
+    void onPropertyEvent(const std::vector<std::unique_ptr<IHalPropValue>>& values) override {
+        for (const auto& value : values) {
+            mEventPropIds.push_back(value->getPropId());
+        }
+    }
+    void onPropertySetError(const std::vector<HalPropError>& errors) override { mErrors = errors; }
+
+    std::vector<int32_t> getEventPropIds() { return mEventPropIds; }
+
+    std::vector<HalPropError> getErrors() { return mErrors; }
+
+private:
+    std::vector<int32_t> mEventPropIds;
+    std::vector<HalPropError> mErrors;
 };
 
 class AidlVhalClientTest : public ::testing::Test {
@@ -725,6 +778,90 @@ TEST_F(AidlVhalClientTest, testGetPropConfigsError) {
 
     std::vector<int32_t> propIds = {TEST_PROP_ID, TEST_PROP_ID_2};
     auto result = getClient()->getPropConfigs(propIds);
+
+    ASSERT_FALSE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testSubscribe) {
+    std::vector<SubscribeOptions> options = {
+            {
+                    .propId = TEST_PROP_ID,
+                    .areaIds = {TEST_AREA_ID},
+                    .sampleRate = 1.0,
+            },
+            {
+                    .propId = TEST_PROP_ID_2,
+                    .sampleRate = 2.0,
+            },
+    };
+
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    auto result = subscriptionClient->subscribe(options);
+
+    ASSERT_TRUE(result.ok());
+    ASSERT_EQ(getVhal()->getSubscriptionOptions(), options);
+
+    getVhal()->triggerOnPropertyEvent(std::vector<VehiclePropValue>{
+            {
+                    .prop = TEST_PROP_ID,
+                    .areaId = TEST_AREA_ID,
+                    .value.int32Values = {1},
+            },
+    });
+
+    ASSERT_EQ(callback->getEventPropIds(), std::vector<int32_t>({TEST_PROP_ID}));
+
+    getVhal()->triggerSetErrorEvent(std::vector<VehiclePropError>({
+            {
+                    .propId = TEST_PROP_ID,
+                    .areaId = TEST_AREA_ID,
+                    .errorCode = StatusCode::INTERNAL_ERROR,
+            },
+    }));
+
+    auto errors = callback->getErrors();
+    ASSERT_EQ(errors.size(), static_cast<size_t>(1));
+    ASSERT_EQ(errors[0].propId, TEST_PROP_ID);
+    ASSERT_EQ(errors[0].areaId, TEST_AREA_ID);
+    ASSERT_EQ(errors[0].status, StatusCode::INTERNAL_ERROR);
+}
+
+TEST_F(AidlVhalClientTest, testSubscribeError) {
+    std::vector<SubscribeOptions> options = {
+            {
+                    .propId = TEST_PROP_ID,
+                    .areaIds = {TEST_AREA_ID},
+                    .sampleRate = 1.0,
+            },
+            {
+                    .propId = TEST_PROP_ID_2,
+                    .sampleRate = 2.0,
+            },
+    };
+
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    auto result = subscriptionClient->subscribe(options);
+
+    ASSERT_FALSE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testUnubscribe) {
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
+
+    ASSERT_TRUE(result.ok());
+    ASSERT_EQ(getVhal()->getUnsubscribedPropIds(), std::vector<int32_t>({TEST_PROP_ID}));
+}
+
+TEST_F(AidlVhalClientTest, testUnubscribeError) {
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+    auto callback = std::make_shared<MockSubscriptionCallback>();
+    auto subscriptionClient = getClient()->getSubscriptionClient(callback);
+    auto result = subscriptionClient->unsubscribe({TEST_PROP_ID});
 
     ASSERT_FALSE(result.ok());
 }
