@@ -38,11 +38,11 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
-namespace test {
+namespace aidl_test {
 
 class AidlVhalClientTest;
 
-}
+}  // namespace aidl_test
 
 class GetSetValueClient;
 
@@ -79,7 +79,7 @@ public:
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
 private:
-    friend class test::AidlVhalClientTest;
+    friend class aidl_test::AidlVhalClientTest;
 
     class ILinkUnlinkToDeath {
     public:
