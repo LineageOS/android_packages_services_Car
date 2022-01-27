@@ -50,7 +50,6 @@ import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
-import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -203,10 +202,6 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             protected void onCompleted(UserCreationResult result, Throwable err) {
                 if (result == null) {
                     Slogf.w(TAG, "createDriver(%s, %s) failed: %s", name, admin, err);
-                } else {
-                    if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
-                        UserHelper.assignDefaultIcon(mContext, result.getUser());
-                    }
                 }
                 super.onCompleted(result, err);
             };
@@ -255,9 +250,6 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             Slogf.w(TAG, "can't create a profile for user %d", driverId);
             return null;
         }
-        // Passenger user should be a non-admin user.
-        UserHelper.setDefaultNonAdminRestrictions(mContext, user, /* enable= */ true);
-        UserHelper.assignDefaultIcon(mContext, user);
         return user;
     }
 
