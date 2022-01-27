@@ -1872,13 +1872,13 @@ public final class WatchdogPerfHandler {
 
         AtomsProto.CarWatchdogEventTimePeriod evenTimePeriod =
                 AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
-                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY)
-                        .setStartTimeMillis(period.first.toEpochSecond()).build();
+                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY).build();
         data.add(CarStatsLog.buildStatsEvent(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY,
                 AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                         .setEventTimePeriod(evenTimePeriod)
                         .addAllDailyIoUsageSummary(dailyIoUsageSummaries).build()
-                        .toByteArray()));
+                        .toByteArray(),
+                period.first.toEpochSecond() * 1000));
 
         Slogf.i(TAG, "Successfully pulled system I/O usage summary stats");
     }
@@ -1913,9 +1913,9 @@ public final class WatchdogPerfHandler {
 
         AtomsProto.CarWatchdogEventTimePeriod.Builder evenTimePeriodBuilder =
                 AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
-                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY)
-                        .setStartTimeMillis(period.first.toEpochSecond());
+                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY);
 
+        long startEpochMillis = period.first.toEpochSecond() * 1000;
         int numPulledUidSummaryStats = 0;
         for (int i = 0; i < topUsersDailyIoUsageSummaries.size()
                 && numPulledUidSummaryStats < mUidIoUsageSummaryTopCount; ++i) {
@@ -1932,7 +1932,8 @@ public final class WatchdogPerfHandler {
                     AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                             .setEventTimePeriod(evenTimePeriodBuilder)
                             .addAllDailyIoUsageSummary(entry.dailyIoUsageSummaries).build()
-                            .toByteArray()));
+                            .toByteArray(),
+                    startEpochMillis));
             ++numPulledUidSummaryStats;
         }
 

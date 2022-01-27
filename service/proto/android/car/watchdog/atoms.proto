@@ -171,6 +171,10 @@ message CarWatchdogProcessStat {
 message CarWatchdogSystemIoUsageSummary {
   // I/O usage summary for the system.
   optional CarWatchdogIoUsageSummary io_usage_summary = 1;
+
+  // Start time of the event in milliseconds since epoch.
+  // Note: This field must be a top-level field as it is used to slice the metrics.
+  optional int64 start_time_millis = 2;
 }
 
 /**
@@ -188,6 +192,10 @@ message CarWatchdogUidIoUsageSummary {
 
   // I/O usage summary for the UID.
   optional CarWatchdogIoUsageSummary io_usage_summary = 2;
+
+  // Start time of the event in milliseconds since epoch.
+  // Note: This field must be a top-level field as it is used to slice the metrics.
+  optional int64 start_time_millis = 3;
 }
 
 /**
@@ -225,8 +233,8 @@ message CarWatchdogEventTimePeriod {
     MONTHLY = 3;
   }
 
-  // Start time of the event in milliseconds since epoch.
-  optional uint64 start_time_millis = 1;
+  // Deprecated field - Start time of the event in milliseconds since epoch.
+  optional uint64 start_time_millis = 1 [deprecated = true];
 
   // Period for the event.
   optional Period period = 2;
