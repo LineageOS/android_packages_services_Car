@@ -473,6 +473,11 @@ public final class HalPropValueBuilder {
             }
         }
 
+        @Override
+        public String toString() {
+            return mVehiclePropValue.toString();
+        }
+
         public Object toVehiclePropValue() {
             return mVehiclePropValue;
         }
@@ -857,6 +862,11 @@ public final class HalPropValueBuilder {
             if (mVehiclePropValue.value.stringValue == null) {
                 mVehiclePropValue.value.stringValue = new String();
             }
+        }
+
+        @Override
+        public String toString() {
+            return mVehiclePropValue.toString();
         }
 
         public Object toVehiclePropValue() {
