@@ -47,6 +47,7 @@ public class CarLocalServices {
      * @return The service object.
      */
     @SuppressWarnings("unchecked")
+    @Nullable
     public static <T> T getService(Class<T> type) {
         if (DBG) {
             Slogf.d(TAG, " getService " + type.getSimpleName());

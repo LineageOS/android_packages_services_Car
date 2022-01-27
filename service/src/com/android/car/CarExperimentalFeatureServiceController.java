@@ -18,6 +18,7 @@ package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.Nullable;
 import android.car.IExperimentalCar;
 import android.car.IExperimentalCarHelper;
 import android.car.builtin.util.Slogf;
@@ -207,6 +208,7 @@ public final class CarExperimentalFeatureServiceController implements CarService
     /**
      * Returns class name for experimental feature.
      */
+    @Nullable
     public String getCarManagerClassForFeature(String featureName) {
         FeatureInfo info;
         synchronized (mLock) {
@@ -221,6 +223,7 @@ public final class CarExperimentalFeatureServiceController implements CarService
     /**
      * Returns service binder for experimental feature.
      */
+    @Nullable
     public IBinder getCarService(String serviceName) {
         FeatureInfo info;
         synchronized (mLock) {
