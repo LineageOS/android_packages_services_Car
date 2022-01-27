@@ -15,6 +15,7 @@
  */
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
+#include <android/binder_ibinder.h>
 #include <gtest/gtest.h>
 
 #include <AidlHalPropValue.h>
@@ -44,9 +45,13 @@ using ::aidl::android::hardware::automotive::vehicle::GetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::IVehicle;
 using ::aidl::android::hardware::automotive::vehicle::IVehicleCallback;
 using ::aidl::android::hardware::automotive::vehicle::RawPropValues;
+using ::aidl::android::hardware::automotive::vehicle::SetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::SetValueRequests;
+using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
+using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 
@@ -62,7 +67,12 @@ public:
         mCv.wait_for(lk, std::chrono::milliseconds(1000), [this] { return mThreadCount == 0; });
     }
 
-    ScopedAStatus getAllPropConfigs([[maybe_unused]] VehiclePropConfigs* returnConfigs) override {
+    ScopedAStatus getAllPropConfigs(VehiclePropConfigs* returnConfigs) override {
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
+
+        returnConfigs->payloads = mPropConfigs;
         return ScopedAStatus::ok();
     }
 
@@ -91,13 +101,39 @@ public:
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus setValues([[maybe_unused]] const CallbackType& callback,
-                            [[maybe_unused]] const SetValueRequests& requests) override {
+    ScopedAStatus setValues(const CallbackType& callback,
+                            const SetValueRequests& requests) override {
+        mSetValueRequests = requests.payloads;
+
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
+
+        if (mWaitTimeInMs == 0) {
+            callback->onSetValues(SetValueResults{.payloads = mSetValueResults});
+        } else {
+            mThreadCount++;
+            std::thread t([this, callback]() {
+                std::this_thread::sleep_for(std::chrono::milliseconds(mWaitTimeInMs));
+                callback->onSetValues(SetValueResults{.payloads = mSetValueResults});
+                mThreadCount--;
+                mCv.notify_one();
+            });
+            // Detach the thread here so we do not have to maintain the thread object. mThreadCount
+            // and mCv make sure we wait for all threads to end before we exit.
+            t.detach();
+        }
         return ScopedAStatus::ok();
     }
 
-    ScopedAStatus getPropConfigs([[maybe_unused]] const std::vector<int32_t>& props,
-                                 [[maybe_unused]] VehiclePropConfigs* returnConfigs) override {
+    ScopedAStatus getPropConfigs(const std::vector<int32_t>& props,
+                                 VehiclePropConfigs* returnConfigs) override {
+        mGetPropConfigPropIds = props;
+        if (mStatus != StatusCode::OK) {
+            return ScopedAStatus::fromServiceSpecificError(toInt(mStatus));
+        }
+
+        returnConfigs->payloads = mPropConfigs;
         return ScopedAStatus::ok();
     }
 
@@ -123,14 +159,26 @@ public:
 
     std::vector<GetValueRequest> getGetValueRequests() { return mGetValueRequests; }
 
+    void setSetValueResults(std::vector<SetValueResult> results) { mSetValueResults = results; }
+
+    std::vector<SetValueRequest> getSetValueRequests() { return mSetValueRequests; }
+
     void setWaitTimeInMs(int64_t waitTimeInMs) { mWaitTimeInMs = waitTimeInMs; }
 
     void setStatus(StatusCode status) { mStatus = status; }
+
+    void setPropConfigs(std::vector<VehiclePropConfig> configs) { mPropConfigs = configs; }
+
+    std::vector<int32_t> getGetPropConfigPropIds() { return mGetPropConfigPropIds; }
 
 private:
     std::mutex mLock;
     std::vector<GetValueResult> mGetValueResults;
     std::vector<GetValueRequest> mGetValueRequests;
+    std::vector<SetValueResult> mSetValueResults;
+    std::vector<SetValueRequest> mSetValueRequests;
+    std::vector<VehiclePropConfig> mPropConfigs;
+    std::vector<int32_t> mGetPropConfigPropIds;
     int64_t mWaitTimeInMs = 0;
     StatusCode mStatus = StatusCode::OK;
     std::condition_variable mCv;
@@ -139,26 +187,54 @@ private:
 
 class AidlVhalClientTest : public ::testing::Test {
 protected:
+    class TestLinkUnlinkImpl final : public AidlVhalClient::ILinkUnlinkToDeath {
+    public:
+        binder_status_t linkToDeath([[maybe_unused]] AIBinder* binder,
+                                    [[maybe_unused]] AIBinder_DeathRecipient* recipient,
+                                    void* cookie) override {
+            mCookie = cookie;
+            return STATUS_OK;
+        }
+
+        binder_status_t unlinkToDeath(AIBinder*, AIBinder_DeathRecipient*, void*) override {
+            // DO nothing.
+            return STATUS_OK;
+        }
+
+        void* getCookie() { return mCookie; }
+
+    private:
+        void* mCookie;
+    };
+
     constexpr static int32_t TEST_PROP_ID = 1;
     constexpr static int32_t TEST_AREA_ID = 2;
+    constexpr static int32_t TEST_PROP_ID_2 = 3;
+    constexpr static int64_t TEST_TIMEOUT_IN_MS = 100;
 
     void SetUp() override {
         mVhal = SharedRefBase::make<MockVhal>();
-        mVhalClient = std::make_unique<AidlVhalClient>(mVhal);
+        auto impl = std::make_unique<TestLinkUnlinkImpl>();
+        // We are sure impl would be alive when we use mLinkUnlinkImpl.
+        mLinkUnlinkImpl = impl.get();
+        mVhalClient = std::unique_ptr<AidlVhalClient>(
+                new AidlVhalClient(mVhal, TEST_TIMEOUT_IN_MS, std::move(impl)));
     }
 
     AidlVhalClient* getClient() { return mVhalClient.get(); }
 
-    AidlVhalClient* getClient(int64_t timeoutInMs) {
-        mVhalClient = std::make_unique<AidlVhalClient>(mVhal, timeoutInMs);
-        return mVhalClient.get();
-    }
-
     MockVhal* getVhal() { return mVhal.get(); }
+
+    void triggerBinderDied() { AidlVhalClient::onBinderDied(mLinkUnlinkImpl->getCookie()); }
+
+    void triggerBinderUnlinked() { AidlVhalClient::onBinderUnlinked(mLinkUnlinkImpl->getCookie()); }
+
+    size_t countOnBinderDiedCallbacks() { return mVhalClient->countOnBinderDiedCallbacks(); }
 
 private:
     std::shared_ptr<MockVhal> mVhal;
     std::unique_ptr<AidlVhalClient> mVhalClient;
+    TestLinkUnlinkImpl* mLinkUnlinkImpl;
 };
 
 TEST_F(AidlVhalClientTest, testGetValueNormal) {
@@ -166,7 +242,7 @@ TEST_F(AidlVhalClientTest, testGetValueNormal) {
             .prop = TEST_PROP_ID,
             .areaId = TEST_AREA_ID,
     };
-    getVhal()->setWaitTimeInMs(100);
+    getVhal()->setWaitTimeInMs(10);
     getVhal()->setGetValueResults({
             GetValueResult{
                     .requestId = 0,
@@ -220,7 +296,8 @@ TEST_F(AidlVhalClientTest, testGetValueTimeout) {
             .prop = TEST_PROP_ID,
             .areaId = TEST_AREA_ID,
     };
-    getVhal()->setWaitTimeInMs(100);
+    // The request will time-out before the response.
+    getVhal()->setWaitTimeInMs(200);
     getVhal()->setGetValueResults({
             GetValueResult{
                     .requestId = 0,
@@ -245,8 +322,6 @@ TEST_F(AidlVhalClientTest, testGetValueTimeout) {
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
 
-    // The request will time-out before the response.
-    auto vhalClient = getClient(/*timeoutInMs=*/10);
     auto callback = std::make_shared<AidlVhalClient::GetValueCallbackFunc>(
             [&lock, &cv, resultPtr, gotResultPtr](Result<std::unique_ptr<IHalPropValue>> r) {
                 {
@@ -256,7 +331,7 @@ TEST_F(AidlVhalClientTest, testGetValueTimeout) {
                 }
                 cv.notify_one();
             });
-    vhalClient->getValue(propValue, callback);
+    getClient()->getValue(propValue, callback);
 
     std::unique_lock<std::mutex> lk(lock);
     cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
@@ -362,6 +437,296 @@ TEST_F(AidlVhalClientTest, testGetValueIgnoreInvalidRequestId) {
     ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
     ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueNormal) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setWaitTimeInMs(10);
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    std::mutex lock;
+    std::condition_variable cv;
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+    bool gotResult = false;
+    bool* gotResultPtr = &gotResult;
+
+    auto callback = std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+            [&lock, &cv, resultPtr, gotResultPtr](Result<void> r) {
+                {
+                    std::lock_guard<std::mutex> lockGuard(lock);
+                    *resultPtr = std::move(r);
+                    *gotResultPtr = true;
+                }
+                cv.notify_one();
+            });
+    getClient()->setValue(propValue, callback);
+
+    std::unique_lock<std::mutex> lk(lock);
+    cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
+
+    ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_TRUE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testSetValueTimeout) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    // The request will time-out before the response.
+    getVhal()->setWaitTimeInMs(200);
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    std::mutex lock;
+    std::condition_variable cv;
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+    bool gotResult = false;
+    bool* gotResultPtr = &gotResult;
+
+    auto callback = std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+            [&lock, &cv, resultPtr, gotResultPtr](Result<void> r) {
+                {
+                    std::lock_guard<std::mutex> lockGuard(lock);
+                    *resultPtr = std::move(r);
+                    *gotResultPtr = true;
+                }
+                cv.notify_one();
+            });
+    getClient()->setValue(propValue, callback);
+
+    std::unique_lock<std::mutex> lk(lock);
+    cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
+
+    ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::TRY_AGAIN));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueErrorStatus) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+
+    getClient()->setValue(propValue,
+                          std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+                                  [resultPtr](Result<void> r) { *resultPtr = std::move(r); }));
+
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::INTERNAL_ERROR));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueNonOkayResult) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::INTERNAL_ERROR,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+
+    getClient()->setValue(propValue,
+                          std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+                                  [resultPtr](Result<void> r) { *resultPtr = std::move(r); }));
+
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::INTERNAL_ERROR));
+}
+
+TEST_F(AidlVhalClientTest, testSetValueIgnoreInvalidRequestId) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+            // This result has invalid request ID and should be ignored.
+            SetValueResult{
+                    .requestId = 1,
+                    .status = StatusCode::INTERNAL_ERROR,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result;
+    Result<void>* resultPtr = &result;
+
+    getClient()->setValue(propValue,
+                          std::make_shared<AidlVhalClient::SetValueCallbackFunc>(
+                                  [resultPtr](Result<void> r) { *resultPtr = std::move(r); }));
+
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_TRUE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testAddOnBinderDiedCallback) {
+    struct Result {
+        bool callbackOneCalled = false;
+        bool callbackTwoCalled = false;
+    } result;
+
+    getClient()->addOnBinderDiedCallback(std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackOneCalled = true; }));
+    getClient()->addOnBinderDiedCallback(std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackTwoCalled = true; }));
+    triggerBinderDied();
+
+    ASSERT_TRUE(result.callbackOneCalled);
+    ASSERT_TRUE(result.callbackTwoCalled);
+
+    triggerBinderUnlinked();
+
+    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testRemoveOnBinderDiedCallback) {
+    struct Result {
+        bool callbackOneCalled = false;
+        bool callbackTwoCalled = false;
+    } result;
+
+    auto callbackOne = std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackOneCalled = true; });
+    auto callbackTwo = std::make_shared<AidlVhalClient::OnBinderDiedCallbackFunc>(
+            [&result] { result.callbackTwoCalled = true; });
+    getClient()->addOnBinderDiedCallback(callbackOne);
+    getClient()->addOnBinderDiedCallback(callbackTwo);
+    getClient()->removeOnBinderDiedCallback(callbackOne);
+    triggerBinderDied();
+
+    ASSERT_FALSE(result.callbackOneCalled);
+    ASSERT_TRUE(result.callbackTwoCalled);
+
+    triggerBinderUnlinked();
+
+    ASSERT_EQ(countOnBinderDiedCallbacks(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testGetAllPropConfigs) {
+    getVhal()->setPropConfigs({
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID,
+                    .areaConfigs = {{
+                            .areaId = TEST_AREA_ID,
+                            .minInt32Value = 0,
+                            .maxInt32Value = 1,
+                    }},
+            },
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID_2,
+            },
+    });
+
+    auto result = getClient()->getAllPropConfigs();
+
+    ASSERT_TRUE(result.ok());
+    std::vector<std::unique_ptr<IHalPropConfig>> configs = std::move(result.value());
+
+    ASSERT_EQ(configs.size(), static_cast<size_t>(2));
+    ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(1));
+
+    const IHalAreaConfig* areaConfig = configs[0]->getAreaConfigs();
+    ASSERT_EQ(areaConfig->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig->getMinInt32Value(), 0);
+    ASSERT_EQ(areaConfig->getMaxInt32Value(), 1);
+
+    ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
+    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testGetAllPropConfigsError) {
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+
+    auto result = getClient()->getAllPropConfigs();
+
+    ASSERT_FALSE(result.ok());
+    ASSERT_EQ(result.error().code(), toInt(StatusCode::INTERNAL_ERROR));
+}
+
+TEST_F(AidlVhalClientTest, testGetPropConfigs) {
+    getVhal()->setPropConfigs({
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID,
+                    .areaConfigs = {{
+                            .areaId = TEST_AREA_ID,
+                            .minInt32Value = 0,
+                            .maxInt32Value = 1,
+                    }},
+            },
+            VehiclePropConfig{
+                    .prop = TEST_PROP_ID_2,
+            },
+    });
+
+    std::vector<int32_t> propIds = {TEST_PROP_ID, TEST_PROP_ID_2};
+    auto result = getClient()->getPropConfigs(propIds);
+
+    ASSERT_EQ(getVhal()->getGetPropConfigPropIds(), propIds);
+    ASSERT_TRUE(result.ok());
+    std::vector<std::unique_ptr<IHalPropConfig>> configs = std::move(result.value());
+
+    ASSERT_EQ(configs.size(), static_cast<size_t>(2));
+    ASSERT_EQ(configs[0]->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(configs[0]->getAreaConfigSize(), static_cast<size_t>(1));
+
+    const IHalAreaConfig* areaConfig = configs[0]->getAreaConfigs();
+    ASSERT_EQ(areaConfig->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(areaConfig->getMinInt32Value(), 0);
+    ASSERT_EQ(areaConfig->getMaxInt32Value(), 1);
+
+    ASSERT_EQ(configs[1]->getPropId(), TEST_PROP_ID_2);
+    ASSERT_EQ(configs[1]->getAreaConfigSize(), static_cast<size_t>(0));
+}
+
+TEST_F(AidlVhalClientTest, testGetPropConfigsError) {
+    getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
+
+    std::vector<int32_t> propIds = {TEST_PROP_ID, TEST_PROP_ID_2};
+    auto result = getClient()->getPropConfigs(propIds);
+
+    ASSERT_FALSE(result.ok());
 }
 
 }  // namespace test

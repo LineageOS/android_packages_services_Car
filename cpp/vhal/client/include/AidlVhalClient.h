@@ -22,6 +22,8 @@
 #include <aidl/android/hardware/automotive/vehicle/BnVehicleCallback.h>
 #include <aidl/android/hardware/automotive/vehicle/IVehicle.h>
 #include <android-base/thread_annotations.h>
+#include <android/binder_auto_utils.h>
+#include <android/binder_ibinder.h>
 
 #include <PendingRequestPool.h>
 
@@ -29,11 +31,18 @@
 #include <memory>
 #include <mutex>  // NOLINT
 #include <unordered_map>
+#include <unordered_set>
 
 namespace android {
 namespace frameworks {
 namespace automotive {
 namespace vhal {
+
+namespace test {
+
+class AidlVhalClientTest;
+
+}
 
 class GetSetValueClient;
 
@@ -45,28 +54,73 @@ public:
     AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
                    int64_t timeoutInMs);
 
+    ~AidlVhalClient();
+
     void getValue(const IHalPropValue& requestValue,
                   std::shared_ptr<GetValueCallbackFunc> callback) override;
 
     void setValue(const IHalPropValue& value,
                   std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback) override;
 
-    ::aidl::android::hardware::automotive::vehicle::StatusCode linkToDeath(
+    // Add the callback that would be called when VHAL binder died.
+    ::aidl::android::hardware::automotive::vehicle::StatusCode addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
-    ::aidl::android::hardware::automotive::vehicle::StatusCode unlinkToDeath(
+    // Remove a previously added OnBinderDied callback.
+    ::aidl::android::hardware::automotive::vehicle::StatusCode removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
             override;
+    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
+            std::vector<int32_t> propIds) override;
 
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
 private:
+    friend class test::AidlVhalClientTest;
+
+    class ILinkUnlinkToDeath {
+    public:
+        virtual ~ILinkUnlinkToDeath() = default;
+        virtual binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                            void* cookie) = 0;
+        virtual binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                              void* cookie) = 0;
+    };
+
+    class DefaultLinkUnlinkImpl final : public ILinkUnlinkToDeath {
+    public:
+        binder_status_t linkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                    void* cookie) override;
+        binder_status_t unlinkToDeath(AIBinder* binder, AIBinder_DeathRecipient* recipient,
+                                      void* cookie) override;
+    };
+
     std::atomic<int64_t> mRequestId = 0;
     std::shared_ptr<GetSetValueClient> mGetSetValueClient;
     std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+    std::unique_ptr<ILinkUnlinkToDeath> mLinkUnlinkImpl;
+    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
+
+    std::mutex mLock;
+    std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mOnBinderDiedCallbacks
+            GUARDED_BY(mLock);
+
+    static void onBinderDied(void* cookie);
+    static void onBinderUnlinked(void* cookie);
+
+    void onBinderDiedWithContext();
+    void onBinderUnlinkedWithContext();
+
+    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> parseVehiclePropConfigs(
+            const ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs& configs);
+
+    // Test-only functions:
+    AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
+                   int64_t timeoutInMs, std::unique_ptr<ILinkUnlinkToDeath> linkUnlinkImpl);
+    size_t countOnBinderDiedCallbacks();
 };
 
 class GetSetValueClient final :
@@ -78,7 +132,15 @@ public:
         int32_t areaId;
     };
 
-    explicit GetSetValueClient(int64_t timeoutInNs);
+    struct PendingSetValueRequest {
+        std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback;
+        int32_t propId;
+        int32_t areaId;
+    };
+
+    GetSetValueClient(
+            int64_t timeoutInNs,
+            std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal);
 
     ~GetSetValueClient();
 
@@ -95,25 +157,54 @@ public:
             const ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors)
             override;
 
-    // Add a new pending getValue request.
-    void addGetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
-                            std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> callback);
-    // Try to finish the pending getValue request according to the requestId. If there is an
-    // existing pending request, the request would be finished and returned. Otherwise, if the
-    // request has already timed-out, nullptr would be returned.
-    std::unique_ptr<PendingGetValueRequest> tryFinishGetValueRequest(int64_t requestId);
+    void getValue(int64_t requestId, const IHalPropValue& requestValue,
+                  std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> clientCallback,
+                  std::shared_ptr<GetSetValueClient> vhalCallback);
+    void setValue(int64_t requestId, const IHalPropValue& requestValue,
+                  std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> clientCallback,
+                  std::shared_ptr<GetSetValueClient> vhalCallback);
 
 private:
     std::mutex mLock;
     std::unordered_map<int64_t, std::unique_ptr<PendingGetValueRequest>> mPendingGetValueCallbacks
             GUARDED_BY(mLock);
+    std::unordered_map<int64_t, std::unique_ptr<PendingSetValueRequest>> mPendingSetValueCallbacks
+            GUARDED_BY(mLock);
     std::unique_ptr<hardware::automotive::vehicle::PendingRequestPool> mPendingRequestPool;
     std::shared_ptr<
             ::android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
             mOnGetValueTimeout;
+    std::shared_ptr<
+            ::android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
+            mOnSetValueTimeout;
+    std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+
+    // Add a new GetValue pending request.
+    void addGetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
+                            std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> callback);
+    // Add a new SetValue pending request.
+    void addSetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
+                            std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback);
+    // Try to finish the pending GetValue request according to the requestId. If there is an
+    // existing pending request, the request would be finished and returned. Otherwise, if the
+    // request has already timed-out, nullptr would be returned.
+    std::unique_ptr<PendingGetValueRequest> tryFinishGetValueRequest(int64_t requestId);
+    // Try to finish the pending SetValue request according to the requestId. If there is an
+    // existing pending request, the request would be finished and returned. Otherwise, if the
+    // request has already timed-out, nullptr would be returned.
+    std::unique_ptr<PendingSetValueRequest> tryFinishSetValueRequest(int64_t requestId);
+
+    template <class T>
+    std::unique_ptr<T> tryFinishRequest(int64_t requestId,
+                                        std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks)
+            REQUIRES(mLock);
 
     void onGetValue(const ::aidl::android::hardware::automotive::vehicle::GetValueResult& result);
-    void onGetValueTimeout(const std::unordered_set<int64_t>& requestIds);
+    void onSetValue(const ::aidl::android::hardware::automotive::vehicle::SetValueResult& result);
+
+    template <class T>
+    void onTimeout(const std::unordered_set<int64_t>& requestIds,
+                   std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks);
 };
 
 }  // namespace vhal
