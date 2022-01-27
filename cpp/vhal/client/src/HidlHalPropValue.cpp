@@ -21,6 +21,8 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+using ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
+
 HidlHalPropValue::HidlHalPropValue(int32_t propId) {
     mPropValue = {};
     mPropValue.prop = propId;
@@ -30,6 +32,10 @@ HidlHalPropValue::HidlHalPropValue(int32_t propId, int32_t areaId) {
     mPropValue = {};
     mPropValue.prop = propId;
     mPropValue.areaId = areaId;
+}
+
+HidlHalPropValue::HidlHalPropValue(VehiclePropValue&& value) {
+    mPropValue = std::move(value);
 }
 
 int32_t HidlHalPropValue::getPropId() const {

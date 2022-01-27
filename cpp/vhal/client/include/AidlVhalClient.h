@@ -63,11 +63,11 @@ public:
                   std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback) override;
 
     // Add the callback that would be called when VHAL binder died.
-    ::aidl::android::hardware::automotive::vehicle::StatusCode addOnBinderDiedCallback(
+    ::android::base::Result<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     // Remove a previously added OnBinderDied callback.
-    ::aidl::android::hardware::automotive::vehicle::StatusCode removeOnBinderDiedCallback(
+    ::android::base::Result<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
@@ -245,8 +245,6 @@ public:
 private:
     std::shared_ptr<SubscriptionVehicleCallback> mSubscriptionCallback;
     std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
-
-    static std::string toString(const std::vector<int32_t>& values);
 };
 
 }  // namespace vhal

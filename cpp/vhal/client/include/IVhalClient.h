@@ -80,10 +80,10 @@ public:
     virtual void setValue(const IHalPropValue& value,
                           std::shared_ptr<SetValueCallbackFunc> callback) = 0;
 
-    virtual ::aidl::android::hardware::automotive::vehicle::StatusCode addOnBinderDiedCallback(
+    virtual ::android::base::Result<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
-    virtual ::aidl::android::hardware::automotive::vehicle::StatusCode removeOnBinderDiedCallback(
+    virtual ::android::base::Result<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
     virtual ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>>
