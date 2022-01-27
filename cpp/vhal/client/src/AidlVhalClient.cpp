@@ -125,21 +125,22 @@ void AidlVhalClient::setValue(const IHalPropValue& requestValue,
     mGetSetValueClient->setValue(requestId, requestValue, callback, mGetSetValueClient);
 }
 
-StatusCode AidlVhalClient::addOnBinderDiedCallback(
+Result<void> AidlVhalClient::addOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     mOnBinderDiedCallbacks.insert(callback);
-    return StatusCode::OK;
+    return {};
 }
 
-StatusCode AidlVhalClient::removeOnBinderDiedCallback(
+Result<void> AidlVhalClient::removeOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     if (mOnBinderDiedCallbacks.find(callback) == mOnBinderDiedCallbacks.end()) {
-        return StatusCode::INVALID_ARG;
+        return Error(toInt(StatusCode::INVALID_ARG))
+                << "The callback to remove was not added before";
     }
     mOnBinderDiedCallbacks.erase(callback);
-    return StatusCode::OK;
+    return {};
 }
 
 Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
@@ -482,14 +483,6 @@ AidlSubscriptionClient::AidlSubscriptionClient(std::shared_ptr<IVehicle> hal,
                                                std::shared_ptr<ISubscriptionCallback> callback) :
       mHal(hal) {
     mSubscriptionCallback = SharedRefBase::make<SubscriptionVehicleCallback>(callback);
-}
-
-std::string AidlSubscriptionClient::toString(const std::vector<int32_t>& values) {
-    std::vector<std::string> strings;
-    for (int32_t value : values) {
-        strings.push_back(std::to_string(value));
-    }
-    return "[" + Join(strings, ",") + "]";
 }
 
 Result<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOptions>& options) {

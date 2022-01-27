@@ -26,10 +26,10 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
-using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
-
 class AidlHalPropValue : public IHalPropValue {
 public:
+    using VehiclePropValue = ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
+
     explicit AidlHalPropValue(int32_t propId);
     explicit AidlHalPropValue(VehiclePropValue&& value);
     AidlHalPropValue(int32_t propId, int32_t areaId);
