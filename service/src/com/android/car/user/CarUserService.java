@@ -1460,15 +1460,23 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_REQ,
                 UserHelperLite.safeName(name), userType, flags, timeoutMs,
                 hasCallerRestrictions ? 1 : 0);
-        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, receiver,
-                hasCallerRestrictions));
 
+        UserHandle callingUser = Binder.getCallingUserHandle();
+        if (mUserManager.hasUserRestrictionForUser(UserManager.DISALLOW_ADD_USER, callingUser)) {
+            Slogf.w(TAG, "Cannot create user because calling user %s has the '%s' restriction",
+                    callingUser, UserManager.DISALLOW_ADD_USER);
+            sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
+            return;
+        }
+
+        mHandler.post(() -> handleCreateUser(name, userType, flags, timeoutMs, receiver,
+                callingUser.getIdentifier(), hasCallerRestrictions));
     }
 
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
             @UserInfoFlag int flags, int timeoutMs,
             @NonNull AndroidFuture<UserCreationResult> receiver,
-            boolean hasCallerRestrictions) {
+            @UserIdInt int callingUserId, boolean hasCallerRestrictions) {
         if (hasCallerRestrictions) {
             // Restrictions:
             // - type/flag can only be normal user, admin, or guest
@@ -1497,7 +1505,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
             }
 
-            int callingUserId = Binder.getCallingUserHandle().getIdentifier();
             UserInfo callingUser = mUserManager.getUserInfo(callingUserId);
             if (!callingUser.isAdmin() && (flags & UserInfo.FLAG_ADMIN) == UserInfo.FLAG_ADMIN) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {

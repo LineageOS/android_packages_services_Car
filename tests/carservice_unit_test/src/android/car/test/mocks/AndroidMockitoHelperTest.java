@@ -26,6 +26,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserOrSetEphemeral;
@@ -61,6 +62,8 @@ import org.mockito.quality.Strictness;
 public final class AndroidMockitoHelperTest {
 
     private static final int TEST_USER_ID = 100;
+
+    private final UserHandle mTestUserHandle = UserHandle.of(TEST_USER_ID);
 
     private UserInfo mTestUser;
 
@@ -206,6 +209,16 @@ public final class AndroidMockitoHelperTest {
         mMockedUserManager.removeUserOrSetEphemeral(TEST_USER_ID, /* evenWhenDisallowed= */ true);
 
         assertThat(visitor.mVisited).isEqualTo(mTestUser);
+    }
+
+    @Test
+    public void testMockUmHasUserRestrictionForUser() {
+        VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
+        mockUmHasUserRestrictionForUser(mMockedUserManager, mTestUserHandle, "no_Homers_club",
+                /* value= */ true);
+
+        assertThat(mMockedUserManager.hasUserRestrictionForUser("no_Homers_club", mTestUserHandle))
+                .isTrue();
     }
 
     private static final class VisitorImpl<T> implements Visitor<T> {
