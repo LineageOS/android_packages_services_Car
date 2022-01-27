@@ -34,6 +34,23 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class VehiclePropertyIdsTest extends AndroidTestCase {
+    // TODO(b/216670387): Remove missing VHAL ids/values after updating this test
+    //  to use aidl vehicle properties
+    private static final List<String> MISSING_VHAL_IDS =
+            new ArrayList<>(
+                Arrays.asList(
+                        "FRONT_FOG_LIGHTS_STATE",
+                        "FRONT_FOG_LIGHTS_SWITCH",
+                        "REAR_FOG_LIGHTS_STATE",
+                        "REAR_FOG_LIGHTS_SWITCH"));
+    private static final List<Integer> MISSING_VHAL_ID_VALUES =
+            new ArrayList<>(
+                Arrays.asList(
+                        /*FRONT_FOG_LIGHTS_STATE=*/289410875,
+                        /*FRONT_FOG_LIGHTS_SWITCH=*/289410876,
+                        /*REAR_FOG_LIGHTS_STATE=*/289410877,
+                        /*REAR_FOG_LIGHTS_SWITCH=*/289410878));
+
     private static final List<String> MISSING_VEHICLE_PROPERTY_IDS =
             new ArrayList<>(
                 Arrays.asList(
@@ -56,10 +73,11 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
     public void testMatchingVehiclePropertyNamesInVehicleHal() {
         List<String> vehiclePropertyIdNames = getListOfConstantNames(VehiclePropertyIds.class);
         List<String> vehiclePropertyNames = getListOfConstantNames(VehicleProperty.class);
-        assertEquals(vehiclePropertyNames.size(),
+        assertEquals(vehiclePropertyNames.size() + MISSING_VHAL_IDS.size(),
                 vehiclePropertyIdNames.size() + MISSING_VEHICLE_PROPERTY_IDS.size());
         for (String vehiclePropertyName: vehiclePropertyNames) {
-            if (MISSING_VEHICLE_PROPERTY_IDS.contains(vehiclePropertyName)) {
+            if (MISSING_VHAL_IDS.contains(vehiclePropertyName)
+                    || MISSING_VEHICLE_PROPERTY_IDS.contains(vehiclePropertyName)) {
                 continue;
             }
             assertTrue(vehiclePropertyIdNames.contains(vehiclePropertyName));
@@ -70,10 +88,11 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
     public void testMatchingVehiclePropertyValuesInVehicleHal() {
         List<Integer> vehiclePropertyIds = getListOfConstantValues(VehiclePropertyIds.class);
         List<Integer> vehicleProperties = getListOfConstantValues(VehicleProperty.class);
-        assertEquals(vehicleProperties.size(),
+        assertEquals(vehicleProperties.size() + MISSING_VHAL_ID_VALUES.size(),
                 vehiclePropertyIds.size() + MISSING_VEHICLE_PROPERTY_ID_VALUES.size());
         for (int vehicleProperty: vehicleProperties) {
-            if (MISSING_VEHICLE_PROPERTY_ID_VALUES.contains(vehicleProperty)) {
+            if (MISSING_VHAL_ID_VALUES.contains(vehicleProperty)
+                    || MISSING_VEHICLE_PROPERTY_ID_VALUES.contains(vehicleProperty)) {
                 continue;
             }
             // TODO(b/151168399): VEHICLE_SPEED_DISPLAY_UNITS mismatch between java and hal.
@@ -312,6 +331,10 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.HIGH_BEAM_LIGHTS_STATE));
         assertEquals("FOG_LIGHTS_STATE",
                 VehiclePropertyIds.toString(VehiclePropertyIds.FOG_LIGHTS_STATE));
+        assertEquals("FRONT_FOG_LIGHTS_STATE",
+                VehiclePropertyIds.toString(VehiclePropertyIds.FRONT_FOG_LIGHTS_STATE));
+        assertEquals("REAR_FOG_LIGHTS_STATE",
+                VehiclePropertyIds.toString(VehiclePropertyIds.REAR_FOG_LIGHTS_STATE));
         assertEquals("HAZARD_LIGHTS_STATE",
                 VehiclePropertyIds.toString(VehiclePropertyIds.HAZARD_LIGHTS_STATE));
         assertEquals("HEADLIGHTS_SWITCH",
@@ -320,6 +343,10 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.HIGH_BEAM_LIGHTS_SWITCH));
         assertEquals("FOG_LIGHTS_SWITCH",
                 VehiclePropertyIds.toString(VehiclePropertyIds.FOG_LIGHTS_SWITCH));
+        assertEquals("FRONT_FOG_LIGHTS_SWITCH",
+                VehiclePropertyIds.toString(VehiclePropertyIds.FRONT_FOG_LIGHTS_SWITCH));
+        assertEquals("REAR_FOG_LIGHTS_SWITCH",
+                VehiclePropertyIds.toString(VehiclePropertyIds.REAR_FOG_LIGHTS_SWITCH));
         assertEquals("HAZARD_LIGHTS_SWITCH",
                 VehiclePropertyIds.toString(VehiclePropertyIds.HAZARD_LIGHTS_SWITCH));
         assertEquals("CABIN_LIGHTS_STATE",
