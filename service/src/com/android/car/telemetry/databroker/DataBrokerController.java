@@ -17,7 +17,6 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
-import android.car.telemetry.MetricsConfigKey;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
@@ -65,7 +64,8 @@ public class DataBrokerController {
         mSystemMonitor = systemMonitor;
         mSystemStateInterface = systemStateInterface;
 
-        mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);
+        mDataBroker.setOnScriptFinishedCallback(
+                metricsConfigName -> onScriptFinished(metricsConfigName));
         mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
         mSystemStateInterface.scheduleActionForBootCompleted(
                 this::startMetricsCollection, Duration.ZERO);
@@ -80,8 +80,7 @@ public class DataBrokerController {
         mTelemetryHandler.post(() -> {
             for (TelemetryProto.MetricsConfig config :
                     mMetricsConfigStore.getActiveMetricsConfigs()) {
-                mDataBroker.addMetricsConfig(
-                        new MetricsConfigKey(config.getName(), config.getVersion()), config);
+                mDataBroker.addMetricsConfig(config.getName(), config);
             }
         });
     }
@@ -89,11 +88,11 @@ public class DataBrokerController {
     /**
      * Listens to script finished event from {@link DataBroker}.
      *
-     * @param key the unique identifier of the config whose script finished.
+     * @param metricsConfigName the unique identifier of the config whose script finished.
      */
-    public void onScriptFinished(@NonNull MetricsConfigKey key) {
-        mMetricsConfigStore.removeMetricsConfig(key);
-        mDataBroker.removeMetricsConfig(key);
+    public void onScriptFinished(@NonNull String metricsConfigName) {
+        mMetricsConfigStore.removeMetricsConfig(metricsConfigName);
+        mDataBroker.removeMetricsConfig(metricsConfigName);
     }
 
     /**
