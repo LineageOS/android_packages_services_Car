@@ -22,10 +22,10 @@
     android:layout_height="@dimen/title_bar_display_area_height"
     android:background="@color/title_bar_display_area_background_color">
     <View
-        android:layout_width="120dp"
+        android:layout_width="160dp"
         android:layout_height="6dp"
         android:background="@color/title_bar_display_area_handle_bar_color"
-        android:layout_marginTop="17dp"
+        android:layout_marginTop="25dp"
         android:layout_centerInParent="true" />
     <TextView
         android:id="@+id/title"
