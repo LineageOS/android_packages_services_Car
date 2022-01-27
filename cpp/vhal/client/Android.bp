@@ -27,12 +27,20 @@ cc_defaults {
     ],
     static_libs: [
         "VehicleHalUtils",
-    ],
-    shared_libs: [
-        "libhidlbase",
-        "libbinder_ndk",
+        "android-automotive-large-parcelable-vendor-lib",
+        // We have to use static lib here because either one of them might not
+        // exist as a shared library.
         "android.hardware.automotive.vehicle@2.0",
         "android.hardware.automotive.vehicle-V1-ndk",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libhidlbase",
+        "liblog",
+        "libutils",
+    ],
+    defaults: [
+        "android-automotive-large-parcelable-defaults",
     ],
 }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2022, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -64,6 +64,9 @@ class ISubscriptionClient {
 // IVhalClient is a thread-safe client for AIDL or HIDL VHAL backend.
 class IVhalClient {
 public:
+    // The default timeout for callbacks.
+    constexpr static int64_t DEFAULT_TIMEOUT_IN_SEC = 10;
+
     virtual ~IVhalClient() = default;
 
     using GetValueCallbackFunc =
