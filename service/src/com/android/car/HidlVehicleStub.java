@@ -90,7 +90,7 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Register a death recipient that would be called when vehicle HAL died.
+     * Registers a death recipient that would be called when vehicle HAL died.
      *
      * @param recipient A death recipient.
      * @throws IllegalStateException If unable to register the death recipient.
@@ -105,7 +105,7 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Unlink a previously linked death recipient.
+     * Unlinks a previously linked death recipient.
      *
      * @param recipient A previously linked death recipient.
      */
@@ -119,7 +119,7 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Get all property configs.
+     * Gets all property configs.
      *
      * @return All the property configs.
      */
@@ -136,45 +136,14 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Subscribe to a property.
-     *
-     * @param callback The VehicleStubCallback that would be called for subscribe events.
-     * @param options The list of subscribe options.
-     * @throws RemoteException if the subscription fails.
-     */
-    @Override
-    public void subscribe(VehicleStubCallback callback, SubscribeOptions[] options)
-            throws RemoteException {
-        ArrayList<android.hardware.automotive.vehicle.V2_0.SubscribeOptions> hidlOptions =
-                new ArrayList<android.hardware.automotive.vehicle.V2_0.SubscribeOptions>();
-        for (SubscribeOptions option : options) {
-            hidlOptions.add(subscribeOptionsToHidl(option));
-        }
-        mHidlVehicle.subscribe(callback.getHidlCallback(), hidlOptions);
-    }
-
-    /**
-     * Unsubscribe to a property.
-     *
-     * @param callback The previously subscribed callback to unsubscribe.
-     * @param prop The ID for the property to unsubscribe.
-     * @throws RemoteException if the unsubscription fails.
-     */
-    @Override
-    public void unsubscribe(VehicleStubCallback callback, int prop) throws RemoteException {
-        mHidlVehicle.unsubscribe((IVehicleCallback.Stub)
-                callback, prop);
-    }
-
-    /**
-     * Get a new {@code VehicleStubCallback} that could be used to subscribe/unsubscribe.
+     * Gets a new {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      *
      * @param callback A callback that could be used to receive events.
-     * @return a {@code VehicleStubCallback} that could be passed to subscribe/unsubscribe.
+     * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */
     @Override
-    public VehicleStubCallback newCallback(HalClientCallback callback) {
-        return new HidlVehicleCallback(callback, mPropValueBuilder);
+    public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
+        return new HidlSubscriptionClient(callback, mPropValueBuilder);
     }
 
     private static class GetValueResult {
@@ -183,7 +152,7 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Get a property.
+     * Gets a property.
      *
      * @param requestedPropValue The property to get.
      * @return The vehicle property value.
@@ -219,7 +188,7 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
-     * Set a property.
+     * Sets a property.
      *
      * @param propValue The property to set.
      * @throws RemoteException if the remote operation fails.
@@ -251,25 +220,14 @@ final class HidlVehicleStub extends VehicleStub {
         return null;
     }
 
-    private static class HidlVehicleCallback
-            extends IVehicleCallback.Stub
-            implements VehicleStubCallback {
+    private class HidlSubscriptionClient extends IVehicleCallback.Stub
+            implements SubscriptionClient {
         private final HalClientCallback mCallback;
         private final HalPropValueBuilder mBuilder;
 
-        HidlVehicleCallback(HalClientCallback callback, HalPropValueBuilder builder) {
+        HidlSubscriptionClient(HalClientCallback callback, HalPropValueBuilder builder) {
             mCallback = callback;
             mBuilder = builder;
-        }
-
-        @Override
-        public android.hardware.automotive.vehicle.IVehicleCallback getAidlCallback() {
-            throw new UnsupportedOperationException(
-                    "getAidlCallback should never be called on a HidlVehicleCallback");
-        }
-
-        public android.hardware.automotive.vehicle.V2_0.IVehicleCallback.Stub getHidlCallback() {
-            return this;
         }
 
         @Override
@@ -297,6 +255,21 @@ final class HidlVehicleStub extends VehicleStub {
             ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
             errors.add(error);
             mCallback.onPropertySetError(errors);
+        }
+
+        @Override
+        public void subscribe(SubscribeOptions[] options) throws RemoteException {
+            ArrayList<android.hardware.automotive.vehicle.V2_0.SubscribeOptions> hidlOptions =
+                    new ArrayList<>();
+            for (SubscribeOptions option : options) {
+                hidlOptions.add(subscribeOptionsToHidl(option));
+            }
+            mHidlVehicle.subscribe(this, hidlOptions);
+        }
+
+        @Override
+        public void unsubscribe(int prop) throws RemoteException {
+            mHidlVehicle.unsubscribe(this, prop);
         }
     }
 }
