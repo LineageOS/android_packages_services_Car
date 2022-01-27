@@ -46,7 +46,6 @@ import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
 import android.car.telemetry.CarTelemetryManager;
-import android.car.telemetry.MetricsConfigKey;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
@@ -2389,9 +2388,9 @@ final class CarShellCommand extends ShellCommand {
         writer.println("\nUSAGE: adb shell cmd car_service telemetry <subcommand> [options]");
         writer.println("\n\t-h");
         writer.println("\t  Print this help text.");
-        writer.println("\tadd <name> <version>");
+        writer.println("\tadd <name>");
         writer.println("\t  Adds MetricsConfig from STDIN. Only a binary proto is supported.");
-        writer.println("\tremove <name> <version>");
+        writer.println("\tremove <name>");
         writer.println("\t  Removes metrics config.");
         writer.println("\tlist");
         writer.println("\t  Lists the config metrics in the service.");
@@ -2413,7 +2412,7 @@ final class CarShellCommand extends ShellCommand {
         String cmd = args[1];
         switch (cmd) {
             case "add":
-                if (args.length != 4) {
+                if (args.length != 3) {
                     writer.println("Invalid number of arguments.");
                     printTelemetryHelp(writer);
                     return;
@@ -2422,13 +2421,12 @@ final class CarShellCommand extends ShellCommand {
                                 new FileInputStream(getInFileDescriptor()));
                         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                     FileUtils.copy(in, out);
-                    MetricsConfigKey key = new MetricsConfigKey(args[2], Integer.parseInt(args[3]));
                     CountDownLatch latch = new CountDownLatch(1);
-                    mCarTelemetryService.addMetricsConfig(key, out.toByteArray(), statusCode -> {
-                        if (statusCode == CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS) {
+                    mCarTelemetryService.addMetricsConfig(args[2], out.toByteArray(), status -> {
+                        if (status == CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS) {
                             writer.printf("MetricsConfig %s is added.\n", args[2]);
                         } else {
-                            writer.printf("Failed to add %s. Status is %d.\n", args[2], statusCode);
+                            writer.printf("Failed to add %s. Status is %d.\n", args[2], status);
                         }
                         latch.countDown();
                     });
@@ -2439,13 +2437,12 @@ final class CarShellCommand extends ShellCommand {
                 }
                 break;
             case "remove":
-                if (args.length != 4) {
+                if (args.length != 3) {
                     writer.println("Invalid number of arguments.");
                     printTelemetryHelp(writer);
                     return;
                 }
-                MetricsConfigKey key = new MetricsConfigKey(args[2], Integer.parseInt(args[3]));
-                mCarTelemetryService.removeMetricsConfig(key);
+                mCarTelemetryService.removeMetricsConfig(args[2]);
                 writer.printf("Removing %s... Please see logcat for details.\n", args[2]);
                 break;
             case "list":

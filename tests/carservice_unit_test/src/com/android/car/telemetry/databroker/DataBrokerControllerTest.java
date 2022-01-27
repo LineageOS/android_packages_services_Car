@@ -24,7 +24,6 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.car.telemetry.MetricsConfigKey;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
@@ -79,8 +78,7 @@ public class DataBrokerControllerTest {
                           .setScript("function init() end")
                           .addSubscribers(SUBSCRIBER)
                           .build();
-    private static final MetricsConfigKey CONFIG_KEY = new MetricsConfigKey(
-            CONFIG.getName(), CONFIG.getVersion());
+    private static final String CONFIG_NAME = CONFIG.getName();
 
     @Before
     public void setup() {
@@ -108,15 +106,15 @@ public class DataBrokerControllerTest {
 
         mRunnableCaptor.getValue().run(); // startMetricsCollection();
 
-        verify(mMockDataBroker).addMetricsConfig(eq(CONFIG_KEY), eq(CONFIG));
+        verify(mMockDataBroker).addMetricsConfig(eq(CONFIG_NAME), eq(CONFIG));
     }
 
     @Test
     public void testOnScriptFinished_shouldRemoveConfig() {
-        mController.onScriptFinished(CONFIG_KEY);
+        mController.onScriptFinished(CONFIG_NAME);
 
-        verify(mMockMetricsConfigStore).removeMetricsConfig(eq(CONFIG_KEY));
-        verify(mMockDataBroker).removeMetricsConfig(eq(CONFIG_KEY));
+        verify(mMockMetricsConfigStore).removeMetricsConfig(eq(CONFIG_NAME));
+        verify(mMockDataBroker).removeMetricsConfig(eq(CONFIG_NAME));
     }
 
     @Test

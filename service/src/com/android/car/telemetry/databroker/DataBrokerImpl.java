@@ -18,7 +18,6 @@ package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.telemetry.MetricsConfigKey;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -86,11 +85,9 @@ public class DataBrokerImpl implements DataBroker {
             new PriorityBlockingQueue<>();
 
     /**
-     * Maps MetricsConfig's unique identifier to its subscriptions. This map is useful when
-     * removing a MetricsConfig.
+     * Maps MetricsConfig name to its subscriptions. This map is useful for removing MetricsConfigs.
      */
-    private final ArrayMap<MetricsConfigKey, List<DataSubscriber>> mSubscriptionMap =
-            new ArrayMap<>();
+    private final ArrayMap<String, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
 
     /**
      * If something irrecoverable happened, DataBroker should enter into a disabled state to prevent
@@ -108,11 +105,11 @@ public class DataBrokerImpl implements DataBroker {
     @VisibleForTesting long mBindScriptExecutorDelayMillis = 3_000L;
 
     /**
-     * {@link MetricsConfigKey} that uniquely identifies the current running {@link MetricsConfig}.
+     * Name of the {@link MetricsConfig} that is currently running.
      * A non-null value indicates ScriptExecutor is currently running this config, which means
      * DataBroker should not make another ScriptExecutor binder call.
      */
-    private MetricsConfigKey mCurrentMetricsConfigKey;
+    private String mCurrentMetricsConfigName;
     private IScriptExecutor mScriptExecutor;
     private ScriptFinishedCallback mScriptFinishedCallback;
 
@@ -137,7 +134,7 @@ public class DataBrokerImpl implements DataBroker {
             // TODO(b/198684473): clean up the state after script executor disconnects
             mTelemetryHandler.post(() -> {
                 // if a script ran and crashed ScriptExecutor, end trace log
-                if (mCurrentMetricsConfigKey != null) {
+                if (mCurrentMetricsConfigName != null) {
                     mScriptExecutionTraceLog.traceEnd();
                 }
                 mScriptExecutor = null;
@@ -204,7 +201,7 @@ public class DataBrokerImpl implements DataBroker {
      */
     private void unbindScriptExecutor() {
         // TODO(b/198648763): unbind from script executor when there is no work to do
-        mCurrentMetricsConfigKey = null;
+        mCurrentMetricsConfigName = null;
         try {
             mContext.unbindService(mServiceConnection);
         } catch (IllegalArgumentException e) {
@@ -220,10 +217,10 @@ public class DataBrokerImpl implements DataBroker {
     private void disableBroker() {
         mDisabled = true;
         // remove all MetricConfigs, disable all publishers, stop receiving data
-        for (MetricsConfigKey key : mSubscriptionMap.keySet()) {
+        for (String configName : mSubscriptionMap.keySet()) {
             // get the metrics config from the DataSubscriber and remove the metrics config
-            if (mSubscriptionMap.get(key).size() != 0) {
-                removeMetricsConfig(key);
+            if (mSubscriptionMap.get(configName).size() != 0) {
+                removeMetricsConfig(configName);
             }
         }
         mSubscriptionMap.clear();
@@ -231,10 +228,10 @@ public class DataBrokerImpl implements DataBroker {
 
     @Override
     public void addMetricsConfig(
-            @NonNull MetricsConfigKey key, @NonNull MetricsConfig metricsConfig) {
+            @NonNull String metricsConfigName, @NonNull MetricsConfig metricsConfig) {
         // TODO(b/187743369): pass status back to caller
         // if broker is disabled or metricsConfig already exists, do nothing
-        if (mDisabled || mSubscriptionMap.containsKey(key)) {
+        if (mDisabled || mSubscriptionMap.containsKey(metricsConfigName)) {
             return;
         }
         // Create the subscribers for this metrics configuration
@@ -260,17 +257,17 @@ public class DataBrokerImpl implements DataBroker {
                 return;
             }
         }
-        mSubscriptionMap.put(key, dataSubscribers);
+        mSubscriptionMap.put(metricsConfigName, dataSubscribers);
     }
 
     @Override
-    public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
+    public void removeMetricsConfig(@NonNull String metricsConfigName) {
         // TODO(b/187743369): pass status back to caller
-        if (!mSubscriptionMap.containsKey(key)) {
+        if (!mSubscriptionMap.containsKey(metricsConfigName)) {
             return;
         }
         // get the subscriptions associated with this MetricsConfig, remove it from the map
-        List<DataSubscriber> dataSubscribers = mSubscriptionMap.remove(key);
+        List<DataSubscriber> dataSubscribers = mSubscriptionMap.remove(metricsConfigName);
         // for each subscriber, remove it from publishers
         for (DataSubscriber subscriber : dataSubscribers) {
             AbstractPublisher publisher = mPublisherFactory.getPublisher(
@@ -287,7 +284,7 @@ public class DataBrokerImpl implements DataBroker {
         // iterating, so it may or may not reflect any updates since the iterator was created.
         // But since adding & polling from queue should happen in the same thread, the task queue
         // should not be changed while tasks are being iterated and removed.
-        mTaskQueue.removeIf(task -> task.isAssociatedWithMetricsConfig(key));
+        mTaskQueue.removeIf(task -> task.isAssociatedWithMetricsConfig(metricsConfigName));
     }
 
     @Override
@@ -342,7 +339,7 @@ public class DataBrokerImpl implements DataBroker {
 
     @VisibleForTesting
     @NonNull
-    ArrayMap<MetricsConfigKey, List<DataSubscriber>> getSubscriptionMap() {
+    ArrayMap<String, List<DataSubscriber>> getSubscriptionMap() {
         return new ArrayMap<>(mSubscriptionMap);
     }
 
@@ -366,7 +363,7 @@ public class DataBrokerImpl implements DataBroker {
      */
     private void pollAndExecuteTask() {
         // check databroker state is ready to run script
-        if (mDisabled || mCurrentMetricsConfigKey != null) {
+        if (mDisabled || mCurrentMetricsConfigName != null) {
             return;
         }
         // check task is valid and ready to be run
@@ -382,11 +379,10 @@ public class DataBrokerImpl implements DataBroker {
             return;
         }
         mTaskQueue.poll(); // remove task from queue
-        // update current config key because a script is currently running
-        mCurrentMetricsConfigKey = new MetricsConfigKey(task.getMetricsConfig().getName(),
-                task.getMetricsConfig().getVersion());
+        // update current config name because a script is currently running
+        mCurrentMetricsConfigName = task.getMetricsConfig().getName();
         mScriptExecutionTraceLog.traceBegin(
-                "executing script " + mCurrentMetricsConfigKey.getName());
+                "executing script " + mCurrentMetricsConfigName);
         try {
             if (task.isLargeData()) {
                 Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor for large input");
@@ -397,7 +393,7 @@ public class DataBrokerImpl implements DataBroker {
                         task.getMetricsConfig().getScript(),
                         task.getHandlerName(),
                         task.getData(),
-                        mResultStore.getInterimResult(mCurrentMetricsConfigKey.getName()),
+                        mResultStore.getInterimResult(mCurrentMetricsConfigName),
                         mScriptExecutorListener);
             }
         } catch (RemoteException e) {
@@ -409,7 +405,7 @@ public class DataBrokerImpl implements DataBroker {
             mScriptExecutionTraceLog.traceEnd();
             Slogf.w(CarLog.TAG_TELEMETRY, "Either unable to create pipe or failed to pipe data"
                     + " to ScriptExecutor. Skipping the published data", e);
-            mCurrentMetricsConfigKey = null;
+            mCurrentMetricsConfigName = null;
             scheduleNextTask(); // drop this task and schedule the next one
         }
     }
@@ -432,7 +428,7 @@ public class DataBrokerImpl implements DataBroker {
                     task.getMetricsConfig().getScript(),
                     task.getHandlerName(),
                     readFd,
-                    mResultStore.getInterimResult(mCurrentMetricsConfigKey.getName()),
+                    mResultStore.getInterimResult(mCurrentMetricsConfigName),
                     mScriptExecutorListener);
         } catch (RemoteException e) {
             IoUtils.closeQuietly(readFd);
@@ -451,9 +447,9 @@ public class DataBrokerImpl implements DataBroker {
     private void onScriptFinished(@NonNull PersistableBundle result) {
         mTelemetryHandler.post(() -> {
             mScriptExecutionTraceLog.traceEnd(); // end trace as soon as script completes running
-            mResultStore.putFinalResult(mCurrentMetricsConfigKey.getName(), result);
-            mScriptFinishedCallback.onScriptFinished(mCurrentMetricsConfigKey);
-            mCurrentMetricsConfigKey = null;
+            mResultStore.putFinalResult(mCurrentMetricsConfigName, result);
+            mScriptFinishedCallback.onScriptFinished(mCurrentMetricsConfigName);
+            mCurrentMetricsConfigName = null;
             scheduleNextTask();
         });
     }
@@ -462,8 +458,8 @@ public class DataBrokerImpl implements DataBroker {
     private void onScriptSuccess(@NonNull PersistableBundle stateToPersist) {
         mTelemetryHandler.post(() -> {
             mScriptExecutionTraceLog.traceEnd(); // end trace as soon as script completes running
-            mResultStore.putInterimResult(mCurrentMetricsConfigKey.getName(), stateToPersist);
-            mCurrentMetricsConfigKey = null;
+            mResultStore.putInterimResult(mCurrentMetricsConfigName, stateToPersist);
+            mCurrentMetricsConfigName = null;
             scheduleNextTask();
         });
     }
@@ -479,9 +475,9 @@ public class DataBrokerImpl implements DataBroker {
             if (stackTrace != null) {
                 error.setStackTrace(stackTrace);
             }
-            mResultStore.putErrorResult(mCurrentMetricsConfigKey.getName(), error.build());
-            mScriptFinishedCallback.onScriptFinished(mCurrentMetricsConfigKey);
-            mCurrentMetricsConfigKey = null;
+            mResultStore.putErrorResult(mCurrentMetricsConfigName, error.build());
+            mScriptFinishedCallback.onScriptFinished(mCurrentMetricsConfigName);
+            mCurrentMetricsConfigName = null;
             scheduleNextTask();
         });
     }
