@@ -261,17 +261,7 @@ public class VehicleHal implements HalClientCallback {
                 : configsForAllServices.entrySet()) {
             HalServiceBase service = entry.getKey();
             ArrayList<HalPropConfig> configsForService = entry.getValue();
-            if (!service.isAidlSupported()) {
-                ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig> hidlConfigs =
-                        new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig>();
-                for (HalPropConfig config : configsForService) {
-                    hidlConfigs.add((android.hardware.automotive.vehicle.V2_0.VehiclePropConfig)
-                            config.toVehiclePropConfig());
-                }
-                service.takePropertiesDeprecated(hidlConfigs);
-            } else {
-                service.takeProperties(configsForService);
-            }
+            service.takeProperties(configsForService);
             service.init();
         }
     }
@@ -448,24 +438,6 @@ public class VehicleHal implements HalClientCallback {
     }
 
     /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @see #getIfAvailableOrFail(int, int)
-     */
-    @Deprecated
-    @Nullable
-    public android.hardware.automotive.vehicle.V2_0.VehiclePropValue
-            getIfAvailableOrFailDeprecated(int propertyId, int numberOfRetries) {
-        HalPropValue value = getIfAvailableOrFail(propertyId, numberOfRetries);
-        if (value == null) {
-            return null;
-        }
-        return (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) (
-                value.toVehiclePropValue());
-    }
-
-    /**
      * Gets given property with retries.
      *
      * <p>If getting the property fails after all retries, it will throw
@@ -492,24 +464,6 @@ public class VehicleHal implements HalClientCallback {
     }
 
     /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @see #getIfAvailableOrFailForEarlyStage(int, int)
-     */
-    @Deprecated
-    @Nullable
-    public android.hardware.automotive.vehicle.V2_0.VehiclePropValue
-            getIfAvailableOrFailForEarlyStageDeprecated(int propertyId, int numberOfRetries) {
-        HalPropValue value = getIfAvailableOrFailForEarlyStage(propertyId, numberOfRetries);
-        if (value == null) {
-            return null;
-        }
-        return (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) (
-                value.toVehiclePropValue());
-    }
-
-    /**
      * This works similar to {@link #getIfAvailableOrFail(int, int)} except that this can be called
      * before {@code init()} is called.
      *
@@ -525,24 +479,6 @@ public class VehicleHal implements HalClientCallback {
     }
 
     /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @see #get(int)
-     *
-     * @throws IllegalArgumentException if argument is invalid.
-     * @throws ServiceSpecificException if VHAL returns error.
-     */
-    @Deprecated
-    public android.hardware.automotive.vehicle.V2_0.VehiclePropValue
-            getDeprecated(int propertyId)
-            throws IllegalArgumentException, ServiceSpecificException {
-        HalPropValue value = get(propertyId);
-        return (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) (
-                value.toVehiclePropValue());
-    }
-
-    /**
      * Returns the property's {@link HalPropValue} for the property id passed as parameter and
      * not specified area.
      *
@@ -552,24 +488,6 @@ public class VehicleHal implements HalClientCallback {
     public HalPropValue get(int propertyId)
             throws IllegalArgumentException, ServiceSpecificException {
         return get(propertyId, NO_AREA);
-    }
-
-    /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @see #get(int, int)
-     *
-     * @throws IllegalArgumentException if argument is invalid.
-     * @throws ServiceSpecificException if VHAL returns error.
-     */
-    @Deprecated
-    public android.hardware.automotive.vehicle.V2_0.VehiclePropValue
-            getDeprecated(int propertyId, int areaId)
-            throws IllegalArgumentException, ServiceSpecificException {
-        HalPropValue value = get(propertyId, areaId);
-        return (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) (
-                value.toVehiclePropValue());
     }
 
     /**
@@ -610,23 +528,6 @@ public class VehicleHal implements HalClientCallback {
     public <T> T get(Class clazz, int propertyId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         return get(clazz, mPropValueBuilder.build(propertyId, areaId));
-    }
-
-    /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @see #get(Class, HalPropValue)
-     *
-     * @throws IllegalArgumentException if argument is invalid.
-     * @throws ServiceSpecificException if VHAL returns error.
-     */
-    @SuppressWarnings("unchecked")
-    @Deprecated
-    public <T> T getDeprecated(Class clazz,
-            android.hardware.automotive.vehicle.V2_0.VehiclePropValue requestedPropValue)
-            throws IllegalArgumentException, ServiceSpecificException {
-        return get(clazz, mPropValueBuilder.build(requestedPropValue));
     }
 
     /**
@@ -706,24 +607,6 @@ public class VehicleHal implements HalClientCallback {
     }
 
     /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @see #get(HalPropValue)
-     *
-     * @throws IllegalArgumentException if argument is invalid.
-     * @throws ServiceSpecificException if VHAL returns error.
-     */
-    @Deprecated
-    public android.hardware.automotive.vehicle.V2_0.VehiclePropValue getDeprecated(
-            android.hardware.automotive.vehicle.V2_0.VehiclePropValue requestedPropValue)
-            throws IllegalArgumentException, ServiceSpecificException {
-        HalPropValue value = get(mPropValueBuilder.build(requestedPropValue));
-        return (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) (
-                value.toVehiclePropValue());
-    }
-
-    /**
      * Returns the vehicle's {@link HalPropValue} for the requested property value passed
      * as parameter.
      *
@@ -754,20 +637,6 @@ public class VehicleHal implements HalClientCallback {
     }
 
     /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     *
-     * @throws IllegalArgumentException if argument is invalid.
-     * @throws ServiceSpecificException if VHAL returns error.
-     */
-    @Deprecated
-    protected void setDeprecated(
-            android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue)
-            throws IllegalArgumentException, ServiceSpecificException  {
-        mHalClient.setValue(mPropValueBuilder.build(propValue));
-    }
-
-    /**
      * Set property.
      *
      * @throws IllegalArgumentException if argument is invalid.
@@ -786,20 +655,6 @@ public class VehicleHal implements HalClientCallback {
     @CheckResult
     HalPropValueSetter set(int propId, int areaId) {
         return new HalPropValueSetter(mHalClient, propId, areaId);
-    }
-
-    /**
-     * @deprecated TODO(b/205774940): Remove this method after we migrate all clients to use AIDL
-     * type.
-     */
-    @Deprecated
-    static boolean isPropertySubscribableDeprecated(
-            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config) {
-        if ((config.access & VehiclePropertyAccess.READ) == 0
-                || (config.changeMode == VehiclePropertyChangeMode.STATIC)) {
-            return false;
-        }
-        return true;
     }
 
     static boolean isPropertySubscribable(HalPropConfig config) {
@@ -836,17 +691,7 @@ public class VehicleHal implements HalClientCallback {
             }
         }
         for (HalServiceBase s : mServicesToDispatch) {
-            if (!s.isAidlSupported()) {
-                List<android.hardware.automotive.vehicle.V2_0.VehiclePropValue> hidlValues =
-                        new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropValue>();
-                for (HalPropValue value : s.getDispatchList()) {
-                    hidlValues.add((android.hardware.automotive.vehicle.V2_0.VehiclePropValue) (
-                            value.toVehiclePropValue()));
-                }
-                s.onHalEventsDeprecated(hidlValues);
-            } else {
-                s.onHalEvents(s.getDispatchList());
-            }
+            s.onHalEvents(s.getDispatchList());
             s.getDispatchList().clear();
         }
         mServicesToDispatch.clear();
@@ -892,15 +737,6 @@ public class VehicleHal implements HalClientCallback {
             }
 
             ArrayList<VehiclePropError> propErrors = errorsByPropId.get(propId);
-
-            if (!service.isAidlSupported()) {
-                for (VehiclePropError propError : propErrors) {
-                    service.onPropertySetErrorDeprecated(
-                            propId, propError.areaId, propError.errorCode);
-                }
-                continue;
-            }
-
             service.onPropertySetError(propErrors);
         }
     }

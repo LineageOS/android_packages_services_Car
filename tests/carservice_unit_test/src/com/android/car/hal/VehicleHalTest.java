@@ -106,8 +106,6 @@ public class VehicleHalTest {
     @Before
     public void setUp() throws Exception {
         when(mVehicle.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
-        when(mPowerHalService.isAidlSupported()).thenReturn(true);
-        when(mPropertyHalService.isAidlSupported()).thenReturn(true);
 
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
@@ -224,53 +222,6 @@ public class VehicleHalTest {
                 .when(mDiagnosticHalService).takeProperties(any());
 
         init(powerHalConfig, propertyHalConfig);
-
-        verify(mPowerHalService).init();
-        verify(mPropertyHalService).init();
-        verify(mInputHalService).init();
-        verify(mVmsHalService).init();
-        verify(mUserHalService).init();
-        verify(mDiagnosticHalService).init();
-    }
-
-    @Test
-    public void testInitHidlService_skipSetupInit() throws Exception {
-        when(mPowerHalService.isAidlSupported()).thenReturn(false);
-
-        VehiclePropConfig powerHalConfig = new VehiclePropConfig();
-        powerHalConfig.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        powerHalConfig.access = VehiclePropertyAccess.READ_WRITE;
-        powerHalConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-
-        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlConfig =
-                new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
-        hidlConfig.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        hidlConfig.access = VehiclePropertyAccess.READ_WRITE;
-        hidlConfig.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-
-        // When takeProperties is called, verify the arguments. We cannot verify this afterwards
-        // because the input arg is a reference that would be updated after the call. Mockito does
-        // not do deep copy.
-        doAnswer(checkHidlConfigs(
-                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig>(
-                        Arrays.asList(hidlConfig))))
-                .when(mPowerHalService).takePropertiesDeprecated(any());
-
-        when(mPowerHalService.getAllSupportedProperties()).thenReturn(
-                new int[]{SOME_READ_ON_CHANGE_PROPERTY});
-        mConfigs.add(powerHalConfig);
-
-        // Initialize the remaining services with empty properties
-        when(mPropertyHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mInputHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
-
-        HalPropConfig[] halConfigs = new HalPropConfig[]{new HidlHalPropConfig(hidlConfig)};
-        when(mHalClient.getAllPropConfigs()).thenReturn(halConfigs);
-        mVehicleHal.init();
 
         verify(mPowerHalService).init();
         verify(mPropertyHalService).init();
@@ -666,35 +617,6 @@ public class VehicleHalTest {
     }
 
     @Test
-    public void testOnPropertyEventHidlService() {
-        // Arrange
-        when(mPowerHalService.isAidlSupported()).thenReturn(false);
-        List<HalPropValue> dispatchList = new ArrayList<HalPropValue>();
-        when(mPowerHalService.getDispatchList()).thenReturn(dispatchList);
-
-        HalPropValueBuilder propValueBuilder = new HalPropValueBuilder(/*isAidl=*/false);
-        HalPropValue propValue = propValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, 1);
-        ArrayList<HalPropValue> propValues = new ArrayList<>();
-        propValues.add(propValue);
-
-        List<android.hardware.automotive.vehicle.V2_0.VehiclePropValue> events =
-                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropValue>();
-        android.hardware.automotive.vehicle.V2_0.VehiclePropValue hidlValue =
-                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
-        hidlValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        hidlValue.areaId = VehicleHal.NO_AREA;
-        hidlValue.value.int32Values.add(1);
-        events.add(hidlValue);
-
-        // Act
-        mVehicleHal.onPropertyEvent(propValues);
-
-        // Assert
-        verify(mPowerHalService).onHalEventsDeprecated(events);
-    }
-
-    @Test
     public void testOnPropertyEvent_existingInfo() {
         // Arrange
         List<HalPropValue> dispatchList = mock(List.class);
@@ -761,40 +683,6 @@ public class VehicleHalTest {
                 error1, error2)));
         verify(mPropertyHalService).onPropertySetError(new ArrayList<VehiclePropError>(
                 Arrays.asList(error3)));
-    }
-
-    @Test
-    public void testOnPropertySetErrorHidlService() {
-        // Arrange
-        when(mPowerHalService.isAidlSupported()).thenReturn(false);
-        when(mPropertyHalService.isAidlSupported()).thenReturn(false);
-        ArrayList<VehiclePropError> errors = new ArrayList<VehiclePropError>();
-        VehiclePropError error1 = new VehiclePropError();
-        error1.propId = SOME_READ_ON_CHANGE_PROPERTY;
-        error1.areaId = VehicleHal.NO_AREA;
-        error1.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        errors.add(error1);
-        VehiclePropError error2 = new VehiclePropError();
-        error2.propId = SOME_READ_ON_CHANGE_PROPERTY;
-        error2.areaId = 1;
-        error2.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG;
-        errors.add(error2);
-        VehiclePropError error3 = new VehiclePropError();
-        error3.propId = SOME_READ_WRITE_STATIC_PROPERTY;
-        error3.areaId = VehicleHal.NO_AREA;
-        error3.errorCode = CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN;
-        errors.add(error3);
-
-        // Act
-        mVehicleHal.onPropertySetError(errors);
-
-        // Assert
-        verify(mPowerHalService).onPropertySetErrorDeprecated(SOME_READ_ON_CHANGE_PROPERTY,
-                VehicleHal.NO_AREA, CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN);
-        verify(mPowerHalService).onPropertySetErrorDeprecated(SOME_READ_ON_CHANGE_PROPERTY,
-                1, CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG);
-        verify(mPropertyHalService).onPropertySetErrorDeprecated(SOME_READ_WRITE_STATIC_PROPERTY,
-                VehicleHal.NO_AREA, CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN);
     }
 
     @Test
@@ -938,52 +826,39 @@ public class VehicleHalTest {
 
     @Test
     public void testGetClazz() throws Exception {
-        android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
-                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        propValue.value.int32Values.add(1);
-        propValue.value.int32Values.add(2);
-        propValue.value.floatValues.add(1.1f);
-        propValue.value.floatValues.add(1.2f);
-        String testString = "test";
-        propValue.value.stringValue = testString;
-        ArrayList<Byte> testBytes = new ArrayList<Byte>(Arrays.asList((byte) 0x00, (byte) 0x01));
-        propValue.value.bytes = testBytes;
-        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(
-                        mPropValueBuilder.build(propValue));
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, 0, 0, new int[]{1, 2}, new float[]{1.1f, 1.2f},
+                new long[0], "test", new byte[]{0x00, 0x01});
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
-        assertThat(mVehicleHal.<Integer>getDeprecated(Integer.class, propValue)).isEqualTo(1);
-        assertThat(mVehicleHal.<Integer>getDeprecated(int.class, propValue)).isEqualTo(1);
-        assertThat(mVehicleHal.<Boolean>getDeprecated(Boolean.class, propValue)).isTrue();
-        assertThat(mVehicleHal.<Boolean>getDeprecated(boolean.class, propValue)).isTrue();
-        assertThat(mVehicleHal.<Float>getDeprecated(Float.class, propValue)).isEqualTo(1.1f);
-        assertThat(mVehicleHal.<Float>getDeprecated(float.class, propValue)).isEqualTo(1.1f);
-        assertThat(mVehicleHal.<Float[]>getDeprecated(Float[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<Integer>get(Integer.class, propValue)).isEqualTo(1);
+        assertThat(mVehicleHal.<Integer>get(int.class, propValue)).isEqualTo(1);
+        assertThat(mVehicleHal.<Boolean>get(Boolean.class, propValue)).isTrue();
+        assertThat(mVehicleHal.<Boolean>get(boolean.class, propValue)).isTrue();
+        assertThat(mVehicleHal.<Float>get(Float.class, propValue)).isEqualTo(1.1f);
+        assertThat(mVehicleHal.<Float>get(float.class, propValue)).isEqualTo(1.1f);
+        assertThat(mVehicleHal.<Float[]>get(Float[].class, propValue)).isEqualTo(
                 new Float[]{1.1f, 1.2f});
-        assertThat(mVehicleHal.<Integer[]>getDeprecated(Integer[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<Integer[]>get(Integer[].class, propValue)).isEqualTo(
                 new Integer[]{1, 2});
-        assertThat(mVehicleHal.<float[]>getDeprecated(float[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<float[]>get(float[].class, propValue)).isEqualTo(
                 new float[]{1.1f, 1.2f});
-        assertThat(mVehicleHal.<int[]>getDeprecated(int[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<int[]>get(int[].class, propValue)).isEqualTo(
                 new int[]{1, 2});
-        assertThat(mVehicleHal.<byte[]>getDeprecated(byte[].class, propValue)).isEqualTo(
+        assertThat(mVehicleHal.<byte[]>get(byte[].class, propValue)).isEqualTo(
                 new byte[]{(byte) 0x00, (byte) 0x01});
-        assertThat(mVehicleHal.<String>getDeprecated(String.class, propValue)).isEqualTo(
-                testString);
+        assertThat(mVehicleHal.<String>get(String.class, propValue)).isEqualTo("test");
     }
 
     @Test
     public void testGetClazz_unexpectedType() throws Exception {
-        android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
-                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
-        propValue.prop = SOME_READ_ON_CHANGE_PROPERTY;
-        propValue.areaId = VehicleHal.NO_AREA;
-        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(
-                mPropValueBuilder.build(propValue));
+        HalPropValue propValue = mPropValueBuilder.build(SOME_READ_ON_CHANGE_PROPERTY,
+                VehicleHal.NO_AREA, "test");
+
+        when(mHalClient.getValue(any(HalPropValue.class))).thenReturn(propValue);
 
         assertThrows(IllegalArgumentException.class, () -> mVehicleHal
-                .<android.hardware.automotive.vehicle.V2_0.VehiclePropValue>getDeprecated(
+                .<android.hardware.automotive.vehicle.V2_0.VehiclePropValue>get(
                         HalPropValue.class, propValue));
     }
 

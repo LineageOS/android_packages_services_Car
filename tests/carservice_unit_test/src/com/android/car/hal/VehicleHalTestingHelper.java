@@ -26,20 +26,6 @@ public final class VehicleHalTestingHelper {
 
     /**
      * Creates an empty config for the given property.
-     *
-     * @deprecated TODO(b/205774940): Remove once we migrate all the usages to {@code newConfig}.
-     */
-    @Deprecated
-    public static android.hardware.automotive.vehicle.V2_0.VehiclePropConfig newConfigDeprecated(
-            int prop) {
-        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
-                new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
-        config.prop = prop;
-        return config;
-    }
-
-    /**
-     * Creates an empty config for the given property.
      */
     public static HalPropConfig newConfig(int prop) {
         VehiclePropConfig config = new VehiclePropConfig();
@@ -47,24 +33,6 @@ public final class VehicleHalTestingHelper {
         config.configString = new String();
         config.configArray = new int[0];
         return new AidlHalPropConfig(config);
-    }
-
-    /**
-     * Creates a config for the given property that passes the
-     * {@link com.android.car.hal.VehicleHal.VehicleHal#isPropertySubscribableDeprecated(VehiclePropConfig)}
-     * criteria.
-     *
-     * @deprecated TODO(b/205774940): Remove once we migrate all the usages to
-     * {@code newSubscribableConfig}.
-     */
-    @Deprecated
-    public static android.hardware.automotive.vehicle.V2_0.VehiclePropConfig
-            newSubscribableConfigDeprecated(int prop) {
-        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
-                newConfigDeprecated(prop);
-        config.access = VehiclePropertyAccess.READ_WRITE;
-        config.changeMode = VehiclePropertyChangeMode.ON_CHANGE;
-        return config;
     }
 
     /**
