@@ -33,6 +33,8 @@
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
 
+#include <IVhalClient.h>
+
 #include <optional>
 #include <unordered_set>
 
@@ -63,30 +65,17 @@ class CarPowerPolicyServerPeer;
 // Forward declaration for defining binder death handler and property change listener.
 class CarPowerPolicyServer;
 
-class HidlDeathRecipient : public android::hardware::hidl_death_recipient {
-public:
-    explicit HidlDeathRecipient(CarPowerPolicyServer* service);
-
-    void serviceDied(uint64_t cookie,
-                     const android::wp<android::hidl::base::V1_0::IBase>& who) override;
-
-private:
-    CarPowerPolicyServer* mService;
-};
-
-class PropertyChangeListener :
-      public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
+class PropertyChangeListener final :
+      public android::frameworks::automotive::vhal::ISubscriptionCallback {
 public:
     explicit PropertyChangeListener(CarPowerPolicyServer* service);
 
-    android::hardware::Return<void> onPropertyEvent(
-            const android::hardware::hidl_vec<
-                    hardware::automotive::vehicle::V2_0::VehiclePropValue>& propValues) override;
-    android::hardware::Return<void> onPropertySet(
-            const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue);
-    android::hardware::Return<void> onPropertySetError(
-            android::hardware::automotive::vehicle::V2_0::StatusCode status, int32_t propId,
-            int32_t areaId);
+    void onPropertyEvent(const std::vector<
+                         std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>&
+                                 values) override;
+
+    void onPropertySetError(const std::vector<android::frameworks::automotive::vhal::HalPropError>&
+                                    errors) override;
 
 private:
     CarPowerPolicyServer* mService;
@@ -157,18 +146,18 @@ public:
             ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent componentId,
             bool* aidlReturn) override;
     ::ndk::ScopedAStatus registerPowerPolicyChangeCallback(
-            const std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::
+            const std::shared_ptr<aidl::android::frameworks::automotive::powerpolicy::
                                           ICarPowerPolicyChangeCallback>& callback,
             const ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter&
                     filter) override;
     ::ndk::ScopedAStatus unregisterPowerPolicyChangeCallback(
-            const std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::
+            const std::shared_ptr<aidl::android::frameworks::automotive::powerpolicy::
                                           ICarPowerPolicyChangeCallback>& callback) override;
 
     void connectToVhalHelper();
     void handleBinderDeath(const AIBinder* client);
     void handleBinderUnlinked(const AIBinder* clientId);
-    void handleHidlDeath(const android::wp<android::hidl::base::V1_0::IBase>& who);
+    void handleVhalDeath();
 
     // Implements ICarPowerPolicySystemNotification.aidl.
     ::ndk::ScopedAStatus notifyCarServiceReady(
@@ -236,8 +225,7 @@ private:
     void subscribeToVhal();
     void subscribeToProperty(
             int32_t prop,
-            std::function<
-                    void(const android::hardware::automotive::vehicle::V2_0::VehiclePropValue&)>
+            std::function<void(const android::frameworks::automotive::vhal::IHalPropValue&)>
                     processor);
     android::base::Result<void> notifyVhalNewPowerPolicy(const std::string& policyId);
     bool isPropertySupported(const int32_t prop);
@@ -267,7 +255,8 @@ private:
     std::string mPendingPowerPolicyId GUARDED_BY(mMutex);
     bool mIsPowerPolicyLocked GUARDED_BY(mMutex);
     std::vector<CallbackInfo> mPolicyChangeCallbacks GUARDED_BY(mMutex);
-    sp<android::hardware::automotive::vehicle::V2_0::IVehicle> mVhalService GUARDED_BY(mMutex);
+    std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVhalService
+            GUARDED_BY(mMutex);
     std::optional<int64_t> mLastApplyPowerPolicyUptimeMs GUARDED_BY(mMutex);
     std::optional<int64_t> mLastSetDefaultPowerPolicyGroupUptimeMs GUARDED_BY(mMutex);
     bool mIsCarServiceInOperation GUARDED_BY(mMutex);
@@ -276,9 +265,8 @@ private:
     std::unordered_map<int32_t, bool> mSupportedProperties;
     ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient GUARDED_BY(mMutex);
     // Thread-safe because only initialized once.
-    android::sp<HidlDeathRecipient> mHidlDeathRecipient;
-    // Thread-safe because only initialized once.
-    android::sp<PropertyChangeListener> mPropertyChangeListener;
+    std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
+    std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient> mSubscriptionClient;
     std::shared_ptr<CarServiceNotificationHandler> mCarServiceNotificationHandler
             GUARDED_BY(mMutex);
     int32_t mRemainingConnectionRetryCount;

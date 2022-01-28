@@ -40,7 +40,9 @@ cc_defaults {
     ],
     static_libs: [
         "libsysfsmonitor",
+        "libvhalclient",
     ],
+    defaults: [ "vhalclient_defaults" ],
 }
 
 cc_library {

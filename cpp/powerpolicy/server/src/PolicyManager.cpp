@@ -437,7 +437,7 @@ std::string toString(const std::vector<PowerComponent>& components) {
         return "none";
     }
     std::string filterStr = toString(components[0]);
-    for (int i = 1; i < size; i++) {
+    for (size_t i = 1; i < size; i++) {
         StringAppendF(&filterStr, ", %s", toString(components[i]).c_str());
     }
     return filterStr;
