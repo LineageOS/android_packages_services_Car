@@ -32,6 +32,12 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
+namespace hidl_test {
+
+class HidlVhalClientTest;
+
+}  // namespace hidl_test
+
 class HidlVhalClient final : public IVhalClient {
 public:
     explicit HidlVhalClient(
@@ -63,6 +69,8 @@ public:
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
 private:
+    friend class hidl_test::HidlVhalClientTest;
+
     class DeathRecipient : public ::android::hardware::hidl_death_recipient {
     public:
         explicit DeathRecipient(HidlVhalClient* client);

@@ -32,7 +32,7 @@ namespace android {
 namespace frameworks {
 namespace automotive {
 namespace vhal {
-namespace test {
+namespace aidl_test {
 
 using ::android::base::Result;
 using ::android::hardware::automotive::vehicle::toInt;
@@ -866,7 +866,7 @@ TEST_F(AidlVhalClientTest, testUnubscribeError) {
     ASSERT_FALSE(result.ok());
 }
 
-}  // namespace test
+}  // namespace aidl_test
 }  // namespace vhal
 }  // namespace automotive
 }  // namespace frameworks
