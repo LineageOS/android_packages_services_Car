@@ -44,7 +44,6 @@ import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUS
 import static com.android.car.watchdog.CarWatchdogService.MISSING_ARG_VALUE;
 import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_ID;
-import static com.android.car.watchdog.WatchdogPerfHandler.UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -185,6 +184,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int RECURRING_OVERUSE_TIMES = 2;
     private static final int RECURRING_OVERUSE_PERIOD_IN_DAYS = 2;
     private static final int UID_IO_USAGE_SUMMARY_TOP_COUNT = 3;
+    private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
 
@@ -283,6 +283,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         when(mMockResources.getInteger(
                 eq(com.android.car.R.integer.recurringResourceOveruseTimes)))
                 .thenReturn(RECURRING_OVERUSE_TIMES);
+        when(mMockResources.getInteger(
+                eq(com.android.car.R.integer.uidIoUsageSummaryTopCount)))
+                .thenReturn(UID_IO_USAGE_SUMMARY_TOP_COUNT);
+        when(mMockResources.getInteger(
+                eq(com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes)))
+                .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
         doReturn(mMockCarPowerManagementService)
@@ -1324,7 +1330,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 constructPackageManagerPackageInfo("third_party_package", 1203456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 1201278, null)));
 
-        UserHandle userHandle = new UserHandle(11);
+        UserHandle userHandle = UserHandle.of(11);
         mCarWatchdogService.setKillablePackageAsUser("third_party_package", userHandle,
                 /* isKillable= */ false);
         mCarWatchdogService.setKillablePackageAsUser("vendor_package.critical",
@@ -1376,7 +1382,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 constructPackageManagerPackageInfo(
                         "third_party_package.D", 1101356, "third_party_shared_package.B")));
 
-        UserHandle userHandle = new UserHandle(11);
+        UserHandle userHandle = UserHandle.of(11);
         mCarWatchdogService.setKillablePackageAsUser("third_party_package.A", userHandle,
                 /* isKillable= */ false);
 
@@ -1498,7 +1504,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         "third_party_package.B", 1303456, "third_party_shared_package.A")));
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(13)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.of(13)))
                 .containsExactly(
                 new PackageKillableState("third_party_package.A", 13,
                         PackageKillableState.KILLABLE_STATE_NO),
@@ -1516,7 +1522,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 constructPackageManagerPackageInfo("vendor_package.critical", 1201278, null)));
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.of(11)))
                 .containsExactly(
                         new PackageKillableState("third_party_package", 11,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -1560,7 +1566,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT)));
 
         List<PackageKillableState> killableStates =
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(100));
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.of(100));
 
         // The vendor package prefixes in the resource overuse configs help identify vendor
         // packages. The safe-to-kill list in the vendor configs helps identify safe-to-kill vendor
@@ -1590,7 +1596,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         "vendor_package.B", 1203456, "vendor_shared_package.A")));
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.of(11)))
                 .containsExactly(
                         new PackageKillableState("system_package.A", 11,
                                 PackageKillableState.KILLABLE_STATE_NEVER),
@@ -1619,7 +1625,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         "third_party_package.D", 10005678, "third_party_shared_package")));
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(100)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.of(100)))
                 .containsExactly(
                         new PackageKillableState("vendor_package.non_critical.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -1647,7 +1653,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
 
         PackageKillableStateSubject.assertThat(
-                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(100)))
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.of(100)))
                 .containsExactly(
                         new PackageKillableState("vendor_package.A", 100,
                                 PackageKillableState.KILLABLE_STATE_YES),
@@ -2248,7 +2254,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                         /* shouldNotifyPackages= */ new ArraySet<>());
 
         mCarWatchdogService.setKillablePackageAsUser(
-                "third_party_package.A", new UserHandle(12), /* isKillable= */ false);
+                "third_party_package.A", UserHandle.of(12), /* isKillable= */ false);
 
         restartService(/* totalRestarts= */ 1);
 
@@ -3593,8 +3599,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         });
         when(mMockWatchdogStorage.getUserPackageSettings()).thenReturn(mUserPackageSettingsEntries);
         when(mMockWatchdogStorage.getTodayIoUsageStats()).thenReturn(mIoUsageStatsEntries);
-        when(mMockWatchdogStorage.getDailySystemIoUsageSummaries(anyLong(), anyLong())).thenAnswer(
-                args -> sampleDailyIoUsageSummariesForAWeek(args.getArgument(0),
+        when(mMockWatchdogStorage.getDailySystemIoUsageSummaries(anyLong(), anyLong(), anyLong()))
+                .thenAnswer(args -> sampleDailyIoUsageSummariesForAWeek(args.getArgument(1),
                         SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER));
         when(mMockWatchdogStorage.getTopUsersDailyIoUsageSummaries(
                 anyInt(), anyLong(), anyLong(), anyLong())).thenAnswer(args -> {
@@ -3621,8 +3627,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void initService(int wantedInvocations) throws Exception {
         mTimeSource.updateNow(/* numDaysAgo= */ 0);
         mCarWatchdogService.setOveruseHandlingDelay(OVERUSE_HANDLING_DELAY_MILLS);
-        mCarWatchdogService.setUidIoUsageSummaryTopCount(
-                UID_IO_USAGE_SUMMARY_TOP_COUNT);
         mCarWatchdogService.init();
         captureCarPowerListeners(wantedInvocations);
         captureBroadcastReceiver(wantedInvocations);
@@ -4455,7 +4459,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         List<AtomsProto.CarWatchdogSystemIoUsageSummary> expectedSummaries = new ArrayList<>();
         while (!beginWeekStartDate.equals(endWeekStartDate)) {
             long startEpochSecond = beginWeekStartDate.toEpochSecond();
-            verify(mMockWatchdogStorage).getDailySystemIoUsageSummaries(startEpochSecond,
+            verify(mMockWatchdogStorage).getDailySystemIoUsageSummaries(
+                    IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, startEpochSecond,
                     beginWeekStartDate.plusWeeks(1).toEpochSecond());
             expectedSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary.newBuilder()
                     .setIoUsageSummary(constructCarWatchdogIoUsageSummary(startEpochSecond,
@@ -4477,7 +4482,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             long startEpochSecond = beginWeekStartDate.toEpochSecond();
             verify(mMockWatchdogStorage).getTopUsersDailyIoUsageSummaries(
                     UID_IO_USAGE_SUMMARY_TOP_COUNT * 2,
-                    UID_IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WEEKLY_WRITTEN_BYTES, startEpochSecond,
+                    IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, startEpochSecond,
                     beginWeekStartDate.plusWeeks(1).toEpochSecond());
             for (Integer uid : expectUids) {
                 expectedSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary.newBuilder()
