@@ -44,6 +44,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -65,6 +66,9 @@ import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -73,6 +77,7 @@ import java.util.concurrent.Executor;
 @SmallTest
 public class ControllerTest {
 
+    private static final String TAG = "ControllerTest";
     @Rule public final MockitoRule rule = MockitoJUnit.rule();
 
     @Mock private Context mContextMock;
@@ -89,11 +94,10 @@ public class ControllerTest {
     @Captor private ArgumentCaptor<Integer> mIntegerCaptor;
 
     private Controller mController;
+    private File mTempTestDir;
 
     @Before
-    public void setUp() {
-        mController = new Controller(mContextMock, mLooperMock, mHandlerMock,
-                /* garageMode= */ null);
+    public void setUp() throws IOException {
         mCarUserServiceOriginal = CarLocalServices.getService(CarUserService.class);
         mCarPowerManagementServiceOriginal = CarLocalServices.getService(
                 CarPowerManagementService.class);
@@ -104,6 +108,14 @@ public class ControllerTest {
         CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mCarPowerManagementServiceMock);
+
+        mTempTestDir = Files.createTempDirectory("garagemode_test").toFile();
+        when(mSystemInterfaceMock.getSystemCarDir()).thenReturn(mTempTestDir);
+        Log.v(TAG, "Using temp dir: %s " + mTempTestDir.getAbsolutePath());
+
+        mController = new Controller(mContextMock, mLooperMock, mHandlerMock,
+                /* garageMode= */ null);
+
         doReturn(new ArrayList<Integer>()).when(mCarUserServiceMock)
                 .startAllBackgroundUsersInGarageMode();
         doNothing().when(mSystemInterfaceMock)

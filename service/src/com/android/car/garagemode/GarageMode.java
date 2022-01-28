@@ -34,12 +34,13 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarStatsLogHelper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.PrintWriter;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -90,6 +91,8 @@ class GarageMode {
     private boolean mIdleCheckerIsRunning;
     @GuardedBy("mLock")
     private List<String> mPendingJobs = new ArrayList<>();
+
+    private final GarageModeRecorder mGarageModeRecorder;
 
     private final Runnable mRunnable = new Runnable() {
         @Override
@@ -154,6 +157,7 @@ class GarageMode {
     };
 
     private final Runnable mStopUserCheckRunnable = new Runnable() {
+
         @Override
         public void run() {
             int userToStop = UserHandle.SYSTEM.getIdentifier(); // BG user never becomes system user
@@ -207,6 +211,7 @@ class GarageMode {
         mGarageModeActive = false;
         mHandler = controller.getHandler();
         mJobSchedulerHelper = new JobSchedulerHelper(context);
+        mGarageModeRecorder = new GarageModeRecorder(Clock.systemUTC());
     }
 
     void init() {
@@ -253,9 +258,10 @@ class GarageMode {
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    void dump(PrintWriter writer) {
+    void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
-            if (!mGarageModeActive) {
+            mGarageModeRecorder.dump(writer);
+            if (!mGarageModeActive) { //TODO(b/217739337) print value of mGarageModeActive
                 return;
             }
             writer.printf("GarageMode idle checker is %srunning\n",
@@ -290,6 +296,7 @@ class GarageMode {
             mCompletor = completor;
         }
         broadcastSignalToJobScheduler(true);
+        mGarageModeRecorder.startSession();
         CarStatsLogHelper.logGarageModeStart();
         EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_START);
         startMonitoringThread();
@@ -303,9 +310,12 @@ class GarageMode {
                 mCompletor.run();
                 mCompletor = null;
             }
-            cleanupGarageModeLocked();
-            Slogf.i(TAG, "GarageMode is cancelled");
-            EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_CANCELLED);
+            if (mGarageModeActive) {
+                cleanupGarageModeLocked();
+                Slogf.i(TAG, "GarageMode is cancelled");
+                EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_CANCELLED);
+                mGarageModeRecorder.cancelSession();
+            }
         }
     }
 
@@ -320,6 +330,7 @@ class GarageMode {
         broadcastSignalToJobScheduler(false);
         EventLogHelper.writeGarageModeEvent(GARAGE_MODE_EVENT_LOG_FINISH);
         CarStatsLogHelper.logGarageModeStop();
+        mGarageModeRecorder.finishSession();
         synchronized (mLock) {
             if (mCompletor != null) {
                 mCompletor.run();
