@@ -57,7 +57,7 @@ public class InputHalService extends HalServiceBase {
 
     private static final String TAG = CarLog.TAG_INPUT;
 
-    private static final int[] SUPPORTED_PROPERTIES = new int[] {
+    private static final int[] SUPPORTED_PROPERTIES = new int[]{
             HW_KEY_INPUT,
             HW_ROTARY_INPUT,
             HW_CUSTOM_INPUT
@@ -76,8 +76,10 @@ public class InputHalService extends HalServiceBase {
     public interface InputListener {
         /** Called for key event */
         void onKeyEvent(KeyEvent event, int targetDisplay);
+
         /** Called for rotary event */
         void onRotaryEvent(RotaryEvent event, int targetDisplay);
+
         /** Called for OEM custom input event */
         void onCustomInputEvent(CustomInputEvent event);
     }
@@ -218,7 +220,8 @@ public class InputHalService extends HalServiceBase {
             Slogf.w(TAG, "Input event while listener is null");
             return;
         }
-        for (HalPropValue value : values) {
+        for (int i = 0; i < values.size(); i++) {
+            HalPropValue value = values.get(i);
             switch (value.getPropId()) {
                 case HW_KEY_INPUT:
                     dispatchKeyInput(listener, value);
@@ -420,7 +423,6 @@ public class InputHalService extends HalServiceBase {
      * @return the corresponding display type (defined in {@link CarOccupantZoneManager}) or
      * {@link CarOccupantZoneManager#DISPLAY_TYPE_UNKNOWN} if the value passed as parameter doesn't
      * correspond to a driver's display type
-     *
      * @hide
      */
     @DisplayTypeEnum
