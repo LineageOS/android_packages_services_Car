@@ -247,11 +247,14 @@ public class ICarImpl extends ICar.Stub {
                             ActivityManagerHelper.getInstance(), maxRunningUsers,
                             mCarUXRestrictionsService));
         }
-        // TODO(b/172262561) Do not set experimental service if the feature is not enabled.
-        mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
-                () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
-                        serviceContext.getSystemService(UserManager.class),
-                        ActivityManagerHelper.getInstance()));
+        if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
+            mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
+                    () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
+                            serviceContext.getSystemService(UserManager.class),
+                            ActivityManagerHelper.getInstance()));
+        } else {
+            mExperimentalCarUserService = null;
+        }
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
                 () -> new SystemActivityMonitoringService(serviceContext));
@@ -394,7 +397,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarOccupantZoneService);
         allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
-        allServices.add(mExperimentalCarUserService);
+        addServiceIfNonNull(allServices, mExperimentalCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
         allServices.add(mCarPropertyService);
@@ -619,6 +622,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarBugreportManagerService;
             case Car.CAR_USER_SERVICE:
                 return mCarUserService;
+            case Car.EXPERIMENTAL_CAR_USER_SERVICE:
+                return mExperimentalCarUserService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
             case Car.CAR_INPUT_SERVICE:

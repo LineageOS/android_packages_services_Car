@@ -59,6 +59,7 @@ import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
+import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
@@ -202,6 +203,14 @@ public final class Car {
     @SystemApi
     @TestApi
     public static final String CAR_USER_SERVICE = "car_user_service";
+
+    /**
+     * Service name for {@link ExperimentalCarUserManager}
+     *
+     * @hide
+     */
+    @OptionalFeature
+    public static final String EXPERIMENTAL_CAR_USER_SERVICE = "experimental_car_user_service";
 
     /**
      * Service name for {@link CarDevicePolicyManager}
@@ -2016,6 +2025,9 @@ public final class Car {
                 break;
             case CAR_USER_SERVICE:
                 manager = new CarUserManager(this, binder);
+                break;
+            case EXPERIMENTAL_CAR_USER_SERVICE:
+                manager = new ExperimentalCarUserManager(this, binder);
                 break;
             case CAR_WATCHDOG_SERVICE:
                 manager = new CarWatchdogManager(this, binder);
