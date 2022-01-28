@@ -109,7 +109,7 @@ public class TtlPointsDecrementalTest {
         values.put(BugStorageProvider.COLUMN_TIMESTAMP, timestamp);
         values.put(BugStorageProvider.COLUMN_STATUS, status.getValue());
         values.put(BugStorageProvider.COLUMN_STATUS_MESSAGE, "");
-        values.put(BugStorageProvider.COLUMN_TYPE, MetaBugReport.TYPE_SILENT);
+        values.put(BugStorageProvider.COLUMN_TYPE, MetaBugReport.TYPE_AUDIO_LATER);
         if (ttlPoints != USE_DEFAULT_TTL_POINTS) {
             values.put(BugStorageProvider.COLUMN_TTL_POINTS, ttlPoints);
         }

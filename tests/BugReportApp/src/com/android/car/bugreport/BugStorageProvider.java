@@ -160,7 +160,7 @@ public class BugStorageProvider extends ContentProvider {
                 + COLUMN_FILEPATH + " TEXT DEFAULT NULL,"
                 + COLUMN_STATUS + " INTEGER DEFAULT " + Status.STATUS_WRITE_PENDING.getValue() + ","
                 + COLUMN_STATUS_MESSAGE + " TEXT NULL,"
-                + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_INTERACTIVE + ","
+                + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_AUDIO_FIRST + ","
                 + COLUMN_BUGREPORT_FILENAME + " TEXT DEFAULT NULL,"
                 + COLUMN_AUDIO_FILENAME + " TEXT DEFAULT NULL,"
                 + COLUMN_TTL_POINTS + " INTEGER DEFAULT " + DEFAULT_TTL_POINTS
@@ -180,7 +180,7 @@ public class BugStorageProvider extends ContentProvider {
             Log.w(TAG, "Upgrading from " + oldVersion + " to " + newVersion);
             if (oldVersion < TYPE_VERSION) {
                 db.execSQL("ALTER TABLE " + BUG_REPORTS_TABLE + " ADD COLUMN "
-                        + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_INTERACTIVE);
+                        + COLUMN_TYPE + " INTEGER DEFAULT " + MetaBugReport.TYPE_AUDIO_FIRST);
             }
             if (oldVersion < AUDIO_VERSION) {
                 db.execSQL("ALTER TABLE " + BUG_REPORTS_TABLE + " ADD COLUMN "

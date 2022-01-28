@@ -189,11 +189,7 @@ public class BugReportInfoActivity extends Activity {
     }
 
     private void onStartBugReportButtonClick(View view) {
-        Intent intent = new Intent(this, BugReportActivity.class);
-        // Clear top is needed, otherwise multiple BugReportActivity-ies get opened and
-        // MediaRecorder crashes.
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
+        startActivity(BugReportActivity.buildStartBugReportIntent(this));
     }
 
     /**
