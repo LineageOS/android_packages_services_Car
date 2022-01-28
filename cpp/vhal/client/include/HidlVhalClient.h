@@ -40,10 +40,17 @@ class HidlVhalClientTest;
 
 class HidlVhalClient final : public IVhalClient {
 public:
+    static std::shared_ptr<IVhalClient> create();
+    static std::shared_ptr<IVhalClient> tryCreate();
+
     explicit HidlVhalClient(
             ::android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> hal);
 
     ~HidlVhalClient();
+
+    std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) override;
+
+    std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId, int32_t areaId) override;
 
     void getValue(const IHalPropValue& requestValue,
                   std::shared_ptr<GetValueCallbackFunc> callback) override;

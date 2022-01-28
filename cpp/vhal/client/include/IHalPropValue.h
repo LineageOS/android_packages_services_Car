@@ -34,6 +34,8 @@ public:
 
     virtual int32_t getAreaId() const = 0;
 
+    virtual int64_t getTimestamp() const = 0;
+
     virtual void setInt32Values(const std::vector<int32_t>& values) = 0;
 
     virtual std::vector<int32_t> getInt32Values() const = 0;

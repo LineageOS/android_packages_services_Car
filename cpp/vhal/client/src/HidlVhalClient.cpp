@@ -20,6 +20,7 @@
 #include "HidlHalPropValue.h"
 
 #include <aidl/android/hardware/automotive/vehicle/StatusCode.h>
+#include <utils/Log.h>
 
 #include <VehicleUtils.h>
 
@@ -46,6 +47,23 @@ using ::android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
 using ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
 using ::android::hidl::base::V1_0::IBase;
 
+std::shared_ptr<IVhalClient> HidlVhalClient::create() {
+    sp<IVehicle> hidlVhal = IVehicle::getService();
+    if (hidlVhal == nullptr) {
+        ALOGD("HIDL VHAL service is not declared or not available");
+        return nullptr;
+    }
+    return std::make_shared<HidlVhalClient>(hidlVhal);
+}
+
+std::shared_ptr<IVhalClient> HidlVhalClient::tryCreate() {
+    sp<IVehicle> hidlVhal = IVehicle::tryGetService();
+    if (hidlVhal == nullptr) {
+        return nullptr;
+    }
+    return std::make_shared<HidlVhalClient>(hidlVhal);
+}
+
 HidlVhalClient::HidlVhalClient(sp<IVehicle> hal) : mHal(hal) {
     mDeathRecipient = sp<HidlVhalClient::DeathRecipient>::make(this);
     mHal->linkToDeath(mDeathRecipient, /*cookie=*/0);
@@ -53,6 +71,14 @@ HidlVhalClient::HidlVhalClient(sp<IVehicle> hal) : mHal(hal) {
 
 HidlVhalClient::~HidlVhalClient() {
     mHal->unlinkToDeath(mDeathRecipient);
+}
+
+std::unique_ptr<IHalPropValue> HidlVhalClient::createHalPropValue(int32_t propId) {
+    return std::make_unique<HidlHalPropValue>(propId);
+}
+
+std::unique_ptr<IHalPropValue> HidlVhalClient::createHalPropValue(int32_t propId, int32_t areaId) {
+    return std::make_unique<HidlHalPropValue>(propId, areaId);
 }
 
 void HidlVhalClient::getValue(const IHalPropValue& requestValue,

@@ -27,7 +27,7 @@ cc_defaults {
     ],
     static_libs: [
         "VehicleHalUtils",
-        "android-automotive-large-parcelable-vendor-lib",
+        "android-automotive-large-parcelable-lib",
         // We have to use static lib here because either one of them might not
         // exist as a shared library.
         "android.hardware.automotive.vehicle@2.0",
@@ -46,7 +46,6 @@ cc_defaults {
 
 cc_library {
     name: "libvhalclient",
-    vendor: true,
     srcs: [
         "src/*.cpp",
     ],

@@ -18,6 +18,8 @@
 
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
+#include <android/binder_manager.h>
+#include <utils/Log.h>
 
 #include <AidlHalPropConfig.h>
 #include <AidlHalPropValue.h>
@@ -65,6 +67,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropValues;
 using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
+using ::ndk::SpAIBinder;
 
 std::string toString(const std::vector<int32_t>& values) {
     std::vector<std::string> strings;
@@ -75,6 +78,34 @@ std::string toString(const std::vector<int32_t>& values) {
 }
 
 }  // namespace
+
+std::shared_ptr<IVhalClient> AidlVhalClient::create() {
+    if (!AServiceManager_isDeclared(AIDL_VHAL_SERVICE)) {
+        ALOGD("AIDL VHAL service is not declared");
+        return nullptr;
+    }
+    std::shared_ptr<IVehicle> aidlVhal =
+            IVehicle::fromBinder(SpAIBinder(AServiceManager_waitForService(AIDL_VHAL_SERVICE)));
+    if (aidlVhal == nullptr) {
+        ALOGW("AIDL VHAL service is not available");
+        return nullptr;
+    }
+    return std::make_shared<AidlVhalClient>(aidlVhal);
+}
+
+std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate() {
+    if (!AServiceManager_isDeclared(AIDL_VHAL_SERVICE)) {
+        ALOGD("AIDL VHAL service is not declared");
+        return nullptr;
+    }
+    std::shared_ptr<IVehicle> aidlVhal =
+            IVehicle::fromBinder(SpAIBinder(AServiceManager_getService(AIDL_VHAL_SERVICE)));
+    if (aidlVhal == nullptr) {
+        ALOGW("AIDL VHAL service is not available");
+        return nullptr;
+    }
+    return std::make_shared<AidlVhalClient>(aidlVhal);
+}
 
 AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal) :
       AidlVhalClient(hal, DEFAULT_TIMEOUT_IN_SEC * 1'000) {}
@@ -101,6 +132,14 @@ AidlVhalClient::AidlVhalClient(std::shared_ptr<IVehicle> hal, int64_t timeoutInM
 AidlVhalClient::~AidlVhalClient() {
     mLinkUnlinkImpl->unlinkToDeath(mHal->asBinder().get(), mDeathRecipient.get(),
                                    static_cast<void*>(this));
+}
+
+std::unique_ptr<IHalPropValue> AidlVhalClient::createHalPropValue(int32_t propId) {
+    return std::make_unique<AidlHalPropValue>(propId);
+}
+
+std::unique_ptr<IHalPropValue> AidlVhalClient::createHalPropValue(int32_t propId, int32_t areaId) {
+    return std::make_unique<AidlHalPropValue>(propId, areaId);
 }
 
 binder_status_t AidlVhalClient::DefaultLinkUnlinkImpl::linkToDeath(
