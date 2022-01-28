@@ -1089,7 +1089,7 @@ TEST_F(IoOveruseConfigsTest, TestWriteToDisk) {
 
     ASSERT_RESULT_OK(ioOveruseConfigs.writeToDisk());
 
-    ASSERT_EQ(mPeer->configsByFilepaths.size(), 3);
+    ASSERT_EQ(mPeer->configsByFilepaths.size(), static_cast<size_t>(3));
 
     vendorResourceConfig.vendorPackagePrefixes.push_back("vendorPkgB");
     std::unordered_map<std::string, ResourceOveruseConfiguration> expected(

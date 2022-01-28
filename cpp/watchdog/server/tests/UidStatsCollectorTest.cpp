@@ -371,7 +371,7 @@ TEST_F(UidStatsCollectorTest, TestUidStatsHasPackageInfo) {
 
     const auto actual = mUidStatsCollector->deltaStats();
 
-    EXPECT_EQ(actual.size(), 2);
+    EXPECT_EQ(actual.size(), static_cast<size_t>(2));
     for (const auto stats : actual) {
         if (stats.packageInfo.packageIdentifier.uid == 1001234) {
             EXPECT_FALSE(stats.hasPackageInfo())
@@ -400,7 +400,7 @@ TEST_F(UidStatsCollectorTest, TestUidStatsGenericPackageName) {
 
     const auto actual = mUidStatsCollector->deltaStats();
 
-    EXPECT_EQ(actual.size(), 2);
+    EXPECT_EQ(actual.size(), static_cast<size_t>(2));
     for (const auto stats : actual) {
         if (stats.packageInfo.packageIdentifier.uid == 1001234) {
             EXPECT_EQ(stats.genericPackageName(), "1001234")
@@ -431,7 +431,7 @@ TEST_F(UidStatsCollectorTest, TestUidStatsUid) {
     const auto actual = mUidStatsCollector->deltaStats();
 
     for (const auto stats : actual) {
-        EXPECT_EQ(stats.uid(), stats.packageInfo.packageIdentifier.uid);
+        EXPECT_EQ(stats.uid(), static_cast<uid_t>(stats.packageInfo.packageIdentifier.uid));
     }
 }
 
