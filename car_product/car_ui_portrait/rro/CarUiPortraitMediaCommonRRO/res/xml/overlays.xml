@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -15,9 +14,7 @@
   ~ limitations under the License.
   -->
 
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false"
-          android:alpha="?android:attr/disabledAlpha"
-          android:color="@color/car_ui_portrait_system_accent1_200"/>
-    <item android:color="@color/car_ui_portrait_system_accent1_200"/>
-</selector>
+<overlay>
+    <item target="string/launcher_popup_intent" value="@string/launcher_popup_intent"/>
+    <item target="string/launcher_intent" value="@string/launcher_intent"/>
+</overlay>

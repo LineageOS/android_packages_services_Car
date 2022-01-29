@@ -14,10 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_enabled="false"
-          android:alpha="?android:attr/disabledAlpha"
-          android:color="@color/car_ui_portrait_system_accent1_200"/>
-    <item android:color="@color/car_ui_portrait_system_accent1_200"/>
-</selector>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.media.common.caruiportrait.rro">
+    <application android:hasCode="false"/>
+    <overlay android:priority="20"
+             android:targetName="CarMediaCommon"
+             android:targetPackage="com.android.car.media"
+             android:resourcesMap="@xml/overlays"
+             android:isStatic="true" />
+</manifest>
