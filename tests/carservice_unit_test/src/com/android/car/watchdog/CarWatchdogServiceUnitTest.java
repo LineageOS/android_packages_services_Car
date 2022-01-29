@@ -3798,23 +3798,25 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     private void mockBuildStatsEventCalls() {
         when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY),
-                any(byte[].class))).thenAnswer(args -> {
+                any(byte[].class), anyLong())).thenAnswer(args -> {
                     mPulledSystemIoUsageSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary
                             .newBuilder()
                             .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
                                     (byte[]) args.getArgument(1)))
+                            .setStartTimeMillis(args.getArgument(2))
                             .build());
                     // Returned event is not used in tests, so return an empty event.
                     return StatsEvent.newBuilder().build();
                 });
 
         when(CarStatsLog.buildStatsEvent(eq(CAR_WATCHDOG_UID_IO_USAGE_SUMMARY), anyInt(),
-                any(byte[].class))).thenAnswer(args -> {
+                any(byte[].class), anyLong())).thenAnswer(args -> {
                     mPulledUidIoUsageSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary
                             .newBuilder()
                             .setUid(args.getArgument(1))
                             .setIoUsageSummary(AtomsProto.CarWatchdogIoUsageSummary.parseFrom(
                                     (byte[]) args.getArgument(2)))
+                            .setStartTimeMillis(args.getArgument(3))
                             .build());
                     // Returned event is not used in tests, so return an empty event.
                     return StatsEvent.newBuilder().build();
@@ -4554,9 +4556,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES, startEpochSecond,
                     beginWeekStartDate.plusWeeks(1).toEpochSecond());
             expectedSummaries.add(AtomsProto.CarWatchdogSystemIoUsageSummary.newBuilder()
-                    .setIoUsageSummary(constructCarWatchdogIoUsageSummary(startEpochSecond,
+                    .setIoUsageSummary(constructCarWatchdogIoUsageSummary(
                             sampleDailyIoUsageSummariesForAWeek(startEpochSecond,
                                     SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER)))
+                    .setStartTimeMillis(startEpochSecond * 1000)
                     .build());
             beginWeekStartDate = beginWeekStartDate.plusWeeks(1);
         }
@@ -4578,9 +4581,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             for (Integer uid : expectUids) {
                 expectedSummaries.add(AtomsProto.CarWatchdogUidIoUsageSummary.newBuilder()
                         .setUid(uid)
-                        .setIoUsageSummary(constructCarWatchdogIoUsageSummary(startEpochSecond,
-                                sampleDailyIoUsageSummariesForAWeek(startEpochSecond,
-                                        uid)))
+                        .setIoUsageSummary(constructCarWatchdogIoUsageSummary(
+                                sampleDailyIoUsageSummariesForAWeek(startEpochSecond, uid)))
+                        .setStartTimeMillis(startEpochSecond * 1000)
                         .build());
             }
             beginWeekStartDate = beginWeekStartDate.plusWeeks(1);
@@ -4589,11 +4592,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private static AtomsProto.CarWatchdogIoUsageSummary constructCarWatchdogIoUsageSummary(
-            long startTimeMillis, List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailySummaries) {
+            List<AtomsProto.CarWatchdogDailyIoUsageSummary> dailySummaries) {
         return AtomsProto.CarWatchdogIoUsageSummary.newBuilder()
                 .setEventTimePeriod(AtomsProto.CarWatchdogEventTimePeriod.newBuilder()
-                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY)
-                        .setStartTimeMillis(startTimeMillis).build())
+                        .setPeriod(AtomsProto.CarWatchdogEventTimePeriod.Period.WEEKLY).build())
                 .addAllDailyIoUsageSummary(dailySummaries)
                 .build();
     }
