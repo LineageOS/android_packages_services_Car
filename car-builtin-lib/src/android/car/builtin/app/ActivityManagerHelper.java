@@ -17,7 +17,6 @@
 package android.car.builtin.app;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -25,13 +24,8 @@ import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
-import android.app.TaskInfo;
-import android.app.TaskStackListener;
 import android.car.builtin.util.Slogf;
-import android.content.Intent;
 import android.os.RemoteException;
-import android.util.Pair;
-import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
 
@@ -156,127 +150,6 @@ public final class ActivityManagerHelper {
     }
 
     private final Object mLock = new Object();
-
-    @Deprecated  // Will be replaced with TaskOrganizer based implementation
-    public interface OnTaskStackChangeListener {
-        default void onTaskStackChanged() {}
-    }
-
-    @GuardedBy("mLock")
-    private ArrayList<OnTaskStackChangeListener> mTaskStackChangeListeners = new ArrayList<>();
-
-    private final TaskStackListener mTaskStackListener = new TaskStackListener() {
-        @Override
-        public void onTaskStackChanged() throws RemoteException {
-            List<OnTaskStackChangeListener> listeners;
-            synchronized (mLock) {
-                listeners = mTaskStackChangeListeners;
-            }
-            for (int i = 0, size = listeners.size(); i < size; ++i) {
-                listeners.get(i).onTaskStackChanged();
-            }
-        }
-    };
-
-    /**
-     * Registers a listener to be called when the task stack is changed.
-     * @param listener a listener to register
-     */
-    @Deprecated  // Will be replaced with TaskOrganizer based implementation
-    public void registerTaskStackChangeListener(OnTaskStackChangeListener listener) {
-        synchronized (mLock) {
-            if (mTaskStackChangeListeners.isEmpty()) {
-                try {
-                    mAm.registerTaskStackListener(mTaskStackListener);
-                } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to register listener", e);
-                    throw new RuntimeException(e);
-                }
-            }
-            // Make a copy of listeners not to affect on-going listeners.
-            mTaskStackChangeListeners =
-                    (ArrayList<OnTaskStackChangeListener>) mTaskStackChangeListeners.clone();
-            mTaskStackChangeListeners.add(listener);
-        }
-    }
-
-    /**
-     * Unregisters a listener.
-     * @param listener a listener to unregister
-     */
-    @Deprecated  // Will be replaced with TaskOrganizer based implementation
-    public void unregisterTaskStackChangeListener(OnTaskStackChangeListener listener) {
-        synchronized (mLock) {
-            // Make a copy of listeners not to affect on-going listeners.
-            mTaskStackChangeListeners =
-                    (ArrayList<OnTaskStackChangeListener>) mTaskStackChangeListeners.clone();
-            mTaskStackChangeListeners.remove(listener);
-            if (mTaskStackChangeListeners.isEmpty()) {
-                try {
-                    mAm.unregisterTaskStackListener(mTaskStackListener);
-                } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to unregister listener", e);
-                    throw new RuntimeException(e);
-                }
-            }
-        }
-    }
-
-    /**
-     * Gets the top visible tasks of each display.
-     * @return A {@link SparseArray} that maps displayId to {@link android.app.TaskInfo}
-     */
-    @Deprecated  // Will be replaced with TaskOrganizer based implementation
-    @Nullable
-    public SparseArray<TaskInfo> getTopTasks() {
-        List<ActivityTaskManager.RootTaskInfo> infos = getAllRootTaskInfos();
-        if (infos == null) return null;
-
-        SparseArray<TaskInfo> topTasks = new SparseArray<>();
-        for (int i = 0, size = infos.size(); i < size; ++i) {
-            ActivityTaskManager.RootTaskInfo info = infos.get(i);
-            int displayId = info.displayId;
-            if (info.childTaskNames.length == 0
-                    || !info.visible) { // empty stack or not shown
-                continue;
-            }
-            ActivityTaskManager.RootTaskInfo currentTopTaskInfo =
-                    (ActivityTaskManager.RootTaskInfo) topTasks.get(displayId);
-            if (currentTopTaskInfo == null || info.position > currentTopTaskInfo.position) {
-                topTasks.put(displayId, info);
-            }
-        }
-        return topTasks;
-    }
-
-    @Nullable
-    private List<RootTaskInfo> getAllRootTaskInfos() {
-        try {
-            return mAm.getAllRootTaskInfos();
-        } catch (RemoteException e) {
-            Slogf.e(TAG, "Failed to getAllRootTaskInfos", e);
-            return null;
-        }
-    }
-
-    /**
-     * Finds the root task of the given taskId.
-     * @return a {@link Pair} of {@link Intent} and {@code userId} if the root task exists, or
-     * {@code null}.
-     */
-    @Deprecated  // Will be replaced with TaskOrganizer based implementation
-    public Pair<Intent, Integer> findRootTask(int taskId) {
-        List<ActivityTaskManager.RootTaskInfo> infos = getAllRootTaskInfos();
-        for (int i = 0, size = infos.size(); i < size; ++i) {
-            ActivityTaskManager.RootTaskInfo info = infos.get(i);
-            for (int j = 0; j < info.childTaskIds.length; ++j) {
-                if (info.childTaskIds[j] == taskId) {
-                    return new Pair<>(info.baseIntent, info.userId);
-                }
-            }
-        }
-        return null;
-    }
 
     /**
      * Makes the root task of the given taskId focused.

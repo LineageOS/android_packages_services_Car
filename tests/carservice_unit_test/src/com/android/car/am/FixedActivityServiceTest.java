@@ -35,7 +35,6 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.TaskInfo;
 import android.car.builtin.app.ActivityManagerHelper;
-import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.CarUserManager;
@@ -53,7 +52,6 @@ import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.SparseArray;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -70,6 +68,7 @@ import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestCase {
 
@@ -81,6 +80,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     private Context mContext;
     @Mock
     private ActivityManagerHelper mActivityManager;
+    @Mock
+    private CarActivityService mActivityService;
     @Mock
     private UserManager mUserManager;
     @Mock
@@ -111,8 +112,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         doReturn(mCarUserService).when(() -> CarLocalServices.getService(CarUserService.class));
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
         when(mDisplayManager.getDisplay(mValidDisplayId)).thenReturn(mValidDisplay);
-        mFixedActivityService = new FixedActivityService(mContext, mActivityManager, mUserManager,
-                mDisplayManager, mUserHandleHelper);
+        mFixedActivityService = new FixedActivityService(mContext, mActivityManager,
+                mActivityService, mUserManager, mDisplayManager, mUserHandleHelper);
     }
 
     @After
@@ -356,21 +357,21 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         // Start an activity
         boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
                 options, mValidDisplayId, userId);
-        // To check if monitoring is started.
-        verify(mActivityManager).registerTaskStackChangeListener(
-                any(OnTaskStackChangeListener.class));
         assertThat(ret).isTrue();
+        // To check if monitoring is started.
+        verify(mActivityManager).registerProcessObserverCallback(
+                any(ActivityManagerHelper.ProcessObserverCallback.class));
 
         mFixedActivityService.stopFixedActivityMode(mValidDisplayId);
-        verify(mActivityManager).unregisterTaskStackChangeListener(
-                any(OnTaskStackChangeListener.class));
+        verify(mActivityManager).unregisterProcessObserverCallback(
+                any(ActivityManagerHelper.ProcessObserverCallback.class));
     }
 
     @Test
     public void testStopFixedActivityMode_invalidDisplayId() throws Exception {
         mFixedActivityService.stopFixedActivityMode(Display.DEFAULT_DISPLAY);
-        verify(mActivityManager, never()).unregisterTaskStackChangeListener(
-                any(OnTaskStackChangeListener.class));
+        verify(mActivityManager, never()).unregisterProcessObserverCallback(
+                any(ActivityManagerHelper.ProcessObserverCallback.class));
     }
 
     @Test
@@ -421,7 +422,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
-        SparseArray<TaskInfo> rootTaskInfo = createRootTaskInfo(intent, userId,
+        List<TaskInfo> rootTaskInfo = createRootTaskInfo(intent, userId,
                 mValidDisplayId, taskId);
         expectRootTaskInfo(rootTaskInfo);
 
@@ -513,31 +514,31 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     }
 
     private void expectNoActivityStack() throws Exception {
-        when(mActivityManager.getTopTasks()).thenReturn(createEmptyTaskInfo());
+        when(mActivityService.getTopTasks()).thenReturn(createEmptyTaskInfo());
     }
 
-    private void expectRootTaskInfo(SparseArray<TaskInfo>... taskInfos)
+    private void expectRootTaskInfo(List<TaskInfo>... taskInfos)
             throws Exception {
-        OngoingStubbing<SparseArray<TaskInfo>> stub = when(
-                mActivityManager.getTopTasks());
-        for (SparseArray<TaskInfo> taskInfo : taskInfos) {
+        OngoingStubbing<List<TaskInfo>> stub = when(
+                mActivityService.getTopTasks());
+        for (List<TaskInfo> taskInfo : taskInfos) {
             stub = stub.thenReturn(taskInfo);
         }
     }
 
-    private SparseArray<TaskInfo> createEmptyTaskInfo() {
-        return new SparseArray<>();
+    private List<TaskInfo> createEmptyTaskInfo() {
+        return new ArrayList<>();
     }
 
-    private SparseArray<TaskInfo> createRootTaskInfo(Intent intent,
+    private List<TaskInfo> createRootTaskInfo(Intent intent,
             @UserIdInt int userId, int displayId, int taskId) {
         TaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
         taskInfo.topActivity = intent.getComponent().clone();
         taskInfo.taskId = taskId;
         taskInfo.userId = userId;
         taskInfo.displayId = displayId;
-        SparseArray<TaskInfo> topTasks = new SparseArray<>();
-        topTasks.put(displayId, taskInfo);
+        List<TaskInfo> topTasks = new ArrayList<>();
+        topTasks.add(taskInfo);
         return topTasks;
     }
 }

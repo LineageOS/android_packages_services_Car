@@ -62,6 +62,7 @@ android_test {
         "SettingsLib",
         "testng",
         "truth-prebuilt",
+        "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
     ],
 
     test_suites: ["general-tests"],

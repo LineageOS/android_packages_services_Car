@@ -271,9 +271,11 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mOccupantAwarenessService = null;
         }
+        mCarActivityService = constructWithTrace(t, CarActivityService.class,
+                () -> new CarActivityService(serviceContext));
         mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
                 () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
-                        mSystemActivityMonitoringService, mCarOccupantZoneService));
+                        mCarActivityService, mCarOccupantZoneService));
         mPerUserCarServiceHelper = constructWithTrace(
                 t, PerUserCarServiceHelper.class,
                 () -> new PerUserCarServiceHelper(serviceContext, mCarUserService));
@@ -297,8 +299,8 @@ public class ICarImpl extends ICar.Stub {
                 () -> new CarAudioService(serviceContext));
         mCarNightService = constructWithTrace(t, CarNightService.class,
                 () -> new CarNightService(serviceContext, mCarPropertyService));
-        mFixedActivityService = constructWithTrace(
-                t, FixedActivityService.class, () -> new FixedActivityService(serviceContext));
+        mFixedActivityService = constructWithTrace(t, FixedActivityService.class,
+                () -> new FixedActivityService(serviceContext, mCarActivityService));
         mClusterNavigationService = constructWithTrace(
                 t, ClusterNavigationService.class,
                 () -> new ClusterNavigationService(serviceContext, mAppFocusService));
@@ -385,8 +387,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarTelemetryService = null;
         }
-        mCarActivityService = constructWithTrace(t, CarActivityService.class,
-                () -> new CarActivityService(serviceContext));
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
