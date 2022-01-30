@@ -760,6 +760,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 .setPassphrase(
                         pref.getString(KEY_AP_CONFIG_PASSPHRASE, ""),
                         pref.getInt(KEY_AP_CONFIG_SECURITY_TYPE, 0))
+                .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
                 .build();
 
         synchronized (mLock) {
