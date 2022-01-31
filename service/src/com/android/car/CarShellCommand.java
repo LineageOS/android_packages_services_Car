@@ -164,6 +164,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_HIBERNATE = "hibernate";
+    private static final String PARAM_SIMULATE = "--simulate";
+    private static final String PARAM_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
@@ -201,8 +203,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY =
             "apply-cts-verifier-power-on-policy";
     private static final String COMMAND_POWER_OFF = "power-off";
-    private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
-    private static final String POWER_OFF_SHUTDOWN = "--shutdown";
     private static final String COMMAND_SILENT_MODE = "silent-mode";
     // Used with COMMAND_SILENT_MODE for forced silent: "forced-silent"
     private static final String SILENT_MODE_FORCED_SILENT =
@@ -521,10 +521,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tget-property-value [PROPERTY_ID in Hex or Decimal] [areaId]");
         pw.println("\t  Get a vehicle property value by property id and areaId");
         pw.println("\t  or list all property values for all areaId");
-        pw.println("\tsuspend");
-        pw.println("\t  Suspend the system to Deep Sleep.");
+        pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_SUSPEND));
+        pw.println("\t  Suspend the system to RAM.");
+        pw.printf("\t  %s simulates suspend-to-RAM instead of putting the device into deep sleep."
+                + "\n", PARAM_SIMULATE);
+        pw.printf("\t  %s skips Garage Mode before going into sleep.\n", PARAM_SKIP_GARAGEMODE);
+        pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_HIBERNATE));
+        pw.println("\t  Suspend the system to disk.");
+        pw.printf("\t  %s simulates suspend-to-disk instead of putting the device into "
+                + "hibernation.\n", PARAM_SIMULATE);
+        pw.printf("\t  %s skips Garage Mode before going into hibernation.\n",
+                PARAM_SKIP_GARAGEMODE);
         pw.println("\tresume");
-        pw.println("\t  Wake the system up after a 'suspend.'");
+        pw.println("\t  Wake the system up after a simulated suspension/hibernation.");
         pw.println("\tprojection-tethering [true|false]");
         pw.println("\t  Whether tethering should be used when creating access point for"
                 + " wireless projection");
@@ -666,8 +675,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Define and apply the cts_verifier_on power policy with "
                 + "--enable WIFI,LOCATION,BLUETOOTH");
 
-        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
-                POWER_OFF_SHUTDOWN);
+        pw.printf("\t%s [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE);
         pw.println("\t  Powers off the car.");
 
         pw.printf("\t%s <CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
@@ -705,7 +713,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Gets the current EnabledState, or changes the Application EnabledState"
                 + " to DEFAULT, ENABLED or DISABLED_UNTIL_USED.");
         pw.printf("\t%s [user]\n", COMMAND_CHECK_LOCK_IS_SECURE);
-        pw.println("\t check if the current or given user has a lock to secure");
+        pw.println("\t  check if the current or given user has a lock to secure");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -910,14 +918,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.println("Resume: Simulating resuming from Deep Sleep");
                 break;
             case COMMAND_SUSPEND:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(false,
-                        PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
-                writer.println("Suspend: Simulating powering down to Deep Sleep");
-                break;
+                // fall-through
             case COMMAND_HIBERNATE:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(false,
-                        PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION);
-                writer.println("Suspend: Simulating powering down to Deep Sleep");
+                runSuspendCommand(args, writer);
                 break;
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
@@ -2061,6 +2064,52 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("DayNightMode changed to: " + currentMode);
     }
 
+    private void runSuspendCommand(String[] args, IndentingPrintWriter writer) {
+        String command = args[0];
+        if (args.length > 3) {
+            writer.printf("Invalid command syntax.\nUsage: %s\n", getSuspendCommandUsage(command));
+            return;
+        }
+        int index = 1;
+        boolean simulate = false;
+        boolean skipGarageMode = false;
+        while (index < args.length) {
+            switch (args[index]) {
+                case PARAM_SIMULATE:
+                    simulate = true;
+                    break;
+                case PARAM_SKIP_GARAGEMODE:
+                    skipGarageMode = true;
+                    break;
+                default:
+                    writer.printf("Invalid command syntax.\nUsage: %s\n",
+                            getSuspendCommandUsage(command));
+                    return;
+            }
+            index++;
+        }
+
+        // args[0] is always either COMMAND_SUSPEND or COMMAND_HIBERNE.
+        boolean isHibernation = command.equals(COMMAND_HIBERNATE);
+        String suspendType = isHibernation ? "disk" : "RAM";
+        if (simulate) {
+            try {
+                writer.printf("Suspend: simulating suspend-to-%s.\n", suspendType);
+                mCarPowerManagementService.simulateSuspendAndMaybeReboot(/* shouldReboot= */ false,
+                        isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
+                                : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+            } catch (Exception e) {
+                writer.printf("Simulating suspend-to-%s failed: %s\n", suspendType, e.getMessage());
+            }
+        } else {
+            try {
+                mCarPowerManagementService.suspendFromCommand(isHibernation, skipGarageMode);
+            } catch (Exception e) {
+                writer.printf("Suspend to %s failed: %s.\n", suspendType, e.getMessage());
+            }
+        }
+    }
+
     private void forceGarageMode(String arg, IndentingPrintWriter writer) {
         switch (arg) {
             case PARAM_ON_MODE:
@@ -2077,9 +2126,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 mGarageModeService.dump(writer);
                 break;
             case PARAM_REBOOT:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(true,
-                        PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
-                writer.println("Entering Garage Mode. Will reboot when it completes.");
+                try {
+                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(true,
+                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                    writer.println("Entering Garage Mode. Will reboot when it completes.");
+                } catch (IllegalStateException e) {
+                    writer.printf("Entering Garage Mode failed: %s\n", e.getMessage());
+                }
                 break;
             default:
                 writer.printf("Unknown value: %s. Valid argument: %s|%s|%s|%s\n",
@@ -2229,24 +2282,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private void powerOff(String[] args, IndentingPrintWriter writer) {
-        int index = 1;
         boolean skipGarageMode = false;
-        boolean shutdown = false;
-        while (index < args.length) {
-            switch (args[index]) {
-                case POWER_OFF_SKIP_GARAGEMODE:
-                    skipGarageMode = true;
-                    break;
-                case POWER_OFF_SHUTDOWN:
-                    shutdown = true;
-                    break;
-                default:
-                    writer.printf("Not supported option: %s\n", args[index]);
-                    return;
-            }
-            index++;
+        if (args.length > 2
+                || (args.length == 2 && !args[1].equals(PARAM_SKIP_GARAGEMODE))) {
+            writer.printf("Invalid usage: %s [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE);
+            return;
         }
-        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, shutdown);
+        if (args.length == 2) {
+            skipGarageMode = true;
+        }
+        mCarPowerManagementService.powerOffFromCommand(skipGarageMode);
     }
 
     /**
@@ -2622,14 +2667,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
     }
 
-    // Check if the given property is global
-    private static boolean isPropertyAreaTypeGlobal(@Nullable String property) {
-        if (property == null) {
-            return false;
-        }
-        return (Integer.decode(property) & VehicleArea.MASK) == VehicleArea.GLOBAL;
-    }
-
     private void controlComponentEnabledState(String[] args, IndentingPrintWriter writer) {
         if (args.length != 3) {
             showInvalidArguments(writer);
@@ -2714,5 +2751,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
             userId = Integer.parseInt(args[1]);
         }
         writer.println(LockPatternHelper.isSecure(mContext, userId));
+    }
+
+    // Check if the given property is global
+    private static boolean isPropertyAreaTypeGlobal(@Nullable String property) {
+        if (property == null) {
+            return false;
+        }
+        return (Integer.decode(property) & VehicleArea.MASK) == VehicleArea.GLOBAL;
+    }
+
+    private static String getSuspendCommandUsage(String command) {
+        return command + " [" + PARAM_SIMULATE + "] [" + PARAM_SKIP_GARAGEMODE + "]";
     }
 }

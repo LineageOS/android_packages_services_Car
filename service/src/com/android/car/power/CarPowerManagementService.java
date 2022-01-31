@@ -39,9 +39,9 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -673,13 +673,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     || newState.mShutdownType == PowerState.SHUTDOWN_TYPE_POWER_OFF) {
                 mActionOnFinish = ACTION_ON_FINISH_SHUTDOWN;
             } else if (newState.mShutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP) {
-                mActionOnFinish = (mHal.isDeepSleepAllowed()
-                        && mSystemInterface.isSystemSupportingDeepSleep())
-                        ? ACTION_ON_FINISH_DEEP_SLEEP : ACTION_ON_FINISH_SHUTDOWN;
+                mActionOnFinish = isDeepSleepAvailable() ? ACTION_ON_FINISH_DEEP_SLEEP
+                        : ACTION_ON_FINISH_SHUTDOWN;
             } else if (newState.mShutdownType == PowerState.SHUTDOWN_TYPE_HIBERNATION) {
-                mActionOnFinish = (mHal.isHibernationAllowed()
-                        && mSystemInterface.isSystemSupportingHibernation())
-                        ? ACTION_ON_FINISH_HIBERNATION : ACTION_ON_FINISH_SHUTDOWN;
+                mActionOnFinish = isHibernationAvailable() ? ACTION_ON_FINISH_HIBERNATION
+                        : ACTION_ON_FINISH_SHUTDOWN;
             } else {
                 Slogf.wtf(TAG, "handleShutdownPrepare - incorrect state " + newState);
             }
@@ -2059,15 +2057,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Invoked using "adb shell dumpsys activity service com.android.car resume".
      */
     public void forceSimulatedResume() {
-        PowerHandler handler;
         synchronized (mLock) {
             // Cancel Garage Mode in case it's running
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
                     CarPowerManager.STATE_SHUTDOWN_CANCELLED));
             mLock.notify();
-            handler = mHandler;
         }
-        handler.handlePowerStateChange();
+        mHandler.handlePowerStateChange();
 
         synchronized (mSimulationWaitObject) {
             mWakeFromSimulatedSleep = true;
@@ -2076,34 +2072,44 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * Manually enter simulated suspend (Deep Sleep) mode, trigging Garage mode.
-     * If the parameter is 'true', reboot the system when Garage Mode completes.
+     * Manually enters simulated suspend (deep sleep or hibernation) mode, trigging Garage mode.
      *
-     * <p>Can be invoked using
-     * {@code "adb shell cmd car_service suspend"} or
-     * {@code "adb shell cmd car_service hibernate"} or
+     * <p>If {@code shouldReboot} is 'true', reboots the system when Garage Mode completes.
+     *
+     * Can be invoked using
+     * {@code "adb shell cmd car_service suspend --simulate"} or
+     * {@code "adb shell cmd car_service hibernate --simulate"} or
      * {@code "adb shell cmd car_service garage-mode reboot"}.
      *
-     * <p>This is similar to {@code 'onApPowerStateChange()'} except that it needs to create a
+     * This is similar to {@code 'onApPowerStateChange()'} except that it needs to create a
      * {@code CpmsState} that is not directly derived from a {@code VehicleApPowerStateReq}.
      */
-    public void forceSuspendAndMaybeReboot(boolean shouldReboot,
+    public void simulateSuspendAndMaybeReboot(boolean shouldReboot,
             @PowerState.ShutdownType int shutdownType) {
+        boolean isDeepSleep = shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
+        if (isDeepSleep) {
+            if (isDeepSleepAvailable()) {
+                throw new IllegalStateException("Can't simulate deep sleep: a real deep sleep is "
+                        + "supported by the device");
+            }
+        } else {
+            if (isHibernationAvailable()) {
+                throw new IllegalStateException("Can't simulate hibernation: a real hibernation is "
+                        + "supported by the device");
+            }
+        }
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
         }
-        PowerHandler handler;
         synchronized (mLock) {
             mGarageModeShouldExitImmediately = false;
             mRebootAfterGarageMode = shouldReboot;
-            mPendingPowerStates.addFirst(new CpmsState(
-                    shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP ? CpmsState.SIMULATE_SLEEP
+            mPendingPowerStates.addFirst(new CpmsState(isDeepSleep ? CpmsState.SIMULATE_SLEEP
                             : CpmsState.SIMULATE_HIBERNATION,
                     CarPowerManager.STATE_SHUTDOWN_PREPARE));
-            handler = mHandler;
         }
-        handler.handlePowerStateChange();
+        mHandler.handlePowerStateChange();
     }
 
     /**
@@ -2275,21 +2281,43 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * Powers off the device, considering the given options.
+     * Suspends the device.
      *
-     * <p>The final state can be "suspend-to-RAM" or "shutdown". Attempting to go to suspend-to-RAM
-     * on devices which do not support it may lead to an unexpected system state.
+     * <p>According to the argument, the device is suspended to RAM or disk.
      */
-    public void powerOffFromCommand(boolean skipGarageMode, boolean shutdown) {
+    public void suspendFromCommand(boolean isHibernation, boolean skipGarageMode) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         int param = 0;
-        if (shutdown) {
-            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
-                    : VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
-        } else {
+        if (isHibernation) {
+            if (!isHibernationAvailable()) {
+                throw new IllegalStateException("The device doesn't support hibernation");
+            }
             param = skipGarageMode ? VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY
                     : VehicleApPowerStateShutdownParam.CAN_SLEEP;
+        } else {
+            if (!isDeepSleepAvailable()) {
+                throw new IllegalStateException("The device doesn't support deep sleep");
+            }
+            param = skipGarageMode ? VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY
+                    : VehicleApPowerStateShutdownParam.CAN_HIBERNATE;
         }
+        PowerState state = new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, param);
+        synchronized (mLock) {
+            mRebootAfterGarageMode = false;
+            mPendingPowerStates.addFirst(new CpmsState(state));
+            mLock.notify();
+        }
+        mHandler.handlePowerStateChange();
+    }
+
+    /**
+     * Powers off the device.
+     */
+    public void powerOffFromCommand(boolean skipGarageMode) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        Slogf.i(TAG, "Powering off %s Garage Mode", skipGarageMode ? "with" : "without");
+        int param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
+                : VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
         PowerState state = new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, param);
         synchronized (mLock) {
             mRebootAfterGarageMode = false;
@@ -2331,6 +2359,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     public static String powerStateToString(int state) {
         return DebugUtils.valueToString(CarPowerManager.class, "STATE_", state);
+    }
+
+    private boolean isDeepSleepAvailable() {
+        return mHal.isDeepSleepAllowed() && mSystemInterface.isSystemSupportingDeepSleep();
+    }
+
+    private boolean isHibernationAvailable() {
+        return mHal.isHibernationAllowed() && mSystemInterface.isSystemSupportingHibernation();
     }
 
     // In a real Deep Sleep, the hardware removes power from the CPU (but retains power
