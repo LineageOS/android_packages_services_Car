@@ -73,7 +73,7 @@ bool parseProcsCount(const std::string& data, uint32_t* out) {
 }  // namespace
 
 Result<void> ProcStat::collect() {
-    if (!kEnabled) {
+    if (!mEnabled) {
         return Error() << "Can not access " << kPath;
     }
 

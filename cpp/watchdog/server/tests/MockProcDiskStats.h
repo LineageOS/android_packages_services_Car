@@ -31,6 +31,7 @@ namespace watchdog {
 class MockProcDiskStats : public IProcDiskStatsInterface {
 public:
     MockProcDiskStats() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
+    MOCK_METHOD(void, init, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
     MOCK_METHOD(PerPartitionDiskStats, latestPerPartitionDiskStats, (), (const, override));
     MOCK_METHOD(DiskStats, deltaSystemWideDiskStats, (), (const, override));
