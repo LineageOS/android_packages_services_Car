@@ -42,5 +42,5 @@ interface ICarWatchdog {
   void notifySystemStateChange(in android.automotive.watchdog.internal.StateType type, in int arg1, in int arg2);
   void updateResourceOveruseConfigurations(in List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs);
   List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> getResourceOveruseConfigurations();
-  void controlProcessHealthCheck(in boolean disable);
+  void controlProcessHealthCheck(in boolean enable);
 }

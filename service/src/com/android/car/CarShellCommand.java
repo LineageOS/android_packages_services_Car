@@ -2484,7 +2484,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             writer.println("Failed to parse argument. Valid arguments: enable | disable");
             return;
         }
-        mCarWatchdogService.controlProcessHealthCheck(args[1].equals("disable"));
+        mCarWatchdogService.controlProcessHealthCheck(args[1].equals("enable"));
         writer.printf("Watchdog health checking is now %sd \n", args[1]);
     }
 

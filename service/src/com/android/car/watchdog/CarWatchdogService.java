@@ -452,9 +452,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     /**
      * Enables/disables the watchdog daemon client health check process.
      */
-    public void controlProcessHealthCheck(boolean disable) {
+    public void controlProcessHealthCheck(boolean enable) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
-        mWatchdogProcessHandler.controlProcessHealthCheck(disable);
+        mWatchdogProcessHandler.controlProcessHealthCheck(enable);
     }
 
     @VisibleForTesting

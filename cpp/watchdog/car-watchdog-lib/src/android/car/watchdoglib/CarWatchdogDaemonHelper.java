@@ -280,10 +280,10 @@ public final class CarWatchdogDaemonHelper {
      * Enable/disable the internal client health check process.
      * Disabling would stop the ANR killing process.
      *
-     * @param disable True to disable watchdog's health check process.
+     * @param enable True to enable watchdog's health check process.
      */
-    public void controlProcessHealthCheck(boolean disable) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.controlProcessHealthCheck(disable));
+    public void controlProcessHealthCheck(boolean enable) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.controlProcessHealthCheck(enable));
     }
 
     private void invokeDaemonMethod(Invokable r) throws RemoteException {

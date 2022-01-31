@@ -476,7 +476,7 @@ TEST_F(WatchdogInternalHandlerTest,
 TEST_F(WatchdogInternalHandlerTest, TestControlProcessHealthCheck) {
     setSystemCallingUid();
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/true)).Times(1);
-    Status status = mWatchdogInternalHandler->controlProcessHealthCheck(false);
+    Status status = mWatchdogInternalHandler->controlProcessHealthCheck(true);
     ASSERT_TRUE(status.isOk()) << status;
 }
 

@@ -278,12 +278,12 @@ Status WatchdogInternalHandler::getResourceOveruseConfigurations(
     return Status::ok();
 }
 
-Status WatchdogInternalHandler::controlProcessHealthCheck(bool disable) {
+Status WatchdogInternalHandler::controlProcessHealthCheck(bool enable) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
     }
-    mWatchdogProcessService->setEnabled(!disable);
+    mWatchdogProcessService->setEnabled(enable);
     return Status::ok();
 }
 

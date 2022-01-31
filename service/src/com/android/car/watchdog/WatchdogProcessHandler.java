@@ -245,9 +245,9 @@ public final class WatchdogProcessHandler {
     }
 
     /** Enables/disables the watchdog daemon client health check process. */
-    void controlProcessHealthCheck(boolean disable) {
+    void controlProcessHealthCheck(boolean enable) {
         try {
-            mCarWatchdogDaemonHelper.controlProcessHealthCheck(disable);
+            mCarWatchdogDaemonHelper.controlProcessHealthCheck(enable);
         } catch (RemoteException e) {
             Slogf.w(CarWatchdogService.TAG,
                     "Cannot enable/disable the car watchdog daemon health check process: %s", e);
