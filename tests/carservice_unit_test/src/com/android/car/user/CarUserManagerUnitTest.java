@@ -25,10 +25,12 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -45,6 +47,7 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.CarUserManager.UserSwitchUiCallback;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
@@ -176,6 +179,12 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
+    public void testAddListener_nullFilter() {
+        assertThrows(NullPointerException.class,
+                () -> mMgr.addListener(Runnable::run, /* filter= */null, (e) -> {}));
+    }
+
+    @Test
     public void testAddListener_sameListenerAddedTwice() {
         UserLifecycleListener listener = (e) -> { };
 
@@ -184,9 +193,24 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testAddListener_differentListenersAddedTwice() {
+    public void testAddListener_differentListenersAddedTwice() throws Exception {
         mMgr.addListener(Runnable::run, (e) -> { });
         mMgr.addListener(Runnable::run, (e) -> { });
+
+        verify(mService, times(2)).setLifecycleListenerForApp(any(), isNull(), any());
+    }
+
+    @Test
+    public void testAddListener_differentListenersWithFilter() throws Exception {
+        UserLifecycleEventFilter filter1 = new UserLifecycleEventFilter.Builder()
+                .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING).build();
+        mMgr.addListener(Runnable::run, filter1, (e) -> { });
+        UserLifecycleEventFilter filter2 = new UserLifecycleEventFilter.Builder()
+                .addUser(UserHandle.CURRENT).build();
+        mMgr.addListener(Runnable::run, filter2, (e) -> { });
+
+        verify(mService).setLifecycleListenerForApp(any(), eq(filter1), any());
+        verify(mService).setLifecycleListenerForApp(any(), eq(filter2), any());
     }
 
     @Test
