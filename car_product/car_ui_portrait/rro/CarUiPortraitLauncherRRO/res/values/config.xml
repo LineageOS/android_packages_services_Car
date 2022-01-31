@@ -29,6 +29,9 @@
     <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
         <item>com.android.car.carlauncher/.CarLauncher</item>
         <item>com.android.car.carlauncher/.ControlBarActivity</item>
+        <item>android.car.cluster/.MainClusterActivity</item>
+        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>android.car.cluster/android.car.cluster.FakeFreeNavigationActivity</item>
     </string-array>
 
     <!-- TODO(b/202413464): Move GAS components to the separate RRO. -->
