@@ -241,8 +241,10 @@ public final class CarServiceUtils {
         for (int i = 0; i < threads.size(); i++) {
             Handler handler = new Handler(threads.get(i).getLooper());
             SyncRunnable sr = new SyncRunnable(() -> { });
-            handler.post(sr);
-            syncs.add(sr);
+            if (handler.post(sr)) {
+                // Track the threads only where SyncRunnable is posted successfully.
+                syncs.add(sr);
+            }
         }
         for (int i = 0; i < syncs.size(); i++) {
             syncs.get(i).waitForComplete();
