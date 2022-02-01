@@ -688,30 +688,14 @@ Result<void> WatchdogProcessService::updateVhal(const VehiclePropValue& value) {
         return Error() << errorMsg;
     }
 
-    struct {
-        std::mutex lock;
-        std::condition_variable cv;
-        Result<void> result;
-        bool gotResult = false;
-    } s;
-    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](Result<void> r) {
-        {
-            std::lock_guard<std::mutex> lockGuard(s.lock);
-            s.result = std::move(r);
-            s.gotResult = true;
-        }
-        s.cv.notify_one();
-    });
     auto halPropValue = mVhalService->createHalPropValue(propId);
     halPropValue->setInt32Values(value.value.int32Values);
     halPropValue->setInt64Values(value.value.int64Values);
     halPropValue->setStringValue(value.value.stringValue);
-    mVhalService->setValue(*halPropValue, callback);
-    std::unique_lock<std::mutex> lk(s.lock);
-    s.cv.wait(lk, [&s] { return s.gotResult; });
-    if (!s.result.ok()) {
+    Result<void> result = mVhalService->setValueSync(*halPropValue);
+    if (!result.ok()) {
         return Error() << "Failed to set propValue(" << propId
-                       << ") to VHAL, error: " << s.result.error().message();
+                       << ") to VHAL, error: " << result.error().message();
     }
 
     return {};

@@ -32,7 +32,7 @@ namespace vhal {
 struct HalPropError {
     int32_t propId;
     int32_t areaId;
-    ::aidl::android::hardware::automotive::vehicle::StatusCode status;
+    aidl::android::hardware::automotive::vehicle::StatusCode status;
 };
 
 // ISubscriptionCallback is a general interface to delivery property events caused by subscription.
@@ -54,11 +54,11 @@ public:
 class ISubscriptionClient {
 public:
     virtual ~ISubscriptionClient() = default;
-    virtual ::android::base::Result<void> subscribe(
-            const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
+    virtual android::base::Result<void> subscribe(
+            const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) = 0;
 
-    virtual ::android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) = 0;
+    virtual android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) = 0;
 };
 
 // IVhalClient is a thread-safe client for AIDL or HIDL VHAL backend.
@@ -76,32 +76,113 @@ public:
     virtual ~IVhalClient() = default;
 
     using GetValueCallbackFunc =
-            std::function<void(::android::base::Result<std::unique_ptr<IHalPropValue>>)>;
-    using SetValueCallbackFunc = std::function<void(::android::base::Result<void>)>;
+            std::function<void(android::base::Result<std::unique_ptr<IHalPropValue>>)>;
+    using SetValueCallbackFunc = std::function<void(android::base::Result<void>)>;
     using OnBinderDiedCallbackFunc = std::function<void()>;
 
+    /**
+     * Create a new {@code IHalpropValue}.
+     *
+     * @param propId The property ID.
+     * @return The created {@code IHalPropValue}.
+     */
     virtual std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) = 0;
 
+    /**
+     * Create a new {@code IHalpropValue}.
+     *
+     * @param propId The property ID.
+     * @param areaId The area ID for the property.
+     * @return The created {@code IHalPropValue}.
+     */
     virtual std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId, int32_t areaId) = 0;
 
+    /**
+     * Get a property value asynchronously.
+     *
+     * @param requestValue The value to request.
+     * @param callback The callback that would be called when the result is ready. The callback
+     *    would be called with an okay result with the got value inside on success. The callback
+     *    would be called with an error result with error code as the returned status code on
+     *    failure.
+     */
     virtual void getValue(const IHalPropValue& requestValue,
                           std::shared_ptr<GetValueCallbackFunc> callback) = 0;
 
-    virtual void setValue(const IHalPropValue& value,
+    /**
+     * Get a property value synchronously.
+     *
+     * @param requestValue the value to request.
+     * @return An okay result with the returned value on success or an error result with returned
+     *    status code as error code. For AIDL backend, this would return TRY_AGAIN error on timeout.
+     *    For HIDL backend, because HIDL backend is synchronous, timeout does not apply.
+     */
+    virtual android::base::Result<std::unique_ptr<IHalPropValue>> getValueSync(
+            const IHalPropValue& requestValue);
+
+    /**
+     * Set a property value asynchronously.
+     *
+     * @param requestValue The value to set.
+     * @param callback The callback that would be called when the request is processed. The callback
+     *    would be called with an empty okay result on success. The callback would be called with
+     *    an error result with error code as the returned status code on failure.
+     */
+    virtual void setValue(const IHalPropValue& requestValue,
                           std::shared_ptr<SetValueCallbackFunc> callback) = 0;
 
-    virtual ::android::base::Result<void> addOnBinderDiedCallback(
+    /**
+     * Set a property value synchronously.
+     *
+     * @param requestValue the value to set.
+     * @return An empty okay result on success or an error result with returned status code as
+     *    error code. For AIDL backend, this would return TRY_AGAIN error on timeout.
+     *    For HIDL backend, because HIDL backend is synchronous, timeout does not apply.
+     */
+    virtual android::base::Result<void> setValueSync(const IHalPropValue& requestValue);
+
+    /**
+     * Add a callback that would be called when the binder connection to VHAL died.
+     *
+     * @param callback The callback that would be called when the binder died.
+     * @return An okay result on success or an error on failure.
+     */
+    virtual android::base::Result<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
-    virtual ::android::base::Result<void> removeOnBinderDiedCallback(
+    /**
+     * Remove a previously added OnBinderDied callback.
+     *
+     * @param callback The callback that would be removed.
+     * @return An okay result on success, or an error if the callback is not added before.
+     */
+    virtual android::base::Result<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
-    virtual ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>>
+    /**
+     * Get all the property configurations.
+     *
+     * @return An okay result that contains all property configs on success or an error on failure.
+     */
+    virtual android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>>
     getAllPropConfigs() = 0;
 
-    virtual ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
+    /**
+     * Get the configs for specified properties.
+     *
+     * @param propIds A list of property IDs to get configs for.
+     * @return An okay result that contains property configs for specified properties on success or
+     *    an error if failed to get any of the property configs.
+     */
+    virtual android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
             std::vector<int32_t> propIds) = 0;
 
+    /**
+     * Get a {@code ISubscriptionClient} that could be used to subscribe/unsubscribe to properties.
+     *
+     * @param callback The callback that would be called when property event happens.
+     * @return A {@code ISubscriptionClient} used to subscribe/unsubscribe.
+     */
     virtual std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) = 0;
 };

@@ -773,34 +773,15 @@ void CarPowerPolicyServer::subscribeToProperty(
         vhalService = mVhalService;
     }
 
-    struct {
-        std::mutex lock;
-        std::condition_variable cv;
-        Result<std::unique_ptr<IHalPropValue>> result;
-        bool gotResult = false;
-    } s;
+    Result<std::unique_ptr<IHalPropValue>> result =
+            vhalService->getValueSync(*vhalService->createHalPropValue(prop));
 
-    auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
-            [&s](Result<std::unique_ptr<IHalPropValue>> r) {
-                {
-                    std::lock_guard<std::mutex> lockGuard(s.lock);
-                    s.result = std::move(r);
-                    s.gotResult = true;
-                }
-                s.cv.notify_one();
-            });
-
-    vhalService->getValue(*vhalService->createHalPropValue(prop), callback);
-
-    std::unique_lock<std::mutex> lk(s.lock);
-    s.cv.wait(lk, [&s] { return s.gotResult; });
-
-    if (!s.result.ok()) {
+    if (!result.ok()) {
         ALOGW("Failed to get vehicle property(%d) value, error: %s.", prop,
-              s.result.error().message().c_str());
+              result.error().message().c_str());
         return;
     }
-    processor(*s.result.value());
+    processor(*result.value());
     std::vector<SubscribeOptions> options = {
             {.propId = prop, .areaIds = {}},
     };
@@ -827,24 +808,8 @@ Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& p
     std::unique_ptr<IHalPropValue> propValue = vhalService->createHalPropValue(prop);
     propValue->setStringValue(policyId);
 
-    struct {
-        std::mutex lock;
-        std::condition_variable cv;
-        Result<void> result;
-        bool gotResult = false;
-    } s;
-    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](Result<void> r) {
-        {
-            std::lock_guard<std::mutex> lockGuard(s.lock);
-            s.result = std::move(r);
-            s.gotResult = true;
-        }
-        s.cv.notify_one();
-    });
-    vhalService->setValue(*propValue, callback);
-    std::unique_lock<std::mutex> lk(s.lock);
-    s.cv.wait(lk, [&s] { return s.gotResult; });
-    if (!s.result.ok()) {
+    Result<void> result = vhalService->setValueSync(*propValue);
+    if (!result.ok()) {
         return Error() << "Failed to set CURRENT_POWER_POLICY property";
     }
     ALOGD("Policy(%s) is notified to VHAL", policyId.c_str());

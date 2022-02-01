@@ -21,10 +21,15 @@
 
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 
+#include <condition_variable>  // NOLINT
+#include <mutex>               // NOLINT
+
 namespace android {
 namespace frameworks {
 namespace automotive {
 namespace vhal {
+
+using ::android::base::Result;
 
 std::shared_ptr<IVhalClient> IVhalClient::create() {
     auto client = AidlVhalClient::create();
@@ -42,6 +47,58 @@ std::shared_ptr<IVhalClient> IVhalClient::tryCreate() {
     }
 
     return HidlVhalClient::tryCreate();
+}
+
+Result<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
+        const IHalPropValue& requestValue) {
+    struct {
+        std::mutex lock;
+        std::condition_variable cv;
+        Result<std::unique_ptr<IHalPropValue>> result;
+        bool gotResult = false;
+    } s;
+
+    auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
+            [&s](Result<std::unique_ptr<IHalPropValue>> r) {
+                {
+                    std::lock_guard<std::mutex> lockGuard(s.lock);
+                    s.result = std::move(r);
+                    s.gotResult = true;
+                }
+                s.cv.notify_one();
+            });
+
+    getValue(requestValue, callback);
+
+    std::unique_lock<std::mutex> lk(s.lock);
+    s.cv.wait(lk, [&s] { return s.gotResult; });
+
+    return std::move(s.result);
+}
+
+Result<void> IVhalClient::setValueSync(const IHalPropValue& requestValue) {
+    struct {
+        std::mutex lock;
+        std::condition_variable cv;
+        Result<void> result;
+        bool gotResult = false;
+    } s;
+
+    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](Result<void> r) {
+        {
+            std::lock_guard<std::mutex> lockGuard(s.lock);
+            s.result = std::move(r);
+            s.gotResult = true;
+        }
+        s.cv.notify_one();
+    });
+
+    setValue(requestValue, callback);
+
+    std::unique_lock<std::mutex> lk(s.lock);
+    s.cv.wait(lk, [&s] { return s.gotResult; });
+
+    return std::move(s.result);
 }
 
 }  // namespace vhal
