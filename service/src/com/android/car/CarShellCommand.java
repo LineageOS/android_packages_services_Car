@@ -1322,16 +1322,21 @@ final class CarShellCommand extends ShellCommand {
             return;
         }
 
-        // Processing the last remaining argument (expected to be 'f1', 'f2', ..., 'f10').
+        // Processing the last remaining argument. Argument is expected one of the tem functions
+        // ('f1', 'f2', ..., 'f10') or just a plain integer representing the custom input event.
         String eventValue = args[argIdx].toLowerCase();
-        Integer inputCode = CUSTOM_INPUT_FUNCTION_ARGS.get(eventValue);
-        if (inputCode == null) {
-            writer.printf("Invalid input event value {%s}, valid values are f1, f2, ..., f10\n",
-                    eventValue);
-            writer.println("Pass -help to see the full list of options");
-            return;
+        Integer inputCode;
+        if (eventValue.startsWith("f")) {
+            inputCode = CUSTOM_INPUT_FUNCTION_ARGS.get(eventValue);
+            if (inputCode == null) {
+                writer.printf("Invalid input event value {%s}, valid values are f1, f2, ..., f10\n",
+                        eventValue);
+                writer.println("Pass -help to see the full list of options");
+                return;
+            }
+        } else {
+            inputCode = Integer.parseInt(eventValue);
         }
-
         CustomInputEvent event = new CustomInputEvent(inputCode, display, repeatCounter);
         mCarInputService.onCustomInputEvent(event);
         writer.printf("Succeeded in injecting {%s}\n", event);
