@@ -31,6 +31,10 @@ public class AidlVehiclePropConfigBuilder {
 
     private final VehiclePropConfig mConfig;
 
+    private AidlVehiclePropConfigBuilder(VehiclePropConfig propConfig) {
+        mConfig = clone(propConfig);
+    }
+
     private AidlVehiclePropConfigBuilder(int propId) {
         mConfig = new VehiclePropConfig();
         mConfig.prop = propId;
@@ -150,5 +154,10 @@ public class AidlVehiclePropConfigBuilder {
     @CheckResult
     public static AidlVehiclePropConfigBuilder newBuilder(int propId) {
         return new AidlVehiclePropConfigBuilder(propId);
+    }
+
+    @CheckResult
+    public static AidlVehiclePropConfigBuilder newBuilder(VehiclePropConfig config) {
+        return new AidlVehiclePropConfigBuilder(config);
     }
 }
