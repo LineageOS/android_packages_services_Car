@@ -962,12 +962,14 @@ public final class WatchdogPerfHandler {
             return;
         }
 
-        String uniqueUserPackageId = mActiveUserNotificationsByNotificationId.get(id);
-        if (uniqueUserPackageId != null
-                && uniqueUserPackageId.equals(getUserPackageUniqueId(userHandle.getIdentifier(),
-                packageName))) {
-            mActiveUserNotificationsByNotificationId.remove(id);
-            mActiveUserNotifications.remove(uniqueUserPackageId);
+        synchronized (mLock) {
+            String uniqueUserPackageId = mActiveUserNotificationsByNotificationId.get(id);
+            if (uniqueUserPackageId != null
+                    && uniqueUserPackageId.equals(getUserPackageUniqueId(userHandle.getIdentifier(),
+                    packageName))) {
+                mActiveUserNotificationsByNotificationId.remove(id);
+                mActiveUserNotifications.remove(uniqueUserPackageId);
+            }
         }
 
         NotificationManager notificationManager =
