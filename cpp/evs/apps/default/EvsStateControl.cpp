@@ -20,6 +20,10 @@
 #include "RenderPixelCopy.h"
 #include "RenderTopView.h"
 
+#include <aidl/android/hardware/automotive/vehicle/VehicleGear.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleProperty.h>
+#include <aidl/android/hardware/automotive/vehicle/VehiclePropertyType.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleTurnSignal.h>
 #include <android-base/logging.h>
 #include <android/binder_manager.h>
 #include <utils/SystemClock.h>
@@ -28,6 +32,15 @@
 #include <stdio.h>
 #include <string.h>
 
+using ::aidl::android::hardware::automotive::vehicle::StatusCode;
+using ::aidl::android::hardware::automotive::vehicle::VehicleGear;
+using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyType;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
+using ::aidl::android::hardware::automotive::vehicle::VehicleTurnSignal;
+using ::android::base::Result;
+using ::android::frameworks::automotive::vhal::IHalPropValue;
+using ::android::frameworks::automotive::vhal::IVhalClient;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
@@ -44,7 +57,8 @@ inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
             & static_cast<int32_t>(VehiclePropertyType::MASK));
 }
 
-EvsStateControl::EvsStateControl(android::sp<IVehicle> pVnet, android::sp<IEvsEnumerator> pEvs,
+EvsStateControl::EvsStateControl(std::shared_ptr<IVhalClient> pVnet,
+                                 android::sp<IEvsEnumerator> pEvs,
                                  android::sp<IEvsDisplay> pDisplay, const ConfigManager& config) :
       mVehicle(pVnet),
       mEvs(pEvs),
@@ -247,7 +261,7 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         }
         if ((mTurnSignalValue.prop == 0) || (invokeGet(&mTurnSignalValue) != StatusCode::OK)) {
             // Silently treat missing turn signal state as no turn signal active
-            mTurnSignalValue.value.int32Values.setToExternal(&sMockSignal, 1);
+            mTurnSignalValue.value.int32Values = {sMockSignal};
             mTurnSignalValue.prop = 0;
         }
     } else {
@@ -263,8 +277,8 @@ bool EvsStateControl::selectStateForCurrentConditions() {
         }
 
         // Build the placeholder vehicle state values (treating single values as 1 element vectors)
-        mGearValue.value.int32Values.setToExternal(&sMockGear, 1);
-        mTurnSignalValue.value.int32Values.setToExternal(&sMockSignal, 1);
+        mGearValue.value.int32Values = {sMockGear};
+        mTurnSignalValue.value.int32Values = {sMockSignal};
     }
 
     // Choose our desired EVS state based on the current car state
@@ -284,24 +298,38 @@ bool EvsStateControl::selectStateForCurrentConditions() {
     return configureEvsPipeline(desiredState);
 }
 
+StatusCode EvsStateControl::invokeGet(VehiclePropValue* pRequestedPropValue) {
+    auto halPropValue = mVehicle->createHalPropValue(pRequestedPropValue->prop);
+    // We are only setting int32Values.
+    halPropValue->setInt32Values(pRequestedPropValue->value.int32Values);
+    struct {
+        std::mutex lock;
+        std::condition_variable cv;
+        Result<std::unique_ptr<IHalPropValue>> result;
+        bool gotResult = false;
+    } s;
 
-StatusCode EvsStateControl::invokeGet(VehiclePropValue *pRequestedPropValue) {
-    StatusCode status = StatusCode::TRY_AGAIN;
+    auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
+            [&s](Result<std::unique_ptr<IHalPropValue>> r) {
+                {
+                    std::lock_guard<std::mutex> lockGuard(s.lock);
+                    s.result = std::move(r);
+                    s.gotResult = true;
+                }
+                s.cv.notify_one();
+            });
 
-    // Call the Vehicle HAL, which will block until the callback is complete
-    mVehicle->get(*pRequestedPropValue,
-                  [pRequestedPropValue, &status]
-                  (StatusCode s, const VehiclePropValue& v) {
-                       status = s;
-                       if (s == StatusCode::OK) {
-                           *pRequestedPropValue = v;
-                       }
-                  }
-    );
+    mVehicle->getValue(*halPropValue, callback);
 
-    return status;
+    std::unique_lock<std::mutex> lk(s.lock);
+    s.cv.wait(lk, [&s] { return s.gotResult; });
+    if (!s.result.ok()) {
+        return static_cast<StatusCode>(s.result.error().code());
+    }
+    pRequestedPropValue->value.int32Values = s.result.value()->getInt32Values();
+    pRequestedPropValue->timestamp = s.result.value()->getTimestamp();
+    return StatusCode::OK;
 }
-
 
 bool EvsStateControl::configureEvsPipeline(State desiredState) {
     static bool isGlReady = false;

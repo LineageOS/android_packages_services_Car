@@ -387,7 +387,7 @@ TEST_F(PolicyManagerTest, TestSystemPowerPolicyAllOn) {
         enabledComponentSet.insert(component);
     }
     for (const auto component : ::ndk::enum_range<PowerComponent>()) {
-        ASSERT_GT(enabledComponentSet.count(component), 0);
+        ASSERT_GT(enabledComponentSet.count(component), static_cast<size_t>(0));
         enabledComponentSet.erase(component);
     }
 
