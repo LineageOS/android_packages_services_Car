@@ -37,7 +37,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal;
 
 import org.junit.Before;
 
@@ -174,7 +174,7 @@ public class MockedVmsTestBase extends MockedCarTestBase {
         }
     }
 
-    class MockHalClient implements MockedVehicleHal.VehicleHalPropertyHandler {
+    class MockHalClient implements HidlMockedVehicleHal.VehicleHalPropertyHandler {
         private BlockingQueue<VehiclePropValue> mMessages = new LinkedBlockingQueue<>();
 
         @Override
@@ -186,14 +186,14 @@ public class MockedVmsTestBase extends MockedCarTestBase {
         }
 
         void sendMessage(int... message) {
-            getMockedVehicleHal().injectEvent(
+            getHidlMockedVehicleHal().injectEvent(
                     VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                             .addIntValue(message)
                             .build());
         }
 
         void sendMessage(int[] message, byte[] payload) {
-            getMockedVehicleHal().injectEvent(
+            getHidlMockedVehicleHal().injectEvent(
                     VehiclePropValueBuilder.newBuilder(VehicleProperty.VEHICLE_MAP_SERVICE)
                             .addIntValue(message)
                             .addByteValue(payload)

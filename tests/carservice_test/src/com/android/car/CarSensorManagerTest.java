@@ -162,7 +162,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
         listener.reset();
 
         // Set the value TRUE and wait for the event to arrive
-        getMockedVehicleHal().injectEvent(
+        getHidlMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.PARKING_BRAKE_ON)
                         .setBooleanValue(true)
                         .setTimestamp(51L)
@@ -187,7 +187,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
         listener.reset();
         // Set the value FALSE
-        getMockedVehicleHal().injectEvent(
+        getHidlMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.PARKING_BRAKE_ON)
                         .setTimestamp(1001)
                         .setBooleanValue(false)
@@ -218,7 +218,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 .setTimestamp(2001)
                 .setBooleanValue(true)
                 .build();
-        getMockedVehicleHal().injectEvent(value, true);
+        getHidlMockedVehicleHal().injectEvent(value, true);
 
         // Ensure we did not get a callback (should timeout)
         Log.i(TAG, "waiting for unexpected callback -- should timeout.");
@@ -269,7 +269,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
             int mgrIgnitionState) throws Exception{
         listener.reset();
         long time = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(
+        getHidlMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.IGNITION_STATE)
                         .addIntValue(halIgnitionState)
                         .setTimestamp(time)
@@ -317,7 +317,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
             int carSensorValue) throws Exception {
         listener.reset();
         long time = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(
+        getHidlMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
                         .addIntValue(halValue)
                         .setTimestamp(time)
@@ -369,7 +369,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 .setTimestamp(1001L)
                 .setBooleanValue(true)
                 .build();
-        getMockedVehicleHal().injectEvent(value, true);
+        getHidlMockedVehicleHal().injectEvent(value, true);
 
         assertTrue(listener1.waitForSensorChange(1001L));
         assertTrue(listener2.waitForSensorChange(1001L));
@@ -410,7 +410,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 .setTimestamp(2001)
                 .setBooleanValue(false)
                 .build();
-        getMockedVehicleHal().injectEvent(value, true);
+        getHidlMockedVehicleHal().injectEvent(value, true);
         assertTrue(listener1.waitForSensorChange(2001));
         assertTrue(listener2.waitForSensorChange(2001));
         assertTrue(listener3.waitForSensorChange(2001));
@@ -451,7 +451,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 .setTimestamp(3002)
                 .setBooleanValue(false)
                 .build();
-        getMockedVehicleHal().injectEvent(value, true);
+        getHidlMockedVehicleHal().injectEvent(value, true);
         assertTrue(listener1.waitForSensorChange());
         assertTrue(listener2.waitForSensorChange());
         assertFalse(listener3.waitForSensorChange());
@@ -463,7 +463,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
                 .setTimestamp()
                 .setBooleanValue(true)
                 .build();
-        getMockedVehicleHal().injectEvent(value, true);
+        getHidlMockedVehicleHal().injectEvent(value, true);
 
         assertTrue(listener1.waitForSensorChange());
         assertTrue(listener2.waitForSensorChange());

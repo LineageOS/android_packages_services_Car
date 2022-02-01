@@ -34,7 +34,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,7 +134,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
                         .addIntValue(values)
                         .build();
 
-        getMockedVehicleHal().injectEvent(injectValue);
+        getHidlMockedVehicleHal().injectEvent(injectValue);
 
         if (isLong) {
             Thread.sleep(1200); // Long press is > 1s.
@@ -152,7 +152,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
                 .addIntValue(upValues)
                 .build();
 
-        getMockedVehicleHal().injectEvent(injectValue);
+        getHidlMockedVehicleHal().injectEvent(injectValue);
     }
 
 

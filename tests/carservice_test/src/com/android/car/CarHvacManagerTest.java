@@ -42,7 +42,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import junit.framework.AssertionFailedError;
 
@@ -175,7 +175,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
             }
         });
         mCarHvacManager.setBooleanProperty(PROP, AREA, true);
-        getMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
+        getHidlMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
         assertTrue(errorLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(PROP, propertyIdReceived.value);
         assertEquals(AREA, areaIdReceived.value);
@@ -198,7 +198,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                 .addIntValue(1)
                 .build();
         assertEquals(0, mAvailable.availablePermits());
-        getMockedVehicleHal().injectEvent(v);
+        getHidlMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mEventBoolVal);
@@ -211,7 +211,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                 .addFloatValue(67f)
                 .build();
         assertEquals(0, mAvailable.availablePermits());
-        getMockedVehicleHal().injectEvent(v);
+        getHidlMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(67, mEventFloatVal, 0);
@@ -224,7 +224,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                 .addIntValue(4)
                 .build();
         assertEquals(0, mAvailable.availablePermits());
-        getMockedVehicleHal().injectEvent(v);
+        getHidlMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(4, mEventIntVal);
@@ -251,7 +251,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
                 .addIntValue(1)
                 .build();
         assertEquals(0, mAvailable.availablePermits());
-        getMockedVehicleHal().injectEvent(v);
+        getHidlMockedVehicleHal().injectEvent(v);
 
         // Verify client get the callback.
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
@@ -260,7 +260,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
 
         // test unregister callback
         mCarHvacManager.unregisterCallback(listener);
-        assertThrows(AssertionFailedError.class, () -> getMockedVehicleHal().injectEvent(v));
+        assertThrows(AssertionFailedError.class, () -> getHidlMockedVehicleHal().injectEvent(v));
     }
 
     private class HvacPropertyHandler implements VehicleHalPropertyHandler {

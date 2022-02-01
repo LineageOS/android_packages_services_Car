@@ -41,13 +41,15 @@ import java.util.Map;
 /**
  * Mocked implementation of {@link IVehicle}.
  */
-public class MockedVehicleHal extends IVehicle.Stub {
+public class HidlMockedVehicleHal extends IVehicle.Stub {
     /**
      * Interface for handler of each property.
      */
     public interface VehicleHalPropertyHandler {
         default void onPropertySet(VehiclePropValue value) {}
-        default VehiclePropValue onPropertyGet(VehiclePropValue value) { return null; }
+        default VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            return null;
+        }
         default void onPropertySubscribe(int property, float sampleRate) {}
         default void onPropertyUnsubscribe(int property) {}
 
@@ -327,7 +329,7 @@ public class MockedVehicleHal extends IVehicle.Stub {
             assertEquals(mConfig.prop, property);
             if (!mSubscribed) {
                 throw new IllegalArgumentException("Property was not subscribed 0x"
-                        + toHexString( property));
+                        + toHexString(property));
             }
             mSubscribed = false;
         }

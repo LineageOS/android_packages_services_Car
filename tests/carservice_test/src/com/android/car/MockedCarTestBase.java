@@ -34,8 +34,8 @@ import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -60,10 +60,11 @@ import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.user.CarUserService;
-import com.android.car.vehiclehal.test.MockedVehicleHal;
-import com.android.car.vehiclehal.test.MockedVehicleHal.DefaultPropertyHandler;
-import com.android.car.vehiclehal.test.MockedVehicleHal.StaticPropertyHandler;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.DefaultPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.StaticPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 import com.android.car.watchdog.CarWatchdogService;
 
@@ -82,7 +83,7 @@ import java.util.Map;
 
 /**
  * Base class for testing with mocked vehicle HAL (=car).
- * It is up to each app to start emulation by getMockedVehicleHal().start() as there will be
+ * It is up to each app to start emulation by getHidlMockedVehicleHal().start() as there will be
  * per test set up that should be done before starting.
  */
 public class MockedCarTestBase {
@@ -93,9 +94,13 @@ public class MockedCarTestBase {
     private static final IBinder sCarServiceToken = new Binder();
     private static boolean sRealCarServiceReleased;
 
+    // TODO(b/216195629): Change this to true after we migrate all clients.
+    protected boolean mUseAidlVhal = false;
+
     private Car mCar;
     private ICarImpl mCarImpl;
-    private MockedVehicleHal mMockedVehicleHal;
+    private HidlMockedVehicleHal mHidlMockedVehicleHal;
+    private AidlMockedVehicleHal mAidlMockedVehicleHal;
     private VehicleStub mMockedVehicleStub;
     private SystemInterface mFakeSystemInterface;
     private MockedCarTestContext mMockedCarTestContext;
@@ -113,12 +118,20 @@ public class MockedCarTestBase {
 
     private MockitoSession mSession;
 
-    protected synchronized MockedVehicleHal createMockedVehicleHal() {
-        return new MockedVehicleHal();
+    protected synchronized HidlMockedVehicleHal createHidlMockedVehicleHal() {
+        return new HidlMockedVehicleHal();
     }
 
-    protected synchronized MockedVehicleHal getMockedVehicleHal() {
-        return mMockedVehicleHal;
+    protected synchronized AidlMockedVehicleHal createAidlMockedVehicleHal() {
+        return new AidlMockedVehicleHal();
+    }
+
+    protected synchronized HidlMockedVehicleHal getHidlMockedVehicleHal() {
+        return mHidlMockedVehicleHal;
+    }
+
+    protected synchronized AidlMockedVehicleHal getAidlMockedVehicleHal() {
+        return mAidlMockedVehicleHal;
     }
 
     protected synchronized SystemInterface getFakeSystemInterface() {
@@ -203,7 +216,8 @@ public class MockedCarTestBase {
 
         releaseRealCarService(getContext());
 
-        mMockedVehicleHal = createMockedVehicleHal();
+        mHidlMockedVehicleHal = createHidlMockedVehicleHal();
+        mAidlMockedVehicleHal = createAidlMockedVehicleHal();
         configureMockedHal();
 
         mFakeSystemInterface = getSystemInterfaceBuilder().build();
@@ -234,7 +248,11 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
 
-        mMockedVehicleStub = new HidlVehicleStub(mMockedVehicleHal);
+        if (!mUseAidlVhal) {
+            mMockedVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
+        } else {
+            mMockedVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
+        }
 
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
                 mMockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
@@ -269,7 +287,8 @@ public class MockedCarTestBase {
             if (mMockIOInterface != null) {
                 mMockIOInterface.tearDown();
             }
-            mMockedVehicleHal = null;
+            mHidlMockedVehicleHal = null;
+            mAidlMockedVehicleHal = null;
         } finally {
             if (mSession != null) {
                 mSession.finishMocking();
@@ -278,7 +297,7 @@ public class MockedCarTestBase {
     }
 
     public void injectErrorEvent(int propId, int areaId, int errorCode) {
-        mMockedVehicleHal.injectError(errorCode, propId, areaId);
+        mHidlMockedVehicleHal.injectError(errorCode, propId, areaId);
     }
 
     /**
@@ -300,7 +319,7 @@ public class MockedCarTestBase {
     private synchronized void initMockedHal() throws Exception {
         for (Map.Entry<VehiclePropConfigBuilder, VehicleHalPropertyHandler> entry
                 : mHalConfig.entrySet()) {
-            mMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
+            mHidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
         }
         mHalConfig.clear();
     }

@@ -38,7 +38,7 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -133,7 +133,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
             }
         });
         mCarCabinManager.setBooleanProperty(PROP, AREA, true);
-        getMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
+        getHidlMockedVehicleHal().injectError(ERR_CODE, PROP, AREA);
         assertTrue(errorLatch.await(DEFAULT_WAIT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
         assertEquals(PROP, propertyIdReceived.value);
         assertEquals(AREA, areaIdReceived.value);
@@ -156,7 +156,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
                 .build();
 
         assertEquals(0, mAvailable.availablePermits());
-        getMockedVehicleHal().injectEvent(v);
+        getHidlMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertTrue(mEventBoolVal);
@@ -169,7 +169,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
                 .addIntValue(75)
                 .build();
         assertEquals(0, mAvailable.availablePermits());
-        getMockedVehicleHal().injectEvent(v);
+        getHidlMockedVehicleHal().injectEvent(v);
 
         assertTrue(mAvailable.tryAcquire(2L, TimeUnit.SECONDS));
         assertEquals(mEventIntVal, 75);

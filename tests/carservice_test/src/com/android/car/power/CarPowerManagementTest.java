@@ -48,7 +48,7 @@ import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import com.google.android.collect.Lists;
 
@@ -362,7 +362,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertWaitForVhal();
 
         // No param in the event, should be ignored.
-        getMockedVehicleHal().injectEvent(
+        getHidlMockedVehicleHal().injectEvent(
                     VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                             .setTimestamp(SystemClock.elapsedRealtimeNanos())
                             .addIntValue(0)
@@ -608,7 +608,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         private void sendPowerState(int state, int param) {
-            getMockedVehicleHal().injectEvent(
+            getHidlMockedVehicleHal().injectEvent(
                     VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                             .setTimestamp(SystemClock.elapsedRealtimeNanos())
                             .addIntValue(state, param)
