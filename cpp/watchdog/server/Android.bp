@@ -39,9 +39,13 @@ cc_defaults {
     static_libs: [
         "android.automotive.watchdog.internal-V1-cpp",
         "android.automotive.watchdog-V3-cpp",
+        "libvhalclient",
     ],
     header_libs: [
         "libgtest_prod_headers",
+    ],
+    defaults: [
+        "vhalclient_defaults",
     ],
 }
 
