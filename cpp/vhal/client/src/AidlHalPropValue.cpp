@@ -46,6 +46,10 @@ int32_t AidlHalPropValue::getAreaId() const {
     return mPropValue.areaId;
 }
 
+int64_t AidlHalPropValue::getTimestamp() const {
+    return mPropValue.timestamp;
+}
+
 void AidlHalPropValue::setInt32Values(const std::vector<int32_t>& values) {
     mPropValue.value.int32Values = values;
 }

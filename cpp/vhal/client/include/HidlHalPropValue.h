@@ -37,6 +37,8 @@ public:
 
     int32_t getAreaId() const override;
 
+    int64_t getTimestamp() const override;
+
     void setInt32Values(const std::vector<int32_t>& values) override;
 
     std::vector<int32_t> getInt32Values() const override;

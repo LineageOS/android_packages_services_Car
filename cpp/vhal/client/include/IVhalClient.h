@@ -64,6 +64,12 @@ public:
 // IVhalClient is a thread-safe client for AIDL or HIDL VHAL backend.
 class IVhalClient {
 public:
+    // Wait for VHAL service and create a client. Return nullptr if failed to connect to VHAL.
+    static std::shared_ptr<IVhalClient> create();
+
+    // Try to get the VHAL service and create a client. Return nullptr if failed to connect to VHAL.
+    static std::shared_ptr<IVhalClient> tryCreate();
+
     // The default timeout for callbacks.
     constexpr static int64_t DEFAULT_TIMEOUT_IN_SEC = 10;
 
@@ -73,6 +79,10 @@ public:
             std::function<void(::android::base::Result<std::unique_ptr<IHalPropValue>>)>;
     using SetValueCallbackFunc = std::function<void(::android::base::Result<void>)>;
     using OnBinderDiedCallbackFunc = std::function<void()>;
+
+    virtual std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) = 0;
+
+    virtual std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId, int32_t areaId) = 0;
 
     virtual void getValue(const IHalPropValue& requestValue,
                           std::shared_ptr<GetValueCallbackFunc> callback) = 0;

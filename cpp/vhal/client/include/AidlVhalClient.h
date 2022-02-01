@@ -48,6 +48,12 @@ class GetSetValueClient;
 
 class AidlVhalClient final : public IVhalClient {
 public:
+    constexpr static char AIDL_VHAL_SERVICE[] =
+            "android.hardware.automotive.vehicle.IVehicle/default";
+
+    static std::shared_ptr<IVhalClient> create();
+    static std::shared_ptr<IVhalClient> tryCreate();
+
     explicit AidlVhalClient(
             std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal);
 
@@ -55,6 +61,10 @@ public:
                    int64_t timeoutInMs);
 
     ~AidlVhalClient();
+
+    std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) override;
+
+    std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId, int32_t areaId) override;
 
     void getValue(const IHalPropValue& requestValue,
                   std::shared_ptr<GetValueCallbackFunc> callback) override;
