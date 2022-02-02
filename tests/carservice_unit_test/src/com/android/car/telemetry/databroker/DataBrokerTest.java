@@ -282,7 +282,8 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
 
         waitForTelemetryThreadToFinish();
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
-        verify(mMockResultStore).putError(eq(METRICS_CONFIG_FOO.getName()), eq(expectedError));
+        verify(mMockResultStore).putErrorResult(
+                eq(METRICS_CONFIG_FOO.getName()), eq(expectedError));
     }
 
     @Test
