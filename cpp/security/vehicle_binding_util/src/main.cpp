@@ -22,6 +22,8 @@
 #include <binder/IServiceManager.h>
 #include <binder/Status.h>
 
+#include <IVhalClient.h>
+
 #include <iostream>
 #include <map>
 #include <string>
@@ -30,10 +32,10 @@
 namespace {
 
 using android::defaultServiceManager;
-using android::sp;
 using android::automotive::security::BindingStatus;
 using android::automotive::security::DefaultCsrng;
 using android::automotive::security::DefaultExecutor;
+using android::frameworks::automotive::vhal::IVhalClient;
 using android::hardware::automotive::vehicle::V2_0::IVehicle;
 
 static int printHelp(int argc, char* argv[]);
@@ -49,10 +51,10 @@ const auto& subcommandTable = *new std::map<std::string, std::function<int(int, 
 };
 
 static int setBinding(int /*argc*/, char*[] /*argv*/) {
-    sp<IVehicle> service = IVehicle::tryGetService();
+    std::shared_ptr<IVhalClient> service = IVhalClient::tryCreate();
     size_t retryCount = 0;
     while (service == nullptr && retryCount < TIMEOUT_MILLISECONDS / SLEEP_TIME_MILLISECONDS) {
-        service = IVehicle::tryGetService();
+        service = IVhalClient::tryCreate();
         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_MILLISECONDS));
         retryCount++;
     }
@@ -62,7 +64,7 @@ static int setBinding(int /*argc*/, char*[] /*argv*/) {
         return static_cast<int>(BindingStatus::WAIT_VHAL_TIMEOUT);
     }
 
-    auto status = setVehicleBindingSeed(std::move(service), DefaultExecutor{}, DefaultCsrng{});
+    auto status = setVehicleBindingSeed(service, DefaultExecutor{}, DefaultCsrng{});
     if (status != BindingStatus::OK) {
         LOG(ERROR) << "Unable to set the binding seed. Encryption keys are not "
                    << "bound to the platform.";
