@@ -30,6 +30,7 @@
         <item>com.android.car.carlauncher/.CarLauncher</item>
         <item>com.android.car.carlauncher/.ControlBarActivity</item>
         <item>android.car.cluster/.MainClusterActivity</item>
+        <item>com.android.car.settings/.FallbackHome</item>
         <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
         <item>android.car.cluster/android.car.cluster.FakeFreeNavigationActivity</item>
     </string-array>
