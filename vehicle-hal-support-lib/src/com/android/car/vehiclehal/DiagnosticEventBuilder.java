@@ -16,11 +16,14 @@
 
 package com.android.car.vehiclehal;
 
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.DiagnosticFloatSensorIndex;
-import android.hardware.automotive.vehicle.V2_0.DiagnosticIntegerSensorIndex;
+import android.hardware.automotive.vehicle.DiagnosticFloatSensorIndex;
+import android.hardware.automotive.vehicle.DiagnosticIntegerSensorIndex;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.util.SparseArray;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.BitSet;
 import java.util.Iterator;
 
@@ -99,7 +102,7 @@ public class DiagnosticEventBuilder {
     private String mDtc = null;
 
     public DiagnosticEventBuilder(VehiclePropConfig propConfig) {
-        this(propConfig.prop, propConfig.configArray.get(0), propConfig.configArray.get(1));
+        this(propConfig.prop, propConfig.configArray[0], propConfig.configArray[1]);
     }
 
     public DiagnosticEventBuilder(int propertyId) {
@@ -109,9 +112,9 @@ public class DiagnosticEventBuilder {
     public DiagnosticEventBuilder(
             int propertyId, int numVendorIntSensors, int numVendorFloatSensors) {
         mPropertyId = propertyId;
-        mNumIntSensors = DiagnosticIntegerSensorIndex.LAST_SYSTEM_INDEX + 1 + numVendorIntSensors;
+        mNumIntSensors = getLastIndex(DiagnosticIntegerSensorIndex.class) + 1 + numVendorIntSensors;
         final int numFloatSensors =
-                DiagnosticFloatSensorIndex.LAST_SYSTEM_INDEX + 1 + numVendorFloatSensors;
+                getLastIndex(DiagnosticFloatSensorIndex.class) + 1 + numVendorFloatSensors;
         mBitmask = new BitSet(mNumIntSensors + numFloatSensors);
         mIntValues = new DefaultedArray<>(mNumIntSensors, 0);
         mFloatValues = new DefaultedArray<>(numFloatSensors, 0.0f);
@@ -147,14 +150,41 @@ public class DiagnosticEventBuilder {
     }
 
     public VehiclePropValue build(long timestamp) {
-        VehiclePropValueBuilder propValueBuilder = VehiclePropValueBuilder.newBuilder(mPropertyId);
+        AidlVehiclePropValueBuilder propValueBuilder = AidlVehiclePropValueBuilder.newBuilder(
+                mPropertyId);
         if (0 == timestamp) {
-            propValueBuilder.setTimestamp();
+            propValueBuilder.setCurrentTimestamp();
         } else {
             propValueBuilder.setTimestamp(timestamp);
         }
-        mIntValues.forEach(propValueBuilder::addIntValue);
-        mFloatValues.forEach(propValueBuilder::addFloatValue);
-        return propValueBuilder.addByteValue(mBitmask.toByteArray()).setStringValue(mDtc).build();
+        mIntValues.forEach(propValueBuilder::addIntValues);
+        mFloatValues.forEach(propValueBuilder::addFloatValues);
+        propValueBuilder.addByteValues(mBitmask.toByteArray());
+        if (mDtc != null) {
+            propValueBuilder.setStringValue(mDtc);
+        }
+        return propValueBuilder.build();
+    }
+
+    /**
+     * Get the last index for an enum class.
+     */
+    public static int getLastIndex(Class<?> clazz) {
+        int lastIndex = 0;
+        for (Field field : clazz.getDeclaredFields()) {
+            int modifiers = field.getModifiers();
+            try {
+                if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)
+                        && Modifier.isPublic(modifiers) && field.getType().equals(int.class)) {
+                    int value = field.getInt(/* object= */ null);
+                    if (value > lastIndex) {
+                        lastIndex = value;
+                    }
+                }
+            } catch (IllegalAccessException ignored) {
+                // Ignore the exception.
+            }
+        }
+        return lastIndex;
     }
 }

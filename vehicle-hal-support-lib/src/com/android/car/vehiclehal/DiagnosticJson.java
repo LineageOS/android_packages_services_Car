@@ -16,11 +16,13 @@
 
 package com.android.car.vehiclehal;
 
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.util.JsonReader;
 import android.util.Log;
 import android.util.SparseArray;
+
 import com.android.car.vehiclehal.Utils.SparseArrayIterator;
+
 import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;

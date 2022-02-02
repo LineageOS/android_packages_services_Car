@@ -22,7 +22,7 @@ import static com.android.car.vehiclehal.DiagnosticJsonTestUtils.buildEmptyVehic
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.util.JsonReader;
 import android.util.JsonWriter;
