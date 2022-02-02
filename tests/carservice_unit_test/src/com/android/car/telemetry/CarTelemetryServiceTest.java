@@ -131,7 +131,7 @@ public class CarTelemetryServiceTest {
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
     }
 
     @Test
@@ -139,13 +139,13 @@ public class CarTelemetryServiceTest {
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
 
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS));
     }
 
     @Test
@@ -154,7 +154,7 @@ public class CarTelemetryServiceTest {
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED));
     }
 
     @Test
@@ -162,13 +162,13 @@ public class CarTelemetryServiceTest {
         mService.addMetricsConfig(KEY_V2, METRICS_CONFIG_V2.toByteArray());
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V2), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
 
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD));
     }
 
     @Test
@@ -181,7 +181,7 @@ public class CarTelemetryServiceTest {
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V2), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs())
                 .containsExactly(METRICS_CONFIG_V2);
         assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
