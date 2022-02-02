@@ -800,7 +800,7 @@ public final class VehiclePropertyIds {
      *      <li>{@code floatValues[0]} is the requested value that an application wants to set a
      *      temperature to.
      *      <li>{@code floatValues[1]} is the unit for {@code floatValues[0]}. It should be one of
-     *      ({@code VehicleUnit:CELSIUS}, {@code VehicleUnit:FAHRENHEIT}).
+     *      ({@link VehicleUnit#CELSIUS}, {@link VehicleUnit#FAHRENHEIT}).
      *      <li>{@code floatValues[2]} is the value OEMs suggested in CELSIUS. This value is not
      *      included in the request.
      *      <li>{@code floatValues[3]} is the value OEMs suggested in FAHRENHEIT. This value is not
@@ -815,18 +815,18 @@ public final class VehiclePropertyIds {
      * <p>For example, when a user uses the voice assistant to set HVAC temperature to 66.2 in
      * Fahrenheit.
      * <p>First, an application will set this property with the value
-     * [66.2, {@code (float)VehicleUnit:FAHRENHEIT}, 0, 0]. If OEMs suggest to set 19.0 in Celsius
+     * [66.2, {@link VehicleUnit#FAHRENHEIT}, 0, 0]. If OEMs suggest to set 19.0 in Celsius
      * or 66.5 in Fahrenheit for user's request, then car must generate a callback with property
-     * value [66.2, {@code (float)VehicleUnit:FAHRENHEIT}, 19.0, 66.5]. After the voice assistant
+     * value [66.2, {@link VehicleUnit#FAHRENHEIT}, 19.0, 66.5]. After the voice assistant
      * gets the callback, it will inform the user and set HVAC temperature to the suggested value.
      *
      * <p>Another example, an application receives 21 Celsius as the current temperature value by
      * querying {@link VehiclePropertyIds#HVAC_TEMPERATURE_SET}. But the application wants to know
      * what value is displayed on the car's UI in Fahrenheit.
      * <p>For this, the application sets the property to
-     * [21, {@code (float)VehicleUnit:CELSIUS}, 0, 0]. If the suggested value by the OEM for 21
+     * [21, {@link VehicleUnit#CELSIUS}, 0, 0]. If the suggested value by the OEM for 21
      * Celsius is 70 Fahrenheit, then car must generate a callback with property value
-     * [21, {@code (float)VehicleUnit:CELSIUS}, 21.0, 70.0]. In this case, the application can know
+     * [21, {@link VehicleUnit#CELSIUS}, 21.0, 70.0]. In this case, the application can know
      * that the value is 70.0 Fahrenheit in the car’s UI.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
@@ -965,9 +965,9 @@ public final class VehiclePropertyIds {
      * <p>configArray represents the list of supported units for {@code
      * DISTANCE_DISPLAY_UNITS}. Here is an example configArray:
      * <ul>
-     *  <li>configArray[0] = {@code 33 //VehicleUnit#METER}
-     *  <li>configArray[1] = {@code 35 //VehicleUnit#KILOMETER}
-     *  <li>configArray[1] = {@code 36 //VehicleUnit#MILE}
+     *  <li>configArray[0] = {@link VehicleUnit#METER}
+     *  <li>configArray[1] = {@link VehicleUnit#KILOMETER}
+     *  <li>configArray[2] = {@link VehicleUnit#MILE}
      * </ul>
      *
      * <p>Property Config:
@@ -997,8 +997,8 @@ public final class VehiclePropertyIds {
      * <p>configArray represents the list of supported units for {@code
      * FUEL_VOLUME_DISPLAY_UNITS}. Here is an example configArray:
      * <ul>
-     *  <li>configArray[0] = {@code 65 //VehicleUnit#LITER}
-     *  <li>configArray[1] = {@code 66 //VehicleUnit#US_GALLON}
+     *  <li>configArray[0] = {@link VehicleUnit#LITER}
+     *  <li>configArray[1] = {@link VehicleUnit#US_GALLON}
      * </ul>
      *
      * <p>Property Config:
@@ -1028,9 +1028,9 @@ public final class VehiclePropertyIds {
      * <p>configArray represents the list of supported units for {@code
      * TIRE_PRESSURE_DISPLAY_UNITS}. Here is an example configArray:
      * <ul>
-     *  <li>configArray[0] = {@code 112 //VehicleUnit#KILOPASCAL}
-     *  <li>configArray[1] = {@code 113 //VehicleUnit#PSI}
-     *  <li>configArray[2] = {@code 114 //VehicleUnit#BAR}
+     *  <li>configArray[0] = {@link VehicleUnit#KILOPASCAL}
+     *  <li>configArray[1] = {@link VehicleUnit#PSI}
+     *  <li>configArray[2] = {@link VehicleUnit#BAR}
      * </ul>
      *
      * <p>Property Config:
@@ -1060,9 +1060,9 @@ public final class VehiclePropertyIds {
      * <p>configArray represents the list of supported units for {@code
      * EV_BATTERY_DISPLAY_UNITS}. Here is an example configArray:
      * <ul>
-     *  <li>configArray[0] = {@code 96 //VehicleUnit#WATT_HOUR}
-     *  <li>configArray[1] = {@code 100 //VehicleUnit#AMPERE_HOURS}
-     *  <li>configArray[2] = {@code 101 //VehicleUnit#KILOWATT_HOUR}
+     *  <li>configArray[0] = {@link VehicleUnit#WATT_HOUR}
+     *  <li>configArray[1] = {@link VehicleUnit#AMPERE_HOURS}
+     *  <li>configArray[2] = {@link VehicleUnit#KILOWATT_HOUR}
      * </ul>
      *
      * <p>Property Config:
@@ -1092,9 +1092,9 @@ public final class VehiclePropertyIds {
      * <p>configArray represents the list of supported units for {@code
      * VEHICLE_SPEED_DISPLAY_UNITS}. Here is an example configArray:
      * <ul>
-     *  <li>configArray[0] = {@code 1 //VehicleUnit#METER_PER_SEC}
-     *  <li>configArray[1] = {@code 114 //VehicleUnit#MILES_PER_HOUR}
-     *  <li>configArray[2] = {@code 115 //VehicleUnit#KILOMETERS_PER_HOUR}
+     *  <li>configArray[0] = {@link VehicleUnit#METER_PER_SEC}
+     *  <li>configArray[1] = {@link VehicleUnit#MILES_PER_HOUR}
+     *  <li>configArray[2] = {@link VehicleUnit#KILOMETERS_PER_HOUR}
      * </ul>
      *
      * <p>Property Config:
@@ -1554,11 +1554,11 @@ public final class VehiclePropertyIds {
      * Fog light state
      *
      * If the car has both front and rear fog lights:
-     *   If front and rear fog lights can only be controlled together: FOG_LIGHTS_STATE provides
-     *   the state of fog lights.
+     * If front and rear fog lights can only be controlled together: FOG_LIGHTS_STATE provides
+     * the state of fog lights.
      *
-     *   If front and rear fog lights can only be controlled independently: FRONT_FOG_LIGHTS_STATE
-     *   and REAR_FOG_LIGHTS_STATE provide the state of front, rear fog lights respectively.
+     * If front and rear fog lights can only be controlled independently: FRONT_FOG_LIGHTS_STATE
+     * and REAR_FOG_LIGHTS_STATE provide the state of front, rear fog lights respectively.
      *
      * If the car has only front fog lights:
      * Only one of FOG_LIGHTS_STATE or FRONT_FOG_LIGHTS_STATE will be implemented in the car. The
@@ -1598,12 +1598,12 @@ public final class VehiclePropertyIds {
      * Fog light switch
      *
      * If the car has both front and rear fog lights:
-     *   If front and rear fog lights can only be controlled together: FOG_LIGHTS_SWITCH should be
-     *   used to change the fog lights state.
+     * If front and rear fog lights can only be controlled together: FOG_LIGHTS_SWITCH should be
+     * used to change the fog lights state.
      *
-     *   If front and rear fog lights can only be controlled independently: FRONT_FOG_LIGHTS_SWITCH
-     *   and REAR_FOG_LIGHTS_SWITCH should be used to change the front, rear fog lights state
-     *   respectively.
+     * If front and rear fog lights can only be controlled independently: FRONT_FOG_LIGHTS_SWITCH
+     * and REAR_FOG_LIGHTS_SWITCH should be used to change the front, rear fog lights state
+     * respectively.
      *
      * If the car has only front fog lights:
      * Only one of FOG_LIGHTS_SWITCH or FRONT_FOG_LIGHTS_SWITCH will be implemented in the car. The
