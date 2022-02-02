@@ -30,7 +30,9 @@ import android.app.StatsManager.StatsUnavailableException;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
+import android.os.Trace;
 import android.util.LongSparseArray;
+import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.AtomsProto.ProcessCpuTime;
@@ -232,10 +234,15 @@ public class StatsPublisher extends AbstractPublisher {
             Slogf.w(CarLog.TAG_TELEMETRY, "No subscribers found for config " + configKey);
             return;
         }
+        TimingsTraceLog traceLog = new TimingsTraceLog(
+                CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
         Map<Long, PersistableBundle> metricBundles = null;
         try {
+            traceLog.traceBegin("convert stats report");
             metricBundles = ConfigMetricsReportListConverter.convert(report);
+            traceLog.traceEnd();
         } catch (StatsConversionException ex) {
+            traceLog.traceEnd();
             Slogf.e(CarLog.TAG_TELEMETRY, "Stats conversion exception for config " + configKey, ex);
             return;
         }
@@ -335,7 +342,10 @@ public class StatsPublisher extends AbstractPublisher {
             mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
 
+        TimingsTraceLog traceLog = new TimingsTraceLog(
+                CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
         try {
+            traceLog.traceBegin("pull stats report");
             // TODO(b/202131100): Get the active list of configs using
             //                    StatsManager#setActiveConfigsChangedOperation()
             processStatsMetadata(
@@ -345,7 +355,9 @@ public class StatsPublisher extends AbstractPublisher {
                 processReport(configKey, StatsLogProto.ConfigMetricsReportList.parseFrom(
                         mStatsManager.getReports(configKey)));
             }
+            traceLog.traceEnd();
         } catch (InvalidProtocolBufferException | StatsUnavailableException e) {
+            traceLog.traceEnd();
             // If the StatsD is not available, retry in the next pullReportsPeriodically call.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
         }
