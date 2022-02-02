@@ -344,6 +344,40 @@ TEST_F(AidlVhalClientTest, testGetValueNormal) {
     ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
 }
 
+TEST_F(AidlVhalClientTest, testGetValueSync) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setWaitTimeInMs(10);
+    getVhal()->setGetValueResults({
+            GetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+                    .prop =
+                            VehiclePropValue{
+                                    .prop = TEST_PROP_ID,
+                                    .areaId = TEST_AREA_ID,
+                                    .value =
+                                            RawPropValues{
+                                                    .int32Values = {1},
+                                            },
+                            },
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<std::unique_ptr<IHalPropValue>> result = getClient()->getValueSync(propValue);
+
+    ASSERT_EQ(getVhal()->getGetValueRequests(),
+              std::vector<GetValueRequest>({GetValueRequest{.requestId = 0, .prop = testProp}}));
+    ASSERT_TRUE(result.ok());
+    auto gotValue = std::move(result.value());
+    ASSERT_EQ(gotValue->getPropId(), TEST_PROP_ID);
+    ASSERT_EQ(gotValue->getAreaId(), TEST_AREA_ID);
+    ASSERT_EQ(gotValue->getInt32Values(), std::vector<int32_t>({1}));
+}
+
 TEST_F(AidlVhalClientTest, testGetValueTimeout) {
     VehiclePropValue testProp{
             .prop = TEST_PROP_ID,
@@ -528,6 +562,27 @@ TEST_F(AidlVhalClientTest, testSetValueNormal) {
     cv.wait_for(lk, std::chrono::milliseconds(1000), [&gotResult] { return gotResult; });
 
     ASSERT_TRUE(gotResult);
+    ASSERT_EQ(getVhal()->getSetValueRequests(),
+              std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
+    ASSERT_TRUE(result.ok());
+}
+
+TEST_F(AidlVhalClientTest, testSetValueSync) {
+    VehiclePropValue testProp{
+            .prop = TEST_PROP_ID,
+            .areaId = TEST_AREA_ID,
+    };
+    getVhal()->setWaitTimeInMs(10);
+    getVhal()->setSetValueResults({
+            SetValueResult{
+                    .requestId = 0,
+                    .status = StatusCode::OK,
+            },
+    });
+
+    AidlHalPropValue propValue(TEST_PROP_ID, TEST_AREA_ID);
+    Result<void> result = getClient()->setValueSync(propValue);
+
     ASSERT_EQ(getVhal()->getSetValueRequests(),
               std::vector<SetValueRequest>({SetValueRequest{.requestId = 0, .value = testProp}}));
     ASSERT_TRUE(result.ok());

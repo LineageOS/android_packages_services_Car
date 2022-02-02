@@ -74,27 +74,10 @@ BindingStatus setSeedVhalProperty(std::shared_ptr<IVhalClient> vehicle,
                                         toInt(VehicleArea::GLOBAL));
     propValue->setByteValues(seed);
 
-    struct {
-        std::mutex lock;
-        std::condition_variable cv;
-        Result<void> result;
-        bool gotResult = false;
-    } s;
+    Result<void> result = vehicle->setValueSync(*propValue);
 
-    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](Result<void> r) {
-        {
-            std::lock_guard<std::mutex> lockGuard(s.lock);
-            s.result = std::move(r);
-            s.gotResult = true;
-        }
-        s.cv.notify_one();
-    });
-    vehicle->setValue(*propValue, callback);
-
-    std::unique_lock<std::mutex> lk(s.lock);
-    s.cv.wait(lk, [&s] { return s.gotResult; });
-    if (!s.result.ok()) {
-        LOG(ERROR) << "Unable to set the VHAL property: error: " << s.result.error();
+    if (!result.ok()) {
+        LOG(ERROR) << "Unable to set the VHAL property: error: " << result.error();
         return BindingStatus::ERROR;
     }
 
@@ -105,35 +88,16 @@ BindingStatus getSeedVhalProperty(std::shared_ptr<IVhalClient> vehicle,
                                   std::vector<uint8_t>* seed) {
     auto desired_prop = vehicle->createHalPropValue(
             static_cast<int32_t>(VehicleProperty::STORAGE_ENCRYPTION_BINDING_SEED));
-    struct {
-        std::mutex lock;
-        std::condition_variable cv;
-        Result<std::unique_ptr<IHalPropValue>> result;
-        bool gotResult = false;
-    } s;
 
-    auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
-            [&s](Result<std::unique_ptr<IHalPropValue>> r) {
-                {
-                    std::lock_guard<std::mutex> lockGuard(s.lock);
-                    s.result = std::move(r);
-                    s.gotResult = true;
-                }
-                s.cv.notify_one();
-            });
-
-    vehicle->getValue(*desired_prop, callback);
-
-    std::unique_lock<std::mutex> lk(s.lock);
-    s.cv.wait(lk, [&s] { return s.gotResult; });
+    Result<std::unique_ptr<IHalPropValue>> result = vehicle->getValueSync(*desired_prop);
 
     BindingStatus status = BindingStatus::ERROR;
-    if (!s.result.ok()) {
-        LOG(ERROR) << "Error reading vehicle property, error: " << s.result.error().message();
+    if (!result.ok()) {
+        LOG(ERROR) << "Error reading vehicle property, error: " << result.error().message();
         return status;
     }
     status = BindingStatus::OK;
-    *seed = s.result.value()->getByteValues();
+    *seed = result.value()->getByteValues();
     return status;
 }
 

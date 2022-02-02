@@ -302,32 +302,14 @@ StatusCode EvsStateControl::invokeGet(VehiclePropValue* pRequestedPropValue) {
     auto halPropValue = mVehicle->createHalPropValue(pRequestedPropValue->prop);
     // We are only setting int32Values.
     halPropValue->setInt32Values(pRequestedPropValue->value.int32Values);
-    struct {
-        std::mutex lock;
-        std::condition_variable cv;
-        Result<std::unique_ptr<IHalPropValue>> result;
-        bool gotResult = false;
-    } s;
 
-    auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
-            [&s](Result<std::unique_ptr<IHalPropValue>> r) {
-                {
-                    std::lock_guard<std::mutex> lockGuard(s.lock);
-                    s.result = std::move(r);
-                    s.gotResult = true;
-                }
-                s.cv.notify_one();
-            });
+    Result<std::unique_ptr<IHalPropValue>> result = mVehicle->getValueSync(*halPropValue);
 
-    mVehicle->getValue(*halPropValue, callback);
-
-    std::unique_lock<std::mutex> lk(s.lock);
-    s.cv.wait(lk, [&s] { return s.gotResult; });
-    if (!s.result.ok()) {
-        return static_cast<StatusCode>(s.result.error().code());
+    if (!result.ok()) {
+        return static_cast<StatusCode>(result.error().code());
     }
-    pRequestedPropValue->value.int32Values = s.result.value()->getInt32Values();
-    pRequestedPropValue->timestamp = s.result.value()->getTimestamp();
+    pRequestedPropValue->value.int32Values = result.value()->getInt32Values();
+    pRequestedPropValue->timestamp = result.value()->getTimestamp();
     return StatusCode::OK;
 }
 
