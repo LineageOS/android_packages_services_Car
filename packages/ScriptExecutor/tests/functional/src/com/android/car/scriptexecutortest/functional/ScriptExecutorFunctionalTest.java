@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.car.scriptexecutor;
+package com.android.car.scriptexecutortest.functional;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
-
-import static org.junit.Assert.fail;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,6 +31,7 @@ import android.os.UserHandle;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import com.android.car.scriptexecutor.ScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
@@ -46,20 +45,19 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(JUnit4.class)
-public final class ScriptExecutorTest {
+public final class ScriptExecutorFunctionalTest {
 
     private IScriptExecutor mScriptExecutor;
     private ScriptExecutor mInstance;
     private Context mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
-
     private static final class ScriptExecutorListener extends IScriptExecutorListener.Stub {
-        public PersistableBundle mSavedBundle;
-        public PersistableBundle mFinalResult;
-        public int mErrorType;
-        public String mMessage;
-        public String mStackTrace;
-        public final CountDownLatch mResponseLatch = new CountDownLatch(1);
+        private PersistableBundle mInterimResult;
+        private PersistableBundle mFinalResult;
+        private int mErrorType;
+        private String mMessage;
+        private String mStackTrace;
+        private final CountDownLatch mResponseLatch = new CountDownLatch(1);
 
         @Override
         public void onScriptFinished(PersistableBundle result) {
@@ -68,8 +66,8 @@ public final class ScriptExecutorTest {
         }
 
         @Override
-        public void onSuccess(PersistableBundle stateToPersist) {
-            mSavedBundle = stateToPersist;
+        public void onSuccess(PersistableBundle interimResult) {
+            mInterimResult = interimResult;
             mResponseLatch.countDown();
         }
 
@@ -80,19 +78,19 @@ public final class ScriptExecutorTest {
             mStackTrace = stackTrace;
             mResponseLatch.countDown();
         }
+
+        private boolean awaitResponse(int waitTimeSec) throws InterruptedException {
+            return mResponseLatch.await(waitTimeSec, TimeUnit.SECONDS);
+        }
     }
 
-    private final ScriptExecutorListener mFakeScriptExecutorListener =
-            new ScriptExecutorListener();
-
-    private final PersistableBundle mPublishedData = new PersistableBundle();
-    private final PersistableBundle mSavedState = new PersistableBundle();
-
+    private final ScriptExecutorListener mListener = new ScriptExecutorListener();
+    private final PersistableBundle mEmptyPublishedData = new PersistableBundle();
+    private final PersistableBundle mEmptyIterimResult = new PersistableBundle();
     private final CountDownLatch mBindLatch = new CountDownLatch(1);
 
     private static final int BIND_SERVICE_TIMEOUT_SEC = 5;
     private static final int SCRIPT_PROCESSING_TIMEOUT_SEC = 10;
-
 
     private final ServiceConnection mScriptExecutorConnection =
             new ServiceConnection() {
@@ -104,82 +102,63 @@ public final class ScriptExecutorTest {
 
                 @Override
                 public void onServiceDisconnected(ComponentName className) {
-                    fail("Service unexpectedly disconnected");
+                    assertWithMessage("Service unexpectedly disconnected").fail();
                 }
             };
-
-    // Helper method to invoke the script and wait for it to complete and return a response.
-    private void runScriptAndWaitForResponse(String script, String function,
-            PersistableBundle publishedData, PersistableBundle previousState)
-            throws RemoteException {
-        mScriptExecutor.invokeScript(script, function, publishedData, previousState,
-                mFakeScriptExecutorListener);
-        try {
-            if (!mFakeScriptExecutorListener.mResponseLatch.await(SCRIPT_PROCESSING_TIMEOUT_SEC,
-                    TimeUnit.SECONDS)) {
-                fail("Failed to get the callback method called by the script on time");
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-    }
-
-    private void runScriptAndWaitForError(String script, String function) throws RemoteException {
-        runScriptAndWaitForResponse(script, function, new PersistableBundle(),
-                new PersistableBundle());
-    }
 
     @Before
     public void setUp() throws InterruptedException {
         Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.android.car.scriptexecutor",
-                "com.android.car.scriptexecutor.ScriptExecutor"));
-        mContext.bindServiceAsUser(intent, mScriptExecutorConnection, Context.BIND_AUTO_CREATE,
-                UserHandle.SYSTEM);
+        intent.setComponent(
+                new ComponentName(
+                        "com.android.car.scriptexecutor",
+                        "com.android.car.scriptexecutor.ScriptExecutor"));
+        mContext.bindServiceAsUser(
+                intent, mScriptExecutorConnection, Context.BIND_AUTO_CREATE, UserHandle.SYSTEM);
         if (!mBindLatch.await(BIND_SERVICE_TIMEOUT_SEC, TimeUnit.SECONDS)) {
-            fail("Failed to bind to ScriptExecutor service");
+            assertWithMessage("Failed to bind to ScriptExecutor service").fail();
         }
     }
 
     @Test
-    public void invokeScript_returnsResult() throws RemoteException {
+    public void invokeScript_returnsResult() throws RemoteException, InterruptedException {
         String returnResultScript =
                 "function hello(data, state)\n"
                         + "    result = {hello=\"world\"}\n"
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(returnResultScript, "hello", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                returnResultScript, "hello", mEmptyPublishedData, mEmptyIterimResult);
 
         // Expect to get back a bundle with a single string key: string value pair:
         // {"hello": "world"}
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("hello")).isEqualTo(
-                "world");
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getString("hello")).isEqualTo("world");
     }
 
     @Test
-    public void invokeScript_allSupportedPrimitiveTypes() throws RemoteException {
+    public void invokeScript_allSupportedPrimitiveTypes()
+            throws RemoteException, InterruptedException {
         String script =
                 "function knows(data, state)\n"
                         + "    result = {string=\"hello\", boolean=true, integer=1, number=1.1}\n"
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "knows", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(script, "knows", mEmptyPublishedData, mEmptyIterimResult);
 
         // Expect to get back a bundle with 4 keys, each corresponding to a distinct supported type.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(4);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("string")).isEqualTo(
-                "hello");
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getBoolean("boolean")).isEqualTo(true);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLong("integer")).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getDouble("number")).isEqualTo(1.1);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(4);
+        assertThat(mListener.mInterimResult.getString("string")).isEqualTo("hello");
+        assertThat(mListener.mInterimResult.getBoolean("boolean")).isEqualTo(true);
+        assertThat(mListener.mInterimResult.getLong("integer")).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getDouble("number")).isEqualTo(1.1);
     }
 
     @Test
-    public void invokeScript_skipsUnsupportedNestedTables() throws RemoteException {
+    public void invokeScript_skipsUnsupportedNestedTables()
+            throws RemoteException, InterruptedException {
         String script =
                 "function nested(data, state)\n"
                         + "    result = {string=\"hello\", boolean=true, integer=1, number=1.1}\n"
@@ -187,32 +166,32 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "nested", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(script, "nested", mEmptyPublishedData, mEmptyIterimResult);
 
         // Verify that expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "nested tables are not supported");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage).contains("nested tables are not supported");
     }
 
     @Test
-    public void invokeScript_emptyBundle() throws RemoteException {
+    public void invokeScript_emptyBundle() throws RemoteException, InterruptedException {
         String script =
                 "function empty(data, state)\n"
                         + "    result = {}\n"
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "empty", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(script, "empty", mEmptyPublishedData, mEmptyIterimResult);
 
         // If a script returns empty table as the result, we get an empty bundle.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle).isNotNull();
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(0);
+        assertThat(mListener.mInterimResult).isNotNull();
+        assertThat(mListener.mInterimResult.size()).isEqualTo(0);
     }
 
     @Test
-    public void invokeScript_processPreviousStateAndReturnResult() throws RemoteException {
+    public void invokeScript_processPreviousStateAndReturnResult()
+            throws RemoteException, InterruptedException {
         // Here we verify that the script actually processes provided state from a previous run
         // and makes calculation based on that and returns the result.
         String script =
@@ -223,16 +202,16 @@ public final class ScriptExecutorTest {
         PersistableBundle previousState = new PersistableBundle();
         previousState.putInt("x", 1);
 
-        runScriptAndWaitForResponse(script, "update", mPublishedData, previousState);
+        runScriptAndWaitForResponse(script, "update", mEmptyPublishedData, previousState);
 
         // Verify that y = 2, because y = x + 1 and x = 1.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLong("y")).isEqualTo(2);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getLong("y")).isEqualTo(2);
     }
 
     @Test
     public void invokeScript_allSupportedPrimitiveTypesWorkRoundTripWithKeyNamesPreserved()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         // Here we verify that all supported primitive types in supplied previous state Bundle
         // are interpreted by the script as expected.
         String script =
@@ -250,20 +229,19 @@ public final class ScriptExecutorTest {
         previousState.putBoolean("boolean", false);
         previousState.putString("string", "ABRA");
 
-        runScriptAndWaitForResponse(script, "update_all", mPublishedData, previousState);
+        runScriptAndWaitForResponse(script, "update_all", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(4);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLong("integer")).isEqualTo(2);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getDouble("number")).isEqualTo(0.2);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getBoolean("boolean")).isEqualTo(true);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("string")).isEqualTo(
-                "ABRACADABRA");
+        assertThat(mListener.mInterimResult.size()).isEqualTo(4);
+        assertThat(mListener.mInterimResult.getLong("integer")).isEqualTo(2);
+        assertThat(mListener.mInterimResult.getDouble("number")).isEqualTo(0.2);
+        assertThat(mListener.mInterimResult.getBoolean("boolean")).isEqualTo(true);
+        assertThat(mListener.mInterimResult.getString("string")).isEqualTo("ABRACADABRA");
     }
 
     @Test
     public void invokeScript_allSupportedArrayTypesWorkRoundTripWithKeyNamesPreserved()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         // Here we verify that all supported array types in supplied previous state Bundle are
         // interpreted by the script as expected.
         String script =
@@ -275,32 +253,27 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
-        int[] int_array = new int[]{1, 2};
-        long[] int_array_in_long = new long[]{1, 2};
-        long[] long_array = new long[]{1, 2, 3};
-        String[] string_array = new String[]{"one", "two", "three"};
+        int[] int_array = new int[] {1, 2};
+        long[] int_array_in_long = new long[] {1, 2};
+        long[] long_array = new long[] {1, 2, 3};
+        String[] string_array = new String[] {"one", "two", "three"};
         previousState.putIntArray("int_array", int_array);
         previousState.putLongArray("long_array", long_array);
         previousState.putStringArray("string_array", string_array);
 
-        runScriptAndWaitForResponse(script, "arrays", mPublishedData, previousState);
+        runScriptAndWaitForResponse(script, "arrays", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(3);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(3);
         // Lua has only one lua_Integer. Here Java long is used to represent it when data is
         // transferred from Lua to CarTelemetryService.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("int_array")).isEqualTo(
-                int_array_in_long);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("long_array")).isEqualTo(
-                long_array);
-        assertThat(
-                mFakeScriptExecutorListener.mSavedBundle.getStringArray("string_array")).isEqualTo(
-                string_array);
+        assertThat(mListener.mInterimResult.getLongArray("int_array")).isEqualTo(int_array_in_long);
+        assertThat(mListener.mInterimResult.getLongArray("long_array")).isEqualTo(long_array);
+        assertThat(mListener.mInterimResult.getStringArray("string_array")).isEqualTo(string_array);
     }
 
     @Test
-    public void invokeScript_modifiesArray()
-            throws RemoteException {
+    public void invokeScript_modifiesArray() throws RemoteException, InterruptedException {
         // Verify that an array modified by a script is properly sent back by the callback.
         String script =
                 "function modify_array(data, state)\n"
@@ -310,21 +283,19 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
-        long[] long_array = new long[]{1, 2, 3};
+        long[] long_array = new long[] {1, 2, 3};
         previousState.putLongArray("long_array", long_array);
-        long[] expected_array = new long[]{1, 100, 3};
+        long[] expected_array = new long[] {1, 100, 3};
 
-        runScriptAndWaitForResponse(script, "modify_array", mPublishedData, previousState);
+        runScriptAndWaitForResponse(script, "modify_array", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("long_array")).isEqualTo(
-                expected_array);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getLongArray("long_array")).isEqualTo(expected_array);
     }
 
     @Test
-    public void invokeScript_processesStringArray()
-            throws RemoteException {
+    public void invokeScript_processesStringArray() throws RemoteException, InterruptedException {
         // Verify that an array modified by a script is properly sent back by the callback.
         String script =
                 "function process_string_array(data, state)\n"
@@ -333,20 +304,20 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
-        String[] string_array = new String[]{"Hello ", "world!"};
+        String[] string_array = new String[] {"Hello ", "world!"};
         previousState.putStringArray("string_array", string_array);
 
-        runScriptAndWaitForResponse(script, "process_string_array", mPublishedData, previousState);
+        runScriptAndWaitForResponse(
+                script, "process_string_array", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("answer")).isEqualTo(
-                "Hello world!");
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getString("answer")).isEqualTo("Hello world!");
     }
 
     @Test
     public void invokeScript_arraysWithLengthAboveLimitCauseError()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         // Verifies that arrays pushed by Lua that have their size over the limit cause error.
         String script =
                 "function size_limit(data, state)\n"
@@ -358,20 +329,22 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "size_limit", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script, "size_limit", mEmptyPublishedData, mEmptyIterimResult);
 
         // Verify that expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "Returned table huge_array exceeds maximum allowed size of 1000 "
-                        + "elements. This key-value cannot be unpacked successfully. This error "
-                        + "is unrecoverable.");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo(
+                        "Returned table huge_array exceeds maximum allowed size of 1000 elements."
+                                + " This key-value cannot be unpacked successfully. This error is"
+                                + " unrecoverable.");
     }
 
     @Test
     public void invokeScript_arrayContainingVaryingTypesCausesError()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         // Verifies that values in returned array must be the same integer type.
         // For example string values in a Lua array are not allowed.
         String script =
@@ -382,22 +355,22 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
-        long[] long_array = new long[]{1, 2, 3};
+        long[] long_array = new long[] {1, 2, 3};
         previousState.putLongArray("long_array", long_array);
 
-        runScriptAndWaitForResponse(script, "table_with_numbers_and_strings", mPublishedData,
-                previousState);
+        runScriptAndWaitForResponse(
+                script, "table_with_numbers_and_strings", mEmptyPublishedData, previousState);
 
         // Verify that expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "Returned Lua arrays must have elements of the same type.");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .contains("Returned Lua arrays must have elements of the same type.");
     }
 
     @Test
     public void invokeScript_InTablesWithBothKeysAndIndicesCopiesOnlyIndexedData()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         // Documents the current behavior that copies only indexed values in a Lua table that
         // contains both keyed and indexed data.
         String script =
@@ -408,19 +381,20 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
-        long[] long_array = new long[]{1, 2, 3};
+        long[] long_array = new long[] {1, 2, 3};
         previousState.putLongArray("long_array", long_array);
 
-        runScriptAndWaitForResponse(script, "keys_and_indices", mPublishedData, previousState);
+        runScriptAndWaitForResponse(
+                script, "keys_and_indices", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("mixed_array")).isEqualTo(
-                long_array);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getLongArray("mixed_array")).isEqualTo(long_array);
     }
 
     @Test
-    public void invokeScript_noLuaBufferOverflowForLargeInputArrays() throws RemoteException {
+    public void invokeScript_noLuaBufferOverflowForLargeInputArrays()
+            throws RemoteException, InterruptedException {
         // Tests that arrays with length that exceed internal Lua buffer size of 20 elements
         // do not cause buffer overflow and are handled properly.
         String script =
@@ -443,16 +417,16 @@ public final class ScriptExecutorTest {
         long expected_sum =
                 (longArray[0] + longArray[n - 1]) * n / 2; // sum of an arithmetic sequence.
 
-        runScriptAndWaitForResponse(script, "large_input_array", mPublishedData, previousState);
+        runScriptAndWaitForResponse(
+                script, "large_input_array", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLong("total")).isEqualTo(
-                expected_sum);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getLong("total")).isEqualTo(expected_sum);
     }
 
     @Test
-    public void invokeScript_scriptCallsOnError() throws RemoteException {
+    public void invokeScript_scriptCallsOnError() throws RemoteException, InterruptedException {
         String script =
                 "function calls_on_error()\n"
                         + "    if 1 ~= 2 then\n"
@@ -463,13 +437,14 @@ public final class ScriptExecutorTest {
 
         runScriptAndWaitForError(script, "calls_on_error");
 
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo("one is not equal to two");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage).isEqualTo("one is not equal to two");
     }
 
     @Test
-    public void invokeScript_tooManyParametersInOnError() throws RemoteException {
+    public void invokeScript_tooManyParametersInOnError()
+            throws RemoteException, InterruptedException {
         String script =
                 "function too_many_params_in_on_error()\n"
                         + "    if 1 ~= 2 then\n"
@@ -480,14 +455,15 @@ public final class ScriptExecutorTest {
 
         runScriptAndWaitForError(script, "too_many_params_in_on_error");
 
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "on_error can push only a single string parameter from Lua");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo("on_error can push only a single string parameter from Lua");
     }
 
     @Test
-    public void invokeScript_onErrorOnlyAcceptsString() throws RemoteException {
+    public void invokeScript_onErrorOnlyAcceptsString()
+            throws RemoteException, InterruptedException {
         String script =
                 "function only_string()\n"
                         + "    if 1 ~= 2 then\n"
@@ -498,14 +474,14 @@ public final class ScriptExecutorTest {
 
         runScriptAndWaitForError(script, "only_string");
 
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "on_error can push only a single string parameter from Lua");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo("on_error can push only a single string parameter from Lua");
     }
 
     @Test
-    public void invokeScript_returnsFinalResult() throws RemoteException {
+    public void invokeScript_returnsFinalResult() throws RemoteException, InterruptedException {
         String returnFinalResultScript =
                 "function script_finishes(data, state)\n"
                         + "    result = {data = state.input + 1}\n"
@@ -514,17 +490,18 @@ public final class ScriptExecutorTest {
         PersistableBundle previousState = new PersistableBundle();
         previousState.putInt("input", 1);
 
-        runScriptAndWaitForResponse(returnFinalResultScript, "script_finishes", mPublishedData,
-                previousState);
+        runScriptAndWaitForResponse(
+                returnFinalResultScript, "script_finishes", mEmptyPublishedData, previousState);
 
         // Expect to get back a bundle with a single key-value pair {"data": 2}
         // because data = state.input + 1 as in the script body above.
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("data")).isEqualTo(2);
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getLong("data")).isEqualTo(2);
     }
 
     @Test
-    public void invokeScript_emptyStringValueIsValidValue() throws RemoteException {
+    public void invokeScript_emptyStringValueIsValidValue()
+            throws RemoteException, InterruptedException {
         // Verify that an empty string value is a valid value to be returned from a script.
         String returnFinalResultScript =
                 "function empty_string(data, state)\n"
@@ -532,17 +509,20 @@ public final class ScriptExecutorTest {
                         + "    on_script_finished(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(returnFinalResultScript, "empty_string", mPublishedData,
+        runScriptAndWaitForResponse(
+                returnFinalResultScript,
+                "empty_string",
+                mEmptyPublishedData,
                 new PersistableBundle());
 
         // Expect to get back a bundle with a single key-value pair {"data": ""}
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("data")).isEqualTo("");
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getString("data")).isEqualTo("");
     }
 
     @Test
     public void invokeScript_allPrimitiveSupportedTypesForReturningFinalResult()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         // Here we verify that all supported primitive types are present in the returned final
         // result bundle are present.
         String script =
@@ -560,35 +540,35 @@ public final class ScriptExecutorTest {
         previousState.putBoolean("boolean", false);
         previousState.putString("string", "ABRA");
 
-        runScriptAndWaitForResponse(script, "finalize_all", mPublishedData, previousState);
+        runScriptAndWaitForResponse(script, "finalize_all", mEmptyPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(4);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("integer")).isEqualTo(2);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getDouble("number")).isEqualTo(0.2);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getBoolean("boolean")).isEqualTo(true);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("string")).isEqualTo(
-                "ABRACADABRA");
+        assertThat(mListener.mFinalResult.size()).isEqualTo(4);
+        assertThat(mListener.mFinalResult.getLong("integer")).isEqualTo(2);
+        assertThat(mListener.mFinalResult.getDouble("number")).isEqualTo(0.2);
+        assertThat(mListener.mFinalResult.getBoolean("boolean")).isEqualTo(true);
+        assertThat(mListener.mFinalResult.getString("string")).isEqualTo("ABRACADABRA");
     }
 
     @Test
-    public void invokeScript_emptyFinalResultBundle() throws RemoteException {
+    public void invokeScript_emptyFinalResultBundle() throws RemoteException, InterruptedException {
         String script =
                 "function empty_final_result(data, state)\n"
                         + "    result = {}\n"
                         + "    on_script_finished(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "empty_final_result", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script, "empty_final_result", mEmptyPublishedData, mEmptyIterimResult);
 
         // If a script returns empty table as the final result, we get an empty bundle.
-        assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(0);
+        assertThat(mListener.mFinalResult).isNotNull();
+        assertThat(mListener.mFinalResult.size()).isEqualTo(0);
     }
 
     @Test
     public void invokeScript_wrongNumberOfCallbackInputsInOnScriptFinished()
-            throws RemoteException {
+            throws RemoteException, InterruptedException {
         String script =
                 "function wrong_number_of_outputs_in_on_script_finished(data, state)\n"
                         + "    result = {}\n"
@@ -596,19 +576,25 @@ public final class ScriptExecutorTest {
                         + "    on_script_finished(result, extra)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "wrong_number_of_outputs_in_on_script_finished",
-                mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script,
+                "wrong_number_of_outputs_in_on_script_finished",
+                mEmptyPublishedData,
+                mEmptyIterimResult);
 
         // We expect to get an error here because we expect only 1 input parameter in
         // on_script_finished.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "on_script_finished can push only a single parameter from Lua - a Lua table");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo(
+                        "on_script_finished can push only a single parameter from Lua - a Lua"
+                                + " table");
     }
 
     @Test
-    public void invokeScript_wrongNumberOfCallbackInputsInOnSuccess() throws RemoteException {
+    public void invokeScript_wrongNumberOfCallbackInputsInOnSuccess()
+            throws RemoteException, InterruptedException {
         String script =
                 "function wrong_number_of_outputs_in_on_success(data, state)\n"
                         + "    result = {}\n"
@@ -616,52 +602,59 @@ public final class ScriptExecutorTest {
                         + "    on_success(result, extra)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "wrong_number_of_outputs_in_on_success",
-                mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script,
+                "wrong_number_of_outputs_in_on_success",
+                mEmptyPublishedData,
+                mEmptyIterimResult);
 
         // We expect to get an error here because we expect only 1 input parameter in on_success.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "on_success can push only a single parameter from Lua - a Lua table");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo("on_success can push only a single parameter from Lua - a Lua table");
     }
 
     @Test
-    public void invokeScript_wrongTypeInOnSuccess() throws RemoteException {
+    public void invokeScript_wrongTypeInOnSuccess() throws RemoteException, InterruptedException {
         String script =
                 "function wrong_type_in_on_success(data, state)\n"
                         + "    result = 1\n"
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "wrong_type_in_on_success",
-                mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script, "wrong_type_in_on_success", mEmptyPublishedData, mEmptyIterimResult);
 
         // We expect to get an error here because the type of the input parameter for on_success
         // must be a Lua table.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "on_success can push only a single parameter from Lua - a Lua table");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo("on_success can push only a single parameter from Lua - a Lua table");
     }
 
     @Test
-    public void invokeScript_wrongTypeInOnScriptFinished() throws RemoteException {
+    public void invokeScript_wrongTypeInOnScriptFinished()
+            throws RemoteException, InterruptedException {
         String script =
                 "function wrong_type_in_on_script_finished(data, state)\n"
                         + "    result = 1\n"
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "wrong_type_in_on_script_finished",
-                mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script,
+                "wrong_type_in_on_script_finished",
+                mEmptyPublishedData,
+                mEmptyIterimResult);
 
         // We expect to get an error here because the type of the input parameter for
         // on_script_finished must be a Lua table.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "on_success can push only a single parameter from Lua - a Lua table");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .isEqualTo("on_success can push only a single parameter from Lua - a Lua table");
     }
 
     @Test
@@ -692,28 +685,26 @@ public final class ScriptExecutorTest {
         long expectedSum =
                 (array8Mb[0] + array8Mb[n - 1]) * n / 2; // sum of an arithmetic sequence.
 
-        mScriptExecutor.invokeScriptForLargeInput(script, "large_published_data", readFd,
-                mSavedState,
-                mFakeScriptExecutorListener);
+        mScriptExecutor.invokeScriptForLargeInput(
+                script, "large_published_data", readFd, mEmptyIterimResult, mListener);
 
         readFd.close();
         try (OutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(writeFd)) {
             bundle.writeToStream(outputStream);
         }
 
-        boolean gotResponse = mFakeScriptExecutorListener.mResponseLatch.await(
-                SCRIPT_PROCESSING_TIMEOUT_SEC,
-                TimeUnit.SECONDS);
+        boolean gotResponse = mListener.awaitResponse(SCRIPT_PROCESSING_TIMEOUT_SEC);
 
         assertWithMessage("Failed to get the callback method called by the script on time")
-                .that(gotResponse).isTrue();
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("total"))
-                .isEqualTo(expectedSum);
+                .that(gotResponse)
+                .isTrue();
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getLong("total")).isEqualTo(expectedSum);
     }
 
     @Test
-    public void invokeScript_bothPublishedDataAndPreviousStateAreProvided() throws RemoteException {
+    public void invokeScript_bothPublishedDataAndPreviousStateAreProvided()
+            throws RemoteException, InterruptedException {
         // Verifies that both published data and previous state PersistableBundles
         // are piped into script.
         String script =
@@ -733,14 +724,14 @@ public final class ScriptExecutorTest {
         runScriptAndWaitForResponse(script, "data_and_state", publishedData, previousState);
 
         // Lua script combines both input published data and previous state into a single result.
-        assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("answer")).isEqualTo(
-                "ABCD");
+        assertThat(mListener.mFinalResult).isNotNull();
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getString("answer")).isEqualTo("ABCD");
     }
 
     @Test
-    public void invokeScript_outputIntAndLongAreTreatedAsLong() throws RemoteException {
+    public void invokeScript_outputIntAndLongAreTreatedAsLong()
+            throws RemoteException, InterruptedException {
         // Verifies that we treat output both integer and long as long integer type although we
         // distinguish between int and long in the script input.
         String script =
@@ -755,24 +746,25 @@ public final class ScriptExecutorTest {
         PersistableBundle previousState = new PersistableBundle();
         previousState.putLong("long", 200);
 
-        runScriptAndWaitForResponse(script, "int_and_long_are_output_long",
-                publishedData, previousState);
+        runScriptAndWaitForResponse(
+                script, "int_and_long_are_output_long", publishedData, previousState);
 
         // If a script returns empty table as the final result, we get an empty bundle.
-        assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(2);
+        assertThat(mListener.mFinalResult).isNotNull();
+        assertThat(mListener.mFinalResult.size()).isEqualTo(2);
         // getInt should always return "empty" value (zero) because all integer types are treated
         // as Java long.
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getInt("int")).isEqualTo(0);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getInt("long")).isEqualTo(0);
+        assertThat(mListener.mFinalResult.getInt("int")).isEqualTo(0);
+        assertThat(mListener.mFinalResult.getInt("long")).isEqualTo(0);
         // Instead all expected integer values are successfully retrieved using getLong method
         // from the output bundle.
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("int")).isEqualTo(100);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("long")).isEqualTo(200);
+        assertThat(mListener.mFinalResult.getLong("int")).isEqualTo(100);
+        assertThat(mListener.mFinalResult.getLong("long")).isEqualTo(200);
     }
 
     @Test
-    public void invokeScript_nonUTFCharactersDoNotCauseErrors() throws RemoteException {
+    public void invokeScript_nonUTFCharactersDoNotCauseErrors()
+            throws RemoteException, InterruptedException {
         // Tries to create an output string value that does not conform to Modified UTF-8.
         // JNI gracefully handles it by parsing on the string as is.
         String script =
@@ -781,70 +773,63 @@ public final class ScriptExecutorTest {
                         + "    on_script_finished(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "non_utf_key_string", new PersistableBundle(),
-                new PersistableBundle());
+        runScriptAndWaitForResponse(
+                script, "non_utf_key_string", new PersistableBundle(), new PersistableBundle());
 
         // The output will still have all characters, including those that do not conform to
         // Modified UTF-8.
-        assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
-        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("answer")).isEqualTo(
-                "i\0np\200\200ut");
+        assertThat(mListener.mFinalResult).isNotNull();
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getString("answer")).isEqualTo("i\0np\200\200ut");
     }
 
     @Test
-    public void invokeScript_wrongFunctionNameProvided() throws RemoteException {
+    public void invokeScript_wrongFunctionNameProvided()
+            throws RemoteException, InterruptedException {
         // Verifies that not specifying function name correctly is handled through error callback.
-        String script =
-                "function correct_function(data, state)\n"
-                        + "end\n";
+        String script = "function correct_function(data, state)\n" + "end\n";
 
         runScriptAndWaitForError(script, "wrong_function");
 
         // Verify that the expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "Wrong function name");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mListener.mMessage).contains("Wrong function name");
     }
 
     @Test
-    public void invokeScript_runtimeErrorDueToSyntax() throws RemoteException {
+    public void invokeScript_runtimeErrorDueToSyntax()
+            throws RemoteException, InterruptedException {
         // Verifies that syntax errors during script loading are handled gracefully.
-        String script =
-                "function wrong_syntax(data, state)\n"
-                        + "    x == 1\n"
-                        + "end\n";
+        String script = "function wrong_syntax(data, state)\n" + "    x == 1\n" + "end\n";
 
         runScriptAndWaitForError(script, "wrong_syntax");
 
         // Verify that the expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "Error encountered while loading the script");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mListener.mMessage).contains("Error encountered while loading the script");
     }
 
     @Test
-    public void invokeScript_runtimeErrorDueToUndefinedMethod() throws RemoteException {
+    public void invokeScript_runtimeErrorDueToUndefinedMethod()
+            throws RemoteException, InterruptedException {
         // Verifies that runtime errors encountered during Lua script execution trigger an error
         // returned via a callback.
         String script =
-                "function runtime_error(data, state)\n"
-                        + "    on_problem(data, state)\n"
-                        + "end\n";
+                "function runtime_error(data, state)\n" + "    on_problem(data, state)\n" + "end\n";
 
         runScriptAndWaitForError(script, "runtime_error");
 
         // Verify that the expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "Error encountered while running the script");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mListener.mMessage).contains("Error encountered while running the script");
     }
 
     @Test
-    public void invokeScript_returnedValuesOfUnsupportedTypesReturnError() throws RemoteException {
+    public void invokeScript_returnedValuesOfUnsupportedTypesReturnError()
+            throws RemoteException, InterruptedException {
         // Verifies that if we try to return a value of unsupported type, we get an error instead.
         // In this case, the unsupported type is LUA_TFUNCTION type.
         String script =
@@ -853,17 +838,19 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "function_type", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script, "function_type", mEmptyPublishedData, mEmptyIterimResult);
 
         // Verify that the expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "has a Lua type=function, which is not supported yet");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .contains("has a Lua type=function, which is not supported yet");
     }
 
     @Test
-    public void invokeScript_returnedFloatingArraysNotSupported() throws RemoteException {
+    public void invokeScript_returnedFloatingArraysNotSupported()
+            throws RemoteException, InterruptedException {
         // Verifies that we do not support return values that contain floating number arrays.
         String script =
                 "function floating_point_arrays(data, state)\n"
@@ -874,17 +861,19 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "floating_point_arrays", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script, "floating_point_arrays", mEmptyPublishedData, mEmptyIterimResult);
 
         // Verify that the expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "a floating number array, which is not supported yet");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .contains("a floating number array, which is not supported yet");
     }
 
     @Test
-    public void invokeScript_returnedBooleanArraysNotSupported() throws RemoteException {
+    public void invokeScript_returnedBooleanArraysNotSupported()
+            throws RemoteException, InterruptedException {
         // Verifies that we do not yet support return values that contain boolean arrays.
         String script =
                 "function array_of_booleans(data, state)\n"
@@ -895,13 +884,32 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-        runScriptAndWaitForResponse(script, "array_of_booleans", mPublishedData, mSavedState);
+        runScriptAndWaitForResponse(
+                script, "array_of_booleans", mEmptyPublishedData, mEmptyIterimResult);
 
         // Verify that the expected error is received.
-        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).contains(
-                "is an array with values of type=boolean, which is not supported yet");
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage)
+                .contains("is an array with values of type=boolean, which is not supported yet");
+    }
+
+    // Helper method to invoke the script and wait for it to complete and return a response.
+    private void runScriptAndWaitForResponse(
+            String script,
+            String function,
+            PersistableBundle publishedData,
+            PersistableBundle previousState)
+            throws RemoteException, InterruptedException {
+        mScriptExecutor.invokeScript(script, function, publishedData, previousState, mListener);
+        assertWithMessage("Failed to get the callback method called by the script on time")
+                .that(mListener.awaitResponse(SCRIPT_PROCESSING_TIMEOUT_SEC))
+                .isTrue();
+    }
+
+    private void runScriptAndWaitForError(String script, String function)
+            throws RemoteException, InterruptedException {
+        runScriptAndWaitForResponse(
+                script, function, new PersistableBundle(), new PersistableBundle());
     }
 }
-
