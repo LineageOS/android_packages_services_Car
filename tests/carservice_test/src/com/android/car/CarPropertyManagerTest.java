@@ -33,12 +33,13 @@ import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.util.Visitor;
-import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
-import android.hardware.automotive.vehicle.V2_0.VehicleVendorPermission;
+import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleAreaSeat;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.Build;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -48,7 +49,7 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import com.google.common.truth.Truth;
 
@@ -630,17 +631,19 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         VehiclePropValue firstFakeValueDriveSide = new VehiclePropValue();
         firstFakeValueDriveSide.prop = CUSTOM_SEAT_INT_PROP_1;
         firstFakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
-        firstFakeValueDriveSide.value.int32Values.add(2);
+        firstFakeValueDriveSide.value = new RawPropValues();
+        firstFakeValueDriveSide.value.int32Values = new int[]{2};
         firstFakeValueDriveSide.timestamp = SystemClock.elapsedRealtimeNanos();
         VehiclePropValue secFakeValueDriveSide = new VehiclePropValue();
         secFakeValueDriveSide.prop = CUSTOM_SEAT_INT_PROP_1;
         secFakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
-        secFakeValueDriveSide.value.int32Values.add(3); // 0 in HAL indicate false;
+        secFakeValueDriveSide.value = new RawPropValues();
+        secFakeValueDriveSide.value.int32Values = new int[]{3}; // 0 in HAL indicate false;
         secFakeValueDriveSide.timestamp = SystemClock.elapsedRealtimeNanos();
         // inject the new event first
-        getHidlMockedVehicleHal().injectEvent(secFakeValueDriveSide);
+        getAidlMockedVehicleHal().injectEvent(secFakeValueDriveSide);
         // inject the old event
-        getHidlMockedVehicleHal().injectEvent(firstFakeValueDriveSide);
+        getAidlMockedVehicleHal().injectEvent(firstFakeValueDriveSide);
         callback.assertOnChangeEventCalled();
         // Client should only get the new event
         assertThat((int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_1).getValue())
@@ -660,18 +663,20 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         VehiclePropValue fakeValueDriveSide = new VehiclePropValue();
         fakeValueDriveSide.prop = CUSTOM_SEAT_INT_PROP_2;
         fakeValueDriveSide.areaId = DRIVER_SIDE_AREA_ID;
-        fakeValueDriveSide.value.int32Values.add(4);
+        fakeValueDriveSide.value = new RawPropValues();
+        fakeValueDriveSide.value.int32Values = new int[]{4};
         fakeValueDriveSide.timestamp = SystemClock.elapsedRealtimeNanos();
 
         VehiclePropValue fakeValuePsgSide = new VehiclePropValue();
         fakeValuePsgSide.prop = CUSTOM_SEAT_INT_PROP_2;
         fakeValuePsgSide.areaId = PASSENGER_SIDE_AREA_ID;
-        fakeValuePsgSide.value.int32Values.add(5);
+        fakeValuePsgSide.value = new RawPropValues();
+        fakeValuePsgSide.value.int32Values = new int[]{5};
         fakeValuePsgSide.timestamp = SystemClock.elapsedRealtimeNanos();
 
         // inject passenger event before driver event
-        getHidlMockedVehicleHal().injectEvent(fakeValuePsgSide);
-        getHidlMockedVehicleHal().injectEvent(fakeValueDriveSide);
+        getAidlMockedVehicleHal().injectEvent(fakeValuePsgSide);
+        getAidlMockedVehicleHal().injectEvent(fakeValueDriveSide);
         callback.assertOnChangeEventCalled();
 
         // both events should be received by listener
@@ -695,23 +700,25 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         VehiclePropValue twoIntsProp = new VehiclePropValue();
         twoIntsProp.prop = CUSTOM_SEAT_INT_PROP_1;
-        twoIntsProp.value.int32Values.add(0);
-        twoIntsProp.value.int32Values.add(1);
+        twoIntsProp.value = new RawPropValues();
+        twoIntsProp.value.int32Values = new int[]{0, 1};
         props.add(twoIntsProp);
 
         VehiclePropValue propWithFloat = new VehiclePropValue();
         propWithFloat.prop = CUSTOM_SEAT_INT_PROP_1;
-        propWithFloat.value.floatValues.add((float) 0.0);
+        propWithFloat.value = new RawPropValues();
+        propWithFloat.value.floatValues = new float[]{0f};
         props.add(propWithFloat);
 
         VehiclePropValue propWithString = new VehiclePropValue();
         propWithString.prop = CUSTOM_SEAT_INT_PROP_1;
+        propWithString.value = new RawPropValues();
         propWithString.value.stringValue = "1234";
         props.add(propWithString);
 
         for (VehiclePropValue prop: props) {
             // inject passenger event before driver event
-            getHidlMockedVehicleHal().injectEvent(prop);
+            getAidlMockedVehicleHal().injectEvent(prop);
             assertThat(callback.getEventCounter()).isEqualTo(0);
         }
     }
@@ -826,42 +833,45 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void configureMockedHal() {
+        mUseAidlVhal = true;
         PropertyHandler handler = new PropertyHandler();
-        addProperty(CUSTOM_SEAT_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
+        addAidlProperty(CUSTOM_SEAT_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
-        addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_2, handler).setConfigArray(CONFIG_ARRAY_2);
-        addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_3, handler).setConfigArray(CONFIG_ARRAY_3);
-        addProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP, handler);
+        addAidlProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_2, handler).setConfigArray(CONFIG_ARRAY_2);
+        addAidlProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_3, handler).setConfigArray(CONFIG_ARRAY_3);
+        addAidlProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP, handler);
 
-        addProperty(INT_ARRAY_PROP_STATUS_ERROR, handler);
-        addProperty(INT_PROP_STATUS_UNAVAILABLE, handler);
-        addProperty(FLOAT_PROP_STATUS_UNAVAILABLE, handler);
-        addProperty(BOOLEAN_PROP_STATUS_ERROR, handler);
+        addAidlProperty(INT_ARRAY_PROP_STATUS_ERROR, handler);
+        addAidlProperty(INT_PROP_STATUS_UNAVAILABLE, handler);
+        addAidlProperty(FLOAT_PROP_STATUS_UNAVAILABLE, handler);
+        addAidlProperty(BOOLEAN_PROP_STATUS_ERROR, handler);
 
         VehiclePropValue tempValue = new VehiclePropValue();
-        tempValue.value.floatValues.add(INIT_TEMP_VALUE);
+        tempValue.value = new RawPropValues();
+        tempValue.value.floatValues = new float[]{INIT_TEMP_VALUE};
         tempValue.prop = VehiclePropertyIds.HVAC_TEMPERATURE_SET;
-        addProperty(VehiclePropertyIds.HVAC_TEMPERATURE_SET, tempValue)
+        addAidlProperty(VehiclePropertyIds.HVAC_TEMPERATURE_SET, tempValue)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
-        addProperty(VehiclePropertyIds.INFO_VIN);
+        addAidlProperty(VehiclePropertyIds.INFO_VIN);
 
-        addProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, handler);
-        addProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN, handler);
-        addProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR, handler);
-        addProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, handler);
-        addProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG, handler);
+        addAidlProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE, handler);
 
-        addProperty(CUSTOM_SEAT_INT_PROP_1, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
+        addAidlProperty(CUSTOM_SEAT_INT_PROP_1, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
                                                         .addAreaConfig(PASSENGER_SIDE_AREA_ID);
-        addProperty(CUSTOM_SEAT_INT_PROP_2, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
+        addAidlProperty(CUSTOM_SEAT_INT_PROP_2, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
                                                         .addAreaConfig(PASSENGER_SIDE_AREA_ID);
 
-        addProperty(NULL_VALUE_PROP, handler);
+        addAidlProperty(NULL_VALUE_PROP, handler);
 
         // Add properties for permission testing.
-        addProperty(SUPPORT_CUSTOM_PERMISSION, handler).setConfigArray(VENDOR_PERMISSION_CONFIG);
-        addProperty(PROP_WITH_READ_ONLY_PERMISSION, handler);
-        addProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
+        addAidlProperty(SUPPORT_CUSTOM_PERMISSION, handler).setConfigArray(
+                VENDOR_PERMISSION_CONFIG);
+        addAidlProperty(PROP_WITH_READ_ONLY_PERMISSION, handler);
+        addAidlProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {
