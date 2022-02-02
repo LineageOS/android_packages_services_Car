@@ -182,23 +182,23 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testGetError_whenNoError_shouldReceiveNull() {
+    public void testGetErrorResult_whenNoError_shouldReceiveNull() {
         String metricsConfigName = "my_metrics_config";
 
-        TelemetryProto.TelemetryError error = mResultStore.getError(metricsConfigName, true);
+        TelemetryProto.TelemetryError error = mResultStore.getErrorResult(metricsConfigName, true);
 
         assertThat(error).isNull();
     }
 
     @Test
-    public void testGetError_shouldReceiveError() throws Exception {
+    public void testGetErrorResult_shouldReceiveError() throws Exception {
         String metricsConfigName = "my_metrics_config";
         // write serialized error object to file
         Files.write(
                 new File(mTestErrorResultDir, metricsConfigName).toPath(),
                 TEST_TELEMETRY_ERROR.toByteArray());
 
-        TelemetryProto.TelemetryError error = mResultStore.getError(metricsConfigName, true);
+        TelemetryProto.TelemetryError error = mResultStore.getErrorResult(metricsConfigName, true);
 
         assertThat(error).isEqualTo(TEST_TELEMETRY_ERROR);
     }
@@ -216,11 +216,11 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutError_shouldWriteErrorAndRemoveInterimResultFile() throws Exception {
+    public void testPutErrorResult_shouldWriteErrorAndRemoveInterimResultFile() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
-        mResultStore.putError(metricsConfigName, TEST_TELEMETRY_ERROR);
+        mResultStore.putErrorResult(metricsConfigName, TEST_TELEMETRY_ERROR);
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
         assertThat(new File(mTestErrorResultDir, metricsConfigName).exists()).isTrue();
@@ -249,16 +249,28 @@ public class ResultStoreTest {
     }
 
     @Test
+    public void testRemoveResult_whenErrorResult_shouldDelete() throws Exception {
+        String metricsConfigName = "my_metrics_config";
+        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
+        writeBundleToFile(mTestErrorResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
+
+        mResultStore.removeResult(key);
+
+        assertThat(new File(mTestErrorResultDir, metricsConfigName).exists()).isFalse();
+    }
+
+    @Test
     public void testRemoveAllResults_shouldDeleteAll() throws Exception {
         mResultStore.putInterimResult("config 1", TEST_INTERIM_BUNDLE);
         mResultStore.putFinalResult("config 2", TEST_FINAL_BUNDLE);
-        mResultStore.putError("config 3", TEST_TELEMETRY_ERROR);
+        mResultStore.putErrorResult("config 3", TEST_TELEMETRY_ERROR);
         mResultStore.flushToDisk();
 
         mResultStore.removeAllResults();
 
         assertThat(mTestInterimResultDir.listFiles()).isEmpty();
         assertThat(mTestFinalResultDir.listFiles()).isEmpty();
+        assertThat(mTestErrorResultDir.listFiles()).isEmpty();
     }
 
     private void writeBundleToFile(

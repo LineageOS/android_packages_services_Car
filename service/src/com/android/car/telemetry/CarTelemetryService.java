@@ -109,8 +109,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     @Override
     public void release() {
-        // TODO(b/197969149): prevent threading issue, block main thread
         mTelemetryHandler.post(() -> mResultStore.flushToDisk());
+        mTelemetryThread.quitSafely();
     }
 
     @Override
@@ -249,7 +249,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                         "Flushing reports for metrics config " + key.getName());
             }
             PersistableBundle result = mResultStore.getFinalResult(key.getName(), true);
-            TelemetryProto.TelemetryError error = mResultStore.getError(key.getName(), true);
+            TelemetryProto.TelemetryError error = mResultStore.getErrorResult(key.getName(), true);
             if (result != null) {
                 sendFinalResult(key, result);
             } else if (error != null) {
