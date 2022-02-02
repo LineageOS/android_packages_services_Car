@@ -15,6 +15,7 @@
  */
 
 #include "Enumerator.h"
+#include "EnumeratorProxy.h"
 #include "ServiceNames.h"
 
 #include <android-base/logging.h>
@@ -31,6 +32,7 @@
 using android::OK;
 using android::status_t;
 using android::automotive::evs::V1_1::implementation::Enumerator;
+using android::automotive::evs::V1_1::implementation::EnumeratorProxy;
 using android::hardware::configureRpcThreadpool;
 using android::hardware::joinRpcThreadpool;
 using android::hardware::automotive::evs::V1_0::IEvsDisplay;
