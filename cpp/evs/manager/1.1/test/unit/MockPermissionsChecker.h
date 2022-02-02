@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 
-#ifndef CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKSERVICEFACTORY_H_
-#define CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKSERVICEFACTORY_H_
+#ifndef CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKPERMISSIONSCHECKER_H_
+#define CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKPERMISSIONSCHECKER_H_
 
-#include "MockEvsEnumerator.h"
-#include "ServiceFactory.h"
+#include "IPermissionsChecker.h"
 
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-#include <string_view>
-
 namespace android::automotive::evs::V1_1::implementation {
 
-class MockServiceFactory : public ServiceFactory {
+class MockPermissionsChecker : public IPermissionsChecker {
 public:
-    MockServiceFactory() {
-        ON_CALL(*this, getService).WillByDefault(::testing::Invoke([&]() {
-            return &mockEvsEnumerator;
-        }));
-    }
-    ~MockServiceFactory() override = default;
+    ~MockPermissionsChecker() override = default;
 
-    MOCK_METHOD(IEvsEnumerator*, getService, (), (override));
-
-private:
-    android::automotive::evs::V1_1::implementation::MockEvsEnumerator mockEvsEnumerator;
+    MOCK_METHOD(bool, processHasPermissionsForEvs, (), (override));
 };
 
-using NiceMockServiceFactory = ::testing::NiceMock<MockServiceFactory>;
+using NiceMockPermissionsChecker = ::testing::NiceMock<MockPermissionsChecker>;
 
 }  // namespace android::automotive::evs::V1_1::implementation
 
-#endif  // CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKSERVICEFACTORY_H_
+#endif  // CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKPERMISSIONSCHECKER_H_

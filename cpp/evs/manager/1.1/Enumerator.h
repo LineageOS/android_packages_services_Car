@@ -18,6 +18,7 @@
 #define CPP_EVS_MANAGER_1_1_ENUMERATOR_H_
 
 #include "HalCamera.h"
+#include "IPermissionsChecker.h"
 #include "ServiceFactory.h"
 #include "VirtualCamera.h"
 #include "emul/EvsEmulatedCamera.h"
@@ -55,11 +56,14 @@ class Enumerator : public IEvsEnumerator {
 public:
     // For testing.
     explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
-                        std::unique_ptr<IStatsCollector> statsCollector);
+                        std::unique_ptr<IStatsCollector> statsCollector,
+                        std::unique_ptr<IPermissionsChecker> permissionChecker);
 
     static std::unique_ptr<Enumerator> build(const char* hardwareServiceName);
-    static std::unique_ptr<Enumerator> build(std::unique_ptr<ServiceFactory> serviceFactory,
-                                             std::unique_ptr<IStatsCollector> statsCollector);
+    static std::unique_ptr<Enumerator> build(
+            std::unique_ptr<ServiceFactory> serviceFactory,
+            std::unique_ptr<IStatsCollector> statsCollector,
+            std::unique_ptr<IPermissionsChecker> permissionChecker);
 
     virtual ~Enumerator() = default;
 
@@ -95,11 +99,12 @@ public:
                                  const hidl_vec<hardware::hidl_string>& options) override;
 
 private:
-    bool inline checkPermission();
     bool isLogicalCamera(const camera_metadata_t* metadata);
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& id);
 
     const std::unique_ptr<ServiceFactory> mServiceFactory;
+    const std::unique_ptr<IStatsCollector> mStatsCollector;
+    const std::unique_ptr<IPermissionsChecker> mPermissionChecker;
 
     wp<hardware::automotive::evs::V1_0::IEvsDisplay> mActiveDisplay;
 
@@ -114,9 +119,6 @@ private:
 
     // Display port the internal display is connected to.
     uint8_t mInternalDisplayPort;
-
-    // Collecting camera usage statistics from clients.
-    std::unique_ptr<IStatsCollector> mStatsCollector;
 
     // Boolean flag to tell whether the camera usages are being monitored or not.
     bool mMonitorEnabled = false;

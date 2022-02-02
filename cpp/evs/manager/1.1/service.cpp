@@ -56,8 +56,7 @@ static void startService(Context* context) {
     // Register our service -- if somebody is already registered by our name,
     // they will be killed (their thread pool will throw an exception).
     LOG(INFO) << "EVS managed service is starting as " << context->managerServiceName;
-    if (status_t status = context->enumerator->registerAsService(context->managerServiceName);
-        status != OK) {
+    if (status_t status = context->enumerator->registerAsService(); status != OK) {
         LOG(ERROR) << "Could not register service " << context->managerServiceName
                    << " status = " << status << " - quitting from registrationThread";
         exit(2);
