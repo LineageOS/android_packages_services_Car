@@ -58,6 +58,7 @@ import android.media.audiopolicy.AudioPolicy;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -105,6 +106,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     static final @AttributeUsage int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
     static final @AudioContext int DEFAULT_AUDIO_CONTEXT = CarAudioContext.getContextForUsage(
             CarAudioService.DEFAULT_AUDIO_USAGE);
+
+    private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
+            "ro.android.car.audio.enableaudiopatch";
 
     // CarAudioService reads configuration from the following paths respectively.
     // If the first one is found, all others are ignored.
@@ -305,6 +309,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             writer.println("Configurations:");
             writer.increaseIndent();
             writer.printf("Run in legacy mode? %b\n", !mUseDynamicRouting);
+            writer.printf("Audio Patch APIs enabled? %b\n", areAudioPatchAPIsEnabled());
             writer.printf("Persist master mute state? %b\n", mPersistMasterMuteState);
             writer.printf("Use hal ducking signals %b\n", mUseHalDuckingSignals);
             writer.printf("Volume context priority list version: %d\n",
@@ -748,6 +753,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public CarAudioPatchHandle createAudioPatch(String sourceAddress,
             @AttributeUsage int usage, int gainInMillibels) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        enforceCanUseAudioPatchAPI();
         synchronized (mImplLock) {
             return createAudioPatchLocked(sourceAddress, usage, gainInMillibels);
         }
@@ -756,9 +762,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public void releaseAudioPatch(CarAudioPatchHandle carPatch) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+        enforceCanUseAudioPatchAPI();
         synchronized (mImplLock) {
             releaseAudioPatchLocked(carPatch);
         }
+    }
+
+    private void enforceCanUseAudioPatchAPI() {
+        if (!areAudioPatchAPIsEnabled()) {
+            throw new IllegalStateException("Audio Patch APIs not enabled, see "
+                    + PROPERTY_RO_ENABLE_AUDIO_PATCH);
+        }
+    }
+
+    private boolean areAudioPatchAPIsEnabled() {
+        return SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, /* default= */ false);
     }
 
     @GuardedBy("mImplLock")
