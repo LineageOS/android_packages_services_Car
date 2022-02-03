@@ -17,7 +17,7 @@
 package com.android.car.input;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
-import static android.hardware.automotive.vehicle.V2_0.CustomInputType.CUSTOM_EVENT_F1;
+import static android.hardware.automotive.vehicle.CustomInputType.CUSTOM_EVENT_F1;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -33,9 +33,9 @@ import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
-import android.hardware.automotive.vehicle.V2_0.RotaryInputType;
-import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.RotaryInputType;
+import android.hardware.automotive.vehicle.VehicleDisplay;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
@@ -46,7 +46,7 @@ import androidx.test.filters.MediumTest;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.MockedCarTestBase;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.Test;
@@ -219,17 +219,18 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        addProperty(VehicleProperty.HW_KEY_INPUT,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
-                        .addIntValue(0, 0, 0)
+        mUseAidlVhal = true;
+        addAidlProperty(VehicleProperty.HW_KEY_INPUT,
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                        .addIntValues(0, 0, 0)
                         .build());
-        addProperty(VehicleProperty.HW_ROTARY_INPUT,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_ROTARY_INPUT)
-                        .addIntValue(0, 1, 0)
+        addAidlProperty(VehicleProperty.HW_ROTARY_INPUT,
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_ROTARY_INPUT)
+                        .addIntValues(0, 1, 0)
                         .build());
-        addProperty(VehicleProperty.HW_CUSTOM_INPUT,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_CUSTOM_INPUT)
-                        .addIntValue(0)
+        addAidlProperty(VehicleProperty.HW_CUSTOM_INPUT,
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_CUSTOM_INPUT)
+                        .addIntValues(0)
                         .build());
     }
 
@@ -978,27 +979,28 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     private void injectKeyEvent(boolean down, int keyCode, int vehicleDisplayType) {
-        getHidlMockedVehicleHal().injectEvent(
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
-                        .addIntValue(down ? 0 : 1, keyCode, vehicleDisplayType)
+        getAidlMockedVehicleHal().injectEvent(
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                        .addIntValues(down ? 0 : 1, keyCode, vehicleDisplayType)
                         .build());
     }
 
     private void injectRotaryNavigationEvent(int displayTarget, int numClicks) {
-        VehiclePropValueBuilder builder = VehiclePropValueBuilder.newBuilder(
+        AidlVehiclePropValueBuilder builder = AidlVehiclePropValueBuilder.newBuilder(
                 VehicleProperty.HW_ROTARY_INPUT)
-                .addIntValue(RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION, numClicks,
+                .addIntValues(RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION, numClicks,
                         displayTarget);
         for (int i = 0; i < numClicks - 1; i++) {
-            builder.addIntValue(0);
+            builder.addIntValues(0);
         }
-        getHidlMockedVehicleHal().injectEvent(builder.build());
+        getAidlMockedVehicleHal().injectEvent(builder.build());
     }
 
     private void injectCustomInputEvent(int inputCode, int targetDisplayType, int repeatCounter) {
-        VehiclePropValueBuilder builder = VehiclePropValueBuilder.newBuilder(
+        AidlVehiclePropValueBuilder builder = AidlVehiclePropValueBuilder.newBuilder(
                 VehicleProperty.HW_CUSTOM_INPUT)
-                .addIntValue(inputCode).addIntValue(targetDisplayType).addIntValue(repeatCounter);
-        getHidlMockedVehicleHal().injectEvent(builder.build());
+                .addIntValues(inputCode).addIntValues(targetDisplayType)
+                .addIntValues(repeatCounter);
+        getAidlMockedVehicleHal().injectEvent(builder.build());
     }
 }
