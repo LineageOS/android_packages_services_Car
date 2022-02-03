@@ -79,6 +79,8 @@ message GaugeMetric {
 
   optional FieldFilter gauge_fields_filter = 3;
 
+  optional int64 condition = 4;
+
   optional FieldMatcher dimensions_in_what = 5;
 
   optional TimeUnit bucket = 6;
@@ -95,7 +97,7 @@ message GaugeMetric {
 
   optional int32 max_pull_delay_sec = 13 [default = 30];
 
-  reserved 4, 7, 8, 10, 12, 14;
+  reserved 7, 8, 10, 12, 14;
   reserved 100;
   reserved 101;
 }
@@ -106,6 +108,49 @@ message PullAtomPackages {
   repeated string packages = 2;
 }
 
+message SimplePredicate {
+  optional int64 start = 1;
+
+  optional int64 stop = 2;
+
+  optional bool count_nesting = 3 [default = true];
+
+  optional int64 stop_all = 4;
+
+  enum InitialValue {
+    UNKNOWN = 0;
+    FALSE = 1;
+  }
+
+  optional InitialValue initial_value = 5;
+
+  optional FieldMatcher dimensions = 6;
+}
+
+enum LogicalOperation {
+  LOGICAL_OPERATION_UNSPECIFIED = 0;
+  AND = 1;
+  OR = 2;
+  NOT = 3;
+  NAND = 4;
+  NOR = 5;
+}
+
+message Predicate {
+  optional int64 id = 1;
+
+  message Combination {
+    optional LogicalOperation operation = 1;
+
+    repeated int64 predicate = 2;
+  }
+
+  oneof contents {
+    SimplePredicate simple_predicate = 2;
+    Combination combination = 3;
+  }
+}
+
 message StatsdConfig {
   optional int64 id = 1;
 
@@ -114,6 +159,8 @@ message StatsdConfig {
   repeated GaugeMetric gauge_metric = 5;
 
   repeated AtomMatcher atom_matcher = 7;
+
+  repeated Predicate predicate = 8;
 
   repeated string allowed_log_source = 12;
 
@@ -127,7 +174,7 @@ message StatsdConfig {
 
   repeated int32 whitelisted_atom_ids = 24;
 
-  reserved 3, 4, 6, 8, 9, 10, 11, 13, 14, 17, 18, 19, 21, 22, 25;
+  reserved 3, 4, 6, 9, 10, 11, 13, 14, 17, 18, 19, 21, 22, 25;
 
   // Do not use.
   reserved 1000, 1001;
