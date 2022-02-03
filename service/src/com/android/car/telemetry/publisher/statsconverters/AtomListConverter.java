@@ -62,6 +62,9 @@ public class AtomListConverter {
             List<Integer> dimensionsFieldsIds,
             List<List<DimensionsValue>> dimensionsValuesList,
             Map<Long, String> hashToStringMap) throws StatsConversionException {
+        if (atoms.size() == 0) {
+            throw new StatsConversionException("Atoms list is empty.");
+        }
         // The atoms are either pushed or pulled type atoms.
         if (atoms.get(0).getPushedCase() != Atom.PushedCase.PUSHED_NOT_SET) {
             return sPushedCaseConverters.get(atoms.get(0).getPushedCase()).convert(
