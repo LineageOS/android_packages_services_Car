@@ -21,9 +21,9 @@ import android.car.Car;
 import android.car.CarInfoManager;
 import android.car.PortLocationType;
 import android.car.VehicleAreaSeat;
-import android.hardware.automotive.vehicle.V2_0.EvConnectorType;
-import android.hardware.automotive.vehicle.V2_0.FuelType;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.EvConnectorType;
+import android.hardware.automotive.vehicle.FuelType;
+import android.hardware.automotive.vehicle.VehicleProperty;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;

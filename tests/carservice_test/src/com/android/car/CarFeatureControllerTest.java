@@ -20,7 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.car.Car;
 import android.car.CarFeatures;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.util.Log;
 
 import androidx.test.annotation.UiThreadTest;
