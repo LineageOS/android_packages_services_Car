@@ -395,7 +395,8 @@ public abstract class InstrumentClusterRenderingService extends Service {
                 .addCategory(Car.CAR_CATEGORY_NAVIGATION)
                 .setPackage(packageName);
         List<ResolveInfo> resolveList = packageManager.queryIntentActivitiesAsUser(intent,
-                PackageManager.GET_RESOLVED_FILTER, ActivityManager.getCurrentUser());
+                PackageManager.GET_RESOLVED_FILTER,
+                UserHandle.of(ActivityManager.getCurrentUser()));
         if (resolveList == null || resolveList.isEmpty()
                 || resolveList.get(0).getComponentInfo() == null) {
             Log.i(TAG, "Failed to resolve an intent: " + intent);
@@ -419,7 +420,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
             startFixedActivityModeForDisplayAndUser(intent, mActivityOptions,
-                    UserHandle.CURRENT.getIdentifier());
+                    ActivityManager.getCurrentUser());
             Log.i(TAG, String.format("Activity launched: %s (options: %s, displayId: %d)",
                     mActivityOptions, intent, mActivityOptions.getLaunchDisplayId()));
         } catch (ActivityNotFoundException e) {
