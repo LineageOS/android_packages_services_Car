@@ -36,15 +36,8 @@ java_sdk_library {
     // First release, not enabled.
     unsafe_ignore_missing_latest_api: true,
 
-    libs: [
-        // For NetworkStats related definitions.
-        "framework-connectivity-tiramisu.stubs.module_lib",
-    ],
-
     stub_only_libs: [
         "framework-bluetooth",
-        // For generating stubs that contains NetworkStats definition.
-        "framework-connectivity-tiramisu.stubs.module_lib",
     ],
 
     test: {

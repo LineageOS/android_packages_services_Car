@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,15 +19,16 @@ package com.android.car.telemetry.publisher;
 import android.annotation.NonNull;
 import android.app.StatsManager;
 import android.app.usage.NetworkStatsManager;
-import android.car.builtin.net.NetworkStatsServiceHelper;
 import android.content.Context;
 import android.os.Handler;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.internal.util.Preconditions;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * Lazy factory class for Publishers. It's expected to have a single factory instance. Must be
@@ -98,17 +99,14 @@ public class PublisherFactory {
                     return mStatsPublisher;
                 case TelemetryProto.Publisher.CONNECTIVITY_FIELD_NUMBER:
                     if (mConnectivityPublisher == null) {
-                        final NetworkStatsManager networkStatsManager =
-                                mContext.getSystemService(NetworkStatsManager.class);
-                        Preconditions.checkNotNull(networkStatsManager);
-                        NetworkStatsServiceHelper.Dependencies deps =
-                                new NetworkStatsServiceHelper.Dependencies(networkStatsManager);
+                        NetworkStatsManager networkStatsManager =
+                                Objects.requireNonNull(
+                                        mContext.getSystemService(NetworkStatsManager.class));
                         mConnectivityPublisher =
                                 new ConnectivityPublisher(
                                         mFailureListener,
-                                        new NetworkStatsServiceHelper(deps),
-                                        mTelemetryHandler,
-                                        mContext);
+                                        new NetworkStatsManagerProxy(networkStatsManager),
+                                        mTelemetryHandler);
                     }
                     return mConnectivityPublisher;
                 default:

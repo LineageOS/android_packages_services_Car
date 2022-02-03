@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,11 @@ package com.android.car.telemetry.publisher;
 import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
 import android.annotation.NonNull;
-import android.car.builtin.net.NetworkStatsHelper;
-import android.car.builtin.net.NetworkStatsHelper.EntryHelper;
-import android.car.builtin.net.NetworkStatsServiceHelper;
+import android.app.usage.NetworkStats;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
-import android.content.Context;
-import android.net.NetworkStats;
+import android.car.builtin.util.TimingsTraceLog;
+import android.net.NetworkTemplate;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
@@ -37,22 +36,23 @@ import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
 import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
 import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
+import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;
+import com.android.car.telemetry.publisher.net.RefinedStats;
 import com.android.internal.util.Preconditions;
 
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Objects;
 
 /**
  * Publisher implementation for {@link TelemetryProto.ConnectivityPublisher}.
  *
  * <p>This publisher pulls netstats periodically from NetworkStatsService. It publishes statistics
- * between the last pull and now. The {@link NetworkStats} are stored in NetworkStatsService in
- * 2 hours buckets, we won't be able to get precise netstats if we use the buckets mechanism,
- * that's why we will be storing baseline (or previous) netstats in ConnectivityPublisher to find
- * netstats diff between now and the last pull.
+ * between the last pull and now. The {@link NetworkStats} are stored in NetworkStatsService in 2
+ * hours buckets, we won't be able to get precise netstats if we use the buckets mechanism, that's
+ * why we will be storing baseline (or previous) netstats in ConnectivityPublisher to find netstats
+ * diff between now and the last pull.
  */
 public class ConnectivityPublisher extends AbstractPublisher {
     // The default bucket duration used when query a snapshot from NetworkStatsService. The value
@@ -60,38 +60,37 @@ public class ConnectivityPublisher extends AbstractPublisher {
     private static final long NETSTATS_UID_DEFAULT_BUCKET_DURATION_MILLIS =
             Duration.ofHours(2).toMillis();
 
-    // TODO(b/202115033): Flatten the load spike by pulling reports for each MetricsConfigs
+    // TODO(b/218529196): Flatten the load spike by pulling reports for each MetricsConfigs
     //                    using separate periodical timers.
     // TODO(b/197905656): Use driving sessions to compute network usage statistics.
-    private static final Duration PULL_NETSTATS_PERIOD = Duration.ofSeconds(60);
+    private static final Duration PULL_NETSTATS_PERIOD = Duration.ofSeconds(90);
 
     // Assign the method to {@link Runnable}, otherwise the handler fails to remove it.
     private final Runnable mPullNetstatsPeriodically = this::pullNetstatsPeriodically;
-
-    private final Context mContext;
 
     // Use ArrayMap instead of HashMap to improve memory usage. It doesn't store more than 100s
     // of items, and it's good enough performance-wise.
     private final ArrayMap<QueryParam, ArrayList<DataSubscriber>> mSubscribers = new ArrayMap<>();
 
     // Stores previous netstats for computing network usage since the last pull.
-    private final ArrayMap<QueryParam, NetworkStats> mTransportPreviousNetstats = new ArrayMap<>();
+    private final ArrayMap<QueryParam, RefinedStats> mTransportPreviousNetstats = new ArrayMap<>();
 
     // All the methods in this class are expected to be called on this handler's thread.
     private final Handler mTelemetryHandler;
 
-    private NetworkStatsServiceHelper mNetworkStatsService;
+    private final TimingsTraceLog mTraceLog;
+
+    private NetworkStatsManagerProxy mNetworkStatsManager;
     private boolean mIsPullingNetstats = false;
 
     ConnectivityPublisher(
             @NonNull PublisherFailureListener failureListener,
-            @NonNull NetworkStatsServiceHelper networkStatsService,
-            @NonNull Handler telemetryHandler,
-            @NonNull Context context) {
+            @NonNull NetworkStatsManagerProxy networkStatsManager,
+            @NonNull Handler telemetryHandler) {
         super(failureListener);
-        mNetworkStatsService = networkStatsService;
+        mNetworkStatsManager = networkStatsManager;
         mTelemetryHandler = telemetryHandler;
-        mContext = context;
+        mTraceLog = new TimingsTraceLog(CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         for (Transport transport : Transport.values()) {
             if (transport.equals(Transport.TRANSPORT_UNDEFINED)) {
                 continue;
@@ -150,6 +149,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     private void pullInitialNetstats() {
+        mTraceLog.traceBegin("ConnectivityPublisher.pullInitialNetstats");
         if (DEBUG) {
             Slogf.d(CarLog.TAG_TELEMETRY, "ConnectivityPublisher is pulling initial netstats");
         }
@@ -162,6 +162,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
             // will update the baseline netstats.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
         }
+        mTraceLog.traceEnd();
     }
 
     private void pullNetstatsPeriodically() {
@@ -185,99 +186,38 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
     private void pullAndForwardNetstatsToSubscribers(
             @NonNull QueryParam param, @NonNull ArrayList<DataSubscriber> subscribers) {
-        NetworkStats current;
-        long collectedAtMillis = System.currentTimeMillis();
+        mTraceLog.traceBegin("ConnectivityPublisher.pullAndForwardNetstatsToSubscribers");
+
+        RefinedStats current;
         try {
             current = getSummaryForAllUid(param);
         } catch (RemoteException | NullPointerException e) {
             // If the NetworkStatsService is not available, it retries in the next pull.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
+            mTraceLog.traceEnd();
             return;
         }
-        NetworkStats baseline = mTransportPreviousNetstats.get(param);
-        // Update the baseline, so that next pull will calculate diff from the current.
+        RefinedStats previous = mTransportPreviousNetstats.get(param);
+        // Update the previous, so that next pull will calculate diff from the current.
         mTransportPreviousNetstats.put(param, current);
-        if (baseline == null) {
+        if (previous == null) {
             Slogf.w(
                     CarLog.TAG_TELEMETRY,
-                    "Baseline is null for param %s. Will try again in the next pull.",
+                    "Previous stats is null for param %s. Will try again in the next pull.",
                     param);
+            mTraceLog.traceEnd();
             return;
         }
 
-        NetworkStats diff = current.subtract(baseline); // network usage since last pull
-        PersistableBundle data = convertStatsToBundle(diff, collectedAtMillis);
+        // By subtracting, it calculates network usage since the last pull.
+        RefinedStats diff = RefinedStats.subtract(current, previous);
+        PersistableBundle data = diff.toPersistableBundle();
 
         for (DataSubscriber subscriber : subscribers) {
             subscriber.push(data);
         }
-    }
 
-    /**
-     * Converts the provided {@link NetworkStats} object to {@link PersistableBundle}. It also
-     * combines dimensions {@code set}, {@code metered}, {@code roaming} and {@code defaultNetwork},
-     * leaving only {@code uid} and {@code tag}.
-     *
-     * <p>Format: <code>
-     *   PersistableBundle[{
-     *     collectedAtMillis = 1640779280000,
-     *     durationMillis = 60_000,
-     *     size  = 3,
-     *     uid = IntArray[0, 1000, 12345],
-     *     tag = IntArray[0, 0, 5555],
-     *     rxBytes = LongArray[0, 0, 0],
-     *     txBytes = LongArray[0, 0, 0],
-     *   }]
-     * </code> Where "collectedAtMillis" is a timestamp (wall clock) since epoch when data is
-     * collected; field "durationMillis" is a time range when the data was collected; field "size"
-     * is the length of "uid", "tag", "rxBytes", "txBytes" arrays; fields "uid" and "tag" are
-     * dimensions; fields "rxBytes", "txBytes" are received and transmitted bytes for given
-     * dimensions.
-     *
-     * <p>"tag" field may contain "0" {@link NetworkStats.TAG_NONE}, which is the total value across
-     * all the tags.
-     *
-     * <p>This code is similar to hidden {@code NetworkStats#groupedByIface()} method.
-     */
-    private static PersistableBundle convertStatsToBundle(
-            NetworkStats stats, long collectedAtMillis) {
-        int dataSize = NetworkStatsHelper.size(stats);
-        int[] uid = new int[dataSize];
-        int[] tag = new int[dataSize];
-        long[] rxBytes = new long[dataSize];
-        long[] txBytes = new long[dataSize];
-        int aggregatedDataSize = 0;
-        final Iterator it = stats.iterator();
-        while (it.hasNext()) {
-            NetworkStats.Entry raw = (NetworkStats.Entry) it.next();
-            int index = -1;
-            for (int j = 0; j < aggregatedDataSize; j++) {
-                if (uid[j] == EntryHelper.getUid(raw) && tag[j] == EntryHelper.getTag(raw)) {
-                    index = j;
-                    break;
-                }
-            }
-            if (index == -1) {
-                aggregatedDataSize += 1; // append the new Entry
-                index = aggregatedDataSize - 1;
-                uid[index] = EntryHelper.getUid(raw);
-                tag[index] = EntryHelper.getTag(raw);
-            }
-            rxBytes[index] += EntryHelper.getRxBytes(raw);
-            txBytes[index] += EntryHelper.getTxBytes(raw);
-        }
-
-        PersistableBundle data = new PersistableBundle();
-        data.putLong("collectedAtMillis", collectedAtMillis);
-        // TODO(b/215933256): NetworkStats.getElapsedRealtime cannot be accessed as public API,
-        // use 1L temporarily to pass the test, replace it with an appropriate value later.
-        data.putLong("durationMillis", 1L);
-        data.putInt("size", aggregatedDataSize);
-        data.putIntArray("uid", Arrays.copyOf(uid, aggregatedDataSize));
-        data.putIntArray("tag", Arrays.copyOf(tag, aggregatedDataSize));
-        data.putLongArray("rxBytes", Arrays.copyOf(rxBytes, aggregatedDataSize));
-        data.putLongArray("txBytes", Arrays.copyOf(txBytes, aggregatedDataSize));
-        return data;
+        mTraceLog.traceEnd();
     }
 
     /**
@@ -288,23 +228,32 @@ public class ConnectivityPublisher extends AbstractPublisher {
      *
      * <p>This method might block the thread for several seconds.
      *
-     * <p>TODO(b/197905656): run this method on a separate thread for better performance.
+     * <p>TODO(b/218529196): run this method on a separate thread for better performance.
      */
     @NonNull
-    private NetworkStats getSummaryForAllUid(@NonNull QueryParam param) throws RemoteException {
+    private RefinedStats getSummaryForAllUid(@NonNull QueryParam param) throws RemoteException {
+        if (DEBUG) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "getSummaryForAllUid " + param);
+        }
         long currentTimeInMillis = System.currentTimeMillis();
         long elapsedMillisSinceBoot = SystemClock.elapsedRealtime(); // including sleep
-
         // TODO(b/197905656): consider using the current netstats bucket value
         //                    from Settings.Global.NETSTATS_UID_BUCKET_DURATION.
-        return mNetworkStatsService.getSummaryForAllUid(
-                param.getTransport(),
-                param.getOemManaged(),
-                /* start= */ currentTimeInMillis
-                        - elapsedMillisSinceBoot
-                        - NETSTATS_UID_DEFAULT_BUCKET_DURATION_MILLIS,
-                /* end= */ currentTimeInMillis,
-                mContext.getOpPackageName());
+        long startMillis = currentTimeInMillis
+                - elapsedMillisSinceBoot
+                - NETSTATS_UID_DEFAULT_BUCKET_DURATION_MILLIS;
+
+        NetworkStatsWrapper nonTaggedStats =
+                mNetworkStatsManager.querySummary(
+                        param.buildNetworkTemplate(), startMillis, currentTimeInMillis);
+        NetworkStatsWrapper taggedStats =
+                mNetworkStatsManager.queryTaggedSummary(
+                        param.buildNetworkTemplate(), startMillis, currentTimeInMillis);
+
+        RefinedStats result = new RefinedStats(startMillis, currentTimeInMillis);
+        result.addNetworkStats(nonTaggedStats);
+        result.addNetworkStats(taggedStats);
+        return result;
     }
 
     private boolean isSubscribersEmpty() {
@@ -317,12 +266,12 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     /**
-     * Parameters to query data from NetworkStatsService. Converts {@link Transport} and
-     * {@link OemType} values into NetworkStatsService supported values.
+     * Parameters to query data from NetworkStatsService. Converts {@link Transport} and {@link
+     * OemType} values into NetworkStatsService supported values.
      */
     private static class QueryParam {
-        private int mTransport;
-        private int mOemManaged;
+        private int mMatchRule; // Must be one of NetworkTemplate.TemplateMatchRule
+        private int mOemManaged; // Must be one of NetworkTemplate.OemManaged
 
         @NonNull
         static QueryParam forSubscriber(@NonNull DataSubscriber subscriber) {
@@ -333,32 +282,29 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
         @NonNull
         static QueryParam build(@NonNull Transport transport, @NonNull OemType oemType) {
-            return new QueryParam(getNetstatsTransport(transport), getNetstatsOemManaged(oemType));
+            return new QueryParam(getMatchRule(transport), getNetstatsOemManaged(oemType));
         }
 
         private QueryParam(int transport, int oemManaged) {
-            mTransport = transport;
+            mMatchRule = transport;
             mOemManaged = oemManaged;
         }
 
-        int getTransport() {
-            return mTransport;
+        @NonNull
+        NetworkTemplate buildNetworkTemplate() {
+            return new NetworkTemplate.Builder(mMatchRule).setOemManaged(mOemManaged).build();
         }
 
-        int getOemManaged() {
-            return mOemManaged;
-        }
-
-        private static int getNetstatsTransport(@NonNull Transport transport) {
+        private static int getMatchRule(@NonNull Transport transport) {
             switch (transport) {
                 case TRANSPORT_CELLULAR:
-                    return NetworkStatsServiceHelper.TRANSPORT_CELLULAR;
+                    return NetworkTemplate.MATCH_MOBILE;
                 case TRANSPORT_ETHERNET:
-                    return NetworkStatsServiceHelper.TRANSPORT_ETHERNET;
+                    return NetworkTemplate.MATCH_ETHERNET;
                 case TRANSPORT_WIFI:
-                    return NetworkStatsServiceHelper.TRANSPORT_WIFI;
+                    return NetworkTemplate.MATCH_WIFI;
                 case TRANSPORT_BLUETOOTH:
-                    return NetworkStatsServiceHelper.TRANSPORT_BLUETOOTH;
+                    return NetworkTemplate.MATCH_BLUETOOTH;
                 default:
                     throw new IllegalArgumentException("Unexpected transport " + transport.name());
             }
@@ -367,9 +313,9 @@ public class ConnectivityPublisher extends AbstractPublisher {
         private static int getNetstatsOemManaged(@NonNull OemType oemType) {
             switch (oemType) {
                 case OEM_NONE:
-                    return NetworkStatsServiceHelper.OEM_MANAGED_NO;
+                    return NetworkTemplate.OEM_MANAGED_NO;
                 case OEM_MANAGED:
-                    return NetworkStatsServiceHelper.OEM_MANAGED_YES;
+                    return NetworkTemplate.OEM_MANAGED_YES;
                 default:
                     throw new IllegalArgumentException("Unexpected oem_type " + oemType.name());
             }
@@ -377,12 +323,12 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
         @Override
         public String toString() {
-            return "QueryParam(transport=" + mTransport + ", oemManaged=" + mOemManaged + ")";
+            return "QueryParam(matchRule=" + mMatchRule + ", oemManaged=" + mOemManaged + ")";
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(mTransport, mOemManaged);
+            return Objects.hash(mMatchRule, mOemManaged);
         }
 
         @Override
@@ -394,7 +340,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 return false;
             }
             QueryParam other = (QueryParam) obj;
-            return mTransport == other.mTransport && mOemManaged == other.mOemManaged;
+            return mMatchRule == other.mMatchRule && mOemManaged == other.mOemManaged;
         }
     }
 }
