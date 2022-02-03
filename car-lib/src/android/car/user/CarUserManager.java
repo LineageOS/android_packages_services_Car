@@ -856,19 +856,26 @@ public final class CarUserManager extends CarManagerBase {
     private final class Dumper implements Dumpable {
         @Override
         public void dump(PrintWriter pw, String[] args) {
+            String prefix = "  ";
+
             pw.printf("DBG=%b, VERBOSE=%b\n", DBG, VERBOSE);
+            int listenersSize = 0;
             synchronized (mLock) {
                 pw.printf("mReceiver: %s\n", mReceiver);
                 if (mListeners == null) {
                     pw.println("no listeners");
                 } else {
-                    pw.printf("%d listeners\n", mListeners.size());
+                    listenersSize = mListeners.size();
+                    pw.printf("%d listeners\n", listenersSize);
+                }
+                if (DBG) {
+                    for (int i = 0; i < listenersSize; i++) {
+                        pw.printf("%s%d: %s\n", prefix, i + 1, mListeners.keyAt(i));
+                    }
                 }
             }
             pw.printf("mNumberReceivedEvents: %d\n", mNumberReceivedEvents);
             if (VERBOSE && mEvents != null) {
-                String prefix = "  ";
-                // TODO: use increaseIndent if pw becomes a IndentingPrintWriter
                 for (int i = 0; i < mEvents.size(); i++) {
                     pw.printf("%s%d: %s\n", prefix, i + 1, mEvents.get(i));
                 }
