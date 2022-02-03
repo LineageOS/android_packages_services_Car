@@ -27,7 +27,7 @@ import com.android.internal.util.Preconditions;
  * Atom data converter for atoms of type {@link ProcessCpuTime}.
  */
 public class ProcessCpuTimeConverter extends AbstractAtomConverter<ProcessCpuTime> {
-    private static final SparseArray<AtomFieldAccessor<ProcessCpuTime>> sAtomFieldAccessorMap =
+    private static final SparseArray<AtomFieldAccessor<ProcessCpuTime, ?>> sAtomFieldAccessorMap =
             new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
@@ -58,7 +58,7 @@ public class ProcessCpuTimeConverter extends AbstractAtomConverter<ProcessCpuTim
 
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<ProcessCpuTime>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<ProcessCpuTime, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 

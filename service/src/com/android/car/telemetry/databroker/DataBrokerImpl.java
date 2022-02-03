@@ -155,7 +155,7 @@ public class DataBrokerImpl implements DataBroker {
         mPublisherFactory = publisherFactory;
         mResultStore = resultStore;
         mScriptExecutorListener = new ScriptExecutorListener(this);
-        mPublisherFactory.setFailureListener(this::onPublisherFailure);
+        mPublisherFactory.initialize(this::onPublisherFailure);
         mScriptExecutionTraceLog = traceLog;
     }
 

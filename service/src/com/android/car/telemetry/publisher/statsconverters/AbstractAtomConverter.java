@@ -60,7 +60,7 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
      * @return the atom fields parser config.
      */
     @NonNull
-    abstract SparseArray<AtomFieldAccessor<T>> getAtomFieldAccessorMap();
+    abstract SparseArray<AtomFieldAccessor<T, ?>> getAtomFieldAccessorMap();
 
     /**
      * Gets atom data of type T from atom proto.
@@ -104,10 +104,10 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
             @Nullable List<List<DimensionsValue>> dimensionsValuesList,
             @Nullable Map<Long, String> hashToStringMap) throws StatsConversionException {
         PersistableBundle bundle = new PersistableBundle();
-        SparseArray<AtomFieldAccessor<T>> parserConfig = getAtomFieldAccessorMap();
+        SparseArray<AtomFieldAccessor<T, ?>> parserConfig = getAtomFieldAccessorMap();
         // For each field, if set, add the values from all atoms to list and convert
         for (int i = 0; i < parserConfig.size(); ++i) {
-            AtomFieldAccessor<T> atomFieldAccessor = parserConfig.valueAt(i);
+            AtomFieldAccessor<T, ?> atomFieldAccessor = parserConfig.valueAt(i);
             // All atoms are expected to have the same fields set
             // If the first atom does not have a field, that field is skipped
             if (atomFieldAccessor.hasField(getAtomData(atoms.get(0)))) {
@@ -190,7 +190,7 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
      */
     private static void setPersistableBundleArrayField(
             @NonNull String name,
-            @NonNull List<Object> objList,
+            @NonNull List<?> objList,
             @NonNull PersistableBundle bundle) {
         Object e = objList.get(0);  // All elements of the list are the same type.
         if (e instanceof Integer) {

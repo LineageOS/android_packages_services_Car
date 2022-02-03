@@ -29,7 +29,7 @@ import com.android.internal.util.Preconditions;
 public class ActivityForegroundStateChangedConverter
         extends AbstractAtomConverter<ActivityForegroundStateChanged> {
     private static final SparseArray<
-            AtomFieldAccessor<ActivityForegroundStateChanged>> sAtomFieldAccessorMap =
+            AtomFieldAccessor<ActivityForegroundStateChanged, ?>> sAtomFieldAccessorMap =
             new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
@@ -60,7 +60,7 @@ public class ActivityForegroundStateChangedConverter
 
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<ActivityForegroundStateChanged>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<ActivityForegroundStateChanged, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 
