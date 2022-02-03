@@ -21,10 +21,12 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.MetricsConfigKey;
@@ -78,9 +80,11 @@ public class CarTelemetryServiceTest {
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
+    private ActivityManager mMockActivityManager;
+    @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
-    private Context mContext;
+    private Context mMockContext;
     @Mock
     private ICarTelemetryServiceListener mMockListener;
     @Mock
@@ -92,12 +96,21 @@ public class CarTelemetryServiceTest {
     public void setUp() throws Exception {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+        // ActivityManager is used by SystemMonitor
+        doAnswer(i -> {
+            ActivityManager.MemoryInfo mi = i.getArgument(0);
+            mi.availMem = 5_000_000L; // memory usage is at 50%
+            mi.totalMem = 10_000_000;
+            return null;
+        }).when(mMockActivityManager).getMemoryInfo(any(ActivityManager.MemoryInfo.class));
+        when(mMockContext.getSystemService(Context.ACTIVITY_SERVICE))
+                .thenReturn(mMockActivityManager);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
         when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        mService = new CarTelemetryService(mContext, mMockCarPropertyService);
+        mService = new CarTelemetryService(mMockContext, mMockCarPropertyService);
         mService.init();
         mService.setListener(mMockListener);
 
@@ -118,7 +131,7 @@ public class CarTelemetryServiceTest {
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
     }
 
     @Test
@@ -126,13 +139,13 @@ public class CarTelemetryServiceTest {
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
 
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS));
     }
 
     @Test
@@ -141,7 +154,7 @@ public class CarTelemetryServiceTest {
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED));
     }
 
     @Test
@@ -149,13 +162,13 @@ public class CarTelemetryServiceTest {
         mService.addMetricsConfig(KEY_V2, METRICS_CONFIG_V2.toByteArray());
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V2), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
 
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD));
+                eq(KEY_V1), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD));
     }
 
     @Test
@@ -168,7 +181,7 @@ public class CarTelemetryServiceTest {
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+                eq(KEY_V2), eq(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS));
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs())
                 .containsExactly(METRICS_CONFIG_V2);
         assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
@@ -235,14 +248,14 @@ public class CarTelemetryServiceTest {
                 .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
                 .setMessage("test error")
                 .build();
-        mResultStore.putError(KEY_V1.getName(), error);
+        mResultStore.putErrorResult(KEY_V1.getName(), error);
 
         mService.sendFinishedReports(KEY_V1);
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onError(eq(KEY_V1), eq(error.toByteArray()));
         // error should have been deleted
-        assertThat(mResultStore.getError(KEY_V1.getName(), false)).isNull();
+        assertThat(mResultStore.getErrorResult(KEY_V1.getName(), false)).isNull();
     }
 
     @Test

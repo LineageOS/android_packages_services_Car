@@ -14,7 +14,18 @@
   limitations under the License
   -->
 
-# How to run unit tests for ScriptExecutor
+# Test categories
+
+**1. Functional Tests
+
+ScriptExecutor functional tests that are run as system user - which is required by
+ScriptExecutor to invoke script processing.
+
+**2. Non-system-user Tests
+
+These are tests that does not need to be run as system user or tests running as non-system user.
+
+# How to run tests for ScriptExecutor
 
 **1. Navigate to the root of the repo and do full build:**
 
@@ -26,7 +37,7 @@
 
 **3. Run the tests. For example**
 
-`atest ScriptExecutorUnitTest:ScriptExecutorTest`
+`atest ScriptExecutorFunctionalTests:ScriptExecutorFunctionalTest`
 
 
 ## How to rerun the tests after changes
@@ -34,7 +45,7 @@ Sometimes a test needs to be modified. These are the steps to do incremental upd
 device flash.
 
 **1. Navigate to ScriptExecutor unit test location and build its targets:**
-`cd packages/services/Car/packages/ScriptExecutor/tests/unit`
+`cd packages/services/Car/packages/ScriptExecutor/tests/functional`
 
 `mm -j`
 
@@ -48,5 +59,5 @@ device flash.
 
 **3. At this point we are ready to run the tests again. For example:**
 
-`atest ScriptExecutorUnitTest:ScriptExecutorTest`
+`atest ScriptExecutorFunctionalTests:ScriptExecutorFunctionalTest`
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.scriptexecutor;
+package com.android.car.scriptexecutortest.unit;
 
 import static com.google.common.truth.Truth.assertThat;
 
