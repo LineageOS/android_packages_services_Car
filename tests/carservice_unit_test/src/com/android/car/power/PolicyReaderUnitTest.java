@@ -41,7 +41,7 @@ import static org.testng.Assert.assertThrows;
 
 import android.car.hardware.power.CarPowerPolicy;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 

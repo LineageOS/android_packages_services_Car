@@ -18,7 +18,7 @@ package com.android.car.hal;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.util.Log;
 
 import com.android.car.CarServiceUtils;

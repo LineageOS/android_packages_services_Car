@@ -295,7 +295,7 @@ public final class UserHalService extends HalServiceBase {
      * Calls HAL to asynchronously get info about the initial user.
      *
      * @param requestType type of request (as defined by
-     * {@link android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType}).
+     * {@link android.hardware.automotive.vehicle.InitialUserInfoRequestType}).
      * @param timeoutMs how long to wait (in ms) for the property change event.
      * @param usersInfo current state of Android users.
      * @param callback to handle the response.

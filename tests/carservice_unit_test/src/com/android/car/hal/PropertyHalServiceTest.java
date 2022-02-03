@@ -18,7 +18,7 @@ package com.android.car.hal;
 
 import static org.mockito.Mockito.when;
 
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 
 import androidx.test.runner.AndroidJUnit4;
 

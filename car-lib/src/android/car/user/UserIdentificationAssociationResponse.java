@@ -61,11 +61,11 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      *
      * <p>For {@link CarUserManager#getUserIdentificationAssociation(int...)}, the values are
      * defined on
-     * {@link android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue}.
+     * {@link android.hardware.automotive.vehicle.UserIdentificationAssociationValue}.
      *
      * <p>For {@link CarUserManager#setUserIdentificationAssociation(int...)}, the values are
      * defined on
-     * {@link android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue}.
+     * {@link android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue}.
      */
     @Nullable
     private final int[] mValues;
@@ -160,11 +160,11 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      *
      * <p>For {@link CarUserManager#getUserIdentificationAssociation(int...)}, the values are
      * defined on
-     * {@link android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue}.
+     * {@link android.hardware.automotive.vehicle.UserIdentificationAssociationValue}.
      *
      * <p>For {@link CarUserManager#setUserIdentificationAssociation(int...)}, the values are
      * defined on
-     * {@link android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue}.
+     * {@link android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue}.
      */
     @DataClass.Generated.Member
     public @Nullable int[] getValues() {
