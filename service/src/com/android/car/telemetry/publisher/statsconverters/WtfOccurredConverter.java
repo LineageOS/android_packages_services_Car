@@ -16,10 +16,12 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import android.annotation.NonNull;
 import android.util.SparseArray;
 
 import com.android.car.telemetry.AtomsProto;
 import com.android.car.telemetry.AtomsProto.WTFOccurred;
+import com.android.internal.util.Preconditions;
 
 /**
  * Atom data converter for atoms of type {@link WTFOccurred}.
@@ -61,16 +63,20 @@ public class WtfOccurredConverter extends AbstractAtomConverter<WTFOccurred> {
     }
 
     @Override
+    @NonNull
     SparseArray<AtomFieldAccessor<WTFOccurred>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 
     @Override
-    WTFOccurred getAtomData(AtomsProto.Atom atom) {
+    @NonNull
+    WTFOccurred getAtomData(@NonNull AtomsProto.Atom atom) {
+        Preconditions.checkArgument(atom.hasWtfOccurred(), "Atom doesn't contain WtfOccurred");
         return atom.getWtfOccurred();
     }
 
     @Override
+    @NonNull
     String getAtomDataClassName() {
         return WTFOccurred.class.getSimpleName();
     }

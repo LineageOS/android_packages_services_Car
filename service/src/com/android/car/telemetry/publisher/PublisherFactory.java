@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.publisher;
 
+import android.annotation.NonNull;
 import android.app.StatsManager;
 import android.content.Context;
 import android.net.INetworkStatsService;
@@ -24,6 +25,7 @@ import android.os.ServiceManager;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
+import com.android.internal.util.Preconditions;
 
 import java.io.File;
 
@@ -49,10 +51,10 @@ public class PublisherFactory {
     private AbstractPublisher.PublisherFailureListener mFailureListener;
 
     public PublisherFactory(
-            CarPropertyService carPropertyService,
-            Handler handler,
-            Context context,
-            File publisherDirectory) {
+            @NonNull CarPropertyService carPropertyService,
+            @NonNull Handler handler,
+            @NonNull Context context,
+            @NonNull File publisherDirectory) {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         mContext = context;
@@ -60,7 +62,8 @@ public class PublisherFactory {
     }
 
     /** Returns the publisher by given type. This method is thread-safe. */
-    public AbstractPublisher getPublisher(TelemetryProto.Publisher.PublisherCase type) {
+    @NonNull
+    public AbstractPublisher getPublisher(@NonNull TelemetryProto.Publisher.PublisherCase type) {
         // No need to optimize locks, as this method is infrequently called.
         synchronized (mLock) {
             switch (type.getNumber()) {
@@ -78,8 +81,9 @@ public class PublisherFactory {
                     return mCarTelemetrydPublisher;
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
-                        StatsManagerProxy statsManager = new StatsManagerImpl(
-                                mContext.getSystemService(StatsManager.class));
+                        StatsManager stats = mContext.getSystemService(StatsManager.class);
+                        Preconditions.checkState(stats != null, "StatsManager not found");
+                        StatsManagerProxy statsManager = new StatsManagerImpl(stats);
                         mStatsPublisher = new StatsPublisher(
                                 mFailureListener, statsManager, mPublisherDirectory,
                                         mTelemetryHandler);
@@ -126,7 +130,7 @@ public class PublisherFactory {
      * {@code PublisherFactory} initialized. This is not the best approach, but it suits for this
      * case.
      */
-    public void setFailureListener(AbstractPublisher.PublisherFailureListener listener) {
+    public void setFailureListener(@NonNull AbstractPublisher.PublisherFailureListener listener) {
         mFailureListener = listener;
     }
 }

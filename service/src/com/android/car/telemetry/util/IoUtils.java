@@ -17,6 +17,7 @@
 package com.android.car.telemetry.util;
 
 import com.android.server.utils.Slogf;
+import android.annotation.NonNull;
 import android.os.PersistableBundle;
 import android.util.AtomicFile;
 
@@ -24,6 +25,7 @@ import com.android.car.CarLog;
 
 import com.google.protobuf.MessageLite;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,7 +43,8 @@ public class IoUtils {
      * @return {@link PersistableBundle} stored in the given file.
      * @throws IOException for read failure.
      */
-    public static PersistableBundle readBundle(File bundleFile) throws IOException {
+    @NonNull
+    public static PersistableBundle readBundle(@NonNull File bundleFile) throws IOException {
         AtomicFile atomicFile = new AtomicFile(bundleFile);
         try (FileInputStream fis = atomicFile.openRead()) {
             return PersistableBundle.readFromStream(fis);
@@ -56,7 +59,8 @@ public class IoUtils {
      * @param bundle   to be saved.
      * @throws IOException for write failure.
      */
-    public static void writeBundle(File dir, String fileName, PersistableBundle bundle)
+    public static void writeBundle(
+            @NonNull File dir, @NonNull String fileName, @NonNull PersistableBundle bundle)
             throws IOException {
         writeBundle(new File(dir, fileName), bundle);
     }
@@ -68,7 +72,8 @@ public class IoUtils {
      * @param bundle to be saved.
      * @throws IOException for write failure.
      */
-    public static void writeBundle(File dest, PersistableBundle bundle) throws IOException {
+    public static void writeBundle(@NonNull File dest, @NonNull PersistableBundle bundle)
+            throws IOException {
         AtomicFile atomicFile = new AtomicFile(dest);
         FileOutputStream fos = null;
         try {
@@ -84,12 +89,14 @@ public class IoUtils {
     /**
      * Saves a protobuf message to file.
      *
-     * @param dir      directory to save the file to.
+     * @param dir directory to save the file to.
      * @param fileName name to save the file as.
-     * @param proto    to be saved.
+     * @param proto to be saved.
      * @throws IOException for write failure.
      */
-    public static void writeProto(File dir, String fileName, MessageLite proto) throws IOException {
+    public static void writeProto(
+            @NonNull File dir, @NonNull String fileName, @NonNull MessageLite proto)
+            throws IOException {
         writeProto(new File(dir, fileName), proto);
     }
 
@@ -100,7 +107,8 @@ public class IoUtils {
      * @param proto to be saved.
      * @throws IOException for write failure.
      */
-    public static void writeProto(File dest, MessageLite proto) throws IOException {
+    public static void writeProto(
+            @NonNull File dest, @NonNull MessageLite proto) throws IOException {
         AtomicFile atomicFile = new AtomicFile(dest);
         FileOutputStream fos = null;
         try {
@@ -117,7 +125,7 @@ public class IoUtils {
      * Deletes the file silently from the file system if it exists. Return true for success, false
      * for failure.
      */
-    public static boolean deleteSilently(File directory, String fileName) {
+    public static boolean deleteSilently(@NonNull File directory, @NonNull String fileName) {
         try {
             return Files.deleteIfExists(Paths.get(
                     directory.getAbsolutePath(), fileName));
@@ -132,7 +140,7 @@ public class IoUtils {
     /**
      * Deletes all files silently from the directory. This method does not delete recursively.
      */
-    public static void deleteAllSilently(File directory) {
+    public static void deleteAllSilently(@NonNull File directory) {
         for (File file : directory.listFiles()) {
             if (!file.delete()) {
                 Slogf.w(CarLog.TAG_TELEMETRY, "Failed to delete file " + file.getName()
@@ -148,7 +156,7 @@ public class IoUtils {
      * @param staleThresholdMillis the threshold to classify a file as stale.
      * @param dirs                 the directories to remove stale files from.
      */
-    public static void deleteOldFiles(long staleThresholdMillis, File... dirs) {
+    public static void deleteOldFiles(long staleThresholdMillis, @NonNull File... dirs) {
         long currTimeMs = System.currentTimeMillis();
         for (File dir : dirs) {
             for (File file : dir.listFiles()) {
@@ -157,6 +165,15 @@ public class IoUtils {
                     file.delete();
                 }
             }
+        }
+    }
+
+    /** Quietly closes Java Closeables, ignoring IOException. */
+    public static void closeQuietly(@NonNull Closeable closeable) {
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            // Ignore
         }
     }
 }

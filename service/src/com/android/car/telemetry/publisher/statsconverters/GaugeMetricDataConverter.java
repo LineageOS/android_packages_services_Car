@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.AtomsProto.Atom;
@@ -54,10 +56,11 @@ public class GaugeMetricDataConverter {
      * @return {@link PersistableBundle} that holds the converted values.
      * @throws StatsConversionException if atom field mismatch or can't convert dimension value.
      */
+    @NonNull
     static PersistableBundle convertGaugeDataList(
-            List<GaugeMetricData> gaugeDataList,
-            List<Integer> dimensionsFieldsIds,
-            Map<Long, String> hashToStringMap) throws StatsConversionException {
+            @NonNull List<GaugeMetricData> gaugeDataList,
+            @Nullable List<Integer> dimensionsFieldsIds,
+            @Nullable Map<Long, String> hashToStringMap) throws StatsConversionException {
         List<Long> elapsedTimes = new ArrayList<>();
         List<Atom> atoms = new ArrayList<>();
         // This list contains dimensionsValues for each atom, matching in index and list size.

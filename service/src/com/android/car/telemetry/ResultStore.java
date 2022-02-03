@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry;
 
+import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.telemetry.MetricsConfigKey;
 import android.os.PersistableBundle;
 import android.util.ArrayMap;
@@ -53,7 +55,7 @@ public class ResultStore {
     private final File mErrorResultDirectory;
     private final File mFinalResultDirectory;
 
-    ResultStore(File rootDirectory) {
+    ResultStore(@NonNull File rootDirectory) {
         mInterimResultDirectory = new File(rootDirectory, INTERIM_RESULT_DIR);
         mErrorResultDirectory = new File(rootDirectory, ERROR_RESULT_DIR);
         mFinalResultDirectory = new File(rootDirectory, FINAL_RESULT_DIR);
@@ -85,7 +87,8 @@ public class ResultStore {
      * Retrieves interim metrics for the given
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
-    public PersistableBundle getInterimResult(String metricsConfigName) {
+    @Nullable
+    public PersistableBundle getInterimResult(@NonNull String metricsConfigName) {
         if (!mInterimResultCache.containsKey(metricsConfigName)) {
             return null;
         }
@@ -100,7 +103,9 @@ public class ResultStore {
      * @param deleteResult      if true, the final result will be deleted from disk.
      * @return the final result as PersistableBundle if exists, null otherwise
      */
-    public PersistableBundle getFinalResult(String metricsConfigName, boolean deleteResult) {
+    @Nullable
+    public PersistableBundle getFinalResult(
+            @NonNull String metricsConfigName, boolean deleteResult) {
         File file = new File(mFinalResultDirectory, metricsConfigName);
         // if no final result exists for this metrics config, return immediately
         if (!file.exists()) {
@@ -149,8 +154,9 @@ public class ResultStore {
      * @param deleteResult      if true, the error file will be deleted from disk.
      * @return the error result if exists, null otherwise.
      */
+    @Nullable
     public TelemetryProto.TelemetryError getErrorResult(
-            String metricsConfigName, boolean deleteResult) {
+            @NonNull String metricsConfigName, boolean deleteResult) {
         File file = new File(mErrorResultDirectory, metricsConfigName);
         // if no error exists for this metrics config, return immediately
         if (!file.exists()) {
@@ -175,6 +181,7 @@ public class ResultStore {
      *
      * @return the map of errors to each config.
      */
+    @NonNull
     public Map<String, TelemetryProto.TelemetryError> getErrorResults() {
         Map<String, TelemetryProto.TelemetryError> errors = new ArrayMap<>();
         File[] files = mErrorResultDirectory.listFiles();
@@ -198,7 +205,8 @@ public class ResultStore {
      * Stores interim metrics results in memory for the given
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
-    public void putInterimResult(String metricsConfigName, PersistableBundle result) {
+    public void putInterimResult(
+            @NonNull String metricsConfigName, @NonNull PersistableBundle result) {
         mInterimResultCache.put(metricsConfigName, new InterimResult(result, /* dirty = */ true));
     }
 
@@ -206,7 +214,8 @@ public class ResultStore {
      * Stores final metrics in memory for the given
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
-    public void putFinalResult(String metricsConfigName, PersistableBundle result) {
+    public void putFinalResult(
+            @NonNull String metricsConfigName, @NonNull PersistableBundle result) {
         try {
             IoUtils.writeBundle(mFinalResultDirectory, metricsConfigName, result);
             IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
@@ -218,7 +227,8 @@ public class ResultStore {
     }
 
     /** Stores the error object produced by the script. */
-    public void putErrorResult(String metricsConfigName, TelemetryProto.TelemetryError error) {
+    public void putErrorResult(
+            @NonNull String metricsConfigName, @NonNull TelemetryProto.TelemetryError error) {
         try {
             IoUtils.writeProto(mErrorResultDirectory, metricsConfigName, error);
             IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
@@ -233,7 +243,7 @@ public class ResultStore {
      * Deletes script result associated with the given config name. If result does not exist, this
      * method does not do anything.
      */
-    public void removeResult(MetricsConfigKey key) {
+    public void removeResult(@NonNull MetricsConfigKey key) {
         String metricsConfigName = key.getName();
         mInterimResultCache.remove(metricsConfigName);
         IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
@@ -278,16 +288,17 @@ public class ResultStore {
         private final PersistableBundle mBundle;
         private final boolean mDirty;
 
-        InterimResult(PersistableBundle bundle) {
+        InterimResult(@NonNull PersistableBundle bundle) {
             mBundle = bundle;
             mDirty = false;
         }
 
-        InterimResult(PersistableBundle bundle, boolean dirty) {
+        InterimResult(@NonNull PersistableBundle bundle, boolean dirty) {
             mBundle = bundle;
             mDirty = dirty;
         }
 
+        @NonNull
         PersistableBundle getBundle() {
             return mBundle;
         }

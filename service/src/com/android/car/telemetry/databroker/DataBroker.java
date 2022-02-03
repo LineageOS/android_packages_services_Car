@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.annotation.NonNull;
 import android.car.telemetry.MetricsConfigKey;
 
 import com.android.car.telemetry.TelemetryProto;
@@ -32,7 +33,7 @@ public interface DataBroker {
          *
          * @param key that uniquely identifies the config whose script finished.
          */
-        void onScriptFinished(MetricsConfigKey key);
+        void onScriptFinished(@NonNull MetricsConfigKey key);
     }
 
     /**
@@ -44,7 +45,8 @@ public interface DataBroker {
      * @param key the unique identifier of the MetricsConfig.
      * @param metricsConfig to be added and queued for execution.
      */
-    void addMetricsConfig(MetricsConfigKey key, TelemetryProto.MetricsConfig metricsConfig);
+    void addMetricsConfig(
+            @NonNull MetricsConfigKey key, @NonNull TelemetryProto.MetricsConfig metricsConfig);
 
     /**
      * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
@@ -52,7 +54,7 @@ public interface DataBroker {
      *
      * @param key the unique identifier of the MetricsConfig to be removed.
      */
-    void removeMetricsConfig(MetricsConfigKey key);
+    void removeMetricsConfig(@NonNull MetricsConfigKey key);
 
     /**
      * Removes all {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}s and
@@ -64,7 +66,7 @@ public interface DataBroker {
      * Adds a {@link ScriptExecutionTask} to the priority queue. This method will schedule the
      * next task if a task is not currently running.
      */
-    void addTaskToQueue(ScriptExecutionTask task);
+    void addTaskToQueue(@NonNull ScriptExecutionTask task);
 
     /**
      * Checks system health state and executes a task if condition allows.
@@ -76,7 +78,7 @@ public interface DataBroker {
      *
      * @param callback script finished callback.
      */
-    void setOnScriptFinishedCallback(ScriptFinishedCallback callback);
+    void setOnScriptFinishedCallback(@NonNull ScriptFinishedCallback callback);
 
     /**
      * Sets the priority which affects which subscribers can consume data. Invoked by controller to

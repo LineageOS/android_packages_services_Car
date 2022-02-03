@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.annotation.NonNull;
 import android.car.telemetry.MetricsConfigKey;
 import android.os.Handler;
 
@@ -53,11 +54,11 @@ public class DataBrokerController {
     private final SystemStateInterface mSystemStateInterface;
 
     public DataBrokerController(
-            DataBroker dataBroker,
-            Handler telemetryHandler,
-            MetricsConfigStore metricsConfigStore,
-            SystemMonitor systemMonitor,
-            SystemStateInterface systemStateInterface) {
+            @NonNull DataBroker dataBroker,
+            @NonNull Handler telemetryHandler,
+            @NonNull MetricsConfigStore metricsConfigStore,
+            @NonNull SystemMonitor systemMonitor,
+            @NonNull SystemStateInterface systemStateInterface) {
         mDataBroker = dataBroker;
         mTelemetryHandler = telemetryHandler;
         mMetricsConfigStore = metricsConfigStore;
@@ -90,7 +91,7 @@ public class DataBrokerController {
      *
      * @param key the unique identifier of the config whose script finished.
      */
-    public void onScriptFinished(MetricsConfigKey key) {
+    public void onScriptFinished(@NonNull MetricsConfigKey key) {
         mMetricsConfigStore.removeMetricsConfig(key);
         mDataBroker.removeMetricsConfig(key);
     }
@@ -104,7 +105,7 @@ public class DataBrokerController {
      *
      * @param event the {@link SystemMonitorEvent} received.
      */
-    public void onSystemMonitorEvent(SystemMonitorEvent event) {
+    public void onSystemMonitorEvent(@NonNull SystemMonitorEvent event) {
         if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI
                 || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI) {
             mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_HI);
