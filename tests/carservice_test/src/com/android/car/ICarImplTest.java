@@ -77,7 +77,7 @@ import java.io.IOException;
  * </ol>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ICarImplTest extends AbstractExtendedMockitoTestCase {
+public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = ICarImplTest.class.getSimpleName();
 
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
@@ -95,6 +95,10 @@ public class ICarImplTest extends AbstractExtendedMockitoTestCase {
     private UserManager mUserManager;
 
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
+
+    public ICarImplTest() {
+        super(ICarImpl.TAG, CarLog.TAG_SERVICE);
+    }
 
     /**
      * Initialize all of the objects with the @Mock annotation.

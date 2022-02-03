@@ -163,6 +163,10 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
 
+    public UserHalServiceTest() {
+        super(UserHalService.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder.spyStatic(CarSystemProperties.class);

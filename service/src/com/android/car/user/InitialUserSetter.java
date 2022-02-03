@@ -62,7 +62,8 @@ import java.util.function.Consumer;
  */
 final class InitialUserSetter {
 
-    private static final String TAG = CarLog.tagFor(InitialUserSetter.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(InitialUserSetter.class);
 
     private static final boolean DBG = false;
     private static final int BOOT_USER_NOT_FOUND = -1;

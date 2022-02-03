@@ -42,7 +42,8 @@ import java.util.List;
  */
 public final class UserPreCreator {
 
-    private static final String TAG = CarLog.tagFor(UserPreCreator.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(UserPreCreator.class);
 
     private final UserManager mUserManager;
     private final Context mContext;
