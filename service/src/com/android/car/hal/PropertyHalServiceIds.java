@@ -493,6 +493,12 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.FOG_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
+        mProps.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, new Pair<>(
+                Car.PERMISSION_EXTERIOR_LIGHTS,
+                null));
+        mProps.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, new Pair<>(
+                Car.PERMISSION_EXTERIOR_LIGHTS,
+                null));
         mProps.put(VehicleProperty.HAZARD_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
@@ -503,6 +509,12 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
         mProps.put(VehicleProperty.FOG_LIGHTS_SWITCH, new Pair<>(
+                Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
+                Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
+        mProps.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, new Pair<>(
+                Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
+                Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
+        mProps.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
         mProps.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, new Pair<>(
@@ -581,12 +593,16 @@ public class PropertyHalServiceIds {
         mPropToValidValue.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mPropToValidValue.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mPropToValidValue.put(VehicleProperty.FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mPropToValidValue.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mPropToValidValue.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mPropToValidValue.put(VehicleProperty.HAZARD_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mPropToValidValue.put(VehicleProperty.CABIN_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mPropToValidValue.put(VehicleProperty.READING_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
         mPropToValidValue.put(VehicleProperty.HEADLIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mPropToValidValue.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mPropToValidValue.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
