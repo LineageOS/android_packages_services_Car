@@ -48,6 +48,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.os.CarPerformanceService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
@@ -108,6 +109,7 @@ public class MockedCarTestBase {
             new HashMap<>();
     private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
     private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
+    private final CarPerformanceService mCarPerformanceService = mock(CarPerformanceService.class);
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
     private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
 
@@ -238,7 +240,8 @@ public class MockedCarTestBase {
 
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
                 mMockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
-                mCarUserService, mCarWatchdogService, mGarageModeService, mPowerPolicyDaemon);
+                mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
+                mPowerPolicyDaemon);
 
         spyOnBeforeCarImplInit(carImpl);
         carImpl.init();
