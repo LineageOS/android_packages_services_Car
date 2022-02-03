@@ -165,6 +165,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_HIBERNATE = "hibernate";
     private static final String PARAM_SIMULATE = "--simulate";
+    private static final String PARAM_REAL = "--real";
+    private static final String PARAM_AUTO = "--auto";
     private static final String PARAM_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
@@ -523,13 +525,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  or list all property values for all areaId");
         pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_SUSPEND));
         pw.println("\t  Suspend the system to RAM.");
+        pw.printf("\t  %s forces the device to perform suspend-to-RAM.\n", PARAM_REAL);
         pw.printf("\t  %s simulates suspend-to-RAM instead of putting the device into deep sleep."
                 + "\n", PARAM_SIMULATE);
+        pw.printf("\t  %s depending on the device capability, real or simulated suspend-to-RAM is "
+                + "performed.\n", PARAM_AUTO);
         pw.printf("\t  %s skips Garage Mode before going into sleep.\n", PARAM_SKIP_GARAGEMODE);
         pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_HIBERNATE));
         pw.println("\t  Suspend the system to disk.");
+        pw.printf("\t  %s forces the device to perform suspend-to-disk.\n", PARAM_REAL);
         pw.printf("\t  %s simulates suspend-to-disk instead of putting the device into "
                 + "hibernation.\n", PARAM_SIMULATE);
+        pw.printf("\t  %s depending on the device capability, real or simulated suspend-to-disk is "
+                + "performed.\n", PARAM_AUTO);
         pw.printf("\t  %s skips Garage Mode before going into hibernation.\n",
                 PARAM_SKIP_GARAGEMODE);
         pw.println("\tresume");
@@ -2065,18 +2073,47 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private void runSuspendCommand(String[] args, IndentingPrintWriter writer) {
+        // args[0] is always either COMMAND_SUSPEND or COMMAND_HIBERNE.
         String command = args[0];
-        if (args.length > 3) {
+        if (args.length > 4) {
             writer.printf("Invalid command syntax.\nUsage: %s\n", getSuspendCommandUsage(command));
             return;
         }
-        int index = 1;
-        boolean simulate = false;
+
+        boolean isHibernation = command.equals(COMMAND_HIBERNATE);
+        // Default is --auto, so simulate is decided based on device capability.
+        boolean simulate = !mCarPowerManagementService.isSuspendAvailable(isHibernation);
+        boolean modeSet = false;
         boolean skipGarageMode = false;
+        int index = 1;
         while (index < args.length) {
             switch (args[index]) {
                 case PARAM_SIMULATE:
+                    if (modeSet) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
                     simulate = true;
+                    modeSet = true;
+                    break;
+                case PARAM_AUTO:
+                    if (modeSet) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
+                    simulate = !mCarPowerManagementService.isSuspendAvailable(isHibernation);
+                    modeSet = true;
+                    break;
+                case PARAM_REAL:
+                    if (modeSet) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
+                    simulate = false;
+                    modeSet = true;
                     break;
                 case PARAM_SKIP_GARAGEMODE:
                     skipGarageMode = true;
@@ -2089,8 +2126,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
             index++;
         }
 
-        // args[0] is always either COMMAND_SUSPEND or COMMAND_HIBERNE.
-        boolean isHibernation = command.equals(COMMAND_HIBERNATE);
         String suspendType = isHibernation ? "disk" : "RAM";
         if (simulate) {
             try {
@@ -2762,6 +2797,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private static String getSuspendCommandUsage(String command) {
-        return command + " [" + PARAM_SIMULATE + "] [" + PARAM_SKIP_GARAGEMODE + "]";
+        return command + " [" + PARAM_AUTO + "|" + PARAM_SIMULATE + "|" + PARAM_REAL + "] ["
+                + PARAM_SKIP_GARAGEMODE + "]";
     }
 }
