@@ -28,7 +28,7 @@ import com.android.internal.util.Preconditions;
  */
 public class WtfOccurredConverter extends AbstractAtomConverter<WTFOccurred> {
 
-    private static final SparseArray<AtomFieldAccessor<WTFOccurred>> sAtomFieldAccessorMap =
+    private static final SparseArray<AtomFieldAccessor<WTFOccurred, ?>> sAtomFieldAccessorMap =
             new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
@@ -64,7 +64,7 @@ public class WtfOccurredConverter extends AbstractAtomConverter<WTFOccurred> {
 
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<WTFOccurred>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<WTFOccurred, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 

@@ -27,7 +27,7 @@ import com.android.internal.util.Preconditions;
  * Atom data converter for atoms of type {@link ANROccurred}.
  */
 public class AnrOccurredConverter extends AbstractAtomConverter<ANROccurred> {
-    private static final SparseArray<AtomFieldAccessor<ANROccurred>> sAtomFieldAccessorMap =
+    private static final SparseArray<AtomFieldAccessor<ANROccurred, ?>> sAtomFieldAccessorMap =
             new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
@@ -147,7 +147,7 @@ public class AnrOccurredConverter extends AbstractAtomConverter<ANROccurred> {
     }
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<ANROccurred>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<ANROccurred, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 

@@ -27,8 +27,8 @@ import com.android.internal.util.Preconditions;
  * Atom data converter for atoms of type {@link ProcessMemoryState}.
  */
 public class ProcessMemoryStateConverter extends AbstractAtomConverter<ProcessMemoryState> {
-    private static final SparseArray<AtomFieldAccessor<ProcessMemoryState>> sAtomFieldAccessorMap =
-            new SparseArray<>();
+    private static final SparseArray<AtomFieldAccessor<ProcessMemoryState, ?>>
+            sAtomFieldAccessorMap = new SparseArray<>();
     static {
         sAtomFieldAccessorMap.append(1, new AtomFieldAccessor<>(
                 "uid",
@@ -78,7 +78,7 @@ public class ProcessMemoryStateConverter extends AbstractAtomConverter<ProcessMe
 
     @Override
     @NonNull
-    SparseArray<AtomFieldAccessor<ProcessMemoryState>> getAtomFieldAccessorMap() {
+    SparseArray<AtomFieldAccessor<ProcessMemoryState, ?>> getAtomFieldAccessorMap() {
         return sAtomFieldAccessorMap;
     }
 

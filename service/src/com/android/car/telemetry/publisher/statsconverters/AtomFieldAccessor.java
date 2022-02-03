@@ -21,21 +21,23 @@ import android.annotation.NonNull;
 import com.google.protobuf.MessageLite;
 
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 /**
  * Class that contains metadata and actions for a field of atom data type T.
  *
  * @param <T> the atom data type.
+ * @param <F> the field type.
  */
-public class AtomFieldAccessor<T extends MessageLite> {
+public class AtomFieldAccessor<T extends MessageLite, F> {
     private final String mFieldName;
-    private final Function<T, Boolean> mHasField;
-    private final Function<T, Object> mGetField;
+    private final Predicate<T> mHasField;
+    private final Function<T, F> mGetField;
 
     AtomFieldAccessor(
             @NonNull String fieldName,
-            @NonNull Function<T, Boolean> hasField,
-            @NonNull Function<T, Object> getField) {
+            @NonNull Predicate<T> hasField,
+            @NonNull Function<T, F> getField) {
         mFieldName = fieldName;
         mHasField = hasField;
         mGetField = getField;
@@ -59,7 +61,7 @@ public class AtomFieldAccessor<T extends MessageLite> {
      */
     @NonNull
     boolean hasField(@NonNull T atomData) {
-        return mHasField.apply(atomData);
+        return mHasField.test(atomData);
     }
 
     /**
@@ -69,7 +71,7 @@ public class AtomFieldAccessor<T extends MessageLite> {
      * @return the field value Object.
      */
     @NonNull
-    Object getField(@NonNull T atomData) {
+    F getField(@NonNull T atomData) {
         return mGetField.apply(atomData);
     }
 }
