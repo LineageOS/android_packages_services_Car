@@ -52,7 +52,7 @@ import com.android.car.ICarImpl;
 import com.android.car.MockedCarTestBase;
 import com.android.car.am.FixedActivityService;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Rule;
@@ -192,7 +192,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
 
     @Test
     public void testClusterSwitchUi() throws InterruptedException {
-        getMockedVehicleHal().injectEvent(createSwitchUiEvent(UI_TYPE_2));
+        getHidlMockedVehicleHal().injectEvent(createSwitchUiEvent(UI_TYPE_2));
         mClusterStateListenerCalled.await(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         assertThat(mState).isNotNull();
@@ -205,13 +205,13 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         VehiclePropValue event = new VehiclePropValue();
         event.prop = CLUSTER_SWITCH_UI;
         event.value.floatValues.add((float) 0.0);
-        getMockedVehicleHal().injectEvent(event);
+        getHidlMockedVehicleHal().injectEvent(event);
         assertThat(mClusterStateListenerCalled.getCount()).isEqualTo(1);
     }
 
     @Test
     public void testClusterState() throws InterruptedException {
-        getMockedVehicleHal().injectEvent(createDisplayStateEvent(
+        getHidlMockedVehicleHal().injectEvent(createDisplayStateEvent(
                 DISPLAY_ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                 INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM));
         mClusterStateListenerCalled.await(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
@@ -244,7 +244,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         event.prop = CLUSTER_DISPLAY_STATE;
         // Only one int value is set while 9 is expected. This should be handled properly.
         event.value.int32Values.add(DISPLAY_ON);
-        getMockedVehicleHal().injectEvent(event);
+        getHidlMockedVehicleHal().injectEvent(event);
         assertThat(mClusterStateListenerCalled.getCount()).isEqualTo(1);
 
         event = createDisplayStateEvent(
@@ -252,7 +252,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
                 INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM);
         // Remove the last value so we have one value missing.
         event.value.int32Values.remove(8);
-        getMockedVehicleHal().injectEvent(event);
+        getHidlMockedVehicleHal().injectEvent(event);
         assertThat(mClusterStateListenerCalled.getCount()).isEqualTo(1);
     }
 
@@ -393,7 +393,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         assertThat(mDisplayIdCaptor.getValue()).isEqualTo(CLUSTER_DISPLAY_ID);
     }
 
-    private class ClusterPropertyHandler implements MockedVehicleHal.VehicleHalPropertyHandler {
+    private class ClusterPropertyHandler implements HidlMockedVehicleHal.VehicleHalPropertyHandler {
         SparseArray<VehiclePropValue> mPropValueMap = new SparseArray<>();
 
         SparseIntArray mPropStatusMap = new SparseIntArray();

@@ -978,7 +978,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     private void injectKeyEvent(boolean down, int keyCode, int vehicleDisplayType) {
-        getMockedVehicleHal().injectEvent(
+        getHidlMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
                         .addIntValue(down ? 0 : 1, keyCode, vehicleDisplayType)
                         .build());
@@ -992,13 +992,13 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         for (int i = 0; i < numClicks - 1; i++) {
             builder.addIntValue(0);
         }
-        getMockedVehicleHal().injectEvent(builder.build());
+        getHidlMockedVehicleHal().injectEvent(builder.build());
     }
 
     private void injectCustomInputEvent(int inputCode, int targetDisplayType, int repeatCounter) {
         VehiclePropValueBuilder builder = VehiclePropValueBuilder.newBuilder(
                 VehicleProperty.HW_CUSTOM_INPUT)
                 .addIntValue(inputCode).addIntValue(targetDisplayType).addIntValue(repeatCounter);
-        getMockedVehicleHal().injectEvent(builder.build());
+        getHidlMockedVehicleHal().injectEvent(builder.build());
     }
 }

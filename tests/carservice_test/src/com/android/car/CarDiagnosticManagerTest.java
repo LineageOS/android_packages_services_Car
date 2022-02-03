@@ -49,8 +49,8 @@ import androidx.test.filters.MediumTest;
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
 import com.android.car.vehiclehal.DiagnosticJson;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.ErrorCodeHandler;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.ErrorCodeHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -468,7 +468,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mLiveFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5100);
 
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertTrue(listener.waitForEvent(time));
 
         CarDiagnosticEvent liveFrame = listener.getLastEvent();
@@ -487,7 +487,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 CarDiagnosticManager.FRAME_TYPE_LIVE,
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
         assertTrue(listener.waitForEvent());
 
         CarDiagnosticEvent liveFrame = listener.getLastEvent();
@@ -522,7 +522,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 CarDiagnosticManager.FRAME_TYPE_LIVE,
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
         assertTrue(listener.waitForEvent());
 
         CarDiagnosticEvent liveFrame = listener.getLastEvent();
@@ -549,7 +549,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS,
                 SecondaryAirStatus.FROM_OUTSIDE_OR_OFF);
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -586,7 +586,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, sparkMonitorsValue);
 
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -629,7 +629,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, compressionMonitorsValue);
 
         timestamp += 1000;
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -676,7 +676,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mLiveFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.FUEL_TYPE, FuelType.BIFUEL_RUNNING_LPG);
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -700,7 +700,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mLiveFrameEventBuilder.addFloatSensor(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE, 0.125f);
 
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -757,7 +757,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         listener2.reset();
 
         long time = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertTrue(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
 
@@ -787,7 +787,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mCarDiagnosticManager.unregisterListener(listener1);
 
         time += 1000;
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertFalse(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
 
@@ -815,7 +815,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         listener.reset();
         VehiclePropValue injectedEvent =
                 mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getHidlMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         CarDiagnosticEvent freezeFrame = listener.getLastEvent();
@@ -825,7 +825,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mFreezeFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.ABSOLUTE_BAROMETRIC_PRESSURE, 22);
         injectedEvent = mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getHidlMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         freezeFrame = listener.getLastEvent();
@@ -855,14 +855,14 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         VehiclePropValue injectedEvent =
                 mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getHidlMockedVehicleHal().injectEvent(injectedEvent);
         generatedTimestamps.add(injectedEvent.timestamp);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         injectedEvent =
                 mFreezeFrameProperties.addNewEvent(
                         mFreezeFrameEventBuilder, injectedEvent.timestamp + 1000);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getHidlMockedVehicleHal().injectEvent(injectedEvent);
         generatedTimestamps.add(injectedEvent.timestamp);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
@@ -883,7 +883,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         VehiclePropValue injectedEvent =
                 mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getHidlMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         assertThat(mCarDiagnosticManager.getFreezeFrame(injectedEvent.timestamp)).isNotNull();
@@ -944,12 +944,12 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         VehiclePropValue injectedEvent =
             mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
         long time = injectedEvent.timestamp;
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getHidlMockedVehicleHal().injectEvent(injectedEvent);
         assertFalse(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
 
         time += 1000;
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getHidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertFalse(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
     }

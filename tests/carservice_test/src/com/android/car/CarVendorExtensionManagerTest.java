@@ -38,7 +38,7 @@ import android.util.SparseArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
 import org.junit.Assert;
@@ -284,13 +284,13 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized MockedVehicleHal createMockedVehicleHal() {
-        MockedVehicleHal hal = new VendorExtMockedVehicleHal();
+    protected synchronized HidlMockedVehicleHal createHidlMockedVehicleHal() {
+        HidlMockedVehicleHal hal = new VendorExtMockedVehicleHal();
         hal.addProperties(mConfigs);
         return hal;
     }
 
-    private static class VendorExtMockedVehicleHal extends MockedVehicleHal {
+    private static class VendorExtMockedVehicleHal extends HidlMockedVehicleHal {
         private final SparseArray<VehiclePropValue> mValues = new SparseArray<>();
 
         private byte[] mBytes = null;

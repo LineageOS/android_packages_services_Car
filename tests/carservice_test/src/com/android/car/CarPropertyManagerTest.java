@@ -48,7 +48,7 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import com.google.common.truth.Truth;
 
@@ -638,9 +638,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         secFakeValueDriveSide.value.int32Values.add(3); // 0 in HAL indicate false;
         secFakeValueDriveSide.timestamp = SystemClock.elapsedRealtimeNanos();
         // inject the new event first
-        getMockedVehicleHal().injectEvent(secFakeValueDriveSide);
+        getHidlMockedVehicleHal().injectEvent(secFakeValueDriveSide);
         // inject the old event
-        getMockedVehicleHal().injectEvent(firstFakeValueDriveSide);
+        getHidlMockedVehicleHal().injectEvent(firstFakeValueDriveSide);
         callback.assertOnChangeEventCalled();
         // Client should only get the new event
         assertThat((int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_1).getValue())
@@ -670,8 +670,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         fakeValuePsgSide.timestamp = SystemClock.elapsedRealtimeNanos();
 
         // inject passenger event before driver event
-        getMockedVehicleHal().injectEvent(fakeValuePsgSide);
-        getMockedVehicleHal().injectEvent(fakeValueDriveSide);
+        getHidlMockedVehicleHal().injectEvent(fakeValuePsgSide);
+        getHidlMockedVehicleHal().injectEvent(fakeValueDriveSide);
         callback.assertOnChangeEventCalled();
 
         // both events should be received by listener
@@ -711,7 +711,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
         for (VehiclePropValue prop: props) {
             // inject passenger event before driver event
-            getMockedVehicleHal().injectEvent(prop);
+            getHidlMockedVehicleHal().injectEvent(prop);
             assertThat(callback.getEventCounter()).isEqualTo(0);
         }
     }
