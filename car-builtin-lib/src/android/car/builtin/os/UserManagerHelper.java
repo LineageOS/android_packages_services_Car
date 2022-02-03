@@ -22,11 +22,8 @@ import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.UserInfo;
-import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
-
-import com.android.internal.util.UserIcons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,34 +59,6 @@ public final class UserManagerHelper {
     public static final int FLAG_FULL = UserInfo.FLAG_FULL;
     public static final int FLAG_SYSTEM = UserInfo.FLAG_SYSTEM;
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
-
-    /** Assign default Icon for a given user. */
-    public static Bitmap assignDefaultIconForUser(@NonNull Context context,
-            @NonNull UserHandle user) {
-        UserManager userManager = context.getSystemService(UserManager.class);
-        UserInfo userInfo = userManager.getUserInfo(user.getIdentifier());
-        if (userInfo == null) {
-            return null;
-        }
-        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : user.getIdentifier();
-        Bitmap bitmap = UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(context.getResources(), idForIcon, false));
-        userManager.setUserIcon(user.getIdentifier(), bitmap);
-        return bitmap;
-    }
-
-    /**
-     * Sets the value of a specific restriction on a specific user
-     */
-    public static void setUserRestriction(@NonNull UserManager userManager,
-            @NonNull String restriction, boolean enable, @NonNull UserHandle user) {
-        userManager.setUserRestriction(restriction, enable, user);
-    }
-
-    /** Assigns admin privileges to the user */
-    public static void setUserAdmin(@NonNull UserManager userManager, @NonNull UserHandle user) {
-        userManager.setUserAdmin(user.getIdentifier());
-    }
 
     /**
      * Returns all users based on the boolean flags.

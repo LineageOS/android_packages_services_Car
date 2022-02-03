@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,17 +17,19 @@ package com.android.car.internal.user;
 
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
-import android.car.builtin.os.UserManagerHelper;
 import android.content.Context;
+import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
-import com.android.car.internal.util.Sets;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+import com.android.internal.util.UserIcons;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -36,34 +38,29 @@ import java.util.Set;
  * @hide
  */
 public final class UserHelper {
-
     private static final String TAG = UserHelper.class.getSimpleName();
-
     /**
      * Default set of restrictions for Non-Admin users.
      */
     @VisibleForTesting
-    public static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+    public static final Set<String> DEFAULT_NON_ADMIN_RESTRICTIONS = new HashSet<>(Arrays.asList(
             UserManager.DISALLOW_FACTORY_RESET
-    );
-
+    ));
     /**
      * Additional optional set of restrictions for Non-Admin users. These are the restrictions
      * configurable via Settings.
      */
     @VisibleForTesting
-    public static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = Sets.newArraySet(
+    public static final Set<String> OPTIONAL_NON_ADMIN_RESTRICTIONS = new HashSet<>(Arrays.asList(
             UserManager.DISALLOW_ADD_USER,
             UserManager.DISALLOW_OUTGOING_CALLS,
             UserManager.DISALLOW_SMS,
             UserManager.DISALLOW_INSTALL_APPS,
             UserManager.DISALLOW_UNINSTALL_APPS
-    );
-
+    ));
     private UserHelper() {
         throw new UnsupportedOperationException("contains only static methods");
     }
-
     /**
      * Grants admin permissions to the user.
      *
@@ -76,28 +73,20 @@ public final class UserHelper {
     public static void grantAdminPermissions(@NonNull Context context, @NonNull UserHandle user) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
-
         UserManager userManager = context.getSystemService(UserManager.class);
-
         if (!userManager.isAdminUser()) {
             Log.w(TAG, "Only admin users can assign admin permissions.");
             return;
         }
-
-        UserManagerHelper.setUserAdmin(userManager, user);
-
+        userManager.setUserAdmin(user.getIdentifier());
         // Remove restrictions imposed on non-admins.
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
-            UserManagerHelper.setUserRestriction(userManager, restriction, /* enable= */ false,
-                    user);
+            userManager.setUserRestriction(restriction, /* enable= */ false, user);
         }
-
         for (String restriction : OPTIONAL_NON_ADMIN_RESTRICTIONS) {
-            UserManagerHelper.setUserRestriction(userManager, restriction, /* enable= */ false,
-                    user);
+            userManager.setUserRestriction(restriction, /* enable= */ false, user);
         }
     }
-
     /**
      * Sets the values of default Non-Admin restrictions to the passed in value.
      *
@@ -111,13 +100,11 @@ public final class UserHelper {
             @NonNull UserHandle user, boolean enable) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
-
         UserManager userManager = context.getSystemService(UserManager.class);
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
-            UserManagerHelper.setUserRestriction(userManager, restriction, enable, user);
+            userManager.setUserRestriction(restriction, enable, user);
         }
     }
-
     /**
      * Assigns a default icon to a user according to the user's id.
      *
@@ -131,7 +118,15 @@ public final class UserHelper {
     public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserHandle user) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
-
-        return UserManagerHelper.assignDefaultIconForUser(context, user);
+        UserManager userManager = context.getSystemService(UserManager.class);
+        UserInfo userInfo = userManager.getUserInfo(user.getIdentifier());
+        if (userInfo == null) {
+            return null;
+        }
+        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : user.getIdentifier();
+        Bitmap bitmap = UserIcons.convertToBitmap(
+                UserIcons.getDefaultUserIcon(context.getResources(), idForIcon, false));
+        userManager.setUserIcon(user.getIdentifier(), bitmap);
+        return bitmap;
     }
 }
