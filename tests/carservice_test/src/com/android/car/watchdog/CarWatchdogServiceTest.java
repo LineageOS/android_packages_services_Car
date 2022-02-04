@@ -111,6 +111,10 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
 
+    public CarWatchdogServiceTest() {
+        super(CarWatchdogService.TAG);
+    }
+
     @Before
     public void setUp() throws Exception {
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mMockDaemonBinder, mMockCarWatchdogDaemon);

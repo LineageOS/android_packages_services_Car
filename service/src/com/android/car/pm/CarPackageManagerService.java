@@ -123,7 +123,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     static final boolean DBG = false;
 
-    private static final String TAG = CarLog.tagFor(CarPackageManagerService.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(CarPackageManagerService.class);
 
     // Delimiters to parse packages and activities in the configuration XML resource.
     private static final String PACKAGE_DELIMITER = ",";

@@ -66,6 +66,10 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock
     private PendingIntent mMockPendingIntent;
 
+    public CarPackageManagerServiceUnitTest() {
+        super(CarPackageManagerService.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder.spyStatic(ActivityManagerHelper.class);

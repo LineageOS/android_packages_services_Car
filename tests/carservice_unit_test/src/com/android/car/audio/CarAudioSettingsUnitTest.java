@@ -53,6 +53,10 @@ public class CarAudioSettingsUnitTest extends AbstractExtendedMockitoTestCase {
 
     private CarAudioSettings mCarAudioSettings;
 
+    public CarAudioSettingsUnitTest() {
+        super(NO_LOG_TAGS);
+    }
+
     @Before
     public void setUp() {
         when(mMockContext.getContentResolver()).thenReturn(mMockContentResolver);

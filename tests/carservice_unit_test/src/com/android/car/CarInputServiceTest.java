@@ -99,6 +99,10 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock CarUserService mCarUserService;
     private CarInputService mCarInputService;
 
+    public CarInputServiceTest() {
+        super(CarInputService.TAG);
+    }
+
     @Before
     public void setUp() {
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,

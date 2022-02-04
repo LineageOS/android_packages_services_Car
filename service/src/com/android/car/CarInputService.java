@@ -80,7 +80,9 @@ public class CarInputService extends ICarInput.Stub
     public static final String ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR = ":";
 
     private static final int MAX_RETRIES_FOR_ENABLING_ACCESSIBILITY_SERVICES = 5;
-    private static final String TAG = CarLog.TAG_INPUT;
+
+    @VisibleForTesting
+    static final String TAG = CarLog.TAG_INPUT;
 
     @VisibleForTesting
     static final String LONG_PRESS_TIMEOUT = "long_press_timeout";

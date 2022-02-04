@@ -63,7 +63,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         implements CarServiceBase {
-    private static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
+
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
 
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
     private static final String PREFIX_NEW_USER_DISCLAIMER_STATUS = "NEW_USER_DISCLAIMER_STATUS_";

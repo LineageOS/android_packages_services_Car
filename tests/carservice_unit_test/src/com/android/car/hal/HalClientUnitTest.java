@@ -64,6 +64,10 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
     private HalClient mClient;
     private TestLooper mLooper = new TestLooper();
 
+    public HalClientUnitTest() {
+        super(HalClient.TAG);
+    }
+
     @Before
     public void setFixtures() {
         when(mIVehicle.newSubscriptionClient(any())).thenReturn(mSubscriptionClient);

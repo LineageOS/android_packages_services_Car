@@ -49,6 +49,10 @@ public final class UserLifecycleEventFilterTest extends AbstractExtendedMockitoT
     private static final UserLifecycleEvent USER112_TO_113_SWITCHING_EVENT = new UserLifecycleEvent(
             USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER112.getIdentifier(), USER113.getIdentifier());
 
+    public UserLifecycleEventFilterTest() {
+        super(NO_LOG_TAGS);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder.spyStatic(ActivityManager.class);

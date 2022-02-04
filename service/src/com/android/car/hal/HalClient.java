@@ -43,7 +43,8 @@ import java.util.ArrayList;
  */
 final class HalClient {
 
-    private static final String TAG = CarLog.tagFor(HalClient.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(HalClient.class);
 
     /**
      * If call to vehicle HAL returns StatusCode.TRY_AGAIN, than {@link HalClient} will retry to

@@ -69,7 +69,10 @@ import java.lang.ref.WeakReference;
 @SystemApi
 public class InstrumentClusterService implements CarServiceBase, KeyEventListener,
         ClusterNavigationService.ClusterNavigationServiceCallback {
-    private static final String TAG = CarLog.TAG_CLUSTER;
+
+    @VisibleForTesting
+    static final String TAG = CarLog.TAG_CLUSTER;
+
     private static final ContextOwner NO_OWNER = new ContextOwner(0, 0);
 
     private static final long RENDERER_SERVICE_WAIT_TIMEOUT_MS = 5000;

@@ -36,6 +36,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.Objects;
 
@@ -46,7 +47,10 @@ import java.util.Objects;
  */
 public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
         implements CarServiceBase, FocusOwnershipCallback {
-    private static final String TAG = CarLog.TAG_CLUSTER;
+
+    @VisibleForTesting
+    static final String TAG = CarLog.TAG_CLUSTER;
+
     private static final ContextOwner NO_OWNER = new ContextOwner(0, 0);
 
     private final Context mContext;

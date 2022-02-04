@@ -94,6 +94,10 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private AndroidFuture<UserStopResult> mUserStopResult = new AndroidFuture<>();
 
+    public CarDevicePolicyServiceTest() {
+        super(CarDevicePolicyService.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(CarServiceUtils.class);

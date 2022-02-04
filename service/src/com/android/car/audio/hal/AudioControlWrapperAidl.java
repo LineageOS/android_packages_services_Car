@@ -48,7 +48,8 @@ import java.util.Objects;
  * Wrapper for AIDL interface for AudioControl HAL
  */
 public final class AudioControlWrapperAidl implements AudioControlWrapper {
-    private static final String TAG = CarLog.tagFor(AudioControlWrapperAidl.class);
+    static final String TAG = CarLog.tagFor(AudioControlWrapperAidl.class);
+
     private static final String AUDIO_CONTROL_SERVICE =
             "android.hardware.automotive.audiocontrol.IAudioControl/default";
     private IBinder mBinder;

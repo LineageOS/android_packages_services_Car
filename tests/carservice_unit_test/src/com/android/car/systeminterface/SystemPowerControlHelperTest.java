@@ -44,6 +44,10 @@ import java.util.function.IntSupplier;
 public final class SystemPowerControlHelperTest extends AbstractExtendedMockitoTestCase {
     private static final String POWER_STATE_FILE = "power_state";
 
+    public SystemPowerControlHelperTest() {
+        super(SystemPowerControlHelper.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(SystemPowerControlHelper.class);

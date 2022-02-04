@@ -36,12 +36,13 @@ public final class SystemPowerControlHelper {
     public static final int SUSPEND_RESULT_FAILURE = -1;
 
     @VisibleForTesting
+    static final String TAG = "SystemPowerControlHelper";
+    @VisibleForTesting
     static final String SUSPEND_TYPE_MEM = "mem";
     @VisibleForTesting
     static final String SUSPEND_TYPE_DISK = "disk";
 
     private static final String SYSFS_POWER_STATE_CONTROL_FILE = "/sys/power/state";
-    private static final String TAG = "SystemPowerControlHelper";
 
     private SystemPowerControlHelper() {
     }
