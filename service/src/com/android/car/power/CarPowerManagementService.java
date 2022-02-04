@@ -2361,6 +2361,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         return DebugUtils.valueToString(CarPowerManager.class, "STATE_", state);
     }
 
+    /**
+     * Returns whether suspend (deep sleep or hibernation) is available on the device.
+     */
+    public boolean isSuspendAvailable(boolean isHibernation) {
+        return isHibernation ? isHibernationAvailable() : isDeepSleepAvailable();
+    }
+
     private boolean isDeepSleepAvailable() {
         return mHal.isDeepSleepAllowed() && mSystemInterface.isSystemSupportingDeepSleep();
     }
