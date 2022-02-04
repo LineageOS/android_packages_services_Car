@@ -18,6 +18,7 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 
+import android.annotation.Nullable;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
@@ -25,6 +26,8 @@ import android.os.RemoteException;
 import android.util.Dumpable;
 import android.util.DumpableContainer;
 import android.util.Log;
+
+import java.util.function.Supplier;
 
 /**
  * Common base class for Car*Manager
@@ -85,26 +88,32 @@ public abstract class CarManagerBase {
     protected abstract void onCarDisconnected();
 
     /**
-     * Adds the given {@code dumpable} to a container, which must implement
-     * {@link DumpableContainer}}.
+     * Adds a {@link Dumpable} to a "compatible" container (i.e., an object that extends
+     * {@link DumpableContainer}, {@code Activity}, etc...).
+     *
+     * @return supplied dumpable, or {@code null} if {@code container} is not compatible.
      */
-    protected void addDumpable(Object container, Dumpable dumpable) {
+    @Nullable
+    protected <T extends Dumpable> T addDumpable(Object container, Supplier<T> dumpableSupplier) {
         if (container instanceof Activity) {
+            T dumpable = dumpableSupplier.get();
             if (DEBUG) {
                 Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to actvity " + container);
             }
             ((Activity) container).addDumpable(dumpable);
-            return;
+            return dumpable;
         }
         if (container instanceof DumpableContainer) {
+            T dumpable = dumpableSupplier.get();
             if (DEBUG) {
                 Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to DumpableContainer "
                         + container);
             }
             ((DumpableContainer) container).addDumpable(dumpable);
-            return;
+            return dumpable;
         }
-        Log.w(TAG_CAR, "NOT adding " + dumpable.getDumpableName() + " to object (" + container
-                    + ") that doesn't implement addDumpable");
+        Log.v(TAG_CAR, "NOT adding dumpable to object (" + container
+                + ") that doesn't implement addDumpable");
+        return null;
     }
 }

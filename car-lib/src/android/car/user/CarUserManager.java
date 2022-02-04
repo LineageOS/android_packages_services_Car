@@ -326,7 +326,7 @@ public final class CarUserManager extends CarManagerBase {
     @GuardedBy("mLock")
     private LifecycleResultReceiver mReceiver;
 
-    private final Dumper mDumper = new Dumper();
+    private final Dumper mDumper;
 
     /**
      * Logs the number of received events so it's shown on {@code Dumper.dump()}.
@@ -357,8 +357,10 @@ public final class CarUserManager extends CarManagerBase {
             @NonNull UserManager userManager) {
         super(car);
 
-        addDumpable(car.getContext(), mDumper);
-
+        mDumper = addDumpable(car.getContext(), () -> new Dumper());
+        if (DBG) {
+            Log.d(TAG, "mDumper: " + mDumper);
+        }
         mService = service;
         mUserManager = userManager;
     }
