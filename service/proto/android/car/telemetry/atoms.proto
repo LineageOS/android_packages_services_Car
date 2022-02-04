@@ -30,6 +30,7 @@ message Atom {
     AppCrashOccurred app_crash_occurred = 78;
     ANROccurred anr_occurred = 79;
     WTFOccurred wtf_occurred = 80;
+    CarPowerStateChanged car_power_state_changed = 203;
   }
 
   // Pulled events will start at field 10000.
@@ -164,4 +165,16 @@ message WTFOccurred {
   optional string process_name = 3;
   optional int32 pid = 4;
   optional ErrorSource error_source = 5;
+}
+
+message CarPowerStateChanged {
+  enum State {
+    WAIT_FOR_VHAL = 0;
+    ON = 1;
+    SHUTDOWN_PREPARE = 2;
+    WAIT_FOR_FINISH = 3;
+    SUSPEND = 4;
+    SIMULATE_SLEEP = 5;
+  }
+  optional State state = 1;
 }
