@@ -396,6 +396,7 @@ public final class Car {
      */
     @OptionalFeature
     @SystemApi
+    @TestApi
     public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
 
     /**

@@ -35,6 +35,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
+import android.os.ResultReceiver;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -243,28 +244,20 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Send a telemetry metrics config to the service. This method assumes
-     * {@link #setListener(ICarTelemetryServiceListener)} is called. Otherwise it does nothing.
-     *
+     * Send a telemetry metrics config to the service.
      * @param metricsConfigName name of the MetricsConfig.
      * @param config the serialized bytes of a MetricsConfig object.
+     * @param callback to send status code to CarTelemetryManager.
      */
     @Override
-    public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config) {
+    public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config,
+            ResultReceiver callback) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
         mTelemetryHandler.post(() -> {
-            if (mListener == null) {
-                Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
-                return;
-            }
             mTelemetryThreadTraceLog.traceBegin("addMetricsConfig");
             int status = addMetricsConfigInternal(metricsConfigName, config);
-            try {
-                mListener.onAddMetricsConfigStatus(metricsConfigName, status);
-            } catch (RemoteException e) {
-                Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
-            }
+            callback.send(status, null);
             mTelemetryThreadTraceLog.traceEnd();
         });
     }

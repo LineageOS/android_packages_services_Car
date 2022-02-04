@@ -1293,7 +1293,7 @@ package android.car.storagemonitoring {
 package android.car.telemetry {
 
   public final class CarTelemetryManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void addMetricsConfig(@NonNull String, @NonNull byte[]);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void addMetricsConfig(@NonNull String, @NonNull byte[], @NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.AddMetricsConfigCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void clearListener();
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void removeAllMetricsConfigs();
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void removeMetricsConfig(@NonNull String);
@@ -1308,8 +1308,11 @@ package android.car.telemetry {
     field public static final int STATUS_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
   }
 
-  public static interface CarTelemetryManager.CarTelemetryResultsListener {
+  public static interface CarTelemetryManager.AddMetricsConfigCallback {
     method public void onAddMetricsConfigStatus(@NonNull String, int);
+  }
+
+  public static interface CarTelemetryManager.CarTelemetryResultsListener {
     method public void onError(@NonNull String, @NonNull byte[]);
     method public void onResult(@NonNull String, @NonNull byte[]);
   }
