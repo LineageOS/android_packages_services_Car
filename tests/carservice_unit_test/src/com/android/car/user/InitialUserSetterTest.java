@@ -99,6 +99,10 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     private final MyListener mListener = new MyListener();
 
+    public InitialUserSetterTest() {
+        super(InitialUserSetter.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session

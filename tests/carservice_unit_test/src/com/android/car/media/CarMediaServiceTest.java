@@ -54,6 +54,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.CarMediaService;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
@@ -70,7 +71,7 @@ import org.mockito.Mock;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
+public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final String MEDIA_PACKAGE = "test.package";
     private static final String MEDIA_PACKAGE2 = "test.package2";
@@ -96,6 +97,10 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserHandleHelper mUserHandleHelper;
 
     private CarMediaService mCarMediaService;
+
+    public CarMediaServiceTest() {
+        super(CarLog.TAG_MEDIA);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {

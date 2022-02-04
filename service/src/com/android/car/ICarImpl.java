@@ -98,6 +98,9 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
 
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(ICarImpl.class);
+
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
     private final Context mContext;
@@ -146,8 +149,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarActivityService mCarActivityService;
 
     private final CarServiceBase[] mAllServices;
-
-    private static final String TAG = CarLog.tagFor(ICarImpl.class);
 
     private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
 

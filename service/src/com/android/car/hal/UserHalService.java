@@ -84,7 +84,8 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public final class UserHalService extends HalServiceBase {
 
-    private static final String TAG = CarLog.tagFor(UserHalService.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(UserHalService.class);
 
     private static final String UNSUPPORTED_MSG = "Vehicle HAL does not support user management";
     private static final String USER_ASSOCIATION_UNSUPPORTED_MSG =

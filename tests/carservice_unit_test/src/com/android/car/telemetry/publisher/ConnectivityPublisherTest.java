@@ -40,6 +40,7 @@ import android.os.PersistableBundle;
 import android.os.ServiceManager;
 import android.os.SystemClock;
 
+import com.android.car.CarLog;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
 import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
@@ -59,7 +60,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
+public final class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
     private static final TelemetryProto.Publisher PUBLISHER_WIFI_OEM_NONE =
             TelemetryProto.Publisher.newBuilder()
                     .setConnectivity(
@@ -136,6 +137,10 @@ public class ConnectivityPublisherTest extends AbstractExtendedMockitoTestCase {
 
     private ConnectivityPublisher mPublisher; // subject
     private FakeNetworkStatsService mFakeService;
+
+    public ConnectivityPublisherTest() {
+        super(CarLog.TAG_TELEMETRY);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {

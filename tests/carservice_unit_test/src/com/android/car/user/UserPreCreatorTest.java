@@ -66,6 +66,10 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     private UserPreCreator mUserPreCreator;
 
+    public UserPreCreatorTest() {
+        super(UserPreCreator.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder.spyStatic(CarSystemProperties.class);

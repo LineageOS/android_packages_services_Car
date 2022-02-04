@@ -18,6 +18,7 @@ package com.android.car.am;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 
+import static com.android.car.CarLog.TAG_AM;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -98,6 +99,10 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     private Display mValidDisplay;
 
     private FixedActivityService mFixedActivityService;
+
+    public FixedActivityServiceTest() {
+        super(TAG_AM);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {

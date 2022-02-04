@@ -255,6 +255,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             new ArrayList<>();
     private final IPackageManager mSpiedPackageManager = spy(ActivityThread.getPackageManager());
 
+    public CarWatchdogServiceUnitTest() {
+        super(CarWatchdogService.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder

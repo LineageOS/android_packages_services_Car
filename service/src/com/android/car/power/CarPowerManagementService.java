@@ -110,7 +110,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     public static final long INVALID_TIMEOUT = -1L;
 
-    private static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
+    static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
+
     private static final String WIFI_STATE_FILENAME = "wifi_state";
     private static final String WIFI_STATE_MODIFIED = "forcibly_disabled";
     private static final String WIFI_STATE_ORIGINAL = "original";
