@@ -417,6 +417,10 @@ public final class Car {
     /** Permission necessary to access car's energy information. */
     public static final String PERMISSION_ENERGY = "android.car.permission.CAR_ENERGY";
 
+    /** Permission necessary to control car's EV charge settings. */
+    public static final String PERMISSION_CONTROL_CAR_ENERGY =
+            "android.car.permission.CONTROL_CAR_ENERGY";
+
     /**
      * Permission necessary to change value of car's range remaining.
      * @hide
