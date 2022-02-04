@@ -1,6 +1,7 @@
 package android.car.telemetry;
 
 import android.car.telemetry.ICarTelemetryServiceListener;
+import android.os.ResultReceiver;
 
 /**
  * Internal binder interface for {@code CarTelemetryService}, used by {@code CarTelemetryManager}.
@@ -20,9 +21,11 @@ interface ICarTelemetryService {
     void clearListener();
 
     /**
-     * Sends telemetry MetricsConfigs to CarTelemetryService.
+     * Adds telemetry MetricsConfigs to CarTelemetryService. Status code is sent to
+     * CarTelemetryManager via ResultReceiver.
      */
-    void addMetricsConfig(in String metricsConfigName, in byte[] metricsConfig);
+    void addMetricsConfig(in String metricsConfigName, in byte[] metricsConfig,
+            in ResultReceiver callback);
 
     /**
      * Removes a MetricsConfig based on the name. This will also remove outputs produced by the

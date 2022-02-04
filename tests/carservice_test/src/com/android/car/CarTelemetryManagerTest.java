@@ -64,6 +64,8 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_V2 =
             METRICS_CONFIG_V1.toBuilder().setVersion(2).build();
 
+    private final AddMetricsConfigCallbackImpl mAddMetricsConfigCallback =
+            new AddMetricsConfigCallbackImpl();
     private final FakeCarTelemetryResultsListener mListener = new FakeCarTelemetryResultsListener();
     private final HandlerThread mTelemetryThread =
             CarServiceUtils.getHandlerThread(CarTelemetryService.class.getSimpleName());
@@ -103,11 +105,6 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         mCarTelemetryManager.clearListener();
 
         assertThrows(IllegalStateException.class,
-                () -> mCarTelemetryManager.addMetricsConfig(CONFIG_NAME,
-                        METRICS_CONFIG_V1.toByteArray()));
-        assertThrows(IllegalStateException.class,
-                () -> mCarTelemetryManager.removeMetricsConfig(CONFIG_NAME));
-        assertThrows(IllegalStateException.class,
                 () -> mCarTelemetryManager.removeAllMetricsConfigs());
         assertThrows(IllegalStateException.class,
                 () -> mCarTelemetryManager.sendFinishedReports(CONFIG_NAME));
@@ -118,33 +115,38 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
     @Test
     public void testAddMetricsConfig() throws Exception {
         // invalid config, should fail
-        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, INVALID_METRICS_CONFIG);
+        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, INVALID_METRICS_CONFIG, DIRECT_EXECUTOR,
+                mAddMetricsConfigCallback);
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(CONFIG_NAME)).isEqualTo(
+        assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_METRICS_CONFIG_PARSE_FAILED);
 
         // new valid config, should succeed
-        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray());
+        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(CONFIG_NAME)).isEqualTo(
+        assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_METRICS_CONFIG_SUCCESS);
 
         // duplicate config, should fail
-        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray());
+        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(CONFIG_NAME)).isEqualTo(
+        assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_METRICS_CONFIG_ALREADY_EXISTS);
 
         // newer version of the config should replace older version
-        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V2.toByteArray());
+        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V2.toByteArray(),
+                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(CONFIG_NAME)).isEqualTo(
+        assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_METRICS_CONFIG_SUCCESS);
 
         // older version of the config should not be accepted
-        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray());
+        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
         waitForHandlerThreadToFinish();
-        assertThat(mListener.getAddConfigStatus(CONFIG_NAME)).isEqualTo(
+        assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_METRICS_CONFIG_VERSION_TOO_OLD);
     }
 
@@ -156,27 +158,25 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         }, TIMEOUT_MS);
     }
 
-
-    private static final class FakeCarTelemetryResultsListener
-            implements CarTelemetryManager.CarTelemetryResultsListener {
+    private static final class AddMetricsConfigCallbackImpl
+            implements CarTelemetryManager.AddMetricsConfigCallback {
 
         private Map<String, Integer> mAddConfigStatusMap = new ArrayMap<>();
 
+        @Override
+        public void onAddMetricsConfigStatus(@NonNull String metricsConfigName, int statusCode) {
+            mAddConfigStatusMap.put(metricsConfigName, statusCode);
+        }
+    }
+
+    private static final class FakeCarTelemetryResultsListener
+            implements CarTelemetryManager.CarTelemetryResultsListener {
         @Override
         public void onResult(@NonNull String metricsConfigName, @NonNull byte[] result) {
         }
 
         @Override
         public void onError(@NonNull String metricsConfigName, @NonNull byte[] error) {
-        }
-
-        @Override
-        public void onAddMetricsConfigStatus(@NonNull String metricsConfigName, int statusCode) {
-            mAddConfigStatusMap.put(metricsConfigName, statusCode);
-        }
-
-        public int getAddConfigStatus(String metricsConfigName) {
-            return mAddConfigStatusMap.getOrDefault(metricsConfigName, -100);
         }
     }
 }

@@ -391,6 +391,7 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private CarTelemetryManager mCarTelemetryManager;
     private CarTelemetryResultsListenerImpl mListener;
+    private AddMetricsConfigCallbackImpl mAddMetricsConfigCallback;
     private KitchenSinkActivity mActivity;
     private TextView mOutputTextView;
     private Button mTootleConfigsBtn;
@@ -406,6 +407,7 @@ public class CarTelemetryTestFragment extends Fragment {
         } else {
             showOutput("CarTelemetryManages is null");
         }
+        mAddMetricsConfigCallback = new AddMetricsConfigCallbackImpl();
         super.onCreate(savedInstanceState);
     }
 
@@ -514,7 +516,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendGearChangeConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listen for gear change...");
         mCarTelemetryManager.addMetricsConfig(ON_GEAR_CHANGE_CONFIG_NAME,
-                METRICS_CONFIG_ON_GEAR_CHANGE_V1.toByteArray());
+                METRICS_CONFIG_ON_GEAR_CHANGE_V1.toByteArray(), mExecutor,
+                mAddMetricsConfigCallback);
     }
 
     private void onRemoveGearChangeConfigBtnClick(View view) {
@@ -531,7 +534,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendProcessMemoryConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for PROCESS_MEMORY_STATE...");
         mCarTelemetryManager.addMetricsConfig(PROCESS_MEMORY_CONFIG_NAME,
-                METRICS_CONFIG_PROCESS_MEMORY_V1.toByteArray());
+                METRICS_CONFIG_PROCESS_MEMORY_V1.toByteArray(), mExecutor,
+                mAddMetricsConfigCallback);
     }
 
     private void onRemoveProcessMemoryConfigBtnClick(View view) {
@@ -548,7 +552,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendAppStartMemoryStateCapturedConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for APP_START_MEMORY_STATE_CAPTURED...");
         mCarTelemetryManager.addMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_CONFIG_NAME,
-                METRICS_CONFIG_APP_START_MEMORY_V1.toByteArray());
+                METRICS_CONFIG_APP_START_MEMORY_V1.toByteArray(), mExecutor,
+                mAddMetricsConfigCallback);
     }
 
     private void onRemoveAppStartMemoryStateCapturedConfigBtnClick(View view) {
@@ -565,7 +570,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendActivityForegroundStateChangedConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for ACTIVITY_FOREGROUND_STATE_CHANGED...");
         mCarTelemetryManager.addMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_CONFIG_NAME,
-                METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.toByteArray());
+                METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.toByteArray(), mExecutor,
+                mAddMetricsConfigCallback);
     }
 
     private void onRemoveActivityForegroundStateChangedConfigBtnClick(View view) {
@@ -582,7 +588,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendProcessCpuTimeConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for PROCESS_CPU_TIME...");
         mCarTelemetryManager.addMetricsConfig(PROCESS_CPU_TIME_CONFIG_NAME,
-                METRICS_CONFIG_PROCESS_CPU_TIME_V1.toByteArray());
+                METRICS_CONFIG_PROCESS_CPU_TIME_V1.toByteArray(), mExecutor,
+                mAddMetricsConfigCallback);
     }
 
     private void onRemoveProcessCpuTimeConfigBtnClick(View view) {
@@ -599,7 +606,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendAppCrashOccurredConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for APP_CRASH_OCCURRED...");
         mCarTelemetryManager.addMetricsConfig(APP_CRASH_OCCURRED_CONFIG_NAME,
-                METRICS_CONFIG_APP_CRASH_OCCURRED_V1.toByteArray());
+                METRICS_CONFIG_APP_CRASH_OCCURRED_V1.toByteArray(), mExecutor,
+                mAddMetricsConfigCallback);
     }
 
     private void onRemoveAppCrashOccurredConfigBtnClick(View view) {
@@ -616,7 +624,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendAnrOccurredConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for ANR_OCCURRED...");
         mCarTelemetryManager.addMetricsConfig(ANR_OCCURRED_CONFIG_NAME,
-                METRICS_CONFIG_ANR_OCCURRED_V1.toByteArray());
+                METRICS_CONFIG_ANR_OCCURRED_V1.toByteArray(), mExecutor, mAddMetricsConfigCallback);
     }
 
     private void onRemoveAnrOccurredConfigBtnClick(View view) {
@@ -633,7 +641,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendWtfOccurredConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for WTF_OCCURRED...");
         mCarTelemetryManager.addMetricsConfig(WTF_OCCURRED_CONFIG_NAME,
-                METRICS_CONFIG_WTF_OCCURRED_V1.toByteArray());
+                METRICS_CONFIG_WTF_OCCURRED_V1.toByteArray(), mExecutor, mAddMetricsConfigCallback);
     }
 
     private void onRemoveWtfOccurredConfigBtnClick(View view) {
@@ -650,7 +658,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendWifiNetstatsConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for wifi netstats...");
         mCarTelemetryManager.addMetricsConfig(WIFI_NETSTATS_CONFIG_NAME,
-                METRICS_CONFIG_WIFI_NETSTATS.toByteArray());
+                METRICS_CONFIG_WIFI_NETSTATS.toByteArray(), mExecutor, mAddMetricsConfigCallback);
     }
 
     private void onRemoveWifiNetstatsConfigBtnClick(View view) {
@@ -681,7 +689,7 @@ public class CarTelemetryTestFragment extends Fragment {
         TelemetryProto.MetricsConfig config =
                 METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.toBuilder().setScript(luaScript).build();
         mCarTelemetryManager.addMetricsConfig(STATS_AND_CONNECTIVITY_CONFIG_NAME,
-                config.toByteArray());
+                config.toByteArray(), mExecutor, mAddMetricsConfigCallback);
     }
 
     private void onRemoveStatsAndConnectivityConfigBtnClick(View view) {
@@ -717,6 +725,39 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     /**
+     * Updates the view to show {@link CarTelemetryManager#addMetricsConfig(String, byte[],
+     * Executor, CarTelemetryManager.AddMetricsConfigCallback)} status code. The callbacks are
+     * executed in {@link #mExecutor}.
+     */
+    private final class AddMetricsConfigCallbackImpl
+            implements CarTelemetryManager.AddMetricsConfigCallback {
+
+        @Override
+        public void onAddMetricsConfigStatus(@androidx.annotation.NonNull String metricsConfigName,
+                int statusCode) {
+            showOutput("Add MetricsConfig status for " + metricsConfigName + ": "
+                    + statusCodeToString(statusCode));
+        }
+
+        private String statusCodeToString(int statusCode) {
+            switch (statusCode) {
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS:
+                    return "SUCCESS";
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS:
+                    return "ERROR ALREADY_EXISTS";
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD:
+                    return "ERROR VERSION_TOO_OLD";
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED:
+                    return "ERROR PARSE_FAILED";
+                case CarTelemetryManager.STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED:
+                    return "ERROR SIGNATURE_VERIFICATION_FAILED";
+                default:
+                    return "ERROR UNKNOWN";
+            }
+        }
+    }
+
+    /**
      * Implementation of the {@link CarTelemetryManager.CarTelemetryResultsListener}. They update
      * the view to show the outputs from the APIs of {@link CarTelemetryManager}.
      * The callbacks are executed in {@link mExecutor}.
@@ -744,29 +785,6 @@ public class CarTelemetryTestFragment extends Fragment {
             } catch (InvalidProtocolBufferException e) {
                 showOutput("Unable to parse error result for MetricsConfig " + metricsConfigName
                         + ": " + e.getMessage());
-            }
-        }
-
-        @Override
-        public void onAddMetricsConfigStatus(@NonNull String metricsConfigName, int statusCode) {
-            showOutput("Add MetricsConfig status for " + metricsConfigName + ": "
-                    + statusCodeToString(statusCode));
-        }
-
-        private String statusCodeToString(int statusCode) {
-            switch (statusCode) {
-                case CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS:
-                    return "SUCCESS";
-                case CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS:
-                    return "ERROR ALREADY_EXISTS";
-                case CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD:
-                    return "ERROR VERSION_TOO_OLD";
-                case CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED:
-                    return "ERROR PARSE_FAILED";
-                case CarTelemetryManager.STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED:
-                    return "ERROR SIGNATURE_VERIFICATION_FAILED";
-                default:
-                    return "ERROR UNKNOWN";
             }
         }
     }
