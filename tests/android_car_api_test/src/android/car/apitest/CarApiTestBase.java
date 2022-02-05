@@ -167,7 +167,7 @@ public abstract class CarApiTestBase {
             PowerManager powerManager = sContext.getSystemService(PowerManager.class);
             // clear log
             runShellCommand("logcat -b all -c");
-            runShellCommand("cmd car_service suspend --auto");
+            runShellCommand("cmd car_service suspend");
             // Check for suspend success
             waitUntil("screen is still on after suspend",
                     SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
