@@ -31,11 +31,10 @@ import android.util.Log;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
-
-import java.io.PrintWriter;
 
 /**
  * Main controller for GarageMode. It controls all the flows of GarageMode and defines the logic.
@@ -114,7 +113,7 @@ public class Controller extends ICarPowerStateListener.Stub {
      * Prints Garage Mode's status, including what jobs it is waiting for
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    void dump(PrintWriter writer) {
+    void dump(IndentingPrintWriter writer) {
         mGarageMode.dump(writer);
     }
 

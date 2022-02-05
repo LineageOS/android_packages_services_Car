@@ -33,12 +33,14 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
 import org.junit.After;
@@ -51,6 +53,9 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
@@ -61,6 +66,7 @@ import java.util.concurrent.TimeUnit;
 public final class GarageModeTest {
 
     private static final int DEFAULT_TIMEOUT_MS = 100;
+    private static final String TAG = "GarageModeTest";
 
     @Rule
     public final MockitoRule rule = MockitoJUnit.rule();
@@ -74,15 +80,27 @@ public final class GarageModeTest {
     @Mock
     private CarUserService mCarUserService;
     private final Handler mHandler = new Handler(Looper.getMainLooper());
+    @Mock
+    private SystemInterface mSystemInterface;
+    private File mTempTestDir;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         when(mController.getHandler()).thenReturn(mHandler);
         when(mContext.getSystemService(JobScheduler.class)).thenReturn(mJobScheduler);
 
-        mGarageMode = new GarageMode(mContext, mController);
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
+
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mSystemInterface);
+
+        mTempTestDir = Files.createTempDirectory("garagemode_test").toFile();
+        when(mSystemInterface.getSystemCarDir()).thenReturn(mTempTestDir);
+        Log.v(TAG, "Using temp dir: %s " + mTempTestDir.getAbsolutePath());
+
+        mGarageMode = new GarageMode(mContext, mController);
+
         mGarageMode.init();
     }
 
