@@ -39,6 +39,7 @@ public final class AndroidFutureTest {
 
     private AndroidFuture<String> mUncompletedFuture = new AndroidFuture<>();
     private AndroidFuture<String> mCompletedFuture = AndroidFuture.completedFuture(STRING_VALUE);
+
     private CountDownLatch mLatch = new CountDownLatch(1);
     private Parcel mParcel = Parcel.obtain();
 
@@ -214,6 +215,79 @@ public final class AndroidFutureTest {
         fromParcel.completeExceptionally(exception);
         ExecutionException thrown =
                 expectThrows(ExecutionException.class, () -> mUncompletedFuture.get());
+        assertThat(thrown.getCause()).isSameInstanceAs(exception);
+    }
+
+    @Test
+    public void testSupply() throws Exception {
+        AndroidFuture<String> suppliedFuture = AndroidFuture.supply(() -> STRING_VALUE);
+
+        assertThat(suppliedFuture.get()).isEqualTo(STRING_VALUE);
+    }
+
+    @Test
+    public void testSupply_futureThrowingException() throws Exception {
+        UnsupportedOperationException exception = new UnsupportedOperationException(
+                EXCEPTION_MESSAGE);
+        AndroidFuture<String> future = AndroidFuture.supply(() -> {
+            throw exception;
+        });
+
+        ExecutionException thrown = expectThrows(ExecutionException.class, () -> future.get());
+
+        assertThat(thrown.getCause()).isSameInstanceAs(exception);
+    }
+
+    @Test
+    public void testThenApply() throws Exception {
+        String appendString = " future is here";
+        AndroidFuture<String> farFuture = mUncompletedFuture.thenApply(s -> s + appendString);
+
+        mUncompletedFuture.complete(STRING_VALUE);
+        String expectedResult = STRING_VALUE + appendString;
+
+        assertThat(farFuture.get()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    public void testThenApply_functionThrowingException() throws Exception {
+        UnsupportedOperationException exception = new UnsupportedOperationException(
+                EXCEPTION_MESSAGE);
+        AndroidFuture<String> farFuture = mUncompletedFuture.thenApply(s -> {
+            throw exception;
+        });
+
+        mUncompletedFuture.complete(STRING_VALUE);
+        ExecutionException thrown = expectThrows(ExecutionException.class, () -> farFuture.get());
+
+        assertThat(thrown.getCause()).isSameInstanceAs(exception);
+    }
+
+    @Test
+    public void testThenCompose() throws Exception {
+        String appendString = " future is here";
+        AndroidFuture<String> composedFuture = mUncompletedFuture.thenCompose(
+                s -> AndroidFuture.supply(() -> s + appendString));
+
+        mUncompletedFuture.complete(STRING_VALUE);
+        String expectedResult = STRING_VALUE + appendString;
+
+        assertThat(composedFuture.get()).isEqualTo(expectedResult);
+    }
+
+    @Test
+    public void testThenCompose_functionThrowingException() throws Exception {
+        UnsupportedOperationException exception = new UnsupportedOperationException(
+                EXCEPTION_MESSAGE);
+        AndroidFuture<String> throwingFuture = AndroidFuture.supply(() -> {
+            throw exception;
+        });
+        AndroidFuture<String> composedFuture = mUncompletedFuture.thenCompose(s -> throwingFuture);
+
+        mUncompletedFuture.complete(STRING_VALUE);
+        ExecutionException thrown = expectThrows(ExecutionException.class,
+                () -> composedFuture.get());
+
         assertThat(thrown.getCause()).isSameInstanceAs(exception);
     }
 }
