@@ -21,6 +21,7 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SU
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
@@ -39,6 +40,7 @@ import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.OnShutdownReboot;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerController;
@@ -53,7 +55,9 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 
@@ -74,10 +78,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             CarTelemetryService.class.getSimpleName());
     private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
 
+    // accessed and updated on the main thread
+    private boolean mReleased = false;
+
     private ICarTelemetryServiceListener mListener;
     private DataBroker mDataBroker;
     private DataBrokerController mDataBrokerController;
     private MetricsConfigStore mMetricsConfigStore;
+    private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
     private SystemMonitor mSystemMonitor;
@@ -106,20 +114,29 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                     mContext, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
                     mTelemetryThreadTraceLog);
-            mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
+            ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
+            mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
             // controller starts metrics collection after boot complete
             mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
                     mMetricsConfigStore, mSystemMonitor,
                     systemInterface.getSystemStateInterface());
             mTelemetryThreadTraceLog.traceEnd();
+            // save state at reboot and shutdown
+            mOnShutdownReboot = new OnShutdownReboot(mContext);
+            mOnShutdownReboot.addAction((context, intent) -> release());
         });
     }
 
     @Override
     public void release() {
+        if (mReleased) {
+            return;
+        }
+        mReleased = true;
         mTelemetryHandler.post(() -> {
             mTelemetryThreadTraceLog.traceBegin("release");
             mResultStore.flushToDisk();
+            mOnShutdownReboot.release();
             mTelemetryThreadTraceLog.traceEnd();
         });
         mTelemetryThread.quitSafely();
@@ -127,7 +144,47 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     @Override
     public void dump(IndentingPrintWriter writer) {
-        writer.println("Car Telemetry service");
+        writer.println("*CarTelemetryService*");
+        writer.println();
+        // Print active configs with their interim results and errors.
+        writer.println("Active Configs");
+        writer.println();
+        for (TelemetryProto.MetricsConfig config : mMetricsConfigStore.getActiveMetricsConfigs()) {
+            writer.println("    Name: " + config.getName());
+            writer.println("    Version: " + config.getVersion());
+            PersistableBundle interimResult = mResultStore.getInterimResult(config.getName());
+            if (interimResult != null) {
+                writer.println("    Interim Result");
+                writer.println("        Bundle keys: "
+                        + Arrays.toString(interimResult.keySet().toArray()));
+            }
+            writer.println();
+        }
+        // Print info on stored final results. Configs are inactive after producing final result.
+        Map<String, PersistableBundle> finalResults = mResultStore.getFinalResults();
+        writer.println("Final Results");
+        writer.println();
+        for (Map.Entry<String, PersistableBundle> entry : finalResults.entrySet()) {
+            writer.println("    Config name: " + entry.getKey());
+            writer.println("    Bundle keys: "
+                    + Arrays.toString(entry.getValue().keySet().toArray()));
+            writer.println();
+        }
+        // Print info on stored errors. Configs are inactive after producing errors.
+        Map<String, TelemetryProto.TelemetryError> errors = mResultStore.getErrorResults();
+        writer.println("Errors");
+        writer.println();
+        for (Map.Entry<String, TelemetryProto.TelemetryError> entry : errors.entrySet()) {
+            writer.println("    Config name: " + entry.getKey());
+            TelemetryProto.TelemetryError error = entry.getValue();
+            writer.println("    Error");
+            writer.println("        Type: " + error.getErrorType());
+            writer.println("        Message: " + error.getMessage());
+            if (error.hasStackTrace() && !error.getStackTrace().isEmpty()) {
+                writer.println("        Stack trace: " + error.getStackTrace());
+            }
+            writer.println();
+        }
     }
 
     /**
@@ -370,13 +427,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      * Returns the list of config names and versions. This methods is expected to be used only by
      * {@code CarShellCommand} class. Other usages are not supported.
      */
+    @NonNull
     public List<String> getActiveMetricsConfigDetails() {
         return mMetricsConfigStore.getActiveMetricsConfigs().stream()
                 .map((config) -> config.getName() + " version=" + config.getVersion())
                 .collect(toList());
     }
 
-    private void sendFinalResult(MetricsConfigKey key, PersistableBundle result) {
+    private void sendFinalResult(@NonNull MetricsConfigKey key, @NonNull PersistableBundle result) {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             result.writeToStream(bos);
             mListener.onResult(key, bos.toByteArray());
@@ -387,7 +445,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         }
     }
 
-    private void sendError(MetricsConfigKey key, TelemetryProto.TelemetryError error) {
+    private void sendError(
+            @NonNull MetricsConfigKey key, @NonNull TelemetryProto.TelemetryError error) {
         try {
             mListener.onError(key, error.toByteArray());
         } catch (RemoteException e) {

@@ -18,6 +18,7 @@ package com.android.car.telemetry.publisher;
 
 import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
+import android.annotation.NonNull;
 import android.content.Context;
 import android.net.INetworkStatsService;
 import android.net.NetworkStats;
@@ -39,6 +40,7 @@ import com.android.server.utils.Slogf;
 
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 /**
@@ -59,7 +61,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     // TODO(b/202115033): Flatten the load spike by pulling reports for each MetricsConfigs
     //                    using separate periodical timers.
     // TODO(b/197905656): Use driving sessions to compute network usage statistics.
-    private static final Duration PULL_NETSTATS_PERIOD = Duration.ofMinutes(1);
+    private static final Duration PULL_NETSTATS_PERIOD = Duration.ofSeconds(60);
 
     // Assign the method to {@link Runnable}, otherwise the handler fails to remove it.
     private final Runnable mPullNetstatsPeriodically = this::pullNetstatsPeriodically;
@@ -80,10 +82,10 @@ public class ConnectivityPublisher extends AbstractPublisher {
     private boolean mIsPullingNetstats = false;
 
     ConnectivityPublisher(
-            PublisherFailureListener failureListener,
-            INetworkStatsService networkStatsService,
-            Handler telemetryHandler,
-            Context context) {
+            @NonNull PublisherFailureListener failureListener,
+            @NonNull INetworkStatsService networkStatsService,
+            @NonNull Handler telemetryHandler,
+            @NonNull Context context) {
         super(failureListener);
         mNetworkStatsService = networkStatsService;
         mTelemetryHandler = telemetryHandler;
@@ -105,7 +107,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void addDataSubscriber(DataSubscriber subscriber) {
+    public void addDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase() == PublisherCase.CONNECTIVITY,
@@ -123,7 +125,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void removeDataSubscriber(DataSubscriber subscriber) {
+    public void removeDataSubscriber(@NonNull DataSubscriber subscriber) {
         mSubscribers.get(QueryParam.forSubscriber(subscriber)).remove(subscriber);
         if (isSubscribersEmpty()) {
             mIsPullingNetstats = false;
@@ -141,11 +143,14 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     @Override
-    public boolean hasDataSubscriber(DataSubscriber subscriber) {
+    public boolean hasDataSubscriber(@NonNull DataSubscriber subscriber) {
         return mSubscribers.get(QueryParam.forSubscriber(subscriber)).contains(subscriber);
     }
 
     private void pullInitialNetstats() {
+        if (DEBUG) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "ConnectivityPublisher is pulling initial netstats");
+        }
         try {
             for (QueryParam param : mSubscribers.keySet()) {
                 mTransportPreviousNetstats.put(param, getSummaryForAllUid(param));
@@ -177,8 +182,9 @@ public class ConnectivityPublisher extends AbstractPublisher {
     }
 
     private void pullAndForwardNetstatsToSubscribers(
-            QueryParam param, ArrayList<DataSubscriber> subscribers) {
+            @NonNull QueryParam param, @NonNull ArrayList<DataSubscriber> subscribers) {
         NetworkStats current;
+        long collectedAtMillis = System.currentTimeMillis();
         try {
             current = getSummaryForAllUid(param);
         } catch (RemoteException | NullPointerException e) {
@@ -196,27 +202,77 @@ public class ConnectivityPublisher extends AbstractPublisher {
                     param);
             return;
         }
+
         NetworkStats diff = current.subtract(baseline); // network usage since last pull
-        // TODO(b/197905656): Convert to persistable bundle.
-        // NOTE: Counting total using the following method might not be the right way,
-        //       see NetworkStats.java how internally it's done. Either way, it should provide
-        //       the raw data to scripts, and it will be the scripts job to calculate final netstats
-        //       properly.
-        long totalRxBytes = 0;
-        long totalTxBytes = 0;
-        for (int i = 0; i < diff.size(); i++) {
-            NetworkStats.Entry entry = diff.getValues(i, null);
-            totalRxBytes += entry.rxBytes;
-            totalTxBytes += entry.txBytes;
-        }
-        PersistableBundle data = new PersistableBundle();
-        data.putLong("tmp_size", diff.size());
-        data.putLong("tmp_duration_millis", diff.getElapsedRealtime());
-        data.putLong("tmp_total_rx_bytes", totalRxBytes);
-        data.putLong("tmp_total_tx_bytes", totalTxBytes);
+        PersistableBundle data = convertStatsToBundle(diff, collectedAtMillis);
+
         for (DataSubscriber subscriber : subscribers) {
             subscriber.push(data);
         }
+    }
+
+    /**
+     * Converts the provided {@link NetworkStats} object to {@link PersistableBundle}. It also
+     * combines dimensions {@code set}, {@code metered}, {@code roaming} and {@code defaultNetwork},
+     * leaving only {@code uid} and {@code tag}.
+     *
+     * <p>Format: <code>
+     *   PersistableBundle[{
+     *     collectedAtMillis = 1640779280000,
+     *     durationMillis = 60_000,
+     *     size  = 3,
+     *     uid = IntArray[0, 1000, 12345],
+     *     tag = IntArray[0, 0, 5555],
+     *     rxBytes = LongArray[0, 0, 0],
+     *     txBytes = LongArray[0, 0, 0],
+     *   }]
+     * </code> Where "collectedAtMillis" is a timestamp (wall clock) since epoch when data is
+     * collected; field "durationMillis" is a time range when the data was collected; field "size"
+     * is the length of "uid", "tag", "rxBytes", "txBytes" arrays; fields "uid" and "tag" are
+     * dimensions; fields "rxBytes", "txBytes" are received and transmitted bytes for given
+     * dimensions.
+     *
+     * <p>"tag" field may contain "0" {@link NetworkStats.TAG_NONE}, which is the total value across
+     * all the tags.
+     *
+     * <p>This code is similar to hidden {@code NetworkStats#groupedByIface()} method.
+     */
+    private static PersistableBundle convertStatsToBundle(
+            NetworkStats stats, long collectedAtMillis) {
+        int dataSize = stats.size();
+        int[] uid = new int[dataSize];
+        int[] tag = new int[dataSize];
+        long[] rxBytes = new long[dataSize];
+        long[] txBytes = new long[dataSize];
+        int aggregatedDataSize = 0;
+        for (int rawIndex = 0; rawIndex < dataSize; rawIndex++) {
+            NetworkStats.Entry raw = stats.getValues(rawIndex, null);
+            int index = -1;
+            for (int j = 0; j < aggregatedDataSize; j++) {
+                if (uid[j] == raw.uid && tag[j] == raw.tag) {
+                    index = j;
+                    break;
+                }
+            }
+            if (index == -1) {
+                aggregatedDataSize += 1; // append the new Entry
+                index = aggregatedDataSize - 1;
+                uid[index] = raw.uid;
+                tag[index] = raw.tag;
+            }
+            rxBytes[index] += raw.rxBytes;
+            txBytes[index] += raw.txBytes;
+        }
+
+        PersistableBundle data = new PersistableBundle();
+        data.putLong("collectedAtMillis", collectedAtMillis);
+        data.putLong("durationMillis", stats.getElapsedRealtime());
+        data.putInt("size", aggregatedDataSize);
+        data.putIntArray("uid", Arrays.copyOf(uid, aggregatedDataSize));
+        data.putIntArray("tag", Arrays.copyOf(tag, aggregatedDataSize));
+        data.putLongArray("rxBytes", Arrays.copyOf(rxBytes, aggregatedDataSize));
+        data.putLongArray("txBytes", Arrays.copyOf(txBytes, aggregatedDataSize));
+        return data;
     }
 
     /**
@@ -229,7 +285,8 @@ public class ConnectivityPublisher extends AbstractPublisher {
      *
      * <p>TODO(b/197905656): run this method on a separate thread for better performance.
      */
-    private NetworkStats getSummaryForAllUid(QueryParam param) throws RemoteException {
+    @NonNull
+    private NetworkStats getSummaryForAllUid(@NonNull QueryParam param) throws RemoteException {
         long currentTimeInMillis = System.currentTimeMillis();
         long elapsedMillisSinceBoot = SystemClock.elapsedRealtime(); // including sleep
 
@@ -287,13 +344,15 @@ public class ConnectivityPublisher extends AbstractPublisher {
         private int mMatchRule;
         private int mOemManaged;
 
-        static QueryParam forSubscriber(DataSubscriber subscriber) {
+        @NonNull
+        static QueryParam forSubscriber(@NonNull DataSubscriber subscriber) {
             TelemetryProto.ConnectivityPublisher publisher =
                     subscriber.getPublisherParam().getConnectivity();
             return build(publisher.getTransport(), publisher.getOemType());
         }
 
-        static QueryParam build(Transport transport, OemType oemType) {
+        @NonNull
+        static QueryParam build(@NonNull Transport transport, @NonNull OemType oemType) {
             return new QueryParam(
                     getNetworkTemplateMatch(transport), getNetstatsOemManaged(oemType));
         }
@@ -311,7 +370,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
             return mOemManaged;
         }
 
-        private static int getNetworkTemplateMatch(Transport transport) {
+        private static int getNetworkTemplateMatch(@NonNull Transport transport) {
             switch (transport) {
                 case TRANSPORT_CELLULAR:
                     return NetworkTemplate.MATCH_MOBILE_WILDCARD;
@@ -326,7 +385,7 @@ public class ConnectivityPublisher extends AbstractPublisher {
             }
         }
 
-        private static int getNetstatsOemManaged(OemType oemType) {
+        private static int getNetstatsOemManaged(@NonNull OemType oemType) {
             switch (oemType) {
                 case OEM_NONE:
                     return NetworkTemplate.OEM_MANAGED_NO;
