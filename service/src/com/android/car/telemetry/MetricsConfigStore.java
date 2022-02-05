@@ -16,10 +16,10 @@
 
 package com.android.car.telemetry;
 
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_UNKNOWN;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_UNKNOWN;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
@@ -83,14 +83,14 @@ public class MetricsConfigStore {
     public int addMetricsConfig(@NonNull TelemetryProto.MetricsConfig metricsConfig) {
         // TODO(b/197336485): Check expiration date for MetricsConfig
         if (metricsConfig.getVersion() <= 0) {
-            return STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
+            return STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
         }
         if (mActiveConfigs.containsKey(metricsConfig.getName())) {
             int currentVersion = mActiveConfigs.get(metricsConfig.getName()).getVersion();
             if (currentVersion > metricsConfig.getVersion()) {
-                return STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
+                return STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
             } else if (currentVersion == metricsConfig.getVersion()) {
-                return STATUS_METRICS_CONFIG_ALREADY_EXISTS;
+                return STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS;
             }
         }
         mActiveConfigs.put(metricsConfig.getName(), metricsConfig);
@@ -99,9 +99,9 @@ public class MetricsConfigStore {
         } catch (IOException e) {
             // TODO(b/197336655): record failure
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
-            return STATUS_METRICS_CONFIG_UNKNOWN;
+            return STATUS_ADD_METRICS_CONFIG_UNKNOWN;
         }
-        return STATUS_METRICS_CONFIG_SUCCESS;
+        return STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
     }
 
     /**
@@ -122,5 +122,10 @@ public class MetricsConfigStore {
     public void removeAllMetricsConfigs() {
         mActiveConfigs.clear();
         IoUtils.deleteAllSilently(mConfigDirectory);
+    }
+
+    /** Returns whether a MetricsConfig of the same name exists in the store. */
+    public boolean containsConfig(@NonNull String metricsConfigName) {
+        return mActiveConfigs.containsKey(metricsConfigName);
     }
 }
