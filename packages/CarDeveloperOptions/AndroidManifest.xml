@@ -1770,6 +1770,14 @@
             <intent-filter tools:node="removeAll"/>
         </activity>
 
+        <activity android:name="com.android.settings.dream.DreamSetupActivity"
+                  android:enabled="false"
+                  android:exported="false"
+                  tools:node="merge"
+                  tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
         <activity
             android:name="com.android.settings.Settings$UserSettingsActivity"
             android:enabled="false"
@@ -2136,6 +2144,14 @@
             android:exported="false"
             tools:node="merge"
             tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity android:name="com.android.settings.ActionDisabledByAppOpsDialog"
+                  android:enabled="false"
+                  android:exported="false"
+                  tools:node="merge"
+                  tools:replace="android:exported">
             <intent-filter tools:node="removeAll"/>
         </activity>
 
