@@ -27,7 +27,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
+import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -47,8 +47,8 @@ public class CarFeatureControllerTest extends MockedCarTestBase {
     @Override
     protected void configureMockedHal() {
         Log.i(TAG, "mDisabledOptionalFeatures:" + mDisabledOptionalFeatures);
-        addProperty(VehicleProperty.DISABLED_OPTIONAL_FEATURES,
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.DISABLED_OPTIONAL_FEATURES)
+        addAidlProperty(VehicleProperty.DISABLED_OPTIONAL_FEATURES,
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.DISABLED_OPTIONAL_FEATURES)
                         .setStringValue(mDisabledOptionalFeatures)
                         .build());
     }

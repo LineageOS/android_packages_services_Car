@@ -83,7 +83,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
         addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                     VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG))

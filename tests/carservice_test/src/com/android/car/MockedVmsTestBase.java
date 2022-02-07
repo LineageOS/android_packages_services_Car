@@ -60,7 +60,6 @@ public class MockedVmsTestBase extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
         mHalClient = new MockHalClient();
         addAidlProperty(VehicleProperty.VEHICLE_MAP_SERVICE, mHalClient)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE)

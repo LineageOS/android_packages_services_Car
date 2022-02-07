@@ -91,8 +91,8 @@ public class MockedCarTestBase {
     private static final IBinder sCarServiceToken = new Binder();
     private static boolean sRealCarServiceReleased;
 
-    // TODO(b/216195629): Change this to true after we migrate all clients.
-    protected boolean mUseAidlVhal = false;
+    // Use the Mocked AIDL VHAL backend by default.
+    private boolean mUseAidlVhal = true;
 
     private Car mCar;
     private ICarImpl mCarImpl;
@@ -147,6 +147,22 @@ public class MockedCarTestBase {
     }
 
     protected void configureMockedHal() {
+    }
+
+    /**
+     * Use the Mocked HIDL Vehicle HAL as backend. If called, must be called in
+     * configureMockedHal().
+     */
+    protected void useHidlVhal() {
+        mUseAidlVhal = false;
+    }
+
+    /**
+     * Use the Mocked AIDL Vehicle HAL as backend. If called, must be called in
+     * configureMockedHal().
+     */
+    protected void useAidlVhal() {
+        mUseAidlVhal = true;
     }
 
     /**
@@ -349,21 +365,21 @@ public class MockedCarTestBase {
         }
     }
 
-    protected VehiclePropConfigBuilder addProperty(int propertyId,
+    protected VehiclePropConfigBuilder addHidlProperty(int propertyId,
             HidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
         setHidlConfigBuilder(builder, propertyHandler);
         return builder;
     }
 
-    protected VehiclePropConfigBuilder addProperty(int propertyId) {
+    protected VehiclePropConfigBuilder addHidlProperty(int propertyId) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
         setHidlConfigBuilder(builder, new HidlMockedVehicleHal.DefaultPropertyHandler(
                 builder.build(), null));
         return builder;
     }
 
-    protected VehiclePropConfigBuilder addProperty(int propertyId,
+    protected VehiclePropConfigBuilder addHidlProperty(int propertyId,
             android.hardware.automotive.vehicle.V2_0.VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
         setHidlConfigBuilder(builder, new HidlMockedVehicleHal.DefaultPropertyHandler(
@@ -371,7 +387,7 @@ public class MockedCarTestBase {
         return builder;
     }
 
-    protected VehiclePropConfigBuilder addStaticProperty(int propertyId,
+    protected VehiclePropConfigBuilder addStaticHidlProperty(int propertyId,
             android.hardware.automotive.vehicle.V2_0.VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId)
                 .setChangeMode(VehiclePropertyChangeMode.STATIC)

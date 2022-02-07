@@ -231,7 +231,6 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
         Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
         Collection<Integer> selectiveClear = Collections.singletonList(1);
         Log.i(TAG, mTestName.getMethodName());

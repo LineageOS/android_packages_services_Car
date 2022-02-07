@@ -85,7 +85,6 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
         PropertyHandler handler = new PropertyHandler();
         for (VehiclePropValue value : mDefaultPropValues.values()) {
             handler.onPropertySet(value);
