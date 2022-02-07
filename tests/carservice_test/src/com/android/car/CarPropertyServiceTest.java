@@ -84,7 +84,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         PropertyHandler handler = new PropertyHandler();
         for (VehiclePropValue value : mDefaultPropValues.values()) {
             handler.onPropertySet(value);
@@ -93,7 +93,7 @@ public class CarPropertyServiceTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void spyOnBeforeCarImplInit(ICarImpl carImpl) {
+    protected void spyOnBeforeCarImplInit(ICarImpl carImpl) {
         mService = CarLocalServices.getService(CarPropertyService.class);
         assertThat(mService).isNotNull();
         spyOn(mService);

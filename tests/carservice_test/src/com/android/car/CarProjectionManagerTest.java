@@ -66,7 +66,7 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
     private CarProjectionManager mManager;
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mUseAidlVhal = true;
         addAidlProperty(VehicleProperty.HW_KEY_INPUT, new PropertyHandler())
                 .setAccess(VehiclePropertyAccess.READ);

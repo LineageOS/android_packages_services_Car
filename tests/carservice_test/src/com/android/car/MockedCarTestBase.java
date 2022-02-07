@@ -36,10 +36,9 @@ import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.UserHandle;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -54,7 +53,6 @@ import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.StorageMonitoringInterface;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.systeminterface.SystemInterface.Builder;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
@@ -65,6 +63,7 @@ import com.android.car.vehiclehal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.vehiclehal.test.HidlMockedVehicleHal;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 import com.android.car.watchdog.CarWatchdogService;
+import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
@@ -99,69 +98,74 @@ public class MockedCarTestBase {
     private ICarImpl mCarImpl;
     private HidlMockedVehicleHal mHidlMockedVehicleHal;
     private AidlMockedVehicleHal mAidlMockedVehicleHal;
-    private VehicleStub mMockedVehicleStub;
     private SystemInterface mFakeSystemInterface;
     private MockedCarTestContext mMockedCarTestContext;
 
-    private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private final Map<VehiclePropConfigBuilder, HidlMockedVehicleHal.VehicleHalPropertyHandler>
-            mHidlHalConfig = new HashMap<>();
-    private final Map<AidlVehiclePropConfigBuilder, AidlMockedVehicleHal.VehicleHalPropertyHandler>
-            mAidlHalConfig = new HashMap<>();
-    private final SparseArray<VehiclePropConfigBuilder> mHidlPropToConfigBuilder =
-            new SparseArray<>();
-    private final SparseArray<AidlVehiclePropConfigBuilder> mAidlPropToConfigBuilder =
-            new SparseArray<>();
     private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
     private final CarPerformanceService mCarPerformanceService = mock(CarPerformanceService.class);
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
     private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
 
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private final SparseArray<VehiclePropConfigBuilder> mHidlPropToConfigBuilder =
+            new SparseArray<>();
+    @GuardedBy("mLock")
+    private final SparseArray<AidlVehiclePropConfigBuilder> mAidlPropToConfigBuilder =
+            new SparseArray<>();
+    @GuardedBy("mLock")
+    private final Map<VehiclePropConfigBuilder, HidlMockedVehicleHal.VehicleHalPropertyHandler>
+            mHidlHalConfig = new ArrayMap<>();
+    @GuardedBy("mLock")
+    private final Map<AidlVehiclePropConfigBuilder, AidlMockedVehicleHal.VehicleHalPropertyHandler>
+            mAidlHalConfig = new ArrayMap<>();
+    @GuardedBy("mLock")
+    private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
+
     private MockitoSession mSession;
 
-    protected synchronized HidlMockedVehicleHal createHidlMockedVehicleHal() {
+    protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
         return new HidlMockedVehicleHal();
     }
 
-    protected synchronized AidlMockedVehicleHal createAidlMockedVehicleHal() {
+    protected AidlMockedVehicleHal createAidlMockedVehicleHal() {
         return new AidlMockedVehicleHal();
     }
 
-    protected synchronized HidlMockedVehicleHal getHidlMockedVehicleHal() {
+    protected HidlMockedVehicleHal getHidlMockedVehicleHal() {
         return mHidlMockedVehicleHal;
     }
 
-    protected synchronized AidlMockedVehicleHal getAidlMockedVehicleHal() {
+    protected AidlMockedVehicleHal getAidlMockedVehicleHal() {
         return mAidlMockedVehicleHal;
     }
 
-    protected synchronized SystemInterface getFakeSystemInterface() {
+    protected SystemInterface getFakeSystemInterface() {
         return mFakeSystemInterface;
     }
 
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
     }
 
     /**
-     * Called after {@codeICarImpl} is created and before {@code ICarImpl.init()} is called.
+     * Called after {@code ICarImpl} is created and before {@code ICarImpl.init()} is called.
      *
      * <p> Subclass that intend to apply spyOn() to the service under testing should override this.
      * <pre class="prettyprint">
      * @Override
-     * protected synchronized void spyOnBeforeCarImplInit() {
+     * protected void spyOnBeforeCarImplInit() {
      *     mServiceUnderTest = CarLocalServices.getService(CarXXXService.class);
      *     ExtendedMockito.spyOn(mServiceUnderTest);
      * }
      * </pre>
      */
-    protected synchronized void spyOnBeforeCarImplInit(ICarImpl carImpl) {
+    protected void spyOnBeforeCarImplInit(ICarImpl carImpl) {
     }
 
-    protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
-        return Builder.newSystemInterface()
+    protected SystemInterface.Builder getSystemInterfaceBuilder() {
+        return SystemInterface.Builder.newSystemInterface()
                 .withSystemStateInterface(new MockSystemStateInterface())
                 .withActivityManagerInterface(new MockActivityManagerInterface())
                 .withDisplayInterface(new MockDisplayInterface())
@@ -171,9 +175,9 @@ public class MockedCarTestBase {
                 .withWakeLockInterface(new MockWakeLockInterface());
     }
 
-    protected synchronized void configureFakeSystemInterface() {}
+    protected void configureFakeSystemInterface() {}
 
-    protected synchronized void configureResourceOverrides(MockResources resources) {
+    protected void configureResourceOverrides(MockResources resources) {
         resources.overrideResource(com.android.car.R.string.instrumentClusterRendererService, "");
         resources.overrideResource(com.android.car.R.bool.audioUseDynamicRouting, false);
         resources.overrideResource(com.android.car.R.array.config_earlyStartupServices,
@@ -182,12 +186,14 @@ public class MockedCarTestBase {
                 900);
     }
 
-    protected synchronized Context getContext() {
-        if (mMockedCarTestContext == null) {
-            mMockedCarTestContext = createMockedCarTestContext(
-                    InstrumentationRegistry.getInstrumentation().getTargetContext());
+    protected Context getContext() {
+        synchronized (mLock) {
+            if (mMockedCarTestContext == null) {
+                mMockedCarTestContext = createMockedCarTestContext(
+                        InstrumentationRegistry.getInstrumentation().getTargetContext());
+            }
+            return mMockedCarTestContext;
         }
-        return mMockedCarTestContext;
     }
 
     protected MockedCarTestContext createMockedCarTestContext(Context context) {
@@ -220,6 +226,7 @@ public class MockedCarTestBase {
 
         releaseRealCarService(getContext());
 
+        // Create mock dependencies
         mHidlMockedVehicleHal = createHidlMockedVehicleHal();
         mAidlMockedVehicleHal = createAidlMockedVehicleHal();
         configureMockedHal();
@@ -230,17 +237,22 @@ public class MockedCarTestBase {
         mMockedCarTestContext = (MockedCarTestContext) getContext();
         configureResourceOverrides((MockResources) mMockedCarTestContext.getResources());
 
+        // Setup mocks
         doAnswer((invocation) -> {
-            UserLifecycleListener listener = invocation.getArgument(0);
-            Log.d(TAG, "Adding UserLifecycleListener: " + listener);
-            mUserLifecycleListeners.add(listener);
+            UserLifecycleListener listener = invocation.getArgument(/* index= */ 0);
+            synchronized (mLock) {
+                Log.d(TAG, "Adding UserLifecycleListener: " + listener);
+                mUserLifecycleListeners.add(listener);
+            }
             return null;
         }).when(mCarUserService).addUserLifecycleListener(any());
 
         doAnswer((invocation) -> {
-            UserLifecycleListener listener = invocation.getArgument(0);
-            Log.d(TAG, "Removing UserLifecycleListener: " + listener);
-            mUserLifecycleListeners.remove(listener);
+            UserLifecycleListener listener = invocation.getArgument(/* index= */ 0);
+            synchronized (mLock) {
+                Log.d(TAG, "Removing UserLifecycleListener: " + listener);
+                mUserLifecycleListeners.remove(listener);
+            }
             return null;
         }).when(mCarUserService).removeUserLifecycleListener(any());
 
@@ -252,14 +264,16 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
 
+        VehicleStub mockedVehicleStub;
         if (!mUseAidlVhal) {
-            mMockedVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
+            mockedVehicleStub = new HidlVehicleStub(mHidlMockedVehicleHal);
         } else {
-            mMockedVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
+            mockedVehicleStub = new AidlVehicleStub(mAidlMockedVehicleHal);
         }
 
+        // Setup car
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
-                mMockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
+                mockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
                 mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
                 mPowerPolicyDaemon);
 
@@ -268,7 +282,7 @@ public class MockedCarTestBase {
         mCarImpl = carImpl;
         // Wait for CPMS to handle the first power state change request.
         waitUntilPowerStateChangeHandled();
-        mCar = new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
+        mCar = new Car(mMockedCarTestContext, mCarImpl, /* handler= */ null);
     }
 
     @After
@@ -289,9 +303,7 @@ public class MockedCarTestBase {
                 mCarImpl = null;
             }
             CarServiceUtils.finishAllHandlerTasks();
-            if (mMockIOInterface != null) {
-                mMockIOInterface.tearDown();
-            }
+            mMockIOInterface.tearDown();
             mHidlMockedVehicleHal = null;
             mAidlMockedVehicleHal = null;
         } finally {
@@ -313,46 +325,45 @@ public class MockedCarTestBase {
      * Creates new Car instance for testing.
      */
     public Car createNewCar() {
-        return new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
-    }
-
-    protected synchronized void reinitializeMockedHal() throws Exception {
-        mCarImpl.release();
-        initMockedHal();
+        return new Car(mMockedCarTestContext, mCarImpl, /* handler= */ null);
     }
 
     protected IBinder getCarService(String service) {
         return mCarImpl.getCarService(service);
     }
 
-    private synchronized void initMockedHal() throws Exception {
-        for (Map.Entry<VehiclePropConfigBuilder, HidlMockedVehicleHal.VehicleHalPropertyHandler>
-                entry : mHidlHalConfig.entrySet()) {
-            mHidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
+    @GuardedBy("mLock")
+    private void initMockedHal() throws Exception {
+        synchronized (mLock) {
+            for (Map.Entry<VehiclePropConfigBuilder, HidlMockedVehicleHal.VehicleHalPropertyHandler>
+                    entry : mHidlHalConfig.entrySet()) {
+                mHidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
+            }
+            for (Map.Entry<AidlVehiclePropConfigBuilder,
+                    AidlMockedVehicleHal.VehicleHalPropertyHandler>
+                    entry : mAidlHalConfig.entrySet()) {
+                mAidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
+            }
+            mHidlHalConfig.clear();
+            mAidlHalConfig.clear();
         }
-        for (Map.Entry<AidlVehiclePropConfigBuilder, AidlMockedVehicleHal.VehicleHalPropertyHandler>
-                entry : mAidlHalConfig.entrySet()) {
-            mAidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
-        }
-        mHidlHalConfig.clear();
-        mAidlHalConfig.clear();
     }
 
-    protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
+    protected VehiclePropConfigBuilder addProperty(int propertyId,
             HidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
         setHidlConfigBuilder(builder, propertyHandler);
         return builder;
     }
 
-    protected synchronized VehiclePropConfigBuilder addProperty(int propertyId) {
+    protected VehiclePropConfigBuilder addProperty(int propertyId) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
         setHidlConfigBuilder(builder, new HidlMockedVehicleHal.DefaultPropertyHandler(
                 builder.build(), null));
         return builder;
     }
 
-    protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
+    protected VehiclePropConfigBuilder addProperty(int propertyId,
             android.hardware.automotive.vehicle.V2_0.VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
         setHidlConfigBuilder(builder, new HidlMockedVehicleHal.DefaultPropertyHandler(
@@ -360,7 +371,7 @@ public class MockedCarTestBase {
         return builder;
     }
 
-    protected synchronized VehiclePropConfigBuilder addStaticProperty(int propertyId,
+    protected VehiclePropConfigBuilder addStaticProperty(int propertyId,
             android.hardware.automotive.vehicle.V2_0.VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId)
                 .setChangeMode(VehiclePropertyChangeMode.STATIC)
@@ -370,21 +381,21 @@ public class MockedCarTestBase {
         return builder;
     }
 
-    protected synchronized AidlVehiclePropConfigBuilder addAidlProperty(int propertyId,
+    protected AidlVehiclePropConfigBuilder addAidlProperty(int propertyId,
             AidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId);
         setAidlConfigBuilder(builder, propertyHandler);
         return builder;
     }
 
-    protected synchronized AidlVehiclePropConfigBuilder addAidlProperty(int propertyId) {
+    protected AidlVehiclePropConfigBuilder addAidlProperty(int propertyId) {
         AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId);
         setAidlConfigBuilder(builder, new AidlMockedVehicleHal.DefaultPropertyHandler(
                 builder.build(), null));
         return builder;
     }
 
-    protected synchronized AidlVehiclePropConfigBuilder addAidlProperty(int propertyId,
+    protected AidlVehiclePropConfigBuilder addAidlProperty(int propertyId,
             android.hardware.automotive.vehicle.VehiclePropValue value) {
         AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId);
         setAidlConfigBuilder(builder, new AidlMockedVehicleHal.DefaultPropertyHandler(
@@ -392,7 +403,7 @@ public class MockedCarTestBase {
         return builder;
     }
 
-    protected synchronized AidlVehiclePropConfigBuilder addAidlStaticProperty(int propertyId,
+    protected AidlVehiclePropConfigBuilder addAidlStaticProperty(int propertyId,
             android.hardware.automotive.vehicle.VehiclePropValue value) {
         AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId)
                 .setChangeMode(VehiclePropertyChangeMode.STATIC)
@@ -413,29 +424,33 @@ public class MockedCarTestBase {
             HidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         int propId = builder.build().prop;
 
-        // Override previous property config if exists.
-        VehiclePropConfigBuilder prevBuilder = mHidlPropToConfigBuilder.get(propId);
-        if (prevBuilder != null) {
-            mHidlHalConfig.remove(prevBuilder);
+        synchronized (mLock) {
+            // Override previous property config if exists.
+            VehiclePropConfigBuilder prevBuilder = mHidlPropToConfigBuilder.get(propId);
+            if (prevBuilder != null) {
+                mHidlHalConfig.remove(prevBuilder);
+            }
+            mHidlPropToConfigBuilder.put(propId, builder);
+            mHidlHalConfig.put(builder, propertyHandler);
         }
-        mHidlPropToConfigBuilder.put(propId, builder);
-        mHidlHalConfig.put(builder, propertyHandler);
     }
 
     private void setAidlConfigBuilder(AidlVehiclePropConfigBuilder builder,
             AidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         int propId = builder.build().prop;
 
-        // Override previous property config if exists.
-        AidlVehiclePropConfigBuilder prevBuilder = mAidlPropToConfigBuilder.get(propId);
-        if (prevBuilder != null) {
-            mAidlHalConfig.remove(prevBuilder);
+        synchronized (mLock) {
+            // Override previous property config if exists.
+            AidlVehiclePropConfigBuilder prevBuilder = mAidlPropToConfigBuilder.get(propId);
+            if (prevBuilder != null) {
+                mAidlHalConfig.remove(prevBuilder);
+            }
+            mAidlPropToConfigBuilder.put(propId, builder);
+            mAidlHalConfig.put(builder, propertyHandler);
         }
-        mAidlPropToConfigBuilder.put(propId, builder);
-        mAidlHalConfig.put(builder, propertyHandler);
     }
 
-    protected synchronized android.car.Car getCar() {
+    protected android.car.Car getCar() {
         return mCar;
     }
 
@@ -443,7 +458,7 @@ public class MockedCarTestBase {
      * In order to eliminate interfering with real car service we will disable it. It will be
      * enabled back in CarTestService when sCarServiceToken will go away (tests finish).
      */
-    private synchronized static void releaseRealCarService(Context context) throws Exception {
+    private static void releaseRealCarService(Context context) throws Exception {
         if (sRealCarServiceReleased) {
             return;  // We just want to release it once.
         }

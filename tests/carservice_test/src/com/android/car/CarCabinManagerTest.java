@@ -62,7 +62,7 @@ public class CarCabinManagerTest extends MockedCarTestBase {
     private int mEventZoneVal;
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mUseAidlVhal = true;
         CabinPropertyHandler handler = new CabinPropertyHandler();
         addAidlProperty(VehicleProperty.DOOR_LOCK, handler)

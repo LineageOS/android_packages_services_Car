@@ -218,7 +218,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     private final CaptureCallback mCallback2 = new CaptureCallback("callback2");
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         addProperty(VehicleProperty.HW_KEY_INPUT,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
                         .addIntValue(0, 0, 0)
@@ -234,7 +234,7 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureResourceOverrides(MockResources resources) {
+    protected void configureResourceOverrides(MockResources resources) {
         super.configureResourceOverrides(resources);
         resources.overrideResource(com.android.car.R.string.config_clusterHomeActivity,
                 getTestContext().getPackageName() + "/" + CarInputManagerTest.class.getName());

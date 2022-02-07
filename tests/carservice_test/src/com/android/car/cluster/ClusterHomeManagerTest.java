@@ -114,7 +114,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         if (isNoHalPropertyTest()) return;
 
         addProperty(VehicleProperty.CLUSTER_SWITCH_UI)
@@ -133,8 +133,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureResourceOverrides(
-            MockedCarTestBase.MockResources resources) {
+    protected void configureResourceOverrides(MockedCarTestBase.MockResources resources) {
         super.configureResourceOverrides(resources);
         StringBuilder occupantDisplayMapping = new StringBuilder();
         occupantDisplayMapping.append("displayPort=");
@@ -171,7 +170,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void spyOnBeforeCarImplInit(ICarImpl carImpl) {
+    protected void spyOnBeforeCarImplInit(ICarImpl carImpl) {
         mFixedActivityService = CarLocalServices.getService(FixedActivityService.class);
         ExtendedMockito.spyOn(mFixedActivityService);
 

@@ -67,7 +67,7 @@ public class CarHvacManagerTest extends MockedCarTestBase {
     private int mEventZoneVal;
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mUseAidlVhal = true;
         HvacPropertyHandler handler = new HvacPropertyHandler();
         addAidlProperty(VehicleProperty.HVAC_DEFROSTER, handler)
