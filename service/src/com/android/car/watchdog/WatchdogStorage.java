@@ -237,8 +237,10 @@ public final class WatchdogStorage {
     }
 
     /**
-     * Saves the given I/O usage stats. On success, returns the number of saved entries.
-     * Otherwise, returns {@code FAILED_TRANSACTION}
+     * Saves the given I/O usage stats.
+     *
+     * @return the number of saved entries, on success. Otherwise, returns
+     *     {@code FAILED_TRANSACTION}
      */
     public int saveIoUsageStats(List<IoUsageStatsEntry> entries) {
         return saveIoUsageStats(entries, /* shouldCheckRetention= */ true);
@@ -506,8 +508,10 @@ public final class WatchdogStorage {
     }
 
     /**
-     * Atomically replace rows in a database table. On success, returns the number of replaced
-     * entries. Otherwise, returns {@code FAILED_TRANSACTION}
+     * Atomically replace rows in a database table.
+     *
+     * @return the number of replaced entries, on success. Otherwise, returns
+     *     {@code FAILED_TRANSACTION}
      */
     private static int atomicReplaceEntries(SQLiteDatabase db, String tableName,
             List<ContentValues> rows) {
@@ -523,8 +527,7 @@ public final class WatchdogStorage {
                         return FAILED_TRANSACTION;
                     }
                 } catch (SQLException e) {
-                    Slogf.e(TAG, "Failed to insert " + tableName + " entry [" + rows.get(i) + "]",
-                            e);
+                    Slogf.e(TAG, e, "Failed to insert %s entry [%s]", tableName, rows.get(i));
                     return FAILED_TRANSACTION;
                 }
             }
