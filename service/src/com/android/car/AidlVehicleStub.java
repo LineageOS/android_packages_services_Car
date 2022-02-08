@@ -241,6 +241,9 @@ final class AidlVehicleStub extends VehicleStub {
                 throw new ServiceSpecificException(
                         result.status, "failed to get value: " + request.prop);
             }
+            if (result.prop == null) {
+                return null;
+            }
             return mPropValueBuilder.build(result.prop);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt(); // Restore the interrupted status

@@ -302,7 +302,11 @@ public class MockedCarTestBase {
     }
 
     public void injectErrorEvent(int propId, int areaId, int errorCode) {
-        mHidlMockedVehicleHal.injectError(errorCode, propId, areaId);
+        if (mUseAidlVhal) {
+            mAidlMockedVehicleHal.injectError(errorCode, propId, areaId);
+        } else {
+            mHidlMockedVehicleHal.injectError(errorCode, propId, areaId);
+        }
     }
 
     /**

@@ -16,9 +16,10 @@
 
 package com.android.car.vehiclehal;
 
-import android.hardware.automotive.vehicle.V2_0.DiagnosticFloatSensorIndex;
-import android.hardware.automotive.vehicle.V2_0.DiagnosticIntegerSensorIndex;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.DiagnosticFloatSensorIndex;
+import android.hardware.automotive.vehicle.DiagnosticIntegerSensorIndex;
+import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 
 public final class DiagnosticJsonTestUtils {
 
@@ -29,14 +30,21 @@ public final class DiagnosticJsonTestUtils {
         VehiclePropValue expected = new VehiclePropValue();
         expected.prop = expectedProperty;
         expected.timestamp = expectedTimestamp;
-        expected.value = new VehiclePropValue.RawValue();
-        for (int i = 0; i < DiagnosticIntegerSensorIndex.LAST_SYSTEM_INDEX + 1; i++) {
-            expected.value.int32Values.add(0);
+        expected.value = new RawPropValues();
+
+        int size = DiagnosticEventBuilder.getLastIndex(DiagnosticIntegerSensorIndex.class) + 1;
+        expected.value.int32Values = new int[size];
+        for (int i = 0; i < size; i++) {
+            expected.value.int32Values[i] = 0;
         }
-        for (int i = 0; i < DiagnosticFloatSensorIndex.LAST_SYSTEM_INDEX + 1; i++) {
-            expected.value.floatValues.add(0f);
+        size = DiagnosticEventBuilder.getLastIndex(DiagnosticFloatSensorIndex.class) + 1;
+        expected.value.floatValues = new float[size];
+        for (int i = 0; i < size; i++) {
+            expected.value.floatValues[i] = 0f;
         }
-        expected.value.stringValue = null;
+        expected.value.int64Values = new long[0];
+        expected.value.byteValues = new byte[0];
+        expected.value.stringValue = new String();
         return expected;
     }
 

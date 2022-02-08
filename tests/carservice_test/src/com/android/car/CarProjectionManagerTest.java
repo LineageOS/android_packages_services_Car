@@ -21,11 +21,11 @@ import static org.junit.Assert.assertTrue;
 
 import android.car.Car;
 import android.car.CarProjectionManager;
-import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
-import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehicleDisplay;
+import android.hardware.automotive.vehicle.VehicleHwKeyInputAction;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -33,8 +33,8 @@ import android.view.KeyEvent;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,7 +67,8 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
 
     @Override
     protected synchronized void configureMockedHal() {
-        addProperty(VehicleProperty.HW_KEY_INPUT, new PropertyHandler())
+        mUseAidlVhal = true;
+        addAidlProperty(VehicleProperty.HW_KEY_INPUT, new PropertyHandler())
                 .setAccess(VehiclePropertyAccess.READ);
     }
 
@@ -129,12 +130,12 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
         };
 
         VehiclePropValue injectValue =
-                VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
                         .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                        .addIntValue(values)
+                        .addIntValues(values)
                         .build();
 
-        getHidlMockedVehicleHal().injectEvent(injectValue);
+        getAidlMockedVehicleHal().injectEvent(injectValue);
 
         if (isLong) {
             Thread.sleep(1200); // Long press is > 1s.
@@ -147,12 +148,12 @@ public class CarProjectionManagerTest extends MockedCarTestBase {
                 /* no indent count */
         };
 
-        injectValue = VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
+        injectValue = AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
                 .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                .addIntValue(upValues)
+                .addIntValues(upValues)
                 .build();
 
-        getHidlMockedVehicleHal().injectEvent(injectValue);
+        getAidlMockedVehicleHal().injectEvent(injectValue);
     }
 
 

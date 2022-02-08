@@ -16,12 +16,13 @@
 
 package com.android.car.vehiclehal;
 
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.OBD2_FREEZE_FRAME;
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.OBD2_LIVE_FRAME;
+import static android.hardware.automotive.vehicle.VehicleProperty.OBD2_FREEZE_FRAME;
+import static android.hardware.automotive.vehicle.VehicleProperty.OBD2_LIVE_FRAME;
 
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.util.JsonReader;
+
 import java.io.IOException;
 
 public class DiagnosticJsonReader {
@@ -35,13 +36,13 @@ public class DiagnosticJsonReader {
         mLiveFrameBuilder =
                 new DiagnosticEventBuilder(
                         OBD2_LIVE_FRAME,
-                        liveConfig.configArray.get(0),
-                        liveConfig.configArray.get(1));
+                        liveConfig.configArray[0],
+                        liveConfig.configArray[1]);
         mFreezeFrameBuilder =
                 new DiagnosticEventBuilder(
                         OBD2_FREEZE_FRAME,
-                        freezeConfig.configArray.get(0),
-                        freezeConfig.configArray.get(1));
+                        freezeConfig.configArray[0],
+                        freezeConfig.configArray[1]);
     }
 
     public DiagnosticJsonReader() {
