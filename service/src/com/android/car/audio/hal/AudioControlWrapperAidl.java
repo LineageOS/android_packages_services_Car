@@ -45,7 +45,7 @@ import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -122,7 +122,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Registering Audio Gain Callback on AudioControl HAL");
         }
-        Objects.requireNonNull(gainCallback);
+        Objects.requireNonNull(gainCallback, "Audio Gain Callback can not be null");
         IAudioGainCallback agc = new AudioGainCallbackWrapper(gainCallback);
         try {
             mAudioControl.registerGainCallback(agc);
@@ -324,20 +324,39 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
         @Override
         public void onAudioDeviceGainsChanged(int[] halReasons, AudioGainConfigInfo[] gains) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                final List<String> gainsLiteralList = Arrays.asList(gains).stream()
-                        .map(gain -> gain.toString())
-                        .collect(Collectors.toList());
-                Slogf.d(TAG, "onAudioDeviceGainsChanged for reasons=" + Arrays.toString(halReasons)
-                        + ", gains=[" + gainsLiteralList.stream().collect(Collectors.joining(", "))
-                        + "]");
+            List<CarAudioGainConfigInfo> carAudioGainConfigs = new ArrayList<>();
+            for (int index = 0; index < gains.length; index++) {
+                AudioGainConfigInfo gain = gains[index];
+                carAudioGainConfigs.add(new CarAudioGainConfigInfo(gain));
             }
-            final List<CarAudioGainConfigInfo> cagcis = Arrays.asList(gains).stream()
-                    .map(gain -> CarAudioGainConfigInfo.build(gain))
-                    .collect(Collectors.toList());
-            final List<Integer> reasons =
-                    Arrays.stream(halReasons).boxed().collect(Collectors.toList());
-            mCallback.onAudioDeviceGainsChanged(reasons, cagcis);
+            List<Integer> reasonsList = new ArrayList<>();
+            for (int index = 0; index < halReasons.length; index++) {
+                int halReason = halReasons[index];
+                if (!HalAudioGainCallback.isReasonValid(halReason)) {
+                    Slogf.e(
+                            TAG,
+                            "onAudioDeviceGainsChanged invalid reasons %d reported, skipped",
+                            halReason);
+                    continue;
+                }
+                reasonsList.add(halReason);
+            }
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                String gainsLiteral =
+                        carAudioGainConfigs.stream()
+                                .map(gain -> gain.toString())
+                                .collect(Collectors.joining(","));
+                String reasonsLiteral =
+                        reasonsList.stream()
+                                .map(HalAudioGainCallback::reasonToString)
+                                .collect(Collectors.joining(","));
+                Slogf.d(
+                        TAG,
+                        "onAudioDeviceGainsChanged for reasons=[%s], gains=[%s]",
+                        reasonsLiteral,
+                        gainsLiteral);
+            }
+            mCallback.onAudioDeviceGainsChanged(reasonsList, carAudioGainConfigs);
         }
     }
 }
