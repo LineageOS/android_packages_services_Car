@@ -70,6 +70,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.stats.CarStatsService;
@@ -142,6 +143,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
     private final CarWatchdogService mCarWatchdogService;
+    private final CarPerformanceService mCarPerformanceService;
     private final CarDevicePolicyService mCarDevicePolicyService;
     private final ClusterHomeService mClusterHomeService;
     private final CarEvsService mCarEvsService;
@@ -175,7 +177,8 @@ public class ICarImpl extends ICar.Stub {
             SystemInterface systemInterface, String vehicleInterfaceName) {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
-                /* garageModeService= */ null, /* powerPolicyDaemon= */ null);
+                /* carPerformanceService= */ null, /* garageModeService= */ null,
+                /* powerPolicyDaemon= */ null);
     }
 
     @VisibleForTesting
@@ -183,6 +186,7 @@ public class ICarImpl extends ICar.Stub {
             SystemInterface systemInterface, String vehicleInterfaceName,
             @Nullable CarUserService carUserService,
             @Nullable CarWatchdogService carWatchdogService,
+            @Nullable CarPerformanceService carPerformanceService,
             @Nullable GarageModeService garageModeService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
@@ -361,6 +365,12 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarWatchdogService = carWatchdogService;
         }
+        if (carPerformanceService == null) {
+            mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
+                    () -> new CarPerformanceService(serviceContext));
+        } else {
+            mCarPerformanceService = carPerformanceService;
+        }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
                         mCarServiceBuiltinPackageContext, mCarUserService));
@@ -424,6 +434,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
         allServices.add(mCarWatchdogService);
+        allServices.add(mCarPerformanceService);
         allServices.add(mCarDevicePolicyService);
         addServiceIfNonNull(allServices, mClusterHomeService);
         addServiceIfNonNull(allServices, mCarEvsService);
@@ -627,6 +638,8 @@ public class ICarImpl extends ICar.Stub {
                 return mExperimentalCarUserService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
+            case Car.CAR_PERFORMANCE_SERVICE:
+                return mCarPerformanceService;
             case Car.CAR_INPUT_SERVICE:
                 return mCarInputService;
             case Car.CAR_DEVICE_POLICY_SERVICE:

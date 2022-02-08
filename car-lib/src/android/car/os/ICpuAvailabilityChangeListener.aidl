@@ -16,13 +16,9 @@
 
 package android.car.os;
 
-import android.car.os.ICpuAvailabilityChangeListener;
-import android.car.os.CpuAvailabilityMonitoringConfig;
+import android.car.os.CpuAvailabilityInfo;
 
 /** @hide */
-interface ICarPerformanceService {
-    // addCpuAvailabilityChangeListener needs to get callingUid, so it cannot be oneway.
-    void addCpuAvailabilityChangeListener(
-        in CpuAvailabilityMonitoringConfig config, in ICpuAvailabilityChangeListener listener);
-    oneway void removeCpuAvailabilityChangeListener(in ICpuAvailabilityChangeListener listener);
+oneway interface ICpuAvailabilityChangeListener {
+    void onChange(in CpuAvailabilityInfo cpuAvailabilityInfo);
 }
