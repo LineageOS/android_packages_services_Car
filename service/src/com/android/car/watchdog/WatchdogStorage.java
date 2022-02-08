@@ -33,7 +33,6 @@ import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IntArray;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -59,6 +58,8 @@ import java.util.Objects;
 public final class WatchdogStorage {
     private static final String TAG = CarLog.tagFor(WatchdogStorage.class);
     private static final int RETENTION_PERIOD_IN_DAYS = 30;
+
+    public static final int FAILED_TRANSACTION = -1;
     /* Stats are stored on a daily basis. */
     public static final TemporalUnit STATS_TEMPORAL_UNIT = ChronoUnit.DAYS;
     /* Number of days to retain the stats in local storage. */
@@ -150,8 +151,13 @@ public final class WatchdogStorage {
         return entries;
     }
 
-    /** Saves the given I/O usage stats. Returns true only on success. */
-    public boolean saveIoUsageStats(List<IoUsageStatsEntry> entries) {
+    /**
+     * Saves the given I/O usage stats.
+     *
+     * @return the number of saved entries, on success. Otherwise, returns
+     *     {@code FAILED_TRANSACTION}
+     */
+    public int saveIoUsageStats(List<IoUsageStatsEntry> entries) {
         return saveIoUsageStats(entries, /* shouldCheckRetention= */ true);
     }
 
@@ -375,7 +381,7 @@ public final class WatchdogStorage {
     }
 
     @VisibleForTesting
-    boolean saveIoUsageStats(List<IoUsageStatsEntry> entries, boolean shouldCheckRetention) {
+    int saveIoUsageStats(List<IoUsageStatsEntry> entries, boolean shouldCheckRetention) {
         ZonedDateTime currentDate = mTimeSource.getCurrentDate();
         List<ContentValues> rows = new ArrayList<>(entries.size());
         for (int i = 0; i < entries.size(); ++i) {
@@ -416,10 +422,16 @@ public final class WatchdogStorage {
         }
     }
 
-    private static boolean atomicReplaceEntries(SQLiteDatabase db, String tableName,
-            List<ContentValues> rows) {
+    /**
+     * Atomically replace rows in a database table.
+     *
+     * @return the number of replaced entries, on success. Otherwise, returns
+     *     {@code FAILED_TRANSACTION}
+     */
+    private static int atomicReplaceEntries(
+            SQLiteDatabase db, String tableName, List<ContentValues> rows) {
         if (rows.isEmpty()) {
-            return true;
+            return 0;
         }
         try {
             db.beginTransaction();
@@ -427,19 +439,18 @@ public final class WatchdogStorage {
                 try {
                     if (db.replaceOrThrow(tableName, null, rows.get(i)) == -1) {
                         Slogf.e(TAG, "Failed to insert %s entry [%s]", tableName, rows.get(i));
-                        return false;
+                        return FAILED_TRANSACTION;
                     }
                 } catch (SQLException e) {
-                    Slog.e(TAG, "Failed to insert " + tableName + " entry [" + rows.get(i) + "]",
-                            e);
-                    return false;
+                    Slogf.e(TAG, e, "Failed to insert %s entry [%s]", tableName, rows.get(i));
+                    return FAILED_TRANSACTION;
                 }
             }
             db.setTransactionSuccessful();
         } finally {
             db.endTransaction();
         }
-        return true;
+        return rows.size();
     }
 
     /** Defines the user package settings entry stored in the UserPackageSettingsTable. */
