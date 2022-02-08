@@ -107,7 +107,8 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
             }
         }
 
-        for (IVehicleCallback callback: callbacks) {
+        for (int i = 0; i < callbacks.size(); i++) {
+            IVehicleCallback callback = callbacks.get(i);
             try {
                 ArrayList<VehiclePropValue> values = new ArrayList<>(1);
                 values.add(value);
@@ -127,7 +128,8 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
         List<IVehicleCallback> callbacks = mSubscribers.get(propertyId);
         assertNotNull("Injecting error failed for property: " + propertyId
                         + ". No listeners found", callbacks);
-        for (IVehicleCallback callback : callbacks) {
+        for (int i = 0; i < callbacks.size(); i++) {
+            IVehicleCallback callback = callbacks.get(i);
             try {
                 callback.onPropertySetError(errorCode, propertyId, areaId);
             } catch (RemoteException e) {
@@ -170,7 +172,6 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
                 // status code similar to how the c++ server does.
                 cb.onValues(e.errorCode, null);
             }
-
         }
     }
 
@@ -201,13 +202,14 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
             }
 
             handler.onPropertySubscribe(opt.propId, opt.sampleRate);
-            List<IVehicleCallback>  subscribers = mSubscribers.get(opt.propId);
+            List<IVehicleCallback> subscribers = mSubscribers.get(opt.propId);
             if (subscribers == null) {
                 subscribers = new ArrayList<>();
                 mSubscribers.put(opt.propId, subscribers);
                 notifyAll();
             } else {
-                for (IVehicleCallback s : subscribers) {
+                for (int i = 0; i < subscribers.size(); i++) {
+                    IVehicleCallback s = subscribers.get(i);
                     if (callback.asBinder() == s.asBinder()) {
                         // Remove callback that was registered previously for this property
                         subscribers.remove(callback);
@@ -228,7 +230,7 @@ public class HidlMockedVehicleHal extends IVehicle.Stub {
         }
 
         handler.onPropertyUnsubscribe(propId);
-        List<IVehicleCallback>  subscribers = mSubscribers.get(propId);
+        List<IVehicleCallback> subscribers = mSubscribers.get(propId);
         if (subscribers != null) {
             subscribers.remove(callback);
             if (subscribers.size() == 0) {

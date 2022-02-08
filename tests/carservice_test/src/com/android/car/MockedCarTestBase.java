@@ -33,7 +33,6 @@ import android.content.ServiceConnection;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.Binder;
@@ -61,10 +60,8 @@ import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.user.CarUserService;
 import com.android.car.vehiclehal.test.AidlMockedVehicleHal;
+import com.android.car.vehiclehal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.vehiclehal.test.HidlMockedVehicleHal;
-import com.android.car.vehiclehal.test.HidlMockedVehicleHal.DefaultPropertyHandler;
-import com.android.car.vehiclehal.test.HidlMockedVehicleHal.StaticPropertyHandler;
-import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 import com.android.car.watchdog.CarWatchdogService;
 
@@ -109,9 +106,14 @@ public class MockedCarTestBase {
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-    private final Map<VehiclePropConfigBuilder, VehicleHalPropertyHandler> mHalConfig =
-            new HashMap<>();
-    private final SparseArray<VehiclePropConfigBuilder> mPropToConfigBuilder = new SparseArray<>();
+    private final Map<VehiclePropConfigBuilder, HidlMockedVehicleHal.VehicleHalPropertyHandler>
+            mHidlHalConfig = new HashMap<>();
+    private final Map<AidlVehiclePropConfigBuilder, AidlMockedVehicleHal.VehicleHalPropertyHandler>
+            mAidlHalConfig = new HashMap<>();
+    private final SparseArray<VehiclePropConfigBuilder> mHidlPropToConfigBuilder =
+            new SparseArray<>();
+    private final SparseArray<AidlVehiclePropConfigBuilder> mAidlPropToConfigBuilder =
+            new SparseArray<>();
     private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
     private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
@@ -317,40 +319,80 @@ public class MockedCarTestBase {
     }
 
     private synchronized void initMockedHal() throws Exception {
-        for (Map.Entry<VehiclePropConfigBuilder, VehicleHalPropertyHandler> entry
-                : mHalConfig.entrySet()) {
+        for (Map.Entry<VehiclePropConfigBuilder, HidlMockedVehicleHal.VehicleHalPropertyHandler>
+                entry : mHidlHalConfig.entrySet()) {
             mHidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
         }
-        mHalConfig.clear();
+        for (Map.Entry<AidlVehiclePropConfigBuilder, AidlMockedVehicleHal.VehicleHalPropertyHandler>
+                entry : mAidlHalConfig.entrySet()) {
+            mAidlMockedVehicleHal.addProperty(entry.getKey().build(), entry.getValue());
+        }
+        mHidlHalConfig.clear();
+        mAidlHalConfig.clear();
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
-            VehicleHalPropertyHandler propertyHandler) {
+            HidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
-        setConfigBuilder(builder, propertyHandler);
+        setHidlConfigBuilder(builder, propertyHandler);
         return builder;
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
-        setConfigBuilder(builder, new DefaultPropertyHandler(builder.build(), null));
+        setHidlConfigBuilder(builder, new HidlMockedVehicleHal.DefaultPropertyHandler(
+                builder.build(), null));
         return builder;
     }
 
     protected synchronized VehiclePropConfigBuilder addProperty(int propertyId,
-            VehiclePropValue value) {
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId);
-        setConfigBuilder(builder, new DefaultPropertyHandler(builder.build(), value));
+        setHidlConfigBuilder(builder, new HidlMockedVehicleHal.DefaultPropertyHandler(
+                builder.build(), value));
         return builder;
     }
 
     protected synchronized VehiclePropConfigBuilder addStaticProperty(int propertyId,
-            VehiclePropValue value) {
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue value) {
         VehiclePropConfigBuilder builder = VehiclePropConfigBuilder.newBuilder(propertyId)
                 .setChangeMode(VehiclePropertyChangeMode.STATIC)
                 .setAccess(VehiclePropertyAccess.READ);
 
-        setConfigBuilder(builder, new StaticPropertyHandler(value));
+        setHidlConfigBuilder(builder, new HidlMockedVehicleHal.StaticPropertyHandler(value));
+        return builder;
+    }
+
+    protected synchronized AidlVehiclePropConfigBuilder addAidlProperty(int propertyId,
+            AidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
+        AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId);
+        setAidlConfigBuilder(builder, propertyHandler);
+        return builder;
+    }
+
+    protected synchronized AidlVehiclePropConfigBuilder addAidlProperty(int propertyId) {
+        AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId);
+        setAidlConfigBuilder(builder, new AidlMockedVehicleHal.DefaultPropertyHandler(
+                builder.build(), null));
+        return builder;
+    }
+
+    protected synchronized AidlVehiclePropConfigBuilder addAidlProperty(int propertyId,
+            android.hardware.automotive.vehicle.VehiclePropValue value) {
+        AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId);
+        setAidlConfigBuilder(builder, new AidlMockedVehicleHal.DefaultPropertyHandler(
+                builder.build(), value));
+        return builder;
+    }
+
+    protected synchronized AidlVehiclePropConfigBuilder addAidlStaticProperty(int propertyId,
+            android.hardware.automotive.vehicle.VehiclePropValue value) {
+        AidlVehiclePropConfigBuilder builder = AidlVehiclePropConfigBuilder.newBuilder(propertyId)
+                .setChangeMode(VehiclePropertyChangeMode.STATIC)
+                .setAccess(VehiclePropertyAccess.READ);
+
+        setAidlConfigBuilder(builder, new AidlMockedVehicleHal.StaticPropertyHandler(
+                value));
         return builder;
     }
 
@@ -360,17 +402,30 @@ public class MockedCarTestBase {
         cpms.getHandler().runWithScissors(() -> {}, STATE_HANDLING_TIMEOUT);
     }
 
-    private void setConfigBuilder(VehiclePropConfigBuilder builder,
-            VehicleHalPropertyHandler propertyHandler) {
+    private void setHidlConfigBuilder(VehiclePropConfigBuilder builder,
+            HidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         int propId = builder.build().prop;
 
         // Override previous property config if exists.
-        VehiclePropConfigBuilder prevBuilder = mPropToConfigBuilder.get(propId);
+        VehiclePropConfigBuilder prevBuilder = mHidlPropToConfigBuilder.get(propId);
         if (prevBuilder != null) {
-            mHalConfig.remove(prevBuilder);
+            mHidlHalConfig.remove(prevBuilder);
         }
-        mPropToConfigBuilder.put(propId, builder);
-        mHalConfig.put(builder, propertyHandler);
+        mHidlPropToConfigBuilder.put(propId, builder);
+        mHidlHalConfig.put(builder, propertyHandler);
+    }
+
+    private void setAidlConfigBuilder(AidlVehiclePropConfigBuilder builder,
+            AidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
+        int propId = builder.build().prop;
+
+        // Override previous property config if exists.
+        AidlVehiclePropConfigBuilder prevBuilder = mAidlPropToConfigBuilder.get(propId);
+        if (prevBuilder != null) {
+            mAidlHalConfig.remove(prevBuilder);
+        }
+        mAidlPropToConfigBuilder.put(propId, builder);
+        mAidlHalConfig.put(builder, propertyHandler);
     }
 
     protected synchronized android.car.Car getCar() {

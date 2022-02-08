@@ -60,6 +60,7 @@ java_library {
     static_libs: [
         "vehicle-hal-support-lib",
         "junit",
+        "truth-prebuilt",
     ],
 
     libs: [
