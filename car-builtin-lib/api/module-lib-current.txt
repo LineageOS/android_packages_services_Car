@@ -445,8 +445,12 @@ package android.car.builtin.view {
 
   public final class DisplayHelper {
     method public static int getPhysicalPort(android.view.Display);
+    method public static int getType(android.view.Display);
     method public static String getUniqueId(android.view.Display);
     field public static final int INVALID_PORT = -1; // 0xffffffff
+    field public static final int TYPE_EXTERNAL = 2; // 0x2
+    field public static final int TYPE_INTERNAL = 1; // 0x1
+    field public static final int TYPE_VIRTUAL = 5; // 0x5
   }
 
   public final class KeyEventHelper {

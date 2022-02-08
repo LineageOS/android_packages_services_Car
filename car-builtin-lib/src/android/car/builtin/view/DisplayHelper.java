@@ -29,6 +29,13 @@ public final class DisplayHelper {
 
     public static final int INVALID_PORT = -1;
 
+    /** Display type: Physical display connected through an internal port. */
+    public static final int TYPE_INTERNAL = Display.TYPE_INTERNAL;
+    /** Display type: Physical display connected through an external port. */
+    public static final int TYPE_EXTERNAL = Display.TYPE_EXTERNAL;
+    /** Display type: Virtual display. */
+    public static final int TYPE_VIRTUAL = Display.TYPE_VIRTUAL;
+
     private DisplayHelper() {
         throw new UnsupportedOperationException();
     }
@@ -53,5 +60,13 @@ public final class DisplayHelper {
      */
     public static String getUniqueId(Display display) {
         return display.getUniqueId();
+    }
+
+    /**
+     * Gets the display type.
+     * @see Display.getType()
+     */
+    public static int getType(Display display) {
+        return display.getType();
     }
 }
