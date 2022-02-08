@@ -33,16 +33,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.expectThrows;
 
 import android.app.ActivityManager;
+import android.car.ICarResultReceiver;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
@@ -53,6 +56,7 @@ import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
@@ -76,8 +80,10 @@ import android.util.Log;
 import com.android.car.hal.HalCallback;
 import com.android.car.internal.util.DebugUtils;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.List;
@@ -89,8 +95,23 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     private static final String TAG = CarUserServiceTest.class.getSimpleName();
 
+    @Mock
+    private Binder mMockBinder;
+    @Mock
+    private Binder mAnotherMockBinder;
+    @Mock
+    private ICarResultReceiver mLifecycleEventReceiver;
+    @Mock
+    private ICarResultReceiver mAnotherLifecycleEventReceiver;
+
     public CarUserServiceTest() {
         super(CarUserService.TAG);
+    }
+
+    @Before
+    public void setUp() {
+        when(mLifecycleEventReceiver.asBinder()).thenReturn(mMockBinder);
+        when(mAnotherLifecycleEventReceiver.asBinder()).thenReturn(mAnotherMockBinder);
     }
 
     @Test
@@ -194,6 +215,24 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testRemoveUserLifecycleListener() throws Exception {
+        // Arrange: add 2 listeners.
+        UserLifecycleListener mockListener1 = mock(UserLifecycleListener.class);
+        UserLifecycleListener mockListener2 = mock(UserLifecycleListener.class);
+        mCarUserService.addUserLifecycleListener(/* filter= */null, mockListener1);
+        mCarUserService.addUserLifecycleListener(/* filter= */null, mockListener2);
+
+        // Act: remove the first listener, and an event occurs.
+        mCarUserService.removeUserLifecycleListener(mockListener1);
+        sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        waitForHandlerThreadToFinish();
+
+        // Verify: the second listener has been invoked but the removed listener has not.
+        verify(mockListener1, never()).onEvent(any(UserLifecycleEvent.class));
+        verify(mockListener2).onEvent(any(UserLifecycleEvent.class));
+    }
+
+    @Test
     public void testOnUserLifecycleEvent_legacyUserSwitch_halCalled() throws Exception {
         // Arrange
         mockExistingUsers(mExistingUsers);
@@ -219,10 +258,17 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testOnUserLifecycleEvent_notifyListener() throws Exception {
-        // Arrange
-        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+    public void testOnUserLifecycleEvent_ensureAllListenersAreNotified() throws Exception {
+        // Arrange: add two listeners, one to fail on onEvent
+        // Adding the failure listener first.
+        UserLifecycleListener failureListener = mock(UserLifecycleListener.class);
+        doThrow(new RuntimeException("Failed onEvent invocation")).when(
+                failureListener).onEvent(any(UserLifecycleEvent.class));
+        mCarUserService.addUserLifecycleListener(/*filter= */null, failureListener);
         mockExistingUsers(mExistingUsers);
+
+        // Adding the non-failure listener later.
+        mCarUserService.addUserLifecycleListener(/* filter= */null, mUserLifecycleListener);
 
         // Act
         sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
@@ -233,24 +279,125 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
-    public void testOnUserLifecycleEvent_ensureAllListenersAreNotified() throws Exception {
-        // Arrange: add two listeners, one to fail on onEvent
-        // Adding the failure listener first.
-        UserLifecycleListener failureListener = mock(UserLifecycleListener.class);
-        doThrow(new RuntimeException("Failed onEvent invocation")).when(
-                failureListener).onEvent(any(UserLifecycleEvent.class));
-        mCarUserService.addUserLifecycleListener(failureListener);
-        mockExistingUsers(mExistingUsers);
+    public void testOnUserLifecycleEvent_notifyListener_nullFilter() throws Exception {
+        // Arrange: add 2 listeners, both with null filter which will pass all events.
+        UserLifecycleListener mockListener1 = mock(UserLifecycleListener.class);
+        UserLifecycleListener mockListener2 = mock(UserLifecycleListener.class);
+        mCarUserService.addUserLifecycleListener(/* filter= */null, mockListener1);
+        mCarUserService.addUserLifecycleListener(/* filter= */null, mockListener2);
 
-        // Adding the non-failure listener later.
-        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
-
-        // Act
+        // Act: an event occurs.
         sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        waitForHandlerThreadToFinish();
 
-        // Verify
-        verifyListenerOnEventInvoked(mRegularUserId,
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+        // Verify: both listeners have been invoked.
+        verify(mockListener1).onEvent(any(UserLifecycleEvent.class));
+        verify(mockListener2).onEvent(any(UserLifecycleEvent.class));
+    }
+
+    @Test
+    public void testOnUserLifecycleEvent_notifyListener_nonNullFilter() throws Exception {
+        // Arrange: add 3 listeners with different filters
+        UserLifecycleListener mockListener1 = mock(UserLifecycleListener.class);
+        mCarUserService.addUserLifecycleListener(
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING).build(),
+                mockListener1);
+        UserLifecycleListener mockListener2 = mock(UserLifecycleListener.class);
+        mCarUserService.addUserLifecycleListener(
+                new UserLifecycleEventFilter.Builder()
+                        .addUser(UserHandle.of(mAdminUserId)).build(), mockListener2);
+        UserLifecycleListener mockListener3 = mock(UserLifecycleListener.class);
+        mCarUserService.addUserLifecycleListener(new UserLifecycleEventFilter.Builder()
+                .addUser(UserHandle.of(mRegularUserId)).build(), mockListener3);
+
+        // Act: 2 events occurs. User switching and then user unlocked.
+        sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        sendUserUnlockedEvent(mRegularUserId);
+        waitForHandlerThreadToFinish();
+
+        // Verify: listeners are called different number of times based on their filter conditions.
+        verify(mockListener1, never()).onEvent(any(UserLifecycleEvent.class));
+        verify(mockListener2, times(1)).onEvent(any(UserLifecycleEvent.class));
+        verify(mockListener3, times(2)).onEvent(any(UserLifecycleEvent.class));
+    }
+
+    @Test
+    public void testResetLifecycleListenerForApp() throws Exception {
+        // Arrange: add 2 receivers.
+        mCarUserService.setLifecycleListenerForApp("package1", /* filter= */null,
+                mLifecycleEventReceiver);
+        mCarUserService.setLifecycleListenerForApp("package2", /* filter= */null,
+                mAnotherLifecycleEventReceiver);
+
+        // Act: remove the first receiver, and an event occurs.
+        mCarUserService.resetLifecycleListenerForApp(mLifecycleEventReceiver);
+        sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        waitForHandlerThreadToFinish();
+
+        // Verify: the second receiver has been invoked but the removed receiver has not.
+        verify(mLifecycleEventReceiver, never()).send(anyInt(), any());
+        verify(mAnotherLifecycleEventReceiver).send(eq(mRegularUserId), any());
+    }
+
+    @Test
+    public void testOnUserLifecycleEvent_notifyReceiver_nullFilter() throws Exception {
+        // Arrange: add 2 receivers, both with null filter which will pass all events.
+        mCarUserService.setLifecycleListenerForApp("package1", /* filter= */null,
+                mLifecycleEventReceiver);
+        mCarUserService.setLifecycleListenerForApp("package2", /* filter= */null,
+                mAnotherLifecycleEventReceiver);
+
+        // Act: an event occurs.
+        sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        waitForHandlerThreadToFinish();
+
+        // Verify: both receivers invoked.
+        verify(mLifecycleEventReceiver).send(eq(mRegularUserId), any());
+        verify(mAnotherLifecycleEventReceiver).send(eq(mRegularUserId), any());
+    }
+
+    @Test
+    public void testOnUserLifecycleEvent_notifyReceiver_nonNullFilter() throws Exception {
+        // Arrange: add 2 receivers with different filters.
+        mCarUserService.setLifecycleListenerForApp("package1",
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING).build(),
+                mLifecycleEventReceiver);
+        mCarUserService.setLifecycleListenerForApp("package2",
+                new UserLifecycleEventFilter.Builder()
+                        .addUser(UserHandle.of(mRegularUserId)).build(),
+                mAnotherLifecycleEventReceiver);
+
+        // Act: 2 events occurs. User switching and then user unlocked.
+        sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        sendUserUnlockedEvent(mRegularUserId);
+        waitForHandlerThreadToFinish();
+
+        // Verify: receivers are called or not depending on what their filter evaluates to.
+        verify(mLifecycleEventReceiver, never()).send(anyInt(), any());
+        verify(mAnotherLifecycleEventReceiver, times(2)).send(anyInt(), any());
+    }
+
+    @Test
+    public void testOnUserLifecycleEvent_notifyReceiver_singleReceiverWithMultipleFilters()
+            throws Exception {
+        // Arrange: add one receiver with multiple filters.
+        mCarUserService.setLifecycleListenerForApp("package1",
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING).build(),
+                mLifecycleEventReceiver);
+        mCarUserService.setLifecycleListenerForApp("package1",
+                new UserLifecycleEventFilter.Builder().addUser(UserHandle.of(mRegularUserId))
+                        .build(),
+                mLifecycleEventReceiver);
+
+        // Act: user switching event occurs.
+        sendUserSwitchingEvent(mAdminUserId, mRegularUserId);
+        waitForHandlerThreadToFinish();
+
+        // Verify: receiver is called since one of the filters evaluates to true.
+        verify(mLifecycleEventReceiver).send(eq(mRegularUserId), any());
     }
 
     /**

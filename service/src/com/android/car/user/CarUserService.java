@@ -50,6 +50,7 @@ import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
@@ -212,7 +213,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      *
      * <p>This collection should be accessed and manipulated by {@code mHandlerThread} only.
      */
-    private final List<UserLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
+    private final List<InternalLifecycleListener> mUserLifecycleListeners = new ArrayList<>();
 
     /**
      * App listeners to be notified on new user activities events.
@@ -434,8 +435,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.printf("%d lifecycle listener%s for services\n", size, size == 1 ? "" : "s");
         String indent = "  ";
         for (int i = 0; i < size; i++) {
-            UserLifecycleListener listener = mUserLifecycleListeners.get(i);
-            writer.printf("%s%s\n", indent, FunctionalUtils.getLambdaName(listener));
+            InternalLifecycleListener listener = mUserLifecycleListeners.get(i);
+            writer.printf("%slistener=%s, filter=%s\n", indent,
+                    FunctionalUtils.getLambdaName(listener.listener), listener.filter);
         }
     }
 
@@ -454,16 +456,28 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void setLifecycleListenerForApp(String packageName, ICarResultReceiver receiver) {
+    public void setLifecycleListenerForApp(String packageName, UserLifecycleEventFilter filter,
+            ICarResultReceiver receiver) {
         int uid = Binder.getCallingUid();
         EventLogHelper.writeCarUserServiceSetLifecycleListener(uid, packageName);
         checkInteractAcrossUsersPermission("setLifecycleListenerForApp-" + uid + "-" + packageName);
 
         IBinder receiverBinder = receiver.asBinder();
-        AppLifecycleListener listener = new AppLifecycleListener(uid, packageName, receiver,
-                (l) -> onListenerDeath(l));
-        Slogf.d(TAG, "Adding %s (using binder %s)", listener, receiverBinder);
-        mHandler.post(() -> mAppLifecycleListeners.put(receiverBinder, listener));
+        mHandler.post(() -> {
+            AppLifecycleListener listener = mAppLifecycleListeners.get(receiverBinder);
+            if (listener == null) {
+                listener = new AppLifecycleListener(uid, packageName, receiver, filter,
+                        (l) -> onListenerDeath(l));
+                Slogf.d(TAG, "Adding %s (using binder %s) with filter %s",
+                        listener, receiverBinder, filter);
+                mAppLifecycleListeners.put(receiverBinder, listener);
+            } else {
+                // Same listener already exists. Only add the additional filter.
+                Slogf.d(TAG, "Adding filter %s to the listener %s (for binder %s)", filter,
+                        listener, receiverBinder);
+                listener.addFilter(filter);
+            }
+        });
     }
 
     private void onListenerDeath(AppLifecycleListener listener) {
@@ -1714,10 +1728,27 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     /**
      * Adds a new {@link UserLifecycleListener} to listen to user activity events.
+     *
+     * @deprecated Use {@link addUserLifecycleListener{UserLifecycleEventFilter,
+     *             UserLifecycleListener} instead.
      */
+    // TODO(b/209056952) Update callers to use the filter param, and remove this method.
+    @Deprecated
     public void addUserLifecycleListener(@NonNull UserLifecycleListener listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
-        mHandler.post(() -> mUserLifecycleListeners.add(listener));
+        mHandler.post(() -> mUserLifecycleListeners.add(
+                new InternalLifecycleListener(listener, /* filter= */null)));
+    }
+
+    /**
+     * Adds a new {@link UserLifecycleListener} with {@code filter} to selectively listen to user
+     * activity events.
+     */
+    public void addUserLifecycleListener(@Nullable UserLifecycleEventFilter filter,
+            @NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(listener, "listener cannot be null");
+        mHandler.post(() -> mUserLifecycleListeners.add(
+                new InternalLifecycleListener(listener, filter)));
     }
 
     /**
@@ -1725,7 +1756,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void removeUserLifecycleListener(@NonNull UserLifecycleListener listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
-        mHandler.post(() -> mUserLifecycleListeners.remove(listener));
+        mHandler.post(() -> {
+            for (int i = 0; i < mUserLifecycleListeners.size(); i++) {
+                if (listener.equals(mUserLifecycleListeners.get(i).listener)) {
+                    mUserLifecycleListeners.remove(i);
+                }
+            }
+        });
     }
 
     private void onUserUnlocked(@UserIdInt int userId) {
@@ -2003,6 +2040,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
             AppLifecycleListener listener = mAppLifecycleListeners.valueAt(i);
+            if (!listener.applyFilters(event)) {
+                continue;
+            }
             Bundle data = new Bundle();
             data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, eventType);
 
@@ -2038,13 +2078,19 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int userId = event.getUserId();
         int eventType = event.getEventType();
         t.traceBegin("notify-listeners-user-" + userId + "-event-" + eventType);
-        for (UserLifecycleListener listener : mUserLifecycleListeners) {
+        for (InternalLifecycleListener listener : mUserLifecycleListeners) {
             String listenerName = FunctionalUtils.getLambdaName(listener);
+            UserLifecycleEventFilter filter = listener.filter;
+            if (filter != null && !filter.apply(event)) {
+                Slogf.d(TAG, "Skipping listener % since the event %s does pass the filter %s",
+                        listenerName, event, filter);
+                continue;
+            }
             EventLogHelper.writeCarUserServiceNotifyInternalLifecycleListener(listenerName,
                     eventType, event.getPreviousUserId(), userId);
             try {
                 t.traceBegin("notify-listener-" + listenerName);
-                listener.onEvent(event);
+                listener.listener.onEvent(event);
             } catch (RuntimeException e) {
                 Slogf.e(TAG,
                         "Exception raised when invoking onEvent for " + listenerName, e);

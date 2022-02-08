@@ -21,6 +21,7 @@ import static android.car.test.util.UserTestingHelper.setUserLockCredentials;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -31,6 +32,7 @@ import android.car.Car;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.pm.UserInfo;
 import android.os.Process;
 import android.os.UserHandle;
@@ -123,13 +125,27 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 .setTimeout(START_TIMEOUT_MS)
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
                 .build();
+        BlockingUserLifecycleListener listener3 = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forUser(newUserId)
+                .setTimeout(START_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                .build();
+        UserLifecycleEventFilter unlockingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING).build();
+        UserLifecycleEventFilter userFilter = new UserLifecycleEventFilter.Builder()
+                .addUser(UserHandle.of(newUserId)).build();
 
         Log.d(TAG, "registering listener1: " + listener1);
         mgr1.addListener(Runnable::run, listener1);
         Log.v(TAG, "ok");
         try {
-            Log.d(TAG, "registering listener2: " + listener2);
-            mgr2.addListener(Runnable::run, listener2);
+            Log.d(TAG, "registering listener2: " + listener2 + " with filter: "
+                    + unlockingEventFilter);
+            mgr2.addListener(Runnable::run, unlockingEventFilter, listener2);
+            Log.v(TAG, "ok");
+            Log.d(TAG, "registering listener3: " + listener3 + " with filter: " + userFilter);
+            mgr2.addListener(Runnable::run, userFilter, listener3);
             Log.v(TAG, "ok");
             try {
                 IActivityManager am = ActivityManager.getService();
@@ -140,13 +156,18 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 Log.d(TAG, "Waiting for events");
                 List<UserLifecycleEvent> events1 = listener1.waitForEvents();
                 Log.d(TAG, "events1: " + events1);
-                List<UserLifecycleEvent> events2 = listener2.waitForEvents();
-                Log.d(TAG, "events2: " + events2);
+                List<UserLifecycleEvent> events3 = listener3.waitForEvents();
+                Log.d(TAG, "events2: " + events3);
                 assertStartUserEvent(events1, newUserId);
-                assertStartUserEvent(events2, newUserId);
+                assertStartUserEvent(events3, newUserId);
+                assertWithMessage("all events received by listener %s", listener2)
+                        .that(listener2.getAllReceivedEvents()).isEmpty();
             } finally {
                 Log.d(TAG, "unregistering listener2: " + listener2);
                 mgr2.removeListener(listener2);
+                Log.v(TAG, "ok");
+                Log.d(TAG, "unregistering listener3: " + listener3);
+                mgr2.removeListener(listener3);
                 Log.v(TAG, "ok");
             }
         } finally {
