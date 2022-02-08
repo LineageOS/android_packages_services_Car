@@ -102,7 +102,7 @@ public final class UserLifecycleEventFilterTest extends AbstractExtendedMockitoT
     }
 
     @Test
-    public void testBuild_currentUser_notEvaluatedAtFilterCreattion() {
+    public void testBuild_currentUser_notEvaluatedAtFilterCreation() {
         UserLifecycleEventFilter filterCurrentUser = new UserLifecycleEventFilter.Builder()
                 .addUser(UserHandle.CURRENT).build();
 
@@ -110,6 +110,14 @@ public final class UserLifecycleEventFilterTest extends AbstractExtendedMockitoT
         // CURRENT user is stored as a special id, and will be evaluated at filter apply() time.
         assertThat(filterCurrentUser.getUserIds()).asList()
                 .containsExactly(UserHandle.CURRENT.getIdentifier());
+    }
+
+    @Test
+    public void testApply_nullEvent_throws() {
+        UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                .addUser(USER111).build();
+
+        assertThrows(NullPointerException.class, () -> filter.apply(/* event= */null));
     }
 
     @Test

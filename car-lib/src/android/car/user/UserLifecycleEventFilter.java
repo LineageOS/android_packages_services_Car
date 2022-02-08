@@ -20,6 +20,8 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.app.ActivityManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.os.Parcel;
@@ -35,6 +37,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Filter for user lifecycle event receivers to selectively receive events.
@@ -46,7 +49,8 @@ import java.util.Arrays;
         genGetters = false,
         genConstructor = false,
         genEqualsHashCode = true)
-// TODO(b/209056952) declare as @SystemApi once ready.
+@SystemApi
+@TestApi
 public final class UserLifecycleEventFilter implements Parcelable {
 
     private static final int USER_CURRENT = UserHandle.CURRENT.getIdentifier();
@@ -74,7 +78,9 @@ public final class UserLifecycleEventFilter implements Parcelable {
      * @param event user lifecycle event to check.
      * @return {@code true} if the event passes this filter.
      */
-    public boolean apply(UserLifecycleEvent event) {
+    public boolean apply(@NonNull UserLifecycleEvent event) {
+        Objects.requireNonNull(event, "event cannot be null");
+
         return matchUserId(event) && matchEventType(event);
     }
 

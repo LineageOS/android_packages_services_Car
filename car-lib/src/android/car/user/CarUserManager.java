@@ -579,7 +579,8 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
-    // TODO(b/209056952) declare as @SystemApi once ready.
+    @SystemApi
+    @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void addListener(@NonNull @CallbackExecutor Executor executor,
             @NonNull UserLifecycleEventFilter filter, @NonNull UserLifecycleListener listener) {
@@ -615,8 +616,8 @@ public final class CarUserManager extends CarManagerBase {
                 }
             }
             try {
-                // TODO(b/209056952): Modify the event log to take a boolean has_param.
-                EventLogHelper.writeCarUserManagerAddListener(uid, packageName);
+                boolean hasFilter = filter != null;
+                EventLogHelper.writeCarUserManagerAddListener(uid, packageName, hasFilter);
                 mService.setLifecycleListenerForApp(packageName, filter, mReceiver);
             } catch (RemoteException e) {
                 handleRemoteExceptionFromCarService(e);
@@ -1074,6 +1075,26 @@ public final class CarUserManager extends CarManagerBase {
             }
 
             return builder.append(']').toString();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UserLifecycleEvent that = (UserLifecycleEvent) o;
+            return mEventType == that.mEventType && mUserId == that.mUserId
+                    && mPreviousUserId == that.mPreviousUserId;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 23;
+            hash = 17 * hash + mEventType;
+            hash = 17 * hash + mUserId;
+            hash = 17 * hash + mPreviousUserId;
+
+            return hash;
         }
     }
 

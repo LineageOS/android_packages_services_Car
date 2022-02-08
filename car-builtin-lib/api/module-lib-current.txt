@@ -342,7 +342,7 @@ package android.car.builtin.util {
     method public static void writeCarUserHalSetUserAuthResp(@Nullable Object[]);
     method public static void writeCarUserHalSwitchUserReq(int, int, int, int);
     method public static void writeCarUserHalSwitchUserResp(int, int, int, @Nullable String);
-    method public static void writeCarUserManagerAddListener(int, @Nullable String);
+    method public static void writeCarUserManagerAddListener(int, @Nullable String, boolean);
     method public static void writeCarUserManagerCreateUserReq(int, @Nullable String, @Nullable String, int);
     method public static void writeCarUserManagerCreateUserResp(int, int, @Nullable String);
     method public static void writeCarUserManagerDisconnected(int);

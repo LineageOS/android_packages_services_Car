@@ -337,8 +337,11 @@ public final class EventLogHelper {
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_REMOVE_USER_REQ, targetUserId, currentUserId);
     }
 
-    public static void writeCarUserManagerAddListener(int uid, @Nullable String packageName) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_ADD_LISTENER, uid, packageName);
+    /** Logs a {@code EventLogTags.CAR_USER_MGR_ADD_LISTENER} event. */
+    public static void writeCarUserManagerAddListener(int uid, @Nullable String packageName,
+            boolean hasFilter) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_ADD_LISTENER, uid, packageName,
+                hasFilter ? 1 : 0);
     }
 
     public static void writeCarUserManagerRemoveListener(int uid, @Nullable String packageName) {

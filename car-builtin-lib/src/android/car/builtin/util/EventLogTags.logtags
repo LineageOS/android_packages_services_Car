@@ -113,7 +113,7 @@ option java_package android.car.builtin.util
 150152 car_user_hal_create_user_resp (request_id|1),(status|1),(result|1),(error_message|3)
 150153 car_user_hal_remove_user_req (target_user_id|1),(current_user_id|1)
 
-150171 car_user_mgr_add_listener (uid|1),(package_name|3)
+150171 car_user_mgr_add_listener (uid|1),(package_name|3),(has_filter|1)
 150172 car_user_mgr_remove_listener (uid|1),(package_name|3)
 150173 car_user_mgr_disconnected (uid|1)
 150174 car_user_mgr_switch_user_req (uid|1),(user_id|1)
