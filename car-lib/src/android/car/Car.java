@@ -55,6 +55,7 @@ import android.car.media.CarMediaIntents;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
+import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
@@ -357,6 +358,15 @@ public final class Car {
      */
     @MandatoryFeature
     public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
+
+    /**
+     * Service name for {@link android.car.os.CarPerformanceManager}
+     *
+     * @hide
+     */
+    @MandatoryFeature
+    @SystemApi
+    public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
 
     /**
      * @hide
@@ -923,6 +933,15 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS =
             "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
+
+    /**
+     * Permission necessary to fetch car CPU information.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_COLLECT_CAR_CPU_INFO =
+            "android.car.permission.COLLECT_CAR_CPU_INFO";
 
     /**
      * Permission necessary to control launching applications in Car.
@@ -2032,6 +2051,9 @@ public final class Car {
                 break;
             case CAR_WATCHDOG_SERVICE:
                 manager = new CarWatchdogManager(this, binder);
+                break;
+            case CAR_PERFORMANCE_SERVICE:
+                manager = new CarPerformanceManager(this, binder);
                 break;
             case CAR_INPUT_SERVICE:
                 manager = new CarInputManager(this, binder);

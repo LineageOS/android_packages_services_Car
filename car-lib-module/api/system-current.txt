@@ -26,6 +26,7 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -48,6 +49,7 @@ package android.car {
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
+    field public static final String PERMISSION_COLLECT_CAR_CPU_INFO = "android.car.permission.COLLECT_CAR_CPU_INFO";
     field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH = "android.car.permission.CONTROL_CAR_APP_LAUNCH";
@@ -1090,6 +1092,55 @@ package android.car.navigation {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public android.car.navigation.CarNavigationInstrumentCluster getInstrumentClusterInfo();
     method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendEvent(int, android.os.Bundle);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_NAVIGATION_MANAGER) public void sendNavigationStateChange(android.os.Bundle);
+  }
+
+}
+
+package android.car.os {
+
+  public final class CarPerformanceManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_CPU_INFO) public void addCpuAvailabilityChangeListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.os.CpuAvailabilityMonitoringConfig, @NonNull android.car.os.CarPerformanceManager.CpuAvailabilityChangeListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_CPU_INFO) public void removeCpuAvailabilityChangeListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.os.CarPerformanceManager.CpuAvailabilityChangeListener);
+  }
+
+  public static interface CarPerformanceManager.CpuAvailabilityChangeListener {
+    method public void onCpuAvailabilityChange(@NonNull android.car.os.CpuAvailabilityInfo);
+  }
+
+  public final class CpuAvailabilityInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getAverageAvailabilityPercent();
+    method public int getCpuset();
+    method public boolean isTimeout();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.os.CpuAvailabilityInfo> CREATOR;
+  }
+
+  public final class CpuAvailabilityMonitoringConfig implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getCpuset();
+    method public int getLowerBoundPercent();
+    method public int getTimeoutAction();
+    method public long getTimeoutInSeconds();
+    method public int getUpperBoundPercent();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field public static final int CPUSET_ALL = 1; // 0x1
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.os.CpuAvailabilityMonitoringConfig> CREATOR;
+    field public static final int IGNORE_PERCENT_LOWER_BOUND = 0; // 0x0
+    field public static final int IGNORE_PERCENT_UPPER_BOUND = 100; // 0x64
+    field public static final int MONITORING_TIMEOUT_NEVER = -1; // 0xffffffff
+    field public static final int TIMEOUT_ACTION_NOTIFICATION = 1; // 0x1
+    field public static final int TIMEOUT_ACTION_REMOVE = 2; // 0x2
+  }
+
+  public static final class CpuAvailabilityMonitoringConfig.Builder {
+    ctor public CpuAvailabilityMonitoringConfig.Builder(int, int, long);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig build();
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setCpuset(int);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setLowerBoundPercent(int);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setTimeoutAction(int);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setTimeoutInSeconds(long);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setUpperBoundPercent(int);
   }
 
 }
