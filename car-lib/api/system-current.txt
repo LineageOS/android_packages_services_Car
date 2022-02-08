@@ -1125,6 +1125,7 @@ package android.car.os {
     method public int getUpperBoundPercent();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field public static final int CPUSET_ALL = 1; // 0x1
+    field public static final int CPUSET_BACKGROUND = 2; // 0x2
     field @NonNull public static final android.os.Parcelable.Creator<android.car.os.CpuAvailabilityMonitoringConfig> CREATOR;
     field public static final int IGNORE_PERCENT_LOWER_BOUND = 0; // 0x0
     field public static final int IGNORE_PERCENT_UPPER_BOUND = 100; // 0x64
