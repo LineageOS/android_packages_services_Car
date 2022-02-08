@@ -40,11 +40,15 @@ public interface AudioControlWrapper {
     int AUDIOCONTROL_FEATURE_AUDIO_FOCUS = 0;
     int AUDIOCONTROL_FEATURE_AUDIO_DUCKING = 1;
     int AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING = 2;
+    int AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA = 3;
+    int AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK = 4;
 
     @IntDef({
             AUDIOCONTROL_FEATURE_AUDIO_FOCUS,
             AUDIOCONTROL_FEATURE_AUDIO_DUCKING,
-            AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING
+            AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING,
+            AUDIOCONTROL_FEATURE_AUDIO_FOCUS_WITH_METADATA,
+            AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK,
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface AudioControlFeature {
@@ -71,6 +75,19 @@ public interface AudioControlWrapper {
      * @param focusListener the listener to register on the IAudioControl HAL.
      */
     void registerFocusListener(HalFocusListener focusListener);
+
+    /**
+     * Registers callback for HAL audio gain changed notification with IAudioControl. Only works if
+     * {@code supportsHalAudioGainCallback} returns true.
+     *
+     * @param gainCallback the callback to register on the IAudioControl HAL.
+     */
+    void registerAudioGainCallback(@NonNull HalAudioGainCallback gainCallback);
+
+    /**
+     * Closes the audio gain callback registered on the AudioControl HAL
+     */
+    void unregisterAudioGainCallback();
 
     /**
      * Notifies HAL of change in audio focus for a request it has made.
