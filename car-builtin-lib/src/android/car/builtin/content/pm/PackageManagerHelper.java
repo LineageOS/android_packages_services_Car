@@ -39,8 +39,17 @@ import android.text.TextUtils;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class PackageManagerHelper {
 
-    public static final String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGE_NAME =
-            "ro.android.car.service.overlay.package";
+    /**
+     * Read only property which contains semicolon (;) separated list of RRO packages.
+     *
+     * <p>
+     * RRO packages would be enabled if they are overlaying {@code CarServiceUpdatable}.
+     * {@code CarServiceUpdatable} can have different package names and this property may include
+     * all RROs to cover different {@code CarServiceUpdatable} package names but only those
+     * overriding the current {@code CarServiceUpdatable} package name will be selected.
+     */
+    public static final String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES =
+            "ro.android.car.service.overlay.packages";
 
     private PackageManagerHelper() {
         throw new UnsupportedOperationException("provides only static methods");

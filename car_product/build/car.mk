@@ -119,6 +119,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     persist.wm.enable_remote_keyguard_animation=0
 
+# TODO(b/198516172): Find a better location to add this read only property
+# It is added here to check the functionality, will be updated in next CL
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.android.car.service.overlay.packages=com.android.car.resources.vendor;com.google.android.car.resources.vendor;
+
 # Automotive specific packages
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
