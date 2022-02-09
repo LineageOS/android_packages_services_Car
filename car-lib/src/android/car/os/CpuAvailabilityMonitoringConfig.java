@@ -33,6 +33,9 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     /** Constant to monitor all cpusets. */
     public static final int CPUSET_ALL = 1;
 
+    /** Constant to monitor only background cpusets. */
+    public static final int CPUSET_BACKGROUND = 2;
+
     /** Constant to ignore the CPU availability lower bound percent. */
     public static final int IGNORE_PERCENT_LOWER_BOUND = 0;
 
@@ -97,12 +100,10 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     private long mTimeoutInSeconds;
 
     /**
-     * Action to take on timeout. Specify one of the TIMEOUT_ACTION_* constants.
+     * Action to take on timeout. Specify one of the {@code TIMEOUT_ACTION_*} constants.
      *
      * <p>When the value of {@link #mTimeoutInSeconds} is {@link #MONITORING_TIMEOUT_NEVER},
      * this field is ignored.
-     *
-     * <p>Note: TIMEOUT_ACTION_* constants must be used mutually exclusive.
      */
     private @TimeoutAction int mTimeoutAction = TIMEOUT_ACTION_NOTIFICATION;
 
@@ -120,6 +121,27 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     //   Settings > Editor > Code Style > Formatter Control
     //@formatter:off
 
+
+    /** @hide */
+    @android.annotation.IntDef(prefix = "CPUSET_", value = {
+        CPUSET_ALL,
+        CPUSET_BACKGROUND
+    })
+    @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE)
+    @DataClass.Generated.Member
+    public @interface Cpuset {}
+
+    /** @hide */
+    @DataClass.Generated.Member
+    public static String cpusetToString(@Cpuset int value) {
+        switch (value) {
+            case CPUSET_ALL:
+                    return "CPUSET_ALL";
+            case CPUSET_BACKGROUND:
+                    return "CPUSET_BACKGROUND";
+            default: return Integer.toHexString(value);
+        }
+    }
 
     /** @hide */
     @android.annotation.IntDef(prefix = "IGNORE_PERCENT_", value = {
@@ -243,7 +265,7 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     }
 
     /**
-     * Action to take on timeout. Specify one of the {@link @TimeoutAction} actions.
+     * Action to take on timeout. Specify one of the {@code TIMEOUT_ACTION_*} constants.
      *
      * <p>When the value of {@link #mTimeoutInSeconds} is {@link #MONITORING_TIMEOUT_NEVER},
      * this field is ignored.
@@ -453,7 +475,7 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
         }
 
         /**
-         * Action to take on timeout. Specify one of the {@link @TimeoutAction} actions.
+         * Action to take on timeout. Specify one of the {@code TIMEOUT_ACTION_*} constants.
          *
          * <p>When the value of {@link #mTimeoutInSeconds} is {@link #MONITORING_TIMEOUT_NEVER},
          * this field is ignored.
@@ -495,10 +517,10 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     }
 
     @DataClass.Generated(
-            time = 1643926835161L,
+            time = 1644367472366L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/os/CpuAvailabilityMonitoringConfig.java",
-            inputSignatures = "public static final  int CPUSET_ALL\npublic static final  int IGNORE_PERCENT_LOWER_BOUND\npublic static final  int IGNORE_PERCENT_UPPER_BOUND\npublic static final  int MONITORING_TIMEOUT_NEVER\npublic static final  int TIMEOUT_ACTION_NOTIFICATION\npublic static final  int TIMEOUT_ACTION_REMOVE\nprivate  int mCpuset\nprivate  int mLowerBoundPercent\nprivate  int mUpperBoundPercent\nprivate @android.annotation.SuppressLint long mTimeoutInSeconds\nprivate @android.car.os.CpuAvailabilityMonitoringConfig.TimeoutAction int mTimeoutAction\nclass CpuAvailabilityMonitoringConfig extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int CPUSET_ALL\npublic static final  int CPUSET_BACKGROUND\npublic static final  int IGNORE_PERCENT_LOWER_BOUND\npublic static final  int IGNORE_PERCENT_UPPER_BOUND\npublic static final  int MONITORING_TIMEOUT_NEVER\npublic static final  int TIMEOUT_ACTION_NOTIFICATION\npublic static final  int TIMEOUT_ACTION_REMOVE\nprivate  int mCpuset\nprivate  int mLowerBoundPercent\nprivate  int mUpperBoundPercent\nprivate @android.annotation.SuppressLint long mTimeoutInSeconds\nprivate @android.car.os.CpuAvailabilityMonitoringConfig.TimeoutAction int mTimeoutAction\nclass CpuAvailabilityMonitoringConfig extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 
