@@ -128,17 +128,29 @@ package android.car.telemetry {
 
   public final class CarTelemetryManager {
     method @RequiresPermission("android.car.permission.USE_CAR_TELEMETRY_SERVICE") public void addMetricsConfig(@NonNull String, @NonNull byte[], @NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.AddMetricsConfigCallback);
+    method @RequiresPermission("android.car.permission.USE_CAR_TELEMETRY_SERVICE") public void getAllFinishedReports(@NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.MetricsReportCallback);
+    method @RequiresPermission("android.car.permission.USE_CAR_TELEMETRY_SERVICE") public void getFinishedReport(@NonNull String, @NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.MetricsReportCallback);
+    method @RequiresPermission("android.car.permission.USE_CAR_TELEMETRY_SERVICE") public void removeAllMetricsConfigs();
     method @RequiresPermission("android.car.permission.USE_CAR_TELEMETRY_SERVICE") public void removeMetricsConfig(@NonNull String);
-    field public static final int STATUS_METRICS_CONFIG_ALREADY_EXISTS = 1; // 0x1
-    field public static final int STATUS_METRICS_CONFIG_PARSE_FAILED = 3; // 0x3
-    field public static final int STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4; // 0x4
-    field public static final int STATUS_METRICS_CONFIG_SUCCESS = 0; // 0x0
-    field public static final int STATUS_METRICS_CONFIG_UNKNOWN = 5; // 0x5
-    field public static final int STATUS_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
+    field public static final int STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS = 1; // 0x1
+    field public static final int STATUS_ADD_METRICS_CONFIG_PARSE_FAILED = 3; // 0x3
+    field public static final int STATUS_ADD_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4; // 0x4
+    field public static final int STATUS_ADD_METRICS_CONFIG_SUCCEEDED = 0; // 0x0
+    field public static final int STATUS_ADD_METRICS_CONFIG_UNKNOWN = 5; // 0x5
+    field public static final int STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
+    field public static final int STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int STATUS_GET_METRICS_CONFIG_FINISHED = 0; // 0x0
+    field public static final int STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS = 2; // 0x2
+    field public static final int STATUS_GET_METRICS_CONFIG_PENDING = 1; // 0x1
+    field public static final int STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR = 3; // 0x3
   }
 
   public static interface CarTelemetryManager.AddMetricsConfigCallback {
     method public void onAddMetricsConfigStatus(@NonNull String, int);
+  }
+
+  public static interface CarTelemetryManager.MetricsReportCallback {
+    method public void onResult(@NonNull String, @Nullable byte[], @Nullable byte[], int);
   }
 
 }

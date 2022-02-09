@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry;
 
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -68,7 +68,7 @@ public class MetricsConfigStoreTest {
     public void testAddMetricsConfig_shouldWriteConfigToDisk() throws Exception {
         int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_FOO);
 
-        assertThat(status).isEqualTo(CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS);
+        assertThat(status).isEqualTo(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED);
         assertThat(readConfigFromFile(NAME_FOO)).isEqualTo(METRICS_CONFIG_FOO);
     }
 
@@ -79,14 +79,14 @@ public class MetricsConfigStoreTest {
 
         int status = mMetricsConfigStore.addMetricsConfig(invalidConfig);
 
-        assertThat(status).isEqualTo(CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD);
+        assertThat(status).isEqualTo(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD);
         assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
     }
 
     @Test
     public void testRemoveMetricsConfig_shouldDeleteConfigFromDisk() {
         int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_BAR);
-        assertThat(status).isEqualTo(STATUS_METRICS_CONFIG_SUCCESS);
+        assertThat(status).isEqualTo(STATUS_ADD_METRICS_CONFIG_SUCCEEDED);
 
         mMetricsConfigStore.removeMetricsConfig(NAME_BAR);
 
@@ -108,6 +108,14 @@ public class MetricsConfigStoreTest {
         mMetricsConfigStore.removeAllMetricsConfigs();
 
         assertThat(mTestMetricsConfigDir.listFiles()).isEmpty();
+    }
+
+    @Test
+    public void testContainsConfig() {
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_FOO);
+
+        assertThat(mMetricsConfigStore.containsConfig(NAME_FOO)).isTrue();
+        assertThat(mMetricsConfigStore.containsConfig(NAME_BAR)).isFalse();
     }
 
     private void writeConfigToDisk(TelemetryProto.MetricsConfig config) throws Exception {
