@@ -17,4 +17,5 @@
 <resources>
     <dimen name="dialer_keypad_button_size">96dp</dimen>
     <dimen name="dialpad_contact_avatar_size">64dp</dimen>
+    <dimen name="list_item_height">112dp</dimen>
 </resources>
