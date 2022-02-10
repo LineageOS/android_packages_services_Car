@@ -61,7 +61,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
 
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mUseAidlVhal = true;
         addAidlProperty(VehicleProperty.PERF_VEHICLE_SPEED, AidlVehiclePropValueBuilder
                 .newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)

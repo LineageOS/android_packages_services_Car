@@ -50,7 +50,7 @@ public class CarSensorManagerTest extends MockedCarTestBase {
     private CarSensorManager mCarSensorManager;
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         addProperty(VehicleProperty.NIGHT_MODE,
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
                         .addIntValue(0)

@@ -60,7 +60,7 @@ public class MockedVmsTestBase extends MockedCarTestBase {
     private MockHalClient mHalClient;
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mHalClient = new MockHalClient();
         addProperty(VehicleProperty.VEHICLE_MAP_SERVICE, mHalClient)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE)

@@ -58,7 +58,7 @@ public class CarInfoManagerTest extends MockedCarTestBase {
     public TestName mTestName = new TestName();
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         // test if the sensor is unimplemented in cars.
         if (mTestName.getMethodName().endsWith("unimplemented")) {
             return;

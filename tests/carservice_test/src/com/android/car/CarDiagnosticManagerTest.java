@@ -62,6 +62,7 @@ import static java.lang.Integer.toHexString;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -222,17 +223,17 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureResourceOverrides(MockResources resources) {
+    protected void configureResourceOverrides(MockResources resources) {
         super.configureResourceOverrides(resources);
         resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
                 new String[]{Car.DIAGNOSTIC_SERVICE});
     }
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mUseAidlVhal = true;
-        java.util.Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
-        java.util.Collection<Integer> selectiveClear = Collections.singletonList(1);
+        Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
+        Collection<Integer> selectiveClear = Collections.singletonList(1);
         Log.i(TAG, mTestName.getMethodName());
         String methodName = mTestName.getMethodName();
         ErrorCodeHandler handler = new ErrorCodeHandler();

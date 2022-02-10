@@ -77,12 +77,13 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
 
     @Override
-    protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
+    protected SystemInterface.Builder getSystemInterfaceBuilder() {
         SystemInterface.Builder builder = super.getSystemInterfaceBuilder();
         return builder.withDisplayInterface(mMockDisplayInterface);
     }
 
-    protected synchronized void configureMockedHal() {
+    @Override
+    protected void configureMockedHal() {
         addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                     VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG))

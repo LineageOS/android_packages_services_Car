@@ -284,7 +284,7 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized HidlMockedVehicleHal createHidlMockedVehicleHal() {
+    protected HidlMockedVehicleHal createHidlMockedVehicleHal() {
         HidlMockedVehicleHal hal = new VendorExtMockedVehicleHal();
         hal.addProperties(mConfigs);
         return hal;

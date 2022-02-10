@@ -832,7 +832,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureMockedHal() {
+    protected void configureMockedHal() {
         mUseAidlVhal = true;
         PropertyHandler handler = new PropertyHandler();
         addAidlProperty(CUSTOM_SEAT_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
