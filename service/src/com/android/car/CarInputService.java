@@ -583,7 +583,12 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private boolean launchBluetoothVoiceRecognition() {
-        return mCarBluetoothService.startBluetoothVoiceRecognition();
+        if (isBluetoothVoiceRecognitionEnabled()) {
+            Slogf.d(TAG, "Attempting to start Bluetooth Voice Recognition.");
+            return mCarBluetoothService.startBluetoothVoiceRecognition();
+        }
+        Slogf.d(TAG, "Unable to start Bluetooth Voice Recognition, it is not enabled.");
+        return false;
     }
 
     private void launchDefaultVoiceAssistantHandler() {

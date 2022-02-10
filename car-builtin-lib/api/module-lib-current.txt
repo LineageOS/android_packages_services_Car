@@ -52,6 +52,16 @@ package android.car.builtin.app {
 
 }
 
+package android.car.builtin.bluetooth {
+
+  @Deprecated public final class BluetoothHeadsetClientHelper {
+    method @Deprecated public static java.util.List<android.bluetooth.BluetoothDevice> getConnectedBvraDevices(@NonNull android.bluetooth.BluetoothHeadsetClient);
+    method @Deprecated public static boolean startVoiceRecognition(@NonNull android.bluetooth.BluetoothHeadsetClient, android.bluetooth.BluetoothDevice);
+    method @Deprecated public static boolean stopVoiceRecognition(@NonNull android.bluetooth.BluetoothHeadsetClient, android.bluetooth.BluetoothDevice);
+  }
+
+}
+
 package android.car.builtin.content {
 
   public final class ContextHelper {

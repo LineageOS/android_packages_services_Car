@@ -25,4 +25,5 @@ interface ICarBluetoothUserService {
     boolean isBluetoothConnectionProxyAvailable(in int profile);
     int getConnectionPolicy(in int profile, in BluetoothDevice device);
     void setConnectionPolicy(in int profile, in BluetoothDevice device, in int policy);
+    boolean startBluetoothVoiceRecognition();
 }
