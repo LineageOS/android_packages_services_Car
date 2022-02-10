@@ -52,6 +52,7 @@ cc_library {
     defaults: [
         "vhalclient_defaults",
     ],
+    vendor_available: true,
     local_include_dirs: ["include"],
     export_include_dirs: ["include"],
 }

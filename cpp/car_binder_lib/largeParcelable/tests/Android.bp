@@ -56,7 +56,7 @@ cc_test {
     srcs: ["*.cpp"],
     whole_static_libs: [
         "android-automotive-test-stable-parcelable-aidl-ndk",
-        "android-automotive-large-parcelable-vendor-lib",
+        "android-automotive-large-parcelable-lib",
     ],
     test_suites: ["device-tests"],
 }
