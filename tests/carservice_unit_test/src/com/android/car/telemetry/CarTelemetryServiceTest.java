@@ -103,7 +103,7 @@ public class CarTelemetryServiceTest {
             mi.totalMem = 10_000_000;
             return null;
         }).when(mMockActivityManager).getMemoryInfo(any(ActivityManager.MemoryInfo.class));
-        when(mMockContext.getSystemService(Context.ACTIVITY_SERVICE))
+        when(mMockContext.getSystemService(ActivityManager.class))
                 .thenReturn(mMockActivityManager);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
