@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
+import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.car.telemetry.ICarTelemetryService;
 import android.content.Context;
 import android.os.Handler;
@@ -89,8 +90,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     // accessed and updated on the main thread
     private boolean mReleased = false;
 
+    // all the following fields are accessed and updated on the telemetry thread
     private DataBroker mDataBroker;
     private DataBrokerController mDataBrokerController;
+    private ICarTelemetryReportReadyListener mReportReadyListener;
     private MetricsConfigStore mMetricsConfigStore;
     private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
@@ -127,7 +130,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
             // controller starts metrics collection after boot complete
             mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
-                    mMetricsConfigStore, mSystemMonitor,
+                    mMetricsConfigStore, this::onReportReady, mSystemMonitor,
                     systemInterface.getSystemStateInterface());
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
@@ -205,7 +208,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config,
-            ResultReceiver callback) {
+            @NonNull ResultReceiver callback) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
         mTelemetryHandler.post(() -> {
@@ -338,6 +341,41 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "getAllFinishedReports");
         if (DEBUG) {
             Slogf.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
+        }
+    }
+
+    /**
+     * Sets a listener for report ready notifications.
+     */
+    @Override
+    public void setReportReadyListener(@NonNull ICarTelemetryReportReadyListener listener) {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setReportReadyListener");
+        mTelemetryHandler.post(() -> mReportReadyListener = listener);
+    }
+
+    /**
+     * Clears the listener to stop report ready notifications.
+     */
+    @Override
+    public void clearReportReadyListener() {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "clearReportReadyListener");
+        mTelemetryHandler.post(() -> mReportReadyListener = null);
+    }
+
+    /**
+     * Implementation of the functional interface {@link DataBrokerController.ReportReadyListener}.
+     * Invoked from {@link DataBrokerController} when a script produces a report or a runtime error.
+     */
+    private void onReportReady(@NonNull String metricsConfigName) {
+        if (mReportReadyListener == null) {
+            return;
+        }
+        try {
+            mReportReadyListener.onReady(metricsConfigName);
+        } catch (RemoteException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportReadyListener", e);
         }
     }
 
