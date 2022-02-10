@@ -42,14 +42,26 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                         "FRONT_FOG_LIGHTS_STATE",
                         "FRONT_FOG_LIGHTS_SWITCH",
                         "REAR_FOG_LIGHTS_STATE",
-                        "REAR_FOG_LIGHTS_SWITCH"));
+                        "REAR_FOG_LIGHTS_SWITCH",
+                        "EV_CHARGE_CURRENT_DRAW_LIMIT",
+                        "EV_CHARGE_PERCENT_LIMIT",
+                        "EV_CHARGE_STATE",
+                        "EV_CHARGE_SWITCH",
+                        "EV_CHARGE_TIME_REMAINING",
+                        "EV_REGENERATIVE_BRAKING_STATE"));
     private static final List<Integer> MISSING_VHAL_ID_VALUES =
             new ArrayList<>(
                 Arrays.asList(
                         /*FRONT_FOG_LIGHTS_STATE=*/289410875,
                         /*FRONT_FOG_LIGHTS_SWITCH=*/289410876,
                         /*REAR_FOG_LIGHTS_STATE=*/289410877,
-                        /*REAR_FOG_LIGHTS_SWITCH=*/289410878));
+                        /*REAR_FOG_LIGHTS_SWITCH=*/289410878,
+                        /*EV_CHARGE_CURRENT_DRAW_LIMIT=*/291508031,
+                        /*EV_CHARGE_PERCENT_LIMIT=*/291508032,
+                        /*EV_CHARGE_STATE=*/289410880,
+                        /*EV_CHARGE_SWITCH=*/287313729,
+                        /*EV_CHARGE_TIME_REMAINING=*/289410882,
+                        /*EV_REGENERATIVE_BRAKING_STATE=*/289410883));
 
     private static final List<String> MISSING_VEHICLE_PROPERTY_IDS =
             new ArrayList<>(
@@ -231,6 +243,18 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.TIRE_PRESSURE_DISPLAY_UNITS));
         assertEquals("EV_BATTERY_DISPLAY_UNITS",
                 VehiclePropertyIds.toString(VehiclePropertyIds.EV_BATTERY_DISPLAY_UNITS));
+        assertEquals("EV_CHARGE_CURRENT_DRAW_LIMIT",
+                VehiclePropertyIds.toString(VehiclePropertyIds.EV_CHARGE_CURRENT_DRAW_LIMIT));
+        assertEquals("EV_CHARGE_PERCENT_LIMIT",
+                VehiclePropertyIds.toString(VehiclePropertyIds.EV_CHARGE_PERCENT_LIMIT));
+        assertEquals("EV_CHARGE_STATE",
+                VehiclePropertyIds.toString(VehiclePropertyIds.EV_CHARGE_STATE));
+        assertEquals("EV_CHARGE_SWITCH",
+                VehiclePropertyIds.toString(VehiclePropertyIds.EV_CHARGE_SWITCH));
+        assertEquals("EV_CHARGE_TIME_REMAINING",
+                VehiclePropertyIds.toString(VehiclePropertyIds.EV_CHARGE_TIME_REMAINING));
+        assertEquals("EV_REGENERATIVE_BRAKING_STATE",
+                VehiclePropertyIds.toString(VehiclePropertyIds.EV_REGENERATIVE_BRAKING_STATE));
         assertEquals("FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME",
                 VehiclePropertyIds.toString(
                         VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME));

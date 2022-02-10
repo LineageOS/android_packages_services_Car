@@ -1914,6 +1914,97 @@ public final class VehiclePropertyIds {
     public static final int REAR_FOG_LIGHTS_SWITCH = 289410878;
 
     /**
+     * EV charge current draw limit.
+     *
+     * <p>Indicates the maximum current draw threshold for charging set by the user. configArray[0]
+     * contains the max current draw allowed by the vehicle in Amperes.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    public static final int EV_CHARGE_CURRENT_DRAW_LIMIT = 291508031;
+
+    /**
+     * EV charge percent limit.
+     *
+     * <p>Indicates the maximum charge percent threshold set by the user. Returns a float value from
+     * 0 to 100. configArray contains the valid charge percent limit values.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    public static final int EV_CHARGE_PERCENT_LIMIT = 291508032;
+
+    /**
+     * Charging state of the car.
+     *
+     * <p>Returns the current charging state of the car.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_CHARGE_STATE = 289410880;
+
+    /**
+     * Start or stop charging the EV battery.
+     *
+     * <p>The setting that the user wants. Setting this property to true starts the battery charging
+     * and setting to false stops charging.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    public static final int EV_CHARGE_SWITCH = 287313729;
+
+    /**
+     * Estimated charge time remaining in seconds.
+     *
+     * <p>Returns 0 if the vehicle is not charging.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_CHARGE_TIME_REMAINING = 289410882;
+
+    /**
+     * Regenerative braking or one-pedal drive state of the car.
+     *
+     * <p>Returns the current state associated with the regenerative braking
+     * setting in the car.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_REGENERATIVE_BRAKING_STATE = 289410883;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
@@ -2242,6 +2333,18 @@ public final class VehiclePropertyIds {
                 return "REAR_FOG_LIGHTS_STATE";
             case REAR_FOG_LIGHTS_SWITCH:
                 return "REAR_FOG_LIGHTS_SWITCH";
+            case EV_CHARGE_CURRENT_DRAW_LIMIT:
+                return "EV_CHARGE_CURRENT_DRAW_LIMIT";
+            case EV_CHARGE_PERCENT_LIMIT:
+                return "EV_CHARGE_PERCENT_LIMIT";
+            case EV_CHARGE_STATE:
+                return "EV_CHARGE_STATE";
+            case EV_CHARGE_SWITCH:
+                return "EV_CHARGE_SWITCH";
+            case EV_CHARGE_TIME_REMAINING:
+                return "EV_CHARGE_TIME_REMAINING";
+            case EV_REGENERATIVE_BRAKING_STATE:
+                return "EV_REGENERATIVE_BRAKING_STATE";
             default:
                 return "0x" + Integer.toHexString(property);
         }
