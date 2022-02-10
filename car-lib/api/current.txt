@@ -48,6 +48,7 @@ package android.car {
     field public static final String PERMISSION_EXTERIOR_ENVIRONMENT = "android.car.permission.CAR_EXTERIOR_ENVIRONMENT";
     field public static final String PERMISSION_IDENTIFICATION = "android.car.permission.CAR_IDENTIFICATION";
     field public static final String PERMISSION_POWERTRAIN = "android.car.permission.CAR_POWERTRAIN";
+    field public static final String PERMISSION_PRIVILEGED_CAR_INFO = "android.car.permission.PRIVILEGED_CAR_INFO";
     field public static final String PERMISSION_READ_CAR_POWER_POLICY = "android.car.permission.READ_CAR_POWER_POLICY";
     field public static final String PERMISSION_READ_DISPLAY_UNITS = "android.car.permission.READ_CAR_DISPLAY_UNITS";
     field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
@@ -386,6 +387,7 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514; // 0x11400602
     field @RequiresPermission("android.car.permission.CAR_DYNAMICS_STATE") public static final int TRACTION_CONTROL_ACTIVE = 287310859; // 0x1120040b
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int TURN_SIGNAL_STATE = 289408008; // 0x11400408
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_PRIVILEGED_CAR_INFO)) public static final int VEHICLE_CURB_WEIGHT = 289410886; // 0x11400f46
     field @RequiresPermission(anyOf={"android.car.permission.VMS_PUBLISHER", "android.car.permission.VMS_SUBSCRIBER"}) public static final int VEHICLE_MAP_SERVICE = 299895808; // 0x11e00c00
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int VEHICLE_SPEED_DISPLAY_UNITS = 289408516; // 0x11400604
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int WHEEL_TICK = 290521862; // 0x11510306

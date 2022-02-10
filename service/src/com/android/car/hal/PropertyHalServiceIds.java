@@ -591,6 +591,8 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS, new Pair<>(
                 Car.PERMISSION_CAR_INFO,
                 null));
+        mProps.put(VehicleProperty.VEHICLE_CURB_WEIGHT, new Pair<>(
+                Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
         // mPropToValidValue should contain all properties which has @data_enum in types.hal
         mPropToValidValue.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
         mPropToValidValue.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);

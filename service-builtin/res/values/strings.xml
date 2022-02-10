@@ -236,6 +236,11 @@
     <!-- Permission text: apps read car's basic information [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_info">Access car\u2019s basic information.</string>
 
+    <!-- Permission text: apps read car's privileged information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_privileged_car_info">access car\u2019s privileged information</string>
+    <!-- Permission text: apps read car's privileged information [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_privileged_car_info">Access car\u2019s privileged information.</string>
+
     <!-- Permission text: apps read car's vendor permissions information [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_vendor_permission_info">access car\u2019s vendor permission information</string>
     <!-- Permission text: apps read car's vendor permissions information [CHAR LIMIT=NONE] -->
