@@ -418,7 +418,7 @@ public class StatsPublisher extends AbstractPublisher {
     public void removeAllDataSubscribers() {
         for (String key : mSavedStatsConfigs.keySet()) {
             // filter out all the config versions
-            if (!key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
+            if (key == null || !key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
                 continue;
             }
             // the remaining values are config keys

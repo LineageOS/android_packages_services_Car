@@ -23,6 +23,7 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFI
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
 
 import android.annotation.NonNull;
@@ -105,6 +106,22 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD);
+    }
+
+    @Test
+    public void testSetClearListener() {
+        CarTelemetryManager.ReportReadyListener listener = metricsConfigName -> { };
+
+        // test clearReportReadyListener, should not error
+        mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener);
+
+        // setListener multiple times should fail
+        assertThrows(IllegalStateException.class,
+                () -> mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener));
+
+        // test clearReportReadyListener, should not error
+        mCarTelemetryManager.clearReportReadyListener();
+        mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener);
     }
 
     private static final class AddMetricsConfigCallbackImpl

@@ -33,6 +33,12 @@ import java.time.Duration;
  */
 public class DataBrokerController {
 
+    /** Interface for report ready notifications. */
+    public interface ReportReadyListener{
+        /** Sends a notification when the metrics config reached a terminal state. */
+        void onReportReady(@NonNull String metricsConfigName);
+    }
+
     /**
      * Priorities range from 0 to 100, with 0 being the highest priority and 100 being the lowest.
      * A {@link ScriptExecutionTask} must have equal or higher priority than the threshold in order
@@ -49,6 +55,7 @@ public class DataBrokerController {
     private final DataBroker mDataBroker;
     private final Handler mTelemetryHandler;
     private final MetricsConfigStore mMetricsConfigStore;
+    private final ReportReadyListener mReportReadyListener;
     private final SystemMonitor mSystemMonitor;
     private final SystemStateInterface mSystemStateInterface;
 
@@ -56,11 +63,13 @@ public class DataBrokerController {
             @NonNull DataBroker dataBroker,
             @NonNull Handler telemetryHandler,
             @NonNull MetricsConfigStore metricsConfigStore,
+            @NonNull ReportReadyListener reportReadyListener,
             @NonNull SystemMonitor systemMonitor,
             @NonNull SystemStateInterface systemStateInterface) {
         mDataBroker = dataBroker;
         mTelemetryHandler = telemetryHandler;
         mMetricsConfigStore = metricsConfigStore;
+        mReportReadyListener = reportReadyListener;
         mSystemMonitor = systemMonitor;
         mSystemStateInterface = systemStateInterface;
 
@@ -93,6 +102,7 @@ public class DataBrokerController {
     public void onScriptFinished(@NonNull String metricsConfigName) {
         mMetricsConfigStore.removeMetricsConfig(metricsConfigName);
         mDataBroker.removeMetricsConfig(metricsConfigName);
+        mReportReadyListener.onReportReady(metricsConfigName);
     }
 
     /**

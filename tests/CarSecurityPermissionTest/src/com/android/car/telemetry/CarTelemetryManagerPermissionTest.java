@@ -103,4 +103,21 @@ public class CarTelemetryManagerPermissionTest {
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
     }
+
+    @Test
+    public void testSetReportReadyListener() {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarTelemetryManager.setReportReadyListener(
+                        mExecutor, (metricsConfigName) -> { }));
+
+        assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
+    }
+
+    @Test
+    public void testClearReportReadyListener() {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarTelemetryManager.clearReportReadyListener());
+
+        assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
+    }
 }
