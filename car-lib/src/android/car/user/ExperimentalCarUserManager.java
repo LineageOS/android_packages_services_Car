@@ -47,7 +47,8 @@ import java.util.List;
 @ExperimentalFeature
 public final class ExperimentalCarUserManager extends CarManagerBase {
 
-    private static final String TAG = ExperimentalCarUserManager.class.getSimpleName();
+    /** @hide */
+    public static final String TAG = ExperimentalCarUserManager.class.getSimpleName();
 
     /**
      *  User id representing invalid user.

@@ -83,6 +83,10 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     private CarUserManager mMgr;
 
+    public CarUserManagerUnitTest() {
+        super(CarUserManager.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(UserManager.class);

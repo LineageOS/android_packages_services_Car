@@ -45,6 +45,10 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     // Not worth to mock because it would need to mock a Drawable used by UserIcons.
     private final Resources mResources = InstrumentationRegistry.getTargetContext().getResources();
 
+    public UserHelperTest() {
+        super(UserHelper.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session.spyStatic(UserManager.class);

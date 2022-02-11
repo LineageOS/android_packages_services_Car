@@ -64,7 +64,12 @@ import java.util.concurrent.TimeoutException;
 @TestApi
 public final class CarDevicePolicyManager extends CarManagerBase {
 
-    private static final String TAG = CarDevicePolicyManager.class.getSimpleName();
+    /**
+     * @hide
+     */
+    @VisibleForTesting
+    public static final String TAG = CarDevicePolicyManager.class.getSimpleName();
+
     private final ICarDevicePolicyService mService;
 
     private static final String PREFIX_USER_TYPE = "USER_TYPE_";

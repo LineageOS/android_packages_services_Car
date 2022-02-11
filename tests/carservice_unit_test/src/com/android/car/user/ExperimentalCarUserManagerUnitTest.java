@@ -59,6 +59,10 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
     private ExperimentalCarUserManager mManager;
 
+    public ExperimentalCarUserManagerUnitTest() {
+        super(ExperimentalCarUserManager.TAG);
+    }
+
     @Before public void setFixtures() {
         mManager = new ExperimentalCarUserManager(mCar, mService);
     }
