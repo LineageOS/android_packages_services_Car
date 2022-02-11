@@ -19,14 +19,15 @@
 #include "EvsGlDisplay.h"
 #include "ConfigManager.h"
 
-#include <dirent.h>
-
 #include <android-base/file.h>
 #include <android-base/strings.h>
 #include <android-base/stringprintf.h>
 #include <hardware_legacy/uevent.h>
 #include <hwbinder/IPCThreadState.h>
 #include <cutils/android_filesystem_config.h>
+
+#include <sys/inotify.h>
+#include <string_view>
 
 using namespace std::chrono_literals;
 using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
@@ -54,8 +55,10 @@ uint64_t                                                     EvsEnumerator::sInt
 
 
 // Constants
-const auto kEnumerationTimeout = 10s;
-
+constexpr std::chrono::seconds kEnumerationTimeout = 10s;
+constexpr std::string_view kDevicePath = "/dev/";
+constexpr std::string_view kPrefix = "video";
+constexpr size_t kEventBufferSize = 512;
 
 bool EvsEnumerator::checkPermission() {
     hardware::IPCThreadState *ipc = hardware::IPCThreadState::self();
@@ -70,77 +73,65 @@ bool EvsEnumerator::checkPermission() {
     return true;
 }
 
-void EvsEnumerator::EvsUeventThread(std::atomic<bool>& running) {
-    int status = uevent_init();
-    if (!status) {
-        LOG(ERROR) << "Failed to initialize uevent handler.";
+void EvsEnumerator::EvsHotplugThread(std::atomic<bool>& running) {
+    // Watch new video devices.
+    int notifyFd = inotify_init();
+    if (notifyFd < 0) {
+        LOG(ERROR) << "Failed to initialize inotify.  Exiting a thread loop";
         return;
     }
 
-    char uevent_data[PAGE_SIZE - 2] = {};
+    auto watchFd = inotify_add_watch(notifyFd, kDevicePath.data(), IN_CREATE | IN_DELETE);
+    if (watchFd < 0) {
+        LOG(ERROR) << "Failed to add a watch.  Exiting a thread loop";
+        return;
+    }
+
+    LOG(INFO) << "Start monitoring new V4L2 devices";
+
+    char eventBuf[kEventBufferSize] = {};
     while (running) {
-        int length = uevent_next_event(uevent_data, static_cast<int32_t>(sizeof(uevent_data)));
-
-        // Ensure double-null termination.
-        uevent_data[length] = uevent_data[length + 1] = '\0';
-
-        const char *action = nullptr;
-        const char *devname = nullptr;
-        const char *subsys = nullptr;
-        char *cp = uevent_data;
-        while (*cp) {
-            // EVS is interested only in ACTION, SUBSYSTEM, and DEVNAME.
-            if (!std::strncmp(cp, "ACTION=", 7)) {
-                action = cp + 7;
-            } else if (!std::strncmp(cp, "SUBSYSTEM=", 10)) {
-                subsys = cp + 10;
-            } else if (!std::strncmp(cp, "DEVNAME=", 8)) {
-                devname = cp + 8;
-            }
-
-            // Advance to after next \0
-            while (*cp++);
-        }
-
-        if (!devname || !subsys || std::strcmp(subsys, "video4linux")) {
-            // EVS expects that the subsystem of enabled video devices is
-            // video4linux.
+        size_t len = read(notifyFd, eventBuf, sizeof(eventBuf));
+        if (len < sizeof(struct inotify_event)) {
+            // We have no valid event.
             continue;
         }
 
-        // Update shared list.
-        bool cmd_addition = !std::strcmp(action, "add");
-        bool cmd_removal  = !std::strcmp(action, "remove");
-        {
-            std::string devpath = "/dev/";
-            devpath += devname;
+        size_t offset = 0;
+        while (offset < len) {
+            struct inotify_event* event =
+                    reinterpret_cast<struct inotify_event*>(&eventBuf[offset]);
+            offset += sizeof(struct inotify_event) + event->len;
+            if (event->wd != watchFd || strncmp(kPrefix.data(), event->name, kPrefix.length())) {
+                continue;
+            }
 
-            std::lock_guard<std::mutex> lock(sLock);
-            if (cmd_removal) {
-                sCameraList.erase(devpath);
-                LOG(INFO) << devpath << " is removed.";
-            } else if (cmd_addition) {
-                // NOTE: we are here adding new device without a validation
-                // because it always fails to open, b/132164956.
-                CameraRecord cam(devpath.c_str());
-                if (sConfigManager != nullptr) {
-                    unique_ptr<ConfigManager::CameraInfo> &camInfo =
-                        sConfigManager->getCameraInfo(devpath);
-                    if (camInfo != nullptr) {
+            std::string deviceId = std::string(kDevicePath) + std::string(event->name);
+            if (event->mask & IN_CREATE) {
+                // This adds a device without validation.
+                CameraRecord cam(deviceId.data());
+                if (sConfigManager) {
+                    std::unique_ptr<ConfigManager::CameraInfo>& camInfo =
+                            sConfigManager->getCameraInfo(deviceId);
+                    if (camInfo) {
                         cam.desc.metadata.setToExternal(
-                            (uint8_t *)camInfo->characteristics,
-                             get_camera_metadata_size(camInfo->characteristics)
+                                (uint8_t *)camInfo->characteristics,
+                                get_camera_metadata_size(camInfo->characteristics)
                         );
                     }
                 }
-                sCameraList.emplace(devpath, cam);
-                LOG(INFO) << devpath << " is added.";
-            } else {
-                // Ignore all other actions including "change".
+                {
+                    LOG(INFO) << "adding a camera " << deviceId;
+                    std::lock_guard<std::mutex> lock(sLock);
+                    sCameraList.insert_or_assign(deviceId, std::move(cam));
+                    sCameraSignal.notify_all();
+                }
+            } else if (event->mask & IN_DELETE) {
+                LOG(INFO) << "removing a camera " << deviceId;
+                std::lock_guard<std::mutex> lock(sLock);
+                sCameraList.erase(deviceId);
+                sCameraSignal.notify_all();
             }
-
-            // Notify the change.
-            sCameraSignal.notify_all();
         }
     }
 

@@ -73,8 +73,8 @@ public:
     // Implementation details
     EvsEnumerator(sp<IAutomotiveDisplayProxyService> proxyService = nullptr);
 
-    // Listen to video device uevents
-    static void EvsUeventThread(std::atomic<bool>& running);
+    // Monitor the device directory
+    static void EvsHotplugThread(std::atomic<bool>& running);
 
     // Methods from ::android.hidl.base::V1_0::IBase follow.
     Return<void> debug(const hidl_handle& fd, const hidl_vec<hidl_string>& options) override;
