@@ -132,7 +132,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_noRunningActivity()
             throws Exception {
-        int userId = 10;
+        int userId = 100;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
@@ -149,7 +149,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_alreadyRunningActivity()
             throws Exception {
-        int userId = 10;
+        int userId = 100;
         int taskId = 1234;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
@@ -176,7 +176,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_runNewActivity() throws Exception {
-        int userId = 10;
+        int userId = 100;
         int taskId = 1234;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
@@ -203,7 +203,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStartFixedActivityModeForDisplay_relaunchWithPackageUpdated() throws Exception {
-        int userId = 10;
+        int userId = 100;
         int taskId = 1234;
         String packageName = "test_package";
         String className = "com.test.dude";
@@ -250,7 +250,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_runOnDifferentDisplay()
             throws Exception {
-        int userId = 10;
+        int userId = 100;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         Intent anotherIntent = expectComponentAvailable("test_package_II", "com.test.dude_II",
@@ -274,7 +274,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_invalidDisplay() {
-        int userId = 10;
+        int userId = 100;
         Intent intent = new Intent(Intent.ACTION_MAIN);
         ActivityOptions options = new ActivityOptions(new Bundle());
         int invalidDisplayId = Display.DEFAULT_DISPLAY;
@@ -286,7 +286,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_unavailableDisplay() {
-        int userId = 10;
+        int userId = 100;
         Intent intent = new Intent(Intent.ACTION_MAIN);
         ActivityOptions options = new ActivityOptions(new Bundle());
         int unavailableDisplayId = mValidDisplayId + 1;
@@ -304,7 +304,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
                 mValidDisplay, // for startFixedActivityModeForDisplayAndUser
                 mValidDisplay, // for launchIf
                 null);
-        int userId = 10;
+        int userId = 100;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
@@ -326,8 +326,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_notAllowedUser() {
-        int currentUserId = 10;
-        int notAllowedUserId = 11;
+        int currentUserId = 100;
+        int notAllowedUserId = 101;
         Intent intent = new Intent(Intent.ACTION_MAIN);
         ActivityOptions options = new ActivityOptions(new Bundle());
         int displayId = mValidDisplayId;
@@ -341,7 +341,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStartFixedActivityModeForDisplayAndUser_invalidComponent() throws Exception {
-        int userId = 10;
+        int userId = 100;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent invalidIntent = expectComponentUnavailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
@@ -353,7 +353,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
     @Test
     public void testStopFixedActivityMode() throws Exception {
-        int userId = 10;
+        int userId = 100;
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
@@ -382,8 +382,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Test
     public void onUserSwitch_clearsRunningActivities() throws Exception {
         testClearingOfRunningActivitiesOnUserSwitch(
-                /* fromUserId = */ 10,
-                /* toUserId = */ 11,
+                /* fromUserId = */ 100,
+                /* toUserId = */ 101,
                 /* runningFixedActivityExpected = */ false);
     }
 
@@ -391,34 +391,35 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     public void onUserSwitchFromSystemUser_noChangeInRunningActivities() throws Exception {
         testClearingOfRunningActivitiesOnUserSwitch(
                 /* fromUserId = */ UserHandle.USER_SYSTEM,
-                /* toUserId = */ 11,
+                /* toUserId = */ 101,
                 /* runningFixedActivityExpected = */ true);
     }
 
     @Test
     public void onUserSwitchToUserWithEnabledProfile_noChangeInRunningActivities()
             throws Exception {
-        when(mUserHandleHelper.getEnabledProfiles(11)).thenReturn(Arrays.asList(UserHandle.of(10)));
+        when(mUserHandleHelper.getEnabledProfiles(101))
+                .thenReturn(Arrays.asList(UserHandle.of(100)));
         testClearingOfRunningActivitiesOnUserSwitch(
-                /* fromUserId = */ 10,
-                /* toUserId = */ 11,
+                /* fromUserId = */ 100,
+                /* toUserId = */ 101,
                 /* runningFixedActivityExpected = */ true);
     }
 
     @Test
     public void onUserSwitchToSameUser_noChangeInRunningActivities() throws Exception {
         testClearingOfRunningActivitiesOnUserSwitch(
-                /* fromUserId = */ 11,
-                /* toUserId = */ 11,
+                /* fromUserId = */ 101,
+                /* toUserId = */ 101,
                 /* runningFixedActivityExpected = */ true);
     }
 
     @Test
     public void userSwitchedToNotAllowedUser_launchesBlankActivity() throws Exception {
         String blankActivityComponentName = "package/blankActivityClassName";
-        int userId = 10;
+        int userId = 100;
         int taskId = 1234;
-        int notAllowedUserId = 11;
+        int notAllowedUserId = 101;
         when(mContext.getString(anyInt())).thenReturn(blankActivityComponentName);
         when(mDisplayManager.getDisplay(mValidDisplayId)).thenReturn(
                 mValidDisplay, // for startFixedActivityModeForDisplayAndUser
