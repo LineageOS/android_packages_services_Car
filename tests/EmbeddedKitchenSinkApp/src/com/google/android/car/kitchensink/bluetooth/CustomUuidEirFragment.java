@@ -317,7 +317,7 @@ public class CustomUuidEirFragment extends Fragment {
         }
     }
 
-    private String scanModeToText(@BluetoothAdapter.ScanMode int mode) {
+    private String scanModeToText(int mode) {
         switch (mode) {
             case BluetoothAdapter.SCAN_MODE_NONE:
                 return "None";
