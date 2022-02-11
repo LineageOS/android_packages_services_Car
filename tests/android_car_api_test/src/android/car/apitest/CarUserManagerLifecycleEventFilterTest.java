@@ -47,6 +47,8 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
 
     private static final String TAG = CarUserManagerLifecycleEventFilterTest.class.getSimpleName();
 
+    private static final int EVENTS_TIMEOUT_MS = 70_000;
+
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
 
@@ -78,14 +80,14 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
                     new UserLifecycleEventFilter.Builder()
                             .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
                             .build()),
-            // listener[3]: unlocking/unlocked events for any user. Expects to receive 0 events.
+            // listener[3]: stopping/stopped events for any user. Expects to receive 0 events.
             new Listener(BlockingUserLifecycleListener.forSpecificEvents()
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
                     .build(),
                     new UserLifecycleEventFilter.Builder()
-                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
-                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
                             .build()),
             // listener[4]: switching events for any user. Expects to receive 2 events.
             new Listener(BlockingUserLifecycleListener.forSpecificEvents()
@@ -114,7 +116,7 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
         }
     }
 
-    @Test(timeout = 600_000)
+    @Test(timeout = 100_000)
     public void testUserLifecycleEventFilter() throws Exception {
         int initialUserId = getCurrentUserId();
         int newUserId = createUser().id;
@@ -136,7 +138,8 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
         switchUser(initialUserId);
 
         // Wait to receive events.
-        mListeners[4].listener.waitForEvents();
+        waitUntil("Listeners have not received all expected events", EVENTS_TIMEOUT_MS,
+                () -> mListeners[4].listener.getAllReceivedEvents().size() == 2);
 
         // unregister listeners.
         for (Listener listener : mListeners) {
