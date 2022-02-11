@@ -31,6 +31,7 @@ import android.hardware.automotive.vehicle.EvConnectorType;
 import android.hardware.automotive.vehicle.EvRegenerativeBrakingState;
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.PortLocationType;
+import android.hardware.automotive.vehicle.TrailerState;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.VehicleGear;
 import android.hardware.automotive.vehicle.VehicleIgnitionState;
@@ -108,6 +109,8 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(EvChargeState.class));
     private static final Set<Integer> EV_REGENERATIVE_BREAKING_STATE =
             new HashSet<>(getIntegersFromDataEnums(EvRegenerativeBrakingState.class));
+    private static final Set<Integer> TRAILER_PRESENT =
+            new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -593,6 +596,8 @@ public class PropertyHalServiceIds {
                 null));
         mProps.put(VehicleProperty.VEHICLE_CURB_WEIGHT, new Pair<>(
                 Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
+        mProps.put(VehicleProperty.TRAILER_PRESENT, new Pair<>(
+                Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
         // mPropToValidValue should contain all properties which has @data_enum in types.hal
         mPropToValidValue.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
         mPropToValidValue.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
@@ -633,6 +638,8 @@ public class PropertyHalServiceIds {
                 ETC_CARD_STATUS);
         mPropToValidValue.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
                 ETC_CARD_TYPE);
+        mPropToValidValue.put(VehicleProperty.TRAILER_PRESENT,
+                TRAILER_PRESENT);
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mPropToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);

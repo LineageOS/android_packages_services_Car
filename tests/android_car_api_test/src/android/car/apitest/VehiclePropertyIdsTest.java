@@ -49,7 +49,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                         "EV_CHARGE_SWITCH",
                         "EV_CHARGE_TIME_REMAINING",
                         "EV_REGENERATIVE_BRAKING_STATE",
-                        "VEHICLE_CURB_WEIGHT"));
+                        "VEHICLE_CURB_WEIGHT",
+                        "TRAILER_PRESENT"));
 
     private static final List<Integer> MISSING_VHAL_ID_VALUES =
             new ArrayList<>(
@@ -64,7 +65,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                         /*EV_CHARGE_SWITCH=*/287313729,
                         /*EV_CHARGE_TIME_REMAINING=*/289410882,
                         /*EV_REGENERATIVE_BRAKING_STATE=*/289410883,
-                        /*VEHICLE_CURB_WEIGHT=*/289410886));
+                        /*VEHICLE_CURB_WEIGHT=*/289410886,
+                        /*TRAILER_PRESENT=*/289410885));
 
     private static final List<String> MISSING_VEHICLE_PROPERTY_IDS =
             new ArrayList<>(
@@ -258,6 +260,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.EV_CHARGE_TIME_REMAINING));
         assertEquals("EV_REGENERATIVE_BRAKING_STATE",
                 VehiclePropertyIds.toString(VehiclePropertyIds.EV_REGENERATIVE_BRAKING_STATE));
+        assertEquals("TRAILER_PRESENT",
+                VehiclePropertyIds.toString(VehiclePropertyIds.TRAILER_PRESENT));
         assertEquals("FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME",
                 VehiclePropertyIds.toString(
                         VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME));

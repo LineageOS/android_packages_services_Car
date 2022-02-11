@@ -2019,6 +2019,20 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
     public static final int VEHICLE_CURB_WEIGHT = 289410886;
 
+     /**
+     * Indicates if there is a trailer present or not.
+     *
+     * <p>Returns the trailer state of the car.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
+    public static final int TRAILER_PRESENT = 289410885;
+
     /**
      * @deprecated to prevent others from instantiating this class
      */
@@ -2362,6 +2376,8 @@ public final class VehiclePropertyIds {
                 return "EV_REGENERATIVE_BRAKING_STATE";
             case VEHICLE_CURB_WEIGHT:
                 return "VEHICLE_CURB_WEIGHT";
+            case TRAILER_PRESENT:
+                return "TRAILER_PRESENT";
             default:
                 return "0x" + Integer.toHexString(property);
         }
