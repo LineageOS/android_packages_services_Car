@@ -17,7 +17,6 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
-import android.car.telemetry.MetricsConfigKey;
 
 import com.android.car.telemetry.TelemetryProto;
 
@@ -31,9 +30,9 @@ public interface DataBroker {
         /**
          * Listens to script finished event.
          *
-         * @param key that uniquely identifies the config whose script finished.
+         * @param metricsConfigName that uniquely identifies the config whose script finished.
          */
-        void onScriptFinished(@NonNull MetricsConfigKey key);
+        void onScriptFinished(@NonNull String metricsConfigName);
     }
 
     /**
@@ -41,20 +40,19 @@ public interface DataBroker {
      * execution. When updating the MetricsConfig to a newer version, the caller must call
      * {@link #removeMetricsConfig(String)} first to clear the old MetricsConfig.
      * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
-     *
-     * @param key the unique identifier of the MetricsConfig.
+     * @param metricsConfigName name of the MetricsConfig.
      * @param metricsConfig to be added and queued for execution.
      */
     void addMetricsConfig(
-            @NonNull MetricsConfigKey key, @NonNull TelemetryProto.MetricsConfig metricsConfig);
+            @NonNull String metricsConfigName, @NonNull TelemetryProto.MetricsConfig metricsConfig);
 
     /**
      * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
      *
-     * @param key the unique identifier of the MetricsConfig to be removed.
+     * @param metricsConfigName to identify the MetricsConfig to be removed.
      */
-    void removeMetricsConfig(@NonNull MetricsConfigKey key);
+    void removeMetricsConfig(@NonNull String metricsConfigName);
 
     /**
      * Removes all {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}s and

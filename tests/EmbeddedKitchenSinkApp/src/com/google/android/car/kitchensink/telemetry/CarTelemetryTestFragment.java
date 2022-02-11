@@ -28,7 +28,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
-import android.car.telemetry.MetricsConfigKey;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -87,9 +86,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(VEHICLE_PROPERTY_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_LOW))
                     .build();
-    private static final MetricsConfigKey ON_GEAR_CHANGE_KEY_V1 = new MetricsConfigKey(
-            METRICS_CONFIG_ON_GEAR_CHANGE_V1.getName(),
-            METRICS_CONFIG_ON_GEAR_CHANGE_V1.getVersion());
+    private static final String ON_GEAR_CHANGE_CONFIG_NAME =
+            METRICS_CONFIG_ON_GEAR_CHANGE_V1.getName();
 
     /** ProcessMemoryState section. */
     private static final String LUA_SCRIPT_ON_PROCESS_MEMORY_STATE = new StringBuilder()
@@ -135,9 +133,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(PROCESS_MEMORY_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey PROCESS_MEMORY_KEY_V1 = new MetricsConfigKey(
-            METRICS_CONFIG_PROCESS_MEMORY_V1.getName(),
-            METRICS_CONFIG_PROCESS_MEMORY_V1.getVersion());
+    private static final String PROCESS_MEMORY_CONFIG_NAME =
+            METRICS_CONFIG_PROCESS_MEMORY_V1.getName();
 
     /** AppStartMemoryStateCaptured section. */
     private static final String LUA_SCRIPT_ON_APP_START_MEMORY_STATE_CAPTURED = new StringBuilder()
@@ -182,10 +179,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(APP_START_MEMORY_STATE_CAPTURED_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey APP_START_MEMORY_STATE_CAPTURED_KEY_V1 =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_APP_START_MEMORY_V1.getName(),
-                    METRICS_CONFIG_APP_START_MEMORY_V1.getVersion());
+    private static final String APP_START_MEMORY_STATE_CAPTURED_CONFIG_NAME =
+            METRICS_CONFIG_APP_START_MEMORY_V1.getName();
 
     /** ActivityForegroundStateChanged section. */
     private static final String LUA_SCRIPT_ON_ACTIVITY_FOREGROUND_STATE_CHANGED =
@@ -218,10 +213,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(ACTIVITY_FOREGROUND_STATE_CHANGED_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1 =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getName(),
-                    METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getVersion());
+    private static final String ACTIVITY_FOREGROUND_STATE_CHANGED_CONFIG_NAME =
+            METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getName();
 
     /** ProcessCpuTime section */
     private static final String LUA_SCRIPT_ON_PROCESS_CPU_TIME =
@@ -254,10 +247,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(PROCESS_CPU_TIME_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey PROCESS_CPU_TIME_KEY_V1 =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_PROCESS_CPU_TIME_V1.getName(),
-                    METRICS_CONFIG_PROCESS_CPU_TIME_V1.getVersion());
+    private static final String PROCESS_CPU_TIME_CONFIG_NAME =
+            METRICS_CONFIG_PROCESS_CPU_TIME_V1.getName();
 
     /** AppCrashOccurred section */
     private static final String LUA_SCRIPT_ON_APP_CRASH_OCCURRED =
@@ -283,10 +274,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(APP_CRASH_OCCURRED_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey APP_CRASH_OCCURRED_KEY_V1 =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_APP_CRASH_OCCURRED_V1.getName(),
-                    METRICS_CONFIG_APP_CRASH_OCCURRED_V1.getVersion());
+    private static final String APP_CRASH_OCCURRED_CONFIG_NAME =
+            METRICS_CONFIG_APP_CRASH_OCCURRED_V1.getName();
 
     /** ANROccurred section */
     private static final String LUA_SCRIPT_ON_ANR_OCCURRED =
@@ -312,10 +301,7 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(ANR_OCCURRED_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey ANR_OCCURRED_KEY_V1 =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_ANR_OCCURRED_V1.getName(),
-                    METRICS_CONFIG_ANR_OCCURRED_V1.getVersion());
+    private static final String ANR_OCCURRED_CONFIG_NAME = METRICS_CONFIG_ANR_OCCURRED_V1.getName();
 
     /** WTFOccurred section */
     private static final String LUA_SCRIPT_ON_WTF_OCCURRED =
@@ -341,10 +327,7 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(WTF_OCCURRED_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey WTF_OCCURRED_KEY_V1 =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_WTF_OCCURRED_V1.getName(),
-                    METRICS_CONFIG_WTF_OCCURRED_V1.getVersion());
+    private static final String WTF_OCCURRED_CONFIG_NAME = METRICS_CONFIG_WTF_OCCURRED_V1.getName();
 
     /** Wifi Netstats */
     private static final String LUA_SCRIPT_ON_WIFI_NETSTATS =
@@ -371,10 +354,7 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(WIFI_NETSTATS_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey WIFI_NETSTATS_KEY =
-            new MetricsConfigKey(
-                    METRICS_CONFIG_WIFI_NETSTATS.getName(),
-                    METRICS_CONFIG_WIFI_NETSTATS.getVersion());
+    private static final String WIFI_NETSTATS_CONFIG_NAME = METRICS_CONFIG_WIFI_NETSTATS.getName();
 
     /**
      * PROCESS_CPU_TIME + PROCESS_MEMORY + WIFI_NETSTATS section.
@@ -404,9 +384,8 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setPublisher(WIFI_NETSTATS_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final MetricsConfigKey STATS_AND_CONNECTIVITY_KEY = new MetricsConfigKey(
-            METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.getName(),
-            METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.getVersion());
+    private static final String STATS_AND_CONNECTIVITY_CONFIG_NAME =
+            METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.getName();
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
@@ -534,155 +513,155 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private void onSendGearChangeConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listen for gear change...");
-        mCarTelemetryManager.addMetricsConfig(ON_GEAR_CHANGE_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(ON_GEAR_CHANGE_CONFIG_NAME,
                 METRICS_CONFIG_ON_GEAR_CHANGE_V1.toByteArray());
     }
 
     private void onRemoveGearChangeConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for gear change...");
-        mCarTelemetryManager.removeMetricsConfig(ON_GEAR_CHANGE_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(ON_GEAR_CHANGE_CONFIG_NAME);
     }
 
     private void onGetGearChangeReportBtnClick(View view) {
         showOutput("Fetching report for on_gear_change... If nothing shows up within 5 seconds, "
                 + "there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(ON_GEAR_CHANGE_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(ON_GEAR_CHANGE_CONFIG_NAME);
     }
 
     private void onSendProcessMemoryConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for PROCESS_MEMORY_STATE...");
-        mCarTelemetryManager.addMetricsConfig(PROCESS_MEMORY_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(PROCESS_MEMORY_CONFIG_NAME,
                 METRICS_CONFIG_PROCESS_MEMORY_V1.toByteArray());
     }
 
     private void onRemoveProcessMemoryConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for PROCESS_MEMORY_STATE...");
-        mCarTelemetryManager.removeMetricsConfig(PROCESS_MEMORY_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(PROCESS_MEMORY_CONFIG_NAME);
     }
 
     private void onGetProcessMemoryReportBtnClick(View view) {
         showOutput("Fetching report for PROCESS_MEMORY_STATE... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(PROCESS_MEMORY_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(PROCESS_MEMORY_CONFIG_NAME);
     }
 
     private void onSendAppStartMemoryStateCapturedConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for APP_START_MEMORY_STATE_CAPTURED...");
-        mCarTelemetryManager.addMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_CONFIG_NAME,
                 METRICS_CONFIG_APP_START_MEMORY_V1.toByteArray());
     }
 
     private void onRemoveAppStartMemoryStateCapturedConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for APP_START_MEMORY_STATE_CAPTURED...");
-        mCarTelemetryManager.removeMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_CONFIG_NAME);
     }
 
     private void onGetAppStartMemoryStateCapturedReportBtnClick(View view) {
         showOutput("Fetching report for APP_START_MEMORY_STATE_CAPTURED... "
                 + "If nothing shows up within 5 seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(APP_START_MEMORY_STATE_CAPTURED_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(APP_START_MEMORY_STATE_CAPTURED_CONFIG_NAME);
     }
 
     private void onSendActivityForegroundStateChangedConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for ACTIVITY_FOREGROUND_STATE_CHANGED...");
-        mCarTelemetryManager.addMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_CONFIG_NAME,
                 METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.toByteArray());
     }
 
     private void onRemoveActivityForegroundStateChangedConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for ACTIVITY_FOREGROUND_STATE_CHANGED...");
-        mCarTelemetryManager.removeMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_CONFIG_NAME);
     }
 
     private void onGetActivityForegroundStateChangedReportBtnClick(View view) {
         showOutput("Fetching report for ACTIVITY_FOREGROUND_STATE_CHANGED... "
                 + "If nothing shows up within 5 seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(ACTIVITY_FOREGROUND_STATE_CHANGED_CONFIG_NAME);
     }
 
     private void onSendProcessCpuTimeConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for PROCESS_CPU_TIME...");
-        mCarTelemetryManager.addMetricsConfig(PROCESS_CPU_TIME_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(PROCESS_CPU_TIME_CONFIG_NAME,
                 METRICS_CONFIG_PROCESS_CPU_TIME_V1.toByteArray());
     }
 
     private void onRemoveProcessCpuTimeConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for PROCESS_CPU_TIME...");
-        mCarTelemetryManager.removeMetricsConfig(PROCESS_CPU_TIME_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(PROCESS_CPU_TIME_CONFIG_NAME);
     }
 
     private void onGetProcessCpuTimeReportBtnClick(View view) {
         showOutput("Fetching report for PROCESS_CPU_TIME... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(PROCESS_CPU_TIME_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(PROCESS_CPU_TIME_CONFIG_NAME);
     }
 
     private void onSendAppCrashOccurredConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for APP_CRASH_OCCURRED...");
-        mCarTelemetryManager.addMetricsConfig(APP_CRASH_OCCURRED_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(APP_CRASH_OCCURRED_CONFIG_NAME,
                 METRICS_CONFIG_APP_CRASH_OCCURRED_V1.toByteArray());
     }
 
     private void onRemoveAppCrashOccurredConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for APP_CRASH_OCCURRED...");
-        mCarTelemetryManager.removeMetricsConfig(APP_CRASH_OCCURRED_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(APP_CRASH_OCCURRED_CONFIG_NAME);
     }
 
     private void onGetAppCrashOccurredReportBtnClick(View view) {
         showOutput("Fetching report for APP_CRASH_OCCURRED... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(APP_CRASH_OCCURRED_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(APP_CRASH_OCCURRED_CONFIG_NAME);
     }
 
     private void onSendAnrOccurredConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for ANR_OCCURRED...");
-        mCarTelemetryManager.addMetricsConfig(ANR_OCCURRED_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(ANR_OCCURRED_CONFIG_NAME,
                 METRICS_CONFIG_ANR_OCCURRED_V1.toByteArray());
     }
 
     private void onRemoveAnrOccurredConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for ANR_OCCURRED...");
-        mCarTelemetryManager.removeMetricsConfig(ANR_OCCURRED_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(ANR_OCCURRED_CONFIG_NAME);
     }
 
     private void onGetAnrOccurredReportBtnClick(View view) {
         showOutput("Fetching report for ANR_OCCURRED... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(ANR_OCCURRED_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(ANR_OCCURRED_CONFIG_NAME);
     }
 
     private void onSendWtfOccurredConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for WTF_OCCURRED...");
-        mCarTelemetryManager.addMetricsConfig(WTF_OCCURRED_KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(WTF_OCCURRED_CONFIG_NAME,
                 METRICS_CONFIG_WTF_OCCURRED_V1.toByteArray());
     }
 
     private void onRemoveWtfOccurredConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for WTF_OCCURRED...");
-        mCarTelemetryManager.removeMetricsConfig(WTF_OCCURRED_KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(WTF_OCCURRED_CONFIG_NAME);
     }
 
     private void onGetWtfOccurredReportBtnClick(View view) {
         showOutput("Fetching report for WTF_OCCURRED... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(WTF_OCCURRED_KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(WTF_OCCURRED_CONFIG_NAME);
     }
 
     private void onSendWifiNetstatsConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listens for wifi netstats...");
-        mCarTelemetryManager.addMetricsConfig(
-                WIFI_NETSTATS_KEY, METRICS_CONFIG_WIFI_NETSTATS.toByteArray());
+        mCarTelemetryManager.addMetricsConfig(WIFI_NETSTATS_CONFIG_NAME,
+                METRICS_CONFIG_WIFI_NETSTATS.toByteArray());
     }
 
     private void onRemoveWifiNetstatsConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for wifi netstats...");
-        mCarTelemetryManager.removeMetricsConfig(WIFI_NETSTATS_KEY);
+        mCarTelemetryManager.removeMetricsConfig(WIFI_NETSTATS_CONFIG_NAME);
     }
 
     private void onGetWifiNetstatsReportBtnClick(View view) {
         showOutput("Fetching report for wifi netstats... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(WIFI_NETSTATS_KEY);
+        mCarTelemetryManager.sendFinishedReports(WIFI_NETSTATS_CONFIG_NAME);
     }
 
     private void onSendStatsAndConnectivityConfigBtnClick(View view) {
@@ -701,19 +680,19 @@ public class CarTelemetryTestFragment extends Fragment {
         }
         TelemetryProto.MetricsConfig config =
                 METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.toBuilder().setScript(luaScript).build();
-        mCarTelemetryManager.addMetricsConfig(
-                STATS_AND_CONNECTIVITY_KEY, config.toByteArray());
+        mCarTelemetryManager.addMetricsConfig(STATS_AND_CONNECTIVITY_CONFIG_NAME,
+                config.toByteArray());
     }
 
     private void onRemoveStatsAndConnectivityConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for stats data & connectivity data...");
-        mCarTelemetryManager.removeMetricsConfig(STATS_AND_CONNECTIVITY_KEY);
+        mCarTelemetryManager.removeMetricsConfig(STATS_AND_CONNECTIVITY_CONFIG_NAME);
     }
 
     private void onGetStatsAndConnectivityReportBtnClick(View view) {
-        showOutput("Fetching report for " + STATS_AND_CONNECTIVITY_KEY
-                + "... If nothing shows up within 5 seconds, there is no result yet");
-        mCarTelemetryManager.sendFinishedReports(STATS_AND_CONNECTIVITY_KEY);
+        showOutput("Fetching report for stats data & connectivity data... "
+                + "If nothing shows up within 5 seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(STATS_AND_CONNECTIVITY_CONFIG_NAME);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */
@@ -746,31 +725,31 @@ public class CarTelemetryTestFragment extends Fragment {
             implements CarTelemetryManager.CarTelemetryResultsListener {
 
         @Override
-        public void onResult(@NonNull MetricsConfigKey key, @NonNull byte[] result) {
+        public void onResult(@NonNull String metricsConfigName, @NonNull byte[] result) {
             PersistableBundle bundle;
             try (ByteArrayInputStream bis = new ByteArrayInputStream(result)) {
                 bundle = PersistableBundle.readFromStream(bis);
             } catch (IOException e) {
                 bundle = null;
             }
-            showOutput("Result for " + key.getName() + ": " + bundle.toString());
+            showOutput("Result for " + metricsConfigName + ": " + bundle.toString());
         }
 
         @Override
-        public void onError(@NonNull MetricsConfigKey key, @NonNull byte[] error) {
+        public void onError(@NonNull String metricsConfigName, @NonNull byte[] error) {
             try {
                 TelemetryProto.TelemetryError telemetryError =
                         TelemetryProto.TelemetryError.parseFrom(error);
-                showOutput("Error for " + key.getName() + ": " + telemetryError);
+                showOutput("Error for " + metricsConfigName + ": " + telemetryError);
             } catch (InvalidProtocolBufferException e) {
-                showOutput("Unable to parse error result for MetricsConfig " + key.getName()
+                showOutput("Unable to parse error result for MetricsConfig " + metricsConfigName
                         + ": " + e.getMessage());
             }
         }
 
         @Override
-        public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key, int statusCode) {
-            showOutput("Add MetricsConfig status for " + key + ": "
+        public void onAddMetricsConfigStatus(@NonNull String metricsConfigName, int statusCode) {
+            showOutput("Add MetricsConfig status for " + metricsConfigName + ": "
                     + statusCodeToString(statusCode));
         }
 

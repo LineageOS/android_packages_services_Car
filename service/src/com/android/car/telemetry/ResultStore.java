@@ -18,7 +18,6 @@ package com.android.car.telemetry;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.telemetry.MetricsConfigKey;
 import android.os.PersistableBundle;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
@@ -243,8 +242,7 @@ public class ResultStore {
      * Deletes script result associated with the given config name. If result does not exist, this
      * method does not do anything.
      */
-    public void removeResult(@NonNull MetricsConfigKey key) {
-        String metricsConfigName = key.getName();
+    public void removeResult(@NonNull String metricsConfigName) {
         mInterimResultCache.remove(metricsConfigName);
         IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
         IoUtils.deleteSilently(mFinalResultDirectory, metricsConfigName);
