@@ -27,6 +27,7 @@ allow carservice_app {
     bluetooth_manager_service
     connectivity_service
     content_service
+    device_policy_service
     deviceidle_service
     display_service
     graphicsstats_service
