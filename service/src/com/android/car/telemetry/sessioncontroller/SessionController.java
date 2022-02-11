@@ -16,8 +16,6 @@
 
 package com.android.car.telemetry.sessioncontroller;
 
-import static android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.hardware.power.CarPowerManager;
@@ -38,23 +36,24 @@ import java.util.ArrayList;
  */
 public class SessionController {
     public static final int STATE_DEFAULT = 0;
-    public static final int STATE_EXIT_DRIVING = 1;
-    public static final int STATE_ENTER_DRIVING = 2;
+    public static final int STATE_EXIT_DRIVING_SESSION = 1;
+    public static final int STATE_ENTER_DRIVING_SESSION = 2;
 
     @IntDef(
             prefix = {"STATE_"},
             value = {
-                STATE_DEFAULT,
-                STATE_EXIT_DRIVING,
-                STATE_ENTER_DRIVING,
+                    STATE_DEFAULT,
+                    STATE_EXIT_DRIVING_SESSION,
+                    STATE_ENTER_DRIVING_SESSION,
             })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SessionControllerState {}
+    public @interface SessionControllerState {
+    }
 
     private final Context mContext;
     private final CarPowerManager mCarPowerManager;
     private int mSessionId = 0;
-    private int mSessionState = STATE_EXIT_DRIVING;
+    private int mSessionState = STATE_EXIT_DRIVING_SESSION;
     private long mStateChangedAtMillisSinceBoot; // uses SystemClock.elapsedRealtime();
     private long mStateChangedAtMillis; // unix time
     private final ArrayList<SessionControllerCallback> mSessionControllerListeners =
@@ -70,7 +69,7 @@ public class SessionController {
          * changed and provides additional information in the input.
          *
          * @param annotation Encapsulates all information relevant to session state change in a
-         *     {@link SessionAnnotation} object.
+         *                   {@link SessionAnnotation} object.
          */
         void onSessionStateChanged(SessionAnnotation annotation);
     }
@@ -78,7 +77,30 @@ public class SessionController {
     public SessionController(Context context, Handler telemetryHandler) {
         mContext = context;
         mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
-        mCarPowerManager.setListener((r) -> telemetryHandler.post(r), mCarPowerStateListener);
+        mCarPowerManager.setListener((r) -> telemetryHandler.post(r), this::onCarPowerStateChanged);
+    }
+
+    private void onCarPowerStateChanged(int state) {
+        // Driving session transitions are entirely driven by changes in the state of
+        // CarPowerManagementService. In particular, driving session begins when ON state is
+        // entered and exits when SHUTDOWN_PREPARE is entered.
+        if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE) {
+            notifySessionStateChange(STATE_EXIT_DRIVING_SESSION);
+        } else if (state == CarPowerManager.STATE_ON) {
+            notifySessionStateChange(STATE_ENTER_DRIVING_SESSION);
+        }
+    }
+
+    /**
+     * Initializes session state in cases when power state is ON by the time boot has completed.
+     * In particular, we need to handle a case when the system crashes during a drive.
+     * Calling this method after boot will start a new session and it will trigger pulling of data.
+     *
+     * <p> It must be called each time during instantiation of CarTelemetryService.
+     */
+    public void initSession() {
+        // Read the current power state and handle it.
+        onCarPowerStateChanged(mCarPowerManager.getPowerState());
     }
 
     /**
@@ -88,7 +110,7 @@ public class SessionController {
      * of information will be returned by the method.
      *
      * @return Session information contained in the returned instance of {@link SessionAnnotation}
-     *     class.
+     * class.
      */
     public SessionAnnotation getSessionAnnotation() {
         return new SessionAnnotation(
@@ -99,7 +121,7 @@ public class SessionController {
         mStateChangedAtMillisSinceBoot = SystemClock.elapsedRealtime();
         mStateChangedAtMillis = System.currentTimeMillis();
         mSessionState = sessionState;
-        if (sessionState == STATE_ENTER_DRIVING) {
+        if (sessionState == STATE_ENTER_DRIVING_SESSION) {
             mSessionId++;
         }
     }
@@ -136,18 +158,6 @@ public class SessionController {
             listener.onSessionStateChanged(annotation);
         }
     }
-
-    private final CarPowerStateListener mCarPowerStateListener =
-            new CarPowerStateListener() {
-                @Override
-                public void onStateChanged(int state) {
-                    if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE) {
-                        notifySessionStateChange(STATE_EXIT_DRIVING);
-                    } else if (state == CarPowerManager.STATE_ON) {
-                        notifySessionStateChange(STATE_ENTER_DRIVING);
-                    }
-                }
-            };
 
     /** Gracefully cleans up the class state when the car telemetry service is shutting down. */
     public void release() {

@@ -127,7 +127,7 @@ public class SessionControllerUnitTest
                 .that(gotResponse)
                 .isTrue();
         assertThat(mCallback.annotation.sessionState).isEqualTo(
-                SessionController.STATE_ENTER_DRIVING);
+                SessionController.STATE_ENTER_DRIVING_SESSION);
         assertThat(mCallback.annotation.sessionId).isEqualTo(1);
     }
 
@@ -143,7 +143,7 @@ public class SessionControllerUnitTest
                 .that(gotResponse)
                 .isTrue();
         assertThat(mCallback.annotation.sessionState).isEqualTo(
-                SessionController.STATE_ENTER_DRIVING);
+                SessionController.STATE_ENTER_DRIVING_SESSION);
         int sessionId = mCallback.annotation.sessionId;
         long currentTimeMillis = mCallback.annotation.createdAtMillis;
         long elapsedFromBootMillis = mCallback.annotation.createdAtSinceBootMillis;
@@ -161,7 +161,7 @@ public class SessionControllerUnitTest
                 .isTrue();
 
         assertThat(mCallback.annotation.sessionState).isEqualTo(
-                SessionController.STATE_EXIT_DRIVING);
+                SessionController.STATE_EXIT_DRIVING_SESSION);
         // session ID should remain to be the old ID when the session finishes.
         assertThat(mCallback.annotation.sessionId).isEqualTo(sessionId);
         // times should increase compared to when the session turned into ON state.
@@ -175,9 +175,19 @@ public class SessionControllerUnitTest
     @Test
     public void testGetSessionAnnotation_defaultState() {
         SessionAnnotation annotation = mSessionController.getSessionAnnotation();
-        assertThat(annotation.sessionState).isEqualTo(SessionController.STATE_EXIT_DRIVING);
+        assertThat(annotation.sessionState).isEqualTo(SessionController.STATE_EXIT_DRIVING_SESSION);
         assertThat(annotation.sessionId).isEqualTo(0);
     }
 
+    @Test
+    public void testInitSession_triggersCallback() {
+        doReturn(CarPowerManager.STATE_ON).when(mMockCarPowerManager).getPowerState();
+        mSessionController.registerCallback(mCallback);
+
+        mSessionController.initSession();
+
+        assertThat(mCallback.annotation.sessionState).isEqualTo(
+                SessionController.STATE_ENTER_DRIVING_SESSION);
+    }
 
 }

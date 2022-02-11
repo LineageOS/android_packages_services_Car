@@ -29,6 +29,7 @@ import android.os.Handler;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.telemetry.MetricsConfigStore;
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
@@ -52,6 +53,7 @@ public class DataBrokerControllerTest {
     @Mock private DataBrokerController.ReportReadyListener mMockReportReadyListener;
     @Mock private SystemMonitor mMockSystemMonitor;
     @Mock private SystemStateInterface mMockSystemStateInterface;
+    @Mock private SessionController mMockSessionController;
 
     @Captor ArgumentCaptor<Integer> mPriorityCaptor;
 
@@ -106,6 +108,7 @@ public class DataBrokerControllerTest {
         mRunnableCaptor.getValue().run(); // startMetricsCollection();
 
         verify(mMockDataBroker).addMetricsConfig(eq(CONFIG_NAME), eq(CONFIG));
+        verify(mMockSessionController).initSession();
     }
 
     @Test
