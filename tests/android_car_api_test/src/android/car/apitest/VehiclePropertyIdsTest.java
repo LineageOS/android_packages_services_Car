@@ -48,7 +48,9 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                         "EV_CHARGE_STATE",
                         "EV_CHARGE_SWITCH",
                         "EV_CHARGE_TIME_REMAINING",
-                        "EV_REGENERATIVE_BRAKING_STATE"));
+                        "EV_REGENERATIVE_BRAKING_STATE",
+                        "VEHICLE_CURB_WEIGHT"));
+
     private static final List<Integer> MISSING_VHAL_ID_VALUES =
             new ArrayList<>(
                 Arrays.asList(
@@ -61,7 +63,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                         /*EV_CHARGE_STATE=*/289410880,
                         /*EV_CHARGE_SWITCH=*/287313729,
                         /*EV_CHARGE_TIME_REMAINING=*/289410882,
-                        /*EV_REGENERATIVE_BRAKING_STATE=*/289410883));
+                        /*EV_REGENERATIVE_BRAKING_STATE=*/289410883,
+                        /*VEHICLE_CURB_WEIGHT=*/289410886));
 
     private static final List<String> MISSING_VEHICLE_PROPERTY_IDS =
             new ArrayList<>(
@@ -383,6 +386,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.READING_LIGHTS_SWITCH));
         assertEquals("VEHICLE_SPEED_DISPLAY_UNITS",
                 VehiclePropertyIds.toString(VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS));
+        assertEquals("VEHICLE_CURB_WEIGHT",
+                VehiclePropertyIds.toString(VehiclePropertyIds.VEHICLE_CURB_WEIGHT));
         assertEquals("ELECTRONIC_TOLL_COLLECTION_CARD_STATUS",
                 VehiclePropertyIds.toString(
                         VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS));

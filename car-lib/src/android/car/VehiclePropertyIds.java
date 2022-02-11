@@ -2005,6 +2005,21 @@ public final class VehiclePropertyIds {
     public static final int EV_REGENERATIVE_BRAKING_STATE = 289410883;
 
     /**
+     * Vehicle’s curb weight
+     *
+     * <p>Returns the vehicle's curb weight in kilograms. configArray[0] specifies the vehicle’s
+     * gross weight in kilograms.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
+    public static final int VEHICLE_CURB_WEIGHT = 289410886;
+
+    /**
      * @deprecated to prevent others from instantiating this class
      */
     @Deprecated
@@ -2345,6 +2360,8 @@ public final class VehiclePropertyIds {
                 return "EV_CHARGE_TIME_REMAINING";
             case EV_REGENERATIVE_BRAKING_STATE:
                 return "EV_REGENERATIVE_BRAKING_STATE";
+            case VEHICLE_CURB_WEIGHT:
+                return "VEHICLE_CURB_WEIGHT";
             default:
                 return "0x" + Integer.toHexString(property);
         }

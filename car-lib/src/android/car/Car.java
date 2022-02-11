@@ -553,6 +553,10 @@ public final class Car {
     /** Permission necessary to use {@link CarInfoManager}. */
     public static final String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
 
+    /** Permission necessary to access privileged car info. */
+    public static final String PERMISSION_PRIVILEGED_CAR_INFO =
+            "android.car.permission.PRIVILEGED_CAR_INFO";
+
     /**
      * Permission necessary to read information of vendor properties' permissions.
      * @hide
