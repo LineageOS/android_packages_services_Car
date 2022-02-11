@@ -22,7 +22,7 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.Manifest.permission.MANAGE_USERS;
 import static android.car.Car.CAR_USER_SERVICE;
 import static android.car.Car.createCar;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_1;
 
 import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMethodWithShellPermissions;
 import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMethodWithShellPermissionsNoReturn;

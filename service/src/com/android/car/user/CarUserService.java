@@ -1056,8 +1056,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             sendUserRemovalResult(userId, UserRemovalResult.STATUS_USER_DOES_NOT_EXIST, receiver);
             return;
         }
-        android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
-                new android.hardware.automotive.vehicle.V2_0.UserInfo();
+        UserInfo halUser = new UserInfo();
         halUser.userId = user.getIdentifier();
         halUser.flags = UserHalHelper.convertFlags(mUserHandleHelper, user);
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, mUserHandleHelper);

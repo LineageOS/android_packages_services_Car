@@ -51,7 +51,6 @@ public class CarSensorManagerTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
         addAidlProperty(VehicleProperty.NIGHT_MODE,
                 AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.NIGHT_MODE)
                         .addIntValues(0)

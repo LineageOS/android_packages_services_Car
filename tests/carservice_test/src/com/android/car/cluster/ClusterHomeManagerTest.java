@@ -116,8 +116,6 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
-
         if (isNoHalPropertyTest()) return;
 
         addAidlProperty(VehicleProperty.CLUSTER_SWITCH_UI)

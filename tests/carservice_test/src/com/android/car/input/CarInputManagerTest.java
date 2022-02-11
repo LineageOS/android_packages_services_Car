@@ -219,7 +219,6 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        mUseAidlVhal = true;
         addAidlProperty(VehicleProperty.HW_KEY_INPUT,
                 AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
                         .addIntValues(0, 0, 0)

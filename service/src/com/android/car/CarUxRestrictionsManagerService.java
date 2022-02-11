@@ -48,7 +48,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Handler;

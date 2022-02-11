@@ -301,11 +301,6 @@ public class CarVendorExtensionManagerTest extends MockedCarTestBase {
         return hal;
     }
 
-    @Override
-    protected synchronized void configureMockedHal() {
-        mUseAidlVhal = true;
-    }
-
     private static class VendorExtMockedVehicleHal extends AidlMockedVehicleHal {
         private final Object mLock = new Object();
         @GuardedBy("mLock")

@@ -25,7 +25,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.RemoteException;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

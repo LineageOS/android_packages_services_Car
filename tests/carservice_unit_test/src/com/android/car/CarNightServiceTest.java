@@ -30,7 +30,7 @@ import static org.mockito.Mockito.when;
 import android.app.UiModeManager;
 import android.car.hardware.CarPropertyValue;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 
 import org.junit.Before;
 import org.junit.Test;

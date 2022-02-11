@@ -164,8 +164,8 @@ public class EvsHalService extends HalServiceBase {
             @CarEvsServiceType int type;
             switch (v.getPropId()) {
                 case EVS_SERVICE_REQUEST:
-                    // Sees
-                    // android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVICE_REQUEST
+                    // Check
+                    // android.hardware.automotive.vehicle.VehicleProperty.EVS_SERVICE_REQUEST
                     try {
                         int rawServiceType = v.getInt32Value(EvsServiceRequestIndex.TYPE);
                         type = rawServiceType == EvsServiceType.REARVIEW
