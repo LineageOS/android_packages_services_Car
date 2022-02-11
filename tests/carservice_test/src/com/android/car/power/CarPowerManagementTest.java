@@ -27,15 +27,15 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReqIndex;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReqIndex;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
@@ -47,15 +47,14 @@ import com.android.car.MockedCarTestBase;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.HidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import com.google.android.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -84,14 +83,15 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     @Override
     protected void configureMockedHal() {
-        addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
+        mUseAidlVhal = true;
+        addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                     VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
-        addProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler)
+        addAidlProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler)
                 .setAccess(VehiclePropertyAccess.WRITE)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
-        addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
+        addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                         VehicleApPowerStateConfigFlag.ENABLE_HIBERNATION_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
@@ -363,10 +363,10 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertWaitForVhal();
 
         // No param in the event, should be ignored.
-        getHidlMockedVehicleHal().injectEvent(
-                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+        getAidlMockedVehicleHal().injectEvent(
+                    AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                             .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                            .addIntValue(0)
+                            .addIntValues(0)
                             .build());
 
         assertEquals(mPowerStateHandler.getSetWaitSemaphore().availablePermits(), 0);
@@ -500,11 +500,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             if (mStatus != VehicleHalStatusCode.STATUS_OK) {
                 throw new ServiceSpecificException(mStatus);
             }
-            ArrayList<Integer> v = value.value.int32Values;
+            int[] v = value.value.int32Values;
             synchronized (this) {
                 mSetStates.add(new int[] {
-                        v.get(VehicleApPowerStateReqIndex.STATE),
-                        v.get(VehicleApPowerStateReqIndex.ADDITIONAL)
+                        v[VehicleApPowerStateReqIndex.STATE],
+                        v[VehicleApPowerStateReqIndex.ADDITIONAL]
                 });
             }
             mSetWaitSemaphore.release();
@@ -515,9 +515,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             if (mStatus != VehicleHalStatusCode.STATUS_OK) {
                 throw new ServiceSpecificException(mStatus);
             }
-            return VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+            return AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                    .addIntValue(mPowerState, mPowerParam)
+                    .addIntValues(mPowerState, mPowerParam)
                     .build();
         }
 
@@ -609,10 +609,10 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         private void sendPowerState(int state, int param) {
-            getHidlMockedVehicleHal().injectEvent(
-                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+            getAidlMockedVehicleHal().injectEvent(
+                    AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                             .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                            .addIntValue(state, param)
+                            .addIntValues(state, param)
                             .build());
         }
     }
