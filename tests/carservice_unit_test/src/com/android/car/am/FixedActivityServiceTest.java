@@ -464,18 +464,18 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         expectNoActivityStack();
         doAnswer(invocation -> {
             CarUserManager.UserLifecycleListener userLifecycleListener =
-                    (CarUserManager.UserLifecycleListener) invocation.getArgument(0);
+                    (CarUserManager.UserLifecycleListener) invocation.getArgument(1);
             mockAmGetCurrentUser(toUserId);
             userLifecycleListener.onEvent(new CarUserManager.UserLifecycleEvent(
                     CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, toUserId));
             return null;
-        }).when(mCarUserService).addUserLifecycleListener(any());
+        }).when(mCarUserService).addUserLifecycleListener(any(), any());
 
         // No running activities
         boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
                 options, mValidDisplayId, fromUserId);
         assertThat(ret).isTrue();
-        verify(mCarUserService).addUserLifecycleListener(any());
+        verify(mCarUserService).addUserLifecycleListener(any(), any());
 
         if (runningFixedActivityExpected) {
             assertThat(mFixedActivityService.getRunningFixedActivity(mValidDisplayId))

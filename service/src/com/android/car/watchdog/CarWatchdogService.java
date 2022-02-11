@@ -22,6 +22,7 @@ import static android.content.Intent.ACTION_USER_REMOVED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.annotation.NonNull;
 import android.automotive.watchdog.internal.GarageMode;
@@ -40,6 +41,7 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.hardware.power.PowerComponent;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogService;
 import android.car.watchdog.ICarWatchdogServiceCallback;
@@ -622,7 +624,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             Slogf.w(TAG, "Cannot get CarUserService");
             return;
         }
-        userService.addUserLifecycleListener((event) -> {
+        UserLifecycleEventFilter userStartingOrStoppedEventFilter =
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED).build();
+        userService.addUserLifecycleListener(userStartingOrStoppedEventFilter, (event) -> {
+            if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
+                    USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
+                return;
+            }
+
             int userId = event.getUserHandle().getIdentifier();
             int userState;
             String userStateDesc;

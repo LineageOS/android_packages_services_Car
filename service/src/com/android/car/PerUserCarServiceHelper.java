@@ -16,12 +16,15 @@
 
 package com.android.car;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.car.IPerUserCarService;
 import android.car.builtin.util.Slogf;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -61,7 +64,9 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         mContext = context;
         mServiceCallbacks = new ArrayList<>();
         mUserService = userService;
-        mUserService.addUserLifecycleListener(mUserLifecycleListener);
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+        mUserService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
     }
 
     @Override
@@ -80,32 +85,33 @@ public class PerUserCarServiceHelper implements CarServiceBase {
     }
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
+            return;
+        }
         if (DBG) {
             Slogf.d(TAG, "onEvent(" + event + ")");
         }
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            List<ServiceCallback> callbacks;
-            int userId = event.getUserId();
-            if (DBG) {
-                Slogf.d(TAG, "User Switch Happened. New User" + userId);
-            }
-
-            // Before unbinding, notify the callbacks about unbinding from the service
-            // so the callbacks can clean up their state through the binder before the service is
-            // killed.
-            synchronized (mServiceBindLock) {
-                // copy the callbacks
-                callbacks = new ArrayList<>(mServiceCallbacks);
-            }
-            // call them
-            for (ServiceCallback callback : callbacks) {
-                callback.onPreUnbind();
-            }
-            // unbind from the service running as the previous user.
-            unbindFromPerUserCarService();
-            // bind to the service running as the new user
-            bindToPerUserCarService();
+        List<ServiceCallback> callbacks;
+        int userId = event.getUserId();
+        if (DBG) {
+            Slogf.d(TAG, "User Switch Happened. New User" + userId);
         }
+
+        // Before unbinding, notify the callbacks about unbinding from the service
+        // so the callbacks can clean up their state through the binder before the service is
+        // killed.
+        synchronized (mServiceBindLock) {
+            // copy the callbacks
+            callbacks = new ArrayList<>(mServiceCallbacks);
+        }
+        // call them
+        for (ServiceCallback callback : callbacks) {
+            callback.onPreUnbind();
+        }
+        // unbind from the service running as the previous user.
+        unbindFromPerUserCarService();
+        // bind to the service running as the new user
+        bindToPerUserCarService();
     };
 
     /**

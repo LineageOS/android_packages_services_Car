@@ -17,8 +17,11 @@ package com.android.car;
 
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_BROWSE;
 import static android.car.media.CarMediaManager.MEDIA_SOURCE_MODE_PLAYBACK;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -37,8 +40,8 @@ import android.car.media.CarMediaManager.MediaSourceChangedListener;
 import android.car.media.CarMediaManager.MediaSourceMode;
 import android.car.media.ICarMedia;
 import android.car.media.ICarMediaSourceListener;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -234,15 +237,19 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     };
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (!isEventAnyOfTypes(CarLog.TAG_MEDIA, event,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
+            return;
+        }
         if (Log.isLoggable(CarLog.TAG_MEDIA, Log.DEBUG)) {
             Slogf.d(CarLog.TAG_MEDIA, "CarMediaService.onEvent(" + event + ")");
         }
 
         switch (event.getEventType()) {
-            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
+            case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
                 maybeInitUser(event.getUserId());
                 break;
-            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
+            case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
                 onUserUnlocked(event.getUserId());
                 break;
         }
@@ -321,7 +328,13 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mPackageUpdateFilter.addAction(Intent.ACTION_PACKAGE_ADDED);
         mPackageUpdateFilter.addDataScheme("package");
         mUserService = userService;
-        mUserService.addUserLifecycleListener(mUserLifecycleListener);
+        UserLifecycleEventFilter userSwitchingOrUnlockedEventFilter =
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                                .build();
+        mUserService.addUserLifecycleListener(userSwitchingOrUnlockedEventFilter,
+                mUserLifecycleListener);
 
         mPlayOnMediaSourceChangedConfig =
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);

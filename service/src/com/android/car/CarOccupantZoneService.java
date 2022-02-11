@@ -17,8 +17,10 @@
 package com.android.car;
 
 import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -37,8 +39,8 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.car.media.CarAudioManager;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -197,10 +199,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @VisibleForTesting
     final UserLifecycleListener mUserLifecycleListener = event -> {
-        Slogf.d(TAG, "onEvent(%s)", event);
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            handleUserChange();
+        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
+            return;
         }
+        Slogf.d(TAG, "onEvent(%s)", event);
+
+        handleUserChange();
     };
 
     final ExperimentalCarUserService.PassengerCallback mPassengerCallback =
@@ -279,7 +283,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             handleUserChangesLocked();
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.addUserLifecycleListener(mUserLifecycleListener);
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+        userService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
         if (experimentalUserService != null) {

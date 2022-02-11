@@ -195,8 +195,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testAddUserLifecycleListener_checkNullParameter() {
+        UserLifecycleEventFilter filter = new UserLifecycleEventFilter.Builder()
+                .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING).build();
+
         assertThrows(NullPointerException.class,
-                () -> mCarUserService.addUserLifecycleListener(null));
+                () -> mCarUserService.addUserLifecycleListener(filter, /* listener= */null));
     }
 
     @Test

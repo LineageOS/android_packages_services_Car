@@ -1721,20 +1721,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Adds a new {@link UserLifecycleListener} to listen to user activity events.
-     *
-     * @deprecated Use {@link addUserLifecycleListener{UserLifecycleEventFilter,
-     *             UserLifecycleListener} instead.
-     */
-    // TODO(b/209056952) Update callers to use the filter param, and remove this method.
-    @Deprecated
-    public void addUserLifecycleListener(@NonNull UserLifecycleListener listener) {
-        Objects.requireNonNull(listener, "listener cannot be null");
-        mHandler.post(() -> mUserLifecycleListeners.add(
-                new InternalLifecycleListener(listener, /* filter= */null)));
-    }
-
-    /**
      * Adds a new {@link UserLifecycleListener} with {@code filter} to selectively listen to user
      * activity events.
      */
