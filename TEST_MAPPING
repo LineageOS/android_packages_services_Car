@@ -15,6 +15,9 @@
     },
     {
       "name": "SampleCustomInputServiceTest"
+    },
+    {
+      "name": "vehicle_binding_integration_test"
     }
   ]
 }
