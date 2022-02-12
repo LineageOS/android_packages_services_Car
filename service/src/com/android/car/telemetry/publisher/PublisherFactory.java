@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,13 +21,16 @@ import android.app.StatsManager;
 import android.content.Context;
 import android.net.INetworkStatsService;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ServiceManager;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.publisher.net.NetworkStatsServiceProxy;
 import com.android.internal.util.Preconditions;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
  * Lazy factory class for Publishers. It's expected to have a single factory instance. Must be
@@ -98,13 +101,15 @@ public class PublisherFactory {
                     return mStatsPublisher;
                 case TelemetryProto.Publisher.CONNECTIVITY_FIELD_NUMBER:
                     if (mConnectivityPublisher == null) {
-                        INetworkStatsService networkStatsService =
-                                INetworkStatsService.Stub.asInterface(
+                        IBinder service =
+                                Objects.requireNonNull(
                                         ServiceManager.getService(Context.NETWORK_STATS_SERVICE));
+                        INetworkStatsService networkStatsService =
+                                INetworkStatsService.Stub.asInterface(service);
                         mConnectivityPublisher =
                                 new ConnectivityPublisher(
                                         mFailureListener,
-                                        networkStatsService,
+                                        new NetworkStatsServiceProxy(networkStatsService),
                                         mTelemetryHandler,
                                         mContext);
                     }
