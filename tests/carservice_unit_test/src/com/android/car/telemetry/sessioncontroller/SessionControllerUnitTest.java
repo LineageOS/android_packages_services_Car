@@ -148,7 +148,8 @@ public class SessionControllerUnitTest
         long currentTimeMillis = mCallback.annotation.createdAtMillis;
         long elapsedFromBootMillis = mCallback.annotation.createdAtSinceBootMillis;
         assertThat(sessionId).isEqualTo(1);
-        // synchronous annotate call after state change is expected to return exactly the same
+        // synchronous getSessionAnnotation() call after state change is expected to return
+        // exactly the same
         // annotation.
         assertThat(mSessionController.getSessionAnnotation()).isEqualTo(mCallback.annotation);
 
@@ -177,6 +178,7 @@ public class SessionControllerUnitTest
         SessionAnnotation annotation = mSessionController.getSessionAnnotation();
         assertThat(annotation.sessionState).isEqualTo(SessionController.STATE_EXIT_DRIVING_SESSION);
         assertThat(annotation.sessionId).isEqualTo(0);
+        assertThat(annotation.bootReason).isNull();
     }
 
     @Test
@@ -188,6 +190,17 @@ public class SessionControllerUnitTest
 
         assertThat(mCallback.annotation.sessionState).isEqualTo(
                 SessionController.STATE_ENTER_DRIVING_SESSION);
+    }
+
+    @Test
+    public void testGetSessionAnnotation_populatesBootReason() {
+        assertThat(mSessionController.getSessionAnnotation().bootReason).isNull();
+
+        mSessionController.initSession();
+
+        // Indirect way of checking that SystemProperties.get(sys.boot.reason) is called because
+        // the result of the call is @NonNull.
+        assertThat(mSessionController.getSessionAnnotation().bootReason).isNotNull();
     }
 
 }

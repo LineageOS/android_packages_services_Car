@@ -22,6 +22,7 @@ import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 
 import com.android.car.CarLocalServices;
 
@@ -38,6 +39,7 @@ public class SessionController {
     public static final int STATE_DEFAULT = 0;
     public static final int STATE_EXIT_DRIVING_SESSION = 1;
     public static final int STATE_ENTER_DRIVING_SESSION = 2;
+    private static final String SYSTEM_BOOT_REASON = "sys.boot.reason";
 
     @IntDef(
             prefix = {"STATE_"},
@@ -47,8 +49,7 @@ public class SessionController {
                     STATE_ENTER_DRIVING_SESSION,
             })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface SessionControllerState {
-    }
+    public @interface SessionControllerState {}
 
     private final Context mContext;
     private final CarPowerManager mCarPowerManager;
@@ -56,6 +57,7 @@ public class SessionController {
     private int mSessionState = STATE_EXIT_DRIVING_SESSION;
     private long mStateChangedAtMillisSinceBoot; // uses SystemClock.elapsedRealtime();
     private long mStateChangedAtMillis; // unix time
+    private String mBootReason;
     private final ArrayList<SessionControllerCallback> mSessionControllerListeners =
             new ArrayList<>();
 
@@ -99,6 +101,7 @@ public class SessionController {
      * <p> It must be called each time during instantiation of CarTelemetryService.
      */
     public void initSession() {
+        mBootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
         // Read the current power state and handle it.
         onCarPowerStateChanged(mCarPowerManager.getPowerState());
     }
@@ -114,7 +117,8 @@ public class SessionController {
      */
     public SessionAnnotation getSessionAnnotation() {
         return new SessionAnnotation(
-                mSessionId, mSessionState, mStateChangedAtMillisSinceBoot, mStateChangedAtMillis);
+                mSessionId, mSessionState, mStateChangedAtMillisSinceBoot, mStateChangedAtMillis,
+                mBootReason);
     }
 
     private void updateSessionState(@SessionControllerState int sessionState) {

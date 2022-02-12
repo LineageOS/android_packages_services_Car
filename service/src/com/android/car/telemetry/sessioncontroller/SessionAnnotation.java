@@ -20,29 +20,36 @@ import java.util.Objects;
 
 /**
  * {@link SessionAnnotation} is an immutable value class that encapsulates relevant information
- * about session state change event.
+ * about session state change event.  Two {@link SessionAnnotation} objects are equal if all their
+ * respective public fields are equal by value.
  */
 public class SessionAnnotation {
     public final int sessionId;
     public final int sessionState;
     public final long createdAtSinceBootMillis; // Milliseconds since boot.
     public final long createdAtMillis; // Current time in milliseconds - unix time.
+    // to capture situations in later analysis when the data might be affected by a sudden reboot
+    // due to a crash. Populated from sys.boot.reason property.
+    public final String bootReason;
 
     SessionAnnotation(
             int sessionId,
             @SessionController.SessionControllerState int sessionState,
             long createdAtSinceBootMillis,
-            long createdAtMillis) {
+            long createdAtMillis,
+            String bootReason) {
         this.sessionId = sessionId;
         this.sessionState = sessionState;
         // including deep sleep, similar to SystemClock.elapsedRealtime()
         this.createdAtSinceBootMillis = createdAtSinceBootMillis;
         this.createdAtMillis = createdAtMillis; // unix time
+        this.bootReason = bootReason;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(sessionId, sessionState, createdAtSinceBootMillis, createdAtMillis);
+        return Objects.hash(sessionId, sessionState, createdAtSinceBootMillis, createdAtMillis,
+                bootReason);
     }
 
     @Override
@@ -54,12 +61,19 @@ public class SessionAnnotation {
                 .append(sessionState)
                 .append(", createdAtSinceBootMillis: ")
                 .append(createdAtSinceBootMillis)
-                .append(", createdAtMillis")
+                .append(", createdAtMillis: ")
                 .append(createdAtMillis)
+                .append(", bootReason: ")
+                .append(bootReason)
                 .append("}")
                 .toString();
     }
 
+    /**
+     * Two SessionAnnotation objects are equal if all values of its public
+     *
+     * @param obj the reference object with which to compare.
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {
@@ -72,6 +86,7 @@ public class SessionAnnotation {
         return sessionId == other.sessionId
                 && sessionState == other.sessionState
                 && createdAtSinceBootMillis == other.createdAtSinceBootMillis
-                && createdAtMillis == other.createdAtMillis;
+                && createdAtMillis == other.createdAtMillis
+                && Objects.equals(bootReason, other.bootReason);
     }
 }
