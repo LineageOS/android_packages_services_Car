@@ -1170,10 +1170,15 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 mLocalOnlyHotspotReservation = reservation;
                 shouldPersistSoftApConfig = mStableLocalOnlyHotspotConfig;
             }
-            SoftApConfiguration softApConfiguration =
+            SoftApConfiguration.Builder softApConfigurationBuilder =
                     new SoftApConfiguration.Builder(reservation.getSoftApConfiguration())
-                            .setBssid(mApBssid)
-                            .build();
+                            .setBssid(mApBssid);
+
+            if (mApBssid != null) {
+                softApConfigurationBuilder
+                        .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE);
+            }
+            SoftApConfiguration softApConfiguration = softApConfigurationBuilder.build();
 
             if (shouldPersistSoftApConfig) {
                 persistApConfiguration(softApConfiguration);
