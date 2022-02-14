@@ -44,10 +44,9 @@ public final class ContextHelper {
     }
 
     /**
-     * @deprecated TODO(b/202074492) - replace by proper Intent call or remove @Deprecated
+     * Same as {@code context.startActivityAsUser(intent, options, user)}.
      */
     @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
-    @Deprecated
     public static void startActivityAsUser(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options, @NonNull UserHandle user) {
         Objects.requireNonNull(context, "context");
