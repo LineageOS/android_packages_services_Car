@@ -67,6 +67,10 @@ public class SessionControllerUnitTest
 
     private SessionController mSessionController;
 
+    public SessionControllerUnitTest() {
+        super(NO_LOG_TAGS);
+    }
+
     private static final class TestSessionControllerCallback implements
             SessionController.SessionControllerCallback {
         public SessionAnnotation annotation;
