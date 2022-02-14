@@ -49,10 +49,9 @@ public class DataBrokerControllerTest {
     @Mock private DataBroker mMockDataBroker;
     @Mock private Handler mMockHandler;
     @Mock private MetricsConfigStore mMockMetricsConfigStore;
+    @Mock private DataBrokerController.ReportReadyListener mMockReportReadyListener;
     @Mock private SystemMonitor mMockSystemMonitor;
     @Mock private SystemStateInterface mMockSystemStateInterface;
-
-    @Captor ArgumentCaptor<TelemetryProto.MetricsConfig> mConfigCaptor;
 
     @Captor ArgumentCaptor<Integer> mPriorityCaptor;
 
@@ -115,6 +114,7 @@ public class DataBrokerControllerTest {
 
         verify(mMockMetricsConfigStore).removeMetricsConfig(eq(CONFIG_NAME));
         verify(mMockDataBroker).removeMetricsConfig(eq(CONFIG_NAME));
+        verify(mMockReportReadyListener).onReportReady(eq(CONFIG_NAME));
     }
 
     @Test

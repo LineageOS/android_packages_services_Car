@@ -34,7 +34,9 @@ import android.os.ResultReceiver;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides an application interface for interacting with the Car Telemetry Service.
@@ -51,6 +53,8 @@ public final class CarTelemetryManager extends CarManagerBase {
     private static final int METRICS_CONFIG_MAX_SIZE_BYTES = 10 * 1024; // 10 kb
 
     private final ICarTelemetryService mService;
+    private final AtomicReference<Executor> mExecutor;
+    private final AtomicReference<ReportReadyListener> mReportReadyListener;
 
     /** Status to indicate that MetricsConfig was added successfully. */
     public static final int STATUS_ADD_METRICS_CONFIG_SUCCEEDED = 0;
@@ -180,6 +184,25 @@ public final class CarTelemetryManager extends CarManagerBase {
     }
 
     /**
+     * Application can optionally use {@link #setReportReadyListener(Executor, ReportReadyListener)}
+     * to receive report ready notifications. Upon receiving the notification, client can use
+     * {@link #getFinishedReport(String, Executor, MetricsReportCallback)} on the received
+     * metricsConfigName.
+     *
+     * @hide
+     */
+    @SystemApi
+    @TestApi
+    public interface ReportReadyListener {
+        /**
+         * Sends the report ready notification to the client.
+         *
+         * @param metricsConfigName name of the MetricsConfig whose report is ready.
+         */
+        void onReady(@NonNull String metricsConfigName);
+    }
+
+    /**
      * Gets an instance of CarTelemetryManager.
      *
      * <p>CarTelemetryManager manages {@link com.android.car.telemetry.CarTelemetryService} and
@@ -193,6 +216,8 @@ public final class CarTelemetryManager extends CarManagerBase {
     public CarTelemetryManager(Car car, IBinder service) {
         super(car);
         mService = ICarTelemetryService.Stub.asInterface(service);
+        mExecutor = new AtomicReference<>(null);
+        mReportReadyListener = new AtomicReference<>(null);
         if (DEBUG) {
             Slogf.d(TAG, "starting car telemetry manager");
         }
@@ -348,6 +373,75 @@ public final class CarTelemetryManager extends CarManagerBase {
             });
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Registers a listener to receive report ready notifications. This is an optional feature that
+     * helps clients decide when is a good time to call {@link
+     * #getFinishedReport(String, Executor, MetricsReportCallback)}.
+     *
+     * <p>If a listener is not registered when the report or error was the produced, notification
+     * will not be sent to a listener that is registered later. Clients who do not register a
+     * listener should use {@link #getFinishedReport(String, Executor, MetricsReportCallback)}
+     * periodically to check for report ready states.
+     *
+     * @param executor The {@link Executor} on which the callback will be invoked.
+     * @param listener The listener to receive report ready notifications.
+     * @throws IllegalStateException if the listener is already set.
+     * @hide
+     */
+    @SystemApi
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public void setReportReadyListener(
+            @CallbackExecutor @NonNull Executor executor, @NonNull ReportReadyListener listener) {
+        if (mReportReadyListener.get() != null) {
+            throw new IllegalStateException("ReportReadyListener is already set.");
+        }
+        mExecutor.set(executor);
+        mReportReadyListener.set(listener);
+        try {
+            mService.setReportReadyListener(new CarTelemetryReportReadyListenerImpl(this));
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Clears the listener for receiving telemetry report ready notifications.
+     *
+     * @hide
+     */
+    @SystemApi
+    @TestApi
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public void clearReportReadyListener() {
+        mExecutor.set(null);
+        mReportReadyListener.set(null);
+        try {
+            mService.clearReportReadyListener();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    private static final class CarTelemetryReportReadyListenerImpl
+            extends ICarTelemetryReportReadyListener.Stub {
+        private final WeakReference<CarTelemetryManager> mManager;
+
+        private CarTelemetryReportReadyListenerImpl(CarTelemetryManager manager) {
+            mManager = new WeakReference<>(manager);
+        }
+
+        @Override
+        public void onReady(@NonNull String metricsConfigName) {
+            CarTelemetryManager manager = mManager.get();
+            if (manager == null) {
+                return;
+            }
+            manager.mExecutor.get().execute(
+                    () -> manager.mReportReadyListener.get().onReady(metricsConfigName));
         }
     }
 }
