@@ -16,6 +16,9 @@
 
 package com.android.car.telemetry.sessioncontroller;
 
+import android.annotation.NonNull;
+import android.os.PersistableBundle;
+
 import java.util.Objects;
 
 /**
@@ -24,6 +27,14 @@ import java.util.Objects;
  * respective public fields are equal by value.
  */
 public class SessionAnnotation {
+    public static final String ANNOTATION_BUNDLE_KEY_ROOT = "sessionAnnotation";
+    public static final String ANNOTATION_BUNDLE_KEY_SESSION_ID = "sessionId";
+    public static final String ANNOTATION_BUNDLE_KEY_SESSION_STATE = "sessionState";
+    public static final String ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS =
+            "createdAtSinceBootMillis";
+    public static final String ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS = "createdAtMillis";
+    public static final String ANNOTATION_BUNDLE_KEY_BOOT_REASON = "bootReason";
+
     public final int sessionId;
     public final int sessionState;
     public final long createdAtSinceBootMillis; // Milliseconds since boot.
@@ -55,15 +66,16 @@ public class SessionAnnotation {
     @Override
     public String toString() {
         return new StringBuilder()
-                .append("SessionAnnotation{sessionId: ")
-                .append(sessionId)
-                .append(", sessionState: ")
-                .append(sessionState)
-                .append(", createdAtSinceBootMillis: ")
-                .append(createdAtSinceBootMillis)
-                .append(", createdAtMillis: ")
-                .append(createdAtMillis)
-                .append(", bootReason: ")
+                .append(ANNOTATION_BUNDLE_KEY_ROOT).append("{")
+                .append(ANNOTATION_BUNDLE_KEY_SESSION_ID).append(": ")
+                .append(sessionId).append(", ")
+                .append(ANNOTATION_BUNDLE_KEY_SESSION_STATE).append(": ")
+                .append(sessionState).append(", ")
+                .append(ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS).append(": ")
+                .append(createdAtSinceBootMillis).append(", ")
+                .append(ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS).append(": ")
+                .append(createdAtMillis).append(", ")
+                .append(ANNOTATION_BUNDLE_KEY_BOOT_REASON).append(": ")
                 .append(bootReason)
                 .append("}")
                 .toString();
@@ -89,4 +101,38 @@ public class SessionAnnotation {
                 && createdAtMillis == other.createdAtMillis
                 && Objects.equals(bootReason, other.bootReason);
     }
+
+    /**
+     * Converts this {@link SessionAnnotation} object to its {@link PersistableBundle}
+     * representation.
+     */
+    @NonNull
+    public PersistableBundle toPersistableBundle() {
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putInt(ANNOTATION_BUNDLE_KEY_SESSION_ID, sessionId);
+        bundle.putInt(ANNOTATION_BUNDLE_KEY_SESSION_STATE, sessionState);
+        bundle.putLong(ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS,
+                createdAtSinceBootMillis);
+        bundle.putLong(ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS, createdAtMillis);
+        bundle.putString(ANNOTATION_BUNDLE_KEY_BOOT_REASON, bootReason);
+        return bundle;
+    }
+
+    /**
+     * Adds annotations to a provided {@link PersistableBundle} object in the form of a nested
+     * {@link PersistableBundle}.
+     *
+     * @param bundle A {@link PersistableBundle} that we want to get the annotations to.
+     * @throws IllegalArgumentException if the bundle already has a field that annotations are
+     *                                  logged under.
+     */
+    public void addAnnotationsToBundle(PersistableBundle bundle) {
+        if (bundle.containsKey(ANNOTATION_BUNDLE_KEY_ROOT)) {
+            throw new IllegalArgumentException(
+                    "Provided bundle object already has a key with name: "
+                            + ANNOTATION_BUNDLE_KEY_ROOT);
+        }
+        bundle.putPersistableBundle(ANNOTATION_BUNDLE_KEY_ROOT, this.toPersistableBundle());
+    }
+
 }
