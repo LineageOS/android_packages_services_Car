@@ -42,6 +42,7 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
@@ -69,7 +70,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
+public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final String TAG = DataBrokerTest.class.getSimpleName();
 
     private static final int PROP_ID = 100;
@@ -134,6 +135,10 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private PublisherFactory mMockPublisherFactory;
     @Mock
     private AbstractPublisher mAbstractPublisher;
+
+    public DataBrokerTest() {
+        super(CarLog.TAG_TELEMETRY);
+    }
 
     @Before
     public void setUp() throws Exception {
