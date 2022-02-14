@@ -91,7 +91,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
+public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarPowerManagerUnitTest.class.getSimpleName();
     private static final long WAIT_TIMEOUT_MS = 5_000;
     private static final long WAIT_TIMEOUT_LONG_MS = 10_000;
@@ -125,6 +125,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private ICarPowerPolicySystemNotification mPowerPolicyDaemon;
 
     public CarPowerManagerUnitTest() throws Exception {
+        super(CarPowerManager.TAG);
         mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
     }
 

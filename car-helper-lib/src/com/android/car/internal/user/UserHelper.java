@@ -38,7 +38,9 @@ import java.util.Set;
  * @hide
  */
 public final class UserHelper {
-    private static final String TAG = UserHelper.class.getSimpleName();
+    @VisibleForTesting
+    static final String TAG = UserHelper.class.getSimpleName();
+
     /**
      * Default set of restrictions for Non-Admin users.
      */

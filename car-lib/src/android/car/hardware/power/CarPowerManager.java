@@ -49,7 +49,9 @@ import java.util.concurrent.Executor;
  */
 public class CarPowerManager extends CarManagerBase {
     private static final boolean DBG = false;
-    private static final String TAG = CarPowerManager.class.getSimpleName();
+
+    /** @hide */
+    public static final String TAG = CarPowerManager.class.getSimpleName();
 
     private static final int FIRST_POWER_COMPONENT = PowerComponentUtil.FIRST_POWER_COMPONENT;
     private static final int LAST_POWER_COMPONENT = PowerComponentUtil.LAST_POWER_COMPONENT;

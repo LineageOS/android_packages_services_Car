@@ -80,7 +80,9 @@ import java.util.stream.Collectors;
 @TestApi
 public final class CarUserManager extends CarManagerBase {
 
-    private static final String TAG = CarUserManager.class.getSimpleName();
+    /** @hide */
+    public static final String TAG = CarUserManager.class.getSimpleName();
+
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
     private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 

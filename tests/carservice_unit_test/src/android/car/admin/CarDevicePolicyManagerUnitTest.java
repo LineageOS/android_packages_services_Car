@@ -53,6 +53,10 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
 
     private CarDevicePolicyManager mMgr;
 
+    public CarDevicePolicyManagerUnitTest() {
+        super(CarDevicePolicyManager.TAG);
+    }
+
     @Before
     public void setFixtures() {
         mMgr = new CarDevicePolicyManager(mCar, mService);
