@@ -185,7 +185,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testShowDisclaimerWhenIntentReceived() {
-        int userId = 10;
+        int userId = 100;
         doAnswer(inv -> userId).when(() -> ActivityManager.getCurrentUser());
         when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN))
                 .thenReturn(true);
@@ -199,7 +199,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testSetUserDisclaimerShown() {
-        int userId = 10;
+        int userId = 100;
         mService.setUserDisclaimerShown(userId);
 
         assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_SHOWN);
@@ -207,7 +207,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testSetUserDisclaimerAcknowledged() {
-        int userId = 10;
+        int userId = 100;
         when(mContext.createContextAsUser(UserHandle.of(userId), 0)).thenReturn(mContext);
 
         mService.setUserDisclaimerAcknowledged(userId);

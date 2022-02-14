@@ -50,7 +50,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.hardware.automotive.vehicle.CreateUserRequest;
 import android.hardware.automotive.vehicle.CreateUserResponse;
 import android.hardware.automotive.vehicle.CreateUserStatus;
@@ -154,7 +153,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final UserInfo mUser0 = new UserInfo();
-    private final UserInfo mUser10 = new UserInfo();
+    private final UserInfo mUser100 = new UserInfo();
 
     private final UsersInfo mUsersInfo = UserHalHelper.emptyUsersInfo();
 
@@ -188,12 +187,12 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         mUser0.userId = 0;
         mUser0.flags = 100;
-        mUser10.userId = 10;
-        mUser10.flags = 110;
+        mUser100.userId = 100;
+        mUser100.flags = 110;
 
         mUsersInfo.currentUser = mUser0;
         mUsersInfo.numberUsers = 2;
-        mUsersInfo.existingUsers = new UserInfo[]{mUser0, mUser10};
+        mUsersInfo.existingUsers = new UserInfo[]{mUser0, mUser100};
 
         CarLocalServices.addService(CarUserService.class, mCarUserService);
     }
@@ -570,29 +569,29 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         UserHalService myHalService = new UserHalService(mVehicleHal);
 
         assertThrows(IllegalStateException.class,
-                () -> myHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo),
+                () -> myHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo),
                         HAL_TIMEOUT_MS, noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_invalidTimeout() {
         assertThrows(IllegalArgumentException.class, () -> mUserHalService
-                .switchUser(createUserSwitchRequest(mUser10, mUsersInfo), 0, noOpCallback()));
+                .switchUser(createUserSwitchRequest(mUser100, mUsersInfo), 0, noOpCallback()));
         assertThrows(IllegalArgumentException.class, () -> mUserHalService
-                .switchUser(createUserSwitchRequest(mUser10, mUsersInfo), -1, noOpCallback()));
+                .switchUser(createUserSwitchRequest(mUser100, mUsersInfo), -1, noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_noUsersInfo() {
         assertThrows(IllegalArgumentException.class, () -> mUserHalService
-                .switchUser(createUserSwitchRequest(mUser10, null), HAL_TIMEOUT_MS,
+                .switchUser(createUserSwitchRequest(mUser100, null), HAL_TIMEOUT_MS,
                         noOpCallback()));
     }
 
     @Test
     public void testSwitchUser_noCallback() {
         assertThrows(NullPointerException.class, () -> mUserHalService
-                .switchUser(createUserSwitchRequest(mUser10, mUsersInfo), HAL_TIMEOUT_MS, null));
+                .switchUser(createUserSwitchRequest(mUser100, mUsersInfo), HAL_TIMEOUT_MS, null));
     }
 
     @Test
@@ -614,7 +613,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo),
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo),
                 HAL_TIMEOUT_FOR_NEGATIVE_TESTS_MS,
                 callback);
 
@@ -631,7 +630,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testSwitchUser_halDidNotReply() throws Exception {
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo),
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo),
                 HAL_TIMEOUT_FOR_NEGATIVE_TESTS_MS,
                 callback);
 
@@ -650,7 +649,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo),
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo),
                 HAL_TIMEOUT_FOR_NEGATIVE_TESTS_MS,
                 callback);
 
@@ -670,14 +669,14 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), HAL_TIMEOUT_MS,
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo), HAL_TIMEOUT_MS,
                 callback);
 
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
         assertHalSetSwitchUserRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH,
-                mUser10);
+                mUser100);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
@@ -695,14 +694,14 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), HAL_TIMEOUT_MS,
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo), HAL_TIMEOUT_MS,
                 callback);
 
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
         assertHalSetSwitchUserRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH,
-                mUser10);
+                mUser100);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_OK);
@@ -723,14 +722,14 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), HAL_TIMEOUT_MS,
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo), HAL_TIMEOUT_MS,
                 callback);
 
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
         assertHalSetSwitchUserRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH,
-                mUser10);
+                mUser100);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_OK);
@@ -746,10 +745,10 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
                 CALLBACK_TIMEOUT);
         GenericHalCallback<SwitchUserResponse> callback2 = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo),
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo),
                 HAL_TIMEOUT_FOR_NEGATIVE_TESTS_MS,
                 callback1);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), HAL_TIMEOUT_MS,
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo), HAL_TIMEOUT_MS,
                 callback2);
 
         callback1.assertCalled();
@@ -772,14 +771,14 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
         GenericHalCallback<SwitchUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
-        mUserHalService.switchUser(createUserSwitchRequest(mUser10, mUsersInfo), HAL_TIMEOUT_MS,
+        mUserHalService.switchUser(createUserSwitchRequest(mUser100, mUsersInfo), HAL_TIMEOUT_MS,
                 callback);
 
         callback.assertCalled();
 
         // Make sure the arguments were properly converted
         assertHalSetSwitchUserRequest(reqCaptor.get(), SwitchUserMessageType.ANDROID_SWITCH,
-                mUser10);
+                mUser100);
 
         // Assert response
         assertCallbackStatus(callback, HalCallback.STATUS_WRONG_HAL_RESPONSE);
@@ -828,7 +827,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testPostSwitchResponse_noUsersInfo() {
-        SwitchUserRequest request = createUserSwitchRequest(mUser10, null);
+        SwitchUserRequest request = createUserSwitchRequest(mUser100, null);
         request.requestId = 42;
         assertThrows(IllegalArgumentException.class,
                 () -> mUserHalService.postSwitchResponse(request));
@@ -836,14 +835,14 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testPostSwitchResponse_HalCalledWithCorrectProp() {
-        SwitchUserRequest request = createUserSwitchRequest(mUser10, mUsersInfo);
+        SwitchUserRequest request = createUserSwitchRequest(mUser100, mUsersInfo);
         request.requestId = 42;
         mUserHalService.postSwitchResponse(request);
         ArgumentCaptor<HalPropValue> propCaptor =
                 ArgumentCaptor.forClass(HalPropValue.class);
         verify(mVehicleHal).set(propCaptor.capture());
         HalPropValue prop = propCaptor.getValue();
-        assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH, mUser10);
+        assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.ANDROID_POST_SWITCH, mUser100);
     }
 
     @Test
@@ -906,7 +905,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testRemoveUser_noUsersInfo() {
         RemoveUserRequest request = UserHalHelper.emptyRemoveUserRequest();
         request.requestId = 1;
-        request.removedUserInfo = mUser10;
+        request.removedUserInfo = mUser100;
 
         assertThrows(IllegalArgumentException.class,
                 () -> mUserHalService.removeUser(request));
@@ -915,7 +914,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testRemoveUser_HalCalledWithCorrectProp() {
         RemoveUserRequest request = UserHalHelper.emptyRemoveUserRequest();
-        request.removedUserInfo = mUser10;
+        request.removedUserInfo = mUser100;
         request.usersInfo = mUsersInfo;
         ArgumentCaptor<HalPropValue> propCaptor =
                 ArgumentCaptor.forClass(HalPropValue.class);
@@ -923,7 +922,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         mUserHalService.removeUser(request);
 
         verify(mVehicleHal).set(propCaptor.capture());
-        assertHalSetRemoveUserRequest(propCaptor.getValue(), mUser10);
+        assertHalSetRemoveUserRequest(propCaptor.getValue(), mUser100);
     }
 
     @Test
@@ -939,7 +938,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testLegacyUserSwitch_noUsersInfo() {
         SwitchUserRequest request = UserHalHelper.emptySwitchUserRequest();
         request.messageType = SwitchUserMessageType.ANDROID_SWITCH;
-        request.targetUser = mUser10;
+        request.targetUser = mUser100;
 
         assertThrows(IllegalArgumentException.class,
                 () -> mUserHalService.legacyUserSwitch(request));
@@ -949,7 +948,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     public void testLegacyUserSwitch_HalCalledWithCorrectProp() {
         SwitchUserRequest request = UserHalHelper.emptySwitchUserRequest();
         request.messageType = SwitchUserMessageType.LEGACY_ANDROID_SWITCH;
-        request.targetUser = mUser10;
+        request.targetUser = mUser100;
         request.usersInfo = mUsersInfo;
 
         mUserHalService.legacyUserSwitch(request);
@@ -958,7 +957,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
         verify(mVehicleHal).set(propCaptor.capture());
         HalPropValue prop = propCaptor.getValue();
         assertHalSetSwitchUserRequest(prop, SwitchUserMessageType.LEGACY_ANDROID_SWITCH,
-                mUser10);
+                mUser100);
     }
 
     @Test
@@ -1001,7 +1000,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
     @NonNull
     private CreateUserRequest newValidCreateUserRequest() {
         CreateUserRequest request = UserHalHelper.emptyCreateUserRequest();
-        request.newUserInfo = mUser10;
+        request.newUserInfo = mUser100;
         request.usersInfo = mUsersInfo;
         return request;
     }
@@ -1062,7 +1061,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
                 CREATE_USER, propResponse, /* rightRequestId= */ true);
 
         CreateUserRequest request = UserHalHelper.emptyCreateUserRequest();
-        request.newUserInfo = mUser10;
+        request.newUserInfo = mUser100;
         request.usersInfo = mUsersInfo;
         GenericHalCallback<CreateUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);
@@ -1089,7 +1088,7 @@ public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
                 CREATE_USER, propResponse, /* rightRequestId= */ true);
 
         CreateUserRequest request = UserHalHelper.emptyCreateUserRequest();
-        request.newUserInfo = mUser10;
+        request.newUserInfo = mUser100;
         request.usersInfo = mUsersInfo;
         GenericHalCallback<CreateUserResponse> callback = new GenericHalCallback<>(
                 CALLBACK_TIMEOUT);

@@ -75,9 +75,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private static final String OWNER_NAME = "OwnerOfALonelyDevice";
     private static final String GUEST_NAME = "GuessWhot";
 
-    private static final int USER_ID = 10;
-    private static final int NEW_USER_ID = 11;
-    private static final int CURRENT_USER_ID = 12;
+    private static final int USER_ID = 100;
+    private static final int NEW_USER_ID = 101;
+    private static final int CURRENT_USER_ID = 102;
 
     @Mock
     private Context mContext;
