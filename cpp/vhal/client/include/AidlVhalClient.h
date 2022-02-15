@@ -26,6 +26,7 @@
 #include <android/binder_ibinder.h>
 
 #include <PendingRequestPool.h>
+#include <VehicleUtils.h>
 
 #include <atomic>
 #include <memory>
@@ -55,12 +56,14 @@ public:
     static std::shared_ptr<IVhalClient> tryCreate();
 
     explicit AidlVhalClient(
-            std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal);
+            std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal);
 
-    AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
+    AidlVhalClient(std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal,
                    int64_t timeoutInMs);
 
     ~AidlVhalClient();
+
+    bool isAidlVhal() override;
 
     std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) override;
 
@@ -73,20 +76,38 @@ public:
                   std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback) override;
 
     // Add the callback that would be called when VHAL binder died.
-    ::android::base::Result<void> addOnBinderDiedCallback(
+    android::base::Result<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     // Remove a previously added OnBinderDied callback.
-    ::android::base::Result<void> removeOnBinderDiedCallback(
+    android::base::Result<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
-    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
+    android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
             override;
-    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
+    android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
             std::vector<int32_t> propIds) override;
 
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
+
+    // Converts a non-okay status to an error {@code Result}.
+    template <class T>
+    inline static android::base::Result<T> statusToError(const ndk::ScopedAStatus& status,
+                                                         const std::string& msg) {
+        int32_t statusCode = android::hardware::automotive::vehicle::toInt(
+                aidl::android::hardware::automotive::vehicle::StatusCode::INTERNAL_ERROR);
+        if (status.getExceptionCode() == EX_SERVICE_SPECIFIC) {
+            statusCode = status.getServiceSpecificError();
+        } else if (status.getExceptionCode() == EX_TRANSACTION_FAILED) {
+            if (status.getStatus() != STATUS_DEAD_OBJECT) {
+                // STATUS_DEAD_OBJECT is fatal and should not return TRY_AGAIN.
+                statusCode = android::hardware::automotive::vehicle::toInt(
+                        aidl::android::hardware::automotive::vehicle::StatusCode::TRY_AGAIN);
+            }
+        }
+        return android::base::Error(statusCode) << msg << ", error: " << status.getDescription();
+    }
 
 private:
     friend class aidl_test::AidlVhalClientTest;
@@ -110,9 +131,9 @@ private:
 
     std::atomic<int64_t> mRequestId = 0;
     std::shared_ptr<GetSetValueClient> mGetSetValueClient;
-    std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+    std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
     std::unique_ptr<ILinkUnlinkToDeath> mLinkUnlinkImpl;
-    ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mDeathRecipient;
 
     std::mutex mLock;
     std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mOnBinderDiedCallbacks
@@ -124,17 +145,17 @@ private:
     void onBinderDiedWithContext();
     void onBinderUnlinkedWithContext();
 
-    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> parseVehiclePropConfigs(
-            const ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs& configs);
+    android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> parseVehiclePropConfigs(
+            const aidl::android::hardware::automotive::vehicle::VehiclePropConfigs& configs);
 
     // Test-only functions:
-    AidlVhalClient(std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
+    AidlVhalClient(std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal,
                    int64_t timeoutInMs, std::unique_ptr<ILinkUnlinkToDeath> linkUnlinkImpl);
     size_t countOnBinderDiedCallbacks();
 };
 
 class GetSetValueClient final :
-      public ::aidl::android::hardware::automotive::vehicle::BnVehicleCallback {
+      public aidl::android::hardware::automotive::vehicle::BnVehicleCallback {
 public:
     struct PendingGetValueRequest {
         std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> callback;
@@ -148,24 +169,20 @@ public:
         int32_t areaId;
     };
 
-    GetSetValueClient(
-            int64_t timeoutInNs,
-            std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal);
+    GetSetValueClient(int64_t timeoutInNs,
+                      std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> mHal);
 
     ~GetSetValueClient();
 
-    ::ndk::ScopedAStatus onGetValues(
-            const ::aidl::android::hardware::automotive::vehicle::GetValueResults& results)
-            override;
-    ::ndk::ScopedAStatus onSetValues(
-            const ::aidl::android::hardware::automotive::vehicle::SetValueResults& results)
-            override;
-    ::ndk::ScopedAStatus onPropertyEvent(
-            const ::aidl::android::hardware::automotive::vehicle::VehiclePropValues& values,
+    ndk::ScopedAStatus onGetValues(
+            const aidl::android::hardware::automotive::vehicle::GetValueResults& results) override;
+    ndk::ScopedAStatus onSetValues(
+            const aidl::android::hardware::automotive::vehicle::SetValueResults& results) override;
+    ndk::ScopedAStatus onPropertyEvent(
+            const aidl::android::hardware::automotive::vehicle::VehiclePropValues& values,
             int32_t sharedMemoryCount) override;
-    ::ndk::ScopedAStatus onPropertySetError(
-            const ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors)
-            override;
+    ndk::ScopedAStatus onPropertySetError(
+            const aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors) override;
 
     void getValue(int64_t requestId, const IHalPropValue& requestValue,
                   std::shared_ptr<AidlVhalClient::GetValueCallbackFunc> clientCallback,
@@ -181,13 +198,11 @@ private:
     std::unordered_map<int64_t, std::unique_ptr<PendingSetValueRequest>> mPendingSetValueCallbacks
             GUARDED_BY(mLock);
     std::unique_ptr<hardware::automotive::vehicle::PendingRequestPool> mPendingRequestPool;
-    std::shared_ptr<
-            ::android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
+    std::shared_ptr<android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
             mOnGetValueTimeout;
-    std::shared_ptr<
-            ::android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
+    std::shared_ptr<android::hardware::automotive::vehicle::PendingRequestPool::TimeoutCallbackFunc>
             mOnSetValueTimeout;
-    std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+    std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
 
     // Add a new GetValue pending request.
     void addGetValueRequest(int64_t requestId, const IHalPropValue& requestValue,
@@ -209,8 +224,8 @@ private:
                                         std::unordered_map<int64_t, std::unique_ptr<T>>* callbacks)
             REQUIRES(mLock);
 
-    void onGetValue(const ::aidl::android::hardware::automotive::vehicle::GetValueResult& result);
-    void onSetValue(const ::aidl::android::hardware::automotive::vehicle::SetValueResult& result);
+    void onGetValue(const aidl::android::hardware::automotive::vehicle::GetValueResult& result);
+    void onSetValue(const aidl::android::hardware::automotive::vehicle::SetValueResult& result);
 
     template <class T>
     void onTimeout(const std::unordered_set<int64_t>& requestIds,
@@ -218,22 +233,19 @@ private:
 };
 
 class SubscriptionVehicleCallback final :
-      public ::aidl::android::hardware::automotive::vehicle::BnVehicleCallback {
+      public aidl::android::hardware::automotive::vehicle::BnVehicleCallback {
 public:
     explicit SubscriptionVehicleCallback(std::shared_ptr<ISubscriptionCallback> callback);
 
-    ::ndk::ScopedAStatus onGetValues(
-            const ::aidl::android::hardware::automotive::vehicle::GetValueResults& results)
-            override;
-    ::ndk::ScopedAStatus onSetValues(
-            const ::aidl::android::hardware::automotive::vehicle::SetValueResults& results)
-            override;
-    ::ndk::ScopedAStatus onPropertyEvent(
-            const ::aidl::android::hardware::automotive::vehicle::VehiclePropValues& values,
+    ndk::ScopedAStatus onGetValues(
+            const aidl::android::hardware::automotive::vehicle::GetValueResults& results) override;
+    ndk::ScopedAStatus onSetValues(
+            const aidl::android::hardware::automotive::vehicle::SetValueResults& results) override;
+    ndk::ScopedAStatus onPropertyEvent(
+            const aidl::android::hardware::automotive::vehicle::VehiclePropValues& values,
             int32_t sharedMemoryCount) override;
-    ::ndk::ScopedAStatus onPropertySetError(
-            const ::aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors)
-            override;
+    ndk::ScopedAStatus onPropertySetError(
+            const aidl::android::hardware::automotive::vehicle::VehiclePropErrors& errors) override;
 
 private:
     std::shared_ptr<ISubscriptionCallback> mCallback;
@@ -244,17 +256,17 @@ public:
     ~AidlSubscriptionClient() = default;
 
     AidlSubscriptionClient(
-            std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> hal,
+            std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal,
             std::shared_ptr<ISubscriptionCallback> callback);
 
-    ::android::base::Result<void> subscribe(
-            const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
+    android::base::Result<void> subscribe(
+            const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) override;
-    ::android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+    android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) override;
 
 private:
     std::shared_ptr<SubscriptionVehicleCallback> mSubscriptionCallback;
-    std::shared_ptr<::aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
+    std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> mHal;
 };
 
 }  // namespace vhal

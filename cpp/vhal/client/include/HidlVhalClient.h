@@ -48,6 +48,8 @@ public:
 
     ~HidlVhalClient();
 
+    bool isAidlVhal() override;
+
     std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) override;
 
     std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId, int32_t areaId) override;

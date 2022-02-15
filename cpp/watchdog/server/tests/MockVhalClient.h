@@ -30,6 +30,8 @@ public:
     explicit MockVhalClient(const std::shared_ptr<MockVehicle>& vehicle) { mVehicle = vehicle; }
     ~MockVhalClient() { mVehicle.reset(); }
 
+    inline bool isAidlVhal() { return true; }
+
     std::unique_ptr<android::frameworks::automotive::vhal::ISubscriptionClient>
     getSubscriptionClient(
             std::shared_ptr<android::frameworks::automotive::vhal::ISubscriptionCallback> callback)

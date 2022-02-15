@@ -25,7 +25,6 @@
 #include <AidlHalPropConfig.h>
 #include <AidlHalPropValue.h>
 #include <ParcelableUtils.h>
-#include <VehicleUtils.h>
 #include <inttypes.h>
 
 #include <string>
@@ -137,6 +136,10 @@ AidlVhalClient::~AidlVhalClient() {
                                    static_cast<void*>(this));
 }
 
+bool AidlVhalClient::isAidlVhal() {
+    return true;
+}
+
 std::unique_ptr<IHalPropValue> AidlVhalClient::createHalPropValue(int32_t propId) {
     return std::make_unique<AidlHalPropValue>(propId);
 }
@@ -188,8 +191,9 @@ Result<void> AidlVhalClient::removeOnBinderDiedCallback(
 Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
     VehiclePropConfigs configs;
     if (ScopedAStatus status = mHal->getAllPropConfigs(&configs); !status.isOk()) {
-        return Error(status.getServiceSpecificError())
-                << "failed to get all property configs, error: " << status.getMessage();
+        return statusToError<
+                std::vector<std::unique_ptr<IHalPropConfig>>>(status,
+                                                              "failed to get all property configs");
     }
     return parseVehiclePropConfigs(configs);
 }
@@ -198,9 +202,10 @@ Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConf
         std::vector<int32_t> propIds) {
     VehiclePropConfigs configs;
     if (ScopedAStatus status = mHal->getPropConfigs(propIds, &configs); !status.isOk()) {
-        return Error(status.getServiceSpecificError())
-                << "failed to prop configs for prop IDs: " << toString(propIds)
-                << ", error: " << status.getMessage();
+        return statusToError<std::vector<std::unique_ptr<
+                IHalPropConfig>>>(status,
+                                  StringPrintf("failed to get prop configs for prop IDs: %s",
+                                               toString(propIds).c_str()));
     }
     return parseVehiclePropConfigs(configs);
 }
@@ -289,18 +294,24 @@ void GetSetValueClient::getValue(
     ScopedAStatus status = vectorToStableLargeParcelable(std::move(requests), &getValueRequests);
     if (!status.isOk()) {
         tryFinishGetValueRequest(requestId);
-        (*clientCallback)(Error(status.getServiceSpecificError())
-                          << "failed to serialize request for prop: " << propId
-                          << ", areaId: " << areaId << ": error: " << status.getMessage());
+        (*clientCallback)(AidlVhalClient::statusToError<
+                          std::unique_ptr<IHalPropValue>>(status,
+                                                          StringPrintf("failed to serialize "
+                                                                       "request for prop: %" PRId32
+                                                                       ", areaId: %" PRId32,
+                                                                       propId, areaId)));
     }
 
     addGetValueRequest(requestId, requestValue, clientCallback);
     status = mHal->getValues(vhalCallback, getValueRequests);
     if (!status.isOk()) {
         tryFinishGetValueRequest(requestId);
-        (*clientCallback)(Error(status.getServiceSpecificError())
-                          << "failed to get value for prop: " << propId << ", areaId: " << areaId
-                          << ": error: " << status.getMessage());
+        (*clientCallback)(
+                AidlVhalClient::statusToError<std::unique_ptr<
+                        IHalPropValue>>(status,
+                                        StringPrintf("failed to get value for prop: %" PRId32
+                                                     ", areaId: %" PRId32,
+                                                     propId, areaId)));
     }
 }
 
@@ -322,18 +333,22 @@ void GetSetValueClient::setValue(
     ScopedAStatus status = vectorToStableLargeParcelable(std::move(requests), &setValueRequests);
     if (!status.isOk()) {
         tryFinishSetValueRequest(requestId);
-        (*clientCallback)(Error(status.getServiceSpecificError())
-                          << "failed to serialize request for prop: " << propId
-                          << ", areaId: " << areaId << ": error: " << status.getMessage());
+        (*clientCallback)(AidlVhalClient::statusToError<
+                          void>(status,
+                                StringPrintf("failed to serialize request for prop: %" PRId32
+                                             ", areaId: %" PRId32,
+                                             propId, areaId)));
     }
 
     addSetValueRequest(requestId, requestValue, clientCallback);
     status = mHal->setValues(vhalCallback, setValueRequests);
     if (!status.isOk()) {
         tryFinishSetValueRequest(requestId);
-        (*clientCallback)(Error(status.getServiceSpecificError())
-                          << "failed to set value for prop: " << propId << ", areaId: " << areaId
-                          << ": error: " << status.getMessage());
+        (*clientCallback)(AidlVhalClient::statusToError<
+                          void>(status,
+                                StringPrintf("failed to set value for prop: %" PRId32
+                                             ", areaId: %" PRId32,
+                                             propId, areaId)));
     }
 }
 
@@ -537,18 +552,20 @@ Result<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOption
     if (auto status = mHal->subscribe(mSubscriptionCallback, options,
                                       /*maxSharedMemoryFileCount=*/0);
         !status.isOk()) {
-        return Error(status.getServiceSpecificError())
-                << "failed to subscribe to prop IDs: " << toString(propIds)
-                << ", error: " << status.getMessage();
+        return AidlVhalClient::statusToError<
+                void>(status,
+                      StringPrintf("failed to subscribe to prop IDs: %s",
+                                   toString(propIds).c_str()));
     }
     return {};
 }
 
 Result<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
     if (auto status = mHal->unsubscribe(mSubscriptionCallback, propIds); !status.isOk()) {
-        return Error(status.getServiceSpecificError())
-                << "failed to unsubscribe to prop IDs: " << toString(propIds)
-                << ", error: " << status.getMessage();
+        return AidlVhalClient::statusToError<
+                void>(status,
+                      StringPrintf("failed to unsubscribe to prop IDs: %s",
+                                   toString(propIds).c_str()));
     }
     return {};
 }

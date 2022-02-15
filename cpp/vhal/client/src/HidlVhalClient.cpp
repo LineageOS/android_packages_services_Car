@@ -73,6 +73,10 @@ HidlVhalClient::~HidlVhalClient() {
     mHal->unlinkToDeath(mDeathRecipient);
 }
 
+bool HidlVhalClient::isAidlVhal() {
+    return false;
+}
+
 std::unique_ptr<IHalPropValue> HidlVhalClient::createHalPropValue(int32_t propId) {
     return std::make_unique<HidlHalPropValue>(propId);
 }

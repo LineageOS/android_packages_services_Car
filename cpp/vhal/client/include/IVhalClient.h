@@ -81,6 +81,14 @@ public:
     using OnBinderDiedCallbackFunc = std::function<void()>;
 
     /**
+     * Check whether we are connected to AIDL VHAL backend.
+     *
+     * Returns {@code true} if we are connected to AIDL VHAL backend, {@code false} if we are
+     * connected to HIDL backend.
+     */
+    virtual bool isAidlVhal() = 0;
+
+    /**
      * Create a new {@code IHalpropValue}.
      *
      * @param propId The property ID.
