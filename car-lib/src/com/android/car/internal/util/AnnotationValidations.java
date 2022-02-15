@@ -208,20 +208,6 @@ public class AnnotationValidations {
         }
     }
 
-    private static void validateIntEnum(
-            Class<? extends Annotation> annotation, int value, int lastValid) {
-        if (value > lastValid) {
-            invalid(annotation, value);
-        }
-    }
-
-    private static void validateIntFlags(
-            Class<? extends Annotation> annotation, int value, int validBits) {
-        if ((validBits & value) != validBits) {
-            invalid(annotation, "0x" + Integer.toHexString(value));
-        }
-    }
-
     private static void invalid(Class<? extends Annotation> annotation, Object value) {
         invalid("@" + annotation.getSimpleName(), value);
     }

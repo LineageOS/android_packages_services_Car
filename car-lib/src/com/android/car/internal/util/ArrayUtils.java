@@ -16,9 +16,13 @@
 
 package com.android.car.internal.util;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.util.ArraySet;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import dalvik.system.VMRuntime;
 
@@ -877,6 +881,7 @@ public class ArrayUtils {
     }
 
     /** TODO: add javadoc */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public static String deepToString(Object value) {
         if (value != null && value.getClass().isArray()) {
             if (value.getClass() == boolean[].class) {
