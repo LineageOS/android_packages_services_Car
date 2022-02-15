@@ -17,7 +17,6 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
-import android.car.telemetry.MetricsConfigKey;
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.TelemetryProto;
@@ -75,11 +74,10 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     }
 
     /**
-     * Indicates whether the task is associated with MetricsConfig specified by its key.
+     * Indicates whether the task is associated with MetricsConfig specified by its name.
      */
-    public boolean isAssociatedWithMetricsConfig(@NonNull MetricsConfigKey key) {
-        return mSubscriber.getMetricsConfig().getName().equals(key.getName())
-                && mSubscriber.getMetricsConfig().getVersion() == key.getVersion();
+    public boolean isAssociatedWithMetricsConfig(@NonNull String metricsConfigName) {
+        return mSubscriber.getMetricsConfig().getName().equals(metricsConfigName);
     }
 
     /**

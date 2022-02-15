@@ -19,7 +19,6 @@ package com.android.car.telemetry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.car.telemetry.MetricsConfigKey;
 import android.os.PersistableBundle;
 
 import org.junit.Before;
@@ -266,10 +265,9 @@ public class ResultStoreTest {
     @Test
     public void testRemoveResult_whenInterimResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
-        mResultStore.removeResult(key);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
     }
@@ -277,10 +275,9 @@ public class ResultStoreTest {
     @Test
     public void testRemoveResult_whenFinalResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
         writeBundleToFile(mTestFinalResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
 
-        mResultStore.removeResult(key);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isFalse();
     }
@@ -288,10 +285,9 @@ public class ResultStoreTest {
     @Test
     public void testRemoveResult_whenErrorResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
         writeBundleToFile(mTestErrorResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
 
-        mResultStore.removeResult(key);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestErrorResultDir, metricsConfigName).exists()).isFalse();
     }
