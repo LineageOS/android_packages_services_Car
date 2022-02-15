@@ -39,6 +39,7 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.os.CarPerformanceService;
 import com.android.car.systeminterface.ActivityManagerInterface;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
@@ -77,7 +78,7 @@ import java.io.IOException;
  * </ol>
  */
 @RunWith(MockitoJUnitRunner.class)
-public class ICarImplTest extends AbstractExtendedMockitoTestCase {
+public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = ICarImplTest.class.getSimpleName();
 
     @Mock private ActivityManagerInterface mMockActivityManagerInterface;
@@ -87,14 +88,19 @@ public class ICarImplTest extends AbstractExtendedMockitoTestCase {
     @Mock private SystemStateInterface mMockSystemStateInterface;
     @Mock private TimeInterface mMockTimeInterface;
     @Mock private WakeLockInterface mMockWakeLockInterface;
-    @Mock private CarWatchdogService mCarWatchdogService;
-    @Mock private GarageModeService mGarageModeService;
+    @Mock private CarWatchdogService mMockCarWatchdogService;
+    @Mock private CarPerformanceService mMockCarPerformanceService;
+    @Mock private GarageModeService mMockGarageModeService;
 
     private Context mContext;
     private SystemInterface mFakeSystemInterface;
     private UserManager mUserManager;
 
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
+
+    public ICarImplTest() {
+        super(ICarImpl.TAG, CarLog.TAG_SERVICE);
+    }
 
     /**
      * Initialize all of the objects with the @Mock annotation.
@@ -168,7 +174,8 @@ public class ICarImplTest extends AbstractExtendedMockitoTestCase {
         doThrow(new NullPointerException()).when(mContext).getDataDir();
 
         ICarImpl carImpl = new ICarImpl(mContext, null, mMockVehicle, mFakeSystemInterface,
-                "MockedCar", /* carUserService= */ null, mCarWatchdogService, mGarageModeService,
+                "MockedCar", /* carUserService= */ null, mMockCarWatchdogService,
+                mMockCarPerformanceService, mMockGarageModeService,
                 new MockedCarTestBase.FakeCarPowerPolicyDaemon());
         carImpl.init();
         Car mCar = new Car(mContext, carImpl, /* handler= */ null);

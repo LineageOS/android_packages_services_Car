@@ -25,8 +25,8 @@ import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
+import android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -61,7 +61,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * This service stores the last known location from {@link LocationManager} when a car is parked
@@ -146,16 +145,19 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                             accumulatedPolicy.isComponentEnabled(PowerComponent.LOCATION);
                     if (isOn) {
                         logd("Resume GNSS requests.");
-                        locationManager.setAutoGnssSuspended(false);
-                        if (locationManager.isAutoGnssSuspended()) {
+                        locationManager.setAutomotiveGnssSuspended(false);
+                        if (locationManager.isAutomotiveGnssSuspended()) {
                             Slogf.w(TAG,
-                                    "isAutoGnssSuspended is true. GNSS should NOT be suspended.");
+                                    "Failed - isAutomotiveGnssSuspended is true. "
+                                    + "GNSS should NOT be suspended.");
                         }
                     } else {
                         logd("Suspend GNSS requests.");
-                        locationManager.setAutoGnssSuspended(true);
-                        if (!locationManager.isAutoGnssSuspended()) {
-                            Slogf.w(TAG, "isAutoGnssSuspended is false. GNSS should be suspended.");
+                        locationManager.setAutomotiveGnssSuspended(true);
+                        if (!locationManager.isAutomotiveGnssSuspended()) {
+                            Slogf.w(TAG,
+                                    "Failed - isAutomotiveGnssSuspended is false. "
+                                    + "GNSS should be suspended.");
                         }
                     }
                 }
@@ -264,7 +266,8 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         }
 
         if (mCarPowerManager != null) { // null case happens for testing.
-            mCarPowerManager.setListenerWithCompletion(CarLocationService.this);
+            mCarPowerManager.setListenerWithCompletion((command) -> mHandler.post(command),
+                    CarLocationService.this);
         }
 
         if (mPerUserCarServiceHelper != null) {
@@ -312,19 +315,22 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     }
 
     @Override
-    public void onStateChanged(int state, CompletableFuture<Void> future) {
-        logd("onStateChanged: %s", state);
+    public void onStateChanged(int state, CompletablePowerStateChangeFuture future) {
+        logd("onStateChanged: %d", state);
         switch (state) {
-            case CarPowerStateListener.SHUTDOWN_PREPARE:
-                asyncOperation(() -> {
-                    storeLocation();
-                    // Notify the CarPowerManager that it may proceed to shutdown or suspend.
-                    if (future != null) {
-                        future.complete(null);
-                    }
-                });
+            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
+                if (future != null) {
+                    future.complete();
+                }
                 break;
-            case CarPowerStateListener.SUSPEND_EXIT:
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
+                storeLocation();
+                // Notify the CarPowerManager that it may proceed to shutdown or suspend.
+                if (future != null) {
+                    future.complete();
+                }
+                break;
+            case CarPowerManager.STATE_SUSPEND_EXIT:
                 if (mCarDrivingStateService != null) {
                     CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
                     if (event != null
@@ -337,13 +343,13 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                     }
                 }
                 if (future != null) {
-                    future.complete(null);
+                    future.complete();
                 }
             default:
                 // This service does not need to do any work for these events but should still
                 // notify the CarPowerManager that it may proceed.
                 if (future != null) {
-                    future.complete(null);
+                    future.complete();
                 }
                 break;
         }

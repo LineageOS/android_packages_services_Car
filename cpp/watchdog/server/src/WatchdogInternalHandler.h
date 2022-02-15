@@ -88,7 +88,7 @@ public:
     android::binder::Status getResourceOveruseConfigurations(
             std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     configs) override;
-    android::binder::Status controlProcessHealthCheck(bool disable) override;
+    android::binder::Status controlProcessHealthCheck(bool enable) override;
 
 protected:
     void terminate() {

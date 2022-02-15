@@ -16,8 +16,13 @@
 
 package com.android.car.bluetooth;
 
+import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothMapClient;
+import android.bluetooth.BluetoothPan;
+import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
 import android.os.ParcelUuid;
@@ -31,17 +36,16 @@ public final class BluetoothUtils {
         throw new UnsupportedOperationException();
     }
 
-    // TODO (201800664): Profile State Change actions are hidden. This is a work around for now
     public static final String A2DP_SINK_CONNECTION_STATE_CHANGED =
-            "android.bluetooth.a2dp-sink.profile.action.CONNECTION_STATE_CHANGED";
+            BluetoothA2dpSink.ACTION_CONNECTION_STATE_CHANGED;
     public static final String HFP_CLIENT_CONNECTION_STATE_CHANGED =
-            "android.bluetooth.headsetclient.profile.action.CONNECTION_STATE_CHANGED";
+            BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED;
     public static final String MAP_CLIENT_CONNECTION_STATE_CHANGED =
-            "android.bluetooth.mapmce.profile.action.CONNECTION_STATE_CHANGED";
+            BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED;
     public static final String PAN_CONNECTION_STATE_CHANGED =
-            "android.bluetooth.pan.profile.action.CONNECTION_STATE_CHANGED";
+            BluetoothPan.ACTION_CONNECTION_STATE_CHANGED;
     public static final String PBAP_CLIENT_CONNECTION_STATE_CHANGED =
-            "android.bluetooth.pbapclient.profile.action.CONNECTION_STATE_CHANGED";
+            BluetoothPbapClient.ACTION_CONNECTION_STATE_CHANGED;
 
     /*
      * Maps of types and status to human readable strings

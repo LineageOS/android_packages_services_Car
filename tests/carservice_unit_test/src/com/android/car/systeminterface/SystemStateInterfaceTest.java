@@ -43,6 +43,10 @@ public final class SystemStateInterfaceTest extends AbstractExtendedMockitoTestC
     private Context mMockContext;
     private SystemStateInterface.DefaultImpl mSystemStateInterface;
 
+    public SystemStateInterfaceTest() {
+        super(SystemStateInterface.TAG);
+    }
+
     @Before
     public void setUp() throws IOException {
         mSystemStateInterface = new SystemStateInterface.DefaultImpl(mMockContext);

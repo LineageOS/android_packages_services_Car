@@ -15,39 +15,34 @@
  */
 
 #include <android-base/properties.h>
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <gtest/gtest.h>
+
+#include <IVhalClient.h>
+#include <VehicleHalTypes.h>
 
 namespace android {
 namespace automotive {
 namespace security {
 namespace {
 
-using android::hardware::automotive::vehicle::V2_0::IVehicle;
-using android::hardware::automotive::vehicle::V2_0::StatusCode;
-using android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
-using android::hardware::automotive::vehicle::V2_0::VehicleProperty;
+using ::aidl::android::hardware::automotive::vehicle::StatusCode;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
+using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
+using ::android::frameworks::automotive::vhal::IVhalClient;
 
-template <typename T>
-using hidl_vec = android::hardware::hidl_vec<T>;
-
-bool isSeedVhalPropertySupported(sp<IVehicle> vehicle) {
-    bool is_supported = false;
-
-    hidl_vec<int32_t> props = {
+bool isSeedVhalPropertySupported(std::shared_ptr<IVhalClient> vehicle) {
+    std::vector<int32_t> props = {
             static_cast<int32_t>(VehicleProperty::STORAGE_ENCRYPTION_BINDING_SEED)};
-    vehicle->getPropConfigs(props,
-                            [&is_supported](StatusCode status,
-                                            hidl_vec<VehiclePropConfig> /*propConfigs*/) {
-                                is_supported = (status == StatusCode::OK);
-                            });
-    return is_supported;
+
+    auto result = vehicle->getPropConfigs(props);
+    return result.ok() && result.value().size() != 0;
 }
 
 // Verify that vold got the binding seed if VHAL reports a seed
 TEST(VehicleBindingIntegrationTedt, TestVehicleBindingSeedSet) {
     std::string expected_value = "1";
-    if (!isSeedVhalPropertySupported(IVehicle::getService())) {
+    auto client = IVhalClient::create();
+    if (!isSeedVhalPropertySupported(client)) {
         GTEST_LOG_(INFO) << "Device does not support vehicle binding seed "
                             "(STORAGE_ENCRYPTION_BINDING_SEED).";
         expected_value = "";

@@ -26,6 +26,7 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -48,6 +49,7 @@ package android.car {
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
+    field public static final String PERMISSION_COLLECT_CAR_CPU_INFO = "android.car.permission.COLLECT_CAR_CPU_INFO";
     field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH = "android.car.permission.CONTROL_CAR_APP_LAUNCH";
@@ -63,6 +65,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
@@ -871,14 +874,36 @@ package android.car.hardware.power {
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void applyPowerPolicy(@NonNull String);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void clearListener();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public int getPowerState();
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@Nullable android.car.hardware.power.CarPowerManager.CarPowerStateListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerStateListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_SHUTDOWN_PROCESS) public void setListenerWithCompletion(@NonNull java.util.concurrent.Executor, @NonNull android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void setPowerPolicyGroup(@NonNull String);
+    field public static final int STATE_HIBERNATION_ENTER = 9; // 0x9
+    field public static final int STATE_HIBERNATION_EXIT = 10; // 0xa
+    field public static final int STATE_INVALID = 0; // 0x0
+    field public static final int STATE_ON = 6; // 0x6
+    field public static final int STATE_POST_HIBERNATION_ENTER = 14; // 0xe
+    field public static final int STATE_POST_SHUTDOWN_ENTER = 13; // 0xd
+    field public static final int STATE_POST_SUSPEND_ENTER = 12; // 0xc
+    field public static final int STATE_PRE_SHUTDOWN_PREPARE = 11; // 0xb
+    field public static final int STATE_SHUTDOWN_CANCELLED = 8; // 0x8
+    field public static final int STATE_SHUTDOWN_ENTER = 5; // 0x5
+    field public static final int STATE_SHUTDOWN_PREPARE = 7; // 0x7
+    field public static final int STATE_SUSPEND_ENTER = 2; // 0x2
+    field public static final int STATE_SUSPEND_EXIT = 3; // 0x3
+    field public static final int STATE_WAIT_FOR_VHAL = 1; // 0x1
   }
 
   public static interface CarPowerManager.CarPowerStateListener {
+    method public void onStateChanged(int);
   }
 
   public static interface CarPowerManager.CarPowerStateListenerWithCompletion {
+    method public void onStateChanged(int, @Nullable android.car.hardware.power.CarPowerManager.CompletablePowerStateChangeFuture);
+  }
+
+  public static interface CarPowerManager.CompletablePowerStateChangeFuture {
+    method public void complete();
+    method public long getExpirationTime();
   }
 
 }
@@ -1071,6 +1096,56 @@ package android.car.navigation {
 
 }
 
+package android.car.os {
+
+  public final class CarPerformanceManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_CPU_INFO) public void addCpuAvailabilityChangeListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.os.CpuAvailabilityMonitoringConfig, @NonNull android.car.os.CarPerformanceManager.CpuAvailabilityChangeListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_CPU_INFO) public void removeCpuAvailabilityChangeListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.os.CarPerformanceManager.CpuAvailabilityChangeListener);
+  }
+
+  public static interface CarPerformanceManager.CpuAvailabilityChangeListener {
+    method public void onCpuAvailabilityChange(@NonNull android.car.os.CpuAvailabilityInfo);
+  }
+
+  public final class CpuAvailabilityInfo implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getAverageAvailabilityPercent();
+    method public int getCpuset();
+    method public boolean isTimeout();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.os.CpuAvailabilityInfo> CREATOR;
+  }
+
+  public final class CpuAvailabilityMonitoringConfig implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getCpuset();
+    method public int getLowerBoundPercent();
+    method public int getTimeoutAction();
+    method public long getTimeoutInSeconds();
+    method public int getUpperBoundPercent();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field public static final int CPUSET_ALL = 1; // 0x1
+    field public static final int CPUSET_BACKGROUND = 2; // 0x2
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.os.CpuAvailabilityMonitoringConfig> CREATOR;
+    field public static final int IGNORE_PERCENT_LOWER_BOUND = 0; // 0x0
+    field public static final int IGNORE_PERCENT_UPPER_BOUND = 100; // 0x64
+    field public static final int MONITORING_TIMEOUT_NEVER = -1; // 0xffffffff
+    field public static final int TIMEOUT_ACTION_NOTIFICATION = 1; // 0x1
+    field public static final int TIMEOUT_ACTION_REMOVE = 2; // 0x2
+  }
+
+  public static final class CpuAvailabilityMonitoringConfig.Builder {
+    ctor public CpuAvailabilityMonitoringConfig.Builder(int, int, long);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig build();
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setCpuset(int);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setLowerBoundPercent(int);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setTimeoutAction(int);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setTimeoutInSeconds(long);
+    method @NonNull public android.car.os.CpuAvailabilityMonitoringConfig.Builder setUpperBoundPercent(int);
+  }
+
+}
+
 package android.car.projection {
 
   public class ProjectionOptions {
@@ -1145,6 +1220,7 @@ package android.car.settings {
     field public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL = "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
     field public static final String KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES = "android.car.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES";
     field public static final String KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER = "android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER";
+    field public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE = "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
     field public static final String KEY_ROTARY_KEY_EVENT_FILTER = "android.car.ROTARY_KEY_EVENT_FILTER";
     field public static final String KEY_SETUP_WIZARD_IN_PROGRESS = "android.car.SETUP_WIZARD_IN_PROGRESS";
   }
@@ -1270,34 +1346,36 @@ package android.car.storagemonitoring {
 package android.car.telemetry {
 
   public final class CarTelemetryManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void addMetricsConfig(@NonNull android.car.telemetry.MetricsConfigKey, @NonNull byte[]);
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void clearListener();
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void addMetricsConfig(@NonNull String, @NonNull byte[], @NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.AddMetricsConfigCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void clearReportReadyListener();
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void getAllFinishedReports(@NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.MetricsReportCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void getFinishedReport(@NonNull String, @NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.MetricsReportCallback);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void removeAllMetricsConfigs();
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void removeMetricsConfig(@NonNull android.car.telemetry.MetricsConfigKey);
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void sendAllFinishedReports();
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void sendFinishedReports(@NonNull android.car.telemetry.MetricsConfigKey);
-    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void setListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.CarTelemetryResultsListener);
-    field public static final int STATUS_METRICS_CONFIG_ALREADY_EXISTS = 1; // 0x1
-    field public static final int STATUS_METRICS_CONFIG_PARSE_FAILED = 3; // 0x3
-    field public static final int STATUS_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4; // 0x4
-    field public static final int STATUS_METRICS_CONFIG_SUCCESS = 0; // 0x0
-    field public static final int STATUS_METRICS_CONFIG_UNKNOWN = 5; // 0x5
-    field public static final int STATUS_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void removeMetricsConfig(@NonNull String);
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void setReportReadyListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.ReportReadyListener);
+    field public static final int STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS = 1; // 0x1
+    field public static final int STATUS_ADD_METRICS_CONFIG_PARSE_FAILED = 3; // 0x3
+    field public static final int STATUS_ADD_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4; // 0x4
+    field public static final int STATUS_ADD_METRICS_CONFIG_SUCCEEDED = 0; // 0x0
+    field public static final int STATUS_ADD_METRICS_CONFIG_UNKNOWN = 5; // 0x5
+    field public static final int STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD = 2; // 0x2
+    field public static final int STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int STATUS_GET_METRICS_CONFIG_FINISHED = 0; // 0x0
+    field public static final int STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS = 2; // 0x2
+    field public static final int STATUS_GET_METRICS_CONFIG_PENDING = 1; // 0x1
+    field public static final int STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR = 3; // 0x3
   }
 
-  public static interface CarTelemetryManager.CarTelemetryResultsListener {
-    method public void onAddMetricsConfigStatus(@NonNull android.car.telemetry.MetricsConfigKey, int);
-    method public void onError(@NonNull android.car.telemetry.MetricsConfigKey, @NonNull byte[]);
-    method public void onResult(@NonNull android.car.telemetry.MetricsConfigKey, @NonNull byte[]);
+  public static interface CarTelemetryManager.AddMetricsConfigCallback {
+    method public void onAddMetricsConfigStatus(@NonNull String, int);
   }
 
-  public final class MetricsConfigKey implements android.os.Parcelable {
-    ctor public MetricsConfigKey(@NonNull String, int);
-    method public int describeContents();
-    method @NonNull public String getName();
-    method public int getVersion();
-    method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.telemetry.MetricsConfigKey> CREATOR;
+  public static interface CarTelemetryManager.MetricsReportCallback {
+    method public void onResult(@NonNull String, @Nullable byte[], @Nullable byte[], int);
+  }
+
+  public static interface CarTelemetryManager.ReportReadyListener {
+    method public void onReady(@NonNull String);
   }
 
 }
@@ -1306,6 +1384,7 @@ package android.car.user {
 
   public final class CarUserManager {
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.UserLifecycleEventFilter, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6; // 0x6
@@ -1323,6 +1402,13 @@ package android.car.user {
 
   public static interface CarUserManager.UserLifecycleListener {
     method public void onEvent(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
+  }
+
+  public final class UserLifecycleEventFilter implements android.os.Parcelable {
+    method public boolean apply(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
+    method public int describeContents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.user.UserLifecycleEventFilter> CREATOR;
   }
 
 }

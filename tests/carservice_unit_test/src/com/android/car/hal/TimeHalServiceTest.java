@@ -30,13 +30,10 @@ import static org.mockito.Mockito.when;
 import android.app.time.ExternalTimeSuggestion;
 import android.app.time.TimeManager;
 import android.car.test.util.FakeContext;
-import android.car.test.util.VehicleHalTestingHelper;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 
 import com.android.car.R;
 
@@ -53,10 +50,10 @@ import java.util.function.Supplier;
 @RunWith(MockitoJUnitRunner.class)
 public final class TimeHalServiceTest {
 
-    private static final VehiclePropConfig ANDROID_TIME_PROP =
+    private static final HalPropConfig ANDROID_TIME_PROP =
             VehicleHalTestingHelper.newConfig(ANDROID_EPOCH_TIME);
 
-    private static final VehiclePropConfig CAR_TIME_PROP =
+    private static final HalPropConfig CAR_TIME_PROP =
             VehicleHalTestingHelper.newConfig(EXTERNAL_CAR_TIME);
 
     private final FakeContext mFakeContext = new FakeContext();
@@ -67,6 +64,8 @@ public final class TimeHalServiceTest {
 
     private Supplier<TimeHalService> mTimeHalServiceProvider;
 
+    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
+
     @Before
     public void setUp() {
         when(mMockResources.getBoolean(R.bool.config_enableExternalCarTimeToExternalTimeSuggestion))
@@ -75,6 +74,7 @@ public final class TimeHalServiceTest {
         mFakeContext.setResources(mMockResources);
         mFakeContext.setSystemService(TimeManager.class, mTimeManagerService);
 
+        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mTimeHalServiceProvider = () -> new TimeHalService(mFakeContext, mVehicleHal);
     }
 
@@ -110,15 +110,15 @@ public final class TimeHalServiceTest {
         timeHalService.init();
 
         assertThat(timeHalService.isAndroidTimeSupported()).isTrue();
-        ArgumentCaptor<VehiclePropValue> captor = ArgumentCaptor.forClass(VehiclePropValue.class);
+        ArgumentCaptor<HalPropValue> captor = ArgumentCaptor.forClass(HalPropValue.class);
         verify(mVehicleHal).set(captor.capture());
-        VehiclePropValue propValue = captor.getValue();
-        assertThat(propValue.prop).isEqualTo(ANDROID_EPOCH_TIME);
-        assertThat(propValue.areaId).isEqualTo(VehicleArea.GLOBAL);
-        assertThat(propValue.status).isEqualTo(VehiclePropertyStatus.AVAILABLE);
-        assertThat(propValue.timestamp).isAtLeast(sysTimeMillis);
-        assertThat(propValue.value.int64Values).hasSize(1);
-        assertThat(propValue.value.int64Values.get(0)).isAtLeast(sysTimeMillis);
+        HalPropValue propValue = captor.getValue();
+        assertThat(propValue.getPropId()).isEqualTo(ANDROID_EPOCH_TIME);
+        assertThat(propValue.getAreaId()).isEqualTo(VehicleArea.GLOBAL);
+        assertThat(propValue.getStatus()).isEqualTo(VehiclePropertyStatus.AVAILABLE);
+        assertThat(propValue.getTimestamp()).isAtLeast(sysTimeMillis);
+        assertThat(propValue.getInt64ValuesSize()).isEqualTo(1);
+        assertThat(propValue.getInt64Value(0)).isAtLeast(sysTimeMillis);
     }
 
     @Test
@@ -139,7 +139,8 @@ public final class TimeHalServiceTest {
         TimeHalService timeHalService = mTimeHalServiceProvider.get();
         timeHalService.takeProperties(Collections.singletonList(CAR_TIME_PROP));
         long testTimeNanos = 123_456_789_456_123L;
-        when(mVehicleHal.get(anyInt())).thenReturn(newExternalCarTimeValue(testTimeNanos));
+        when(mVehicleHal.get(anyInt())).thenReturn(
+                newExternalCarTimeValue(testTimeNanos));
 
         timeHalService.init();
 
@@ -183,15 +184,15 @@ public final class TimeHalServiceTest {
 
         mFakeContext.sendBroadcast(new Intent(Intent.ACTION_TIME_CHANGED));
 
-        ArgumentCaptor<VehiclePropValue> captor = ArgumentCaptor.forClass(VehiclePropValue.class);
+        ArgumentCaptor<HalPropValue> captor = ArgumentCaptor.forClass(HalPropValue.class);
         verify(mVehicleHal).set(captor.capture());
-        VehiclePropValue propValue = captor.getValue();
-        assertThat(propValue.prop).isEqualTo(ANDROID_EPOCH_TIME);
-        assertThat(propValue.areaId).isEqualTo(VehicleArea.GLOBAL);
-        assertThat(propValue.status).isEqualTo(VehiclePropertyStatus.AVAILABLE);
-        assertThat(propValue.timestamp).isAtLeast(sysTimeMillis);
-        assertThat(propValue.value.int64Values).hasSize(1);
-        assertThat(propValue.value.int64Values.get(0)).isAtLeast(sysTimeMillis);
+        HalPropValue propValue = captor.getValue();
+        assertThat(propValue.getPropId()).isEqualTo(ANDROID_EPOCH_TIME);
+        assertThat(propValue.getAreaId()).isEqualTo(VehicleArea.GLOBAL);
+        assertThat(propValue.getStatus()).isEqualTo(VehiclePropertyStatus.AVAILABLE);
+        assertThat(propValue.getTimestamp()).isAtLeast(sysTimeMillis);
+        assertThat(propValue.getInt64ValuesSize()).isEqualTo(1);
+        assertThat(propValue.getInt64Value(0)).isAtLeast(sysTimeMillis);
     }
 
     @Test
@@ -211,14 +212,8 @@ public final class TimeHalServiceTest {
                 new ExternalTimeSuggestion(testTimeNanos / 1_000_000, testTimeNanos));
     }
 
-    private static VehiclePropValue newExternalCarTimeValue(long timeMicros) {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = EXTERNAL_CAR_TIME;
-        propValue.areaId = VehicleArea.GLOBAL;
-        propValue.status = VehiclePropertyStatus.AVAILABLE;
-        propValue.timestamp = timeMicros;
-        propValue.value.int64Values.add(timeMicros);
-
-        return propValue;
+    private HalPropValue newExternalCarTimeValue(long timeMicros) {
+        return mPropValueBuilder.build(EXTERNAL_CAR_TIME, VehicleArea.GLOBAL,
+                timeMicros, VehiclePropertyStatus.AVAILABLE, timeMicros);
     }
 }

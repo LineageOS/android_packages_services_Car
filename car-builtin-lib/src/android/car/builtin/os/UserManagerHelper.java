@@ -22,11 +22,8 @@ import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.content.Context;
 import android.content.pm.UserInfo;
-import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
-
-import com.android.internal.util.UserIcons;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,15 +45,6 @@ public final class UserManagerHelper {
     /** A user id constant to indicate the "system" user of the device */
     public static final @UserIdInt int USER_SYSTEM = UserHandle.USER_SYSTEM;
 
-    // TODO(b/197181121): Move it after making systemAPI
-    /**
-     * Type for Guest user
-     *
-     * @deprecated Move it after making systemAPI
-     */
-    @Deprecated
-    public static final String USER_TYPE_FULL_GUEST = UserManager.USER_TYPE_FULL_GUEST;
-
     // Flags copied from UserInfo.
     public static final int FLAG_PRIMARY = UserInfo.FLAG_PRIMARY;
     public static final int FLAG_ADMIN = UserInfo.FLAG_ADMIN;
@@ -71,76 +59,6 @@ public final class UserManagerHelper {
     public static final int FLAG_FULL = UserInfo.FLAG_FULL;
     public static final int FLAG_SYSTEM = UserInfo.FLAG_SYSTEM;
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
-
-    // TODO(b/199446770): Convert to system API
-    /**
-     * @deprecated Would be after converting to system API
-     */
-    @Deprecated
-    public static final int REMOVE_RESULT_ERROR = UserManager.REMOVE_RESULT_ERROR;
-
-    //TODO(b/199446770): Convert to system API
-    /**
-     * @deprecated Would be after converting to system API
-     */
-    @Deprecated
-    public static final int REMOVE_RESULT_REMOVED = UserManager.REMOVE_RESULT_REMOVED;
-
-    //TODO(b/199446770): Convert to system API
-    /**
-     * @deprecated Would be after converting to system API
-     */
-    @Deprecated
-    public static final int REMOVE_RESULT_ALREADY_BEING_REMOVED =
-                UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED;
-
-    //TODO(b/199446770): Convert to system API
-    /**
-     * @deprecated Would be after converting to system API
-     */
-    @Deprecated
-    public static final int REMOVE_RESULT_SET_EPHEMERAL = UserManager.REMOVE_RESULT_SET_EPHEMERAL;
-
-    /** Assign default Icon for a given user. */
-    public static Bitmap assignDefaultIconForUser(@NonNull Context context,
-            @NonNull UserHandle user) {
-        UserManager userManager = context.getSystemService(UserManager.class);
-        UserInfo userInfo = userManager.getUserInfo(user.getIdentifier());
-        if (userInfo == null) {
-            return null;
-        }
-        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : user.getIdentifier();
-        Bitmap bitmap = UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(context.getResources(), idForIcon, false));
-        userManager.setUserIcon(user.getIdentifier(), bitmap);
-        return bitmap;
-    }
-
-    /**
-     * Sets the value of a specific restriction on a specific user
-     */
-    public static void setUserRestriction(@NonNull UserManager userManager,
-            @NonNull String restriction, boolean enable, @NonNull UserHandle user) {
-        userManager.setUserRestriction(restriction, enable, user);
-    }
-
-    /** Assigns admin privileges to the user */
-    public static void setUserAdmin(@NonNull UserManager userManager, @NonNull UserHandle user) {
-        userManager.setUserAdmin(user.getIdentifier());
-    }
-
-    /**
-     * Would be removed after making getUserHandle a system API with parameters.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    @NonNull
-    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
-            boolean excludePartial, boolean excludeDying) {
-        return getUserHandles(userManager, excludePartial, excludeDying,
-                /* excludePreCreated= */ true);
-    }
 
     /**
      * Returns all users based on the boolean flags.
@@ -159,47 +77,19 @@ public final class UserManagerHelper {
     }
 
     /**
-     * Would be removed after making isUserEphemeral a system API
-     *
-     * @deprecated Would be removed
+     * Checks if a user is ephemeral.
      */
-    @Deprecated
     public static boolean isEphemeralUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.isUserEphemeral(user.getIdentifier());
     }
 
     /**
-     * Would be removed after understanding the requirement of the call.
-     *
-     * @deprecated Would be removed
+     * Checks if a user is enabled.
      */
-    @Deprecated
     public static boolean isEnabledUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.getUserInfo(user.getIdentifier()).isEnabled();
-    }
-
-    /**
-     * Would be removed after more research in existing API.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static boolean isAdminUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).isAdmin();
-    }
-
-    /**
-     * Would be removed after more research in existing API.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static boolean isGuestUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).isGuest();
     }
 
     /**
@@ -211,34 +101,11 @@ public final class UserManagerHelper {
     }
 
     /**
-     * @deprecated Would be removed after more research in existing API
+     * Checks if a user is initialized.
      */
-    @Deprecated
     public static boolean isInitializedUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         return userManager.getUserInfo(user.getIdentifier()).isInitialized();
-    }
-
-    /**
-     * Would be removed after more research in existing API.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static boolean isProfileUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).isProfile();
-    }
-
-    /**
-     * It may be replaced by isSameProfileGroup. Need to check.
-     *
-     * @deprecated Would be removed
-     */
-    @Deprecated
-    public static int getProfileGroupId(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
-        return userManager.getUserInfo(user.getIdentifier()).profileGroupId;
     }
 
     /**
@@ -271,66 +138,6 @@ public final class UserManagerHelper {
     public static int getMaxRunningUsers(@NonNull Context context) {
         return context.getResources()
                 .getInteger(com.android.internal.R.integer.config_multiuserMaxRunningUsers);
-    }
-
-    /**
-     * Creates guest
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    @Nullable
-    public static UserHandle createGuest(@NonNull Context context, @NonNull UserManager userManager,
-            @Nullable String name) {
-        UserInfo userInfo = userManager.createGuest(context, name);
-        return userInfo == null ? null : userInfo.getUserHandle();
-    }
-
-    /**
-     * Creates user
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    @Nullable
-    public static UserHandle createUser(@NonNull UserManager userManager, @Nullable String name,
-            @NonNull String userType, int flags) {
-        UserInfo userInfo = userManager.createUser(name, userType, flags);
-        return userInfo == null ? null : userInfo.getUserHandle();
-    }
-
-    /**
-     * Creates user
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    @Nullable
-    public static UserHandle createUser(@NonNull UserManager userManager, @Nullable String name,
-            int flags) {
-        UserInfo userInfo = userManager.createUser(name, flags);
-        return userInfo == null ? null : userInfo.getUserHandle();
-    }
-
-    /**
-     * Removes users or sets it as ephemeral if {@code userId} is current user.
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    public static int removeUserOrSetEphemeral(@NonNull UserManager userManager, int userId,
-            boolean evenWhenDisallowed) {
-        return userManager.removeUserOrSetEphemeral(userId, evenWhenDisallowed);
-    }
-
-    /**
-     * Gets maximum supported users
-     *
-     * @deprecated Would be removed after converting to system API
-     */
-    @Deprecated
-    public static int getMaxSupportedUsers() {
-        return UserManager.getMaxSupportedUsers();
     }
 
     /**

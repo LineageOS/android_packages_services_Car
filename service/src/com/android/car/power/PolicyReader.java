@@ -33,7 +33,7 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.PowerComponent;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -126,7 +126,7 @@ public final class PolicyReader {
             PowerComponent.TRUSTED_DEVICE_DETECTION));
     private static final int[] SUSPEND_TO_RAM_DISABLED_COMPONENTS = {
             PowerComponent.AUDIO, PowerComponent.BLUETOOTH, PowerComponent.WIFI,
-            PowerComponent.LOCATION
+            PowerComponent.LOCATION, PowerComponent.MICROPHONE, PowerComponent.CPU
     };
     private static final CarPowerPolicy POWER_POLICY_ALL_ON;
     private static final CarPowerPolicy POWER_POLICY_INITIAL_ON;
@@ -265,7 +265,7 @@ public final class PolicyReader {
             if (!mRegisteredPowerPolicies.containsKey(policyId)) {
                 int error = PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
                 Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId + " for "
-                        + powerStateToString(state)));
+                        + vhalPowerStateToString(state)));
                 return error;
             }
         }
@@ -289,7 +289,7 @@ public final class PolicyReader {
             writer.increaseIndent();
             SparseArray<String> group = entry.getValue();
             for (int i = 0; i < group.size(); i++) {
-                writer.printf("- %s --> %s\n", powerStateToString(group.keyAt(i)),
+                writer.printf("- %s --> %s\n", vhalPowerStateToString(group.keyAt(i)),
                         group.valueAt(i));
             }
             writer.decreaseIndent();
@@ -725,7 +725,7 @@ public final class PolicyReader {
         }
     }
 
-    static String powerStateToString(int state) {
+    static String vhalPowerStateToString(int state) {
         switch (state) {
             case VehicleApPowerStateReport.WAIT_FOR_VHAL:
                 return POWER_STATE_WAIT_FOR_VHAL;

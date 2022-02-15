@@ -55,9 +55,9 @@ int main() {
     SetMinimumLogSeverity(android::base::DEBUG);
 #endif
 
-    // Start a thread to listen video device addition events.
+    // Start a thread to monitor hotplug devices
     std::atomic<bool> running { true };
-    std::thread ueventHandler(EvsEnumerator::EvsUeventThread, std::ref(running));
+    std::thread hotplugHandler(EvsEnumerator::EvsHotplugThread, std::ref(running));
 
     android::sp<IEvsEnumerator> service = new EvsEnumerator(carWindowService);
 
@@ -74,10 +74,10 @@ int main() {
                    << " (" << status << ").";
     }
 
-    // Exit a uevent handler thread.
+    // Exit a hotplug device thread
     running = false;
-    if (ueventHandler.joinable()) {
-        ueventHandler.join();
+    if (hotplugHandler.joinable()) {
+        hotplugHandler.join();
     }
 
     // In normal operation, we don't expect the thread pool to exit

@@ -136,7 +136,8 @@ public class LocationListeners {
             if (mLocationMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 mLocationMgr.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0,
                         mLocationListener);
-                mTextUpdateHandler.setLocationField("waiting to hear from GPS");
+                mTextUpdateHandler.setLocationField(
+                        "GPS_PROVIDER available. Waiting to hear from GPS...");
             } else {
                 mTextUpdateHandler.setLocationField("GPS_PROVIDER not available");
             }

@@ -59,8 +59,8 @@ import java.util.List;
  * <p>This class contains unit tests for the {@link CarWatchdogDaemonHelper}.
  */
 public class CarWatchdogDaemonHelperTest {
-
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
+            "android.automotive.watchdog.internal.ICarWatchdog/default";
 
     @Mock CarWatchdogDaemonHelper.OnConnectionChangeListener mListener;
     @Mock private IBinder mBinder = new Binder();

@@ -41,6 +41,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,7 +59,8 @@ import java.util.concurrent.Executor;
  */
 class VendorServiceController implements UserLifecycleListener {
 
-    private static final String TAG = CarLog.tagFor(VendorServiceController.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(VendorServiceController.class);
 
     private static final boolean DBG = true;
 

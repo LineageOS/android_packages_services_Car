@@ -15,6 +15,9 @@
  */
 package com.android.car.hal;
 
+import static com.android.car.CarServiceUtils.toByteArray;
+import static com.android.car.CarServiceUtils.toIntArray;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,11 +38,10 @@ import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsSubscriptionState;
 import android.content.Context;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
-import android.hardware.automotive.vehicle.V2_0.VmsMessageType;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VmsMessageType;
 import android.os.Handler;
 import android.os.ServiceSpecificException;
 
@@ -57,6 +59,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -77,6 +80,8 @@ public class VmsHalServiceTest {
     private static final List<Byte> PAYLOAD_AS_LIST = Arrays.asList(new Byte[]{1, 2, 3, 4});
     private static final int CORE_ID = 54321;
     private static final int CLIENT_ID = 98765;
+
+    private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
 
     @Mock
     private Context mContext;
@@ -99,12 +104,14 @@ public class VmsHalServiceTest {
     private void initHalService(boolean propagatePropertyException) throws Exception {
         mVmsInitCount = 0;
         when(mContext.getResources()).thenReturn(mResources);
+        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mHalService = new VmsHalService(mContext, mVehicleHal, () -> (long) CORE_ID,
                 this::initVmsClient, propagatePropertyException);
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        mHalService.takeProperties(Collections.singleton(propConfig));
+        HalPropConfig halPropConfig = new AidlHalPropConfig(propConfig);
+        mHalService.takeProperties(Collections.singleton(halPropConfig));
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
@@ -151,12 +158,14 @@ public class VmsHalServiceTest {
 
     @Test
     public void testCoreId_IntegerOverflow() throws Exception {
+        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mHalService = new VmsHalService(mContext, mVehicleHal,
                 () -> (long) Integer.MAX_VALUE + CORE_ID, this::initVmsClient, true);
 
         VehiclePropConfig propConfig = new VehiclePropConfig();
         propConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        mHalService.takeProperties(Collections.singleton(propConfig));
+        HalPropConfig halPropConfig = new AidlHalPropConfig(propConfig);
+        mHalService.takeProperties(Collections.singleton(halPropConfig));
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 0));
@@ -173,10 +182,13 @@ public class VmsHalServiceTest {
     public void testTakeSupportedProperties() {
         VehiclePropConfig vmsPropConfig = new VehiclePropConfig();
         vmsPropConfig.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
+        HalPropConfig vmsHalPropConfig = new AidlHalPropConfig(vmsPropConfig);
 
         VehiclePropConfig otherPropConfig = new VehiclePropConfig();
         otherPropConfig.prop = VehicleProperty.CURRENT_GEAR;
-        mHalService.takeProperties(Arrays.asList(vmsPropConfig));
+        HalPropConfig otherHalPropConfig = new AidlHalPropConfig(otherPropConfig);
+
+        mHalService.takeProperties(Arrays.asList(vmsHalPropConfig, otherHalPropConfig));
     }
 
     /**
@@ -192,12 +204,12 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandleDataEvent() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
+                toByteArray(PAYLOAD_AS_LIST),
                 VmsMessageType.DATA,                       // Message type
                 LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
                 PUBLISHER_ID                               // PublisherId
         );
-        message.value.bytes.addAll(PAYLOAD_AS_LIST);
 
         sendHalMessage(message);
         verify(mVmsClient).publishPacket(PUBLISHER_ID, LAYER, PAYLOAD);
@@ -205,40 +217,55 @@ public class VmsHalServiceTest {
 
     @Test
     public void testHandleInvalidEvent() {
-        VehiclePropValue message = new VehiclePropValue();
         // Invalid message with no message type.
-        message.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        message.value.stringValue = "1234";
+        HalPropValue message =  mPropValueBuilder.build(VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, "1234");
 
         sendHalMessage(message);
         verify(mVmsClient, Mockito.never()).publishPacket(
                 Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         // Incomplete VmsLayer.
-        message.value.int32Values.add(VmsMessageType.DATA);
-        message.value.int32Values.add(LAYER_TYPE);
-        message.value.int32Values.add(LAYER_SUBTYPE);
+        ArrayList<Integer> int32Values =
+                new ArrayList<Integer>(
+                        Arrays.asList(VmsMessageType.DATA, LAYER_TYPE, LAYER_SUBTYPE));
+        message = mPropValueBuilder.build(VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, /*timestamp=*/0, /*status=*/0,
+                /*int32Values=*/toIntArray(int32Values), /*floatValues=*/new float[0],
+                /*int64Values=*/new long[0], "1234", /*byteValues=*/new byte[0]);
 
         sendHalMessage(message);
         verify(mVmsClient, Mockito.never()).publishPacket(
                 Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         // No publisher ID.
-        message.value.int32Values.add(LAYER_VERSION);
+        int32Values.add(LAYER_VERSION);
+        message = mPropValueBuilder.build(VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, /*timestamp=*/0, /*status=*/0,
+                /*int32Values=*/toIntArray(int32Values), /*floatValues=*/new float[0],
+                /*int64Values=*/new long[0], "1234", /*byteValues=*/new byte[0]);
 
         sendHalMessage(message);
         verify(mVmsClient, Mockito.never()).publishPacket(
                 Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         // No payload.
-        message.value.int32Values.add(PUBLISHER_ID);
+        int32Values.add(PUBLISHER_ID);
+        message = mPropValueBuilder.build(VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, /*timestamp=*/0, /*status=*/0,
+                /*int32Values=*/toIntArray(int32Values), /*floatValues=*/new float[0],
+                /*int64Values=*/new long[0], "1234", /*byteValues=*/new byte[0]);
 
         sendHalMessage(message);
         verify(mVmsClient, Mockito.never()).publishPacket(
                 Mockito.anyInt(), Mockito.any(), Mockito.any());
 
         // No payload for publisherID event.
-        message.value.int32Values.set(0, VmsMessageType.PUBLISHER_ID_REQUEST);
+        int32Values.set(0, VmsMessageType.PUBLISHER_ID_REQUEST);
+        message = mPropValueBuilder.build(VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, /*timestamp=*/0, /*status=*/0,
+                /*int32Values=*/toIntArray(int32Values), /*floatValues=*/new float[0],
+                /*int64Values=*/new long[0], "1234", /*byteValues=*/new byte[0]);
 
         sendHalMessage(message);
         verify(mVmsClient, Mockito.never()).publishPacket(
@@ -247,12 +274,12 @@ public class VmsHalServiceTest {
 
     @Test
     public void testOnPacketReceivedEvent() throws Exception {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
+                toByteArray(PAYLOAD_AS_LIST),
                 VmsMessageType.DATA,                       // Message type
                 LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
                 PUBLISHER_ID                               // PublisherId
         );
-        message.value.bytes.addAll(PAYLOAD_AS_LIST);
 
         mEventCallback.onPacketReceived(PUBLISHER_ID, LAYER, PAYLOAD);
         verify(mVehicleHal).set(message);
@@ -269,7 +296,7 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandleSubscribeEvent() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.SUBSCRIBE,                 // Message type
                 LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION  // VmsLayer
         );
@@ -290,7 +317,7 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandleSubscribeToPublisherEvent() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.SUBSCRIBE_TO_PUBLISHER,     // Message type
                 LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
                 PUBLISHER_ID                               // PublisherId
@@ -314,7 +341,7 @@ public class VmsHalServiceTest {
     public void testHandleUnsubscribeEvent() {
         testHandleSubscribeEvent();
 
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.UNSUBSCRIBE,               // Message type
                 LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION  // VmsLayer
         );
@@ -337,7 +364,7 @@ public class VmsHalServiceTest {
     public void testHandleUnsubscribeFromPublisherEvent() {
         testHandleSubscribeToPublisherEvent();
 
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.UNSUBSCRIBE_TO_PUBLISHER,   // Message type
                 LAYER_TYPE, LAYER_SUBTYPE, LAYER_VERSION,  // VmsLayer
                 PUBLISHER_ID                               // PublisherId
@@ -362,14 +389,14 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandlePublisherIdRequestEvent() throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
+                toByteArray(PAYLOAD_AS_LIST),
                 VmsMessageType.PUBLISHER_ID_REQUEST  // Message type
         );
-        request.value.bytes.addAll(PAYLOAD_AS_LIST);
 
         when(mVmsClient.registerProvider(PAYLOAD)).thenReturn(PUBLISHER_ID);
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.PUBLISHER_ID_RESPONSE,  // Message type
                 PUBLISHER_ID                           // Publisher ID
         );
@@ -393,17 +420,17 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandlePublisherInformationRequestEvent() throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.PUBLISHER_INFORMATION_REQUEST,  // Message type
                 PUBLISHER_ID                                   // Publisher ID
         );
 
         when(mVmsClient.getProviderDescription(PUBLISHER_ID)).thenReturn(PAYLOAD);
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
+                toByteArray(PAYLOAD_AS_LIST),
                 VmsMessageType.PUBLISHER_INFORMATION_RESPONSE  // Message type
         );
-        response.value.bytes.addAll(PAYLOAD_AS_LIST);
 
         sendHalMessage(request);
         verify(mVehicleHal).set(response);
@@ -432,7 +459,7 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandleOfferingEvent_ZeroOfferings() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.OFFERING,  // Message type
                 PUBLISHER_ID,             // PublisherId
                 0                         // # of offerings
@@ -444,7 +471,7 @@ public class VmsHalServiceTest {
 
     @Test
     public void testHandleOfferingEvent_LayerOnly() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.OFFERING,                   // Message type
                 PUBLISHER_ID,                              // PublisherId
                 1,                                         // # of offerings
@@ -461,7 +488,7 @@ public class VmsHalServiceTest {
 
     @Test
     public void testHandleOfferingEvent_LayerAndDependency() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.OFFERING,                   // Message type
                 PUBLISHER_ID,                              // PublisherId
                 1,                                         // # of offerings
@@ -480,7 +507,7 @@ public class VmsHalServiceTest {
 
     @Test
     public void testHandleOfferingEvent_MultipleLayersAndDependencies() {
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.OFFERING,                   // Message type
                 PUBLISHER_ID,                              // PublisherId
                 3,                                         // # of offerings
@@ -535,14 +562,14 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandleAvailabilityRequestEvent_ZeroLayers() throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.AVAILABILITY_REQUEST  // Message type
         );
 
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 123));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.AVAILABILITY_RESPONSE,  // Message type
                 123,                                   // Sequence number
                 0                                      // # of associated layers
@@ -554,7 +581,7 @@ public class VmsHalServiceTest {
 
     @Test
     public void testHandleAvailabilityRequestEvent_OneLayer() throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.AVAILABILITY_REQUEST  // Message type
         );
 
@@ -562,7 +589,7 @@ public class VmsHalServiceTest {
                 new VmsAvailableLayers(Collections.singleton(
                         new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID))), 123));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.AVAILABILITY_RESPONSE,      // Message type
                 123,                                       // Sequence number
                 1,                                         // # of associated layers
@@ -578,7 +605,7 @@ public class VmsHalServiceTest {
 
     @Test
     public void testHandleAvailabilityRequestEvent_MultipleLayers() throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.AVAILABILITY_REQUEST  // Message type
         );
 
@@ -592,7 +619,7 @@ public class VmsHalServiceTest {
                                 Collections.singleton(99999)))),
                         123));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.AVAILABILITY_RESPONSE,      // Message type
                 123,                                       // Sequence number
                 3,                                         // # of associated layers
@@ -628,13 +655,13 @@ public class VmsHalServiceTest {
         when(mVmsClient.getAvailableLayers()).thenReturn(
                 new VmsAvailableLayers(Collections.emptySet(), 5));
 
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.START_SESSION,  // Message type
                 -1,                            // Core ID (unknown)
                 CLIENT_ID                      // Client ID
         );
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.START_SESSION,  // Message type
                 CORE_ID,                               // Core ID
                 CLIENT_ID                              // Client ID
@@ -676,7 +703,7 @@ public class VmsHalServiceTest {
         mEventCallback.onLayerAvailabilityChanged(
                 new VmsAvailableLayers(Collections.emptySet(), 123));
 
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE,    // Message type
                 123,                                   // Sequence number
                 0                                      // # of associated layers
@@ -692,7 +719,7 @@ public class VmsHalServiceTest {
                 new VmsAvailableLayers(Collections.singleton(
                         new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID))), 123));
 
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE,        // Message type
                 123,                                       // Sequence number
                 1,                                         // # of associated layers
@@ -718,7 +745,7 @@ public class VmsHalServiceTest {
                                 Collections.singleton(99999)))),
                         123));
 
-        VehiclePropValue message = createHalMessage(
+        HalPropValue message = createHalMessage(
                 VmsMessageType.AVAILABILITY_CHANGE,      // Message type
                 123,                                       // Sequence number
                 3,                                         // # of associated layers
@@ -771,14 +798,14 @@ public class VmsHalServiceTest {
      */
     @Test
     public void testHandleSubscriptionsRequestEvent_ZeroLayers() throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
         );
 
         when(mVmsClient.getSubscriptionState()).thenReturn(
                 new VmsSubscriptionState(123, Collections.emptySet(), Collections.emptySet()));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_RESPONSE,  // Message type
                 123,                                    // Sequence number
                 0,                                      // # of layers
@@ -792,7 +819,7 @@ public class VmsHalServiceTest {
     @Test
     public void testHandleSubscriptionsRequestEvent_OneLayer_ZeroAssociatedLayers()
             throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
         );
 
@@ -800,7 +827,7 @@ public class VmsHalServiceTest {
                 new VmsSubscriptionState(123, Collections.singleton(LAYER),
                         Collections.emptySet()));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_RESPONSE,     // Message type
                 123,                                       // Sequence number
                 1,                                         // # of layers
@@ -815,7 +842,7 @@ public class VmsHalServiceTest {
     @Test
     public void testHandleSubscriptionsRequestEvent_ZeroLayers_OneAssociatedLayer()
             throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
         );
 
@@ -823,7 +850,7 @@ public class VmsHalServiceTest {
                 new VmsSubscriptionState(123, Collections.emptySet(), Collections.singleton(
                         new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID)))));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_RESPONSE,     // Message type
                 123,                                       // Sequence number
                 0,                                         // # of layers
@@ -840,7 +867,7 @@ public class VmsHalServiceTest {
     @Test
     public void testHandleSubscriptionsRequestEvent_MultipleLayersAndAssociatedLayers()
             throws Exception {
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_REQUEST  // Message type
         );
 
@@ -859,7 +886,7 @@ public class VmsHalServiceTest {
                                                 54321))))))
         );
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_RESPONSE,     // Message type
                 123,                                       // Sequence number
                 3,                                         // # of layers
@@ -910,7 +937,7 @@ public class VmsHalServiceTest {
         mEventCallback.onSubscriptionStateChanged(
                 new VmsSubscriptionState(123, Collections.emptySet(), Collections.emptySet()));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_CHANGE,    // Message type
                 123,                                    // Sequence number
                 0,                                      // # of layers
@@ -928,7 +955,7 @@ public class VmsHalServiceTest {
                 new VmsSubscriptionState(123, Collections.singleton(LAYER),
                         Collections.emptySet()));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_CHANGE,       // Message type
                 123,                                       // Sequence number
                 1,                                         // # of layers
@@ -947,7 +974,7 @@ public class VmsHalServiceTest {
                 new VmsSubscriptionState(123, Collections.emptySet(), Collections.singleton(
                         new VmsAssociatedLayer(LAYER, Collections.singleton(PUBLISHER_ID)))));
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_CHANGE,       // Message type
                 123,                                       // Sequence number
                 0,                                         // # of layers
@@ -979,7 +1006,7 @@ public class VmsHalServiceTest {
                                                 54321))))))
         );
 
-        VehiclePropValue response = createHalMessage(
+        HalPropValue response = createHalMessage(
                 VmsMessageType.SUBSCRIPTIONS_CHANGE,       // Message type
                 123,                                       // Sequence number
                 3,                                         // # of layers
@@ -1018,7 +1045,7 @@ public class VmsHalServiceTest {
                 new VmsAvailableLayers(Collections.emptySet(), 0));
         doThrow(new RuntimeException()).when(mVehicleHal).set(any());
 
-        VehiclePropValue request = createHalMessage(
+        HalPropValue request = createHalMessage(
                 VmsMessageType.START_SESSION,  // Message type
                 -1,                            // Core ID (unknown)
                 CLIENT_ID                      // Client ID
@@ -1036,8 +1063,8 @@ public class VmsHalServiceTest {
 
     @Test
     public void testDumpMetrics_NonVendorProperty() throws Exception {
-        VehiclePropValue vehicleProp = new VehiclePropValue();
-        vehicleProp.value.bytes.addAll(PAYLOAD_AS_LIST);
+        HalPropValue vehicleProp = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0,
+                toByteArray(PAYLOAD_AS_LIST));
         when(mVehicleHal.get(anyInt())).thenReturn(vehicleProp);
 
         when(mResources.getInteger(
@@ -1057,8 +1084,8 @@ public class VmsHalServiceTest {
                 metricsPropertyId);
         setUp();
 
-        VehiclePropValue metricsProperty = new VehiclePropValue();
-        metricsProperty.value.bytes.addAll(PAYLOAD_AS_LIST);
+        HalPropValue metricsProperty = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0,
+                toByteArray(PAYLOAD_AS_LIST));
         when(mVehicleHal.get(metricsPropertyId)).thenReturn(metricsProperty);
 
         try (TemporaryFile dumpsysFile = new TemporaryFile("VmsHalServiceTest")) {
@@ -1103,14 +1130,22 @@ public class VmsHalServiceTest {
         verify(mVehicleHal).get(metricsPropertyId);
     }
 
-    private static VehiclePropValue createHalMessage(Integer... message) {
-        VehiclePropValue result = new VehiclePropValue();
-        result.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
-        result.value.int32Values.addAll(Arrays.asList(message));
+    private HalPropValue createHalMessage(Integer... message) {
+        HalPropValue result = mPropValueBuilder.build(VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, toIntArray(Arrays.asList(message)));
         return result;
     }
 
-    private void sendHalMessage(VehiclePropValue message) {
+    private HalPropValue createHalMessage(byte[] payload, Integer... message) {
+        HalPropValue result = mPropValueBuilder.build(
+                VehicleProperty.VEHICLE_MAP_SERVICE,
+                /*areaId=*/0, /*timestamp=*/0, /*status=*/0,
+                /*int32Values=*/toIntArray(Arrays.asList(message)), /*floatValues=*/new float[0],
+                /*int64Values=*/new long[0], /*stringValue=*/new String(), /*byteValues=*/payload);
+        return result;
+    }
+
+    private void sendHalMessage(HalPropValue message) {
         mHalService.onHalEvents(Collections.singletonList(message));
     }
 

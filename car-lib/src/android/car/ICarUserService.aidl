@@ -18,6 +18,7 @@ package android.car;
 
 import android.os.UserHandle;
 import android.car.user.UserCreationResult;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
@@ -27,13 +28,15 @@ import android.car.util.concurrent.AndroidFuture;
 
 /** @hide */
 interface ICarUserService {
-    void switchUser(int tagerUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void switchUser(int targetUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void logoutUser(int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
     void updatePreCreatedUsers();
     void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
-    void setLifecycleListenerForApp(String pkgName, in ICarResultReceiver listener);
+    void setLifecycleListenerForApp(String pkgName, in UserLifecycleEventFilter filter,
+      in ICarResultReceiver listener);
     void resetLifecycleListenerForApp(in ICarResultReceiver listener);
     UserIdentificationAssociationResponse getUserIdentificationAssociation(in int[] types);
     void setUserIdentificationAssociation(int timeoutMs, in int[] types, in int[] values,

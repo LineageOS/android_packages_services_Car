@@ -51,7 +51,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.JsonWriter;

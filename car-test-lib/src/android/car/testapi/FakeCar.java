@@ -16,6 +16,7 @@
 
 package android.car.testapi;
 
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.ICar;
 import android.car.ICarResultReceiver;
@@ -162,6 +163,7 @@ public class FakeCar {
         }
 
         @Override
+        @Nullable
         public IBinder getCarService(String serviceName) throws RemoteException {
             switch (serviceName) {
                 case Car.AUDIO_SERVICE:

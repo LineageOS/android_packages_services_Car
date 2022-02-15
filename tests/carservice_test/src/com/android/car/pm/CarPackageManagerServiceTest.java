@@ -27,7 +27,9 @@ import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.ActivityTaskManager;
 import android.app.AlertDialog;
+import android.app.IActivityTaskManager;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
@@ -74,6 +76,7 @@ public class CarPackageManagerServiceTest {
 
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarPackageManager mCarPackageManager;
+    private IActivityTaskManager mAtm;
 
     private UiDevice mDevice;
 
@@ -82,6 +85,7 @@ public class CarPackageManagerServiceTest {
 
     @Before
     public void setUp() throws Exception {
+        mAtm = ActivityTaskManager.getService();
         Car car = Car.createCar(getContext());
         mCarDrivingStateManager = (CarDrivingStateManager)
                 car.getCarManager(Car.CAR_DRIVING_STATE_SERVICE);
@@ -236,19 +240,70 @@ public class CarPackageManagerServiceTest {
                 UI_TIMEOUT_MS)).isNotNull();
     }
 
+    @Test
+    public void testIsActivityBackedBySafeActivity_notMoving_nonDoActivity_returnsTrue()
+            throws Exception {
+        setDrivingStateParked();
+
+        startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
+        assertActivityLaunched(NonDoActivity.class.getSimpleName());
+
+        ComponentName nonDoActivity = toComponentName(getTestContext(), NonDoActivity.class);
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isTrue();
+    }
+
+    @Test
+    public void testIsActivityBackedBySafeActivity_moving_rootNonDoActivity_returnsFalse()
+            throws Exception {
+        startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
+        assertBlockingActivityFound();
+
+        ComponentName nonDoActivity = toComponentName(getTestContext(), NonDoActivity.class);
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isFalse();
+    }
+
+    @Test
+    public void testIsActivityBackedBySafeActivity_moving_nonDoActivityBackedByDo_returnsTrue()
+            throws Exception {
+        startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO);
+        // DoActivity will launch NonDoActivity consecutively.
+        assertBlockingActivityFound();
+
+        ComponentName nonDoActivity = toComponentName(getTestContext(), NonDoActivity.class);
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(nonDoActivity)).isTrue();
+    }
+
+    @Test
+    public void testIsActivityBackedBySafeActivity_moving_doActivity_returnsFalse()
+            throws Exception {
+        startDoActivity(/* extra= */ null);
+        assertActivityLaunched(DoActivity.class.getSimpleName());
+
+        ComponentName doActivity = toComponentName(getTestContext(), DoActivity.class);
+        assertThat(mCarPackageManager.isActivityBackedBySafeActivity(doActivity)).isFalse();
+    }
+
     private void assertBlockingActivityNotFound() {
         assertThat(mDevice.wait(Until.gone(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
                 NOT_FOUND_UI_TIMEOUT_MS)).isNotNull();
     }
 
-    private void assertBlockingActivityFoundAndExit(String exitLabel) {
+    private void assertBlockingActivityFound() {
         assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
                 UI_TIMEOUT_MS)).isNotNull();
+    }
+
+    private void assertBlockingActivityFoundAndExit(String exitLabel) {
+        assertBlockingActivityFound();
         UiObject2 button = mDevice.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_EXIT_BUTTON_ID));
         // TODO(b/200948830): Make the test not to compare the text directly.
         assertThat(button.getText()).isEqualTo(exitLabel);
 
         button.click();
+    }
+
+    private void assertActivityLaunched(String title) {
+        assertThat(mDevice.wait(Until.findObject(By.text(title)), UI_TIMEOUT_MS)).isNotNull();
     }
 
     private void startActivity(ComponentName name) {

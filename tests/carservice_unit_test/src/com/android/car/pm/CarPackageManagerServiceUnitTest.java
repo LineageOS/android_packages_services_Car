@@ -16,6 +16,8 @@
 
 package com.android.car.pm;
 
+import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -23,7 +25,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
+import android.app.PendingIntent;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -33,13 +37,14 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarOccupantZoneService;
 import com.android.car.CarUxRestrictionsManagerService;
-import com.android.car.SystemActivityMonitoringService;
+import com.android.car.am.CarActivityService;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -55,9 +60,15 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     @Mock
     private CarUxRestrictionsManagerService mMockUxrService;
     @Mock
-    private SystemActivityMonitoringService mMockSamService;
+    private CarActivityService mMockActivityService;
     @Mock
     private CarOccupantZoneService mMockCarOccupantZoneService;
+    @Mock
+    private PendingIntent mMockPendingIntent;
+
+    public CarPackageManagerServiceUnitTest() {
+        super(CarPackageManagerService.TAG);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
@@ -69,7 +80,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
         mService = new CarPackageManagerService(mContext,
-                mMockUxrService, mMockSamService, mMockCarOccupantZoneService);
+                mMockUxrService, mMockActivityService, mMockCarOccupantZoneService);
     }
 
     @Test
@@ -132,6 +143,22 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThat(mService.callerCanQueryPackage(
                 "com.android.car.carservice_unittest")).isTrue();
+    }
+
+    @Test
+    public void testIsPendingIntentDistractionOptimised_withoutActivity() {
+        when(mMockPendingIntent.isActivity()).thenReturn(false);
+
+        assertThat(mService.isPendingIntentDistractionOptimized(mMockPendingIntent)).isFalse();
+    }
+
+    @Test
+    public void testIsPendingIntentDistractionOptimised_noIntentComponents() {
+        when(mMockPendingIntent.isActivity()).thenReturn(true);
+        when(mMockPendingIntent.queryIntentComponents(MATCH_DEFAULT_ONLY)).thenReturn(
+                new ArrayList<>());
+
+        assertThat(mService.isPendingIntentDistractionOptimized(mMockPendingIntent)).isFalse();
     }
 
     private void mockQueryPermission(boolean granted) {

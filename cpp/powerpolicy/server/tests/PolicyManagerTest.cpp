@@ -27,6 +27,9 @@ namespace frameworks {
 namespace automotive {
 namespace powerpolicy {
 
+using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
+using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
+
 using android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
 using tinyxml2::XML_SUCCESS;
 using tinyxml2::XMLDocument;
@@ -383,8 +386,8 @@ TEST_F(PolicyManagerTest, TestSystemPowerPolicyAllOn) {
     for (const auto& component : systemPolicyDefault->enabledComponents) {
         enabledComponentSet.insert(component);
     }
-    for (const auto component : enum_range<PowerComponent>()) {
-        ASSERT_GT(enabledComponentSet.count(component), 0);
+    for (const auto component : ::ndk::enum_range<PowerComponent>()) {
+        ASSERT_GT(enabledComponentSet.count(component), static_cast<size_t>(0));
         enabledComponentSet.erase(component);
     }
 

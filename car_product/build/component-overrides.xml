@@ -69,7 +69,7 @@
         <component class=".hfpclient.HeadsetClientService" enabled="true" />
 
         <!-- Controlled by hfp_client_connection_service_enabled -->
-        <component class=".hfpclient.connserv.HfpClientConnectionService" enabled="true" />
+        <component class=".hfpclient.HfpClientConnectionService" enabled="true" />
 
         <!-- Controlled by profile_supported_avrcp_controller -->
         <component class=".avrcpcontroller.AvrcpControllerService" enabled="true" />

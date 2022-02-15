@@ -24,7 +24,6 @@
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <android/automotive/watchdog/internal/UserState.h>
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <cutils/multiuser.h>
@@ -33,6 +32,9 @@
 #include <utils/String16.h>
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
+
+#include <IVhalClient.h>
+#include <VehicleHalTypes.h>
 
 #include <unordered_map>
 #include <unordered_set>
@@ -145,32 +147,18 @@ private:
         android::sp<WatchdogProcessService> mService;
     };
 
-    class HidlDeathRecipient : public android::hardware::hidl_death_recipient {
-    public:
-        explicit HidlDeathRecipient(const android::sp<WatchdogProcessService>& service);
-
-        void serviceDied(uint64_t cookie,
-                         const android::wp<android::hidl::base::V1_0::IBase>& who) override;
-
-    private:
-        android::sp<WatchdogProcessService> mService;
-    };
-
-    class PropertyChangeListener :
-          public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
+    class PropertyChangeListener final :
+          public android::frameworks::automotive::vhal::ISubscriptionCallback {
     public:
         explicit PropertyChangeListener(const android::sp<WatchdogProcessService>& service);
 
-        android::hardware::Return<void> onPropertyEvent(
-                const android::hardware::hidl_vec<
-                        android::hardware::automotive::vehicle::V2_0::VehiclePropValue>& propValues)
+        void onPropertyEvent(const std::vector<
+                             std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>&
+                                     values) override;
+
+        void onPropertySetError(
+                const std::vector<android::frameworks::automotive::vhal::HalPropError>& errors)
                 override;
-        android::hardware::Return<void> onPropertySet(
-                const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue)
-                override;
-        android::hardware::Return<void> onPropertySetError(
-                android::hardware::automotive::vehicle::V2_0::StatusCode errorCode, int32_t propId,
-                int32_t areaId) override;
 
     private:
         android::sp<WatchdogProcessService> mService;
@@ -200,17 +188,17 @@ private:
             const std::vector<int32_t>& processesNotResponding, bool reportToVhal);
     int32_t getNewSessionId();
     android::base::Result<void> updateVhal(
-            const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& value);
+            const aidl::android::hardware::automotive::vehicle::VehiclePropValue& value);
     android::base::Result<void> connectToVhalLocked();
     void subscribeToVhalHeartBeatLocked();
     void reportWatchdogAliveToVhal();
     void reportTerminatedProcessToVhal(const std::vector<int32_t>& processesNotResponding);
     android::base::Result<std::string> readProcCmdLine(int32_t pid);
     void handleBinderDeath(const android::wp<android::IBinder>& who);
-    void handleHidlDeath(const android::wp<android::hidl::base::V1_0::IBase>& who);
+    void handleVhalDeath();
     void queryVhalPropertiesLocked();
     bool isVhalPropertySupportedLocked(
-            android::hardware::automotive::vehicle::V2_0::VehicleProperty propId);
+            aidl::android::hardware::automotive::vehicle::VehicleProperty propId);
     void updateVhalHeartBeat(int64_t value);
     void checkVhalHealth();
     void terminateVhal();
@@ -226,6 +214,17 @@ private:
 private:
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    std::unordered_set<aidl::android::hardware::automotive::vehicle::VehicleProperty>
+            mNotSupportedVhalProperties;
+    std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
+    // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.
+    int32_t mLastSessionId;
+    bool mServiceStarted;
+    std::chrono::milliseconds mVhalHealthCheckWindowMs;
+    std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
+            mOnBinderDiedCallback;
+
     android::Mutex mMutex;
     std::unordered_map<TimeoutLength, std::vector<ClientInfo>> mClients GUARDED_BY(mMutex);
     std::unordered_map<TimeoutLength, PingedClientMap> mPingedClients GUARDED_BY(mMutex);
@@ -233,18 +232,9 @@ private:
     android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor> mMonitor
             GUARDED_BY(mMutex);
     bool mIsEnabled GUARDED_BY(mMutex);
-    // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.
-    int32_t mLastSessionId;
-    bool mServiceStarted;
-    android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> mVhalService
+    std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVhalService
             GUARDED_BY(mMutex);
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
-    android::sp<HidlDeathRecipient> mHidlDeathRecipient;
-    std::unordered_set<android::hardware::automotive::vehicle::V2_0::VehicleProperty>
-            mNotSupportedVhalProperties;
-    android::sp<PropertyChangeListener> mPropertyChangeListener;
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
-    std::chrono::milliseconds mVhalHealthCheckWindowMs;
     android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper GUARDED_BY(mMutex);
 };
 

@@ -261,8 +261,8 @@ TEST(ProcStatTest, TestProcStatContentsFromDevice) {
     /* The below checks should pass because the /proc/stats file should have the CPU time spent
      * since bootup and there should be at least one running process.
      */
-    EXPECT_GT(info.totalCpuTime(), 0);
-    EXPECT_GT(info.totalProcessCount(), 0);
+    EXPECT_GT(info.totalCpuTime(), static_cast<uint64_t>(0));
+    EXPECT_GT(info.totalProcessCount(), static_cast<uint32_t>(0));
 }
 
 }  // namespace watchdog

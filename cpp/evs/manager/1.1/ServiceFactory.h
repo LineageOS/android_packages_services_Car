@@ -26,7 +26,7 @@ class ServiceFactory {
 public:
     virtual ~ServiceFactory() = default;
 
-    virtual sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator> getService() = 0;
+    virtual ::android::hardware::automotive::evs::V1_1::IEvsEnumerator* getService() = 0;
 };
 
 }  // namespace android::automotive::evs::V1_1::implementation

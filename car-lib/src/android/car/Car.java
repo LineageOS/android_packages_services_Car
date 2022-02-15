@@ -55,10 +55,12 @@ import android.car.media.CarMediaIntents;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
+import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
+import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
@@ -106,7 +108,8 @@ public final class Car {
      *  should check both this and {@link android.os.Build.VERSION#SDK_INT} before using
      *  an API added in a specific car API version.
      */
-    public static final int API_VERSION_MAJOR_INT = 31;
+    // TODO(b/214103007): Update this before T release.
+    public static final int API_VERSION_MAJOR_INT = 32;
 
     /**
      * Represents a minor version change for the same {@link #API_VERSION_MAJOR_INT}.
@@ -201,6 +204,14 @@ public final class Car {
     @SystemApi
     @TestApi
     public static final String CAR_USER_SERVICE = "car_user_service";
+
+    /**
+     * Service name for {@link ExperimentalCarUserManager}
+     *
+     * @hide
+     */
+    @OptionalFeature
+    public static final String EXPERIMENTAL_CAR_USER_SERVICE = "experimental_car_user_service";
 
     /**
      * Service name for {@link CarDevicePolicyManager}
@@ -349,6 +360,15 @@ public final class Car {
     public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
 
     /**
+     * Service name for {@link android.car.os.CarPerformanceManager}
+     *
+     * @hide
+     */
+    @MandatoryFeature
+    @SystemApi
+    public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
+
+    /**
      * @hide
      */
     @MandatoryFeature
@@ -386,6 +406,7 @@ public final class Car {
      */
     @OptionalFeature
     @SystemApi
+    @TestApi
     public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
 
     /**
@@ -405,6 +426,10 @@ public final class Car {
 
     /** Permission necessary to access car's energy information. */
     public static final String PERMISSION_ENERGY = "android.car.permission.CAR_ENERGY";
+
+    /** Permission necessary to control car's EV charge settings. */
+    public static final String PERMISSION_CONTROL_CAR_ENERGY =
+            "android.car.permission.CONTROL_CAR_ENERGY";
 
     /**
      * Permission necessary to change value of car's range remaining.
@@ -527,6 +552,10 @@ public final class Car {
 
     /** Permission necessary to use {@link CarInfoManager}. */
     public static final String PERMISSION_CAR_INFO = "android.car.permission.CAR_INFO";
+
+    /** Permission necessary to access privileged car info. */
+    public static final String PERMISSION_PRIVILEGED_CAR_INFO =
+            "android.car.permission.PRIVILEGED_CAR_INFO";
 
     /**
      * Permission necessary to read information of vendor properties' permissions.
@@ -666,6 +695,14 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_CONTROL_CAR_POWER_POLICY =
             "android.car.permission.CONTROL_CAR_POWER_POLICY";
+
+    /**
+     * Permission necessary to adjust the shutdown process.
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS =
+            "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
 
     /**
      * Permission necessary to access Car PROJECTION system APIs.
@@ -904,6 +941,15 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS =
             "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
+
+    /**
+     * Permission necessary to fetch car CPU information.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_COLLECT_CAR_CPU_INFO =
+            "android.car.permission.COLLECT_CAR_CPU_INFO";
 
     /**
      * Permission necessary to control launching applications in Car.
@@ -1253,8 +1299,9 @@ public final class Car {
      * <p>Instance created with this should be disconnected from car service by calling
      * {@link #disconnect()} before the passed {code Context} is released.
      *
-     * @param context App's Context. This should not be null. If you are passing
-     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
+     *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
+     *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param serviceConnectionListener listener for monitoring service connection.
      * @param handler the handler on which the callback should execute, or null to execute on the
@@ -1318,8 +1365,9 @@ public final class Car {
      * <p>Instance created with this should be disconnected from car service by calling
      * {@link #disconnect()} before the passed {code Context} is released.
      *
-     * @param context App's Context. This should not be null. If you are passing
-     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
+     *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
+     *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param handler the handler on which the manager's callbacks will be executed, or null to
      * execute on the application's main thread.
@@ -1409,8 +1457,9 @@ public final class Car {
      * {@link CarServiceLifecycleListener#onLifecycleChanged(Car, boolean)} and avoid the
      * needs to check if returned {@link Car} is connected or not from returned {@link Car}.</p>
      *
-     * @param context App's Context. This should not be null. If you are passing
-     *                {@link ContextWrapper}, make sure that its base Context is non-null as well.
+     * @param context This should not be {@code null}. If you are passing {@link ContextWrapper},
+     *                make sure that its {@link ContextWrapper#getBaseContext() base context} is not
+     *                {@code null} as well.
      *                Otherwise it will throw {@link java.lang.NullPointerException}.
      * @param handler dispatches all Car*Manager events to this Handler. Exception is
      *                {@link CarServiceLifecycleListener} which will be always dispatched to main
@@ -2005,8 +2054,14 @@ public final class Car {
             case CAR_USER_SERVICE:
                 manager = new CarUserManager(this, binder);
                 break;
+            case EXPERIMENTAL_CAR_USER_SERVICE:
+                manager = new ExperimentalCarUserManager(this, binder);
+                break;
             case CAR_WATCHDOG_SERVICE:
                 manager = new CarWatchdogManager(this, binder);
+                break;
+            case CAR_PERFORMANCE_SERVICE:
+                manager = new CarPerformanceManager(this, binder);
                 break;
             case CAR_INPUT_SERVICE:
                 manager = new CarInputManager(this, binder);

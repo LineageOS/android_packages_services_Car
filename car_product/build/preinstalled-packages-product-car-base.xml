@@ -30,12 +30,6 @@
         <install-in user-type="SYSTEM"/>
     </install-in-user-type>
 
-    <!-- Failed to complete CtsShortcutHostTestCases if LocalTransport is not
-    installed for system user  -->
-    <install-in-user-type package="com.android.localtransport">
-        <install-in user-type="SYSTEM" />
-    </install-in-user-type>
-
     <!-- This package is required for system user to test cluster_home_service -->
     <install-in-user-type package="com.android.car.cluster.home">
         <install-in user-type="SYSTEM" />
@@ -64,6 +58,12 @@
   Here the apps will have FULL and SYSTEM.
 -->
     <install-in-user-type package="android">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+    <!-- Failed to complete CtsShortcutHostTestCases if LocalTransport is not
+    installed for system user  -->
+    <install-in-user-type package="com.android.localtransport">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
@@ -231,6 +231,24 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Required to initialize the Safety Center service -->
+    <install-in-user-type package="com.android.safetycenter.resources">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
+    <!-- Needs to run CarEvsCameraPreviewActivity for all users -->
+    <install-in-user-type package="com.google.android.car.evs">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
+    <!-- CarService updatable resources -->
+    <install-in-user-type package="com.android.car.resources.vendor">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
 <!--
   Apps that do need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL only.
@@ -340,6 +358,9 @@
     <install-in-user-type package="com.android.hotspot2.osulogin">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <install-in-user-type package="com.android.wifi.dialog">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
     <install-in-user-type package="com.android.permissioncontroller.car.rro">
         <install-in user-type="FULL" />
     </install-in-user-type>
@@ -351,6 +372,15 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.supplemental.process">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.nearby.halfsheet">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <install-in-user-type package="com.google.android.car.evs">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.auxiliary.service">
         <install-in user-type="FULL" />
     </install-in-user-type>
 </config>

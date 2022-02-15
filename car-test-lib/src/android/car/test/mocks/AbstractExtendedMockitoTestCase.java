@@ -37,6 +37,7 @@ import android.os.HandlerThread;
 import android.os.Trace;
 import android.os.UserManager;
 import android.provider.Settings;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.Slog;
 import android.util.TimingsTraceLog;
@@ -60,8 +61,10 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -90,7 +93,17 @@ public abstract class AbstractExtendedMockitoTestCase {
     private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
 
     private static final boolean TRACE = false;
-    private static final boolean VERBOSE = false;
+
+    @SuppressWarnings("IsLoggableTagLength")
+    private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
+
+    /**
+     * Should be used on constructors for test case whose object under test doesn't make any logging
+     * call.
+     */
+    protected static final String[] NO_LOG_TAGS = new String[] {
+            "I can't believe a test case is using this String as a log TAG! Well done!"
+    };
 
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
 
@@ -103,10 +116,46 @@ public abstract class AbstractExtendedMockitoTestCase {
     @Nullable
     private final TimingsTraceLog mTracer;
 
+    @Nullable
+    private final ArraySet<String> mLogTags;
+
     @Rule
     public final WtfCheckerRule mWtfCheckerRule = new WtfCheckerRule();
 
+    /**
+     * TODO(b/213923408): remove this constructor
+     *
+     * @deprecated must pass explicitly log tags (or call {@code super(NO_LOG_TAGS)}).
+     */
+    @Deprecated
     protected AbstractExtendedMockitoTestCase() {
+        this(NO_LOG_TAGS);
+    }
+
+    /**
+     * Default constructor.
+     *
+     * @param logTags tags to be checked for issues (like {@code wtf()} calls); use
+     * {@link #NO_LOG_TAGS} when object under test doesn't log anything.
+     */
+    protected AbstractExtendedMockitoTestCase(String... logTags) {
+        Objects.requireNonNull(logTags, "logTags cannot be null");
+
+        String prefix = getClass().getSimpleName();
+        if (Arrays.equals(logTags, NO_LOG_TAGS)) {
+            if (VERBOSE) {
+                Log.v(TAG, prefix + ": not checking for wtf logs");
+            }
+            mLogTags = null;
+        } else {
+            if (VERBOSE) {
+                Log.v(TAG, prefix + ": checking for wtf calls on tags " + Arrays.toString(logTags));
+            }
+            mLogTags = new ArraySet<>(logTags.length);
+            for (String logTag: logTags) {
+                mLogTags.add(logTag);
+            }
+        }
         mTracer = TRACE ? new TimingsTraceLog(TAG, Trace.TRACE_TAG_APP) : null;
     }
 
@@ -160,7 +209,9 @@ public abstract class AbstractExtendedMockitoTestCase {
             }
         }
         ArrayList<SyncRunnable> syncs = new ArrayList<>(handlerThreads.size());
-        Log.i(TAG, "will wait for " + handlerThreads.size() + " HandlerThreads");
+        if (VERBOSE) {
+            Log.v(TAG, "will wait for " + handlerThreads.size() + " HandlerThreads");
+        }
         for (int i = 0; i < handlerThreads.size(); i++) {
             Handler handler = new Handler(handlerThreads.get(i).getLooper());
             SyncRunnable sr = new SyncRunnable(() -> { });
@@ -328,7 +379,12 @@ public abstract class AbstractExtendedMockitoTestCase {
     private Object addWtf(InvocationOnMock invocation) {
         String message = "Called " + invocation;
         Log.d(TAG, message); // Log always, as some test expect it
-        mWtfs.add(new IllegalStateException(message));
+        String actualTag = (String) invocation.getArguments()[0];
+        if (mLogTags != null && mLogTags.contains(actualTag)) {
+            mWtfs.add(new IllegalStateException(message));
+        } else if (VERBOSE) {
+            Log.v(TAG, "ignoring WTF invocation on tag " + actualTag);
+        }
         return null;
     }
 
@@ -426,13 +482,17 @@ public abstract class AbstractExtendedMockitoTestCase {
                 public void evaluate() throws Throwable {
                     String testName = description.getMethodName();
                     if (VERBOSE) Log.v(TAG, "running " + testName);
-                    beginTrace("evaluate-" + testName);
-                    base.evaluate();
-                    endTrace();
 
                     Method testMethod = AbstractExtendedMockitoTestCase.this.getClass()
                             .getMethod(testName);
                     ExpectWtf expectWtfAnnotation = testMethod.getAnnotation(ExpectWtf.class);
+                    Preconditions.checkState(expectWtfAnnotation == null || mLogTags != null,
+                            "Must call constructor that pass logTags on %s to use @%s",
+                            description.getTestClass(), ExpectWtf.class.getSimpleName());
+
+                    beginTrace("evaluate-" + testName);
+                    base.evaluate();
+                    endTrace();
 
                     beginTrace("verify-wtfs");
                     try {

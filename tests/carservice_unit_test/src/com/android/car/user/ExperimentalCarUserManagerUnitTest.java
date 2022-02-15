@@ -59,6 +59,10 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
     private ExperimentalCarUserManager mManager;
 
+    public ExperimentalCarUserManagerUnitTest() {
+        super(ExperimentalCarUserManager.TAG);
+    }
+
     @Before public void setFixtures() {
         mManager = new ExperimentalCarUserManager(mCar, mService);
     }
@@ -71,7 +75,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
         AndroidFuture<UserCreationResult> future = mManager.createDriver(name, true);
 
-        UserCreationResult result = getResult(future);
+        UserCreationResult result = getCreateDriverResult(future);
         assertThat(result.getErrorMessage()).isNull();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
         assertThat(result.getUser().getIdentifier()).isEqualTo(userId);
@@ -85,7 +89,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
         AndroidFuture<UserCreationResult> future = mManager.createDriver(name, false);
 
-        UserCreationResult result = getResult(future);
+        UserCreationResult result = getCreateDriverResult(future);
         assertThat(result.getErrorMessage()).isNull();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
         assertThat(result.getUser().getIdentifier()).isEqualTo(userId);
@@ -98,7 +102,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
         AndroidFuture<UserCreationResult> future = mManager.createDriver("test driver", false);
 
         assertThat(future).isNotNull();
-        UserCreationResult result = getResult(future);
+        UserCreationResult result = getCreateDriverResult(future);
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
     }
 
@@ -120,7 +124,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
     public void testSwitchDriver_Success() throws Exception {
         expectSwitchDriverSucceed(10);
         AndroidFuture<UserSwitchResult> future = mManager.switchDriver(10);
-        UserSwitchResult result = getResult(future);
+        UserSwitchResult result = getSwitchDriverResult(future);
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
     }
 
@@ -129,7 +133,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
         expectSwitchDriverFail(20);
         AndroidFuture<UserSwitchResult> future = mManager.switchDriver(20);
         assertThat(future).isNotNull();
-        UserSwitchResult result = getResult(future);
+        UserSwitchResult result = getSwitchDriverResult(future);
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
     }
 
@@ -192,7 +196,7 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
     private void expectCreateDriverSucceed(String name, @UserIdInt int userId) throws Exception {
         AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
         future.complete(new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL,
-                UserTestingHelper.newUser(userId).getUserHandle(), null));
+                UserTestingHelper.newUser(userId).getUserHandle()));
         when(mService.createDriver(eq(name), anyBoolean())).thenReturn(future);
     }
 
@@ -239,5 +243,13 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
     private void expectStopPassengerFail() throws Exception {
         when(mService.stopPassenger(200)).thenReturn(false);
+    }
+
+    private UserCreationResult getCreateDriverResult(AndroidFuture<UserCreationResult> future) {
+        return getResult(future, "create driver");
+    }
+
+    private UserSwitchResult getSwitchDriverResult(AndroidFuture<UserSwitchResult> future) {
+        return getResult(future, "switch driver");
     }
 }

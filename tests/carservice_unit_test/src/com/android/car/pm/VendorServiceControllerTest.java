@@ -102,6 +102,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     private CarUserService mCarUserService;
     private VendorServiceController mController;
 
+    public VendorServiceControllerTest() {
+        super(VendorServiceController.TAG);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {

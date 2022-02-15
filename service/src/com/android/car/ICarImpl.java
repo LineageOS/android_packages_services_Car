@@ -29,6 +29,7 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.ICarResultReceiver;
+import android.car.builtin.CarBuiltin;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
@@ -42,9 +43,9 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -63,11 +64,13 @@ import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
+import com.android.car.hal.HalPropValue;
 import com.android.car.hal.VehicleHal;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.stats.CarStatsService;
@@ -82,6 +85,7 @@ import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.File;
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -94,6 +98,9 @@ public class ICarImpl extends ICar.Stub {
     public static final String INTERNAL_INPUT_SERVICE = "internal_input";
     public static final String INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE =
             "system_activity_monitoring";
+
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(ICarImpl.class);
 
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
@@ -136,6 +143,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarStatsService mCarStatsService;
     private final CarExperimentalFeatureServiceController mCarExperimentalFeatureServiceController;
     private final CarWatchdogService mCarWatchdogService;
+    private final CarPerformanceService mCarPerformanceService;
     private final CarDevicePolicyService mCarDevicePolicyService;
     private final ClusterHomeService mClusterHomeService;
     private final CarEvsService mCarEvsService;
@@ -143,8 +151,6 @@ public class ICarImpl extends ICar.Stub {
     private final CarActivityService mCarActivityService;
 
     private final CarServiceBase[] mAllServices;
-
-    private static final String TAG = CarLog.tagFor(ICarImpl.class);
 
     private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
 
@@ -171,7 +177,8 @@ public class ICarImpl extends ICar.Stub {
             SystemInterface systemInterface, String vehicleInterfaceName) {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
-                /* garageModeService= */ null, /* powerPolicyDaemon= */ null);
+                /* carPerformanceService= */ null, /* garageModeService= */ null,
+                /* powerPolicyDaemon= */ null);
     }
 
     @VisibleForTesting
@@ -179,6 +186,7 @@ public class ICarImpl extends ICar.Stub {
             SystemInterface systemInterface, String vehicleInterfaceName,
             @Nullable CarUserService carUserService,
             @Nullable CarWatchdogService carWatchdogService,
+            @Nullable CarPerformanceService carPerformanceService,
             @Nullable GarageModeService garageModeService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
@@ -200,13 +208,13 @@ public class ICarImpl extends ICar.Stub {
         t.traceBegin("VHAL.earlyInit");
         // Do this before any other service components to allow feature check. It should work
         // even without init. For that, vhal get is retried as it can be too early.
-        VehiclePropValue disabledOptionalFeatureValue = mHal.getIfAvailableOrFailForEarlyStage(
+        HalPropValue disabledOptionalFeatureValue = mHal.getIfAvailableOrFailForEarlyStage(
                 VehicleProperty.DISABLED_OPTIONAL_FEATURES, INITIAL_VHAL_GET_RETRY);
         t.traceEnd();
 
         String[] disabledFeaturesFromVhal = null;
         if (disabledOptionalFeatureValue != null) {
-            String disabledFeatures = disabledOptionalFeatureValue.value.stringValue;
+            String disabledFeatures = disabledOptionalFeatureValue.getStringValue();
             if (disabledFeatures != null && !disabledFeatures.isEmpty()) {
                 disabledFeaturesFromVhal = disabledFeatures.split(",");
             }
@@ -244,11 +252,14 @@ public class ICarImpl extends ICar.Stub {
                             ActivityManagerHelper.getInstance(), maxRunningUsers,
                             mCarUXRestrictionsService));
         }
-        // TODO(b/172262561) Do not set experimental service if the feature is not enabled.
-        mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
-                () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
-                        serviceContext.getSystemService(UserManager.class),
-                        ActivityManagerHelper.getInstance()));
+        if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
+            mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
+                    () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
+                            serviceContext.getSystemService(UserManager.class),
+                            ActivityManagerHelper.getInstance()));
+        } else {
+            mExperimentalCarUserService = null;
+        }
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
                 () -> new SystemActivityMonitoringService(serviceContext));
@@ -268,9 +279,11 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mOccupantAwarenessService = null;
         }
+        mCarActivityService = constructWithTrace(t, CarActivityService.class,
+                () -> new CarActivityService(serviceContext));
         mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
                 () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
-                        mSystemActivityMonitoringService, mCarOccupantZoneService));
+                        mCarActivityService, mCarOccupantZoneService));
         mPerUserCarServiceHelper = constructWithTrace(
                 t, PerUserCarServiceHelper.class,
                 () -> new PerUserCarServiceHelper(serviceContext, mCarUserService));
@@ -294,8 +307,8 @@ public class ICarImpl extends ICar.Stub {
                 () -> new CarAudioService(serviceContext));
         mCarNightService = constructWithTrace(t, CarNightService.class,
                 () -> new CarNightService(serviceContext, mCarPropertyService));
-        mFixedActivityService = constructWithTrace(
-                t, FixedActivityService.class, () -> new FixedActivityService(serviceContext));
+        mFixedActivityService = constructWithTrace(t, FixedActivityService.class,
+                () -> new FixedActivityService(serviceContext, mCarActivityService));
         mClusterNavigationService = constructWithTrace(
                 t, ClusterNavigationService.class,
                 () -> new ClusterNavigationService(serviceContext, mAppFocusService));
@@ -352,6 +365,12 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarWatchdogService = carWatchdogService;
         }
+        if (carPerformanceService == null) {
+            mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
+                    () -> new CarPerformanceService(serviceContext));
+        } else {
+            mCarPerformanceService = carPerformanceService;
+        }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
                         mCarServiceBuiltinPackageContext, mCarUserService));
@@ -371,7 +390,8 @@ public class ICarImpl extends ICar.Stub {
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_EVS_SERVICE)) {
             mCarEvsService = constructWithTrace(t, CarEvsService.class,
-                    () -> new CarEvsService(serviceContext, mHal.getEvsHal(), mCarPropertyService));
+                    () -> new CarEvsService(serviceContext, mCarServiceBuiltinPackageContext,
+                            mHal.getEvsHal(), mCarPropertyService));
         } else {
             mCarEvsService = null;
         }
@@ -381,8 +401,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarTelemetryService = null;
         }
-        mCarActivityService = constructWithTrace(t, CarActivityService.class,
-                () -> new CarActivityService(serviceContext));
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -390,7 +408,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarOccupantZoneService);
         allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
-        allServices.add(mExperimentalCarUserService);
+        addServiceIfNonNull(allServices, mExperimentalCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
         allServices.add(mCarPropertyService);
@@ -416,6 +434,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarLocationService);
         allServices.add(mCarBugreportManagerService);
         allServices.add(mCarWatchdogService);
+        allServices.add(mCarPerformanceService);
         allServices.add(mCarDevicePolicyService);
         addServiceIfNonNull(allServices, mClusterHomeService);
         addServiceIfNonNull(allServices, mCarEvsService);
@@ -533,6 +552,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    @Nullable
     public String getCarManagerClassForFeature(String featureName) {
         if (mCarExperimentalFeatureServiceController == null) {
             return null;
@@ -548,6 +568,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    @Nullable
     public IBinder getCarService(String serviceName) {
         if (!mFeatureController.isFeatureEnabled(serviceName)) {
             Slogf.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);
@@ -613,8 +634,12 @@ public class ICarImpl extends ICar.Stub {
                 return mCarBugreportManagerService;
             case Car.CAR_USER_SERVICE:
                 return mCarUserService;
+            case Car.EXPERIMENTAL_CAR_USER_SERVICE:
+                return mExperimentalCarUserService;
             case Car.CAR_WATCHDOG_SERVICE:
                 return mCarWatchdogService;
+            case Car.CAR_PERFORMANCE_SERVICE:
+                return mCarPerformanceService;
             case Car.CAR_INPUT_SERVICE:
                 return mCarInputService;
             case Car.CAR_DEVICE_POLICY_SERVICE:
@@ -666,10 +691,14 @@ public class ICarImpl extends ICar.Stub {
     private void dumpIndenting(FileDescriptor fd, IndentingPrintWriter writer, String[] args) {
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
+            dumpVersions(writer);
             dumpAllServices(writer);
             dumpAllHals(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
+            return;
+        } else if ("--version".equals(args[0])) {
+            dumpVersions(writer);
             return;
         } else if ("--services".equals(args[0])) {
             if (args.length < 2) {
@@ -700,11 +729,49 @@ public class ICarImpl extends ICar.Stub {
         } else if ("--list-hals".equals(args[0])) {
             mHal.dumpListHals(writer);
             return;
+        } else if ("--data-dir".equals(args[0])) {
+            dumpDataDir(writer);
+            return;
         } else if ("--help".equals(args[0])) {
             showDumpHelp(writer);
         } else {
             execShellCmd(args, writer);
         }
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpVersions(IndentingPrintWriter writer) {
+        writer.println("*Dump versions*");
+        writer.println("Android SDK_INT:" + Build.VERSION.SDK_INT);
+        writer.println("Car API major:" + Car.API_VERSION_MAJOR_INT);
+        writer.println("Car API minor:" + Car.API_VERSION_MINOR_INT);
+        writer.println("CarBuiltin API minor:" + CarBuiltin.API_VERSION_MINOR_INT);
+        writer.println("CarServiceBuiltin minor:"
+                + BuiltinPackageDependency.getBuiltinServiceMinorVersion(
+                mCarServiceBuiltinPackageContext));
+        String helperMinorString = "CarServiceHelper minor:";
+        int helperServiceMinorVersion = getHelperServiceBuiltinMinorVersion();
+        if (helperServiceMinorVersion < 0) {
+            writer.println(helperMinorString + "not available yet");
+        } else {
+            writer.println(helperMinorString + helperServiceMinorVersion);
+        }
+    }
+
+    private int getHelperServiceBuiltinMinorVersion() {
+        ICarServiceHelper helper;
+        synchronized (mLock) {
+            helper = mICarServiceHelper;
+        }
+        int helperBuiltinMinor = -1;
+        if (helper != null) {
+            try {
+                helperBuiltinMinor = helper.getServiceHelperBuiltinMinorVersion();
+            } catch (RemoteException e) {
+                Slogf.e(CarLog.TAG_SERVICE, "system server crashed?");
+            }
+        }
+        return helperBuiltinMinor;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -727,6 +794,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  dumps everything (all services and HALs)");
         writer.println("--help");
         writer.println("\t  shows this help");
+        writer.println("--version");
+        writer.println("\t  shows the version of all car components");
         writer.println("--list");
         writer.println("\t  lists the name of all services");
         writer.println("--list-hals");
@@ -740,14 +809,22 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  dumps just the specified HALs (or all of them if none specified),");
         writer.println("\t  where HAL is just the class name (like UserHalService)");
         writer.println("--user-metrics");
-        writer.println("\t  dumps user switching and stopping metrics ");
+        writer.println("\t  dumps user switching and stopping metrics");
         writer.println("--first-user-metrics");
         writer.println("\t  dumps how long it took to unlock first user since Android started\n");
         writer.println("\t  (or -1 if not unlocked)");
+        writer.println("--data-dir");
+        writer.println("\t  dumps CarService data dir (and whether it exists)");
         writer.println("-h");
         writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
         writer.println("[ANYTHING ELSE]");
         writer.println("\t  runs the given command (use --h to see the available commands)");
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    private void dumpDataDir(IndentingPrintWriter writer) {
+        File dataDir = mContext.getDataDir();
+        writer.printf("Data dir: %s Exists: %b\n", dataDir.getAbsolutePath(), dataDir.exists());
     }
 
     @Override
@@ -765,7 +842,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarProjectionService, mCarPowerManagementService, mFixedActivityService,
                 mFeatureController, mCarInputService, mCarNightService, mSystemInterface,
                 mGarageModeService, mCarUserService, mCarOccupantZoneService, mCarEvsService,
-                mCarWatchdogService);
+                mCarWatchdogService, mCarTelemetryService);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

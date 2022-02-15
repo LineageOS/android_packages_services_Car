@@ -18,9 +18,12 @@
 #define CPP_EVS_MANAGER_1_1_ENUMERATOR_H_
 
 #include "HalCamera.h"
+#include "IEnumeratorManager.h"
+#include "IPermissionsChecker.h"
 #include "ServiceFactory.h"
 #include "VirtualCamera.h"
 #include "emul/EvsEmulatedCamera.h"
+#include "stats/IStatsCollector.h"
 #include "stats/StatsCollector.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
@@ -39,27 +42,31 @@ namespace android::automotive::evs::V1_1::implementation {
 class ProdServiceFactory : public ServiceFactory {
 public:
     explicit ProdServiceFactory(const char* hardwareServiceName) :
-          mHardwareServiceName(hardwareServiceName) {}
+          mService(IEvsEnumerator::getService(hardwareServiceName)) {}
     virtual ~ProdServiceFactory() = default;
 
-    sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator> getService() override {
-        return IEvsEnumerator::getService(mHardwareServiceName.data());
+    ::android::hardware::automotive::evs::V1_1::IEvsEnumerator* getService() override {
+        return mService.get();
     }
 
-    const std::string mHardwareServiceName;
+private:
+    sp<::android::hardware::automotive::evs::V1_1::IEvsEnumerator> mService;
 };
 
 class Enumerator : public IEvsEnumerator {
 public:
-    explicit Enumerator(const char* hardwareServiceName) :
-          mServiceFactory(new ProdServiceFactory(hardwareServiceName)) {}
-
-    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory) :
-          mServiceFactory(std::move(serviceFactory)) {}
+    // For testing.
+    explicit Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
+                        std::unique_ptr<IStatsCollector> statsCollector,
+                        std::unique_ptr<IPermissionsChecker> permissionChecker);
 
     static std::unique_ptr<Enumerator> build(const char* hardwareServiceName);
+    static std::unique_ptr<Enumerator> build(
+            std::unique_ptr<ServiceFactory> serviceFactory,
+            std::unique_ptr<IStatsCollector> statsCollector,
+            std::unique_ptr<IPermissionsChecker> permissionChecker);
 
-    virtual ~Enumerator();
+    virtual ~Enumerator() = default;
 
     // Methods from hardware::automotive::evs::V1_0::IEvsEnumerator follow.
     hardware::Return<void> getCameraList(getCameraList_cb _hidl_cb) override;
@@ -92,16 +99,14 @@ public:
     hardware::Return<void> debug(const hardware::hidl_handle& fd,
                                  const hidl_vec<hardware::hidl_string>& options) override;
 
-    bool init(const char* hardwareServiceName);
-
 private:
-    bool inline checkPermission();
     bool isLogicalCamera(const camera_metadata_t* metadata);
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& id);
 
     const std::unique_ptr<ServiceFactory> mServiceFactory;
+    const std::unique_ptr<IStatsCollector> mStatsCollector;
+    const std::unique_ptr<IPermissionsChecker> mPermissionChecker;
 
-    sp<hardware::automotive::evs::V1_1::IEvsEnumerator> mHwEnumerator;
     wp<hardware::automotive::evs::V1_0::IEvsDisplay> mActiveDisplay;
 
     // List of active camera proxy objects that wrap hw cameras
@@ -116,14 +121,11 @@ private:
     // Display port the internal display is connected to.
     uint8_t mInternalDisplayPort;
 
-    // Collecting camera usage statistics from clients
-    sp<StatsCollector> mClientsMonitor;
+    // Boolean flag to tell whether the camera usages are being monitored or not.
+    bool mMonitorEnabled = false;
 
-    // Boolean flag to tell whether the camera usages are being monitored or not
-    bool mMonitorEnabled;
-
-    // Boolean flag to tell whether EvsDisplay is owned exclusively or not
-    bool mDisplayOwnedExclusively;
+    // Boolean flag to tell whether EvsDisplay is owned exclusively or not.
+    bool mDisplayOwnedExclusively = false;
 
     // LSHAL dump
     void cmdDump(int fd, const hidl_vec<hardware::hidl_string>& options);

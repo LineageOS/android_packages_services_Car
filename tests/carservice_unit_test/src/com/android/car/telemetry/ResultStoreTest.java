@@ -19,7 +19,6 @@ package com.android.car.telemetry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.car.telemetry.MetricsConfigKey;
 import android.os.PersistableBundle;
 
 import org.junit.Before;
@@ -182,6 +181,27 @@ public class ResultStoreTest {
     }
 
     @Test
+    public void testGetFinalResults_whenHasData_shouldReturnMapWithBundle() throws Exception {
+        writeBundleToFile(mTestFinalResultDir, "my_metrics_config", TEST_FINAL_BUNDLE);
+
+        assertThat(mResultStore.getFinalResults().get("my_metrics_config").toString())
+                .isEqualTo(TEST_FINAL_BUNDLE.toString());
+    }
+
+    @Test
+    public void testGetFinalResults_whenNoData_shouldReceiveEmptyMap() throws Exception {
+        assertThat(mResultStore.getFinalResults()).isEmpty();
+    }
+
+    @Test
+    public void testGetFinalResults_whenDataCorrupt_shouldReceiveEmptyMap() throws Exception {
+        Files.write(new File(mTestFinalResultDir, "my_metrics_config").toPath(),
+                "not a bundle".getBytes(StandardCharsets.UTF_8));
+
+        assertThat(mResultStore.getFinalResults()).isEmpty();
+    }
+
+    @Test
     public void testGetErrorResult_whenNoError_shouldReceiveNull() {
         String metricsConfigName = "my_metrics_config";
 
@@ -201,6 +221,22 @@ public class ResultStoreTest {
         TelemetryProto.TelemetryError error = mResultStore.getErrorResult(metricsConfigName, true);
 
         assertThat(error).isEqualTo(TEST_TELEMETRY_ERROR);
+    }
+
+    @Test
+    public void testGetErrorResults_whenNoError_shouldReceiveEmptyMap() {
+        assertThat(mResultStore.getErrorResults()).isEmpty();
+    }
+
+    @Test
+    public void testGetErrorResults_shouldReceiveErrors() throws Exception {
+        String metricsConfigName = "my_metrics_config";
+        Files.write(
+                new File(mTestErrorResultDir, metricsConfigName).toPath(),
+                TEST_TELEMETRY_ERROR.toByteArray());
+
+        assertThat(mResultStore.getErrorResults().get("my_metrics_config"))
+            .isEqualTo(TEST_TELEMETRY_ERROR);
     }
 
     @Test
@@ -229,10 +265,9 @@ public class ResultStoreTest {
     @Test
     public void testRemoveResult_whenInterimResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
-        mResultStore.removeResult(key);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
     }
@@ -240,10 +275,9 @@ public class ResultStoreTest {
     @Test
     public void testRemoveResult_whenFinalResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
         writeBundleToFile(mTestFinalResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
 
-        mResultStore.removeResult(key);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isFalse();
     }
@@ -251,10 +285,9 @@ public class ResultStoreTest {
     @Test
     public void testRemoveResult_whenErrorResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        MetricsConfigKey key = new MetricsConfigKey(metricsConfigName, 1);
         writeBundleToFile(mTestErrorResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
 
-        mResultStore.removeResult(key);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestErrorResultDir, metricsConfigName).exists()).isFalse();
     }

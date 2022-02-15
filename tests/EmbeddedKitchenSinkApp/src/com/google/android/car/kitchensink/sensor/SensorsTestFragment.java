@@ -267,7 +267,8 @@ public class SensorsTestFragment extends Fragment {
         for (CarPropertyConfig propertyConfig : mCarPropertyConfigs) {
             int propertyId = propertyConfig.getPropertyId();
             CarPropertyValue propertyValue = mValueMap.get(propertyId);
-            if (propertyValue.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
+            if (propertyValue != null
+                    && propertyValue.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
                 propertyValue = null;
             }
             int resourceId = PROPERTY_TO_RESOURCE.get(propertyId);

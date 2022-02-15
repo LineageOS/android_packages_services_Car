@@ -53,7 +53,8 @@ public final class CarWatchdogDaemonHelper {
     private static final long CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_WATCHDOG_DAEMON_FIND_MARGINAL_TIME_MS = 300;
     private static final int CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY = 3;
-    private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
+    private static final String CAR_WATCHDOG_DAEMON_INTERFACE =
+            "android.automotive.watchdog.internal.ICarWatchdog/default";
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
     private final CopyOnWriteArrayList<OnConnectionChangeListener> mConnectionListeners =
@@ -279,10 +280,10 @@ public final class CarWatchdogDaemonHelper {
      * Enable/disable the internal client health check process.
      * Disabling would stop the ANR killing process.
      *
-     * @param disable True to disable watchdog's health check process.
+     * @param enable True to enable watchdog's health check process.
      */
-    public void controlProcessHealthCheck(boolean disable) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.controlProcessHealthCheck(disable));
+    public void controlProcessHealthCheck(boolean enable) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.controlProcessHealthCheck(enable));
     }
 
     private void invokeDaemonMethod(Invokable r) throws RemoteException {

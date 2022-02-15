@@ -32,7 +32,6 @@ PRODUCT_PACKAGES += \
 
 
 PRODUCT_PACKAGES += \
-    clatd \
     pppd \
     screenrecord
 
@@ -86,6 +85,12 @@ PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     android.car.number_pre_created_users?=1 \
     android.car.number_pre_created_guests?=1
 
+# Enable User HAL integration
+# NOTE: when set to true, VHAL must also implement the user-related properties,
+# otherwise CarService will ignore it
+PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
+    android.car.user_hal_enabled?=true
+
 ### end of multi-user properties ###
 
 # Overlay for Google network and fused location providers
@@ -114,6 +119,11 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     persist.wm.enable_remote_keyguard_animation=0
 
+# TODO(b/198516172): Find a better location to add this read only property
+# It is added here to check the functionality, will be updated in next CL
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.android.car.service.overlay.packages=com.android.car.resources.vendor;com.google.android.car.resources.vendor;
+
 # Automotive specific packages
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
@@ -136,7 +146,6 @@ PRODUCT_PACKAGES += \
     android.car.builtin \
     car-frameworks-service \
     com.android.car.procfsinspector \
-    ScriptExecutor \
 
 # RROs
 PRODUCT_PACKAGES += \
@@ -239,9 +248,6 @@ USE_CAR_FRAMEWORK_APEX := true
 ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_PACKAGES += com.android.car.framework
 
-    # TODO(b/202031799) Remove this when jni issue is resolved
-    PRODUCT_PACKAGES += CarServiceUpdatable
-
     PRODUCT_APEX_BOOT_JARS += com.android.car.framework:android.car-module
     PRODUCT_APEX_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
 
@@ -250,7 +256,7 @@ ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_HIDDENAPI_STUBS_TEST := android.car-module.stubs.test
 else # !USE_CAR_FRAMEWORK_APEX
     PRODUCT_BOOT_JARS += android.car
-    PRODUCT_PACKAGES += android.car CarServiceUpdatable car-frameworks-service-module
+    PRODUCT_PACKAGES += android.car CarServiceUpdatableNonModule car-frameworks-service-module
     PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service-module
 
     PRODUCT_HIDDENAPI_STUBS := android.car-stubs-dex

@@ -52,7 +52,7 @@ import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -75,9 +75,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private static final String OWNER_NAME = "OwnerOfALonelyDevice";
     private static final String GUEST_NAME = "GuessWhot";
 
-    private static final int USER_ID = 10;
-    private static final int NEW_USER_ID = 11;
-    private static final int CURRENT_USER_ID = 12;
+    private static final int USER_ID = 100;
+    private static final int NEW_USER_ID = 101;
+    private static final int CURRENT_USER_ID = 102;
 
     @Mock
     private Context mContext;
@@ -98,6 +98,10 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private InitialUserSetter mSetter;
 
     private final MyListener mListener = new MyListener();
+
+    public InitialUserSetterTest() {
+        super(InitialUserSetter.TAG);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -151,7 +155,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         InitialUserSetter.Builder builder = new InitialUserSetter.Builder(
                 InitialUserSetter.TYPE_SWITCH);
         assertThrows(IllegalArgumentException.class,
-                () -> builder.setNewUserFlags(UserFlags.ADMIN));
+                () -> builder.setNewUserFlags(UserInfo.USER_FLAG_ADMIN));
     }
 
     @Test
@@ -395,7 +399,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.NONE)
+                .setNewUserFlags(0)
                 .build());
 
         verifyUserSwitched(USER_ID);
@@ -413,7 +417,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.ADMIN)
+                .setNewUserFlags(UserInfo.USER_FLAG_ADMIN)
                 .build());
 
         verifyUserSwitched(USER_ID);
@@ -431,7 +435,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.ADMIN)
+                .setNewUserFlags(UserInfo.USER_FLAG_ADMIN)
                 .setUserLocales("LOL")
                 .build());
 
@@ -451,7 +455,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.EPHEMERAL | UserFlags.GUEST)
+                .setNewUserFlags(UserInfo.USER_FLAG_EPHEMERAL | UserInfo.USER_FLAG_GUEST)
                 .build());
 
         verifyUserSwitched(USER_ID);
@@ -465,7 +469,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         // No need to mock createUser() expectation - it shouldn't be called
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.SYSTEM)
+                .setNewUserFlags(UserInfo.USER_FLAG_SYSTEM)
                 .build());
 
         verifyUserNeverSwitched();
@@ -478,7 +482,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         // No need to set createUser() expectation - it shouldn't be called
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.GUEST | UserFlags.ADMIN)
+                .setNewUserFlags(UserInfo.USER_FLAG_GUEST | UserInfo.USER_FLAG_ADMIN)
                 .build());
 
         verifyUserNeverSwitched();
@@ -490,7 +494,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         // No need to set createUser() expectation - it shouldn't be called
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.EPHEMERAL | UserFlags.ADMIN)
+                .setNewUserFlags(UserInfo.USER_FLAG_EPHEMERAL | UserInfo.USER_FLAG_ADMIN)
                 .build());
 
         verifyUserNeverSwitched();
@@ -502,7 +506,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         // No need to set createUser() expectation - it will return false by default
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.NONE)
+                .setNewUserFlags(0)
                 .build());
 
         verifyUserNeverSwitched();
@@ -511,11 +515,11 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testCreateUser_fail_createThrowsException() throws Exception {
-        expectCreateUserThrowsException("TheDude", UserFlags.NONE);
+        expectCreateUserThrowsException("TheDude", 0);
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.NONE)
+                .setNewUserFlags(0)
                 .build());
 
         verifyUserNeverSwitched();
@@ -530,7 +534,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.set(new Builder(InitialUserSetter.TYPE_CREATE)
                 .setNewUserName("TheDude")
-                .setNewUserFlags(UserFlags.NONE)
+                .setNewUserFlags(0)
                 .build());
 
         verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch();

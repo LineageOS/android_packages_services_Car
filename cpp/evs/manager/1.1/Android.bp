@@ -31,7 +31,7 @@ cc_defaults{
         "libhidlbase",
         "libpng",
         "libprocessgroup",
-        "libstatslog",
+        "libstatslog_evs",
         "libui",
         "libutils",
     ],
@@ -69,6 +69,7 @@ filegroup{
 
     srcs : [
         "Enumerator.cpp",
+        "EnumeratorProxy.cpp",
         "HalCamera.cpp",
         "HalDisplay.cpp",
         "VirtualCamera.cpp",
@@ -95,8 +96,45 @@ cc_binary{
     vintf_fragments : ["manifest_android.automotive.evs.manager@1.1.xml"],
 }
 
+cc_library {
+    name: "libstatslog_evs",
+    generated_sources: ["statslog_evs.cpp"],
+    generated_headers: ["statslog_evs.h"],
+    export_generated_headers: ["statslog_evs.h"],
+    min_sdk_version: "30",
+    shared_libs: [
+        "libbinder",
+        "libstatsbootstrap",
+        "libutils",
+        "android.os.statsbootstrap_aidl-cpp",
+    ],
+}
+
+genrule {
+    name: "statslog_evs.h",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --header $(genDir)/statslog_evs.h --module evs" +
+         " --namespace android,automotive,evs,stats --bootstrap",
+    out: [
+        "statslog_evs.h",
+    ],
+}
+
+genrule {
+    name: "statslog_evs.cpp",
+    tools: ["stats-log-api-gen"],
+    cmd: "$(location stats-log-api-gen) --cpp $(genDir)/statslog_evs.cpp --module evs" +
+         " --namespace android,automotive,evs,stats --importHeader statslog_evs.h" +
+         " --bootstrap",
+    out: [
+        "statslog_evs.cpp",
+    ],
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // Tests
+// TODO(b/206829268):  This target should allow for host supported testing, but
+// currently has platform specific dependencies.
 ////////////////////////////////////////////////////////////////////////////////
 cc_test {
     name: "EvsEnumeratorTest",
@@ -107,7 +145,29 @@ cc_test {
     ],
     defaults : ["android.automotive.evs.manager_defaults"],
 
-    // TODO(b/206829268):  This target should allow for host supported testing, but
-    // currently has platform specific dependencies.
+    // TODO(b/206829268):  See above.
+    // host_supported: true,
+}
+
+cc_test {
+    name: "EnumeratorProxyTest",
+    srcs : [ "test/unit/EnumeratorProxyTest.cpp" ],
+    static_libs : [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults : ["android.automotive.evs.manager_defaults"],
+}
+
+cc_test {
+    name: "StatsCollectorTest",
+    srcs : [ "test/unit/StatsCollectorTest.cpp" ],
+    static_libs : [
+        "libevsmanager_static",
+        "libgmock",
+    ],
+    defaults : ["android.automotive.evs.manager_defaults"],
+
+    // TODO(b/206829268):  See above.
     // host_supported: true,
 }

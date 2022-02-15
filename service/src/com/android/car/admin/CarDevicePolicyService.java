@@ -63,7 +63,9 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         implements CarServiceBase {
-    private static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
+
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
 
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
     private static final String PREFIX_NEW_USER_DISCLAIMER_STATUS = "NEW_USER_DISCLAIMER_STATUS_";
@@ -156,7 +158,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                 userInfoFlags = UserManagerHelper.FLAG_ADMIN;
                 break;
             case CarDevicePolicyManager.USER_TYPE_GUEST:
-                userType = UserManagerHelper.USER_TYPE_FULL_GUEST;
+                userType = UserManager.USER_TYPE_FULL_GUEST;
                 break;
             default:
                 Slogf.d(TAG, "createUser(): invalid userType (%s) / flags (%08x) "

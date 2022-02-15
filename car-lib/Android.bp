@@ -67,6 +67,7 @@ java_library {
         "framework-annotations-lib",
         "modules-utils-preconditions",
         "framework-wifi",
+        "framework-bluetooth",
     ],
     product_variables: {
         pdk: {

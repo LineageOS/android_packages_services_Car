@@ -320,7 +320,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
                 overusingNativeStats[stats.uid] = stats.ioOveruseStats;
             }
             shouldSyncWatchdogService = true;
-        } else if (dailyIoUsage->packageInfo.uidType != UidType::NATIVE &&
+        } else if (dailyIoUsage->packageInfo.uidType == UidType::APPLICATION &&
                    stats.ioOveruseStats.killableOnOveruse && !dailyIoUsage->isPackageWarned &&
                    (exceedsWarnThreshold(remainingWriteBytes.foregroundBytes,
                                          threshold.foregroundBytes) ||

@@ -16,13 +16,13 @@
 
 package com.android.car.telemetry;
 
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_ALREADY_EXISTS;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_UNKNOWN;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_UNKNOWN;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
 
+import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
-import android.car.telemetry.MetricsConfigKey;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
 
@@ -48,7 +48,7 @@ public class MetricsConfigStore {
     private final File mConfigDirectory;
     private Map<String, TelemetryProto.MetricsConfig> mActiveConfigs;
 
-    public MetricsConfigStore(File rootDirectory) {
+    public MetricsConfigStore(@NonNull File rootDirectory) {
         mConfigDirectory = new File(rootDirectory, METRICS_CONFIG_DIR);
         mConfigDirectory.mkdirs();
         mActiveConfigs = new ArrayMap<>();
@@ -68,6 +68,7 @@ public class MetricsConfigStore {
     /**
      * Returns all active {@link TelemetryProto.MetricsConfig} from disk.
      */
+    @NonNull
     public List<TelemetryProto.MetricsConfig> getActiveMetricsConfigs() {
         return new ArrayList<>(mActiveConfigs.values());
     }
@@ -79,17 +80,17 @@ public class MetricsConfigStore {
      * @param metricsConfig the config to be persisted to disk.
      * @return {@link android.car.telemetry.CarTelemetryManager.MetricsConfigStatus} status code.
      */
-    public int addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
+    public int addMetricsConfig(@NonNull TelemetryProto.MetricsConfig metricsConfig) {
         // TODO(b/197336485): Check expiration date for MetricsConfig
         if (metricsConfig.getVersion() <= 0) {
-            return STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
+            return STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
         }
         if (mActiveConfigs.containsKey(metricsConfig.getName())) {
             int currentVersion = mActiveConfigs.get(metricsConfig.getName()).getVersion();
             if (currentVersion > metricsConfig.getVersion()) {
-                return STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
+                return STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
             } else if (currentVersion == metricsConfig.getVersion()) {
-                return STATUS_METRICS_CONFIG_ALREADY_EXISTS;
+                return STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS;
             }
         }
         mActiveConfigs.put(metricsConfig.getName(), metricsConfig);
@@ -98,21 +99,19 @@ public class MetricsConfigStore {
         } catch (IOException e) {
             // TODO(b/197336655): record failure
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
-            return STATUS_METRICS_CONFIG_UNKNOWN;
+            return STATUS_ADD_METRICS_CONFIG_UNKNOWN;
         }
-        return STATUS_METRICS_CONFIG_SUCCESS;
+        return STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
     }
 
     /**
      * Deletes the MetricsConfig from disk.
      *
-     * @param key the unique identifier of the metrics config that should be deleted.
+     * @param metricsConfigName the unique identifier of the metrics config that should be deleted.
      * @return true for successful removal, false otherwise.
      */
-    public boolean removeMetricsConfig(MetricsConfigKey key) {
-        String metricsConfigName = key.getName();
-        if (!mActiveConfigs.containsKey(key.getName())
-                || mActiveConfigs.get(key.getName()).getVersion() != key.getVersion()) {
+    public boolean removeMetricsConfig(@NonNull String metricsConfigName) {
+        if (!mActiveConfigs.containsKey(metricsConfigName)) {
             return false; // no match found, nothing to remove
         }
         mActiveConfigs.remove(metricsConfigName);
@@ -123,5 +122,10 @@ public class MetricsConfigStore {
     public void removeAllMetricsConfigs() {
         mActiveConfigs.clear();
         IoUtils.deleteAllSilently(mConfigDirectory);
+    }
+
+    /** Returns whether a MetricsConfig of the same name exists in the store. */
+    public boolean containsConfig(@NonNull String metricsConfigName) {
+        return mActiveConfigs.containsKey(metricsConfigName);
     }
 }

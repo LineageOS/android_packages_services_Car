@@ -33,7 +33,7 @@ import android.car.builtin.util.TimingsTraceLog;
 import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.content.Context;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
+import android.hardware.automotive.vehicle.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -62,7 +62,8 @@ import java.util.function.Consumer;
  */
 final class InitialUserSetter {
 
-    private static final String TAG = CarLog.tagFor(InitialUserSetter.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(InitialUserSetter.class);
 
     private static final boolean DBG = false;
     private static final int BOOT_USER_NOT_FOUND = -1;
@@ -216,7 +217,7 @@ final class InitialUserSetter {
         }
 
         /**
-         * Sets the flags (as defined by {@link android.hardware.automotive.vehicle.V2_0.UserFlags})
+         * Sets the flags (as defined by {@link android.hardware.automotive.vehicle.UserInfo})
          * of the new user being created.
          *
          * @throws IllegalArgumentException if builder is not for {@link #TYPE_CREATE}.
@@ -393,7 +394,7 @@ final class InitialUserSetter {
             if (DBG) Slogf.d(TAG, "executeDefaultBehavior(): no initial user, creating it");
             createAndSwitchUser(new Builder(TYPE_CREATE)
                     .setNewUserName(mNewUserName)
-                    .setNewUserFlags(UserFlags.ADMIN)
+                    .setNewUserFlags(UserInfo.USER_FLAG_ADMIN)
                     .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
                     .setUserLocales(info.userLocales)
                     .build(), fallback);
@@ -515,9 +516,9 @@ final class InitialUserSetter {
 
         Slogf.i(TAG, "Replacing guest (" + user + ")");
 
-        int halFlags = UserFlags.GUEST;
+        int halFlags = UserInfo.USER_FLAG_GUEST;
         if (mUserHandleHelper.isEphemeralUser(user)) {
-            halFlags |= UserFlags.EPHEMERAL;
+            halFlags |= UserInfo.USER_FLAG_EPHEMERAL;
         } else {
             // TODO(b/150413515): decide whether we should allow it or not. Right now we're
             // just logging, as UserManagerService will automatically set it to ephemeral if
@@ -597,7 +598,7 @@ final class InitialUserSetter {
         // sets all guests as ephemeral - should it fail or just warn?
 
         int flags = UserHalHelper.toUserInfoFlags(halFlags);
-        String type = UserHalHelper.isGuest(halFlags) ? UserManagerHelper.USER_TYPE_FULL_GUEST
+        String type = UserHalHelper.isGuest(halFlags) ? UserManager.USER_TYPE_FULL_GUEST
                 : UserManager.USER_TYPE_FULL_SECONDARY;
 
         if (DBG) {
@@ -780,7 +781,7 @@ final class InitialUserSetter {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.SYSTEM.getIdentifier());
         } else {
             return UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                    /* excludeDying= */ false);
+                    /* excludeDying= */ false, /* excludePreCreated */ true);
         }
     }
 
@@ -792,7 +793,7 @@ final class InitialUserSetter {
      */
     private List<UserHandle> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
-                /* excludeDying= */ false);
+                /* excludeDying= */ false, /* excludePreCreated */ true);
 
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
             UserHandle user = iterator.next();

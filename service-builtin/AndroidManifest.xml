@@ -37,6 +37,15 @@
          android:label="@string/car_permission_label_energy"
          android:description="@string/car_permission_desc_energy"/>
 
+    <!-- Allows an application to control the vehicle EV energy information.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_CAR_ENERGY"
+                android:permissionGroup="android.car.permission-group.CAR_MONITORING"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_control_car_energy"
+                android:description="@string/car_permission_desc_control_car_energy"/>
+
     <!-- Allows an application to adjust the vehicle's range remaining information.
          <p>Protection level: signature|privileged
     -->
@@ -229,6 +238,15 @@
          android:protectionLevel="normal"
          android:label="@string/car_permission_label_car_info"
          android:description="@string/car_permission_desc_car_info"/>
+
+    <!-- Allows an application to read the vehicle privileged car information. For example, it
+         allows an application to read the vehicle's curb weight, trailer presence, etc.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.PRIVILEGED_CAR_INFO"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_privileged_car_info"
+                android:description="@string/car_permission_desc_privileged_car_info"/>
 
     <!-- Allows an application to read information of car's vendor permission.
          <p>Protection level: signature|privileged
@@ -892,6 +910,14 @@
                 android:label="@string/car_permission_label_control_car_power_policy"
                 android:description="@string/car_permission_desc_control_car_power_policy"/>
 
+    <!-- Allows an application to adjust the showdown process.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_adjust_shutdown_process"
+                android:description="@string/car_permission_desc_adjust_shutdown_process"/>
+
     <!-- Allows an application to render template-based UI metadata on behalf of another
          application.
          <p>Protection level: signature|privileged
@@ -938,7 +964,7 @@
     <uses-permission android:name="android.permission.MANAGE_USERS"/>
     <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.AUTOMOTIVE_GNSS_CONTROLS"/>
+    <uses-permission android:name="android.permission.CONTROL_AUTOMOTIVE_GNSS"/>
     <uses-permission android:name="android.permission.PROVIDE_TRUST_AGENT"/>
     <uses-permission android:name="android.permission.READ_LOGS"/>
     <!--  Used by NotificationHelper to change the notifications app name -->

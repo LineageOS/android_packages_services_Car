@@ -18,13 +18,12 @@ package com.android.car.internal.test;
 
 import android.app.Service;
 import android.car.apitest.IStableAIDLTestBinder;
+import android.car.apitest.IStableAIDLTestCallback;
 import android.car.apitest.StableAIDLTestLargeParcelable;
 import android.content.Intent;
 import android.os.IBinder;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.os.RemoteException;
-import android.util.Log;
+import android.os.ServiceSpecificException;
 
 import com.android.car.internal.LargeParcelable;
 
@@ -44,57 +43,9 @@ public final class IStableAIDLBinderTestService extends Service {
         // copied due to package scope.
         static final int TRANSACTION_echo = (android.os.IBinder.FIRST_CALL_TRANSACTION + 0);
 
-        // Override some of auto-generated code to make efficient transfer
-        @Override
-        public boolean onTransact(int code, Parcel data, Parcel reply, int flags)
-                throws RemoteException {
-            Log.i(TAG, "onTransact:" + code);
-            String descriptor = IStableAIDLTestBinder.DESCRIPTOR;
-            switch (code) {
-                case TRANSACTION_echo: {
-                    data.enforceInterface(descriptor);
-                    StableAIDLTestLargeParcelable arg0;
-                    if (0 != data.readInt()) {
-                        Log.i(TAG, "echo has non-null arg0");
-                        arg0 = StableAIDLTestLargeParcelable.CREATOR.createFromParcel(data);
-                    } else {
-                        arg0 = null;
-                        Log.i(TAG, "echo null input");
-                    }
-                    if (arg0 != null) {
-                        if (arg0.payload != null) {
-                            Log.i(TAG, "echo payload length:" + arg0.payload.length);
-                        }
-                        if (arg0.sharedMemoryFd != null) {
-                            Log.i(TAG, "echo has shared memory");
-                        }
-                    }
-                    StableAIDLTestLargeParcelable result = this.echo(arg0);
-                    if (result != null && result.payload != null) {
-                        Log.i(TAG, "echo reply payload:" + result.payload.length);
-                    }
-                    reply.writeNoException();
-                    if (result != null) {
-                        reply.writeInt(1);
-                        // changed from auto-generated code
-                        LargeParcelable.serializeStableAIDLParcelable(reply,
-                                result, Parcelable.PARCELABLE_WRITE_RETURN_VALUE, false);
-                    } else {
-                        reply.writeInt(0);
-                    }
-                    return true;
-                }
-                default: {
-                    return super.onTransact(code, data, reply, flags);
-                }
-            }
-        }
-
         @Override
         public StableAIDLTestLargeParcelable echo(StableAIDLTestLargeParcelable p) {
-            // Keep shared memory for the returned one as it will be sent back.
-            return (StableAIDLTestLargeParcelable) LargeParcelable.reconstructStableAIDLParcelable(
-                            p, true);
+            return p;
         }
 
         @Override
@@ -103,6 +54,16 @@ public final class IStableAIDLBinderTestService extends Service {
                     (StableAIDLTestLargeParcelable) LargeParcelable.reconstructStableAIDLParcelable(
                             p, false);
             return calcByteSum(r) + v;
+        }
+
+        @Override
+        public void echoWithCallback(IStableAIDLTestCallback callback,
+                StableAIDLTestLargeParcelable p) {
+            try {
+                callback.reply(p);
+            } catch (RemoteException e) {
+                throw new ServiceSpecificException(-1, "failed to send reply: " + e.toString());
+            }
         }
     }
 

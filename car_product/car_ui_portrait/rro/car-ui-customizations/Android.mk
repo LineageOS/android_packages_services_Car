@@ -53,5 +53,3 @@ CAR_UI_RRO_TARGETS := \
     com.google.android.tts \
     com.android.htmlviewer \
     com.android.vending \
-
-include packages/apps/Car/libs/car-ui-lib/generate_rros.mk

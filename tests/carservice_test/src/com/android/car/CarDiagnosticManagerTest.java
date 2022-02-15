@@ -34,8 +34,8 @@ import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.FloatSensorIndex;
 import android.car.diagnostic.IntegerSensorIndex;
 import android.car.hardware.property.VehicleHalStatusCode;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.JsonReader;
@@ -46,11 +46,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
+import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
 import com.android.car.vehiclehal.DiagnosticEventBuilder;
 import com.android.car.vehiclehal.DiagnosticJson;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.ErrorCodeHandler;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal.ErrorCodeHandler;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -62,6 +62,7 @@ import static java.lang.Integer.toHexString;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -182,9 +183,9 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             @Override
             public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
                 super.onPropertyGet(value);
-                VehiclePropValueBuilder builder =
-                        VehiclePropValueBuilder.newBuilder(VEHICLE_PROPERTY);
-                builder.setInt64Value(getTimestamps());
+                AidlVehiclePropValueBuilder builder =
+                        AidlVehiclePropValueBuilder.newBuilder(VEHICLE_PROPERTY);
+                builder.addInt64Values(getTimestamps());
                 return builder.build();
             }
         }
@@ -197,7 +198,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             @Override
             public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
                 super.onPropertyGet(value);
-                long timestamp = value.value.int64Values.get(0);
+                long timestamp = value.value.int64Values[0];
                 return getEvent(timestamp);
             }
         }
@@ -210,7 +211,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             @Override
             public synchronized void onPropertySet(VehiclePropValue value) {
                 super.onPropertySet(value);
-                if (0 == value.value.int64Values.size()) {
+                if (0 == value.value.int64Values.length) {
                     removeEvents();
                 } else {
                     for (long timestamp : value.value.int64Values) {
@@ -222,41 +223,41 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void configureResourceOverrides(MockResources resources) {
+    protected void configureResourceOverrides(MockResources resources) {
         super.configureResourceOverrides(resources);
         resources.overrideResource(com.android.car.R.array.config_allowed_optional_car_features,
                 new String[]{Car.DIAGNOSTIC_SERVICE});
     }
 
     @Override
-    protected synchronized void configureMockedHal() {
-        java.util.Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
-        java.util.Collection<Integer> selectiveClear = Collections.singletonList(1);
+    protected void configureMockedHal() {
+        Collection<Integer> numVendorSensors = Arrays.asList(0, 0);
+        Collection<Integer> selectiveClear = Collections.singletonList(1);
         Log.i(TAG, mTestName.getMethodName());
         String methodName = mTestName.getMethodName();
         ErrorCodeHandler handler = new ErrorCodeHandler();
         if (methodName.equals("testInitialLiveFrameException_Invalid_Arg")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_INVALID_ARG);
-            addProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
+            addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
         } else if (methodName.equals("testInitialLiveFrameException_NOT_AVAILABLE")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
-            addProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
+            addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
         } else if (methodName.equals("testInitialLiveFrameException_ACCESS_DENIED")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_ACCESS_DENIED);
-            addProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
+            addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
         } else if (methodName.equals("testInitialLiveFrameException_TRY_AGAIN")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_TRY_AGAIN);
-            addProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
+            addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
         } else if (methodName.equals("testInitialLiveFrameException_INTERNAL_ERROR")) {
             handler.setStatus(VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
-            addProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
+            addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, handler)
                     .setConfigArray(numVendorSensors);
         } else {
-            addProperty(VehicleProperty.OBD2_LIVE_FRAME, mLiveFrameEventBuilder.build())
+            addAidlProperty(VehicleProperty.OBD2_LIVE_FRAME, mLiveFrameEventBuilder.build())
                     .setConfigArray(numVendorSensors);
         }
         if (methodName.equals("testInitialFreezeFrameInfoException_Invalid_Arg")) {
@@ -275,7 +276,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             mFreezeFrameProperties.mFreezeFrameInfoHandler.setStatus(
                     VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
         }
-        addProperty(
+        addAidlProperty(
                 VehicleProperty.OBD2_FREEZE_FRAME_INFO,
                 mFreezeFrameProperties.mFreezeFrameInfoHandler);
 
@@ -295,10 +296,10 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             mFreezeFrameProperties.mFreezeFrameHandler.setStatus(
                     VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
         }
-        addProperty(VehicleProperty.OBD2_FREEZE_FRAME, mFreezeFrameProperties.mFreezeFrameHandler)
-                .setConfigArray(numVendorSensors);
+        addAidlProperty(VehicleProperty.OBD2_FREEZE_FRAME,
+                mFreezeFrameProperties.mFreezeFrameHandler).setConfigArray(numVendorSensors);
 
-        addProperty(
+        addAidlProperty(
                 VehicleProperty.OBD2_FREEZE_FRAME_CLEAR,
                 mFreezeFrameProperties.mFreezeFrameClearHandler)
                 .setConfigArray(selectiveClear);
@@ -468,7 +469,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mLiveFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.RUNTIME_SINCE_ENGINE_START, 5100);
 
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertTrue(listener.waitForEvent(time));
 
         CarDiagnosticEvent liveFrame = listener.getLastEvent();
@@ -487,7 +488,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 CarDiagnosticManager.FRAME_TYPE_LIVE,
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
         assertTrue(listener.waitForEvent());
 
         CarDiagnosticEvent liveFrame = listener.getLastEvent();
@@ -522,7 +523,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 CarDiagnosticManager.FRAME_TYPE_LIVE,
                 android.car.hardware.CarSensorManager.SENSOR_RATE_NORMAL);
 
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build());
         assertTrue(listener.waitForEvent());
 
         CarDiagnosticEvent liveFrame = listener.getLastEvent();
@@ -549,7 +550,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 IntegerSensorIndex.COMMANDED_SECONDARY_AIR_STATUS,
                 SecondaryAirStatus.FROM_OUTSIDE_OR_OFF);
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -586,7 +587,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, sparkMonitorsValue);
 
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -629,7 +630,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
                 IntegerSensorIndex.IGNITION_SPECIFIC_MONITORS, compressionMonitorsValue);
 
         timestamp += 1000;
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -676,7 +677,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mLiveFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.FUEL_TYPE, FuelType.BIFUEL_RUNNING_LPG);
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -700,7 +701,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mLiveFrameEventBuilder.addFloatSensor(FloatSensorIndex.OXYGEN_SENSOR1_VOLTAGE, 0.125f);
 
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(timestamp));
 
         assertTrue(listener.waitForEvent(timestamp));
 
@@ -757,7 +758,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         listener2.reset();
 
         long time = SystemClock.elapsedRealtimeNanos();
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertTrue(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
 
@@ -787,7 +788,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mCarDiagnosticManager.unregisterListener(listener1);
 
         time += 1000;
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertFalse(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
 
@@ -815,7 +816,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         listener.reset();
         VehiclePropValue injectedEvent =
                 mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getAidlMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         CarDiagnosticEvent freezeFrame = listener.getLastEvent();
@@ -825,7 +826,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         mFreezeFrameEventBuilder.addIntSensor(
                 IntegerSensorIndex.ABSOLUTE_BAROMETRIC_PRESSURE, 22);
         injectedEvent = mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getAidlMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         freezeFrame = listener.getLastEvent();
@@ -855,14 +856,14 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         VehiclePropValue injectedEvent =
                 mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getAidlMockedVehicleHal().injectEvent(injectedEvent);
         generatedTimestamps.add(injectedEvent.timestamp);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         injectedEvent =
                 mFreezeFrameProperties.addNewEvent(
                         mFreezeFrameEventBuilder, injectedEvent.timestamp + 1000);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getAidlMockedVehicleHal().injectEvent(injectedEvent);
         generatedTimestamps.add(injectedEvent.timestamp);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
@@ -883,7 +884,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
 
         VehiclePropValue injectedEvent =
                 mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getAidlMockedVehicleHal().injectEvent(injectedEvent);
         assertTrue(listener.waitForEvent(injectedEvent.timestamp));
 
         assertThat(mCarDiagnosticManager.getFreezeFrame(injectedEvent.timestamp)).isNotNull();
@@ -944,12 +945,12 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
         VehiclePropValue injectedEvent =
             mFreezeFrameProperties.addNewEvent(mFreezeFrameEventBuilder);
         long time = injectedEvent.timestamp;
-        getMockedVehicleHal().injectEvent(injectedEvent);
+        getAidlMockedVehicleHal().injectEvent(injectedEvent);
         assertFalse(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
 
         time += 1000;
-        getMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
+        getAidlMockedVehicleHal().injectEvent(mLiveFrameEventBuilder.build(time));
         assertFalse(listener1.waitForEvent(time));
         assertTrue(listener2.waitForEvent(time));
     }

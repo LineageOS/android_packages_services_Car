@@ -19,10 +19,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -30,8 +27,8 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
 import android.car.test.util.UserTestingHelper;
-import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.car.test.util.Visitor;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -46,6 +43,7 @@ import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
+import android.os.UserManager.UserSwitchabilityResult;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -73,6 +71,21 @@ public final class AndroidMockitoHelper {
      */
     public static void mockAmGetCurrentUser(@UserIdInt int userId) {
         doReturn(userId).when(() -> ActivityManager.getCurrentUser());
+    }
+
+    /**
+     * Mocks a call to {@link ActivityManager#switchUser(UserHandle)}.
+     */
+    public static void mockAmSwitchUser(@NonNull ActivityManager am, @NonNull UserHandle user,
+            boolean result) {
+        when(am.switchUser(user)).thenReturn(result);
+    }
+
+    /**
+     * Mocks a call to {@link DevicePolicyManager#logoutUser()}.
+     */
+    public static void mockDpmLogoutUser(@NonNull DevicePolicyManager dpm, int result) {
+        when(dpm.logoutUser()).thenReturn(result);
     }
 
     /**
@@ -160,7 +173,7 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the given users.
      *
-     * TODO(b/196179969): replace UserInfo with UserHandle. getUserHandles doesn't take
+     * TODO(b/213374587): replace UserInfo with UserHandle. getUserHandles doesn't take
      * excludePartial which is required in UserHalHelper. In the next CL, UserHalHelper would be
      * updated so that current user is always available in the usersInfo.
      */
@@ -169,7 +182,7 @@ public final class AndroidMockitoHelper {
         Objects.requireNonNull(um);
         Objects.requireNonNull(users);
         when(um.getUserHandles(excludeDying)).thenReturn(users);
-        // TODO(b/196179969): Remove following code
+        // TODO(b/213374587): Remove following code
         // convert List<UserHandle> to List<UserInfos>
         List<UserInfo> userInfos = new ArrayList<UserInfo>();
         for (UserHandle userHandle : users) {
@@ -209,55 +222,33 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#createUser(String, String, int)}
+     * Mocks a successful call to {@code UserManager#removeUserWhenPossible(UserHandle, boolean)},
+     * and notifies {@code listener} when it's called.
      */
-    @NonNull
-    public static void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull UserHandle user) {
-        UserInfo userInfo = new UserInfoBuilder(user.getIdentifier())
-                .setName(name)
-                .setType(userType)
-                .setFlags(flags)
-                .build();
-        when(um.createUser(name, userType, flags)).thenReturn(userInfo);
-    }
-
-    /**
-     * Mocks a call to {@code UserManager#createUser(String, String, int)} that throws the given
-     * runtime exception.
-     */
-    @NonNull
-    public static void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull RuntimeException e) {
-        when(um.createUser(name, userType, flags)).thenThrow(e);
-    }
-
-    /**
-     * Mocks a call to {@code UserManager#createGuest(Context, String)}.
-     */
-    @NonNull
-    public static UserInfo mockUmCreateGuest(
-            @NonNull UserManager um, @Nullable String name, @UserIdInt int userId) {
-        UserInfo userInfo = new UserInfoBuilder(userId)
-                .setName(name)
-                .setType(UserManager.USER_TYPE_FULL_GUEST)
-                .setFlags(0)
-                .build();
-        when(um.createGuest(any(Context.class), eq(name))).thenReturn(userInfo);
-        return userInfo;
-    }
-
-    /**
-     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, and notifies
-     * {@code listener} when it's called.
-     */
-    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
-            @NonNull UserInfo user, boolean evenWhenDisallowed, @RemoveResult int result,
+    public static void mockUmRemoveUserWhenPossible(@NonNull UserManager um,
+            @NonNull UserInfo user, boolean overrideDevicePolicy, @RemoveResult int result,
             @Nullable Visitor<UserInfo> listener) {
-        int userId = user.id;
-        when(um.removeUserOrSetEphemeral(userId, evenWhenDisallowed)).thenAnswer((inv) -> {
+        when(um.removeUserWhenPossible(user.getUserHandle(), overrideDevicePolicy))
+                .thenAnswer((inv) -> {
+                    if (listener != null) {
+                        Log.v(TAG, "mockUmRemoveUserWhenPossible(" + user + "): notifying "
+                                + listener);
+                        listener.visit(user);
+                    }
+                    return result;
+                });
+    }
+
+    /**
+     * Mocks a successful call to {@code UserManager#removeUserWhenPossible(UserHandle, boolean)},
+     * and notifies {@code listener} when it's called.
+     */
+    public static void mockUmRemoveUserWhenPossible(@NonNull UserManager um,
+            @NonNull UserHandle user, boolean overrideDevicePolicy, @RemoveResult int result,
+            @Nullable Visitor<UserHandle> listener) {
+        when(um.removeUserWhenPossible(user, overrideDevicePolicy)).thenAnswer((inv) -> {
             if (listener != null) {
-                Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);
+                Log.v(TAG, "mockUmRemoveUserWhenPossible(" + user + "): notifying " + listener);
                 listener.visit(user);
             }
             return result;
@@ -265,20 +256,21 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, and notifies
-     * {@code listener} when it's called.
+     * Mocks a call to {@code UserManager#hasUserRestrictionForUser(String, UserHandle)} that
+     * returns {@code value}.
      */
-    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
-            @NonNull UserHandle user, boolean evenWhenDisallowed, @RemoveResult int result,
-            @Nullable Visitor<UserHandle> listener) {
-        int userId = user.getIdentifier();
-        when(um.removeUserOrSetEphemeral(userId, evenWhenDisallowed)).thenAnswer((inv) -> {
-            if (listener != null) {
-                Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);
-                listener.visit(user);
-            }
-            return result;
-        });
+    public static void mockUmHasUserRestrictionForUser(@NonNull UserManager um,
+            @NonNull UserHandle user, @NonNull String restrictionKey, boolean value) {
+        when(um.hasUserRestrictionForUser(restrictionKey, user)).thenReturn(value);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#getUserSwitchability(int)} that
+     * returns {@code result}.
+     */
+    public static void mockUmGetUserSwitchability(@NonNull UserManager um,
+            @UserSwitchabilityResult int result) {
+        when(um.getUserSwitchability()).thenReturn(result);
     }
 
     /**

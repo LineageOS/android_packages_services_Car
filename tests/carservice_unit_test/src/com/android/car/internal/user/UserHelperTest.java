@@ -18,17 +18,11 @@ package com.android.car.internal.user;
 
 import static android.car.test.util.UserTestingHelper.newUser;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-
-import static com.google.common.truth.Truth.assertThat;
-
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
-import android.car.builtin.os.UserManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -51,9 +45,13 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     // Not worth to mock because it would need to mock a Drawable used by UserIcons.
     private final Resources mResources = InstrumentationRegistry.getTargetContext().getResources();
 
+    public UserHelperTest() {
+        super(UserHelper.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(UserManager.class).spyStatic(UserManagerHelper.class);
+        session.spyStatic(UserManager.class);
     }
 
     @Before
@@ -96,13 +94,11 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     public void testAssignDefaultIcon() {
         int userId = 20;
         UserInfo newNonAdmin = newUser(userId);
-        Bitmap bitmap = mock(Bitmap.class);
+        when(mUserManager.getUserInfo(userId)).thenReturn(newNonAdmin);
 
-        doReturn(bitmap).when(() -> UserManagerHelper.assignDefaultIconForUser(mContext,
-                newNonAdmin.getUserHandle()));
+        Bitmap bitmap = UserHelper.assignDefaultIcon(mContext, newNonAdmin.getUserHandle());
 
-        assertThat(UserHelper.assignDefaultIcon(mContext, newNonAdmin.getUserHandle()))
-                .isEqualTo(bitmap);
+        verify(mUserManager).setUserIcon(userId, bitmap);
     }
 
     @Test

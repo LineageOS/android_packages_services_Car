@@ -20,9 +20,14 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
+import android.car.builtin.bluetooth.BluetoothHeadsetClientHelper;
 import android.car.builtin.util.Slogf;
+import android.telecom.PhoneAccountHandle;
+import android.telecom.TelecomManager;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 
@@ -50,15 +55,18 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
 
     // Profiles we support
     private static final List<Integer> sProfilesToConnect = Arrays.asList(
+            BluetoothProfile.HEADSET_CLIENT,
             BluetoothProfile.A2DP_SINK
     );
 
     private final PerUserCarServiceImpl mService;
     private final BluetoothAdapter mBluetoothAdapter;
+    private final TelecomManager mTelecomManager;
 
     // Profile Proxies Objects to pair with above list. Access to these proxy objects will all be
     // guarded by the below mBluetoothProxyLock
     private BluetoothA2dpSink mBluetoothA2dpSink;
+    private BluetoothHeadsetClient mBluetoothHeadsetClient;
 
     // Concurrency variables for waitForProxies. Used so we can best effort block with a timeout
     // while waiting for services to be bound to the proxy objects.
@@ -83,8 +91,10 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         }
         mBluetoothProxyLock = new ReentrantLock();
         mConditionAllProxiesConnected = mBluetoothProxyLock.newCondition();
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        mBluetoothAdapter = mService.getApplicationContext()
+                .getSystemService(BluetoothManager.class).getAdapter();
         Objects.requireNonNull(mBluetoothAdapter, "Bluetooth adapter cannot be null");
+        mTelecomManager = mService.getApplicationContext().getSystemService(TelecomManager.class);
         mFastPairProvider = new FastPairProvider(service);
     }
 
@@ -131,6 +141,12 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             mBluetoothAdapter.closeProfileProxy(BluetoothProfile.A2DP_SINK, mBluetoothA2dpSink);
             mBluetoothA2dpSink = null;
             mBluetoothProfileStatus.put(BluetoothProfile.A2DP_SINK, false);
+
+            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET_CLIENT,
+                    mBluetoothHeadsetClient);
+            mBluetoothHeadsetClient = null;
+            mBluetoothProfileStatus.put(BluetoothProfile.HEADSET_CLIENT, false);
+
             mConnectedProfiles = 0;
         } finally {
             mBluetoothProxyLock.unlock();
@@ -156,6 +172,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 switch (profile) {
                     case BluetoothProfile.A2DP_SINK:
                         mBluetoothA2dpSink = (BluetoothA2dpSink) proxy;
+                        break;
+                    case BluetoothProfile.HEADSET_CLIENT:
+                        mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
                         break;
                     default:
                         if (DBG) {
@@ -339,6 +358,65 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         }
     }
 
+    /**
+     * Triggers Bluetooth to start a BVRA session.
+     */
+    public boolean startBluetoothVoiceRecognition() {
+        mBluetoothProxyLock.lock();
+        try {
+            if (mBluetoothHeadsetClient == null) {
+                Slogf.e(TAG, "HFP BVRA, no headsetclient proxy found.");
+                return false;
+            }
+            List<BluetoothDevice> devices = BluetoothHeadsetClientHelper.getConnectedBvraDevices(
+                    mBluetoothHeadsetClient);
+            if (devices != null && !devices.isEmpty()) {
+                // Until a UI has been agreed upon that allows a user to select from multiple
+                // devices, a BVRA device will be chosen as follows:
+                //   1. Use the device corresponding to the default phone account.
+                //   2. If that device doesn't support BVRA or if there is no default account, use
+                //      the first device that supports BVRA.
+                BluetoothDevice bvraDevice = devices.get(0);
+
+                // {@link TelecomManager#getUserSelectedOutgoingPhoneAccount} returns the
+                // user-chosen default for making outgoing phone calls. This default is set when
+                // {@link HfpClientConnectionService} creates a phone account for a device, via
+                // {@link HfpClientDeviceBlock}.
+                PhoneAccountHandle defaultPhone =
+                        mTelecomManager.getUserSelectedOutgoingPhoneAccount();
+                if (defaultPhone != null) {
+                    // When {@link HfpClientConnectionService#createAccount} creates a {@link
+                    // PhoneAccountHandle}, it sets the ID to the device's {@code BD_ADDR}.
+                    String defaultPhoneBdAddr = defaultPhone.getId();
+                    if (defaultPhoneBdAddr != null) {
+                        for (int i = 0; i < devices.size(); i++) {
+                            BluetoothDevice d = devices.get(i);
+                            if (defaultPhoneBdAddr.equals(d.getAddress())) {
+                                bvraDevice = d;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (BluetoothHeadsetClientHelper.startVoiceRecognition(
+                        mBluetoothHeadsetClient, bvraDevice)) {
+                    if (DBG) {
+                        Slogf.d(TAG, "HFP BVRA started for %s", bvraDevice.getAddress());
+                    }
+                    return true;
+                } else {
+                    Slogf.w(TAG, "Unable to start HFP BVRA for %s", bvraDevice.getAddress());
+                }
+            } else {
+                Slogf.w(TAG, "No devices supporting BVRA found.");
+            }
+        } finally {
+            mBluetoothProxyLock.unlock();
+        }
+        return false;
+    }
+
     /** Dump for debugging */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter pw) {
@@ -348,6 +426,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         pw.printf("Proxy operation timeout: %d ms\n", PROXY_OPERATION_TIMEOUT_MS);
         pw.printf("BluetoothAdapter: %s\n", mBluetoothAdapter);
         pw.printf("BluetoothA2dpSink: %s\n", mBluetoothA2dpSink);
+        pw.printf("BluetoothHeadsetClient: %s\n", mBluetoothHeadsetClient);
         mFastPairProvider.dump(pw);
     }
 }

@@ -77,6 +77,8 @@ public:
                 (override));
 };
 
+using NiceMockEvsEnumerator = ::testing::NiceMock<MockEvsEnumerator>;
+
 }  // namespace android::automotive::evs::V1_1::implementation
 
 #endif  // CPP_EVS_MANAGER_1_1_TEST_UNIT_MOCKEVSENUMERATOR_H_

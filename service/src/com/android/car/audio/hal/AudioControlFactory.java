@@ -20,12 +20,15 @@ import android.car.builtin.util.Slogf;
 import android.os.IBinder;
 
 import com.android.car.CarLog;
+import com.android.internal.annotations.VisibleForTesting;
 
 /**
  * Factory for constructing wrappers around IAudioControl HAL instances.
  */
 public final class AudioControlFactory {
-    private static final String TAG = CarLog.tagFor(AudioControlFactory.class);
+
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(AudioControlFactory.class);
 
     private AudioControlFactory() {
     }

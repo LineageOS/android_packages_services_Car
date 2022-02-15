@@ -16,10 +16,15 @@
 
 package android.car.apitest;
 
+import android.car.apitest.IStableAIDLTestCallback;
 import android.car.apitest.StableAIDLTestLargeParcelable;
 
 interface IStableAIDLTestBinder {
     StableAIDLTestLargeParcelable echo(in StableAIDLTestLargeParcelable p) = 0;
+
+    void echoWithCallback(in IStableAIDLTestCallback callback,
+            in StableAIDLTestLargeParcelable p) = 1;
+
     // Returns sum of all byte payload togather with v.
-    long echoWithLong(in StableAIDLTestLargeParcelable p, long v) = 1;
+    long echoWithLong(in StableAIDLTestLargeParcelable p, long v) = 2;
 }

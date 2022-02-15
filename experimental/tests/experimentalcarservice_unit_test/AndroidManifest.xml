@@ -20,7 +20,7 @@
           package="com.android.experimentalcar.experimentalcarservice_unittest">
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
-                     android:targetPackage="com.android.experimentalcar.experimentalcarservice_unittest"
+                     android:targetPackage="com.android.experimentalcar"
                      android:label="Unit Tests for Experimental Car APIs"/>
 
     <application android:label="ExperimentalCarServiceUnitTest"

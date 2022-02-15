@@ -42,7 +42,8 @@ import java.util.List;
  */
 public final class UserPreCreator {
 
-    private static final String TAG = CarLog.tagFor(UserPreCreator.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(UserPreCreator.class);
 
     private final UserManager mUserManager;
     private final Context mContext;
@@ -186,7 +187,7 @@ public final class UserPreCreator {
     @Nullable
     UserHandle preCreateUsers(boolean isGuest) {
         String traceMsg = "pre-create" + (isGuest ? "-guest" : "-user");
-        String userType = isGuest ? UserManagerHelper.USER_TYPE_FULL_GUEST
+        String userType = isGuest ? UserManager.USER_TYPE_FULL_GUEST
                 : UserManager.USER_TYPE_FULL_SECONDARY;
         UserHandle user = null;
         try {
@@ -214,11 +215,10 @@ public final class UserPreCreator {
      */
     @VisibleForTesting
     void logPrecreationFailure(@NonNull String operation, @Nullable Exception cause) {
-        int maxNumberUsers = UserManagerHelper.getMaxSupportedUsers();
         int currentNumberUsers = mUserManager.getUserCount();
         String message = new StringBuilder(operation.length() + 100)
                 .append(operation).append(" failed. Number users: ").append(currentNumberUsers)
-                .append(" Max: ").append(maxNumberUsers).toString();
+                .toString();
         if (cause == null) {
             Slogf.w(TAG, message);
         } else {

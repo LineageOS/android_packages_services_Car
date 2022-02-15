@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,20 +19,20 @@ import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.Car.PERMISSION_CAR_POWER;
 import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
 import static android.car.Car.PERMISSION_USE_CAR_WATCHDOG;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_1;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_2;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_3;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_4;
-import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_1;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_2;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_3;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.CUSTOM_4;
+import static android.hardware.automotive.vehicle.UserIdentificationAssociationType.KEY_FOB;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
+import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
 import static com.android.car.power.PolicyReader.POWER_STATE_WAIT_FOR_VHAL;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -41,13 +41,16 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.widget.LockPatternHelper;
 import android.car.content.pm.CarPackageManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
+import android.car.telemetry.CarTelemetryManager;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
@@ -61,29 +64,32 @@ import android.car.watchdog.ResourceOveruseConfiguration;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
-import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
-import android.hardware.automotive.vehicle.V2_0.RemoveUserRequest;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserMessageType;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserRequest;
-import android.hardware.automotive.vehicle.V2_0.SwitchUserStatus;
-import android.hardware.automotive.vehicle.V2_0.UserFlags;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociation;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationGetRequest;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationResponse;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetAssociation;
-import android.hardware.automotive.vehicle.V2_0.UserIdentificationSetRequest;
-import android.hardware.automotive.vehicle.V2_0.UserInfo;
-import android.hardware.automotive.vehicle.V2_0.UsersInfo;
-import android.hardware.automotive.vehicle.V2_0.VehicleArea;
-import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
-import android.hardware.automotive.vehicle.V2_0.VehicleGear;
+import android.content.pm.PackageManager;
+import android.hardware.automotive.vehicle.CreateUserRequest;
+import android.hardware.automotive.vehicle.CreateUserStatus;
+import android.hardware.automotive.vehicle.InitialUserInfoResponse;
+import android.hardware.automotive.vehicle.InitialUserInfoResponseAction;
+import android.hardware.automotive.vehicle.RemoveUserRequest;
+import android.hardware.automotive.vehicle.SwitchUserMessageType;
+import android.hardware.automotive.vehicle.SwitchUserRequest;
+import android.hardware.automotive.vehicle.SwitchUserStatus;
+import android.hardware.automotive.vehicle.UserIdentificationAssociation;
+import android.hardware.automotive.vehicle.UserIdentificationAssociationValue;
+import android.hardware.automotive.vehicle.UserIdentificationGetRequest;
+import android.hardware.automotive.vehicle.UserIdentificationResponse;
+import android.hardware.automotive.vehicle.UserIdentificationSetAssociation;
+import android.hardware.automotive.vehicle.UserIdentificationSetRequest;
+import android.hardware.automotive.vehicle.UserInfo;
+import android.hardware.automotive.vehicle.UsersInfo;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleDisplay;
+import android.hardware.automotive.vehicle.VehicleGear;
+import android.hardware.automotive.vehicle.VehiclePropError;
 import android.os.Binder;
+import android.os.FileUtils;
+import android.os.NewUserRequest;
+import android.os.NewUserResponse;
+import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -104,16 +110,24 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.telemetry.CarTelemetryService;
+import com.android.car.telemetry.TelemetryProto.TelemetryError;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 import com.android.modules.utils.BasicShellCommandHandler;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -124,6 +138,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 final class CarShellCommand extends BasicShellCommandHandler {
 
@@ -149,6 +164,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_HIBERNATE = "hibernate";
+    private static final String PARAM_SIMULATE = "--simulate";
+    private static final String PARAM_REAL = "--real";
+    private static final String PARAM_AUTO = "--auto";
+    private static final String PARAM_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
@@ -160,8 +179,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_INJECT_KEY = "inject-key";
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_INJECT_CUSTOM_INPUT = "inject-custom-input";
+    private static final String COMMAND_CHECK_LOCK_IS_SECURE = "check-lock-is-secure";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
+    private static final String COMMAND_LOGOUT_USER = "logout-user";
     private static final String COMMAND_REMOVE_USER = "remove-user";
     private static final String COMMAND_CREATE_USER = "create-user";
     private static final String COMMAND_GET_INITIAL_USER = "get-initial-user";
@@ -184,8 +205,6 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY =
             "apply-cts-verifier-power-on-policy";
     private static final String COMMAND_POWER_OFF = "power-off";
-    private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
-    private static final String POWER_OFF_SHUTDOWN = "--shutdown";
     private static final String COMMAND_SILENT_MODE = "silent-mode";
     // Used with COMMAND_SILENT_MODE for forced silent: "forced-silent"
     private static final String SILENT_MODE_FORCED_SILENT =
@@ -217,6 +236,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_DRIVING_SAFETY_SET_REGION =
             "set-drivingsafety-region";
 
+    private static final String COMMAND_TELEMETRY = "telemetry";
+    private static final String COMMAND_CONTROL_COMPONENT_ENABLED_STATE =
+            "control-component-enabled-state";
+
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
             android.Manifest.permission.MANAGE_USERS
@@ -234,6 +257,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SWITCH_USER,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_LOGOUT_USER,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_REMOVE_USER,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
@@ -298,6 +323,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK,
                 PERMISSION_USE_CAR_WATCHDOG);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CONTROL_COMPONENT_ENABLED_STATE,
+                android.Manifest.permission.CHANGE_COMPONENT_ENABLED_STATE);
+        // borrow the permission to pass assertHasAtLeastOnePermission() for a user build
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_CHECK_LOCK_IS_SECURE,
+                android.Manifest.permission.INJECT_EVENTS);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -334,20 +364,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     static {
         VALID_USER_AUTH_TYPES = new SparseArray<>(5);
-        VALID_USER_AUTH_TYPES.put(KEY_FOB, UserIdentificationAssociationType.toString(KEY_FOB));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_1, UserIdentificationAssociationType.toString(CUSTOM_1));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_2, UserIdentificationAssociationType.toString(CUSTOM_2));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_3, UserIdentificationAssociationType.toString(CUSTOM_3));
-        VALID_USER_AUTH_TYPES.put(CUSTOM_4, UserIdentificationAssociationType.toString(CUSTOM_4));
+        VALID_USER_AUTH_TYPES.put(KEY_FOB, "KEY_FOB");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_1, "CUSTOM_1");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_2, "CUSTOM_2");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_3, "CUSTOM_3");
+        VALID_USER_AUTH_TYPES.put(CUSTOM_4, "CUSTOM_4");
         VALID_USER_AUTH_TYPES_HELP = getHelpString("types", VALID_USER_AUTH_TYPES);
 
         VALID_USER_AUTH_SET_VALUES = new SparseArray<>(3);
-        VALID_USER_AUTH_SET_VALUES.put(ASSOCIATE_CURRENT_USER,
-                UserIdentificationAssociationSetValue.toString(ASSOCIATE_CURRENT_USER));
-        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_CURRENT_USER,
-                UserIdentificationAssociationSetValue.toString(DISASSOCIATE_CURRENT_USER));
-        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_ALL_USERS,
-                UserIdentificationAssociationSetValue.toString(DISASSOCIATE_ALL_USERS));
+        VALID_USER_AUTH_SET_VALUES.put(ASSOCIATE_CURRENT_USER, "ASSOCIATE_CURRENT_USER");
+        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_CURRENT_USER, "DISASSOCIATE_CURRENT_USER");
+        VALID_USER_AUTH_SET_VALUES.put(DISASSOCIATE_ALL_USERS, "DISASSOCIATE_ALL_USERS");
         VALID_USER_AUTH_SET_VALUES_HELP = getHelpString("values", VALID_USER_AUTH_SET_VALUES);
 
         CUSTOM_INPUT_FUNCTION_ARGS = new ArrayMap<>(10);
@@ -363,8 +390,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CUSTOM_INPUT_FUNCTION_ARGS.put("f10", CustomInputEvent.INPUT_CODE_F10);
     }
 
-    @NonNull
-    private static String getHelpString(@NonNull String name, @NonNull SparseArray<String> values) {
+    // CarTelemetryManager may not send result back if there are not results for the given
+    // metrics config.
+    private static final Duration TELEMETRY_RESULT_WAIT_TIMEOUT = Duration.ofSeconds(5);
+
+    private static String getHelpString(String name, SparseArray<String> values) {
         StringBuilder help = new StringBuilder("Valid ").append(name).append(" are: ");
         int size = values.size();
         for (int i = 0; i < size; i++) {
@@ -392,6 +422,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarEvsService mCarEvsService;
     private final CarWatchdogService mCarWatchdogService;
+    private final CarTelemetryService mCarTelemetryService;
     private long mKeyDownTime;
 
     CarShellCommand(Context context,
@@ -409,7 +440,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
             CarUserService carUserService,
             CarOccupantZoneService carOccupantZoneService,
             CarEvsService carEvsService,
-            CarWatchdogService carWatchdogService) {
+            CarWatchdogService carWatchdogService,
+            CarTelemetryService carTelemetryService) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -426,6 +458,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         mCarOccupantZoneService = carOccupantZoneService;
         mCarEvsService = carEvsService;
         mCarWatchdogService = carWatchdogService;
+        mCarTelemetryService = carTelemetryService;
     }
 
     @Override
@@ -490,10 +523,25 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tget-property-value [PROPERTY_ID in Hex or Decimal] [areaId]");
         pw.println("\t  Get a vehicle property value by property id and areaId");
         pw.println("\t  or list all property values for all areaId");
-        pw.println("\tsuspend");
-        pw.println("\t  Suspend the system to Deep Sleep.");
+        pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_SUSPEND));
+        pw.println("\t  Suspend the system to RAM.");
+        pw.printf("\t  %s forces the device to perform suspend-to-RAM.\n", PARAM_REAL);
+        pw.printf("\t  %s simulates suspend-to-RAM instead of putting the device into deep sleep."
+                + "\n", PARAM_SIMULATE);
+        pw.printf("\t  %s depending on the device capability, real or simulated suspend-to-RAM is "
+                + "performed.\n", PARAM_AUTO);
+        pw.printf("\t  %s skips Garage Mode before going into sleep.\n", PARAM_SKIP_GARAGEMODE);
+        pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_HIBERNATE));
+        pw.println("\t  Suspend the system to disk.");
+        pw.printf("\t  %s forces the device to perform suspend-to-disk.\n", PARAM_REAL);
+        pw.printf("\t  %s simulates suspend-to-disk instead of putting the device into "
+                + "hibernation.\n", PARAM_SIMULATE);
+        pw.printf("\t  %s depending on the device capability, real or simulated suspend-to-disk is "
+                + "performed.\n", PARAM_AUTO);
+        pw.printf("\t  %s skips Garage Mode before going into hibernation.\n",
+                PARAM_SKIP_GARAGEMODE);
         pw.println("\tresume");
-        pw.println("\t  Wake the system up after a 'suspend.'");
+        pw.println("\t  Wake the system up after a simulated suspension/hibernation.");
         pw.println("\tprojection-tethering [true|false]");
         pw.println("\t  Whether tethering should be used when creating access point for"
                 + " wireless projection");
@@ -554,6 +602,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without switching the user,");
         pw.println("\t  while the --timeout defines how long to wait for the response.");
+
+        pw.printf("\t%s [--timeout TIMEOUT_MS]\n", COMMAND_LOGOUT_USER);
+        pw.println("\t  Logout the current user (if the user was switched toby a device admin).");
+        pw.println("\t  The --timeout option defines how long to wait for the UserHal response.");
 
         pw.printf("\t%s <USER_ID> [--hal-only]\n", COMMAND_REMOVE_USER);
         pw.println("\t  Removes user with USER_ID using the HAL integration.");
@@ -631,8 +683,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Define and apply the cts_verifier_on power policy with "
                 + "--enable WIFI,LOCATION,BLUETOOTH");
 
-        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
-                POWER_OFF_SHUTDOWN);
+        pw.printf("\t%s [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE);
         pw.println("\t  Powers off the car.");
 
         pw.printf("\t%s <CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
@@ -660,6 +711,17 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
         pw.println("\t  Set driving safety region.");
         pw.println("\t  Skipping REGION_STRING leads into resetting to all regions");
+
+        pw.printf("\t%s <subcommand>", COMMAND_TELEMETRY);
+        pw.println("\t  Telemetry commands.");
+        pw.println("\t  Provide -h to see the list of sub-commands.");
+
+        pw.printf("\t%s get|default|enable|disable_until_used <PACKAGE_NAME>\n",
+                COMMAND_CONTROL_COMPONENT_ENABLED_STATE);
+        pw.println("\t  Gets the current EnabledState, or changes the Application EnabledState"
+                + " to DEFAULT, ENABLED or DISABLED_UNTIL_USED.");
+        pw.printf("\t%s [user]\n", COMMAND_CHECK_LOCK_IS_SECURE);
+        pw.println("\t  check if the current or given user has a lock to secure");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -864,14 +926,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.println("Resume: Simulating resuming from Deep Sleep");
                 break;
             case COMMAND_SUSPEND:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(false,
-                        PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
-                writer.println("Suspend: Simulating powering down to Deep Sleep");
-                break;
+                // fall-through
             case COMMAND_HIBERNATE:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(false,
-                        PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION);
-                writer.println("Suspend: Simulating powering down to Deep Sleep");
+                runSuspendCommand(args, writer);
                 break;
             case COMMAND_SET_UID_TO_ZONE:
                 if (args.length != 3) {
@@ -957,6 +1014,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_SWITCH_USER:
                 switchUser(args, writer);
                 break;
+            case COMMAND_LOGOUT_USER:
+                logoutUser(args, writer);
+                break;
             case COMMAND_REMOVE_USER:
                 removeUser(args, writer);
                 break;
@@ -1013,6 +1073,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_DRIVING_SAFETY_SET_REGION:
                 setDrivingSafetyRegion(args, writer);
+                break;
+            case COMMAND_TELEMETRY:
+                handleTelemetryCommands(args, writer);
+                break;
+            case COMMAND_CONTROL_COMPONENT_ENABLED_STATE:
+                controlComponentEnabledState(args, writer);
+                break;
+            case COMMAND_CHECK_LOCK_IS_SECURE:
+                checkLockIsSecure(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -1360,15 +1429,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     return;
                 }
                 writer.printf("Request id: %d\n", resp.requestId);
-                writer.printf("Action: %s\n",
-                        InitialUserInfoResponseAction.toString(resp.action));
+                writer.printf("Action: %s\n", DebugUtils.constantToString(
+                        InitialUserInfoResponseAction.class, resp.action));
                 if (!TextUtils.isEmpty(resp.userNameToCreate)) {
                     writer.printf("User name: %s\n", resp.userNameToCreate);
                 }
                 if (resp.userToSwitchOrCreate.userId != UserManagerHelper.USER_NULL) {
                     writer.printf("User id: %d\n", resp.userToSwitchOrCreate.userId);
                 }
-                if (resp.userToSwitchOrCreate.flags != UserFlags.NONE) {
+                if (resp.userToSwitchOrCreate.flags != 0) {
                     writer.printf("User flags: %s\n",
                             UserHalHelper.userFlagsToString(resp.userToSwitchOrCreate.flags));
                 }
@@ -1379,6 +1448,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 latch.countDown();
             }
         };
+
         UsersInfo usersInfo = generateUsersInfo();
         mHal.getUserHal().getInitialUserInfo(requestType, timeout, usersInfo, callback);
         waitForHal(writer, latch, timeout);
@@ -1444,7 +1514,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             targetUserInfo.userId = targetUserId;
             targetUserInfo.flags = getUserHalFlags(targetUserId);
 
-            SwitchUserRequest request = new SwitchUserRequest();
+            SwitchUserRequest request = UserHalHelper.emptySwitchUserRequest();
             request.targetUser = targetUserInfo;
             request.usersInfo = generateUsersInfo();
 
@@ -1457,9 +1527,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                         return;
                     }
                     writer.printf("Request id: %d\n", resp.requestId);
-                    writer.printf("Message type: %s\n",
-                            SwitchUserMessageType.toString(resp.messageType));
-                    writer.printf("Switch Status: %s\n", SwitchUserStatus.toString(resp.status));
+                    writer.printf("Message type: %s\n", DebugUtils.constantToString(
+                            SwitchUserMessageType.class, resp.messageType));
+                    writer.printf("Switch Status: %s\n", DebugUtils.constantToString(
+                            SwitchUserStatus.class, resp.status));
                     String errorMessage = resp.errorMessage;
                     if (!TextUtils.isEmpty(errorMessage)) {
                         writer.printf("Error message: %s", errorMessage);
@@ -1479,6 +1550,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         CarUserManager carUserManager = getCarUserManager(mContext);
         AsyncFuture<UserSwitchResult> future = carUserManager.switchUser(targetUserId);
+
+        showUserSwitchResult(writer, future, timeout);
+    }
+
+    private void showUserSwitchResult(IndentingPrintWriter writer,
+            AsyncFuture<UserSwitchResult> future, int timeout) {
         UserSwitchResult result = waitForFuture(writer, future, timeout);
         if (result == null) return;
         writer.printf("UserSwitchResult: status=%s",
@@ -1488,6 +1565,30 @@ final class CarShellCommand extends BasicShellCommandHandler {
             writer.printf(", errorMessage=%s", msg);
         }
         writer.println();
+    }
+
+    private void logoutUser(String[] args, IndentingPrintWriter writer) {
+        int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
+
+        if (args.length > 1) {
+            for (int i = 1; i < args.length; i++) {
+                String arg = args[i];
+                switch (arg) {
+                    case "--timeout":
+                        timeout = Integer.parseInt(args[++i]);
+                        break;
+                    default:
+                        writer.println("Invalid option at index " + i + ": " + arg);
+                        return;
+                }
+            }
+        }
+
+        Slogf.d(TAG, "logoutUser(): timeout=%d", timeout);
+
+        CarUserManager carUserManager = getCarUserManager(mContext);
+        AsyncFuture<UserSwitchResult> future = carUserManager.logoutUser();
+        showUserSwitchResult(writer, future, timeout);
     }
 
     private void createUser(String[] args, IndentingPrintWriter writer) {
@@ -1545,9 +1646,18 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     UserCreationResult.statusToString(result.getStatus()),
                     user == null ? "N/A" : user.toString(),
                     user == null ? UserManagerHelper.USER_NULL : user.getIdentifier());
+            Integer androidFailureStatus = result.getAndroidFailureStatus();
+            if (androidFailureStatus != null) {
+                writer.printf(", androidStatus=%s", DebugUtils.constantToString(UserManager.class,
+                        "USER_OPERATION_", androidFailureStatus));
+            }
             String msg = result.getErrorMessage();
             if (!TextUtils.isEmpty(msg)) {
                 writer.printf(", errorMessage=%s", msg);
+            }
+            String internalMsg = result.getInternalErrorMessage();
+            if (!TextUtils.isEmpty(internalMsg)) {
+                writer.printf(", internalErrorMessage=%s", internalMsg);
             }
             writer.println();
             return;
@@ -1556,26 +1666,29 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CountDownLatch latch = new CountDownLatch(1);
         UserHalService userHal = mHal.getUserHal();
 
-        CreateUserRequest request = new CreateUserRequest();
+        CreateUserRequest request = UserHalHelper.emptyCreateUserRequest();
 
         UserManager um = mContext.getSystemService(UserManager.class);
-        UserHandle newUser;
 
+        NewUserRequest newUserRequest;
         try {
-            newUser = isGuest ? UserManagerHelper.createGuest(mContext, um, name)
-                    : UserManagerHelper.createUser(um, name, flags);
-        } catch (NullPointerException e) {
-            // TODO(b/196179969): in the following CLs createGuest and createUser would be
-            // replaced by the call which would return UserHandle. For now, it is possible
-            // that current call return null.
-            Slogf.w(TAG, "NullPointerException while creating User: ", e);
-            newUser = null;
+            newUserRequest = getCreateUserRequest(name, isGuest, flags);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Error creating new user request. name: %s isGuest: %b and flags: %s",
+                    name, isGuest, flags);
+            writer.println("Failed to create user");
+            return;
         }
 
-        if (newUser == null) {
+        NewUserResponse newUserResponse = um.createUser(newUserRequest);
+
+        if (!newUserResponse.isSuccessful()) {
             writer.printf("Failed to create user");
             return;
         }
+
+        UserHandle newUser = newUserResponse.getUser();
+
         writer.printf("New user: %s\n", newUser);
         Slogf.i(TAG, "Created new user: " + newUser);
 
@@ -1594,7 +1707,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 if (status == HalCallback.STATUS_OK) {
                     halOk.set(resp.status == CreateUserStatus.SUCCESS);
                     writer.printf("Request id: %d\n", resp.requestId);
-                    writer.printf("Create Status: %s\n", CreateUserStatus.toString(resp.status));
+                    writer.printf("Create Status: %s\n", DebugUtils.constantToString(
+                            CreateUserStatus.class, resp.status));
                     String errorMessage = resp.errorMessage;
                     if (!TextUtils.isEmpty(errorMessage)) {
                         writer.printf("Error message: %s", errorMessage);
@@ -1612,6 +1726,23 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.printf("User removed: %b\n", removed);
             }
         }
+    }
+
+    private NewUserRequest getCreateUserRequest(String name, boolean isGuest, int flags) {
+        NewUserRequest.Builder builder = new NewUserRequest.Builder().setName(name);
+        if ((flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN) {
+            builder.setAdmin();
+        }
+
+        if ((flags & UserManagerHelper.FLAG_EPHEMERAL) == UserManagerHelper.FLAG_EPHEMERAL) {
+            builder.setEphemeral();
+        }
+
+        if (isGuest) {
+            builder.setUserType(UserManager.USER_TYPE_FULL_GUEST);
+        }
+
+        return builder.build();
     }
 
     private void removeUser(String[] args, IndentingPrintWriter writer) {
@@ -1644,7 +1775,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             userInfo.userId = userId;
             userInfo.flags = getUserHalFlags(userId);
 
-            RemoveUserRequest request = new RemoveUserRequest();
+            RemoveUserRequest request = UserHalHelper.emptyRemoveUserRequest();
             request.removedUserInfo = userInfo;
             request.usersInfo = usersInfo;
 
@@ -1659,8 +1790,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 UserRemovalResult.statusToString(result.getStatus()));
     }
 
-    private static <T> T waitForFuture(@NonNull IndentingPrintWriter writer,
-            @NonNull AsyncFuture<T> future, int timeoutMs) {
+    private static <T> T waitForFuture(IndentingPrintWriter writer,
+            AsyncFuture<T> future, int timeoutMs) {
         T result = null;
         try {
             result = future.get(timeoutMs, TimeUnit.MILLISECONDS);
@@ -1689,7 +1820,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         boolean halOnly = false;
         int userId = UserHandle.CURRENT.getIdentifier();
 
-        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        UserIdentificationGetRequest request = UserHalHelper.emptyUserIdentificationGetRequest();
+        ArrayList<Integer> associationTypes = new ArrayList<>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
@@ -1711,14 +1843,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
                                 Arrays.toString(args), arg, VALID_USER_AUTH_TYPES_HELP);
                         return;
                     }
-                    request.associationTypes.add(type);
+                    associationTypes.add(type);
             }
-
         }
+        request.associationTypes = toIntArray(associationTypes);
         if (userId == UserHandle.CURRENT.getIdentifier()) {
             userId = ActivityManager.getCurrentUser();
         }
-        int requestSize = request.associationTypes.size();
+        int requestSize = request.associationTypes.length;
         if (halOnly) {
             request.numberAssociationTypes = requestSize;
             request.userInfo.userId = userId;
@@ -1735,14 +1867,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         CarUserManager carUserManager = getCarUserManager(writer, userId);
         int[] types = new int[requestSize];
         for (int i = 0; i < requestSize; i++) {
-            types[i] = request.associationTypes.get(i);
+            types[i] = request.associationTypes[i];
         }
         UserIdentificationAssociationResponse response = carUserManager
                 .getUserIdentificationAssociation(types);
         showResponse(writer, response);
     }
 
-    private CarUserManager getCarUserManager(@NonNull IndentingPrintWriter writer,
+    private CarUserManager getCarUserManager(IndentingPrintWriter writer,
             @UserIdInt int userId) {
         Context context;
         if (userId == mContext.getUser().getIdentifier()) {
@@ -1759,14 +1891,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         return getCarUserManager(context);
     }
 
-    private CarUserManager getCarUserManager(@NonNull Context context) {
+    private CarUserManager getCarUserManager(Context context) {
         Car car = Car.createCar(context);
         CarUserManager carUserManager = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
         return carUserManager;
     }
 
-    private void showResponse(@NonNull IndentingPrintWriter writer,
-            @NonNull UserIdentificationResponse response) {
+    private void showResponse(
+            IndentingPrintWriter writer, UserIdentificationResponse response) {
         if (response == null) {
             writer.println("null response");
             return;
@@ -1775,16 +1907,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
         if (!TextUtils.isEmpty(response.errorMessage)) {
             writer.printf("Error message: %s\n", response.errorMessage);
         }
-        int numberAssociations = response.associations.size();
+        int numberAssociations = response.associations.length;
         writer.printf("%d associations:\n", numberAssociations);
         for (int i = 0; i < numberAssociations; i++) {
-            UserIdentificationAssociation association = response.associations.get(i);
+            UserIdentificationAssociation association = response.associations[i];
             writer.printf("  %s\n", association);
         }
     }
 
-    private void showResponse(@NonNull IndentingPrintWriter writer,
-            @NonNull UserIdentificationAssociationResponse response) {
+    private void showResponse(IndentingPrintWriter writer,
+            UserIdentificationAssociationResponse response) {
         if (response == null) {
             writer.println("null response");
             return;
@@ -1804,7 +1936,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         writer.printf("%d associations:\n", values.length);
         for (int i = 0; i < values.length; i++) {
-            writer.printf("  %s\n", UserIdentificationAssociationValue.toString(values[i]));
+            writer.printf("  %s\n", DebugUtils.constantToString(
+                    UserIdentificationAssociationValue.class, values[i]));
         }
     }
 
@@ -1818,7 +1951,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int timeout = DEFAULT_HAL_TIMEOUT_MS;
         int userId = UserHandle.CURRENT.getIdentifier();
 
-        UserIdentificationSetRequest request = new UserIdentificationSetRequest();
+        UserIdentificationSetRequest request = UserHalHelper.emptyUserIdentificationSetRequest();
+        ArrayList<UserIdentificationSetAssociation> associations = new ArrayList<>();
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
@@ -1851,14 +1985,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
                                 Arrays.toString(args), arg, VALID_USER_AUTH_SET_VALUES_HELP);
                         return;
                     }
-                    request.associations.add(association);
+                    associations.add(association);
             }
-
         }
+        int requestSize = associations.size();
+        request.associations = associations.toArray(
+                new UserIdentificationSetAssociation[requestSize]);
+
         if (userId == UserHandle.CURRENT.getIdentifier()) {
             userId = ActivityManager.getCurrentUser();
         }
-        int requestSize = request.associations.size();
         if (halOnly) {
             request.numberAssociations = requestSize;
             request.userInfo.userId = userId;
@@ -1882,7 +2018,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int[] types = new int[requestSize];
         int[] values = new int[requestSize];
         for (int i = 0; i < requestSize; i++) {
-            UserIdentificationSetAssociation association = request.associations.get(i);
+            UserIdentificationSetAssociation association = request.associations[i];
             types[i] = association.type;
             values[i] = association.value;
         }
@@ -1894,7 +2030,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
     }
 
-    private static int parseAuthArg(@NonNull SparseArray<String> types, @NonNull String type) {
+    private static int parseAuthArg(SparseArray<String> types, String type) {
         for (int i = 0; i < types.size(); i++) {
             if (types.valueAt(i).equals(type)) {
                 return types.keyAt(i);
@@ -1936,6 +2072,79 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("DayNightMode changed to: " + currentMode);
     }
 
+    private void runSuspendCommand(String[] args, IndentingPrintWriter writer) {
+        // args[0] is always either COMMAND_SUSPEND or COMMAND_HIBERNE.
+        String command = args[0];
+        if (args.length > 4) {
+            writer.printf("Invalid command syntax.\nUsage: %s\n", getSuspendCommandUsage(command));
+            return;
+        }
+
+        boolean isHibernation = command.equals(COMMAND_HIBERNATE);
+        // Default is --auto, so simulate is decided based on device capability.
+        boolean simulate = !mCarPowerManagementService.isSuspendAvailable(isHibernation);
+        boolean modeSet = false;
+        boolean skipGarageMode = false;
+        int index = 1;
+        while (index < args.length) {
+            switch (args[index]) {
+                case PARAM_SIMULATE:
+                    if (modeSet) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
+                    simulate = true;
+                    modeSet = true;
+                    break;
+                case PARAM_AUTO:
+                    if (modeSet) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
+                    simulate = !mCarPowerManagementService.isSuspendAvailable(isHibernation);
+                    modeSet = true;
+                    break;
+                case PARAM_REAL:
+                    if (modeSet) {
+                        writer.printf("Invalid command syntax.\nUsage: %s\n",
+                                getSuspendCommandUsage(command));
+                        return;
+                    }
+                    simulate = false;
+                    modeSet = true;
+                    break;
+                case PARAM_SKIP_GARAGEMODE:
+                    skipGarageMode = true;
+                    break;
+                default:
+                    writer.printf("Invalid command syntax.\nUsage: %s\n",
+                            getSuspendCommandUsage(command));
+                    return;
+            }
+            index++;
+        }
+
+        String suspendType = isHibernation ? "disk" : "RAM";
+        if (simulate) {
+            try {
+                writer.printf("Suspend: simulating suspend-to-%s.\n", suspendType);
+                mCarPowerManagementService.simulateSuspendAndMaybeReboot(/* shouldReboot= */ false,
+                        isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
+                                : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+            } catch (Exception e) {
+                writer.printf("Simulating suspend-to-%s failed: %s\n", suspendType, e.getMessage());
+            }
+        } else {
+            try {
+                mCarPowerManagementService.suspendFromCommand(isHibernation, skipGarageMode);
+            } catch (Exception e) {
+                writer.printf("Suspend to %s failed: %s.\n", suspendType, e.getMessage());
+            }
+        }
+    }
+
     private void forceGarageMode(String arg, IndentingPrintWriter writer) {
         switch (arg) {
             case PARAM_ON_MODE:
@@ -1952,9 +2161,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 mGarageModeService.dump(writer);
                 break;
             case PARAM_REBOOT:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(true,
-                        PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
-                writer.println("Entering Garage Mode. Will reboot when it completes.");
+                try {
+                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(true,
+                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                    writer.println("Entering Garage Mode. Will reboot when it completes.");
+                } catch (IllegalStateException e) {
+                    writer.printf("Entering Garage Mode failed: %s\n", e.getMessage());
+                }
                 break;
             default:
                 writer.printf("Unknown value: %s. Valid argument: %s|%s|%s|%s\n",
@@ -2104,24 +2317,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private void powerOff(String[] args, IndentingPrintWriter writer) {
-        int index = 1;
         boolean skipGarageMode = false;
-        boolean shutdown = false;
-        while (index < args.length) {
-            switch (args[index]) {
-                case POWER_OFF_SKIP_GARAGEMODE:
-                    skipGarageMode = true;
-                    break;
-                case POWER_OFF_SHUTDOWN:
-                    shutdown = true;
-                    break;
-                default:
-                    writer.printf("Not supported option: %s\n", args[index]);
-                    return;
-            }
-            index++;
+        if (args.length > 2
+                || (args.length == 2 && !args[1].equals(PARAM_SKIP_GARAGEMODE))) {
+            writer.printf("Invalid usage: %s [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE);
+            return;
         }
-        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, shutdown);
+        if (args.length == 2) {
+            skipGarageMode = true;
+        }
+        mCarPowerManagementService.powerOffFromCommand(skipGarageMode);
     }
 
     /**
@@ -2147,8 +2352,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
         try {
             if (isErrorEvent) {
-                mHal.onPropertySetError(Integer.decode(value), Integer.decode(property),
-                        Integer.decode(zone));
+                VehiclePropError error = new VehiclePropError();
+                error.areaId = Integer.decode(zone);
+                error.propId = Integer.decode(property);
+                error.errorCode = Integer.decode(value);
+                mHal.onPropertySetError(new ArrayList<VehiclePropError>(Arrays.asList(error)));
             } else {
                 mHal.injectVhalEvent(Integer.decode(property), Integer.decode(zone), value,
                         Integer.decode(delayTime));
@@ -2356,8 +2564,228 @@ final class CarShellCommand extends BasicShellCommandHandler {
             writer.println("Failed to parse argument. Valid arguments: enable | disable");
             return;
         }
-        mCarWatchdogService.controlProcessHealthCheck(args[1].equals("disable"));
+        mCarWatchdogService.controlProcessHealthCheck(args[1].equals("enable"));
         writer.printf("Watchdog health checking is now %sd \n", args[1]);
+    }
+
+    private void printTelemetryHelp(IndentingPrintWriter writer) {
+        writer.println("A CLI to interact with CarTelemetryService.");
+        writer.println("\nUSAGE: adb shell cmd car_service telemetry <subcommand> [options]");
+        writer.println("\n\t-h");
+        writer.println("\t  Print this help text.");
+        writer.println("\tadd <name>");
+        writer.println("\t  Adds MetricsConfig from STDIN. Only a binary proto is supported.");
+        writer.println("\tremove <name>");
+        writer.println("\t  Removes metrics config.");
+        writer.println("\tlist");
+        writer.println("\t  Lists the config metrics in the service.");
+        writer.println("\tget-results [-d] [-w] <name>");
+        writer.println("\t  Gets the results for the metrics config.");
+        writer.println("\t  Pass -d to delete the fetched results from the storage.");
+        writer.println("\t  Pass -w to wait for the result.");
+        writer.println("\nEXAMPLES:");
+        writer.println("\t$ adb shell cmd car_service telemetry add mykey 1 < config1.protobin");
+        writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
+        writer.println("\n\t$ adb shell cmd car_service telemetry get-results mykey");
+    }
+
+    private void handleTelemetryCommands(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            printTelemetryHelp(writer);
+            return;
+        }
+        String cmd = args[1];
+        switch (cmd) {
+            case "add":
+                if (args.length != 3) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                try (BufferedInputStream in = new BufferedInputStream(
+                                new FileInputStream(getInFileDescriptor()));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                    FileUtils.copy(in, out);
+                    CountDownLatch latch = new CountDownLatch(1);
+                    mCarTelemetryService.addMetricsConfig(args[2], out.toByteArray(), status -> {
+                        if (status == CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED) {
+                            writer.printf("MetricsConfig %s is added.\n", args[2]);
+                        } else {
+                            writer.printf("Failed to add %s. Status is %d.\n", args[2], status);
+                        }
+                        latch.countDown();
+                    });
+                    writer.printf("Adding %s... Please see logcat for details.\n", args[2]);
+                    latch.await(TELEMETRY_RESULT_WAIT_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+                } catch (IOException | InterruptedException | NumberFormatException e) {
+                    writer.println("Failed to read from stdin: " + e);
+                }
+                break;
+            case "remove":
+                if (args.length != 3) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                mCarTelemetryService.removeMetricsConfig(args[2]);
+                writer.printf("Removing %s... Please see logcat for details.\n", args[2]);
+                break;
+            case "list":
+                writer.println("Active metric configs:");
+                mCarTelemetryService.getActiveMetricsConfigDetails().forEach((configDetails) -> {
+                    writer.printf("- %s\n", configDetails);
+                });
+                break;
+            case "get-results":
+                if (args.length < 3 || args.length > 5) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                String configName = null;
+                boolean deleteResults = false;
+                boolean waitForResults = false;
+                for (int i = 2; i < args.length; i++) {
+                    switch (args[i]) {
+                        case "-d":
+                            deleteResults = true;
+                            break;
+                        case "-w":
+                            waitForResults = true;
+                            break;
+                        default:
+                            configName = args[i];
+                    }
+                }
+                if (configName == null) {
+                    writer.println("Config name is required.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                if (waitForResults) {
+                    writer.println("Waiting for the result...");
+                    writer.flush();
+                }
+                while (true) {
+                    CountDownLatch latch = new CountDownLatch(1);
+                    AtomicReference<PersistableBundle> finalResult = new AtomicReference<>(null);
+                    AtomicReference<TelemetryError> finalError = new AtomicReference<>(null);
+                    mCarTelemetryService.getFinishedReports(configName, deleteResults,
+                            (result, error) -> {
+                                finalResult.set(result);
+                                finalError.set(error);
+                                latch.countDown();
+                            });
+                    try {
+                        latch.await(TELEMETRY_RESULT_WAIT_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
+                    } catch (InterruptedException e) {
+                        writer.println("Result await error: " + e);
+                        return;
+                    }
+                    if (finalError.get() != null) {
+                        // TODO(b/209469238): Create a NO_RESULT error type
+                        boolean isEmptyResult = finalError.get().getErrorType().equals(
+                                TelemetryError.ErrorType.UNSPECIFIED);
+                        if (waitForResults && isEmptyResult) {
+                            SystemClock.sleep(2000);  // do not spam CarTelemetryService
+                            continue; // continue the loop
+                        }
+                        writer.println("Error: " + finalError.get().getErrorType().name() + ": "
+                                + finalError.get().getMessage());
+                    } else {
+                        writer.println(finalResult.get());
+                    }
+                    return;
+                }
+            default:
+                printTelemetryHelp(writer);
+        }
+    }
+
+    private void controlComponentEnabledState(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        String packageName = args[2];
+        int currentUserId = ActivityManager.getCurrentUser();
+
+        if ("get".equals(args[1])) {
+            try {
+                int curState = PackageManagerHelper
+                        .getApplicationEnabledSettingForUser(packageName, currentUserId);
+                writer.println("Current State: " + getAppEnabledStateName(curState));
+            } catch (Exception e) {
+                writer.printf("%s: getting package enabled state failed with error: %s\n",
+                        TAG, e.toString());
+            }
+            return;
+        }
+
+        int newState = 0;
+        switch (args[1]) {
+            case "default":
+                newState = PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
+                break;
+            case "enable":
+                newState = PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+                break;
+            case "disable_until_used":
+                newState = PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
+                break;
+            default:
+                writer.println("unsupported state action: " + args[1]);
+                return;
+        }
+
+        String callingPackageName = mContext.getPackageManager().getNameForUid(Process.myUid());
+        try {
+            PackageManagerHelper.setApplicationEnabledSettingForUser(packageName, newState,
+                    /* EnabledFlag */ 0, currentUserId, callingPackageName);
+        } catch (Exception e) {
+            writer.printf("%s: setting package enabled state failed with error: %s\n",
+                    TAG, e.toString());
+            return;
+        }
+        writer.println("New State: " + getAppEnabledStateName(newState));
+    }
+
+    private String getAppEnabledStateName(int enabledState) {
+        String stateName = "COMPONENT_ENABLED_STATE_";
+        switch (enabledState) {
+            case PackageManager.COMPONENT_ENABLED_STATE_DEFAULT:
+                stateName += "DEFAULT";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_ENABLED:
+                stateName += "ENABLED";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_DISABLED:
+                stateName += "DISABLED";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER:
+                stateName += "DISABLED_USER";
+                break;
+            case PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED:
+                stateName += "DISABLED_UNTIL_USED";
+                break;
+            default:
+                stateName += "UNSUPPORTED";
+                break;
+        }
+        return stateName;
+    }
+
+    private void checkLockIsSecure(String[] args, IndentingPrintWriter writer) {
+        if ((args.length != 1) && (args.length != 2)) {
+            showInvalidArguments(writer);
+        }
+
+        int userId = UserHandle.myUserId();
+        if (args.length == 2) {
+            userId = Integer.parseInt(args[1]);
+        }
+        writer.println(LockPatternHelper.isSecure(mContext, userId));
     }
 
     // Check if the given property is global
@@ -2366,5 +2794,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return false;
         }
         return (Integer.decode(property) & VehicleArea.MASK) == VehicleArea.GLOBAL;
+    }
+
+    private static String getSuspendCommandUsage(String command) {
+        return command + " [" + PARAM_AUTO + "|" + PARAM_SIMULATE + "|" + PARAM_REAL + "] ["
+                + PARAM_SKIP_GARAGEMODE + "]";
     }
 }

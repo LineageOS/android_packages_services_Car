@@ -19,6 +19,7 @@ package com.android.car.internal.test;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.apitest.IStableAIDLTestBinder;
+import android.car.apitest.IStableAIDLTestCallback;
 import android.car.apitest.StableAIDLTestLargeParcelable;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
@@ -26,8 +27,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
-import android.os.Parcel;
-import android.os.RemoteException;
+import android.os.Parcelable;
 
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -52,7 +52,20 @@ public final class LargeParcelableJavaStableAIDLTest {
 
     private final TestServiceConnection mServiceConnection = new TestServiceConnection();
 
-    private IStableAIDLTestBinderWrapper mBinder;
+    private IStableAIDLTestBinder mBinder;
+
+    private static class TestCallback extends IStableAIDLTestCallback.Stub {
+        @Override
+        public void reply(StableAIDLTestLargeParcelable p) {
+            mResult = p;
+        }
+
+        public StableAIDLTestLargeParcelable getResult() {
+            return mResult;
+        }
+
+        private StableAIDLTestLargeParcelable mResult;
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -79,6 +92,20 @@ public final class LargeParcelableJavaStableAIDLTest {
     }
 
     @Test
+    public void testEchoSmallPayloadPerfTest() throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            doTestLEcho(ARRAY_LENGTH_SMALL);
+        }
+    }
+
+    @Test
+    public void testEchoBigPayloadPerfTest() throws Exception {
+        for (int i = 0; i < 1000; i++) {
+            doTestLEcho(ARRAY_LENGTH_BIG);
+        }
+    }
+
+    @Test
     public void testEchoMultipleArgsSmallPayload() throws Exception {
         doTestMultipleArgs(ARRAY_LENGTH_SMALL);
     }
@@ -101,114 +128,93 @@ public final class LargeParcelableJavaStableAIDLTest {
         assertThat(argValue).isEqualTo(rValue);
     }
 
+    @Test
+    public void testEchoWithCallbackSmallPayload() throws Exception {
+        doTestEchoWithCallback(ARRAY_LENGTH_SMALL);
+    }
+
+    @Test
+    public void testEchoWithCallbackBigPayload() throws Exception {
+        doTestEchoWithCallback(ARRAY_LENGTH_BIG);
+    }
+
+    public StableAIDLTestLargeParcelable prepareParcelable(StableAIDLTestLargeParcelable in) {
+        Parcelable sendableParcelable = LargeParcelable.toLargeParcelable(in, () -> {
+            StableAIDLTestLargeParcelable o = new StableAIDLTestLargeParcelable();
+            o.payload = new byte[0];
+            return o;
+        });
+        return (StableAIDLTestLargeParcelable) sendableParcelable;
+    }
+
     private void doTestLEcho(int payloadSize) throws Exception {
         StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
-        orig.payload = LargeParcelableTest.createByteArray(payloadSize);
+        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        orig.payload = payload;
+        orig = prepareParcelable(orig);
 
         StableAIDLTestLargeParcelable r = mBinder.echo(orig);
+        r = (StableAIDLTestLargeParcelable)
+                LargeParcelable.reconstructStableAIDLParcelable(r, true);
 
         assertThat(r).isNotNull();
         assertThat(r.payload).isNotNull();
-        assertThat(r.payload).isEqualTo(orig.payload);
+        assertThat(r.payload).isEqualTo(payload);
         if (payloadSize > LargeParcelable.MAX_DIRECT_PAYLOAD_SIZE) {
             assertThat(orig.sharedMemoryFd).isNotNull();
+            assertThat(orig.payload.length).isEqualTo(0);
             assertThat(r.sharedMemoryFd).isNotNull();
         } else {
             assertThat(orig.sharedMemoryFd).isNull();
+            assertThat(orig.payload.length).isNotEqualTo(0);
             assertThat(r.sharedMemoryFd).isNull();
         }
     }
 
     private void doTestMultipleArgs(int payloadSize) throws Exception {
         StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
-        orig.payload = LargeParcelableTest.createByteArray(payloadSize);
+        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        orig.payload = payload;
         long argValue = 0x12345678;
         long expectedRet = argValue + IStableAIDLBinderTestService.calcByteSum(orig);
+        orig = prepareParcelable(orig);
 
         long r = mBinder.echoWithLong(orig, argValue);
 
         assertThat(r).isEqualTo(expectedRet);
         if (payloadSize > LargeParcelable.MAX_DIRECT_PAYLOAD_SIZE) {
             assertThat(orig.sharedMemoryFd).isNotNull();
+            assertThat(orig.payload.length).isEqualTo(0);
         } else {
             assertThat(orig.sharedMemoryFd).isNull();
+            assertThat(orig.payload.length).isNotEqualTo(0);
         }
     }
 
-    // This class shows how binder call is wrapped to make it more efficient with shared memory.
-    // Most code is copied from auto-generated code with only small changes.
-    private static final class IStableAIDLTestBinderWrapper {
-        static final int TRANSACTION_echo = (IBinder.FIRST_CALL_TRANSACTION + 0);
-        static final int TRANSACTION_echoWithLong = (IBinder.FIRST_CALL_TRANSACTION + 1);
+    private void doTestEchoWithCallback(int payloadSize) throws Exception {
+        StableAIDLTestLargeParcelable orig = new StableAIDLTestLargeParcelable();
+        byte[] payload = LargeParcelableTest.createByteArray(payloadSize);
+        orig.payload = payload;
+        TestCallback callback = new TestCallback();
+        orig = prepareParcelable(orig);
 
-        private final IStableAIDLTestBinder mBinder;
+        mBinder.echoWithCallback(callback, orig);
 
-        IStableAIDLTestBinderWrapper(IStableAIDLTestBinder binder) {
-            mBinder = binder;
-        }
+        StableAIDLTestLargeParcelable r = callback.getResult();
+        r = (StableAIDLTestLargeParcelable)
+                LargeParcelable.reconstructStableAIDLParcelable(r, true);
 
-        StableAIDLTestLargeParcelable echo(StableAIDLTestLargeParcelable p) throws
-                RemoteException {
-            Parcel data = Parcel.obtain();
-            Parcel reply = Parcel.obtain();
-            StableAIDLTestLargeParcelable result;
-            try {
-                data.writeInterfaceToken(IStableAIDLTestBinder.DESCRIPTOR);
-                if (p != null) {
-                    data.writeInt(1);
-                    /// changed from auto-generated code
-                    LargeParcelable.serializeStableAIDLParcelable(data, p, 0, true);
-                } else {
-                    data.writeInt(0);
-                }
-                boolean status = mBinder.asBinder().transact(TRANSACTION_echo, data, reply, 0);
-                if (!status) {
-                    throw new IllegalArgumentException();
-                }
-                reply.readException();
-                if (0 != reply.readInt()) {
-                    // changed from auto-generated code
-                    result = StableAIDLTestLargeParcelable.CREATOR.createFromParcel(reply);
-                    result =
-                            (StableAIDLTestLargeParcelable)
-                                    LargeParcelable.reconstructStableAIDLParcelable(
-                                    result, true);
-                } else {
-                    result = null;
-                }
-            } finally {
-                reply.recycle();
-                data.recycle();
-            }
-            return result;
-        }
-
-        public long echoWithLong(StableAIDLTestLargeParcelable p, long v) throws RemoteException {
-            Parcel data = Parcel.obtain();
-            Parcel reply = Parcel.obtain();
-            long result;
-            try {
-                data.writeInterfaceToken(IStableAIDLTestBinder.DESCRIPTOR);
-                if (p != null) {
-                    data.writeInt(1);
-                    // changed from auto-generated code
-                    LargeParcelable.serializeStableAIDLParcelable(data, p, 0, true);
-                } else {
-                    data.writeInt(0);
-                }
-                data.writeLong(v);
-                boolean status = mBinder.asBinder().transact(TRANSACTION_echoWithLong, data, reply,
-                        0);
-                if (!status) {
-                    throw new IllegalArgumentException();
-                }
-                reply.readException();
-                result = reply.readLong();
-            } finally {
-                reply.recycle();
-                data.recycle();
-            }
-            return result;
+        assertThat(r).isNotNull();
+        assertThat(r.payload).isNotNull();
+        assertThat(r.payload).isEqualTo(payload);
+        if (payloadSize > LargeParcelable.MAX_DIRECT_PAYLOAD_SIZE) {
+            assertThat(orig.sharedMemoryFd).isNotNull();
+            assertThat(orig.payload.length).isEqualTo(0);
+            assertThat(r.sharedMemoryFd).isNotNull();
+        } else {
+            assertThat(orig.sharedMemoryFd).isNull();
+            assertThat(orig.payload.length).isNotEqualTo(0);
+            assertThat(r.sharedMemoryFd).isNull();
         }
     }
 
@@ -217,8 +223,7 @@ public final class LargeParcelableJavaStableAIDLTest {
 
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mBinder = new IStableAIDLTestBinderWrapper(IStableAIDLTestBinder.Stub.asInterface(
-                    service));
+            mBinder = IStableAIDLTestBinder.Stub.asInterface(service);
             latch.countDown();
         }
 

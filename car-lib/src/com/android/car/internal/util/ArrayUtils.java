@@ -20,6 +20,8 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.util.ArraySet;
 
+import dalvik.system.VMRuntime;
+
 import java.io.File;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -48,6 +50,11 @@ public class ArrayUtils {
     public static final File[] EMPTY_FILE = new File[0];
 
     private ArrayUtils() { /* cannot be instantiated */ }
+
+    /** See {@link VMRuntime#newUnpaddedArray} for details. */
+    public static long[] newUnpaddedLongArray(int minLen) {
+        return (long[]) VMRuntime.getRuntime().newUnpaddedArray(long.class, minLen);
+    }
 
     /**
      * Checks if the beginnings of two byte arrays are equal.

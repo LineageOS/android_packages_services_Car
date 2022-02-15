@@ -30,13 +30,13 @@ interface ICarServiceHelper {
     * Check
     * {@link com.android.server.wm.CarLaunchParamsModifier#setDisplayAllowlistForUser(int, int[]).
     */
-    void setDisplayAllowlistForUser(int userId, in int[] displayIds);
+    void setDisplayAllowlistForUser(int userId, in int[] displayIds) = 0;
 
     /**
      * Check
      * {@link com.android.server.wm.CarLaunchParamsModifier#setPassengerDisplays(int[])}.
      */
-    void setPassengerDisplays(in int[] displayIds);
+    void setPassengerDisplays(in int[] displayIds) = 1;
 
     /**
      * Check
@@ -44,27 +44,30 @@ interface ICarServiceHelper {
      *         boolean, List<ComponentName>)}.
      */
     void setSourcePreferredComponents(
-            boolean enableSourcePreferred, in List<ComponentName> sourcePreferredComponents);
+            boolean enableSourcePreferred, in List<ComponentName> sourcePreferredComponents) = 2;
 
     /**
      * Sets whether it's safe to run operations (like DevicePolicyManager.lockNow()).
      */
-    void setSafetyMode(boolean safe);
+    void setSafetyMode(boolean safe) = 3;
 
     /**
      * Creates the given user, even when it's disallowed by DevicePolicyManager.
      */
-    UserHandle createUserEvenWhenDisallowed(String name, String userType, int flags);
+    UserHandle createUserEvenWhenDisallowed(String name, String userType, int flags) = 4;
 
     /**
      * Designates the given {@code activity} to be launched in {@code TaskDisplayArea} of
      * {@code featureId} in the display of {@code displayId}.
      */
-    int setPersistentActivity(in ComponentName activity, int displayId, int featureId);
+    int setPersistentActivity(in ComponentName activity, int displayId, int featureId) = 5;
 
     /**
      * Saves initial user information in System Server. If car service crashes, Car service helepr
      * service would send back this information.
      */
-    void sendInitialUser(in UserHandle user);
+    void sendInitialUser(in UserHandle user) = 6;
+
+    /** Returns the minor version int of servicehelper builtin. */
+    int getServiceHelperBuiltinMinorVersion() = 7;
 }

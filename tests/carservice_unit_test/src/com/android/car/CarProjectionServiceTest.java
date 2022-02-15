@@ -93,6 +93,7 @@ public class CarProjectionServiceTest {
             .setSsid("SSID")
             .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
             .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+            .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
             .build();
 
     private final IBinder mToken = new Binder();

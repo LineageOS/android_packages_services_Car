@@ -134,12 +134,26 @@ public final class EventLogHelper {
     }
 
     public static void writeCarUserServiceSwitchUserResp(int halCallbackStatus,
-            int userSwitchStatus,
-            @Nullable String errorMessage) {
+            int userSwitchStatus, @Nullable String errorMessage) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SWITCH_USER_RESP, halCallbackStatus,
                 userSwitchStatus, errorMessage);
     }
 
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_SVC_LOGOUT_USER_REQ} event.
+     */
+    public static void writeCarUserServiceLogoutUserReq(int userId, int timeout) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_LOGOUT_USER_REQ, userId, timeout);
+    }
+
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_SVC_LOGOUT_USER_RESP} event.
+     */
+    public static void writeCarUserServiceLogoutUserResp(int halCallbackStatus,
+            int userSwitchStatus, @Nullable String errorMessage) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_LOGOUT_USER_RESP, halCallbackStatus,
+                userSwitchStatus, errorMessage);
+    }
     public static void writeCarUserServicePostSwitchUserReq(int targetUserId, int currentUserId) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_POST_SWITCH_USER_REQ, targetUserId,
                 currentUserId);
@@ -323,8 +337,11 @@ public final class EventLogHelper {
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_REMOVE_USER_REQ, targetUserId, currentUserId);
     }
 
-    public static void writeCarUserManagerAddListener(int uid, @Nullable String packageName) {
-        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_ADD_LISTENER, uid, packageName);
+    /** Logs a {@code EventLogTags.CAR_USER_MGR_ADD_LISTENER} event. */
+    public static void writeCarUserManagerAddListener(int uid, @Nullable String packageName,
+            boolean hasFilter) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_ADD_LISTENER, uid, packageName,
+                hasFilter ? 1 : 0);
     }
 
     public static void writeCarUserManagerRemoveListener(int uid, @Nullable String packageName) {
@@ -342,6 +359,21 @@ public final class EventLogHelper {
     public static void writeCarUserManagerSwitchUserResp(int uid, int status,
             @Nullable String errorMessage) {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_RESP, uid, status, errorMessage);
+    }
+
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_MGR_LOGOUT_USER_REQ} event.
+     */
+    public static void writeCarUserManagerLogoutUserReq(int uid) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_REQ, uid);
+    }
+
+    /**
+     * Logs a {@code EventLogTags.CAR_USER_MGR_LOGOUT_USER_RESP} event.
+     */
+    public static void writeCarUserManagerLogoutUserResp(int uid, int status,
+            @Nullable String errorMessage) {
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_RESP, uid, status, errorMessage);
     }
 
     public static void writeCarUserManagerGetUserAuthReq(@Nullable Object[] types) {
@@ -420,6 +452,22 @@ public final class EventLogHelper {
 
     public static void writeCarDevicePolicyManagerStopUserResp(int uid, int status) {
         EventLog.writeEvent(EventLogTags.CAR_DP_MGR_STOP_USER_RESP, uid, status);
+    }
+
+    public static void writePowerPolicyChange(String policy) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_PWR_POLICY_CHANGE, policy);
+    }
+
+    public static void writeCarPowerManagerStateChange(int state) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_STATE_CHANGE, state);
+    }
+
+    public static void writeCarPowerManagerStateRequest(int state, int param) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_STATE_REQ, state, param);
+    }
+
+    public static void writeGarageModeEvent(int status) {
+        EventLog.writeEvent(EventLogTags.CAR_PWR_MGR_GARAGE_MODE, status);
     }
 
     private EventLogHelper() {

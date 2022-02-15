@@ -16,6 +16,6 @@
   -->
 <permissions>
     <privapp-permissions package="com.google.android.car.adaslocation">
-        <permission name="android.permission.WRITE_SECURE_SETTINGS"/>
+        <permission name="android.permission.LOCATION_BYPASS"/>
     </privapp-permissions>
 </permissions>

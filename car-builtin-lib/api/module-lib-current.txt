@@ -1,6 +1,10 @@
 // Signature format: 2.0
 package android.car.builtin {
 
+  public final class CarBuiltin {
+    field public static final int API_VERSION_MINOR_INT = 0; // 0x0
+  }
+
   public final class PermissionHelper {
     field public static final String MONITOR_INPUT = "android.permission.MONITOR_INPUT";
   }
@@ -11,12 +15,8 @@ package android.car.builtin.app {
 
   public final class ActivityManagerHelper {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
-    method @Deprecated public android.util.Pair<android.content.Intent,java.lang.Integer> findRootTask(int);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
-    method @Deprecated @Nullable public static android.content.Intent getIntent(@NonNull android.app.PendingIntent);
-    method @Deprecated @Nullable public android.util.SparseArray<android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer> getTopTasks();
     method public void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
-    method @Deprecated public void registerTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
     method public boolean removeTask(int);
     method public void setFocusedRootTask(int);
     method public boolean startUserInBackground(int);
@@ -25,12 +25,7 @@ package android.car.builtin.app {
     method public int stopUserWithDelayedLocking(int, boolean);
     method public boolean unlockUser(int);
     method public void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
-    method @Deprecated public void unregisterTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
     field public static final int INVALID_TASK_ID = -1; // 0xffffffff
-  }
-
-  @Deprecated public static interface ActivityManagerHelper.OnTaskStackChangeListener {
-    method @Deprecated public default void onTaskStackChanged();
   }
 
   public static interface ActivityManagerHelper.ProcessObserverCallback {
@@ -38,23 +33,16 @@ package android.car.builtin.app {
     method public default void onProcessDied(int, int);
   }
 
-  @Deprecated public static class ActivityManagerHelper.TopTaskInfoContainer {
-    ctor @Deprecated public ActivityManagerHelper.TopTaskInfoContainer(android.content.ComponentName, int, int, int, int, int, int, android.content.ComponentName, int[], String[]);
-    method @Deprecated public boolean isMatching(android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer);
-    field @Deprecated @Nullable public final android.content.ComponentName baseActivity;
-    field @Deprecated public final int[] childTaskIds;
-    field @Deprecated public final String[] childTaskNames;
-    field @Deprecated public final int displayId;
-    field @Deprecated public final int position;
-    field @Deprecated public final int rootTaskId;
-    field @Deprecated public final int rootTaskUserId;
-    field @Deprecated public final int taskId;
-    field @Deprecated @Nullable public final android.content.ComponentName topActivity;
-    field @Deprecated public final int userId;
-  }
-
   public final class KeyguardManagerHelper {
     method public static boolean isKeyguardLocked();
+  }
+
+  public class TaskInfoHelper {
+    ctor public TaskInfoHelper();
+    method public static int getDisplayId(@NonNull android.app.TaskInfo);
+    method public static int getUserId(@NonNull android.app.TaskInfo);
+    method public static boolean isVisible(@NonNull android.app.TaskInfo);
+    method public static String toString(@Nullable android.app.TaskInfo);
   }
 
   public final class VoiceInteractionHelper {
@@ -64,11 +52,21 @@ package android.car.builtin.app {
 
 }
 
+package android.car.builtin.bluetooth {
+
+  @Deprecated public final class BluetoothHeadsetClientHelper {
+    method @Deprecated public static java.util.List<android.bluetooth.BluetoothDevice> getConnectedBvraDevices(@NonNull android.bluetooth.BluetoothHeadsetClient);
+    method @Deprecated public static boolean startVoiceRecognition(@NonNull android.bluetooth.BluetoothHeadsetClient, android.bluetooth.BluetoothDevice);
+    method @Deprecated public static boolean stopVoiceRecognition(@NonNull android.bluetooth.BluetoothHeadsetClient, android.bluetooth.BluetoothDevice);
+  }
+
+}
+
 package android.car.builtin.content {
 
   public final class ContextHelper {
     method public static int getDisplayId(@NonNull android.content.Context);
-    method @Deprecated @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public static void startActivityAsUser(@NonNull android.content.Context, @NonNull android.content.Intent, @Nullable android.os.Bundle, @NonNull android.os.UserHandle);
+    method @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS) public static void startActivityAsUser(@NonNull android.content.Context, @NonNull android.content.Intent, @Nullable android.os.Bundle, @NonNull android.os.UserHandle);
   }
 
 }
@@ -90,6 +88,7 @@ package android.car.builtin.content.pm {
     method public static boolean isUpdatedSystemApp(@NonNull android.content.pm.ApplicationInfo);
     method public static boolean isVendorApp(@NonNull android.content.pm.ApplicationInfo);
     method public static void setApplicationEnabledSettingForUser(@NonNull String, int, int, int, @NonNull String) throws android.os.RemoteException;
+    field public static final String PROPERTY_CAR_SERVICE_OVERLAY_PACKAGES = "ro.android.car.service.overlay.packages";
   }
 
 }
@@ -188,7 +187,7 @@ package android.car.builtin.os {
   }
 
   public final class SharedMemoryHelper {
-    method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory);
+    method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory) throws java.io.IOException;
   }
 
   public final class SystemPropertiesHelper {
@@ -200,30 +199,17 @@ package android.car.builtin.os {
   }
 
   public final class UserManagerHelper {
-    method public static android.graphics.Bitmap assignDefaultIconForUser(@NonNull android.content.Context, @NonNull android.os.UserHandle);
-    method @Deprecated @Nullable public static android.os.UserHandle createGuest(@NonNull android.content.Context, @NonNull android.os.UserManager, @Nullable String);
-    method @Deprecated @Nullable public static android.os.UserHandle createUser(@NonNull android.os.UserManager, @Nullable String, @NonNull String, int);
-    method @Deprecated @Nullable public static android.os.UserHandle createUser(@NonNull android.os.UserManager, @Nullable String, int);
     method @NonNull public static String getDefaultUserName(@NonNull android.content.Context);
     method public static String getDefaultUserTypeForUserInfoFlags(int);
     method public static int getMaxRunningUsers(@NonNull android.content.Context);
-    method @Deprecated public static int getMaxSupportedUsers();
-    method @Deprecated public static int getProfileGroupId(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean);
     method @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean, boolean);
     method public static int getUserId(int);
-    method @Deprecated public static boolean isAdminUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated public static boolean isEnabledUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated public static boolean isEphemeralUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated public static boolean isGuestUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isEnabledUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isEphemeralUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static boolean isPreCreatedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method @Deprecated public static boolean isProfileUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static boolean markGuestForDeletion(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Nullable public static android.os.UserHandle preCreateUser(@NonNull android.os.UserManager, @NonNull String);
-    method @Deprecated public static int removeUserOrSetEphemeral(@NonNull android.os.UserManager, int, boolean);
-    method public static void setUserAdmin(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
-    method public static void setUserRestriction(@NonNull android.os.UserManager, @NonNull String, boolean, @NonNull android.os.UserHandle);
     field public static final int FLAG_ADMIN = 2; // 0x2
     field public static final int FLAG_DEMO = 512; // 0x200
     field public static final int FLAG_DISABLED = 64; // 0x40
@@ -237,13 +223,8 @@ package android.car.builtin.os {
     field public static final int FLAG_QUIET_MODE = 128; // 0x80
     field public static final int FLAG_RESTRICTED = 8; // 0x8
     field public static final int FLAG_SYSTEM = 2048; // 0x800
-    field @Deprecated public static final int REMOVE_RESULT_ALREADY_BEING_REMOVED = 2; // 0x2
-    field @Deprecated public static final int REMOVE_RESULT_ERROR = 3; // 0x3
-    field @Deprecated public static final int REMOVE_RESULT_REMOVED = 0; // 0x0
-    field @Deprecated public static final int REMOVE_RESULT_SET_EPHEMERAL = 1; // 0x1
     field public static final int USER_NULL = -10000; // 0xffffd8f0
     field public static final int USER_SYSTEM = 0; // 0x0
-    field @Deprecated public static final String USER_TYPE_FULL_GUEST = "android.os.usertype.full.GUEST";
   }
 
 }
@@ -301,6 +282,8 @@ package android.car.builtin.util {
     method public static void writeCarHelperUserSwitching(int, int);
     method public static void writeCarHelperUserUnlocked(int);
     method public static void writeCarHelperUserUnlocking(int);
+    method public static void writeCarPowerManagerStateChange(int);
+    method public static void writeCarPowerManagerStateRequest(int, int);
     method public static void writeCarServiceConnected(@Nullable String);
     method public static void writeCarServiceCreate(boolean);
     method public static void writeCarServiceDestroy(boolean);
@@ -325,12 +308,14 @@ package android.car.builtin.util {
     method public static void writeCarUserHalSetUserAuthResp(@Nullable Object[]);
     method public static void writeCarUserHalSwitchUserReq(int, int, int, int);
     method public static void writeCarUserHalSwitchUserResp(int, int, int, @Nullable String);
-    method public static void writeCarUserManagerAddListener(int, @Nullable String);
+    method public static void writeCarUserManagerAddListener(int, @Nullable String, boolean);
     method public static void writeCarUserManagerCreateUserReq(int, @Nullable String, @Nullable String, int);
     method public static void writeCarUserManagerCreateUserResp(int, int, @Nullable String);
     method public static void writeCarUserManagerDisconnected(int);
     method public static void writeCarUserManagerGetUserAuthReq(@Nullable Object[]);
     method public static void writeCarUserManagerGetUserAuthResp(@Nullable Object[]);
+    method public static void writeCarUserManagerLogoutUserReq(int);
+    method public static void writeCarUserManagerLogoutUserResp(int, int, @Nullable String);
     method public static void writeCarUserManagerNotifyLifecycleListener(int, int, int, int);
     method public static void writeCarUserManagerPreCreateUserReq(int);
     method public static void writeCarUserManagerRemoveListener(int, @Nullable String);
@@ -349,6 +334,8 @@ package android.car.builtin.util {
     method public static void writeCarUserServiceInitialUserInfoReq(int, int, int, int, int);
     method public static void writeCarUserServiceInitialUserInfoReqComplete(int);
     method public static void writeCarUserServiceInitialUserInfoResp(int, int, int, int, @Nullable String, @Nullable String);
+    method public static void writeCarUserServiceLogoutUserReq(int, int);
+    method public static void writeCarUserServiceLogoutUserResp(int, int, @Nullable String);
     method public static void writeCarUserServiceNotifyAppLifecycleListener(int, @Nullable String, int, int, int);
     method public static void writeCarUserServiceNotifyInternalLifecycleListener(@Nullable String, int, int, int);
     method public static void writeCarUserServicePostSwitchUserReq(int, int);
@@ -369,6 +356,8 @@ package android.car.builtin.util {
     method public static void writeCarUserServiceSwitchUserReq(int, int);
     method public static void writeCarUserServiceSwitchUserResp(int, int, @Nullable String);
     method public static void writeCarUserServiceSwitchUserUiReq(int);
+    method public static void writeGarageModeEvent(int);
+    method public static void writePowerPolicyChange(String);
   }
 
   public final class Slogf {
@@ -383,7 +372,6 @@ package android.car.builtin.util {
     method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static void i(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
     method public static boolean isLoggable(@NonNull String, int);
-    method public static int println(int, @NonNull String, @NonNull String);
     method public static int v(@NonNull String, @NonNull String);
     method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static void v(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
@@ -397,8 +385,6 @@ package android.car.builtin.util {
     method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
     method public static void wtf(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
     method public static void wtf(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
-    method public static void wtfQuiet(@NonNull String, @NonNull String);
-    method public static int wtfStack(@NonNull String, @NonNull String);
   }
 
   public class TimeUtils {
@@ -425,8 +411,12 @@ package android.car.builtin.view {
 
   public final class DisplayHelper {
     method public static int getPhysicalPort(android.view.Display);
+    method public static int getType(android.view.Display);
     method public static String getUniqueId(android.view.Display);
     field public static final int INVALID_PORT = -1; // 0xffffffff
+    field public static final int TYPE_EXTERNAL = 2; // 0x2
+    field public static final int TYPE_INTERNAL = 1; // 0x1
+    field public static final int TYPE_VIRTUAL = 5; // 0x5
   }
 
   public final class KeyEventHelper {
@@ -439,6 +429,15 @@ package android.car.builtin.widget {
 
   public final class LockPatternHelper {
     method public static boolean isSecure(@NonNull android.content.Context, int);
+  }
+
+}
+
+package android.car.builtin.window {
+
+  public class DisplayAreaOrganizerHelper {
+    ctor public DisplayAreaOrganizerHelper();
+    field public static final int FEATURE_UNDEFINED = -1; // 0xffffffff
   }
 
 }

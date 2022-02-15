@@ -37,11 +37,15 @@ cc_defaults {
         "packagemanager_aidl-cpp",
     ],
     static_libs: [
-        "android.automotive.watchdog.internal-cpp",
+        "android.automotive.watchdog.internal-V1-cpp",
         "android.automotive.watchdog-V3-cpp",
+        "libvhalclient",
     ],
     header_libs: [
         "libgtest_prod_headers",
+    ],
+    defaults: [
+        "vhalclient_defaults",
     ],
 }
 
@@ -117,6 +121,10 @@ cc_test {
         "libwatchdog_process_service_defaults",
     ],
     test_suites: ["general-tests"],
+    tidy_disabled_srcs: [
+        // b/207508335
+        "tests/PackageInfoResolverTest.cpp",
+    ],
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",

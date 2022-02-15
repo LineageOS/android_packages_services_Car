@@ -43,6 +43,10 @@ public final class PermissionHelperTest extends AbstractExtendedMockitoTestCase 
     @Mock
     private Context mContext;
 
+    public PermissionHelperTest() {
+        super(NO_LOG_TAGS);
+    }
+
     @Test
     public void testHasAtLeastOnePermission_none() {
         mockPermission(PERMISSION1, PERMISSION_DENIED);

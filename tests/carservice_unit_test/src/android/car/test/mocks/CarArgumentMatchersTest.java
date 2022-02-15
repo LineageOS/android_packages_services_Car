@@ -30,9 +30,9 @@ import static org.mockito.Mockito.when;
 import android.car.test.util.UserTestingHelper;
 import android.content.Intent;
 import android.content.pm.UserInfo;
-import android.hardware.automotive.vehicle.V2_0.IVehicle;
-import android.hardware.automotive.vehicle.V2_0.StatusCode;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
+import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.StatusCode;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.os.UserHandle;
 import android.os.UserManager;
 
@@ -106,7 +106,7 @@ public final class CarArgumentMatchersTest {
 
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = VEHICLE_PROP_NAME;
-        prop.value = new VehiclePropValue.RawValue();
+        prop.value = new RawPropValues();
         int actualStatusCode = mFakeService.setVehiclePropValue(prop);
 
         assertThat(actualStatusCode).isEqualTo(StatusCode.OK);
@@ -120,8 +120,8 @@ public final class CarArgumentMatchersTest {
 
         VehiclePropValue prop = new VehiclePropValue();
         prop.prop = VEHICLE_PROP_NAME;
-        prop.value = new VehiclePropValue.RawValue();
-        prop.value.int32Values.add(VEHICLE_PROP_VALUE);
+        prop.value = new RawPropValues();
+        prop.value.int32Values = new int[]{VEHICLE_PROP_VALUE};
         int actualStatusCode = mFakeService.setVehiclePropValue(prop);
 
         assertThat(actualStatusCode).isEqualTo(StatusCode.OK);
@@ -161,12 +161,14 @@ public final class CarArgumentMatchersTest {
     }
 
     private interface IntentFirer {
-
         void fireIntent(Intent intent);
     }
 
     private interface UserInfoCheck {
-
         void setUserInfo(UserInfo userInfo);
+    }
+
+    private interface IVehicle {
+        int set(VehiclePropValue value);
     }
 }

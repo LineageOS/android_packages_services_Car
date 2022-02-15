@@ -25,10 +25,10 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.TaskInfo;
 import android.car.builtin.app.ActivityManagerHelper;
-import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
-import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
+import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -132,6 +132,8 @@ public final class FixedActivityService implements CarServiceBase {
 
     private final ActivityManagerHelper mAm;
 
+    private final CarActivityService mActivityService;
+
     private final DisplayManager mDm;
 
     private final UserManager mUm;
@@ -190,17 +192,6 @@ public final class FixedActivityService implements CarServiceBase {
         }
     };
 
-    // It says listener but is actually callback.
-    private final OnTaskStackChangeListener mTaskStackChangeListener =
-            new OnTaskStackChangeListener() {
-                @Override
-                public void onTaskStackChanged() {
-                    if (DBG) Slogf.d(TAG_AM, "onTaskStackChanged");
-                    launchIfNecessary();
-                }
-            };
-
-
     private final ProcessObserverCallback mProcessObserver = new ProcessObserverCallback() {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
@@ -232,7 +223,7 @@ public final class FixedActivityService implements CarServiceBase {
     private CarPowerManager mCarPowerManager;
 
     private final CarPowerManager.CarPowerStateListener mCarPowerStateListener = (state) -> {
-        if (state != CarPowerManager.CarPowerStateListener.ON) {
+        if (state != CarPowerManager.STATE_ON) {
             return;
         }
         synchronized (mLock) {
@@ -246,8 +237,8 @@ public final class FixedActivityService implements CarServiceBase {
 
     private final UserHandleHelper mUserHandleHelper;
 
-    public FixedActivityService(Context context) {
-        this(context, ActivityManagerHelper.getInstance(),
+    public FixedActivityService(Context context, CarActivityService activityService) {
+        this(context, ActivityManagerHelper.getInstance(), activityService,
                 context.getSystemService(UserManager.class),
                 context.getSystemService(DisplayManager.class),
                 new UserHandleHelper(context, context.getSystemService(UserManager.class)));
@@ -255,10 +246,11 @@ public final class FixedActivityService implements CarServiceBase {
 
     @VisibleForTesting
     FixedActivityService(Context context, ActivityManagerHelper activityManager,
-            UserManager userManager, DisplayManager displayManager,
-            UserHandleHelper userHandleHelper) {
+            CarActivityService activityService, UserManager userManager,
+            DisplayManager displayManager, UserHandleHelper userHandleHelper) {
         mContext = context;
         mAm = activityManager;
+        mActivityService = activityService;
         mUm = userManager;
         mDm = displayManager;
         mHandler = new Handler(CarServiceUtils.getHandlerThread(
@@ -320,10 +312,9 @@ public final class FixedActivityService implements CarServiceBase {
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
                 /* broadcastPermission= */ null, /* scheduler= */ null,
                 Context.RECEIVER_NOT_EXPORTED);
-        mAm.registerTaskStackChangeListener(mTaskStackChangeListener);
         mAm.registerProcessObserverCallback(mProcessObserver);
         try {
-            carPowerManager.setListener(mCarPowerStateListener);
+            carPowerManager.setListener(mContext.getMainExecutor(), mCarPowerStateListener);
         } catch (Exception e) {
             // should not happen
             Slogf.e(TAG_AM, "Got exception from CarPowerManager", e);
@@ -346,7 +337,6 @@ public final class FixedActivityService implements CarServiceBase {
         mHandler.removeCallbacks(mActivityCheckRunnable);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         userService.removeUserLifecycleListener(mUserLifecycleListener);
-        mAm.unregisterTaskStackChangeListener(mTaskStackChangeListener);
         mAm.unregisterProcessObserverCallback(mProcessObserver);
         mContext.unregisterReceiver(mBroadcastReceiver);
     }
@@ -360,7 +350,7 @@ public final class FixedActivityService implements CarServiceBase {
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
     private boolean launchIfNecessary(int displayId) {
-        SparseArray<TopTaskInfoContainer> infos = mAm.getTopTasks();
+        List<TaskInfo> infos = mActivityService.getTopTasks();
         if (infos == null) {
             Slogf.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;
@@ -408,14 +398,17 @@ public final class FixedActivityService implements CarServiceBase {
                 mRunningActivities.removeAt(i);
             }
             for (int i = 0, size = infos.size(); i < size; ++i) {
-                TopTaskInfoContainer taskInfo = infos.valueAt(i);
-                RunningActivityInfo activityInfo = mRunningActivities.get(taskInfo.displayId);
+                TaskInfo taskInfo = infos.get(i);
+                int taskDisplayId = TaskInfoHelper.getDisplayId(taskInfo);
+                RunningActivityInfo activityInfo = mRunningActivities.get(taskDisplayId);
                 if (activityInfo == null) {
                     continue;
                 }
-                int topUserId = taskInfo.userId;
-                if (activityInfo.intent.getComponent().equals(taskInfo.topActivity)
-                        && activityInfo.userId == topUserId) {
+                int taskUserId = TaskInfoHelper.getUserId(taskInfo);
+                ComponentName expectedTopActivity = activityInfo.intent.getComponent();
+                if ((expectedTopActivity.equals(taskInfo.topActivity)
+                        || expectedTopActivity.equals(taskInfo.origActivity))  // for Activity-alias
+                        && activityInfo.userId == taskUserId) {
                     // top one is matching.
                     activityInfo.isVisible = true;
                     activityInfo.taskId = taskInfo.taskId;
@@ -424,13 +417,8 @@ public final class FixedActivityService implements CarServiceBase {
                 activityInfo.previousTaskId = taskInfo.taskId;
                 Slogf.i(TAG_AM, "Unmatched top activity will be removed:"
                         + taskInfo.topActivity + " top task id:" + activityInfo.previousTaskId
-                        + " user:" + topUserId + " display:" + taskInfo.displayId);
-                activityInfo.inBackground = false;
-                for (int j = 0; j < taskInfo.childTaskIds.length - 1; j++) {
-                    if (activityInfo.taskId == taskInfo.childTaskIds[j]) {
-                        activityInfo.inBackground = true;
-                    }
-                }
+                        + " user:" + taskUserId + " display:" + taskDisplayId);
+                activityInfo.inBackground = expectedTopActivity.equals(taskInfo.baseActivity);
                 if (!activityInfo.inBackground) {
                     activityInfo.taskId = INVALID_TASK_ID;
                 }

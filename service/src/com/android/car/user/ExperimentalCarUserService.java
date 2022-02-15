@@ -20,7 +20,7 @@ import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGrant
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.user.CarUserService.checkManageUsersPermission;
-import static com.android.car.user.CarUserService.sendUserCreationResultFailure;
+import static com.android.car.user.CarUserService.sendUserCreationFailure;
 import static com.android.car.user.CarUserService.sendUserSwitchResult;
 
 import android.annotation.Nullable;
@@ -50,7 +50,6 @@ import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
-import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -72,7 +71,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class ExperimentalCarUserService extends IExperimentalCarUserService.Stub
         implements CarServiceBase {
 
-    private static final String TAG = CarLog.tagFor(ExperimentalCarUserService.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(ExperimentalCarUserService.class);
 
     private final int mHalTimeoutMs = CarSystemProperties.getUserHalTimeout().orElse(5_000);
 
@@ -202,10 +202,6 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             protected void onCompleted(UserCreationResult result, Throwable err) {
                 if (result == null) {
                     Slogf.w(TAG, "createDriver(%s, %s) failed: %s", name, admin, err);
-                } else {
-                    if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
-                        UserHelper.assignDefaultIcon(mContext, result.getUser());
-                    }
                 }
                 super.onCompleted(result, err);
             };
@@ -213,8 +209,11 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         int flags = 0;
         if (admin) {
             if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
-                Slogf.e(TAG, "Only admin users and system user can create other admins.");
-                sendUserCreationResultFailure(future, UserCreationResult.STATUS_INVALID_REQUEST);
+                String internalErrorMsg =
+                        "Only admin users and system user can create other admins.";
+                Slogf.e(TAG, internalErrorMsg);
+                sendUserCreationFailure(future, UserCreationResult.STATUS_INVALID_REQUEST,
+                        internalErrorMsg);
                 return future;
             }
             flags = UserManagerHelper.FLAG_ADMIN;
@@ -251,9 +250,6 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             Slogf.w(TAG, "can't create a profile for user %d", driverId);
             return null;
         }
-        // Passenger user should be a non-admin user.
-        UserHelper.setDefaultNonAdminRestrictions(mContext, user, /* enable= */ true);
-        UserHelper.assignDefaultIcon(mContext, user);
         return user;
     }
 
@@ -264,13 +260,15 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         if (UserHelperLite.isHeadlessSystemUser(driverId)) {
             // System user doesn't associate with real person, can not be switched to.
             Slogf.w(TAG, "switching to system user in headless system user mode is not allowed");
-            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
+            sendUserSwitchResult(receiver, /* isLogout= */ false,
+                    UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         int userSwitchable = mUserManager.getUserSwitchability();
         if (userSwitchable != UserManager.SWITCHABILITY_STATUS_OK) {
             Slogf.w(TAG, "current process is not allowed to switch user");
-            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
+            sendUserSwitchResult(receiver, /* isLogout= */ false,
+                    UserSwitchResult.STATUS_INVALID_REQUEST);
             return;
         }
         mCarUserService.switchUser(driverId, mHalTimeoutMs, receiver);
@@ -306,7 +304,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             return !UserHelperLite.isHeadlessSystemUser(user.getIdentifier())
                     && mUserHandleHelper.isEnabledUser(user)
                     && mUserHandleHelper.isManagedProfile(user)
-                    && mUserHandleHelper.getProfileGroupId(user) == driverId;
+                    && mUserManager.isSameProfileGroup(user, UserHandle.of(driverId));
         });
     }
 
@@ -375,7 +373,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             }
             if (checkCurrentDriver) {
                 int currentUserId = ActivityManager.getCurrentUser();
-                if (mUserHandleHelper.getProfileGroupId(passenger) != currentUserId) {
+                if (!mUserManager.isSameProfileGroup(passenger, UserHandle.of(currentUserId))) {
                     Slogf.w(TAG, "passenger %d is not a profile of the current user %d",
                             passengerId, currentUserId);
                     return false;
@@ -418,7 +416,8 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     /** Returns all users who are matched by the given filter. */
     private List<UserHandle> getUsersHandle(UserFilter filter) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false);
+                /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated */ true);
         List<UserHandle> usersFiltered = new ArrayList<UserHandle>();
 
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
@@ -439,12 +438,13 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
 
     private int getNumberOfManagedProfiles(@UserIdInt int userId) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false);
+                /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated */ true);
         // Count all users that are managed profiles of the given user.
         int managedProfilesCount = 0;
         for (UserHandle user : users) {
             if (mUserHandleHelper.isManagedProfile(user)
-                    && mUserHandleHelper.getProfileGroupId(user) == userId) {
+                    && mUserManager.isSameProfileGroup(user, UserHandle.of(userId))) {
                 managedProfilesCount++;
             }
         }

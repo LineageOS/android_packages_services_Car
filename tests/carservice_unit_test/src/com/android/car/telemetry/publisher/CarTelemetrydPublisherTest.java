@@ -35,6 +35,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 
+import com.android.car.CarLog;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeHandlerWrapper;
@@ -74,6 +75,10 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
     private FakeCarTelemetryInternal mFakeCarTelemetryInternal;
     private CarTelemetrydPublisher mPublisher;
+
+    public CarTelemetrydPublisherTest() {
+        super(CarLog.TAG_TELEMETRY);
+    }
 
     @Before
     public void setUp() throws Exception {

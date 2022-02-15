@@ -19,18 +19,23 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import android.car.Car;
-import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
+import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.CarPowerPolicyFilter;
+import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.hardware.power.PowerComponent;
 import android.car.hardware.property.VehicleHalStatusCode;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReqIndex;
-import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
-import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.car.test.mocks.JavaMockitoHelper;
+import android.hardware.automotive.vehicle.VehicleApPowerStateConfigFlag;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReport;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.VehicleApPowerStateReqIndex;
+import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
+import android.hardware.automotive.vehicle.VehiclePropValue;
+import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
@@ -39,21 +44,21 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.MockedCarTestBase;
-import com.android.car.hal.PowerHalService;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
-import com.android.car.vehiclehal.VehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
+import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import com.google.android.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -64,27 +69,30 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     private static final int STATE_POLLING_INTERVAL_MS = 1; // Milliseconds
     private static final int STATE_TRANSITION_MAX_WAIT_MS = 5 * STATE_POLLING_INTERVAL_MS;
     private static final int TEST_SHUTDOWN_TIMEOUT_MS = 100 * STATE_POLLING_INTERVAL_MS;
+    private static final int POLICY_APPLICATION_TIMEOUT_MS = 10_000;
+    private static final String POWER_POLICY_S2R = "system_power_policy_suspend_to_ram";
 
     private final PowerStatePropertyHandler mPowerStateHandler = new PowerStatePropertyHandler();
     private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
 
     @Override
-    protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
+    protected SystemInterface.Builder getSystemInterfaceBuilder() {
         SystemInterface.Builder builder = super.getSystemInterfaceBuilder();
         return builder.withDisplayInterface(mMockDisplayInterface);
     }
 
-    protected synchronized void configureMockedHal() {
-        addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
+    @Override
+    protected void configureMockedHal() {
+        addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
                     VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
-        addProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler)
+        addAidlProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler)
                 .setAccess(VehiclePropertyAccess.WRITE)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
-        addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
+        addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
-                        PowerHalService.VehicleHalStub.ENABLE_HIBERNATION_FLAG))
+                        VehicleApPowerStateConfigFlag.ENABLE_HIBERNATION_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
     }
 
@@ -240,7 +248,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReport.SHUTDOWN_PREPARE);
         // Cannot go back to ON state from here
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.ON, 0);
-        // PREPARE_SHUTDOWN should not generate state transitions unless it's an IMMEDIATE_SHUTDOWN
+        // SHUTDOWN_PREPARE should not generate state transitions unless it's an IMMEDIATE_SHUTDOWN
         mPowerStateHandler.sendStateAndExpectNoResponse(
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP);
@@ -248,7 +256,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY);
         // Test the FINISH message last, in case SHUTDOWN_PREPARE finishes early and this test
-        //  should be failing.
+        // should be failing.
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.FINISHED, 0);
     }
 
@@ -299,6 +307,13 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     @Test
     @UiThreadTest
     public void testSleepEntry() throws Exception {
+        PowerPolicyListener powerPolicyListener = new PowerPolicyListener(POWER_POLICY_S2R);
+        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.WIFI).build();
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+        cpms.addPowerPolicyListener(filter, powerPolicyListener);
+
         assertWaitForVhal();
         mMockDisplayInterface.waitForDisplayState(false);
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -318,8 +333,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertResponse(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, 0, false);
         mMockDisplayInterface.waitForDisplayState(false);
         mPowerStateHandler.sendPowerState(VehicleApPowerStateReq.FINISHED, 0);
+        powerPolicyListener.waitForPowerPolicy();
         assertResponse(VehicleApPowerStateReport.DEEP_SLEEP_EXIT, 0, true);
         mMockDisplayInterface.waitForDisplayState(false);
+
+        cpms.removePowerPolicyListener(powerPolicyListener);
     }
 
     @Test
@@ -344,10 +362,10 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertWaitForVhal();
 
         // No param in the event, should be ignored.
-        getMockedVehicleHal().injectEvent(
-                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+        getAidlMockedVehicleHal().injectEvent(
+                    AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                             .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                            .addIntValue(0)
+                            .addIntValues(0)
                             .build());
 
         assertEquals(mPowerStateHandler.getSetWaitSemaphore().availablePermits(), 0);
@@ -394,22 +412,19 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
         ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
             @Override
-            public void onStateChanged(int state) {
-                switch (state) {
-                    case CarPowerStateListener.PRE_SHUTDOWN_PREPARE:
-                        cpms.finished(this);
-                        break;
-                    case CarPowerStateListener.SHUTDOWN_PREPARE:
-                        // Do not call finished() to stay in shutdown prepare, when Garage Mode is
-                        // running.
-                        if (cpms.garageModeShouldExitImmediately()) {
-                            cpms.finished(this);
-                        }
+            public void onStateChanged(int state, long expirationTimeMs) {
+                if (CarPowerManagementService.isCompletionAllowed(state)) {
+                    // Do not call finished() to stay in shutdown prepare, when Garage Mode is
+                    // supposed to be running.
+                    if (state == CarPowerManager.STATE_SHUTDOWN_PREPARE
+                            && !cpms.garageModeShouldExitImmediately()) {
                         return;
+                    }
+                    cpms.completeHandlingPowerStateChange(state, this);
                 }
             }
         };
-        cpms.registerListenerWithCompletion(listener);
+        cpms.registerInternalListener(listener);
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
@@ -469,7 +484,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         private final Semaphore mSubscriptionWaitSemaphore = new Semaphore(0);
         private final Semaphore mSetWaitSemaphore = new Semaphore(0);
-        private LinkedList<int[]> mSetStates = new LinkedList<>();
+        private final LinkedList<int[]> mSetStates = new LinkedList<>();
 
         public Semaphore getSetWaitSemaphore() {
             return mSetWaitSemaphore;
@@ -484,11 +499,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             if (mStatus != VehicleHalStatusCode.STATUS_OK) {
                 throw new ServiceSpecificException(mStatus);
             }
-            ArrayList<Integer> v = value.value.int32Values;
+            int[] v = value.value.int32Values;
             synchronized (this) {
                 mSetStates.add(new int[] {
-                        v.get(VehicleApPowerStateReqIndex.STATE),
-                        v.get(VehicleApPowerStateReqIndex.ADDITIONAL)
+                        v[VehicleApPowerStateReqIndex.STATE],
+                        v[VehicleApPowerStateReqIndex.ADDITIONAL]
                 });
             }
             mSetWaitSemaphore.release();
@@ -499,9 +514,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             if (mStatus != VehicleHalStatusCode.STATUS_OK) {
                 throw new ServiceSpecificException(mStatus);
             }
-            return VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+            return AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                    .addIntValue(mPowerState, mPowerParam)
+                    .addIntValues(mPowerState, mPowerParam)
                     .build();
         }
 
@@ -532,19 +547,23 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 if (!mSetWaitSemaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
                     fail("waitForStateSetAndGetAll timeout");
                 }
+                LinkedList<int[]> result = new LinkedList<>();
                 synchronized (this) {
                     boolean found = false;
-                    for (int[] state : mSetStates) {
+
+                    while (!mSetStates.isEmpty()) {
+                        int[] state = mSetStates.pop();
+                        result.add(state);
                         if (state[0] == expectedState) {
                             found = true;
                             break;
                         }
                     }
                     if (found) {
-                        LinkedList<int[]> res = mSetStates;
-                        mSetStates = new LinkedList<>();
+                        // update semaphore to actual number of events in the list
                         mSetWaitSemaphore.drainPermits();
-                        return res;
+                        mSetWaitSemaphore.release(mSetStates.size());
+                        return result;
                     }
                 }
             }
@@ -589,11 +608,32 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         private void sendPowerState(int state, int param) {
-            getMockedVehicleHal().injectEvent(
-                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+            getAidlMockedVehicleHal().injectEvent(
+                    AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                             .setTimestamp(SystemClock.elapsedRealtimeNanos())
-                            .addIntValue(state, param)
+                            .addIntValues(state, param)
                             .build());
+        }
+    }
+
+    private static final class PowerPolicyListener extends ICarPowerPolicyListener.Stub {
+        private final CountDownLatch mLatch = new CountDownLatch(1);
+        private final String mWaitingPolicyId;
+
+        private PowerPolicyListener(String policyId) {
+            mWaitingPolicyId = policyId;
+        }
+
+        @Override
+        public void onPolicyChanged(CarPowerPolicy appliedPolicy,
+                CarPowerPolicy accumulatedPolicy) {
+            if (Objects.equals(appliedPolicy.getPolicyId(), mWaitingPolicyId)) {
+                mLatch.countDown();
+            }
+        }
+
+        public void waitForPowerPolicy() throws Exception {
+            JavaMockitoHelper.await(mLatch, POLICY_APPLICATION_TIMEOUT_MS);
         }
     }
 }

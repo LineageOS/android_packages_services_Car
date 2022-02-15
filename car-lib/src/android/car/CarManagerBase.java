@@ -18,16 +18,24 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 
+import android.annotation.Nullable;
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.util.Dumpable;
+import android.util.DumpableContainer;
 import android.util.Log;
+
+import java.util.function.Supplier;
 
 /**
  * Common base class for Car*Manager
  * @hide
  */
 public abstract class CarManagerBase {
+
+    private static final boolean DEBUG = Log.isLoggable(TAG_CAR, Log.DEBUG);
 
     protected final Car mCar;
 
@@ -78,4 +86,34 @@ public abstract class CarManagerBase {
      * car service is restarted.
      */
     protected abstract void onCarDisconnected();
+
+    /**
+     * Adds a {@link Dumpable} to a "compatible" container (i.e., an object that extends
+     * {@link DumpableContainer}, {@code Activity}, etc...).
+     *
+     * @return supplied dumpable, or {@code null} if {@code container} is not compatible.
+     */
+    @Nullable
+    protected <T extends Dumpable> T addDumpable(Object container, Supplier<T> dumpableSupplier) {
+        if (container instanceof Activity) {
+            T dumpable = dumpableSupplier.get();
+            if (DEBUG) {
+                Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to actvity " + container);
+            }
+            ((Activity) container).addDumpable(dumpable);
+            return dumpable;
+        }
+        if (container instanceof DumpableContainer) {
+            T dumpable = dumpableSupplier.get();
+            if (DEBUG) {
+                Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to DumpableContainer "
+                        + container);
+            }
+            ((DumpableContainer) container).addDumpable(dumpable);
+            return dumpable;
+        }
+        Log.v(TAG_CAR, "NOT adding dumpable to object (" + container
+                + ") that doesn't implement addDumpable");
+        return null;
+    }
 }

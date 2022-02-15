@@ -22,10 +22,10 @@ import static com.android.compatibility.common.util.TestUtils.BooleanSupplierWit
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
 
 import android.annotation.NonNull;
+import android.app.ActivityManager;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.content.ComponentName;
@@ -92,6 +92,13 @@ public abstract class CarApiTestBase {
         mConnectionListener.waitForConnection(DEFAULT_WAIT_TIMEOUT_MS);
     }
 
+    @Before
+    public final void dontStopUserOnSwitch() throws Exception {
+        Log.d(TAG, "Calling am.setStopUserOnSwitch(false) for " + mTestName.getMethodName());
+        getContext().getSystemService(ActivityManager.class)
+                .setStopUserOnSwitch(ActivityManager.STOP_USER_ON_SWITCH_FALSE);
+    }
+
     @After
     public final void disconnectCar() throws Exception {
         if (mCar == null) {
@@ -99,6 +106,13 @@ public abstract class CarApiTestBase {
             return;
         }
         mCar.disconnect();
+    }
+
+    @After
+    public final void resetStopUserOnSwitch() throws Exception {
+        Log.d(TAG, "Calling am.setStopUserOnSwitch(default) for " + mTestName.getMethodName());
+        getContext().getSystemService(ActivityManager.class)
+                .setStopUserOnSwitch(ActivityManager.STOP_USER_ON_SWITCH_DEFAULT);
     }
 
     protected Car getCar() {
@@ -143,13 +157,12 @@ public abstract class CarApiTestBase {
         }
     }
 
-    protected static void suspendToRamAndResume(boolean disableBackgroundUsersStart)
+    protected static void suspendToRamAndResume()
             throws Exception {
         Log.d(TAG, "Emulate suspend to RAM and resume");
         try {
-            if (disableBackgroundUsersStart) {
-                runShellCommand("cmd car_service set-start-bg-users-on-garage-mode false");
-            }
+            Log.d(TAG, "Disabling background users starting on garage mode");
+            runShellCommand("cmd car_service set-start-bg-users-on-garage-mode false");
 
             PowerManager powerManager = sContext.getSystemService(PowerManager.class);
             // clear log
@@ -193,11 +206,11 @@ public abstract class CarApiTestBase {
                     break;
                 }
                 if ((SystemClock.elapsedRealtime() - startTime) > timeoutMs) {
-                    fail("match was not found, Timeout: " + timeoutMs + " ms");
+                    fail("logcat message(%s) not found in %d ms", match, timeoutMs);
                 }
             }
         } catch (IOException e) {
-            fail("match was not found, IO exception: " + e);
+            fail("match (%s) was not found, IO exception: %s", match, e);
         }
     }
 
@@ -216,7 +229,7 @@ public abstract class CarApiTestBase {
             SystemClock.sleep(SMALL_NAP_MS);
         } while (SystemClock.elapsedRealtime() < deadline);
 
-        fail(msg + " after: " + timeoutMs + "ms");
+        fail("%s after %d ms", msg, timeoutMs);
         return false;
     }
 
@@ -226,5 +239,11 @@ public abstract class CarApiTestBase {
 
     protected String getTestName() {
         return getClass().getSimpleName() + "." + mTestName.getMethodName();
+    }
+
+    protected static void fail(String format, Object...args) {
+        String message = String.format(format, args);
+        Log.e(TAG, "test failed: " + message);
+        org.junit.Assert.fail(message);
     }
 }

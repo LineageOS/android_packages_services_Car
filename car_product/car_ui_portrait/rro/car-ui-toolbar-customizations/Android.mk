@@ -24,5 +24,3 @@ CAR_UI_RESOURCE_DIR := $(LOCAL_PATH)/res
 CAR_UI_RRO_TARGETS := \
     com.android.car.media \
     com.android.car.dialer \
-
-include packages/apps/Car/libs/car-ui-lib/generate_rros.mk

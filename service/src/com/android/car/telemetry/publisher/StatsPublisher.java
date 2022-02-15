@@ -23,11 +23,15 @@ import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_C
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_CPU_TIME_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.WTF_OCCURRED_FIELD_NUMBER;
+import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
 import static java.nio.charset.StandardCharsets.UTF_16;
 
+import android.annotation.NonNull;
 import android.app.StatsManager.StatsUnavailableException;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
@@ -161,10 +165,10 @@ public class StatsPublisher extends AbstractPublisher {
     private final PersistableBundle mSavedStatsConfigs;
 
     StatsPublisher(
-            PublisherFailureListener failureListener,
-            StatsManagerProxy statsManager,
-            File publisherDirectory,
-            Handler telemetryHandler) {
+            @NonNull PublisherFailureListener failureListener,
+            @NonNull StatsManagerProxy statsManager,
+            @NonNull File publisherDirectory,
+            @NonNull Handler telemetryHandler) {
         super(failureListener);
         mStatsManager = statsManager;
         mTelemetryHandler = telemetryHandler;
@@ -173,6 +177,7 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     /** Loads the PersistableBundle containing stats config keys and versions from disk. */
+    @NonNull
     private PersistableBundle loadBundle() {
         if (!mSavedStatsConfigsFile.exists()) {
             return new PersistableBundle();
@@ -204,7 +209,7 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void addDataSubscriber(DataSubscriber subscriber) {
+    public void addDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase() == PublisherCase.STATS,
@@ -215,15 +220,18 @@ public class StatsPublisher extends AbstractPublisher {
         addStatsConfig(configKey, subscriber);
 
         if (!mIsPullingReports) {
-            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
-                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+            if (DEBUG) {
+                Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+                        + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+            }
             mIsPullingReports = true;
             mTelemetryHandler.postDelayed(
                     mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
     }
 
-    private void processReport(long configKey, StatsLogProto.ConfigMetricsReportList report) {
+    private void processReport(
+            long configKey, @NonNull StatsLogProto.ConfigMetricsReportList report) {
         Slogf.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
         if (report.getReportsCount() == 0) {
             return;
@@ -233,10 +241,15 @@ public class StatsPublisher extends AbstractPublisher {
             Slogf.w(CarLog.TAG_TELEMETRY, "No subscribers found for config " + configKey);
             return;
         }
+        TimingsTraceLog traceLog = new TimingsTraceLog(
+                CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         Map<Long, PersistableBundle> metricBundles = null;
         try {
+            traceLog.traceBegin("convert stats report");
             metricBundles = ConfigMetricsReportListConverter.convert(report);
+            traceLog.traceEnd();
         } catch (StatsConversionException ex) {
+            traceLog.traceEnd();
             Slogf.e(CarLog.TAG_TELEMETRY, "Stats conversion exception for config " + configKey, ex);
             return;
         }
@@ -276,7 +289,7 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     @VisibleForTesting
-    boolean isBundleLargeData(PersistableBundle bundle) {
+    boolean isBundleLargeData(@NonNull PersistableBundle bundle) {
         String[] keys = bundle.keySet().toArray(new String[0]);
         int bytes = 0;
         for (int i = 0; i < keys.length; ++i) {
@@ -306,7 +319,7 @@ public class StatsPublisher extends AbstractPublisher {
         return true;
     }
 
-    private void processStatsMetadata(StatsLogProto.StatsdStatsReport statsReport) {
+    private void processStatsMetadata(@NonNull StatsLogProto.StatsdStatsReport statsReport) {
         int myUid = Process.myUid();
         // configKey and StatsdConfig.id are the same, see this#addStatsConfig().
         HashSet<Long> activeConfigKeys = new HashSet<>(getActiveConfigKeys());
@@ -330,13 +343,14 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void pullReportsPeriodically() {
-        if (mIsPullingReports) {
-            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
-                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
-            mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+        if (!mIsPullingReports) {
+            return;
         }
 
+        TimingsTraceLog traceLog = new TimingsTraceLog(
+                CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         try {
+            traceLog.traceBegin("pull stats report");
             // TODO(b/202131100): Get the active list of configs using
             //                    StatsManager#setActiveConfigsChangedOperation()
             processStatsMetadata(
@@ -346,12 +360,21 @@ public class StatsPublisher extends AbstractPublisher {
                 processReport(configKey, StatsLogProto.ConfigMetricsReportList.parseFrom(
                         mStatsManager.getReports(configKey)));
             }
+            traceLog.traceEnd();
         } catch (InvalidProtocolBufferException | StatsUnavailableException e) {
+            traceLog.traceEnd();
             // If the StatsD is not available, retry in the next pullReportsPeriodically call.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
         }
+
+        if (DEBUG) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
+        }
+        mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
     }
 
+    @NonNull
     private List<Long> getActiveConfigKeys() {
         ArrayList<Long> result = new ArrayList<>();
         for (String key : mSavedStatsConfigs.keySet()) {
@@ -372,7 +395,7 @@ public class StatsPublisher extends AbstractPublisher {
      * restarted and lost publisher state).
      */
     @Override
-    public void removeDataSubscriber(DataSubscriber subscriber) {
+    public void removeDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.STATS) {
             Slogf.w(CarLog.TAG_TELEMETRY,
@@ -395,7 +418,7 @@ public class StatsPublisher extends AbstractPublisher {
     public void removeAllDataSubscribers() {
         for (String key : mSavedStatsConfigs.keySet()) {
             // filter out all the config versions
-            if (!key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
+            if (key == null || !key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
                 continue;
             }
             // the remaining values are config keys
@@ -424,7 +447,7 @@ public class StatsPublisher extends AbstractPublisher {
      * Returns true if the publisher has the subscriber.
      */
     @Override
-    public boolean hasDataSubscriber(DataSubscriber subscriber) {
+    public boolean hasDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.STATS) {
             return false;
@@ -434,6 +457,7 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     /** Returns all the {@link TelemetryProto.MetricsConfig} associated with added subscribers. */
+    @NonNull
     private List<TelemetryProto.MetricsConfig> getMetricsConfigs() {
         HashSet<TelemetryProto.MetricsConfig> uniqueConfigs = new HashSet<>();
         for (int i = 0; i < mConfigKeyToSubscribers.size(); i++) {
@@ -446,7 +470,7 @@ public class StatsPublisher extends AbstractPublisher {
      * Returns the key for PersistableBundle to store/retrieve configKey associated with the
      * subscriber.
      */
-    private static String buildBundleConfigKey(DataSubscriber subscriber) {
+    private static String buildBundleConfigKey(@NonNull DataSubscriber subscriber) {
         return BUNDLE_CONFIG_KEY_PREFIX + subscriber.getMetricsConfig().getName() + "-"
                 + subscriber.getSubscriber().getHandler();
     }
@@ -464,7 +488,7 @@ public class StatsPublisher extends AbstractPublisher {
      * previously added config_keys in the persistable bundle and only updates StatsD when
      * the MetricsConfig (of CarTelemetryService) has a new version.
      */
-    private void addStatsConfig(long configKey, DataSubscriber subscriber) {
+    private void addStatsConfig(long configKey, @NonNull DataSubscriber subscriber) {
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
         String bundleVersion = buildBundleConfigVersionKey(configKey);
         if (mSavedStatsConfigs.getInt(bundleVersion) != 0) {
@@ -493,7 +517,7 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     /** Removes StatsdConfig and returns configKey. */
-    private long removeStatsConfig(DataSubscriber subscriber) {
+    private long removeStatsConfig(@NonNull DataSubscriber subscriber) {
         String bundleConfigKey = buildBundleConfigKey(subscriber);
         long configKey = buildConfigKey(subscriber);
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
@@ -522,7 +546,7 @@ public class StatsPublisher extends AbstractPublisher {
      * CarService - which has uid=1000. Currently there is no client under uid=1000 and there will
      * not be config_key collision.
      */
-    private static long buildConfigKey(DataSubscriber subscriber) {
+    private static long buildConfigKey(@NonNull DataSubscriber subscriber) {
         // Not to be confused with statsd metric, this one is a global CarTelemetry metric name.
         String metricConfigName = subscriber.getMetricsConfig().getName();
         String handlerFnName = subscriber.getSubscriber().getHandler();
@@ -531,7 +555,8 @@ public class StatsPublisher extends AbstractPublisher {
 
     /** Builds {@link StatsdConfig} proto for given subscriber. */
     @VisibleForTesting
-    static StatsdConfig buildStatsdConfig(DataSubscriber subscriber, long configId) {
+    @NonNull
+    static StatsdConfig buildStatsdConfig(@NonNull DataSubscriber subscriber, long configId) {
         TelemetryProto.StatsPublisher.SystemMetric metric =
                 subscriber.getPublisherParam().getStats().getSystemMetric();
         StatsdConfig.Builder builder = StatsdConfig.newBuilder()
@@ -560,7 +585,9 @@ public class StatsPublisher extends AbstractPublisher {
         }
     }
 
-    private static StatsdConfig buildAppStartMemoryStateStatsdConfig(StatsdConfig.Builder builder) {
+    @NonNull
+    private static StatsdConfig buildAppStartMemoryStateStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers
@@ -574,7 +601,9 @@ public class StatsPublisher extends AbstractPublisher {
                 .build();
     }
 
-    private static StatsdConfig buildProcessMemoryStateStatsdConfig(StatsdConfig.Builder builder) {
+    @NonNull
+    private static StatsdConfig buildProcessMemoryStateStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers
@@ -605,8 +634,9 @@ public class StatsPublisher extends AbstractPublisher {
                 .build();
     }
 
+    @NonNull
     private static StatsdConfig buildActivityForegroundStateStatsdConfig(
-            StatsdConfig.Builder builder) {
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers
@@ -620,7 +650,9 @@ public class StatsPublisher extends AbstractPublisher {
                 .build();
     }
 
-    private static StatsdConfig buildProcessCpuTimeStatsdConfig(StatsdConfig.Builder builder) {
+    @NonNull
+    private static StatsdConfig buildProcessCpuTimeStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers
@@ -651,7 +683,9 @@ public class StatsPublisher extends AbstractPublisher {
                 .build();
     }
 
-    private static StatsdConfig buildAppCrashOccurredStatsdConfig(StatsdConfig.Builder builder) {
+    @NonNull
+    private static StatsdConfig buildAppCrashOccurredStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers
@@ -665,7 +699,9 @@ public class StatsPublisher extends AbstractPublisher {
                 .build();
     }
 
-    private static StatsdConfig buildAnrOccurredStatsdConfig(StatsdConfig.Builder builder) {
+    @NonNull
+    private static StatsdConfig buildAnrOccurredStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers
@@ -679,7 +715,9 @@ public class StatsPublisher extends AbstractPublisher {
                 .build();
     }
 
-    private static StatsdConfig buildWtfOccurredStatsdConfig(StatsdConfig.Builder builder) {
+    @NonNull
+    private static StatsdConfig buildWtfOccurredStatsdConfig(
+            @NonNull StatsdConfig.Builder builder) {
         return builder
                 .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
                         // The id must be unique within StatsdConfig/matchers

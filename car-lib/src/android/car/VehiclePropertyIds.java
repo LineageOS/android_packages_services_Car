@@ -1552,7 +1552,23 @@ public final class VehiclePropertyIds {
     public static final int HIGH_BEAM_LIGHTS_STATE = 289410561;
     /**
      * Fog light state
-     * The property is protected by the signature permission:
+     *
+     * If the car has both front and rear fog lights:
+     *   If front and rear fog lights can only be controlled together: FOG_LIGHTS_STATE provides
+     *   the state of fog lights.
+     *
+     *   If front and rear fog lights can only be controlled independently: FRONT_FOG_LIGHTS_STATE
+     *   and REAR_FOG_LIGHTS_STATE provide the state of front, rear fog lights respectively.
+     *
+     * If the car has only front fog lights:
+     * Only one of FOG_LIGHTS_STATE or FRONT_FOG_LIGHTS_STATE will be implemented in the car. The
+     * implemented property provides the state of the front fog lights.
+     *
+     * If the car has only rear fog lights:
+     * Only one of FOG_LIGHTS_STATE or REAR_FOG_LIGHTS_STATE will be implemented in the car. The
+     * implemented property provides the state of the rear fog lights.
+     *
+     * The property is protected by the privileged|signature permission:
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
@@ -1580,8 +1596,25 @@ public final class VehiclePropertyIds {
     public static final int HIGH_BEAM_LIGHTS_SWITCH = 289410577;
     /**
      * Fog light switch
-     * The property is protected by the signature permission:
-     * android.car.permission.CAR_EXTERIOR_LIGHTS.
+     *
+     * If the car has both front and rear fog lights:
+     *   If front and rear fog lights can only be controlled together: FOG_LIGHTS_SWITCH should be
+     *   used to change the fog lights state.
+     *
+     *   If front and rear fog lights can only be controlled independently: FRONT_FOG_LIGHTS_SWITCH
+     *   and REAR_FOG_LIGHTS_SWITCH should be used to change the front, rear fog lights state
+     *   respectively.
+     *
+     * If the car has only front fog lights:
+     * Only one of FOG_LIGHTS_SWITCH or FRONT_FOG_LIGHTS_SWITCH will be implemented in the car. The
+     * implemented property should be used to change the front fog lights state.
+     *
+     * If the car has only rear fog lights:
+     * Only one of FOG_LIGHTS_SWITCH or REAR_FOG_LIGHTS_SWITCH will be implemented in the car. The
+     * implemented property should be used to change the rear fog lights state.
+     *
+     * The property is protected by the privileged|signature permission:
+     * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
     public static final int FOG_LIGHTS_SWITCH = 289410578;
@@ -1835,6 +1868,170 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874;
+
+    /**
+     * Front fog lights state
+     *
+     * Please refer to the documentation on FOG_LIGHTS_STATE for more information.
+     *
+     * The property is protected by the privileged|signature permission:
+     * android.car.permission.CAR_EXTERIOR_LIGHTS.
+     */
+    @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    public static final int FRONT_FOG_LIGHTS_STATE = 289410875;
+
+    /**
+     * Front fog lights switch
+     *
+     * Please refer to the documentation on FOG_LIGHTS_SWITCH for more information.
+     *
+     * The property is protected by the privileged|signature permission:
+     * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    public static final int FRONT_FOG_LIGHTS_SWITCH = 289410876;
+
+    /**
+     * Rear fog lights state
+     *
+     * Please refer to the documentation on FOG_LIGHTS_STATE for more information.
+     *
+     * The property is protected by the privileged|signature permission:
+     * android.car.permission.CAR_EXTERIOR_LIGHTS.
+     */
+    @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    public static final int REAR_FOG_LIGHTS_STATE = 289410877;
+
+    /**
+     * Rear fog lights switch
+     *
+     * Please refer to the documentation on FOG_LIGHTS_SWITCH for more information.
+     *
+     * The property is protected by the privileged|signature permission:
+     * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    public static final int REAR_FOG_LIGHTS_SWITCH = 289410878;
+
+    /**
+     * EV charge current draw limit.
+     *
+     * <p>Indicates the maximum current draw threshold for charging set by the user. configArray[0]
+     * contains the max current draw allowed by the vehicle in Amperes.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    public static final int EV_CHARGE_CURRENT_DRAW_LIMIT = 291508031;
+
+    /**
+     * EV charge percent limit.
+     *
+     * <p>Indicates the maximum charge percent threshold set by the user. Returns a float value from
+     * 0 to 100. configArray contains the valid charge percent limit values.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    public static final int EV_CHARGE_PERCENT_LIMIT = 291508032;
+
+    /**
+     * Charging state of the car.
+     *
+     * <p>Returns the current charging state of the car.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_CHARGE_STATE = 289410880;
+
+    /**
+     * Start or stop charging the EV battery.
+     *
+     * <p>The setting that the user wants. Setting this property to true starts the battery charging
+     * and setting to false stops charging.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    public static final int EV_CHARGE_SWITCH = 287313729;
+
+    /**
+     * Estimated charge time remaining in seconds.
+     *
+     * <p>Returns 0 if the vehicle is not charging.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_CHARGE_TIME_REMAINING = 289410882;
+
+    /**
+     * Regenerative braking or one-pedal drive state of the car.
+     *
+     * <p>Returns the current state associated with the regenerative braking
+     * setting in the car.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    public static final int EV_REGENERATIVE_BRAKING_STATE = 289410883;
+
+    /**
+     * Vehicle’s curb weight
+     *
+     * <p>Returns the vehicle's curb weight in kilograms. configArray[0] specifies the vehicle’s
+     * gross weight in kilograms.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
+    public static final int VEHICLE_CURB_WEIGHT = 289410886;
+
+     /**
+     * Indicates if there is a trailer present or not.
+     *
+     * <p>Returns the trailer state of the car.
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_PRIVILEGED_CAR_INFO} to read
+     *  property.
+     * </ul>
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
+    public static final int TRAILER_PRESENT = 289410885;
 
     /**
      * @deprecated to prevent others from instantiating this class
@@ -2157,6 +2354,30 @@ public final class VehiclePropertyIds {
                 return "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS";
             case ELECTRONIC_TOLL_COLLECTION_CARD_TYPE:
                 return "ELECTRONIC_TOLL_COLLECTION_CARD_TYPE";
+            case FRONT_FOG_LIGHTS_STATE:
+                return "FRONT_FOG_LIGHTS_STATE";
+            case FRONT_FOG_LIGHTS_SWITCH:
+                return "FRONT_FOG_LIGHTS_SWITCH";
+            case REAR_FOG_LIGHTS_STATE:
+                return "REAR_FOG_LIGHTS_STATE";
+            case REAR_FOG_LIGHTS_SWITCH:
+                return "REAR_FOG_LIGHTS_SWITCH";
+            case EV_CHARGE_CURRENT_DRAW_LIMIT:
+                return "EV_CHARGE_CURRENT_DRAW_LIMIT";
+            case EV_CHARGE_PERCENT_LIMIT:
+                return "EV_CHARGE_PERCENT_LIMIT";
+            case EV_CHARGE_STATE:
+                return "EV_CHARGE_STATE";
+            case EV_CHARGE_SWITCH:
+                return "EV_CHARGE_SWITCH";
+            case EV_CHARGE_TIME_REMAINING:
+                return "EV_CHARGE_TIME_REMAINING";
+            case EV_REGENERATIVE_BRAKING_STATE:
+                return "EV_REGENERATIVE_BRAKING_STATE";
+            case VEHICLE_CURB_WEIGHT:
+                return "VEHICLE_CURB_WEIGHT";
+            case TRAILER_PRESENT:
+                return "TRAILER_PRESENT";
             default:
                 return "0x" + Integer.toHexString(property);
         }

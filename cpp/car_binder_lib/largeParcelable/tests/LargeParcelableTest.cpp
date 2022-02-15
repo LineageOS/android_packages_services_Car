@@ -141,9 +141,11 @@ TEST(LargeParcelableTest, WrapStableAidlReuseSharedMemoryFile) {
 void testParcelableToStableLargeParcelable(size_t dataSize) {
     std::unique_ptr<TestStableParcelable> p = createTestStableParcelable(dataSize);
 
-    auto result = LargeParcelableBase::parcelableToStableLargeParcelable(*p);
+    TestStableLargeParcelable largeP;
+    largeP.payload = *p;
+    auto result = LargeParcelableBase::parcelableToStableLargeParcelable(largeP);
 
-    ASSERT_TRUE(result.ok());
+    ASSERT_TRUE(result.ok()) << result.error();
 
     TestStableLargeParcelable out;
     if (result.value() == nullptr) {
@@ -202,17 +204,13 @@ void testStableLargeParcelableToParcelable(size_t dataSize) {
     ASSERT_EQ(status, STATUS_OK);
 
     // Convert the StableLargeParcelable back to the original parcelable.
-    auto result = LargeParcelableBase::stableLargeParcelableToParcelable<TestStableParcelable>(
-            largeParcelable.sharedMemoryFd);
+    auto result = LargeParcelableBase::stableLargeParcelableToParcelable(largeParcelable);
 
-    ASSERT_TRUE(result.ok());
+    ASSERT_TRUE(result.ok()) << result.error();
 
-    if (result.value() == nullptr) {
-        ASSERT_TRUE(largeParcelable.payload.has_value());
-        checkTestStableParcelable(&largeParcelable.payload.value(), dataSize);
-    } else {
-        checkTestStableParcelable(result.value().get(), dataSize);
-    }
+    const TestStableLargeParcelable* out = result.value().getObject();
+    ASSERT_TRUE(out->payload.has_value());
+    checkTestStableParcelable(&(out->payload.value()), dataSize);
 }
 
 TEST(LargeParcelableTest, StableLargeParcelableToParcelableSmallPayload) {
@@ -226,9 +224,11 @@ TEST(LargeParcelableTest, StableLargeParcelableToParcelableLargePayload) {
 void testParcelableToStableLargeParcelableBackToParcelable(size_t dataSize) {
     std::unique_ptr<TestStableParcelable> p = createTestStableParcelable(dataSize);
 
-    auto result1 = LargeParcelableBase::parcelableToStableLargeParcelable(*p);
+    TestStableLargeParcelable largeP;
+    largeP.payload = *p;
+    auto result1 = LargeParcelableBase::parcelableToStableLargeParcelable(largeP);
 
-    ASSERT_TRUE(result1.ok());
+    ASSERT_TRUE(result1.ok()) << result1.error();
 
     TestStableLargeParcelable intermediate;
     if (result1.value() == nullptr) {
@@ -237,18 +237,13 @@ void testParcelableToStableLargeParcelableBackToParcelable(size_t dataSize) {
         intermediate.sharedMemoryFd = std::move(*result1.value());
     }
 
-    TestStableParcelable out;
+    auto result2 = LargeParcelableBase::stableLargeParcelableToParcelable(intermediate);
 
-    auto result2 = LargeParcelableBase::stableLargeParcelableToParcelable<TestStableParcelable>(
-            intermediate.sharedMemoryFd);
+    ASSERT_TRUE(result2.ok()) << result2.error();
 
-    ASSERT_TRUE(result2.ok());
-
-    if (result2.value() == nullptr) {
-        checkTestStableParcelable(&intermediate.payload.value(), dataSize);
-    } else {
-        checkTestStableParcelable(result2.value().get(), dataSize);
-    }
+    const TestStableLargeParcelable* out = result2.value().getObject();
+    ASSERT_TRUE(out->payload.has_value());
+    checkTestStableParcelable(&(out->payload.value()), dataSize);
 }
 
 TEST(LargeParcelableTest, ParcelableToStableLargeParcelableBackToParcelableSmallPayload) {
@@ -293,10 +288,12 @@ TEST(LargeParcelableTest, LargeParcelableWrapStableAidlVectorWriteReadLargePaylo
 
 void testParcelableVectorToStableLargeParcelable(size_t dataSize) {
     std::vector<TestStableParcelable> p = createTestStableParcelableVector(dataSize);
+    TestStableLargeParcelableVector largeP;
+    largeP.payload = p;
 
-    auto result = LargeParcelableBase::parcelableVectorToStableLargeParcelable(p);
+    auto result = LargeParcelableBase::parcelableToStableLargeParcelable(largeP);
 
-    ASSERT_TRUE(result.ok());
+    ASSERT_TRUE(result.ok()) << result.error();
 
     TestStableLargeParcelableVector out;
     if (result.value() == nullptr) {
@@ -356,17 +353,11 @@ void testStableLargeParcelableToParcelableVector(size_t dataSize) {
 
     std::vector<TestStableParcelable> out;
     // Convert the StableLargeParcelable back to the original parcelable.
-    auto result =
-            LargeParcelableBase::stableLargeParcelableToParcelableVector<TestStableParcelable>(
-                    largeParcelable.sharedMemoryFd);
+    auto result = LargeParcelableBase::stableLargeParcelableToParcelable(largeParcelable);
 
-    ASSERT_TRUE(result.ok());
+    ASSERT_TRUE(result.ok()) << result.error();
 
-    if (!result.value().has_value()) {
-        checkTestStableParcelableVector(&largeParcelable.payload, dataSize);
-    } else {
-        checkTestStableParcelableVector(&result.value().value(), dataSize);
-    }
+    checkTestStableParcelableVector(&(result.value().getObject()->payload), dataSize);
 }
 
 TEST(LargeParcelableTest, StableLargeParcelableToParcelableVectorSmallPayload) {
@@ -379,10 +370,12 @@ TEST(LargeParcelableTest, StableLargeParcelableToParcelableVectorLargePayload) {
 
 void testParcelableVectorToStableLargeParcelableBackToParcelableVector(size_t dataSize) {
     std::vector<TestStableParcelable> p = createTestStableParcelableVector(dataSize);
+    TestStableLargeParcelableVector largeP;
+    largeP.payload = p;
 
-    auto result1 = LargeParcelableBase::parcelableVectorToStableLargeParcelable(p);
+    auto result1 = LargeParcelableBase::parcelableToStableLargeParcelable(largeP);
 
-    ASSERT_TRUE(result1.ok());
+    ASSERT_TRUE(result1.ok()) << result1.error();
 
     TestStableLargeParcelableVector intermediate;
     if (result1.value() == nullptr) {
@@ -391,19 +384,11 @@ void testParcelableVectorToStableLargeParcelableBackToParcelableVector(size_t da
         intermediate.sharedMemoryFd = std::move(*result1.value());
     }
 
-    std::vector<TestStableParcelable> out;
+    auto result2 = LargeParcelableBase::stableLargeParcelableToParcelable(intermediate);
 
-    auto result2 =
-            LargeParcelableBase::stableLargeParcelableToParcelableVector<TestStableParcelable>(
-                    intermediate.sharedMemoryFd);
+    ASSERT_TRUE(result2.ok()) << result2.error();
 
-    ASSERT_TRUE(result2.ok());
-
-    if (!result2.value().has_value()) {
-        checkTestStableParcelableVector(&intermediate.payload, dataSize);
-    } else {
-        checkTestStableParcelableVector(&result2.value().value(), dataSize);
-    }
+    checkTestStableParcelableVector(&(result2.value().getObject()->payload), dataSize);
 }
 
 TEST(LargeParcelableTest,

@@ -45,7 +45,9 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
+import android.util.Dumpable;
 import android.util.Log;
+import android.util.Pair;
 
 import com.android.car.internal.common.CommonConstants;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
@@ -56,8 +58,10 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -76,11 +80,14 @@ import java.util.stream.Collectors;
 @TestApi
 public final class CarUserManager extends CarManagerBase {
 
-    private static final String TAG = CarUserManager.class.getSimpleName();
+    /** @hide */
+    public static final String TAG = CarUserManager.class.getSimpleName();
+
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
     private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
 
     /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
@@ -313,7 +320,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @Nullable
     @GuardedBy("mLock")
-    private ArrayMap<UserLifecycleListener, Executor> mListeners;
+    private ArrayMap<UserLifecycleListener, Pair<UserLifecycleEventFilter, Executor>> mListeners;
 
     /**
      * Receiver used to receive user-lifecycle callbacks from the service.
@@ -321,6 +328,21 @@ public final class CarUserManager extends CarManagerBase {
     @Nullable
     @GuardedBy("mLock")
     private LifecycleResultReceiver mReceiver;
+
+    private final Dumper mDumper;
+
+    /**
+     * Logs the number of received events so it's shown on {@code Dumper.dump()}.
+     */
+    private int mNumberReceivedEvents;
+
+    /**
+     * Logs the received events so they're shown on {@code Dumper.dump()}.
+     *
+     * <p><b>Note</b>: these events are only logged when {@link #VERBOSE} is {@code true}.
+     */
+    @Nullable
+    private List<UserLifecycleEvent> mEvents;
 
     /**
      * @hide
@@ -338,6 +360,10 @@ public final class CarUserManager extends CarManagerBase {
             @NonNull UserManager userManager) {
         super(car);
 
+        mDumper = addDumpable(car.getContext(), () -> new Dumper());
+        if (DBG) {
+            Log.d(TAG, "mDumper: " + mDumper);
+        }
         mService = service;
         mUserManager = userManager;
     }
@@ -367,6 +393,40 @@ public final class CarUserManager extends CarManagerBase {
             };
             EventLogHelper.writeCarUserManagerSwitchUserReq(uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
+            return new AndroidAsyncFuture<>(future);
+        } catch (SecurityException e) {
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            AsyncFuture<UserSwitchResult> future =
+                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+            return handleExceptionFromCarService(e, future);
+        }
+    }
+
+    /**
+     * Logouts the current user (if it was switched to by a device admin).
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AsyncFuture<UserSwitchResult> logoutUser() {
+        int uid = myUid();
+        try {
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
+                @Override
+                protected void onCompleted(UserSwitchResult result, Throwable err) {
+                    if (result != null) {
+                        EventLogHelper.writeCarUserManagerLogoutUserResp(uid,
+                                result.getStatus(), result.getErrorMessage());
+                    } else {
+                        Log.w(TAG, "logoutUser() failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                }
+            };
+            EventLogHelper.writeCarUserManagerLogoutUserReq(uid);
+            mService.logoutUser(HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
         } catch (SecurityException e) {
             throw e;
@@ -422,7 +482,7 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createGuest(@Nullable String name) {
-        return createUser(name, UserManagerHelper.USER_TYPE_FULL_GUEST, /* flags= */ 0);
+        return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
     }
 
     /**
@@ -510,6 +570,29 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     public void addListener(@NonNull @CallbackExecutor Executor executor,
             @NonNull UserLifecycleListener listener) {
+        addListenerInternal(executor, /* filter= */null, listener);
+    }
+
+    /**
+     * Adds a listener for {@link UserLifecycleEvent user lifecycle events} with a filter that can
+     * specify a specific event type or a user id.
+     *
+     * @throws IllegalStateException if the listener was already added.
+     *
+     * @hide
+     */
+    @SystemApi
+    @TestApi
+    @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
+    public void addListener(@NonNull @CallbackExecutor Executor executor,
+            @NonNull UserLifecycleEventFilter filter, @NonNull UserLifecycleListener listener) {
+        Objects.requireNonNull(filter, "filter cannot be null");
+
+        addListenerInternal(executor, filter, listener);
+    }
+
+    private void addListenerInternal(@CallbackExecutor Executor executor,
+            @Nullable UserLifecycleEventFilter filter, UserLifecycleListener listener) {
         Objects.requireNonNull(executor, "executor cannot be null");
         Objects.requireNonNull(listener, "listener cannot be null");
 
@@ -517,28 +600,29 @@ public final class CarUserManager extends CarManagerBase {
         String packageName = getContext().getPackageName();
         if (DBG) {
             Log.d(TAG, "addListener(): uid=" + uid + ", pkg=" + packageName
-                    + ", listener=" + listener);
+                    + ", listener=" + listener + ", filter= " + filter);
         }
         synchronized (mLock) {
             Preconditions.checkState(mListeners == null || !mListeners.containsKey(listener),
                     "already called for this listener");
             if (mReceiver == null) {
                 mReceiver = new LifecycleResultReceiver();
-                try {
-                    EventLogHelper.writeCarUserManagerAddListener(uid, packageName);
-                    if (DBG) {
-                        Log.d(TAG, "Setting lifecycle receiver for uid " + uid + " and package "
-                                + packageName);
-                    }
-                    mService.setLifecycleListenerForApp(packageName, mReceiver);
-                } catch (RemoteException e) {
-                    handleRemoteExceptionFromCarService(e);
+                if (DBG) {
+                    Log.d(TAG, "Setting lifecycle receiver with filter " + filter
+                            + " for uid " + uid + " and package " + packageName);
                 }
             } else {
                 if (DBG) {
                     Log.d(TAG, "Already set receiver for uid " + uid + " and package "
-                            + packageName);
+                            + packageName + " adding new filter " + filter);
                 }
+            }
+            try {
+                boolean hasFilter = filter != null;
+                EventLogHelper.writeCarUserManagerAddListener(uid, packageName, hasFilter);
+                mService.setLifecycleListenerForApp(packageName, filter, mReceiver);
+            } catch (RemoteException e) {
+                handleRemoteExceptionFromCarService(e);
             }
 
             if (mListeners == null) {
@@ -550,8 +634,8 @@ public final class CarUserManager extends CarManagerBase {
                                 .map((l) -> getLambdaName(l))
                                 .collect(Collectors.toList()), new Exception("caller's stack"));
             }
-            if (DBG) Log.d(TAG, "Adding listener: " + listener);
-            mListeners.put(listener, executor);
+            if (DBG) Log.d(TAG, "Adding listener: " + listener + " with filter " + filter);
+            mListeners.put(listener, Pair.create(filter, executor));
         }
     }
 
@@ -579,6 +663,10 @@ public final class CarUserManager extends CarManagerBase {
                     "not called for this listener yet");
             mListeners.remove(listener);
 
+            // Note that there can be some rare corner cases that a listener is removed but its
+            // corresponding filter remains in the service side. This may cause slight inefficiency
+            // due to unnecessary receiver calls. It will still be functionally correct, because the
+            // removed listener will no longer be invoked.
             if (!mListeners.isEmpty()) {
                 if (DBG) Log.d(TAG, "removeListeners(): still " + mListeners.size() + " left");
                 return;
@@ -764,7 +852,7 @@ public final class CarUserManager extends CarManagerBase {
             int to = resultCode;
             int eventType = resultData.getInt(BUNDLE_PARAM_ACTION);
             UserLifecycleEvent event = new UserLifecycleEvent(eventType, from, to);
-            ArrayMap<UserLifecycleListener, Executor> listeners;
+            ArrayMap<UserLifecycleListener, Pair<UserLifecycleEventFilter, Executor>> listeners;
             synchronized (mLock) {
                 if (mListeners == null) {
                     Log.w(TAG, "No listeners for event " + event);
@@ -776,11 +864,27 @@ public final class CarUserManager extends CarManagerBase {
             EventLogHelper.writeCarUserManagerNotifyLifecycleListener(size, eventType, from, to);
             for (int i = 0; i < size; i++) {
                 UserLifecycleListener listener = listeners.keyAt(i);
-                Executor executor = listeners.valueAt(i);
+                UserLifecycleEventFilter filter = listeners.valueAt(i).first;
+                if (filter != null && !filter.apply(event)) {
+                    if (DBG) {
+                        Log.d(TAG, "Listener " + getLambdaName(listener)
+                                + " is skipped for the event " + event + " due to the filter "
+                                + filter);
+                    }
+                    continue;
+                }
+                Executor executor = listeners.valueAt(i).second;
                 if (DBG) {
                     Log.d(TAG, "Calling " + getLambdaName(listener) + " for event " + event);
                 }
                 executor.execute(() -> listener.onEvent(event));
+            }
+            mNumberReceivedEvents++;
+            if (VERBOSE) {
+                if (mEvents == null) {
+                    mEvents = new ArrayList<>();
+                }
+                mEvents.add(event);
             }
         }
     }
@@ -789,6 +893,41 @@ public final class CarUserManager extends CarManagerBase {
     @Override
     public void onCarDisconnected() {
         // nothing to do
+    }
+
+    private final class Dumper implements Dumpable {
+        @Override
+        public void dump(PrintWriter pw, String[] args) {
+            String prefix = "  ";
+
+            pw.printf("DBG=%b, VERBOSE=%b\n", DBG, VERBOSE);
+            int listenersSize = 0;
+            synchronized (mLock) {
+                pw.printf("mReceiver: %s\n", mReceiver);
+                if (mListeners == null) {
+                    pw.println("no listeners");
+                } else {
+                    listenersSize = mListeners.size();
+                    pw.printf("%d listeners\n", listenersSize);
+                }
+                if (DBG) {
+                    for (int i = 0; i < listenersSize; i++) {
+                        pw.printf("%s%d: %s\n", prefix, i + 1, mListeners.keyAt(i));
+                    }
+                }
+            }
+            pw.printf("mNumberReceivedEvents: %d\n", mNumberReceivedEvents);
+            if (VERBOSE && mEvents != null) {
+                for (int i = 0; i < mEvents.size(); i++) {
+                    pw.printf("%s%d: %s\n", prefix, i + 1, mEvents.get(i));
+                }
+            }
+        }
+
+        @Override
+        public String getDumpableName() {
+            return CarUserManager.class.getSimpleName();
+        }
     }
 
     /**
@@ -938,6 +1077,26 @@ public final class CarUserManager extends CarManagerBase {
             }
 
             return builder.append(']').toString();
+        }
+
+        @Override
+        public boolean equals(@Nullable Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            UserLifecycleEvent that = (UserLifecycleEvent) o;
+            return mEventType == that.mEventType && mUserId == that.mUserId
+                    && mPreviousUserId == that.mPreviousUserId;
+        }
+
+        @Override
+        public int hashCode() {
+            int hash = 23;
+            hash = 17 * hash + mEventType;
+            hash = 17 * hash + mUserId;
+            hash = 17 * hash + mPreviousUserId;
+
+            return hash;
         }
     }
 

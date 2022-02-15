@@ -27,6 +27,7 @@ allow carservice_app {
     bluetooth_manager_service
     connectivity_service
     content_service
+    device_policy_service
     deviceidle_service
     display_service
     graphicsstats_service
@@ -36,7 +37,9 @@ allow carservice_app {
     lock_settings_service
     media_session_service
     media_communication_service
+    netstats_service  # for CarTelemetryService
     network_management_service
+    overlay_service
     power_service
     procfsinspector_service
     sensorservice_service

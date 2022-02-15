@@ -42,6 +42,10 @@ android_app {
         enabled: false,
     },
 
+    jni_libs: [
+        "libcarservicejni",
+    ],
+
     libs: [
         "android.car",
         "android.car.builtin"

@@ -21,6 +21,8 @@
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <utils/StrongPointer.h>
 
+#include <IVhalClient.h>
+
 #include <cstdint>
 #include <vector>
 
@@ -88,7 +90,7 @@ class DefaultExecutor : public Executor {
 // the property has not yet been set, a random byte value is generated and
 // saved in the VHAL for reuse on future boots.
 BindingStatus setVehicleBindingSeed(
-        sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> vehicle,
+        std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> vehicle,
         const Executor& executor, const Csrng& csrng);
 
 }  // namespace security

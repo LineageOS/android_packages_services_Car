@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
-import android.car.telemetry.MetricsConfigKey;
+import android.annotation.NonNull;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
@@ -32,6 +32,12 @@ import java.time.Duration;
  * it can read from based current system states and policies.
  */
 public class DataBrokerController {
+
+    /** Interface for report ready notifications. */
+    public interface ReportReadyListener{
+        /** Sends a notification when the metrics config reached a terminal state. */
+        void onReportReady(@NonNull String metricsConfigName);
+    }
 
     /**
      * Priorities range from 0 to 100, with 0 being the highest priority and 100 being the lowest.
@@ -49,22 +55,26 @@ public class DataBrokerController {
     private final DataBroker mDataBroker;
     private final Handler mTelemetryHandler;
     private final MetricsConfigStore mMetricsConfigStore;
+    private final ReportReadyListener mReportReadyListener;
     private final SystemMonitor mSystemMonitor;
     private final SystemStateInterface mSystemStateInterface;
 
     public DataBrokerController(
-            DataBroker dataBroker,
-            Handler telemetryHandler,
-            MetricsConfigStore metricsConfigStore,
-            SystemMonitor systemMonitor,
-            SystemStateInterface systemStateInterface) {
+            @NonNull DataBroker dataBroker,
+            @NonNull Handler telemetryHandler,
+            @NonNull MetricsConfigStore metricsConfigStore,
+            @NonNull ReportReadyListener reportReadyListener,
+            @NonNull SystemMonitor systemMonitor,
+            @NonNull SystemStateInterface systemStateInterface) {
         mDataBroker = dataBroker;
         mTelemetryHandler = telemetryHandler;
         mMetricsConfigStore = metricsConfigStore;
+        mReportReadyListener = reportReadyListener;
         mSystemMonitor = systemMonitor;
         mSystemStateInterface = systemStateInterface;
 
-        mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);
+        mDataBroker.setOnScriptFinishedCallback(
+                metricsConfigName -> onScriptFinished(metricsConfigName));
         mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
         mSystemStateInterface.scheduleActionForBootCompleted(
                 this::startMetricsCollection, Duration.ZERO);
@@ -79,8 +89,7 @@ public class DataBrokerController {
         mTelemetryHandler.post(() -> {
             for (TelemetryProto.MetricsConfig config :
                     mMetricsConfigStore.getActiveMetricsConfigs()) {
-                mDataBroker.addMetricsConfig(
-                        new MetricsConfigKey(config.getName(), config.getVersion()), config);
+                mDataBroker.addMetricsConfig(config.getName(), config);
             }
         });
     }
@@ -88,11 +97,12 @@ public class DataBrokerController {
     /**
      * Listens to script finished event from {@link DataBroker}.
      *
-     * @param key the unique identifier of the config whose script finished.
+     * @param metricsConfigName the unique identifier of the config whose script finished.
      */
-    public void onScriptFinished(MetricsConfigKey key) {
-        mMetricsConfigStore.removeMetricsConfig(key);
-        mDataBroker.removeMetricsConfig(key);
+    public void onScriptFinished(@NonNull String metricsConfigName) {
+        mMetricsConfigStore.removeMetricsConfig(metricsConfigName);
+        mDataBroker.removeMetricsConfig(metricsConfigName);
+        mReportReadyListener.onReportReady(metricsConfigName);
     }
 
     /**
@@ -104,7 +114,7 @@ public class DataBrokerController {
      *
      * @param event the {@link SystemMonitorEvent} received.
      */
-    public void onSystemMonitorEvent(SystemMonitorEvent event) {
+    public void onSystemMonitorEvent(@NonNull SystemMonitorEvent event) {
         if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI
                 || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI) {
             mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_HI);
