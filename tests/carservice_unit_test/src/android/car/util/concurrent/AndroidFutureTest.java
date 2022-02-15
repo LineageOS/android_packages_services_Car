@@ -30,6 +30,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiFunction;
 
 public final class AndroidFutureTest {
 
@@ -287,6 +288,37 @@ public final class AndroidFutureTest {
         mUncompletedFuture.complete(STRING_VALUE);
         ExecutionException thrown = expectThrows(ExecutionException.class,
                 () -> composedFuture.get());
+
+        assertThat(thrown.getCause()).isSameInstanceAs(exception);
+    }
+
+    @Test
+    public void testThenCombine() throws Exception {
+        String nearFutureString = "near future comes";
+        AndroidFuture<String> nearFuture = AndroidFuture.supply(() -> nearFutureString);
+        String farFutureString = " before far future.";
+        AndroidFuture<String> farFuture = AndroidFuture.supply(() -> farFutureString);
+        AndroidFuture<String> combinedFuture =
+                nearFuture.thenCombine(farFuture, ((s1, s2) -> s1 + s2));
+
+        assertThat(combinedFuture.get()).isEqualTo(nearFutureString + farFutureString);
+    }
+
+    @Test
+    public void testThenCombine_functionThrowingException() throws Exception {
+        String nearFutureString = "near future comes";
+        AndroidFuture<String> nearFuture = AndroidFuture.supply(() -> nearFutureString);
+        String farFutureString = " before far future.";
+        AndroidFuture<String> farFuture = AndroidFuture.supply(() -> farFutureString);
+        UnsupportedOperationException exception = new UnsupportedOperationException(
+                EXCEPTION_MESSAGE);
+        BiFunction<String, String, String> throwingFunction = (s1, s2) -> {
+            throw exception;
+        };
+        AndroidFuture<String> combinedFuture = nearFuture.thenCombine(farFuture, throwingFunction);
+
+        ExecutionException thrown = expectThrows(ExecutionException.class,
+                () -> combinedFuture.get());
 
         assertThat(thrown.getCause()).isSameInstanceAs(exception);
     }
