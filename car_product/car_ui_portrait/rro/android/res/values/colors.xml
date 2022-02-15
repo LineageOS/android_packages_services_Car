@@ -68,4 +68,5 @@
   <color name="list_divider_color">#2E3134</color>
   <color name="alert_dialog_background_color">#f1f3f4</color>
   <color name="alert_dialog_message_text_color">#000</color>
+  <color name="alert_dialog_subtitle_text_color">#5f6368</color>
 </resources>
