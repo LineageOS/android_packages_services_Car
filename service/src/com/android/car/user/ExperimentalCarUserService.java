@@ -16,12 +16,15 @@
 
 package com.android.car.user;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.user.CarUserService.checkManageUsersPermission;
 import static com.android.car.user.CarUserService.sendUserCreationFailure;
 import static com.android.car.user.CarUserService.sendUserSwitchResult;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -35,8 +38,9 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
-import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
+import android.car.user.UserLifecycleEventFilter;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
@@ -94,11 +98,13 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     @GuardedBy("mLock")
     private ZoneUserBindingHelper mZoneUserBindingHelper;
 
-    private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
-        Slogf.d(TAG, "ExperimentalCarUserService.onEvent: %s", event);
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            onUserSwitching(event.getPreviousUserId(), event.getUserId());
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
+            return;
         }
+        Slogf.d(TAG, "ExperimentalCarUserService.onEvent: %s", event);
+
+        onUserSwitching(event.getPreviousUserId(), event.getUserId());
     };
 
     /** Interface for callbacks related to passenger activities. */
@@ -144,7 +150,9 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     public void init() {
         Slogf.d(TAG, "init()");
 
-        mCarUserService.addUserLifecycleListener(mUserLifecycleListener);
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+        mCarUserService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
     }
 
     @Override

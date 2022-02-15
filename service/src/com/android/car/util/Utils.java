@@ -15,6 +15,8 @@
  */
 package com.android.car.util;
 
+import static android.car.user.CarUserManager.lifecycleEventTypeToString;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
@@ -22,18 +24,23 @@ import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.builtin.util.Slogf;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.UserHandle;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * Some potentially useful static methods.
@@ -173,5 +180,46 @@ public final class Utils {
                 .createContextAsUser(
                         UserHandle.of(userId), /* flags= */ 0)
                 .getContentResolver();
+    }
+
+    /**
+     * Checks if the type of the {@code event} matches {@code expectedType}.
+     *
+     * @param tag The tag for logging.
+     * @param event The event to check the type against {@code expectedType}.
+     * @param expectedType The expected event type.
+     * @return true if {@code event}'s type matches {@code expectedType}.
+     *         Otherwise, log a wtf and return false.
+     */
+    public static boolean isEventOfType(String tag, UserLifecycleEvent event,
+            @UserLifecycleEventType int expectedType) {
+        if (event.getEventType() == expectedType) {
+            return true;
+        }
+        Slogf.wtf(tag, "Received an unexpected event: %s. Expected type: %s.", event,
+                lifecycleEventTypeToString(expectedType));
+        return false;
+    }
+
+    /**
+     * Checks if the type of the {@code event} is one of the types in {@code expectedTypes}.
+     *
+     * @param tag The tag for logging.
+     * @param event The event to check the type against {@code expectedTypes}.
+     * @param expectedTypes The expected event types. Must not be empty.
+     * @return true if {@code event}'s type can be found in {@code expectedTypes}.
+     *         Otherwise, log a wtf and return false.
+     */
+    public static boolean isEventAnyOfTypes(String tag, UserLifecycleEvent event,
+            @UserLifecycleEventType int... expectedTypes) {
+        for (int i = 0; i < expectedTypes.length; i++) {
+            if (event.getEventType() == expectedTypes[i]) {
+                return true;
+            }
+        }
+        Slogf.wtf(tag, "Received an unexpected event: %s. Expected types: [%s]", event,
+                Arrays.stream(expectedTypes).mapToObj(t -> lifecycleEventTypeToString(t)).collect(
+                        Collectors.joining(",")));
+        return false;
     }
 }

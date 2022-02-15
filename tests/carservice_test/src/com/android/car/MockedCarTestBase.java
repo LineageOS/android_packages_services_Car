@@ -255,13 +255,13 @@ public class MockedCarTestBase {
 
         // Setup mocks
         doAnswer((invocation) -> {
-            UserLifecycleListener listener = invocation.getArgument(/* index= */ 0);
+            UserLifecycleListener listener = invocation.getArgument(/* index= */ 1);
             synchronized (mLock) {
                 Log.d(TAG, "Adding UserLifecycleListener: " + listener);
                 mUserLifecycleListeners.add(listener);
             }
             return null;
-        }).when(mCarUserService).addUserLifecycleListener(any());
+        }).when(mCarUserService).addUserLifecycleListener(any(), any());
 
         doAnswer((invocation) -> {
             UserLifecycleListener listener = invocation.getArgument(/* index= */ 0);
