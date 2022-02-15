@@ -49,6 +49,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -174,7 +176,7 @@ public class MapMceTestFragment extends Fragment {
         reply.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendMessage(new Uri[]{Uri.parse(mOriginator.getText().toString())},
+                sendMessage(Collections.singleton(Uri.parse(mOriginator.getText().toString())),
                         REPLY_MESSAGE_TO_SEND);
             }
         });
@@ -291,12 +293,11 @@ public class MapMceTestFragment extends Fragment {
         for (String telNum : s.split(",")) {
             uris.add(builder.path(telNum).scheme(PhoneAccount.SCHEME_TEL).build());
         }
-        sendMessage(uris.toArray(new Uri[uris.size()]), Integer.toString(mSendNewMsgCounter)
-                + ":  " + messageToSend);
+        sendMessage(uris, Integer.toString(mSendNewMsgCounter) + ":  " + messageToSend);
         mSendNewMsgCounter += 1;
     }
 
-    private void sendMessage(Uri[] recipients, String message) {
+    private void sendMessage(Collection recipients, String message) {
         if (mActivity.checkSelfPermission(Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED) {
             Log.d(TAG,"Don't have SMS permission in kitchesink app. Requesting it");
