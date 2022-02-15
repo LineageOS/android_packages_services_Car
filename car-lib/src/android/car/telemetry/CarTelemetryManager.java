@@ -63,8 +63,8 @@ public final class CarTelemetryManager extends CarManagerBase {
     public static final int STATUS_METRICS_CONFIG_SUCCESS = 0;
 
     /**
-     * Status to indicate that add MetricsConfig failed because the same MetricsConfig based on the
-     * ManifestKey already exists.
+     * Status to indicate that add MetricsConfig failed because the same MetricsConfig of the same
+     * name and version already exists.
      */
     public static final int STATUS_METRICS_CONFIG_ALREADY_EXISTS = 1;
 
@@ -116,26 +116,26 @@ public final class CarTelemetryManager extends CarManagerBase {
          *
          * TODO(b/184964661): Publish the documentation for the format of the results.
          *
-         * @param key    the {@link MetricsConfigKey} that the result is associated with.
-         * @param result the car telemetry result as serialized bytes.
+         * @param metricsConfigName name of the MetricsConfig that the result is associated with.
+         * @param result            the car telemetry result as serialized bytes.
          */
-        void onResult(@NonNull MetricsConfigKey key, @NonNull byte[] result);
+        void onResult(@NonNull String metricsConfigName, @NonNull byte[] result);
 
         /**
          * Sends script execution errors to the client.
          *
-         * @param key   the {@link MetricsConfigKey} that the error is associated with
-         * @param error the serialized car telemetry error.
+         * @param metricsConfigName name of the MetricsConfig that the error is associated with.
+         * @param error             the serialized car telemetry error.
          */
-        void onError(@NonNull MetricsConfigKey key, @NonNull byte[] error);
+        void onError(@NonNull String metricsConfigName, @NonNull byte[] error);
 
         /**
-         * Sends the {@link #addMetricsConfig(MetricsConfigKey, byte[])} status to the client.
+         * Sends the {@link #addMetricsConfig(String, byte[])} status to the client.
          *
-         * @param key        the {@link MetricsConfigKey} that the status is associated with
-         * @param statusCode See {@link MetricsConfigStatus}.
+         * @param metricsConfigName name of the MetricsConfig that the status is associated with.
+         * @param statusCode        See {@link MetricsConfigStatus}.
          */
-        void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
+        void onAddMetricsConfigStatus(@NonNull String metricsConfigName,
                 @MetricsConfigStatus int statusCode);
     }
 
@@ -152,35 +152,35 @@ public final class CarTelemetryManager extends CarManagerBase {
         }
 
         @Override
-        public void onResult(@NonNull MetricsConfigKey key, @NonNull byte[] result) {
+        public void onResult(@NonNull String metricsConfigName, @NonNull byte[] result) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.onResult(key, result);
+            manager.onResult(metricsConfigName, result);
         }
 
         @Override
-        public void onError(@NonNull MetricsConfigKey key, @NonNull byte[] error) {
+        public void onError(@NonNull String metricsConfigName, @NonNull byte[] error) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.onError(key, error);
+            manager.onError(metricsConfigName, error);
         }
 
         @Override
-        public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
+        public void onAddMetricsConfigStatus(@NonNull String metricsConfigName,
                 @MetricsConfigStatus int statusCode) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.onAddMetricsConfigStatus(key, statusCode);
+            manager.onAddMetricsConfigStatus(metricsConfigName, statusCode);
         }
     }
 
-    private void onResult(MetricsConfigKey key, byte[] result) {
+    private void onResult(String metricsConfigName, byte[] result) {
         long token = Binder.clearCallingIdentity();
         Executor executor = getExecutor();
         if (executor == null) {
@@ -189,13 +189,13 @@ public final class CarTelemetryManager extends CarManagerBase {
         executor.execute(() -> {
             CarTelemetryResultsListener listener = getResultsListener();
             if (listener != null) {
-                listener.onResult(key, result);
+                listener.onResult(metricsConfigName, result);
             }
         });
         Binder.restoreCallingIdentity(token);
     }
 
-    private void onError(MetricsConfigKey key, byte[] error) {
+    private void onError(String metricsConfigName, byte[] error) {
         long token = Binder.clearCallingIdentity();
         Executor executor = getExecutor();
         if (executor == null) {
@@ -204,13 +204,13 @@ public final class CarTelemetryManager extends CarManagerBase {
         executor.execute(() -> {
             CarTelemetryResultsListener listener = getResultsListener();
             if (listener != null) {
-                listener.onError(key, error);
+                listener.onError(metricsConfigName, error);
             }
         });
         Binder.restoreCallingIdentity(token);
     }
 
-    private void onAddMetricsConfigStatus(MetricsConfigKey key, int statusCode) {
+    private void onAddMetricsConfigStatus(String metricsConfigName, int statusCode) {
         long token = Binder.clearCallingIdentity();
         Executor executor = getExecutor();
         if (executor == null) {
@@ -219,7 +219,7 @@ public final class CarTelemetryManager extends CarManagerBase {
         executor.execute(() -> {
             CarTelemetryResultsListener listener = getResultsListener();
             if (listener != null) {
-                listener.onAddMetricsConfigStatus(key, statusCode);
+                listener.onAddMetricsConfigStatus(metricsConfigName, statusCode);
             }
         });
         Binder.restoreCallingIdentity(token);
@@ -301,22 +301,23 @@ public final class CarTelemetryManager extends CarManagerBase {
     /**
      * Sends a telemetry MetricsConfig to CarTelemetryService. The size of the MetricsConfig cannot
      * exceed a predefined size, otherwise an exception is thrown.
-     * The {@link MetricsConfigKey} is used to uniquely identify a MetricsConfig. If a MetricsConfig
+     * The MetricsConfig will be uniquely identified by its name and version. If a MetricsConfig
      * of the same name already exists in {@link com.android.car.telemetry.CarTelemetryService},
      * the config version will be compared. If the version is strictly higher, the existing
      * MetricsConfig will be replaced by the new one. All legacy data will be cleared if replaced.
-     * Client should use {@link #sendFinishedReports(MetricsConfigKey)} to get the result before
+     * Client should use {@link #sendFinishedReports(String)} to get the result before
      * replacing a MetricsConfig.
      * The status of this API is sent back asynchronously via {@link CarTelemetryResultsListener}.
      *
-     * @param key           the unique key to identify the MetricsConfig.
-     * @param metricsConfig the serialized bytes of a MetricsConfig object.
+     * @param metricsConfigName name of the MetricsConfig, must match
+     * {@link TelemetryProto.MetricsConfig#getName()}.
+     * @param metricsConfig     the serialized bytes of a MetricsConfig object.
      * @throws IllegalArgumentException if the MetricsConfig size exceeds limit.
      * @throws IllegalStateException    if the listener is not set.
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public void addMetricsConfig(@NonNull MetricsConfigKey key, @NonNull byte[] metricsConfig) {
+    public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] metricsConfig) {
         if (getResultsListener() == null) {
             throw new IllegalStateException("Listener must be set.");
         }
@@ -324,7 +325,7 @@ public final class CarTelemetryManager extends CarManagerBase {
             throw new IllegalArgumentException("MetricsConfig size exceeds limit.");
         }
         try {
-            mService.addMetricsConfig(key, metricsConfig);
+            mService.addMetricsConfig(metricsConfigName, metricsConfig);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -335,17 +336,17 @@ public final class CarTelemetryManager extends CarManagerBase {
      * will also remove outputs produced by the MetricsConfig. If the MetricsConfig does not exist,
      * nothing will be removed.
      *
-     * @param key the unique key to identify the MetricsConfig. Name and version must be exact.
+     * @param metricsConfigName that identify the MetricsConfig.
      * @throws IllegalStateException if the listener is not set.
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
+    public void removeMetricsConfig(@NonNull String metricsConfigName) {
         if (getResultsListener() == null) {
             throw new IllegalStateException("Listener must be set.");
         }
         try {
-            mService.removeMetricsConfig(key);
+            mService.removeMetricsConfig(metricsConfigName);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
@@ -376,17 +377,17 @@ public final class CarTelemetryManager extends CarManagerBase {
      * result is sent back asynchronously via the {@link CarTelemetryResultsListener}.
      * This call is destructive. The returned results will be deleted from CarTelemetryService.
      *
-     * @param key the unique key to identify the MetricsConfig.
+     * @param metricsConfigName to identify the MetricsConfig.
      * @throws IllegalStateException if the listener is not set.
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public void sendFinishedReports(@NonNull MetricsConfigKey key) {
+    public void sendFinishedReports(@NonNull String metricsConfigName) {
         if (getResultsListener() == null) {
             throw new IllegalStateException("Listener must be set.");
         }
         try {
-            mService.sendFinishedReports(key);
+            mService.sendFinishedReports(metricsConfigName);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
