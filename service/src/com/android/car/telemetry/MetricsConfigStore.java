@@ -22,7 +22,6 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_UN
 import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_VERSION_TOO_OLD;
 
 import android.annotation.NonNull;
-import android.car.telemetry.MetricsConfigKey;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
 
@@ -108,13 +107,11 @@ public class MetricsConfigStore {
     /**
      * Deletes the MetricsConfig from disk.
      *
-     * @param key the unique identifier of the metrics config that should be deleted.
+     * @param metricsConfigName the unique identifier of the metrics config that should be deleted.
      * @return true for successful removal, false otherwise.
      */
-    public boolean removeMetricsConfig(@NonNull MetricsConfigKey key) {
-        String metricsConfigName = key.getName();
-        if (!mActiveConfigs.containsKey(key.getName())
-                || mActiveConfigs.get(key.getName()).getVersion() != key.getVersion()) {
+    public boolean removeMetricsConfig(@NonNull String metricsConfigName) {
+        if (!mActiveConfigs.containsKey(metricsConfigName)) {
             return false; // no match found, nothing to remove
         }
         mActiveConfigs.remove(metricsConfigName);

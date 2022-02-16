@@ -21,7 +21,6 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SU
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.telemetry.CarTelemetryManager;
-import android.car.telemetry.MetricsConfigKey;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,8 +39,6 @@ public class MetricsConfigStoreTest {
             TelemetryProto.MetricsConfig.newBuilder().setName(NAME_FOO).setVersion(1).build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_BAR =
             TelemetryProto.MetricsConfig.newBuilder().setName(NAME_BAR).setVersion(1).build();
-    private static final MetricsConfigKey KEY_BAR = new MetricsConfigKey(
-            METRICS_CONFIG_BAR.getName(), METRICS_CONFIG_BAR.getVersion());
 
     private File mTestRootDir;
     private File mTestMetricsConfigDir;
@@ -91,14 +88,14 @@ public class MetricsConfigStoreTest {
         int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_BAR);
         assertThat(status).isEqualTo(STATUS_METRICS_CONFIG_SUCCESS);
 
-        mMetricsConfigStore.removeMetricsConfig(KEY_BAR);
+        mMetricsConfigStore.removeMetricsConfig(NAME_BAR);
 
         assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
     }
 
     @Test
     public void testRemoveMetricsConfig_whenConfigDoesNotExist_shouldDoNothing() {
-        boolean success = mMetricsConfigStore.removeMetricsConfig(KEY_BAR);
+        boolean success = mMetricsConfigStore.removeMetricsConfig(NAME_BAR);
 
         assertThat(success).isFalse();
     }
