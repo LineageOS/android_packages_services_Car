@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"pristupiti kamerama automobila"</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"pristupiti podacima o energiji automobila"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"pristupiti informacijama o energiji automobila"</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"Upravljajte postavkama punjenja električnog automobila"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"Upravljajte postavkama punjenja električnog automobila."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"korekcija preostalog dometa automobila"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Korekcija vrijednosti preostalog dometa automobila."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"pristupiti grijanju, ventilaciji i klimatizaciji automobila"</string>
@@ -118,6 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"upravljati automobilskim sjedalima"</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"pristupiti osnovnim podacima automobila"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"pristupiti osnovnim podacima automobila"</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"pristup povlaštenim podacima automobila"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Pristup povlaštenim podacima automobila."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"pristupanje informacijama o dopuštenju dobavljača automobila"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Pristupanje informacijama o dopuštenju dobavljača automobila."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"čitati stanje vanjskih svjetala automobila"</string>

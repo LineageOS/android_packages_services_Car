@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਕੈਮਰੇ ਤੱਕ ਪਹੁੰਚ।"</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"ਕਾਰ ਦੀ ਊਰਜਾ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"ਤੁਹਾਡੀ ਕਾਰ ਦੀ ਊਰਜਾ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"ਕਾਰ ਦੀਆਂ EV ਚਾਰਜ ਸੈਟਿੰਗਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"ਆਪਣੀ ਕਾਰ ਦੀਆਂ EV ਚਾਰਜ ਸੈਟਿੰਗਾਂ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ।"</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"ਕਾਰ ਦੀ ਬਾਕੀ ਰੇਂਜ ਨੂੰ ਵਿਵਸਥਿਤ ਕਰੋ"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"ਕਾਰ ਦੀ ਬਾਕੀ ਰੇਂਜ ਦੇ ਮੁੱਲ ਨੂੰ ਵਿਵਸਥਿਤ ਕਰੋ।"</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"ਕਾਰ ਦੇ hvac ਤੱਕ ਪਹੁੰਚ"</string>
@@ -118,6 +120,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"ਕਾਰ ਦੀਆਂ ਸੀਟਾਂ \'ਤੇ ਕੰਟਰੋਲ।"</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"ਕਾਰ ਦੀ ਮੂਲ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"ਕਾਰ ਦੀ ਮੂਲ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"ਕਾਰ ਵਿਕਰੇਤਾ ਦੀ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"ਕਾਰ ਵਿਕਰੇਤਾ ਦੀ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ ਦੀ ਸਥਿਤੀ ਨੂੰ ਪੜ੍ਹਨਾ"</string>
