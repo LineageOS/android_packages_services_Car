@@ -36,6 +36,8 @@
     <item target="color/clear_all_button_background_color" value="@color/clear_all_button_background_color"/>
     <item target="color/primary_text_color" value="@color/primary_text_color"/>
     <item target="color/secondary_text_color" value="@color/secondary_text_color"/>
+    <item target="color/notification_accent_color" value="@color/notification_accent_color"/>
+    <item target="color/dark_icon_tint" value="@color/dark_icon_tint"/>
 
     <item target="dimen/action_button_height" value="@dimen/action_button_height" />
     <item target="dimen/action_button_radius" value="@dimen/action_button_radius" />
@@ -51,6 +53,12 @@
     <item target="dimen/notification_card_radius" value="@dimen/notification_card_radius"/>
     <item target="dimen/notification_headsup_card_margin_horizontal" value="@dimen/notification_headsup_card_margin_horizontal" />
     <item target="dimen/notification_touch_target_size" value="@dimen/notification_touch_target_size"/>
+    <item target="dimen/play_arrow_width" value="@dimen/play_arrow_width"/>
+    <item target="dimen/play_arrow_height" value="@dimen/play_arrow_height"/>
+    <item target="dimen/reply_icon_height" value="@dimen/reply_icon_height"/>
+    <item target="dimen/reply_icon_width" value="@dimen/reply_icon_width"/>
+    <item target="dimen/mute_icon_height" value="@dimen/mute_icon_height"/>
+    <item target="dimen/mute_icon_width" value="@dimen/mute_icon_width"/>
 
     <item target="id/action_1" value="@id/action_1" />
     <item target="id/action_2" value="@id/action_2" />
@@ -74,9 +82,15 @@
     <item target="layout/message_headsup_notification_template" value="@layout/message_headsup_notification_template" />
     <item target="layout/notification_center_activity" value="@layout/notification_center_activity"/>
 
+    <item target="drawable/ic_reply" value="@drawable/ic_reply"/>
+    <item target="drawable/ic_play_arrow" value="@drawable/ic_play_arrow"/>
+    <item target="drawable/ic_mute" value="@drawable/ic_mute"/>
+
     <item target="string/assist_action_play_label" value="@string/assist_action_play_label"/>
     <item target="string/config_headsUpNotificationAnimationHelper" value="@string/config_headsUpNotificationAnimationHelper" />
     <item target="string/notification_header" value="@string/notification_header"/>
+    <item target="string/assist_action_reply_label" value="@string/assist_action_reply_label"/>
+    <item target="string/action_mute_short" value="@string/action_mute_short"/>
 
     <item target="style/ClearAllButton" value="@style/ClearAllButton"/>
     <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
@@ -85,6 +99,7 @@
     <item target="style/NotificationBodyTitleText" value="@style/NotificationBodyTitleText" />
     <item target="style/NotificationActionButtonText" value="@style/NotificationActionButtonText"/>
     <item target="style/Theme.DeviceDefault.NoActionBar.Notification" value="@style/Theme.DeviceDefault.NoActionBar.Notification"/>
+    <item target="style/NotificationActionButton1" value="@style/NotificationActionButton1"/>
 
     <item target="dimen/card_min_bottom_padding" value="@dimen/card_min_bottom_padding"/>
     <item target="dimen/card_min_top_padding" value="@dimen/card_min_top_padding"/>
