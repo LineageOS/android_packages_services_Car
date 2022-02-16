@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"Toegang tot de camera(\'s) van je auto."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"toegang tot informatie over energieniveau van auto"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"Toegang tot informatie over het energieniveau van je auto."</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"EV-oplaadinstellingen van je auto beheren"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"EV-oplaadinstellingen van je auto beheren."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"resterende actieradius van auto aanpassen"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Waarde voor resterende actieradius van auto aanpassen."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"toegang tot HVAC van auto"</string>
@@ -118,6 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Autostoelen bedienen."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"toegang tot basisgegevens van auto"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Toegang tot basisgegevens van auto."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"toegang krijgen tot de vertrouwelijke informatie van de auto"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Toegang krijgen tot de vertrouwelijke informatie van de auto."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"toegang tot informatie over de leveranciersrechten van de auto"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Toegang tot informatie over de leveranciersrechten van de auto."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"status van buitenverlichting van auto lezen"</string>

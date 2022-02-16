@@ -22,6 +22,10 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"Acessar câmeras do carro."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"acessar as informações de energia do carro"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"Acessar informações de abastecimento do carro."</string>
+    <!-- no translation found for car_permission_label_control_car_energy (1577616334396233371) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_energy (4753886338368650501) -->
+    <skip />
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"ajustar a autonomia restante do carro"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Ajustar o valor restante de autonomia do carro."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"acessar o HVAC (Aquecimento, ventilação e ar-condicionado) do carro"</string>
@@ -118,6 +122,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Controlar bancos do carro."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"acessar informações básicas do carro"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Acessar informações básicas do carro."</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"acessar informações de permissão do fornecedor do carro"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Acessar informações de permissão do fornecedor do carro."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"ler o estado das luzes externas do carro"</string>

@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"käyttää auton kameroita"</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"käyttää auton energiatietoja"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"nähdä auton energiatiedot"</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"Hallita sähköajoneuvon latausasetuksia."</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"Hallita sähköajoneuvosi latausasetuksia."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"säädä auton jäljellä olevaa toimintamatkaa"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Säädä auton jäljellä olevan toimintamatkan arvoa."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"käyttää auton ilmastointia ja lämmitystä"</string>
@@ -118,6 +120,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"ohjata auton istuimia"</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"käyttää auton perustietoja"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"käyttää auton perustietoja"</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"tarkistaa auton myyjän lupatiedot"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"tarkistaa auton myyjän lupatiedot"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"nähdä auton ulkovalojen tilan"</string>
