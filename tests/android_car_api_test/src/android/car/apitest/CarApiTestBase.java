@@ -167,13 +167,11 @@ public abstract class CarApiTestBase {
             PowerManager powerManager = sContext.getSystemService(PowerManager.class);
             // clear log
             runShellCommand("logcat -b all -c");
-            runShellCommand("cmd car_service suspend");
+            runShellCommand("cmd car_service suspend --skip-garagemode");
             // Check for suspend success
             waitUntil("screen is still on after suspend",
                     SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
 
-            // Force turn off garage mode
-            runShellCommand("cmd car_service garage-mode off");
             runShellCommand("cmd car_service resume");
             waitForLogcatMessage("logcat -b events", "car_user_svc_initial_user_info_req_complete: "
                     + InitialUserInfoRequestType.RESUME, 60_000);
