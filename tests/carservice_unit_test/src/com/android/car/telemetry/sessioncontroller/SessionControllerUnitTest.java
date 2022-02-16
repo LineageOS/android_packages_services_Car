@@ -127,7 +127,7 @@ public class SessionControllerUnitTest
                 .that(gotResponse)
                 .isTrue();
         assertThat(mCallback.annotation.sessionState).isEqualTo(
-                SessionController.STATE_ENTER_DRIVING);
+                SessionController.STATE_ENTER_DRIVING_SESSION);
         assertThat(mCallback.annotation.sessionId).isEqualTo(1);
     }
 
@@ -143,12 +143,13 @@ public class SessionControllerUnitTest
                 .that(gotResponse)
                 .isTrue();
         assertThat(mCallback.annotation.sessionState).isEqualTo(
-                SessionController.STATE_ENTER_DRIVING);
+                SessionController.STATE_ENTER_DRIVING_SESSION);
         int sessionId = mCallback.annotation.sessionId;
         long currentTimeMillis = mCallback.annotation.createdAtMillis;
         long elapsedFromBootMillis = mCallback.annotation.createdAtSinceBootMillis;
         assertThat(sessionId).isEqualTo(1);
-        // synchronous annotate call after state change is expected to return exactly the same
+        // synchronous getSessionAnnotation() call after state change is expected to return
+        // exactly the same
         // annotation.
         assertThat(mSessionController.getSessionAnnotation()).isEqualTo(mCallback.annotation);
 
@@ -161,7 +162,7 @@ public class SessionControllerUnitTest
                 .isTrue();
 
         assertThat(mCallback.annotation.sessionState).isEqualTo(
-                SessionController.STATE_EXIT_DRIVING);
+                SessionController.STATE_EXIT_DRIVING_SESSION);
         // session ID should remain to be the old ID when the session finishes.
         assertThat(mCallback.annotation.sessionId).isEqualTo(sessionId);
         // times should increase compared to when the session turned into ON state.
@@ -175,9 +176,31 @@ public class SessionControllerUnitTest
     @Test
     public void testGetSessionAnnotation_defaultState() {
         SessionAnnotation annotation = mSessionController.getSessionAnnotation();
-        assertThat(annotation.sessionState).isEqualTo(SessionController.STATE_EXIT_DRIVING);
+        assertThat(annotation.sessionState).isEqualTo(SessionController.STATE_EXIT_DRIVING_SESSION);
         assertThat(annotation.sessionId).isEqualTo(0);
+        assertThat(annotation.bootReason).isNull();
     }
 
+    @Test
+    public void testInitSession_triggersCallback() {
+        doReturn(CarPowerManager.STATE_ON).when(mMockCarPowerManager).getPowerState();
+        mSessionController.registerCallback(mCallback);
+
+        mSessionController.initSession();
+
+        assertThat(mCallback.annotation.sessionState).isEqualTo(
+                SessionController.STATE_ENTER_DRIVING_SESSION);
+    }
+
+    @Test
+    public void testGetSessionAnnotation_populatesBootReason() {
+        assertThat(mSessionController.getSessionAnnotation().bootReason).isNull();
+
+        mSessionController.initSession();
+
+        // Indirect way of checking that SystemProperties.get(sys.boot.reason) is called because
+        // the result of the call is @NonNull.
+        assertThat(mSessionController.getSessionAnnotation().bootReason).isNotNull();
+    }
 
 }

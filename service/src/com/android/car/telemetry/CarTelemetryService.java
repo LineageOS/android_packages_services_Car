@@ -151,7 +151,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // controller starts metrics collection after boot complete
             mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
                     mMetricsConfigStore, this::onReportReady, mSystemMonitor,
-                    systemInterface.getSystemStateInterface());
+                    systemInterface.getSystemStateInterface(), mSessionController);
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
             mOnShutdownReboot = new OnShutdownReboot(mContext);
