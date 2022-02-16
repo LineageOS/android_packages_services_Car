@@ -21,7 +21,7 @@
     android:layout_height="wrap_content"
     android:maxHeight="916dp"
     android:gravity="start|top"
-    android:background="@color/alert_dialog_background_color"
+    android:background="@drawable/alert_dialog_bg"
     android:orientation="vertical">
     <include layout="@layout/car_alert_dialog_title" />
     <FrameLayout
@@ -50,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="24sp"
-                    android:textColor="@color/alert_dialog_message_text_color"/>
+                    android:textColor="@color/alert_dialog_subtitle_text_color"/>
                 <!-- we don't need this spacer, but the id needs to be here for compatibility -->
                 <Space
                     android:id="@*android:id/textSpacerNoButtons"
