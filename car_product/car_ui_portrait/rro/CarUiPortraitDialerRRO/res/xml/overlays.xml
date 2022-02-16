@@ -66,6 +66,7 @@
     <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
 
     <item target="dimen/list_item_height" value="@dimen/list_item_height" />
+    <item target="dimen/contact_avatar_corner_radius_percent" value="@dimen/contact_avatar_corner_radius_percent" />
 
     <item target="layout/dialpad_fragment_with_type_down" value="@layout/dialpad_fragment_with_type_down"/>
     <item target="layout/dialpad_user_profile" value="@layout/dialpad_user_profile"/>

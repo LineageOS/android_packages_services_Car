@@ -29,6 +29,13 @@
     <dimen name="notification_card_radius">24dp</dimen>
     <dimen name="headsup_notification_bottom_margin">160dp</dimen>
 
+    <dimen name="play_arrow_width">28dp</dimen>
+    <dimen name="play_arrow_height">36dp</dimen>
+    <dimen name="reply_icon_height">28dp</dimen>
+    <dimen name="reply_icon_width">36dp</dimen>
+    <dimen name="mute_icon_height">40dp</dimen>
+    <dimen name="mute_icon_width">34dp</dimen>
+
     <!-- Icons -->
     <dimen name="notification_touch_target_size">120dp</dimen>
     <dimen name="body_big_icon_margin">8dp</dimen>
