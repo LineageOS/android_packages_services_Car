@@ -16,10 +16,12 @@
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.util.Utils.getContentResolverForUser;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -35,7 +37,8 @@ import android.car.input.CustomInputEvent;
 import android.car.input.ICarInput;
 import android.car.input.ICarInputCallback;
 import android.car.input.RotaryEvent;
-import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -198,11 +201,13 @@ public class CarInputService extends ICarInput.Stub
 
     private final InputCaptureClientController mCaptureController;
 
-    private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
-        Slogf.d(TAG, "CarInputService.onEvent(%s)", event);
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            updateCarAccessibilityServicesSettings(event.getUserId());
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
+            return;
         }
+        Slogf.d(TAG, "CarInputService.onEvent(%s)", event);
+
+        updateCarAccessibilityServicesSettings(event.getUserId());
     };
 
     private static int getViewLongPressDelay(Context context) {
@@ -286,7 +291,9 @@ public class CarInputService extends ICarInput.Stub
         }
         Slogf.d(TAG, "Hal supports key input.");
         mInputHalService.setInputListener(this);
-        mUserService.addUserLifecycleListener(mUserLifecycleListener);
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+        mUserService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
     }
 
     @Override

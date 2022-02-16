@@ -202,7 +202,7 @@ public final class GarageModeTest {
     private UserLifecycleListener getEventListener() {
         ArgumentCaptor<UserLifecycleListener> listenerCaptor =
                 ArgumentCaptor.forClass(UserLifecycleListener.class);
-        verify(mCarUserService).addUserLifecycleListener(listenerCaptor.capture());
+        verify(mCarUserService).addUserLifecycleListener(any(), listenerCaptor.capture());
         UserLifecycleListener listener = listenerCaptor.getValue();
         return listener;
     }

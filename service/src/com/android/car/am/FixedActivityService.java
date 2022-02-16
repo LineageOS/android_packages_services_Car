@@ -16,10 +16,12 @@
 package com.android.car.am;
 
 import static android.car.builtin.app.ActivityManagerHelper.INVALID_TASK_ID;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -33,8 +35,8 @@ import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -139,13 +141,15 @@ public final class FixedActivityService implements CarServiceBase {
     private final UserManager mUm;
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (!isEventOfType(TAG_AM, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
+            return;
+        }
         if (Log.isLoggable(TAG_AM, Log.DEBUG)) {
             Slogf.d(TAG_AM, "onEvent(" + event + ")");
         }
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            synchronized (FixedActivityService.this.mLock) {
-                clearRunningActivitiesLocked();
-            }
+
+        synchronized (FixedActivityService.this.mLock) {
+            clearRunningActivitiesLocked();
         }
     };
 
@@ -302,7 +306,9 @@ public final class FixedActivityService implements CarServiceBase {
             mCarPowerManager = carPowerManager;
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        userService.addUserLifecycleListener(mUserLifecycleListener);
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
+        userService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
         filter.addAction(Intent.ACTION_PACKAGE_REPLACED);

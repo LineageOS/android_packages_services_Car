@@ -16,14 +16,17 @@
 
 package com.android.car.garagemode;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.car.builtin.job.JobSchedulerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
@@ -215,8 +218,10 @@ class GarageMode {
     }
 
     void init() {
+        UserLifecycleEventFilter userStoppedEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED).build();
         CarLocalServices.getService(CarUserService.class)
-                .addUserLifecycleListener(mUserLifecycleListener);
+                .addUserLifecycleListener(userStoppedEventFilter, mUserLifecycleListener);
     }
 
     void release() {
@@ -231,7 +236,9 @@ class GarageMode {
     private final UserLifecycleListener mUserLifecycleListener = new UserLifecycleListener() {
         @Override
         public void onEvent(UserLifecycleEvent event) {
-            if (event.getEventType() != CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED) return;
+            if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
+                return;
+            }
 
             synchronized (mLock) {
                 if (mBackgroundUserStopInProcess) {

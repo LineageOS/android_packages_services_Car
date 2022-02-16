@@ -134,7 +134,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         when(mMockPackageManager.getPackageUidAsUser(any(), anyInt())).thenReturn(1);
         mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
-        verify(mMockCarUserService).addUserLifecycleListener(
+        verify(mMockCarUserService).addUserLifecycleListener(any(),
                 mUserLifecycleListenerArgumentCaptor.capture());
         verify(mMockContext).registerReceiver(mDisplayBroadcastReceiver.capture(),
                 any(IntentFilter.class), anyInt());

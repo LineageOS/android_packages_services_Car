@@ -23,8 +23,10 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLO
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -50,7 +52,8 @@ import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
-import android.car.user.CarUserManager;
+import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -218,18 +221,15 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
 
-    private final CarUserManager.UserLifecycleListener mUserLifecycleListener =
-            new CarUserManager.UserLifecycleListener() {
-                @Override
-                public void onEvent(CarUserManager.UserLifecycleEvent event) {
-                    if (event.getEventType()
-                            == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
-                        synchronized (mLock) {
-                            resetTempAllowedActivitiesLocked();
-                        }
-                    }
-                }
-            };
+    private final UserLifecycleListener mUserLifecycleListener = event -> {
+        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
+            return;
+        }
+
+        synchronized (mLock) {
+            resetTempAllowedActivitiesLocked();
+        }
+    };
 
     private final ICarPowerPolicyListener mDisplayPowerPolicyListener =
             new ICarPowerPolicyListener.Stub() {
@@ -634,8 +634,10 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             setDrivingSafetyRegionWithCheckLocked(safetyRegion);
             mHandler.requestInit();
         }
+        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
         CarLocalServices.getService(CarUserService.class).addUserLifecycleListener(
-                mUserLifecycleListener);
+                userSwitchingEventFilter, mUserLifecycleListener);
         CarLocalServices.getService(CarPowerManagementService.class).addPowerPolicyListener(
                 new CarPowerPolicyFilter.Builder().setComponents(PowerComponent.DISPLAY).build(),
                 mDisplayPowerPolicyListener);

@@ -92,7 +92,7 @@ public final class DisplayInterfaceTest {
 
         verify(mContentResolver).registerContentObserver(any(), eq(false), any());
         verify(mDisplayManager).registerDisplayListener(any(), isNull());
-        verify(mCarUserService).addUserLifecycleListener(any());
+        verify(mCarUserService).addUserLifecycleListener(any(), any());
     }
 
     @Test

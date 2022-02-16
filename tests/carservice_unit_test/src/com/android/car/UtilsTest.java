@@ -16,8 +16,14 @@
 
 package com.android.car;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.test.mocks.AbstractExtendedMockitoTestCase.ExpectWtf;
+import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.text.TextUtils;
 
 import com.android.car.util.TransitionLog;
@@ -31,6 +37,12 @@ import java.util.UUID;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class UtilsTest {
+
+    private static final String TAG = UtilsTest.class.getSimpleName();
+
+    private static final UserLifecycleEvent USER_STARTING_EVENT =
+            new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING, 111);
+
     @Test
     public void testTransitionLogToString() {
         TransitionLog transitionLog =
@@ -119,5 +131,37 @@ public final class UtilsTest {
 
         assertThat(Utils.concatByteArrays(bytes1, bytes2)).asList()
                 .containsExactlyElementsIn(expected).inOrder();
+    }
+
+    @Test
+    public void testIsEventOfType_returnsTrue() {
+        assertThat(Utils.isEventOfType(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_STARTING)).isTrue();
+    }
+
+    @Test
+    @ExpectWtf
+    public void testIsEventOfType_returnsFalse() {
+        assertThat(Utils.isEventOfType(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING)).isFalse();
+    }
+
+    @Test
+    public void testIsEventAnyOfTypes_returnsTrue() {
+        assertThat(Utils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_STARTING)).isTrue();
+    }
+
+    @Test
+    @ExpectWtf
+    public void testisEventAnyOfTypes_emptyEventTypes_returnsFalse() {
+        assertThat(Utils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT)).isFalse();
+    }
+
+    @Test
+    @ExpectWtf
+    public void testisEventAnyOfTypes_returnsFalse() {
+        assertThat(Utils.isEventAnyOfTypes(TAG, USER_STARTING_EVENT,
+                USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_STOPPING)).isFalse();
     }
 }

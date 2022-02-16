@@ -16,13 +16,17 @@
 
 package com.android.car.pm;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 import static android.content.Context.BIND_AUTO_CREATE;
+
+import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.app.ActivityManager;
 import android.car.builtin.util.Slogf;
-import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -111,7 +115,11 @@ class VendorServiceController implements UserLifecycleListener {
         }
 
         mCarUserService = CarLocalServices.getService(CarUserService.class);
-        mCarUserService.addUserLifecycleListener(this);
+        UserLifecycleEventFilter userSwitchingOrUnlockingEventFilter =
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING).build();
+        mCarUserService.addUserLifecycleListener(userSwitchingOrUnlockingEventFilter, this);
 
         startOrBindServicesIfNeeded();
     }
@@ -130,18 +138,23 @@ class VendorServiceController implements UserLifecycleListener {
 
     @Override
     public void onEvent(UserLifecycleEvent event) {
+        if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
+                USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)) {
+            return;
+        }
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "onEvent(" + event + ")");
         }
+
         // TODO(b/152069895): Use USER_LIFECYCLE_EVENT_TYPE_UNLOCKED and not care about the
         //     deprecated unlock=false scenario.
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
+        if (USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
             Message msg = mHandler.obtainMessage(
                     MSG_USER_LOCK_CHANGED,
                     event.getUserId(),
                     /* unlocked= */ 1);
             mHandler.sendMessage(msg);
-        } else if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
+        } else if (USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             mHandler.removeMessages(MSG_SWITCH_USER);
             Message msg = mHandler.obtainMessage(
                     MSG_SWITCH_USER,
@@ -152,7 +165,7 @@ class VendorServiceController implements UserLifecycleListener {
     }
 
     private void doSwitchUser(int userId) {
-        // Stop all services which which do not run under foreground or system user.
+        // Stop all services which do not run under foreground or system user.
         final int fgUser = ActivityManager.getCurrentUser();
         if (fgUser != userId) {
             Slogf.w(TAG, "Received userSwitch event for user " + userId
