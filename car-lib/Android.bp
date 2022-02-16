@@ -59,7 +59,7 @@ java_library {
     ],
     aidl: {
         include_dirs: [
-            "packages/modules/Bluetooth/system/binder",
+            "packages/modules/Bluetooth/framework/aidl-export",
         ],
     },
     libs: [
