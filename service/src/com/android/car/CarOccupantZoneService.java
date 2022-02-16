@@ -1117,6 +1117,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 mDisplayUniqueIdConfigs.put(uniqueId, displayConfig);
             }
         }
+        Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        if (findDisplayConfigForDisplayLocked(defaultDisplay) == null) {
+            Slogf.w(TAG, "No default display configuration, will assign to driver zone");
+            mDisplayUniqueIdConfigs.put(DisplayHelper.getUniqueId(defaultDisplay),
+                    new DisplayConfig(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mDriverZoneId));
+        }
     }
 
     @GuardedBy("mLock")
@@ -1151,11 +1157,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     new DisplayInfo(display, displayConfig.displayType));
         }
         if (!hasDefaultDisplayConfig) {
-            // Can reach here if default display has no port / no config
-            Slogf.w(TAG, "Default display not assigned, will assign to driver zone");
-            addDisplayInfoToOccupantZoneLocked(mDriverZoneId, new DisplayInfo(
-                    mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY),
-                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
+            // This shouldn't happen, since we added the default display config in
+            // parseDisplayConfigsLocked().
+            throw new IllegalStateException("Default display not assigned");
         }
     }
 
