@@ -354,11 +354,22 @@ class VendorServiceController implements UserLifecycleListener {
         @Override
         public void onBindingDied(ComponentName name) {
             mBound = false;
+            if (DBG) {
+                Slog.d(TAG, "onBindingDied, name: " + name);
+            }
             tryToRebind();
         }
 
         private void tryToRebind() {
             if (mStopRequested) {
+                return;
+            }
+
+            if (mFailureHandler.hasMessages(MSG_REBIND)) {
+                if (DBG) {
+                    Slog.d(TAG, "Rebind already scheduled for "
+                            + mVendorServiceInfo.toShortString());
+                }
                 return;
             }
 
