@@ -240,11 +240,13 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutFinalResult_shouldWriteResultAndRemoveInterim() throws Exception {
+    public void testPutFinalResultAndFlushToDisk_shouldWriteResultAndRemoveInterim()
+            throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
         mResultStore.putFinalResult(metricsConfigName, TEST_FINAL_BUNDLE);
+        mResultStore.flushToDisk();
 
         assertThat(mResultStore.getInterimResult(metricsConfigName)).isNull();
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
@@ -252,11 +254,13 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutErrorResult_shouldWriteErrorAndRemoveInterimResultFile() throws Exception {
+    public void testPutErrorResultAndFlushToDisk_shouldWriteErrorAndRemoveInterimResultFile()
+            throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
         mResultStore.putErrorResult(metricsConfigName, TEST_TELEMETRY_ERROR);
+        mResultStore.flushToDisk();
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
         assertThat(new File(mTestErrorResultDir, metricsConfigName).exists()).isTrue();
