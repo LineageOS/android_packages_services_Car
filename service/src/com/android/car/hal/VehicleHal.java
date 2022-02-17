@@ -104,7 +104,7 @@ public class VehicleHal implements HalClientCallback {
     private final SparseArray<HalServiceBase> mPropertyHandlers = new SparseArray<>();
     /** This is for iterating all HalServices with fixed order. */
     @GuardedBy("mLock")
-    private final ArrayList<HalServiceBase> mAllServices = new ArrayList<>();
+    private final List<HalServiceBase> mAllServices;
     @GuardedBy("mLock")
     private final SparseArray<SubscribeOptions> mSubscribedProperties = new SparseArray<>();
     @GuardedBy("mLock")
@@ -121,31 +121,11 @@ public class VehicleHal implements HalClientCallback {
      * both passed as parameters.
      */
     public VehicleHal(Context context, VehicleStub vehicle) {
-        // Must be initialized before HalService so that HalService could use this.
-        mPropValueBuilder = vehicle.getHalPropValueBuilder();
-        mHandlerThread = CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName());
-        mHandler = new Handler(mHandlerThread.getLooper());
-        mPowerHal = new PowerHalService(this);
-        mPropertyHal = new PropertyHalService(this);
-        mInputHal = new InputHalService(this);
-        mVmsHal = new VmsHalService(context, this);
-        mUserHal = new UserHalService(this);
-        mDiagnosticHal = new DiagnosticHalService(this);
-        mClusterHalService = new ClusterHalService(this);
-        mEvsHal = new EvsHalService(this);
-        mTimeHalService = new TimeHalService(context, this);
-        //TODO(b/202396546): Dedupe this assignment with the other one in constructor below
-        mAllServices.addAll(Arrays.asList(mPowerHal,
-                mInputHal,
-                mDiagnosticHal,
-                mVmsHal,
-                mUserHal,
-                mClusterHalService,
-                mEvsHal,
-                mTimeHalService,
-                mPropertyHal)); // mPropertyHal should be the last.
-        mHalClient = new HalClient(vehicle, mHandlerThread.getLooper(),
-                /* callback= */ this);
+        this(context, /* powerHal= */ null, /* propertyHal= */ null,
+                /* inputHal= */ null, /* vmsHal= */ null, /* userHal= */ null,
+                /* diagnosticHal= */ null, /* clusterHalService= */ null,
+                /* timeHalService= */ null, /* halClient= */ null,
+                CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()), vehicle);
     }
 
     /**
@@ -153,7 +133,8 @@ public class VehicleHal implements HalClientCallback {
      * function passed as parameters. This method must be used by tests only.
      */
     @VisibleForTesting
-    VehicleHal(PowerHalService powerHal,
+    VehicleHal(Context context,
+            PowerHalService powerHal,
             PropertyHalService propertyHal,
             InputHalService inputHal,
             VmsHalService vmsHal,
@@ -164,27 +145,36 @@ public class VehicleHal implements HalClientCallback {
             HalClient halClient,
             HandlerThread handlerThread,
             VehicleStub vehicle) {
+        // Must be initialized before HalService so that HalService could use this.
+        mPropValueBuilder = vehicle.getHalPropValueBuilder();
         mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
-        mPowerHal = powerHal;
-        mPropertyHal = propertyHal;
-        mInputHal = inputHal;
-        mVmsHal = vmsHal;
-        mUserHal = userHal;
-        mDiagnosticHal = diagnosticHal;
-        mClusterHalService = clusterHalService;
+        mPowerHal = powerHal != null ? powerHal : new PowerHalService(this);
+        mPropertyHal = propertyHal != null ? propertyHal : new PropertyHalService(this);
+        mInputHal = inputHal != null ? inputHal : new InputHalService(this);
+        mVmsHal = vmsHal != null ? vmsHal : new VmsHalService(context, this);
+        mUserHal = userHal != null ? userHal :  new UserHalService(this);
+        mDiagnosticHal = diagnosticHal != null ? diagnosticHal : new DiagnosticHalService(this);
+        mClusterHalService = clusterHalService != null
+                ? clusterHalService : new ClusterHalService(this);
         mEvsHal = new EvsHalService(this);
-        mTimeHalService = timeHalService;
-        mAllServices.addAll(Arrays.asList(mPowerHal,
+        mTimeHalService = timeHalService != null
+                ? timeHalService : new TimeHalService(context, this);
+        mAllServices = List.of(
+                mPowerHal,
                 mInputHal,
                 mDiagnosticHal,
                 mVmsHal,
                 mUserHal,
+                mClusterHalService,
                 mEvsHal,
                 mTimeHalService,
-                mPropertyHal));
-        mHalClient = halClient;
-        mPropValueBuilder = vehicle.getHalPropValueBuilder();
+                mPropertyHal);
+      // mPropertyHal must be the last so that on init/release
+      // it can be used for all other HAL services properties.
+        mHalClient = halClient != null
+                ? halClient : new HalClient(vehicle, mHandlerThread.getLooper(),
+                /* callback= */ this);
     }
 
     private void fetchAllPropConfigs() {
