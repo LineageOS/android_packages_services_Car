@@ -94,14 +94,14 @@ public final class HalAudioFocus implements HalFocusListener {
         synchronized (mLock) {
             Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
                     "Invalid zoneId %d provided in requestAudioFocus", zoneId);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                 Slogf.d(TAG, "Requesting focus gain " + focusGain + " with usage "
                         + usageToString(usage) + " and zoneId " + zoneId);
             }
             HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId).get(
                     usage);
             if (currentRequest != null) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                     Slogf.d(TAG, "A request already exists for zoneId " + zoneId + " and usage "
                             + usage);
                 }
@@ -119,7 +119,7 @@ public final class HalAudioFocus implements HalFocusListener {
         synchronized (mLock) {
             Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
                     "Invalid zoneId %d provided in abandonAudioFocus", zoneId);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                 Slogf.d(TAG, "Abandoning focus with usage " + usageToString(usage)
                         + " for zoneId " + zoneId);
             }
@@ -201,7 +201,7 @@ public final class HalAudioFocus implements HalFocusListener {
         HalAudioFocusRequest currentRequest = halAudioFocusRequests.get(usage);
 
         if (currentRequest == null) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                 Slogf.d(TAG, "No focus to abandon for usage " + usageToString(usage)
                         + " and zoneId " + zoneId);
             }
@@ -213,7 +213,7 @@ public final class HalAudioFocus implements HalFocusListener {
 
         int result = mAudioManager.abandonAudioFocusRequest(currentRequest.mAudioFocusRequest);
         if (result == AUDIOFOCUS_REQUEST_GRANTED) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                 Slogf.d(TAG, "Abandoned focus for usage " + usageToString(usage)
                         + "and zoneId " + zoneId);
             }

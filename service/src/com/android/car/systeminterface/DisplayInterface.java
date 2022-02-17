@@ -101,7 +101,7 @@ public interface DisplayInterface {
      */
     class DefaultImpl implements DisplayInterface {
         private static final String TAG = DisplayInterface.class.getSimpleName();
-        private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+        private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
         private final Context mContext;
         private final DisplayManager mDisplayManager;
         private final Object mLock = new Object();

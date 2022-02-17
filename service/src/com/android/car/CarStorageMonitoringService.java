@@ -143,7 +143,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         Resources resources = mContext.getResources();
         mConfiguration = new Configuration(resources);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "service configuration: " + mConfiguration);
         }
 
