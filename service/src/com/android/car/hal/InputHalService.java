@@ -16,8 +16,6 @@
 package com.android.car.hal;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
-import static android.hardware.automotive.vehicle.CustomInputType.CUSTOM_EVENT_F1;
-import static android.hardware.automotive.vehicle.CustomInputType.CUSTOM_EVENT_F10;
 import static android.hardware.automotive.vehicle.RotaryInputType.ROTARY_INPUT_TYPE_AUDIO_VOLUME;
 import static android.hardware.automotive.vehicle.RotaryInputType.ROTARY_INPUT_TYPE_SYSTEM_NAVIGATION;
 import static android.hardware.automotive.vehicle.VehicleProperty.HW_CUSTOM_INPUT;
@@ -391,7 +389,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     private void dispatchCustomInput(InputListener listener, HalPropValue value) {
-        Slogf.d(TAG, "Dispatching CustomInputEvent for listener: %d and value: %d",
+        Slogf.d(TAG, "Dispatching CustomInputEvent for listener: %s and value: %s",
                 listener, value);
         int inputCode;
         int targetDisplayType;
@@ -402,11 +400,6 @@ public class InputHalService extends HalServiceBase {
             repeatCounter = value.getInt32Value(2);
         } catch (IndexOutOfBoundsException e) {
             Slogf.e(TAG, "Invalid hal custom input event received", e);
-            return;
-        }
-
-        if (inputCode < CUSTOM_EVENT_F1 || inputCode > CUSTOM_EVENT_F10) {
-            Slogf.e(TAG, "Unknown custom input code: %d", inputCode);
             return;
         }
         CustomInputEvent event = new CustomInputEvent(inputCode, targetDisplayType, repeatCounter);
