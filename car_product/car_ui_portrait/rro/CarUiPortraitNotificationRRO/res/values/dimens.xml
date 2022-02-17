@@ -49,4 +49,7 @@
 
     <dimen name="card_min_bottom_padding">8dp</dimen>
     <dimen name="card_min_top_padding">8dp</dimen>
+
+    <dimen name="car_action_button_icon_height">44dp</dimen>
+    <dimen name="car_action_button_icon_width">44dp</dimen>
 </resources>
