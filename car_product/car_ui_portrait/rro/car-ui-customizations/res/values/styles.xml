@@ -17,7 +17,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="TextAppearance_CarUi_AlertDialog_Title" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textSize">32sp</item>
+        <item name="android:textSize">36sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
     <style name="TextAppearance_CarUi_AlertDialog_Subtitle" parent="android:TextAppearance.DeviceDefault">
         <item name="android:textSize">24sp</item>

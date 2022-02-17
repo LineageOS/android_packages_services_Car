@@ -22,6 +22,7 @@ import android.os.Handler;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.telemetry.MetricsConfigStore;
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
@@ -58,6 +59,7 @@ public class DataBrokerController {
     private final ReportReadyListener mReportReadyListener;
     private final SystemMonitor mSystemMonitor;
     private final SystemStateInterface mSystemStateInterface;
+    private final SessionController mSessionController;
 
     public DataBrokerController(
             @NonNull DataBroker dataBroker,
@@ -65,13 +67,15 @@ public class DataBrokerController {
             @NonNull MetricsConfigStore metricsConfigStore,
             @NonNull ReportReadyListener reportReadyListener,
             @NonNull SystemMonitor systemMonitor,
-            @NonNull SystemStateInterface systemStateInterface) {
+            @NonNull SystemStateInterface systemStateInterface,
+            @NonNull SessionController sessionController) {
         mDataBroker = dataBroker;
         mTelemetryHandler = telemetryHandler;
         mMetricsConfigStore = metricsConfigStore;
         mReportReadyListener = reportReadyListener;
         mSystemMonitor = systemMonitor;
         mSystemStateInterface = systemStateInterface;
+        mSessionController = sessionController;
 
         mDataBroker.setOnScriptFinishedCallback(
                 metricsConfigName -> onScriptFinished(metricsConfigName));
@@ -91,6 +95,10 @@ public class DataBrokerController {
                     mMetricsConfigStore.getActiveMetricsConfigs()) {
                 mDataBroker.addMetricsConfig(config.getName(), config);
             }
+            // By this point all publishers are instantiated according to the active configs
+            // and subscribed to session updates. The publishers are ready to handle session updates
+            // that this call might trigger.
+            mSessionController.initSession();
         });
     }
 
