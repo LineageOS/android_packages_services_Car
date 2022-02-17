@@ -2132,7 +2132,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.printf("Suspend: simulating suspend-to-%s.\n", suspendType);
                 mCarPowerManagementService.simulateSuspendAndMaybeReboot(/* shouldReboot= */ false,
                         isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
-                                : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                        : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP, skipGarageMode);
             } catch (Exception e) {
                 writer.printf("Simulating suspend-to-%s failed: %s\n", suspendType, e.getMessage());
             }
@@ -2162,8 +2162,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case PARAM_REBOOT:
                 try {
-                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(true,
-                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(
+                            /* shouldReboot= */ true,
+                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
+                            /*skipGarageMode= */ false);
                     writer.println("Entering Garage Mode. Will reboot when it completes.");
                 } catch (IllegalStateException e) {
                     writer.printf("Entering Garage Mode failed: %s\n", e.getMessage());

@@ -429,7 +429,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mIsBooting = false;
         }
         handleWaitForVhal(new CpmsState(CpmsState.WAIT_FOR_VHAL,
-                CarPowerManager.STATE_WAIT_FOR_VHAL));
+                CarPowerManager.STATE_WAIT_FOR_VHAL, /* canPostpone= */ false));
         Slogf.d(TAG, "setStateForTesting(): mIsBooting is set to false and power state is switched "
                 + "to Wait For Vhal");
     }
@@ -439,7 +439,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     private void onApPowerStateChange(int apState,
             @CarPowerManager.CarPowerState int carPowerStateListenerState) {
-        CpmsState newState = new CpmsState(apState, carPowerStateListenerState);
+        CpmsState newState = new CpmsState(apState, carPowerStateListenerState,
+                /* canPostpone= */ false);
         synchronized (mLock) {
             if (newState.mState == CpmsState.WAIT_FOR_FINISH) {
                 // We are ready to shut down. Suppress this transition if
@@ -491,7 +492,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 break;
             case CpmsState.SIMULATE_SLEEP:
             case CpmsState.SIMULATE_HIBERNATION:
-                simulateShutdownPrepare();
+                simulateShutdownPrepare(state);
                 break;
             case CpmsState.WAIT_FOR_FINISH:
                 handleWaitForFinish(state);
@@ -684,10 +685,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
         }
-        Slogf.i(TAG,
-                (newState.mCanPostpone
-                ? "starting shutdown prepare with Garage Mode"
-                        : "starting shutdown prepare without Garage Mode"));
+        Slogf.i(TAG, newState.mCanPostpone ? "starting shutdown prepare with Garage Mode"
+                : "starting shutdown prepare without Garage Mode");
 
         long timeoutMs = getPreShutdownPrepareTimeoutConfig();
         int state = CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
@@ -710,9 +709,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     // Simulates system shutdown to suspend
-    private void simulateShutdownPrepare() {
+    private void simulateShutdownPrepare(CpmsState state) {
         Slogf.i(TAG, "Simulating shutdown prepare");
-        doShutdownPrepare();
+        handleShutdownPrepare(state);
     }
 
     private void doShutdownPrepare() {
@@ -1970,8 +1969,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
 
-        CpmsState(int state, int carPowerStateListenerState) {
-            this.mCanPostpone = (state == SIMULATE_SLEEP || state == SIMULATE_HIBERNATION);
+        CpmsState(int state, int carPowerStateListenerState, boolean canPostpone) {
+            this.mCanPostpone = canPostpone;
             this.mCarPowerStateListenerState = carPowerStateListenerState;
             this.mState = state;
             this.mShutdownType = state == SIMULATE_SLEEP ? PowerState.SHUTDOWN_TYPE_DEEP_SLEEP :
@@ -2061,7 +2060,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             // Cancel Garage Mode in case it's running
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
-                    CarPowerManager.STATE_SHUTDOWN_CANCELLED));
+                    CarPowerManager.STATE_SHUTDOWN_CANCELLED, /* canPostpone= */ false));
             mLock.notify();
         }
         mHandler.handlePowerStateChange();
@@ -2086,7 +2085,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * {@code CpmsState} that is not directly derived from a {@code VehicleApPowerStateReq}.
      */
     public void simulateSuspendAndMaybeReboot(boolean shouldReboot,
-            @PowerState.ShutdownType int shutdownType) {
+            @PowerState.ShutdownType int shutdownType, boolean skipGarageMode) {
         boolean isDeepSleep = shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
         if (isDeepSleep) {
             if (isDeepSleepAvailable()) {
@@ -2104,11 +2103,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mWakeFromSimulatedSleep = false;
         }
         synchronized (mLock) {
-            mGarageModeShouldExitImmediately = false;
             mRebootAfterGarageMode = shouldReboot;
             mPendingPowerStates.addFirst(new CpmsState(isDeepSleep ? CpmsState.SIMULATE_SLEEP
                             : CpmsState.SIMULATE_HIBERNATION,
-                    CarPowerManager.STATE_SHUTDOWN_PREPARE));
+                    CarPowerManager.STATE_SHUTDOWN_PREPARE, !skipGarageMode));
         }
         mHandler.handlePowerStateChange();
     }
