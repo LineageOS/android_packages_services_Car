@@ -1968,13 +1968,10 @@ public final class VehiclePropertyIds {
      *
      * <p>Required Permissions:
      * <ul>
-     *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
-     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to write
+     *  <li>Privileged|Signature permission {@link Car#PERMISSION_CONTROL_CAR_ENERGY} to read/write
      *  property.
-     * </ul>
      */
-    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
-    @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY)
     public static final int EV_CHARGE_SWITCH = 287313729;
 
     /**

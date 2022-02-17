@@ -275,7 +275,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY_PORTS) public static final int EV_CHARGE_PORT_CONNECTED = 287310603; // 0x1120030b
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY_PORTS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission("android.car.permission.CONTROL_CAR_ENERGY_PORTS")) public static final int EV_CHARGE_PORT_OPEN = 287310602; // 0x1120030a
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) public static final int EV_CHARGE_STATE = 289410880; // 0x11400f40
-    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_ENERGY)) public static final int EV_CHARGE_SWITCH = 287313729; // 0x11200f41
+    field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_ENERGY) public static final int EV_CHARGE_SWITCH = 287313729; // 0x11200f41
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) public static final int EV_CHARGE_TIME_REMAINING = 289410882; // 0x11400f42
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_ENERGY)) public static final int EV_REGENERATIVE_BRAKING_STATE = 289410883; // 0x11400f43
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int FOG_LIGHTS_STATE = 289410562; // 0x11400e02
