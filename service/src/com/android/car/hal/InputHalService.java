@@ -391,7 +391,7 @@ public class InputHalService extends HalServiceBase {
     }
 
     private void dispatchCustomInput(InputListener listener, HalPropValue value) {
-        Slogf.d(TAG, "Dispatching CustomInputEvent for listener: %d and value: %d",
+        Slogf.d(TAG, "Dispatching CustomInputEvent for listener: %s and value: %s",
                 listener, value);
         int inputCode;
         int targetDisplayType;

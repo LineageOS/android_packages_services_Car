@@ -32,7 +32,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 class FastPairUtils {
     static final String TAG = FastPairUtils.class.getSimpleName();
-    static final boolean DBG = Log.isLoggable("FastPair", Log.DEBUG);
+    static final boolean DBG = Slogf.isLoggable("FastPair", Log.DEBUG);
     static final String PREFERENCES = "com.android.car.bluetooth";
     static final String ACCOUNT_KEYS = "AccountKeysCount";
     static final String THREAD_NAME = "FastPairProvider";
