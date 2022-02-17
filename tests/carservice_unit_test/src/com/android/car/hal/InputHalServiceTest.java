@@ -487,6 +487,36 @@ public class InputHalServiceTest {
                 repeatCounter));
     }
 
+    @Test
+    public void dispatchesCustomInputEvent_acceptInputCodeHigherThanF10() {
+        // Custom Input Events may accept input code values outside the
+        // CUSTOM_EVENT_F1 to F10 range.
+        int someInputCodeValueHigherThanF10 = 1000;
+
+        // Arrange mInputListener to capture incoming CustomInputEvent
+        subscribeListener();
+
+        List<CustomInputEvent> events = new ArrayList<>();
+        doAnswer(invocation -> {
+            CustomInputEvent event = invocation.getArgument(0);
+            events.add(event);
+            return null;
+        }).when(mInputListener).onCustomInputEvent(any());
+
+        // Arrange
+        int repeatCounter = 1;
+        VehiclePropValue customInputPropValue = makeCustomInputPropValue(
+                someInputCodeValueHigherThanF10, VehicleDisplay.MAIN, repeatCounter);
+
+        // Act
+        mInputHalService.onHalEvents(ImmutableList.of(customInputPropValue));
+
+        // Assert
+        assertThat(events).containsExactly(new CustomInputEvent(
+                CustomInputEvent.INPUT_CODE_F1, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                repeatCounter));
+    }
+
     private void subscribeListener() {
         mInputHalService.takeProperties(ImmutableSet.of(HW_KEY_INPUT_CONFIG));
         assertThat(mInputHalService.isKeyInputSupported()).isTrue();
