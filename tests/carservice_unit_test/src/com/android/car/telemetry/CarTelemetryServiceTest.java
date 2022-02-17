@@ -45,6 +45,7 @@ import android.os.ResultReceiver;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceUtils;
 import com.android.car.power.CarPowerManagementService;
@@ -88,6 +89,10 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     @Mock private PublisherFactory mPublisherFactory;
     @Mock private SystemMonitor mMockSystemMonitor;
     @Mock private ResultReceiver mMockAddMetricsConfigCallback;
+
+    public CarTelemetryServiceTest() {
+        super(CarLog.TAG_TELEMETRY);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
