@@ -589,20 +589,36 @@ public class InputHalServiceTest {
         mInputHalService.onHalEvents(List.of(v));
 
         verify(mInputListener, never()).onCustomInputEvent(any());
+    }
 
-        // Add repeatCounter and set invalid input code.
-        v = mPropValueBuilder.build(VehicleProperty.HW_CUSTOM_INPUT, /* areaId= */ 0,
-                new int[]{CustomInputEvent.INPUT_CODE_F1 - 1,
-                        CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, 1});
-        mInputHalService.onHalEvents(List.of(v));
-        verify(mInputListener, never()).onCustomInputEvent(any());
+    @Test
+    public void dispatchesCustomInputEvent_acceptInputCodeHigherThanF10() {
+        // Custom Input Events may accept input code values outside the
+        // CUSTOM_EVENT_F1 to F10 range.
+        int someInputCodeValueHigherThanF10 = 1000;
 
-        // Set invalid input code.
-        v = mPropValueBuilder.build(VehicleProperty.HW_CUSTOM_INPUT, /* areaId= */ 0,
-                new int[]{CustomInputEvent.INPUT_CODE_F10 + 1,
-                        CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, 1});
-        mInputHalService.onHalEvents(List.of(v));
-        verify(mInputListener, never()).onCustomInputEvent(any());
+        // Arrange mInputListener to capture incoming CustomInputEvent
+        subscribeListener();
+
+        List<CustomInputEvent> events = new ArrayList<>();
+        doAnswer(invocation -> {
+            CustomInputEvent event = invocation.getArgument(0);
+            events.add(event);
+            return null;
+        }).when(mInputListener).onCustomInputEvent(any());
+
+        // Arrange
+        int repeatCounter = 1;
+        HalPropValue customInputPropValue = makeCustomInputPropValue(
+                someInputCodeValueHigherThanF10, VehicleDisplay.MAIN, repeatCounter);
+
+        // Act
+        mInputHalService.onHalEvents(List.of(customInputPropValue));
+
+        // Assert
+        assertThat(events).containsExactly(new CustomInputEvent(
+                someInputCodeValueHigherThanF10, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                repeatCounter));
     }
 
     private void subscribeListener() {
