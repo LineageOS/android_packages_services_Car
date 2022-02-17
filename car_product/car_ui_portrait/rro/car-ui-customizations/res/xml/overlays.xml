@@ -24,6 +24,7 @@
     <item target="dimen/car_ui_body1_size" value="@dimen/car_ui_body1_size"/>
     <item target="dimen/car_ui_body3_size" value="@dimen/car_ui_body3_size"/>
     <item target="dimen/alert_dialog_margin" value="@dimen/alert_dialog_margin"/>
+    <item target="dimen/car_ui_header_list_item_text_start_margin" value="@dimen/car_ui_header_list_item_text_start_margin"/>
 
     <item target="drawable/car_ui_recyclerview_ic_up" value="@drawable/car_ui_recyclerview_ic_up" />
     <item target="drawable/car_ui_recyclerview_ic_down" value="@drawable/car_ui_recyclerview_ic_down" />
