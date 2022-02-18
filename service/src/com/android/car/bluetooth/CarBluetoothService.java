@@ -59,7 +59,7 @@ import java.util.List;
  */
 public class CarBluetoothService implements CarServiceBase {
     private static final String TAG = CarLog.tagFor(CarBluetoothService.class);
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     static final String THREAD_NAME = "CarBluetoothService";
     private final Context mContext;
 

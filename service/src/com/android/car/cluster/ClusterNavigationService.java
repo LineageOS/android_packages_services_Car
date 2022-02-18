@@ -109,7 +109,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
 
     @Override
     public void init() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "initClusterNavigationService");
         }
         mAppFocusService.registerContextOwnerChangedCallback(this /* FocusOwnershipCallback */);
@@ -117,7 +117,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
 
     @Override
     public void release() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "releaseClusterNavigationService");
         }
         setClusterServiceCallback(null);

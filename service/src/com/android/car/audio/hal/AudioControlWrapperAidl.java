@@ -86,7 +86,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
     @Override
     public void registerFocusListener(HalFocusListener focusListener) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Registering focus listener on AudioControl HAL");
         }
         IFocusListener listenerWrapper = new FocusListenerWrapper(focusListener);
@@ -101,7 +101,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
     @Override
     public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
         }

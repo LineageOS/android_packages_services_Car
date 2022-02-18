@@ -68,7 +68,7 @@ public final class CarActivityService extends ICarActivityService.Stub
         implements CarServiceBase {
 
     private static final String TAG = CarLog.TAG_AM;
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
     private final ActivityManagerHelper mAm;
@@ -327,7 +327,7 @@ public final class CarActivityService extends ICarActivityService.Stub
                 Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         int userId = TaskInfoHelper.getUserId(task);
-        if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
+        if (Slogf.isLoggable(CarLog.TAG_AM, Log.INFO)) {
             Slogf.i(CarLog.TAG_AM, "restarting root activity with user id " + userId);
         }
         mContext.startActivityAsUser(intent, UserHandle.of(userId));
@@ -361,7 +361,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private void handleBlockActivity(TaskInfo currentTask, Intent newActivityIntent) {
         int displayId = newActivityIntent.getIntExtra(BLOCKING_INTENT_EXTRA_DISPLAY_ID,
                 Display.DEFAULT_DISPLAY);
-        if (Log.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
+        if (Slogf.isLoggable(CarLog.TAG_AM, Log.DEBUG)) {
             Slogf.d(CarLog.TAG_AM, "Launching blocking activity on display: " + displayId);
         }
 

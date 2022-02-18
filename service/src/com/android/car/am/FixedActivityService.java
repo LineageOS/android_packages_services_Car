@@ -144,7 +144,7 @@ public final class FixedActivityService implements CarServiceBase {
         if (!isEventOfType(TAG_AM, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
             return;
         }
-        if (Log.isLoggable(TAG_AM, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG_AM, Log.DEBUG)) {
             Slogf.d(TAG_AM, "onEvent(" + event + ")");
         }
 

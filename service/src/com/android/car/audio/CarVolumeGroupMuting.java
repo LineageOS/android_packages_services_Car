@@ -73,7 +73,7 @@ final class CarVolumeGroupMuting {
      * Signal that mute has changed.
      */
     public void carMuteChanged() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "carMuteChanged");
         }
 

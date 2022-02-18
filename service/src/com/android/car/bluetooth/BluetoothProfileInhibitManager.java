@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
  */
 public class BluetoothProfileInhibitManager {
     private static final String TAG = CarLog.tagFor(BluetoothProfileInhibitManager.class);
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final String SETTINGS_DELIMITER = ",";
     private static final Binder RESTORED_PROFILE_INHIBIT_TOKEN = new Binder();
     private static final long RESTORE_BACKOFF_MILLIS = 1000L;

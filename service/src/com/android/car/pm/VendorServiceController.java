@@ -142,7 +142,7 @@ class VendorServiceController implements UserLifecycleListener {
                 USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)) {
             return;
         }
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "onEvent(" + event + ")");
         }
 
