@@ -24,4 +24,5 @@
     <color name="icon_tint">#000000</color>
     <color name="media_button_tint">@color/icon_tint</color>
     <color name="dialer_button_icon_color">@color/icon_tint</color>
+    <color name="recent_apps_line_divider_color">#2E3134</color>
 </resources>
