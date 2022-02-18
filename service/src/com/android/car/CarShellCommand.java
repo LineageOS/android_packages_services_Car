@@ -1367,16 +1367,21 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
 
-        // Processing the last remaining argument (expected to be 'f1', 'f2', ..., 'f10').
+        // Processing the last remaining argument. Argument is expected one of the tem functions
+        // ('f1', 'f2', ..., 'f10') or just a plain integer representing the custom input event.
         String eventValue = args[argIdx].toLowerCase();
-        Integer inputCode = CUSTOM_INPUT_FUNCTION_ARGS.get(eventValue);
-        if (inputCode == null) {
-            writer.printf("Invalid input event value {%s}, valid values are f1, f2, ..., f10\n",
-                    eventValue);
-            writer.println("Pass -help to see the full list of options");
-            return;
+        Integer inputCode;
+        if (eventValue.startsWith("f")) {
+            inputCode = CUSTOM_INPUT_FUNCTION_ARGS.get(eventValue);
+            if (inputCode == null) {
+                writer.printf("Invalid input event value {%s}, valid values are f1, f2, ..., f10\n",
+                        eventValue);
+                writer.println("Pass -help to see the full list of options");
+                return;
+            }
+        } else {
+            inputCode = Integer.parseInt(eventValue);
         }
-
         CustomInputEvent event = new CustomInputEvent(inputCode, display, repeatCounter);
         mCarInputService.onCustomInputEvent(event);
         writer.printf("Succeeded in injecting {%s}\n", event);
@@ -2132,7 +2137,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.printf("Suspend: simulating suspend-to-%s.\n", suspendType);
                 mCarPowerManagementService.simulateSuspendAndMaybeReboot(/* shouldReboot= */ false,
                         isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
-                                : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                        : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP, skipGarageMode);
             } catch (Exception e) {
                 writer.printf("Simulating suspend-to-%s failed: %s\n", suspendType, e.getMessage());
             }
@@ -2162,8 +2167,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case PARAM_REBOOT:
                 try {
-                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(true,
-                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(
+                            /* shouldReboot= */ true,
+                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
+                            /*skipGarageMode= */ false);
                     writer.println("Entering Garage Mode. Will reboot when it completes.");
                 } catch (IllegalStateException e) {
                     writer.printf("Entering Garage Mode failed: %s\n", e.getMessage());

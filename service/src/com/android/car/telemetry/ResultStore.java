@@ -29,7 +29,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -48,7 +47,9 @@ public class ResultStore {
     static final String FINAL_RESULT_DIR = "final";
 
     /** Map keys are MetricsConfig names, which are also the file names in disk. */
-    private final Map<String, InterimResult> mInterimResultCache = new ArrayMap<>();
+    private final ArrayMap<String, InterimResult> mInterimResultCache = new ArrayMap<>();
+    private final ArrayMap<String, PersistableBundle> mFinalResultCache = new ArrayMap<>();
+    private final ArrayMap<String, TelemetryProto.TelemetryError> mErrorCache = new ArrayMap<>();
 
     private final File mInterimResultDirectory;
     private final File mErrorResultDirectory;
@@ -105,13 +106,22 @@ public class ResultStore {
     @Nullable
     public PersistableBundle getFinalResult(
             @NonNull String metricsConfigName, boolean deleteResult) {
+        // check in memory storage
+        PersistableBundle result = mFinalResultCache.get(metricsConfigName);
+        if (result != null) {
+            if (deleteResult) {
+                mFinalResultCache.remove(metricsConfigName);
+            }
+            return result;
+        }
+        // check persistent storage
         File file = new File(mFinalResultDirectory, metricsConfigName);
         // if no final result exists for this metrics config, return immediately
         if (!file.exists()) {
             return null;
         }
         try {
-            PersistableBundle result = IoUtils.readBundle(file);
+            result = IoUtils.readBundle(file);
             if (deleteResult) {
                 file.delete();
             }
@@ -129,7 +139,7 @@ public class ResultStore {
      * @return the final results mapped to config names.
      */
     public ArrayMap<String, PersistableBundle> getAllFinalResults() {
-        ArrayMap<String, PersistableBundle> results = new ArrayMap<>();
+        ArrayMap<String, PersistableBundle> results = new ArrayMap<>(mFinalResultCache);
         File[] files = mFinalResultDirectory.listFiles();
         if (files == null) {
             return results;
@@ -156,14 +166,22 @@ public class ResultStore {
     @Nullable
     public TelemetryProto.TelemetryError getErrorResult(
             @NonNull String metricsConfigName, boolean deleteResult) {
+        // check in memory storage
+        TelemetryProto.TelemetryError result = mErrorCache.get(metricsConfigName);
+        if (result != null) {
+            if (deleteResult) {
+                mErrorCache.remove(metricsConfigName);
+            }
+            return result;
+        }
+        // check persistent storage
         File file = new File(mErrorResultDirectory, metricsConfigName);
         // if no error exists for this metrics config, return immediately
         if (!file.exists()) {
             return null;
         }
         try {
-            TelemetryProto.TelemetryError result =
-                    TelemetryProto.TelemetryError.parseFrom(new AtomicFile(file).readFully());
+            result = TelemetryProto.TelemetryError.parseFrom(new AtomicFile(file).readFully());
             if (deleteResult) {
                 file.delete();
             }
@@ -182,7 +200,7 @@ public class ResultStore {
      */
     @NonNull
     public ArrayMap<String, TelemetryProto.TelemetryError> getAllErrorResults() {
-        ArrayMap<String, TelemetryProto.TelemetryError> errors = new ArrayMap<>();
+        ArrayMap<String, TelemetryProto.TelemetryError> errors = new ArrayMap<>(mErrorCache);
         File[] files = mErrorResultDirectory.listFiles();
         if (files == null) {
             return errors;
@@ -215,27 +233,17 @@ public class ResultStore {
      */
     public void putFinalResult(
             @NonNull String metricsConfigName, @NonNull PersistableBundle result) {
-        try {
-            IoUtils.writeBundle(mFinalResultDirectory, metricsConfigName, result);
-            IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
-            mInterimResultCache.remove(metricsConfigName);
-        } catch (IOException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
-            // TODO(b/197153560): record failure
-        }
+        IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
+        mInterimResultCache.remove(metricsConfigName);
+        mFinalResultCache.put(metricsConfigName, result);
     }
 
     /** Stores the error object produced by the script. */
     public void putErrorResult(
             @NonNull String metricsConfigName, @NonNull TelemetryProto.TelemetryError error) {
-        try {
-            IoUtils.writeProto(mErrorResultDirectory, metricsConfigName, error);
-            IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
-            mInterimResultCache.remove(metricsConfigName);
-        } catch (IOException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
-            // TODO(b/197153560): record failure
-        }
+        IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
+        mInterimResultCache.remove(metricsConfigName);
+        mErrorCache.put(metricsConfigName, error);
     }
 
     /**
@@ -244,14 +252,18 @@ public class ResultStore {
      */
     public void removeResult(@NonNull String metricsConfigName) {
         mInterimResultCache.remove(metricsConfigName);
+        mFinalResultCache.remove(metricsConfigName);
+        mErrorCache.remove(metricsConfigName);
         IoUtils.deleteSilently(mInterimResultDirectory, metricsConfigName);
         IoUtils.deleteSilently(mFinalResultDirectory, metricsConfigName);
         IoUtils.deleteSilently(mErrorResultDirectory, metricsConfigName);
     }
 
-    /** Deletes all interim and final results stored in disk. */
+    /** Deletes all interim and final results. */
     public void removeAllResults() {
         mInterimResultCache.clear();
+        mFinalResultCache.clear();
+        mErrorCache.clear();
         IoUtils.deleteAllSilently(mInterimResultDirectory);
         IoUtils.deleteAllSilently(mFinalResultDirectory);
         IoUtils.deleteAllSilently(mErrorResultDirectory);
@@ -260,8 +272,10 @@ public class ResultStore {
     /** Persists data to disk and deletes stale data. */
     public void flushToDisk() {
         writeInterimResultsToFile();
+        writeFinalResultsToFile();
+        writeErrorsToFile();
         IoUtils.deleteOldFiles(STALE_THRESHOLD_MILLIS,
-                mInterimResultDirectory, mFinalResultDirectory);
+                mInterimResultDirectory, mFinalResultDirectory, mErrorResultDirectory);
     }
 
     /** Writes dirty interim results to disk. */
@@ -274,6 +288,29 @@ public class ResultStore {
             try {
                 IoUtils.writeBundle(
                         mInterimResultDirectory, metricsConfigName, interimResult.getBundle());
+            } catch (IOException e) {
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
+                // TODO(b/197153560): record failure
+            }
+        });
+    }
+
+
+    private void writeFinalResultsToFile() {
+        mFinalResultCache.forEach((metricsConfigName, bundle) -> {
+            try {
+                IoUtils.writeBundle(mFinalResultDirectory, metricsConfigName, bundle);
+            } catch (IOException e) {
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
+                // TODO(b/197153560): record failure
+            }
+        });
+    }
+
+    private void writeErrorsToFile() {
+        mErrorCache.forEach((metricsConfigName, telemetryError) -> {
+            try {
+                IoUtils.writeProto(mErrorResultDirectory, metricsConfigName, telemetryError);
             } catch (IOException e) {
                 Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
                 // TODO(b/197153560): record failure

@@ -36,6 +36,15 @@ java_sdk_library {
     // First release, not enabled.
     unsafe_ignore_missing_latest_api: true,
 
+    // TODO(202212484): Allows car-builtin-lib access to @hide Bluetooth APIs
+    sdk_version: "core_platform",
+
+    libs: [
+        // TODO(202212484): The following two allow car-builtin-lib access to @hide Bluetooth APIs
+        "framework-bluetooth.impl",
+        "framework",
+    ],
+
     stub_only_libs: [
         "framework-bluetooth",
     ],
