@@ -43,22 +43,12 @@ public final class ConcurrentUtilsTest {
     public void testWaitForFutureNoInterruptInterrupted() {
         ExecutorService service = ConcurrentUtils.newFixedThreadPool(1, "test pool",
                 /* linuxThreadPriority= */ 0);
-        CountDownLatch count = new CountDownLatch(1);
         Future<Boolean> future = service.submit(() -> {
-            count.countDown();
-            // Simulate doing some heavy operations. The thread would be interrupted and we would
-            // not actually wait for this to finish.
-            Thread.sleep(30000);
             return true;
         });
-        try {
-            // Wait until the task is actually running.
-            count.await();
-        } catch (InterruptedException e) {
-            return;
-        }
-        // This would interrupt the running task.
-        future.cancel(/* mayInterruptIfRunning= */ true);
+        // This would set the interrupt flag on the current thread and cause future.get() to
+        // throw InterruptedException.
+        Thread.currentThread().interrupt();
         assertThrows(IllegalStateException.class,
                 () -> ConcurrentUtils.waitForFutureNoInterrupt(future, "wait for result"));
     }
@@ -94,7 +84,15 @@ public final class ConcurrentUtilsTest {
                 () -> ConcurrentUtils.waitForCountDownNoInterrupt(count, 100, "wait for count"));
     }
 
-    // I can't find a way to interrupt CountDownLatch, so we skip testing InterruptedException.
+    @Test
+    public void testWaitForCountDownNoInterruptInterrupted() {
+        CountDownLatch count = new CountDownLatch(2);
+        // This would set the interrupt flag on the current thread and cause future.get() to
+        // throw InterruptedException.
+        Thread.currentThread().interrupt();
+        assertThrows(IllegalStateException.class,
+                () -> ConcurrentUtils.waitForCountDownNoInterrupt(count, 100, "wait for count"));
+    }
 
     @Test
     public void testDirectExecutor() {
