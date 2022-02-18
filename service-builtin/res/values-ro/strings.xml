@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"Accesează camerele mașinii."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"Accesează informațiile despre nivelul de energie al mașinii"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"Accesează informațiile despre energie ale mașinii."</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"Gestionați setările pentru încărcarea mașinii electrice"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"Gestionați setările pentru încărcarea mașinii electrice."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"ajustați restul distanței parcurse de mașină"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Ajustați restul distanței parcurse de mașină."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"Accesează sistemul hvac al mașinii"</string>
@@ -118,6 +120,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Controlează locurile din mașină."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"Accesează informațiile de bază despre mașină"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Accesează informațiile de bază despre mașină."</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"accesați informațiile despre permisiuni ale furnizorului mașinii"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Accesați informațiile despre permisiuni ale furnizorului mașinii."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"Citește starea luminilor exterioare ale mașinii"</string>

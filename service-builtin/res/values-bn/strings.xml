@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"আপনার গাড়ির ক্যামেরা(গুলি) অ্যাক্সেস করা।"</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"আপনার গাড়ির এনার্জির তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"আপনার গাড়ির এনার্জি তথ্য অ্যাক্সেস করা।"</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"আপনার গাড়ির EV চার্জ সেটিংস কন্ট্রোল করুন"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"আপনার গাড়ির EV চার্জ সেটিংস কন্ট্রোল করুন।"</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"গাড়ি আর কত সময় চলবে তা অ্যাডজাস্ট করতে পারবে"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"গাড়ি আর কত সময় চলবে তার মান অ্যাডজাস্ট করতে পারবে।"</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"গাড়ির HVAC অ্যাক্সেস করা"</string>
@@ -118,6 +120,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"গাড়ির সিট নিয়ন্ত্রণ করা।"</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"গাড়ির সাধারণ তথ্য অ্যাক্সেস করা"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"গাড়ির সাধারণ তথ্য অ্যাক্সেস করা।"</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"গাড়ির ভেন্ডরের অনুমতি সম্পর্কে তথ্য অ্যাক্সেস করুন"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"গাড়ির ভেন্ডরের অনুমতি সম্পর্কে তথ্য অ্যাক্সেস করুন।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"গাড়ির এক্সটিরিয়র বা বাইরের দিকের লাইটের স্ট্যাটাস দেখা"</string>

@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"तुमच्या कारचा(चे) कॅमेरा(रे) अ‍ॅक्सेस करा."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"कारच्या ऊर्जेची माहिती अ‍ॅक्सेस करा"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"तुमच्या कारची ऊर्जा माहिती अ‍ॅक्सेस करा."</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"कारची EV चार्ज सेटिंग्ज नियंत्रित करा"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"तुमच्या कारची EV चार्ज सेटिंग्ज नियंत्रित करा."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"कारची शिल्लक रेंज अ‍ॅडजस्ट करा"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"कारच्या शिल्लक रेंजचे मूल्य अ‍ॅडजस्ट करा."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"कारचे hvac अ‍ॅक्सेस करा"</string>
@@ -118,6 +120,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"कारची आसने नियंत्रित करा."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"कारची प्राथमिक माहिती अ‍ॅक्सेस करा"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"कारची प्राथमिक माहिती अ‍ॅक्सेस करा."</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"कारच्या विक्रेता परवानगी माहिती ॲक्सेस करा"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"कारच्या विक्रेता परवानगी माहिती ॲक्सेस करा."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"कारच्या बाहेरील लाइटची स्थिती वाचा"</string>

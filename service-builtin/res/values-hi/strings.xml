@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"आपकी कार के कैमरे ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"कार की ऊर्जा की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"आपकी कार की ऊर्जा से जुड़ी जानकारी ऐक्सेस कर सकता है."</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"कार की ईवी चार्जिंग की सेटिंग को कंट्रोल करें"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"अपनी कार की ईवी चार्जिंग की सेटिंग को कंट्रोल करें."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"मौजूदा बैटरी या फ़्यूल में कार कितनी दूरी तय कर सकती है, इस मान में बदलाव करें."</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"मौजूदा बैटरी या फ़्यूल में कार कितनी दूरी तय कर सकती है, इस मान में बदलाव करें."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"कार का एचवीएसी ऐक्सेस कर सकता है"</string>
@@ -118,6 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"कार की सीटें नियंत्रित कर सकता है."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"कार की बुनियादी जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"कार की बुनियादी जानकारी ऐक्सेस कर सकता है."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"कार की खास जानकारी ऐक्सेस करें"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"कार की खास जानकारी ऐक्सेस करें."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति देख सकता है"</string>
