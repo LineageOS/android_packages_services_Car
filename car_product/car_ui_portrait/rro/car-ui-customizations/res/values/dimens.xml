@@ -20,4 +20,6 @@
     <dimen name="car_ui_body3_size">24sp</dimen>
 
     <dimen name="alert_dialog_margin">36dp</dimen>
+    <dimen name="car_ui_header_list_item_text_start_margin">24dp</dimen>
+
 </resources>
