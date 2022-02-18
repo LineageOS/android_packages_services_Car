@@ -20,6 +20,7 @@
 #include <aidl/android/hardware/graphics/common/BufferUsage.h>
 #include <aidl/android/hardware/graphics/common/PixelFormat.h>
 #include <aidlcommonsupport/NativeHandle.h>
+#include <linux/time.h>
 #include <ui/DisplayMode.h>
 #include <ui/DisplayState.h>
 #include <ui/GraphicBufferAllocator.h>
@@ -39,6 +40,8 @@ using ::android::frameworks::automotive::display::V1_0::HwDisplayState;
 using ::android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
 using ::ndk::ScopedAStatus;
 
+constexpr unsigned int kTimeoutInSeconds = 1;
+
 bool debugFirstFrameDisplayed = false;
 
 int generateFingerPrint(buffer_handle_t handle) {
@@ -51,18 +54,29 @@ namespace aidl::android::hardware::automotive::evs::implementation {
 
 EvsGlDisplay::EvsGlDisplay(const ::android::sp<IAutomotiveDisplayProxyService>& pDisplayProxy,
                            uint64_t displayId) :
-      mDisplayProxy(pDisplayProxy), mDisplayId(displayId) {
+      mDisplayId(displayId), mDisplayProxy(pDisplayProxy) {
     LOG(DEBUG) << "EvsGlDisplay instantiated";
 
     // Set up our self description
     // NOTE:  These are arbitrary values chosen for testing
     mInfo.id = std::to_string(displayId);
     mInfo.vendorFlags = 3870;
+
+    sem_init(&mBufferReadyToUse, 0, 0);
+    sem_init(&mBufferReadyToRender, 0, 0);
+    sem_init(&mBufferDone, 0, 0);
+
+    // Start a thread to render images on this display
+    mRenderThread = std::thread([this]() { renderFrames(); });
 }
 
 EvsGlDisplay::~EvsGlDisplay() {
     LOG(DEBUG) << "EvsGlDisplay being destroyed";
     forceShutdown();
+
+    sem_destroy(&mBufferReadyToUse);
+    sem_destroy(&mBufferReadyToRender);
+    sem_destroy(&mBufferDone);
 }
 
 /**
@@ -70,29 +84,152 @@ EvsGlDisplay::~EvsGlDisplay() {
  */
 void EvsGlDisplay::forceShutdown() {
     LOG(DEBUG) << "EvsGlDisplay forceShutdown";
-    std::lock_guard<std::mutex> lock(mAccessLock);
+    {
+        std::lock_guard lock(mLock);
 
-    // If the buffer isn't being held by a remote client, release it now as an
-    // optimization to release the resources more quickly than the destructor might
-    // get called.
-    if (mBuffer.handle != nullptr) {
-        // Report if we're going away while a buffer is outstanding
-        if (mFrameBusy) {
-            LOG(ERROR) << "EvsGlDisplay going down while client is holding a buffer";
+        // If the buffer isn't being held by a remote client, release it now as an
+        // optimization to release the resources more quickly than the destructor might
+        // get called.
+        if (mBuffer.handle != nullptr) {
+            // Report if we're going away while a buffer is outstanding
+            if (mBufferBusy || mState == RenderThreadStates::kRunning) {
+                LOG(ERROR) << "EvsGlDisplay going down while client is holding a buffer";
+            }
+            mState = RenderThreadStates::kStopping;
+            sem_post(&mBufferReadyToRender);
         }
 
-        // Drop the graphics buffer we've been using
-        ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
-        alloc.free(mBuffer.handle);
-        mBuffer.handle = nullptr;
-
-        mGlWrapper.hideWindow(mDisplayProxy, mDisplayId);
-        mGlWrapper.shutdown();
+        // Put this object into an unrecoverable error state since somebody else
+        // is going to own the display now.
+        mRequestedState = DisplayState::DEAD;
     }
 
-    // Put this object into an unrecoverable error state since somebody else
-    // is going to own the display now.
-    mRequestedState = DisplayState::DEAD;
+    if (mRenderThread.joinable()) {
+        mRenderThread.join();
+    }
+}
+
+bool EvsGlDisplay::initializeGlContextLocked() {
+    // Initialize our display window
+    // NOTE:  This will cause the display to become "VISIBLE" before a frame is actually
+    // returned, which is contrary to the spec and will likely result in a black frame being
+    // (briefly) shown.
+    if (!mGlWrapper.initialize(mDisplayProxy, mDisplayId)) {
+        // Report the failure
+        LOG(ERROR) << "Failed to initialize GL display";
+        return false;
+    }
+
+    // Assemble the buffer description we'll use for our render target
+    static_assert(::aidl::android::hardware::graphics::common::PixelFormat::RGBA_8888 ==
+                  static_cast<::aidl::android::hardware::graphics::common::PixelFormat>(
+                          HAL_PIXEL_FORMAT_RGBA_8888));
+    mBuffer.description = {
+            .width = static_cast<int>(mGlWrapper.getWidth()),
+            .height = static_cast<int>(mGlWrapper.getHeight()),
+            .layers = 1,
+            .format = PixelFormat::RGBA_8888,
+            // FIXME: Below line is not using
+            // ::aidl::android::hardware::graphics::common::BufferUsage because
+            // BufferUsage enum does not support a bitwise-OR operation; they
+            // should be BufferUsage::GPU_RENDER_TARGET |
+            // BufferUsage::COMPOSER_OVERLAY
+            .usage = static_cast<BufferUsage>(GRALLOC_USAGE_HW_RENDER | GRALLOC_USAGE_HW_COMPOSER),
+    };
+
+    ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
+    uint32_t stride = static_cast<uint32_t>(mBuffer.description.stride);
+    buffer_handle_t handle = nullptr;
+    const ::android::status_t result =
+            alloc.allocate(mBuffer.description.width, mBuffer.description.height,
+                           static_cast<::android::PixelFormat>(mBuffer.description.format),
+                           mBuffer.description.layers,
+                           static_cast<uint64_t>(mBuffer.description.usage), &handle, &stride,
+                           /* requestorName= */ "EvsGlDisplay");
+    mBuffer.description.stride = stride;
+    mBuffer.fingerprint = generateFingerPrint(mBuffer.handle);
+    if (result != ::android::NO_ERROR) {
+        LOG(ERROR) << "Error " << result << " allocating " << mBuffer.description.width << " x "
+                   << mBuffer.description.height << " graphics buffer.";
+        mGlWrapper.shutdown();
+        return false;
+    }
+
+    mBuffer.handle = handle;
+    if (mBuffer.handle == nullptr) {
+        LOG(ERROR) << "We didn't get a buffer handle back from the allocator";
+        mGlWrapper.shutdown();
+        return false;
+    }
+
+    LOG(DEBUG) << "Allocated new buffer " << mBuffer.handle << " with stride "
+               << mBuffer.description.stride;
+    return true;
+}
+
+void EvsGlDisplay::renderFrames() {
+    // This method runs in a separate thread and renders the contents of the
+    // buffer.
+    {
+        std::lock_guard lock(mLock);
+
+        if (!initializeGlContextLocked()) {
+            LOG(ERROR) << "Failed to initialize GL context";
+            return;
+        }
+
+        // Display buffer is ready.
+        mBufferBusy = false;
+        sem_post(&mBufferReadyToUse);
+    }
+
+    while (mState == RenderThreadStates::kRunning) {
+        int err = 0;
+        do {
+            err = sem_wait(&mBufferReadyToRender);
+        } while ((err == -1 && errno == EINTR) && !mBufferReady &&
+                 mState == RenderThreadStates::kRunning);
+        if (err != 0) {
+            LOG(ERROR) << "A rendering thread timed out; exiting";
+            break;
+        }
+
+        if (mState != RenderThreadStates::kRunning) {
+            LOG(DEBUG) << "A rendering thread is stopping";
+            break;
+        }
+
+        // Update the texture contents with the provided data
+        if (!mGlWrapper.updateImageTexture(mBuffer.handle, mBuffer.description)) {
+            LOG(WARNING) << "Failed to update the image texture";
+            continue;
+        }
+
+        // Put the image on the screen
+        mGlWrapper.renderImageToScreen();
+        if (!debugFirstFrameDisplayed) {
+            LOG(DEBUG) << "EvsFirstFrameDisplayTiming start time: " << ::android::elapsedRealtime()
+                       << " ms.";
+            debugFirstFrameDisplayed = true;
+        }
+
+        // Mark current frame is consumed.
+        mBufferBusy = false;
+        mBufferReady = false;
+        sem_post(&mBufferDone);
+    }
+
+    LOG(DEBUG) << "A rendering thread is stopped.";
+
+    // Drop the graphics buffer we've been using
+    ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
+    alloc.free(mBuffer.handle);
+    mBuffer.handle = nullptr;
+
+    mGlWrapper.hideWindow(mDisplayProxy, mDisplayId);
+    mGlWrapper.shutdown();
+
+    mState = RenderThreadStates::kStopped;
 }
 
 /**
@@ -105,7 +242,7 @@ ScopedAStatus EvsGlDisplay::getDisplayInfo(DisplayDesc* _aidl_return) {
 
     if (mDisplayProxy) {
         mDisplayProxy->getDisplayInfo(mDisplayId,
-                                      [&_aidl_return](const auto& hidlMode, const auto& hidlState) {
+                                      [_aidl_return](const auto& hidlMode, const auto& hidlState) {
                                           const ADisplayMode* displayMode =
                                                   reinterpret_cast<const ADisplayMode*>(
                                                           hidlMode.data());
@@ -137,7 +274,7 @@ ScopedAStatus EvsGlDisplay::getDisplayInfo(DisplayDesc* _aidl_return) {
  */
 ScopedAStatus EvsGlDisplay::setDisplayState(DisplayState state) {
     LOG(DEBUG) << __FUNCTION__;
-    std::lock_guard<std::mutex> lock(mAccessLock);
+    std::lock_guard lock(mLock);
 
     if (mRequestedState == DisplayState::DEAD) {
         // This object no longer owns the display -- it's been superceeded!
@@ -177,7 +314,7 @@ ScopedAStatus EvsGlDisplay::setDisplayState(DisplayState state) {
  */
 ScopedAStatus EvsGlDisplay::getDisplayState(DisplayState* _aidl_return) {
     LOG(DEBUG) << __FUNCTION__;
-    std::lock_guard<std::mutex> lock(mAccessLock);
+    std::lock_guard lock(mLock);
     *_aidl_return = mRequestedState;
     return ScopedAStatus::ok();
 }
@@ -190,8 +327,7 @@ ScopedAStatus EvsGlDisplay::getDisplayState(DisplayState* _aidl_return) {
  */
 ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
     LOG(DEBUG) << __FUNCTION__;
-    std::lock_guard<std::mutex> lock(mAccessLock);
-
+    std::lock_guard lock(mLock);
     if (mRequestedState == DisplayState::DEAD) {
         LOG(ERROR) << "Rejecting buffer request from object that lost ownership of the display.";
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::OWNERSHIP_LOST));
@@ -200,68 +336,14 @@ ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
     // If we don't already have a buffer, allocate one now
     // mBuffer.memHandle is a type of buffer_handle_t, which is equal to
     // native_handle_t*.
-    if (mBuffer.handle == nullptr) {
-        // Initialize our display window
-        // NOTE:  This will cause the display to become "VISIBLE" before a frame is actually
-        // returned, which is contrary to the spec and will likely result in a black frame being
-        // (briefly) shown.
-        // TODO(b/220136152): we have initialized the GL context in the context
-        //                    of the binder thread but this would not work if a
-        //                    binder thread id is not consistent.
-        if (!mGlWrapper.initialize(mDisplayProxy, mDisplayId)) {
-            // Report the failure
-            LOG(ERROR) << "Failed to initialize GL display";
-            return ScopedAStatus::fromServiceSpecificError(
-                    static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
-        }
-
-        // Assemble the buffer description we'll use for our render target
-        mBuffer.description = {
-                .width = static_cast<int>(mGlWrapper.getWidth()),
-                .height = static_cast<int>(mGlWrapper.getHeight()),
-                .layers = 1,
-                .format = PixelFormat::RGBA_8888,  // HAL_PIXEL_FORMAT_RGBA_8888;
-                // FIXME: Below line is not using
-                // ::aidl::android::hardware::graphics::common::BufferUsage because
-                // BufferUsage enum does not support a bitwise-OR operation; they
-                // should be BufferUsage::GPU_RENDER_TARGET |
-                // BufferUsage::COMPOSER_OVERLAY
-                .usage = static_cast<BufferUsage>(GRALLOC_USAGE_HW_RENDER |
-                                                  GRALLOC_USAGE_HW_COMPOSER),
-        };
-
-        ::android::GraphicBufferAllocator& alloc(::android::GraphicBufferAllocator::get());
-        uint32_t stride = static_cast<uint32_t>(mBuffer.description.stride);
-        const auto result =
-                alloc.allocate(mBuffer.description.width, mBuffer.description.height,
-                               static_cast<::android::PixelFormat>(mBuffer.description.format),
-                               mBuffer.description.layers,
-                               static_cast<uint64_t>(mBuffer.description.usage), &mBuffer.handle,
-                               &stride, /* requestorName= */ "EvsGlDisplay");
-        mBuffer.description.stride = stride;  // FIXME
-
-        mBuffer.fingerprint = generateFingerPrint(mBuffer.handle);
-        if (result != ::android::NO_ERROR) {
-            LOG(ERROR) << "Error " << result << " allocating " << mBuffer.description.width << " x "
-                       << mBuffer.description.height << " graphics buffer.";
-            mGlWrapper.shutdown();
-            return ScopedAStatus::fromServiceSpecificError(
-                    static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
-        }
-        if (mBuffer.handle == nullptr) {
-            LOG(ERROR) << "We didn't get a buffer handle back from the allocator";
-            mGlWrapper.shutdown();
-            return ScopedAStatus::fromServiceSpecificError(
-                    static_cast<int>(EvsResult::BUFFER_NOT_AVAILABLE));
-        }
-
-        LOG(DEBUG) << "Allocated new buffer " << mBuffer.handle << " with stride "
-                   << mBuffer.description.stride;
-        mFrameBusy = false;
+    if (mBuffer.handle == nullptr && sem_wait(&mBufferReadyToUse) != 0) {
+        LOG(ERROR) << "Failed to wait for a buffer";
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::BUFFER_NOT_AVAILABLE));
     }
 
     // Do we have a frame available?
-    if (mFrameBusy) {
+    if (mBufferBusy) {
         // This means either we have a 2nd client trying to compete for buffers
         // (an unsupported mode of operation) or else the client hasn't returned
         // a previously issued buffer yet (they're behaving badly).
@@ -272,7 +354,7 @@ ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
     }
 
     // Mark our buffer as busy
-    mFrameBusy = true;
+    mBufferBusy = true;
 
     // Send the buffer to the client
     LOG(VERBOSE) << "Providing display buffer handle " << mBuffer.handle;
@@ -297,7 +379,7 @@ ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
  */
 ScopedAStatus EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffer) {
     LOG(VERBOSE) << __FUNCTION__;
-    std::lock_guard<std::mutex> lock(mAccessLock);
+    std::lock_guard lock(mLock);
 
     // Nobody should call us with a null handle
     if (buffer.buffer.handle.fds.size() < 1) {
@@ -308,12 +390,10 @@ ScopedAStatus EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffe
         LOG(ERROR) << "Got an unrecognized frame returned.";
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
     }
-    if (!mFrameBusy) {
+    if (!mBufferBusy) {
         LOG(ERROR) << "A frame was returned with no outstanding frames.";
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
     }
-
-    mFrameBusy = false;
 
     // If we've been displaced by another owner of the display, then we can't do anything else
     if (mRequestedState == DisplayState::DEAD) {
@@ -333,18 +413,37 @@ ScopedAStatus EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffe
         return ScopedAStatus::ok();
     }
 
-    // Update the texture contents with the provided data
-    if (!mGlWrapper.updateImageTexture(mBuffer.handle, mBuffer.description)) {
+    if (sem_post(&mBufferReadyToRender) != 0) {
+        LOG(ERROR) << "Failed to signal a rendering thread, " << strerror(errno);
         return ScopedAStatus::fromServiceSpecificError(
                 static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
     }
 
-    // Put the image on the screen
-    mGlWrapper.renderImageToScreen();
-    if (!debugFirstFrameDisplayed) {
-        LOG(DEBUG) << "EvsFirstFrameDisplayTiming start time: " << ::android::elapsedRealtime()
-                   << " ms.";
-        debugFirstFrameDisplayed = true;
+    timespec frameDoneTimeout;
+    if (clock_gettime(CLOCK_REALTIME, &frameDoneTimeout) == -1) {
+        LOG(WARNING) << "clock_gettime() fails; we will poll the result";
+
+        int maxRetry = 3;
+        while (sem_trywait(&mBufferDone) == -1 && --maxRetry > 0) {
+            // try again at every 0.5 seconds
+            usleep(500000);
+        }
+
+        if (maxRetry < 1) {
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
+    } else {
+        frameDoneTimeout.tv_sec += kTimeoutInSeconds;
+        int err = 0;
+        do {
+            err = sem_timedwait(&mBufferDone, &frameDoneTimeout);
+        } while (err == -1 && errno == EINTR);
+        if (err != 0) {
+            LOG(ERROR) << "Failed to wait for current frame to be done, " << strerror(errno);
+            return ScopedAStatus::fromServiceSpecificError(
+                    static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+        }
     }
 
     return ScopedAStatus::ok();
