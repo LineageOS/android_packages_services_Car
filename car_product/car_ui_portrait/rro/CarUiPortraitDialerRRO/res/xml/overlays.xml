@@ -22,6 +22,8 @@
     <item target="drawable/restricted_dialing_mode_label_background" value="@drawable/restricted_dialing_mode_label_background"/>
     <item target="drawable/ic_arrow_right" value="@drawable/ic_arrow_right"/>
     <item target="drawable/ic_bluetooth" value="@drawable/ic_bluetooth"/>
+    <item target="drawable/ic_answer_icon" value="@drawable/ic_answer_icon"/>
+    <item target="drawable/ic_decline_icon" value="@drawable/ic_decline_icon"/>
 
     <item target="id/dialpad_fragment" value="@id/dialpad_fragment" />
     <item target="id/call_button" value="@id/call_button" />
@@ -57,6 +59,9 @@
     <item target="id/text" value="@id/text" />
     <item target="id/show_contact_detail_id" value="@id/show_contact_detail_id" />
     <item target="id/contact_list_button" value="@id/contact_list_button" />
+
+    <item target="string/decline_call" value="@string/decline_call" />
+    <item target="string/answer_call" value="@string/answer_call" />
 
     <item target="color/divider_color" value="@color/divider_color" />
     <item target="color/hero_button_background_color" value="@color/hero_button_background_color" />
