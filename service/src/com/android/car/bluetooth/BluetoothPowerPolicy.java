@@ -46,7 +46,7 @@ import java.util.Objects;
  */
 public final class BluetoothPowerPolicy {
     private static final String TAG = CarLog.tagFor(BluetoothPowerPolicy.class);
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     // These constants come from BluetoothManagerService.java
     private static final int BLUETOOTH_OFF = 0;

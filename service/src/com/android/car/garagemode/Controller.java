@@ -43,7 +43,7 @@ public class Controller extends ICarPowerStateListener.Stub {
 
     private static final String TAG = CarLog.tagFor(GarageMode.class) + "_"
             + Controller.class.getSimpleName();
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final GarageMode mGarageMode;
     private final Handler mHandler;

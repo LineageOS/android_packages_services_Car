@@ -51,13 +51,16 @@ public final class Slogf {
         t.traceEnd();
     }
 
+    // Internal log tag only for isLoggable(), the tag will be set to VERBOSE during the car tests.
+    private static final String CAR_TEST_TAG = "CAR.TEST";
+
     private Slogf() {
         throw new UnsupportedOperationException("provides only static methods");
     }
 
-    /** Same as {@link Log#isLoggable(String, int)}. */
+    /** Same as {@link Log#isLoggable(String, int)}, but also checks for {@code CAR_TEST_TAG}. */
     public static boolean isLoggable(@NonNull String tag, int level) {
-        return Log.isLoggable(tag, level);
+        return Log.isLoggable(tag, level) || Log.isLoggable(CAR_TEST_TAG, Log.VERBOSE);
     }
 
     /** Same as {@link Slog#v(String, String)}. */

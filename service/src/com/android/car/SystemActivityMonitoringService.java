@@ -139,7 +139,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     private class ProcessObserver implements ProcessObserverCallback {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
-            if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
+            if (Slogf.isLoggable(CarLog.TAG_AM, Log.INFO)) {
                 Slogf.i(CarLog.TAG_AM,
                         String.format("onForegroundActivitiesChanged uid %d pid %d fg %b",
                                 uid, pid, foregroundActivities));
