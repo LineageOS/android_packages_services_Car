@@ -197,3 +197,11 @@ filegroup {
     ],
     path: "src",
 }
+
+// Public protos for CarTelemetryManager clients.
+filegroup {
+    name: "cartelemetryservice-proto-srcs",
+    srcs: [
+        "src/com/android/car/telemetry/proto/telemetry.proto"
+    ],
+}

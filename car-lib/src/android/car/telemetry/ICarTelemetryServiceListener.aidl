@@ -42,12 +42,4 @@ oneway interface ICarTelemetryServiceListener {
      * @param error the serialized bytes of an error message.
      */
     void onError(in String metricsConfigName, in byte[] error);
-
-    /**
-     * Sends the {@code ICarTelemetryService#addMetricsConfig(byte[])} status to the client.
-     *
-     * @param name of the MetricsConfig that the status is associated with.
-     * @param statusCode indicating add status.
-     */
-     void onAddMetricsConfigStatus(in String metricsConfigName, in int statusCode);
 }
