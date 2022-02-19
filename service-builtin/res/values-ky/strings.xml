@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"Унааңыздын камераларын колдонуу."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"унаанын кубаты тууралуу маалыматты көрүү"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"Унааңыздын кубаты тууралуу маалыматты көрүү."</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"Электромобилди кубаттоо жөндөөлөрүн көзөмөлдөө"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"Электромобилди кубаттоо жөндөөлөрүн көзөмөлдөңүз."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"унаа дагы канча аралыкты басып өтөрүн тууралоо"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Унаа дагы канча аралыкты басып өтөрүн тууралоо."</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"унаанын жылыткыч жана вентилиция тутумдарын көрүү"</string>
@@ -118,6 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Унаадагы орундуктарды көзөмөлдөө."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"унаанын негизги маалыматына мүмкүнчүлүк алуу"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Унаанын негизги маалыматына мүмкүнчүлүк алуу."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"унаанын артыкчылыктуу маалыматына мүмкүнчүлүк алуу"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Унаанын артыкчылыктуу маалыматына мүмкүнчүлүк алыңыз."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"унааны сатуучунун уруксатына тиешелүү маалымат"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Унааны сатуучунун уруксатына тиешелүү маалыматты көрүү."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"унаанын сыртындагы жарыктарынын абалын көрүү"</string>

@@ -82,7 +82,7 @@ final class CarAudioDynamicRouting {
                     mixingRuleBuilder.addRule(attributes,
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
-                if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+                if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                     Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s sampleRate: %d "
                             + "channels: %d usages: %s", address, carAudioContext,
                             info.getSampleRate(), info.getChannelCount(), Arrays.toString(usages));

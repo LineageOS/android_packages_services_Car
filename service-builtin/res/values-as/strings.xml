@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"আপোনাৰ গাড়ীৰ কেমেৰা এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"গাড়ীৰ শক্তিৰ তথ্য এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"আপোনাৰ গাড়ীৰ শক্তি সম্পৰ্কীয় তথ্য এক্সেছ কৰিব।"</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"গাড়ীৰ EV চাৰ্জৰ ছেটিং নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"আপোনাৰ গাড়ীৰ EV চাৰ্জৰ ছেটিং নিয়ন্ত্ৰণ কৰক।"</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"গাড়ীখন আৰু কিমান সময়লৈ চলিব সেয়া মিলাওক"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"গাড়ীখন আৰু কিমান সময়লৈ চলিব তাৰ মানটো মিলাওক।"</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"গাড়ীৰ এইছভিএচি এক্সেছ কৰিব"</string>
@@ -118,6 +120,10 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"গাড়ীৰ আসন নিয়ন্ত্ৰণ কৰিব।"</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"গাড়ীৰ মৌলিক তথ্যবোৰ এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"গাড়ীৰ মৌলিক তথ্যবোৰ এক্সেছ কৰিব।"</string>
+    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
+    <skip />
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"গাড়ীৰ বিক্ৰেতাৰ অনুমতি সম্পৰ্কীয় তথ্য এক্সেছ কৰক"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"গাড়ীৰ বিক্ৰেতাৰ অনুমতি সম্পৰ্কীয় তথ্য এক্সেছ কৰক।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি পঢ়িব"</string>

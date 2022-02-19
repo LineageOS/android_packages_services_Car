@@ -112,7 +112,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         implements CarServiceBase, EvsHalService.EvsHalEventListener,
         EvsHalWrapper.HalEventCallback {
 
-    private static final boolean DBG = Log.isLoggable(TAG_EVS, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG_EVS, Log.DEBUG);
 
     // Integer value to indicate no buffer with a given id exists
     private static final int BUFFER_NOT_EXIST = -1;

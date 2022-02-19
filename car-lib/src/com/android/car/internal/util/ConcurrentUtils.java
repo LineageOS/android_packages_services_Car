@@ -16,8 +16,12 @@
 
 package com.android.car.internal.util;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.builtin.util.Slogf;
 import android.os.Process;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -122,6 +126,7 @@ public class ConcurrentUtils {
     /**
      * Calls {@link Slog#wtf} if a given lock is held.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public static void wtfIfLockHeld(String tag, Object lock) {
         if (Thread.holdsLock(lock)) {
             Slogf.wtf(tag, "Lock mustn't be held");
@@ -131,6 +136,7 @@ public class ConcurrentUtils {
     /**
      * Calls {@link Slog#wtf} if a given lock is not held.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public static void wtfIfLockNotHeld(String tag, Object lock) {
         if (!Thread.holdsLock(lock)) {
             Slogf.wtf(tag, "Lock must be held");
@@ -145,6 +151,7 @@ public class ConcurrentUtils {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         public String toString() {
             return "DIRECT_EXECUTOR";
         }

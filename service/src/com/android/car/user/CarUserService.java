@@ -131,7 +131,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(CarUserService.class);
 
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     /** {@code int} extra used to represent a user id in a {@link ICarResultReceiver} response. */
     public static final String BUNDLE_USER_ID = "user.id";
@@ -2068,7 +2068,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             UserLifecycleEventFilter filter = listener.filter;
             if (filter != null && !filter.apply(event)) {
                 if (DBG) {
-                    Slogf.d(TAG, "Skipping service listener % for event %s due to the filter %s"
+                    Slogf.d(TAG, "Skipping service listener %s for event %s due to the filter %s"
                                     + " evaluated to false", listenerName, event, filter);
                 }
                 continue;

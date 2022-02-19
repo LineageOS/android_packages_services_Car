@@ -38,7 +38,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 public final class CarPerformanceService extends ICarPerformanceService.Stub
         implements CarServiceBase {
     private static final String TAG = CarLog.tagFor(CarPerformanceService.class);
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
 

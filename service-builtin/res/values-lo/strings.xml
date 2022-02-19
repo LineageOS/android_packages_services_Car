@@ -22,6 +22,8 @@
     <string name="car_permission_desc_camera" msgid="4068809215255794266">"ເຂົ້າເຖິງກ້ອງຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_energy" msgid="6248121949829670298">"ເຂົ້າເຖິງຂໍ້ມູນພະລັງງານຂອງລົດ"</string>
     <string name="car_permission_desc_energy" msgid="2813340449923945876">"ເຂົ້າເຖິງຂໍ້ມູນພະລັງງານຂອງລົດທ່ານ."</string>
+    <string name="car_permission_label_control_car_energy" msgid="1577616334396233371">"ຄວບຄຸມການຕັ້ງຄ່າການສາກ EV ຂອງລົດ"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="4753886338368650501">"ຄວບຄຸມການຕັ້ງຄ່າການສາກ EV ຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"ປັບໄລຍະແລ່ນທີ່ເຫຼືອຢູ່ຂອງລົດ"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"ປັບຄ່າໄລຍະແລ່ນທີ່ເຫຼືອຢູ່ຂອງລົດ"</string>
     <string name="car_permission_label_hvac" msgid="6617872933596403883">"ເຂົ້າເຖິງ HVAC ຂອງລົດ"</string>
@@ -118,6 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"ຄວບຄຸມບ່ອນນັ່ງໃນລົດ."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"ເຂົ້າເຖິງຂໍ້ມູນພື້ນຖານຂອງລົດ"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"ເຂົ້າເຖິງຂໍ້ມູນພື້ນຖານຂອງລົດ."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"ເຂົ້າເຖິງຂໍ້ມູນພິເສດຂອງລົດ"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"ເຂົ້າເຖິງຂໍ້ມູນພິເສດຂອງລົດ."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"ເຂົ້າເຖິງຂໍ້ມູນການອະນຸຍາດຂອງຜູ້ຂາຍລົດ"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"ເຂົ້າເຖິງຂໍ້ມູນການອະນຸຍາດຂອງຜູ້ຂາຍລົດ."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"ອ່ານສະຖານະໄຟພາຍນອກຂອງລົດ"</string>

@@ -59,6 +59,8 @@
     <item target="dimen/reply_icon_width" value="@dimen/reply_icon_width"/>
     <item target="dimen/mute_icon_height" value="@dimen/mute_icon_height"/>
     <item target="dimen/mute_icon_width" value="@dimen/mute_icon_width"/>
+    <item target="dimen/car_action_button_icon_height" value="@dimen/car_action_button_icon_height"/>
+    <item target="dimen/car_action_button_icon_width" value="@dimen/car_action_button_icon_width"/>
 
     <item target="id/action_1" value="@id/action_1" />
     <item target="id/action_2" value="@id/action_2" />

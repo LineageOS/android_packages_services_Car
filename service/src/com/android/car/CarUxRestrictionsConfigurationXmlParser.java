@@ -140,7 +140,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                         if (!parseRestrictionParameters(parser, attrs)) {
                             // Failure to parse is automatically handled by falling back to
                             // defaults. Just log the information here.
-                            if (Log.isLoggable(TAG, Log.INFO)) {
+                            if (Slogf.isLoggable(TAG, Log.INFO)) {
                                 Slogf.i(TAG, "Error reading restrictions parameters. "
                                         + "Falling back to platform defaults.");
                             }
@@ -243,7 +243,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                 }
                 restrictions.setSpeedRange(speedRange);
 
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                     Slogf.d(TAG, "Map " + drivingState + " : " + restrictions);
                 }
 
@@ -362,7 +362,7 @@ public final class CarUxRestrictionsConfigurationXmlParser {
                                 UX_RESTRICTIONS_UNKNOWN);
                         break;
                     default:
-                        if (Log.isLoggable(TAG, Log.DEBUG)) {
+                        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
                             Slogf.d(TAG, "Unsupported Restriction Parameters in XML: "
                                     + parser.getName());
                         }
