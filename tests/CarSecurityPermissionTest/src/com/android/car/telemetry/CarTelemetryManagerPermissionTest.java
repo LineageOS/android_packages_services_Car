@@ -85,18 +85,15 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testAddMetricsConfig() {
-        setListenerUsingShellIdentity();
-
         Exception e = expectThrows(SecurityException.class,
-                () -> mCarTelemetryManager.addMetricsConfig("name", mMetricsConfigBytes));
+                () -> mCarTelemetryManager.addMetricsConfig("name", mMetricsConfigBytes, mExecutor,
+                        (metricsConfigName, statusCode) -> { }));
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
     }
 
     @Test
     public void testRemoveMetricsConfig() {
-        setListenerUsingShellIdentity();
-
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarTelemetryManager.removeMetricsConfig(mMetricsConfigName));
 
@@ -147,10 +144,6 @@ public class CarTelemetryManagerPermissionTest {
 
         @Override
         public void onError(@NonNull String metricsConfigName, @NonNull byte[] error) {
-        }
-
-        @Override
-        public void onAddMetricsConfigStatus(@NonNull String metricsConfigName, int statusCode) {
         }
     }
 }
