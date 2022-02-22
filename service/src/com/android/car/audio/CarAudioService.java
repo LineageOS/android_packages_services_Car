@@ -1346,7 +1346,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @GuardedBy("mImplLock")
     private void assignUserIdToAudioZoneLocked(CarAudioZone zone, @UserIdInt int userId) {
         if (userId == getUserIdForZoneLocked(zone.getId())) {
-            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                 Slogf.d(CarLog.TAG_AUDIO,
                         "assignUserIdToAudioZone userId(" + userId
                                 + ") already assigned to audioZoneId("
@@ -1354,7 +1354,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
             return;
         }
-        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+        if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
             Slogf.d(CarLog.TAG_AUDIO,
                     "assignUserIdToAudioZone assigning userId("
                             + userId + ") to audioZoneId("
@@ -1378,13 +1378,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         int prevUserId = getUserIdForZoneLocked(audioZoneId);
 
         if (userId == prevUserId) {
-            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                 Slogf.d(CarLog.TAG_AUDIO, "updateUserForOccupantZone userId(" + userId
                         + ") already assigned to audioZoneId(" + audioZoneId + ")");
             }
             return;
         }
-        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+        if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
             Slogf.d(CarLog.TAG_AUDIO,
                     "updateUserForOccupantZone assigning userId("
                             + userId + ") to audioZoneId(" + audioZoneId + ")");
@@ -1443,7 +1443,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @GuardedBy("mImplLock")
     private void removeUserIdDeviceAffinitiesLocked(@UserIdInt int userId) {
-        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+        if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
             Slogf.d(CarLog.TAG_AUDIO,
                     "removeUserIdDeviceAffinities(" + userId + ") Succeeded");
         }
@@ -1526,7 +1526,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private class CarAudioOccupantConfigChangeListener implements OccupantZoneConfigChangeListener {
         @Override
         public void onOccupantZoneConfigChanged(int flags) {
-            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                 Slogf.d(CarLog.TAG_AUDIO,
                         "onOccupantZoneConfigChanged(" + flags + ")");
             }
