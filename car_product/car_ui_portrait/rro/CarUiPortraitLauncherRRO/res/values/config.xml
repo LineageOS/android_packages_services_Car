@@ -32,6 +32,7 @@
         <item>android.car.cluster/.MainClusterActivity</item>
         <item>com.android.car.settings/.FallbackHome</item>
         <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>android.car.usb.handler/.UsbHostManagementActivity</item>
         <item>android.car.cluster/android.car.cluster.FakeFreeNavigationActivity</item>
     </string-array>
 
