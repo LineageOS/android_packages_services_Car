@@ -37,7 +37,6 @@ import android.car.builtin.util.Slogf;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioPolicy.Builder;
-import android.util.Log;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
@@ -56,7 +55,7 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
         policyBuilder.setAudioPolicyVolumeCallback(
                 new CarAudioPolicyVolumeCallback(carAudioService, audioManager,
                         useCarVolumeGroupMuting));
-        if (Log.isLoggable(TAG_AUDIO, DEBUG)) {
+        if (Slogf.isLoggable(TAG_AUDIO, DEBUG)) {
             Slogf.d(TAG_AUDIO, "Registered car audio policy volume callback");
         }
     }

@@ -72,7 +72,7 @@ import java.util.Objects;
  */
 public final class BluetoothDeviceManager {
     private static final String TAG = CarLog.tagFor(BluetoothDeviceManager.class);
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final String SETTINGS_KEY = KEY_BLUETOOTH_DEVICES;
     private static final String SETTINGS_DELIMITER = ",";

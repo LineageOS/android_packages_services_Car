@@ -50,7 +50,7 @@ import java.util.Objects;
  */
 public class BluetoothConnectionRetryManager {
     private static final String TAG = CarLog.tagFor(BluetoothConnectionRetryManager.class);
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int MAX_RETRY_ATTEMPTS = 3;
     // NOTE: the value is not "final" - it is modified in the unit tests

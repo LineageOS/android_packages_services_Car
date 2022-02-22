@@ -44,7 +44,7 @@ import java.util.List;
 public class EvsHalService extends HalServiceBase {
 
     private static final String TAG = EvsHalService.class.getSimpleName();
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int[] SUPPORTED_PROPERTIES = new int[] {
         EVS_SERVICE_REQUEST,

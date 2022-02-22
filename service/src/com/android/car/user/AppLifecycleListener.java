@@ -43,7 +43,7 @@ final class AppLifecycleListener {
 
     private static final String TAG = CarLog.tagFor(AppLifecycleListener.class);
 
-    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final DeathRecipient mDeathRecipient;
 
