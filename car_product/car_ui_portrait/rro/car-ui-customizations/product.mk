@@ -25,6 +25,7 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_customization-com-android-car-carlauncher \
     generated_caruiportrait_customization-com-android-car-home \
     generated_caruiportrait_customization-com-android-car-media \
+    generated_caruiportrait_customization-com-android-car-messenger \
     generated_caruiportrait_customization-com-android-car-radio \
     generated_caruiportrait_customization-com-android-car-calendar \
     generated_caruiportrait_customization-com-android-car-systemupdater \
