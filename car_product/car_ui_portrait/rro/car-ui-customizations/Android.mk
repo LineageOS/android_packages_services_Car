@@ -29,6 +29,7 @@ CAR_UI_RRO_TARGETS := \
     com.android.car.carlauncher \
     com.android.car.home \
     com.android.car.media \
+    com.android.car.messenger \
     com.android.car.radio \
     com.android.car.calendar \
     com.android.car.systemupdater \
