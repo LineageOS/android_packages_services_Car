@@ -120,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"കാറിൻ്റെ സീറ്റുകൾ നിയന്ത്രിക്കുക."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"കാറിൻ്റെ അടിസ്ഥാന വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"കാറിൻ്റെ അടിസ്ഥാന വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"കാറിന്റെ പ്രത്യേക വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"കാറിന്റെ പ്രത്യേക വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"കാറിന്റെ വെൻഡർ അനുമതി വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"കാറിന്റെ വെൻഡർ അനുമതി വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില വായിക്കുക"</string>

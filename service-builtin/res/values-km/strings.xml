@@ -120,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"គ្រប់គ្រង​កៅអី​រថយន្ត។"</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"ចូលប្រើ​ព័ត៌មាន​មូលដ្ឋាន​របស់រថយន្ត"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"ចូលប្រើ​ព័ត៌មាន​មូលដ្ឋាន​របស់រថយន្ត។"</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"ចូលប្រើព័ត៌មានសម្ងាត់របស់រថយន្ត"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"ចូលប្រើព័ត៌មានសម្ងាត់របស់រថយន្ត។"</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"ចូលប្រើ​ព័ត៌មាន​អំពី​ការអនុញ្ញាត​ពី​អ្នកលក់​របស់​រថយន្ត"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"ចូលប្រើ​ព័ត៌មាន​អំពី​ការអនុញ្ញាត​ពី​អ្នកលក់​របស់​រថយន្ត​។"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"អានស្ថានភាពភ្លើងផ្នែក​ខាងក្រៅ​រថយន្ត"</string>
