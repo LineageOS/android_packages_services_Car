@@ -16,6 +16,7 @@
 
 package com.android.car.cluster;
 
+import static android.car.builtin.app.ActivityManagerHelper.createActivityOptions;
 import static android.content.Intent.ACTION_MAIN;
 
 import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
@@ -309,7 +310,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         }
 
         ActivityOptions activityOptions = activityOptionsBundle != null
-                ? ActivityOptions.fromBundle(activityOptionsBundle)
+                ? createActivityOptions(activityOptionsBundle)
                 : ActivityOptions.makeBasic();
         activityOptions.setLaunchDisplayId(mClusterDisplayId);
         mLastIntent = intent;
