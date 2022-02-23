@@ -120,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Контролисање седишта у аутомобилу."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"приступ основним подацима о аутомобилу"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Приступ основним подацима о аутомобилу."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"приступ информацијама о аутомобилу за привилеговане стране"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Приступ информацијама о аутомобилу за привилеговане стране."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"приступ информацијама о дозволама продавца аутомобила"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Приступа информацијама о дозволама продавца аутомобила."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"читање стања спољних светла аутомобила"</string>

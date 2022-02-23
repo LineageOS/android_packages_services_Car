@@ -120,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Ovládání autosedaček."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"přístup k základním informacím o autu"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Přístup k základním informacím o autu."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"přístup k informacím o autě s omezenou přístupností"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Přístup k informacím o autě s omezenou přístupností."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"přístup k informacím o oprávněních dodavatele auta"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Přístup k informacím o oprávněních dodavatele auta."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"zjištění stavu vnějších světel auta"</string>

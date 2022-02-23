@@ -120,8 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Kontrolirati sjedala automobila."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"pristupiti osnovnim podacima automobila"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Pristupiti osnovnim informacijama automobila."</string>
-    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"pristup povlaštenim podacima automobila"</string>
-    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Pristup povlaštenim podacima automobila."</string>
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"pristup povlaštenim informacijama automobila"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Pristup povlaštenim informacijama automobila."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"pristup informacijama o odobrenjima trgovca automobilima"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Pristup informacijama o odobrenjima trgovca automobilima"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"očitati stanje vanjskih svjetala automobila"</string>
