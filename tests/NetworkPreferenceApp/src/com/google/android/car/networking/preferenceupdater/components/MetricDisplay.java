@@ -15,9 +15,6 @@
  */
 package com.google.android.car.networking.preferenceupdater.components;
 
-import static android.net.NetworkStats.DEFAULT_NETWORK_ALL;
-import static android.net.NetworkStats.METERED_ALL;
-import static android.net.NetworkStats.ROAMING_ALL;
 import static android.provider.Settings.Global.NETSTATS_UID_BUCKET_DURATION;
 
 import static java.util.concurrent.TimeUnit.HOURS;
@@ -60,7 +57,6 @@ public final class MetricDisplay {
                 NetworkTemplate.MATCH_MOBILE_WILDCARD,
                 NetworkTemplate.MATCH_ETHERNET,
                 NetworkTemplate.MATCH_BLUETOOTH,
-                NetworkTemplate.MATCH_PROXY,
             };
 
     private ConnectivityManager mConnectivityManager;
@@ -153,17 +149,8 @@ public final class MetricDisplay {
     }
 
     private Pair<Long, Long> trafficFor(int matchRule, int oemManaged) {
-        NetworkTemplate template =
-                new NetworkTemplate(
-                        matchRule,
-                        /*subscriberId=*/ null,
-                        /*matchSubscriberIds=*/ null,
-                        /*networkId=*/ null,
-                        METERED_ALL,
-                        ROAMING_ALL,
-                        DEFAULT_NETWORK_ALL,
-                        NetworkTemplate.NETWORK_TYPE_ALL,
-                        oemManaged);
+        NetworkTemplate template = new NetworkTemplate.Builder(matchRule)
+                .setOemManaged(oemManaged).build();
         try {
             return calculateTraffic(
                     mNetStatsMan.querySummary(template, mStartTime, System.currentTimeMillis()));
