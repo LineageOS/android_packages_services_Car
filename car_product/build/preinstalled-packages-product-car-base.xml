@@ -386,4 +386,7 @@
     <install-in-user-type package="com.android.ondevicepersonalization.services">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <install-in-user-type package="com.android.sdksandbox">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
