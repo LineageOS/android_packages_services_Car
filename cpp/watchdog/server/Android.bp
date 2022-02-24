@@ -125,6 +125,10 @@ cc_test {
         // b/207508335
         "tests/PackageInfoResolverTest.cpp",
     ],
+    tidy_timeout_srcs: [
+        "tests/IoOveruseMonitorTest.cpp",
+        "tests/WatchdogServiceHelperTest.cpp",
+    ],
     srcs: [
         "tests/IoOveruseConfigsTest.cpp",
         "tests/IoOveruseMonitorTest.cpp",
