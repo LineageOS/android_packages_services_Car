@@ -123,16 +123,6 @@ public abstract class AbstractExtendedMockitoTestCase {
     public final WtfCheckerRule mWtfCheckerRule = new WtfCheckerRule();
 
     /**
-     * TODO(b/213923408): remove this constructor
-     *
-     * @deprecated must pass explicitly log tags (or call {@code super(NO_LOG_TAGS)}).
-     */
-    @Deprecated
-    protected AbstractExtendedMockitoTestCase() {
-        this(NO_LOG_TAGS);
-    }
-
-    /**
      * Default constructor.
      *
      * @param logTags tags to be checked for issues (like {@code wtf()} calls); use
