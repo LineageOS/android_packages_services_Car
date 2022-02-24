@@ -55,6 +55,14 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     /**
+     * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
+     */
+    @Override
+    public boolean isAidlVhal() {
+        return false;
+    }
+
+    /**
      * Gets a HalPropValueBuilder that could be used to build a HalPropValue.
      *
      * @return a builder to build HalPropValue.

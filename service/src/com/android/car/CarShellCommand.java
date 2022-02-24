@@ -92,6 +92,7 @@ import android.os.NewUserResponse;
 import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -105,6 +106,7 @@ import com.android.car.audio.CarAudioService;
 import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.HalCallback;
+import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
@@ -241,6 +243,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_TELEMETRY = "telemetry";
     private static final String COMMAND_CONTROL_COMPONENT_ENABLED_STATE =
             "control-component-enabled-state";
+
+    private static final String COMMAND_LIST_VHAL_PROPS = "list-vhal-props";
+    private static final String COMMAND_GET_VHAL_BACKEND = "get-vhal-backend";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -729,6 +734,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + " to DEFAULT, ENABLED or DISABLED_UNTIL_USED.");
         pw.printf("\t%s [user]\n", COMMAND_CHECK_LOCK_IS_SECURE);
         pw.println("\t  check if the current or given user has a lock to secure");
+        pw.printf("\t%s", COMMAND_LIST_VHAL_PROPS);
+        pw.println("\t  list all supported property IDS by vehicle HAL");
+        pw.printf("\t%s", COMMAND_GET_VHAL_BACKEND);
+        pw.println("\t  list whether we are connected to AIDL or HIDL vehicle HAL backend");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1092,6 +1101,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_CHECK_LOCK_IS_SECURE:
                 checkLockIsSecure(args, writer);
+                break;
+            case COMMAND_LIST_VHAL_PROPS:
+                listVhalProps(writer);
+                break;
+            case COMMAND_GET_VHAL_BACKEND:
+                listVhalBackend(writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -2818,6 +2833,28 @@ final class CarShellCommand extends BasicShellCommandHandler {
             userId = Integer.parseInt(args[1]);
         }
         writer.println(LockPatternHelper.isSecure(mContext, userId));
+    }
+
+    private void listVhalProps(IndentingPrintWriter writer) {
+        writer.println("All supported property IDs from Vehicle HAL:");
+        List<Integer> propIds = new ArrayList<>();
+        try {
+            HalPropConfig[] configs = mHal.getAllPropConfigs();
+            for (int i = 0; i < configs.length; i++) {
+                propIds.add(configs[i].getPropId());
+            }
+            writer.println(propIds.toString());
+        } catch (RemoteException | ServiceSpecificException e) {
+            writer.println("Failed to call getAllPropConfigs, exception: " + e);
+        }
+    }
+
+    private void listVhalBackend(IndentingPrintWriter writer) {
+        if (mHal.isAidlVhal()) {
+            writer.println("Vehicle HAL backend: AIDL");
+        } else {
+            writer.println("Vehicle HAL backend: HIDL");
+        }
     }
 
     // Check if the given property is global
