@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"Ukusetshenziswa kwephedi lokudayela akuvunyelwe ngenkathi ushayela"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"Isimo esiphuthumayo"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"Xhumeka ku-Bluetooth"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"Ukuze uqedele ikholi yakho, qala ngokuxhuma ifoni yakho emotweni yakho nge-Bluetooth."</string>
 </resources>

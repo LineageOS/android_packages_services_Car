@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"गाडी चलाइरहेका बेला डायलप्याड प्रयोग गर्न मिल्दैन"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"आपत्‌कालीन"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"ब्लुटुथमा कनेक्ट गर्नुहोस्"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"कल गर्न सर्वप्रथम आफ्नो फोन ब्लुटुथमार्फत कारमा कनेक्ट गर्नुहोस्।"</string>
 </resources>

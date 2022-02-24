@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"வாகனம் ஓட்டும்போது டயல்பேடைப் பயன்படுத்த முடியாது"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"அவசரகால அழைப்பு"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"புளூடூத் உடன் இணை"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"உங்கள் அழைப்பை நிறைவுசெய்ய, முதலில் புளூடூத் வழியாக மொபைலைக் காருடன் இணைக்கவும்."</string>
 </resources>
