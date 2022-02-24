@@ -241,7 +241,7 @@ def main():
                   format(args.perfetto_tool_location, serial_str, args.traceduration, outputName))
     print(r)
     # analysis
-    run_analysis(outputName, cpuConfig)
+    run_analysis(outputName, cpuConfig, newCpuSettings)
 
   # restore
   if not args.permanent:
