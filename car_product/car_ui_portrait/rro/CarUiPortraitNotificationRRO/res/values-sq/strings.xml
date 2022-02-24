@@ -17,6 +17,8 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="assist_action_play_label" msgid="4610400802512083870">"Luaj mesazhin"</string>
+    <string name="assist_action_play_label" msgid="7215327018052821027"></string>
+    <string name="assist_action_reply_label" msgid="7679711233658562603"></string>
+    <string name="action_mute_short" msgid="4427765666352759508"></string>
     <string name="notification_header" msgid="7197574085752162581">"Qendra e njoftimeve"</string>
 </resources>
