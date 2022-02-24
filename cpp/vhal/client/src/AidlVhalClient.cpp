@@ -19,6 +19,7 @@
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 #include <android/binder_manager.h>
+#include <android/binder_process.h>
 #include <utils/Log.h>
 
 #include <AidlHalPropConfig.h>
@@ -90,6 +91,7 @@ std::shared_ptr<IVhalClient> AidlVhalClient::create() {
         ALOGW("AIDL VHAL service is not available");
         return nullptr;
     }
+    ABinderProcess_startThreadPool();
     return std::make_shared<AidlVhalClient>(aidlVhal);
 }
 
@@ -104,6 +106,7 @@ std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate() {
         ALOGW("AIDL VHAL service is not available");
         return nullptr;
     }
+    ABinderProcess_startThreadPool();
     return std::make_shared<AidlVhalClient>(aidlVhal);
 }
 
