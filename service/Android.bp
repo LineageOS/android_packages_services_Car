@@ -123,6 +123,7 @@ android_app {
     name: "CarServiceUpdatableNonModule",
 
     defaults: ["carservice-updatable-java-defaults"],
+    privileged: true,
 
     required: ["allowed_privapp_com.android.car"],
 }
@@ -132,6 +133,7 @@ android_app {
     name: "CarServiceUpdatable",
 
     defaults: ["carservice-updatable-java-defaults"],
+    privileged: true,
 
     apex_available: ["com.android.car.framework"],
 }
@@ -187,6 +189,8 @@ android_library {
     name: "car-service-test-static-lib",
 
     defaults: ["carservice-updatable-java-defaults"],
+
+    manifest: "EmptyAndroidManifest.xml"
 }
 
 filegroup {
