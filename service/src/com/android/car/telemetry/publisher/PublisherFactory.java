@@ -18,15 +18,13 @@ package com.android.car.telemetry.publisher;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
+import android.app.usage.NetworkStatsManager;
 import android.content.Context;
-import android.net.INetworkStatsService;
 import android.os.Handler;
-import android.os.IBinder;
-import android.os.ServiceManager;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.publisher.net.NetworkStatsServiceProxy;
+import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.internal.util.Preconditions;
 
 import java.io.File;
@@ -101,17 +99,14 @@ public class PublisherFactory {
                     return mStatsPublisher;
                 case TelemetryProto.Publisher.CONNECTIVITY_FIELD_NUMBER:
                     if (mConnectivityPublisher == null) {
-                        IBinder service =
+                        NetworkStatsManager networkStatsManager =
                                 Objects.requireNonNull(
-                                        ServiceManager.getService(Context.NETWORK_STATS_SERVICE));
-                        INetworkStatsService networkStatsService =
-                                INetworkStatsService.Stub.asInterface(service);
+                                        mContext.getSystemService(NetworkStatsManager.class));
                         mConnectivityPublisher =
                                 new ConnectivityPublisher(
                                         mFailureListener,
-                                        new NetworkStatsServiceProxy(networkStatsService),
-                                        mTelemetryHandler,
-                                        mContext);
+                                        new NetworkStatsManagerProxy(networkStatsManager),
+                                        mTelemetryHandler);
                     }
                     return mConnectivityPublisher;
                 default:

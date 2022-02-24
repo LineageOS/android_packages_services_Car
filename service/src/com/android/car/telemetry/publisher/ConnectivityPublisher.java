@@ -19,8 +19,7 @@ package com.android.car.telemetry.publisher;
 import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
 import android.annotation.NonNull;
-import android.content.Context;
-import android.net.NetworkStats;
+import android.app.usage.NetworkStats;
 import android.net.NetworkTemplate;
 import android.os.Handler;
 import android.os.PersistableBundle;
@@ -36,7 +35,8 @@ import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
 import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
 import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
-import com.android.car.telemetry.publisher.net.NetworkStatsServiceProxy;
+import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
+import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;
 import com.android.car.telemetry.publisher.net.RefinedStats;
 import com.android.internal.util.Preconditions;
 import com.android.server.utils.Slogf;
@@ -68,8 +68,6 @@ public class ConnectivityPublisher extends AbstractPublisher {
     // Assign the method to {@link Runnable}, otherwise the handler fails to remove it.
     private final Runnable mPullNetstatsPeriodically = this::pullNetstatsPeriodically;
 
-    private final Context mContext;
-
     // Use ArrayMap instead of HashMap to improve memory usage. It doesn't store more than 100s
     // of items, and it's good enough performance-wise.
     private final ArrayMap<QueryParam, ArrayList<DataSubscriber>> mSubscribers = new ArrayMap<>();
@@ -82,18 +80,16 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
     private final TimingsTraceLog mTraceLog;
 
-    private NetworkStatsServiceProxy mNetworkStatsService;
+    private NetworkStatsManagerProxy mNetworkStatsManager;
     private boolean mIsPullingNetstats = false;
 
     ConnectivityPublisher(
             @NonNull PublisherFailureListener failureListener,
-            @NonNull NetworkStatsServiceProxy networkStatsService,
-            @NonNull Handler telemetryHandler,
-            @NonNull Context context) {
+            @NonNull NetworkStatsManagerProxy networkStatsManager,
+            @NonNull Handler telemetryHandler) {
         super(failureListener);
-        mNetworkStatsService = networkStatsService;
+        mNetworkStatsManager = networkStatsManager;
         mTelemetryHandler = telemetryHandler;
-        mContext = context;
         mTraceLog = new TimingsTraceLog(CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
         for (Transport transport : Transport.values()) {
             if (transport.equals(Transport.TRANSPORT_UNDEFINED)) {
@@ -247,11 +243,17 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 - elapsedMillisSinceBoot
                 - NETSTATS_UID_DEFAULT_BUCKET_DURATION_MILLIS;
 
-        return mNetworkStatsService.querySummary(
-                param.buildNetworkTemplate(),
-                startMillis,
-                currentTimeInMillis,
-                mContext.getOpPackageName());
+        NetworkStatsWrapper nonTaggedStats =
+                mNetworkStatsManager.querySummary(
+                        param.buildNetworkTemplate(), startMillis, currentTimeInMillis);
+        NetworkStatsWrapper taggedStats =
+                mNetworkStatsManager.queryTaggedSummary(
+                        param.buildNetworkTemplate(), startMillis, currentTimeInMillis);
+
+        RefinedStats result = new RefinedStats(startMillis, currentTimeInMillis);
+        result.addNetworkStats(nonTaggedStats);
+        result.addNetworkStats(taggedStats);
+        return result;
     }
 
     private boolean isSubscribersEmpty() {
@@ -290,26 +292,17 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
         @NonNull
         NetworkTemplate buildNetworkTemplate() {
-            return new NetworkTemplate(
-                    mMatchRule,
-                    /* subscriberId= */ null,
-                    /* matchSubscriberIds= */ null,
-                    /* networkId= */ null,
-                    NetworkStats.METERED_ALL,
-                    NetworkStats.ROAMING_ALL,
-                    NetworkStats.DEFAULT_NETWORK_ALL,
-                    NetworkTemplate.NETWORK_TYPE_ALL,
-                    mOemManaged);
+            return new NetworkTemplate.Builder(mMatchRule).setOemManaged(mOemManaged).build();
         }
 
         private static int getMatchRule(@NonNull Transport transport) {
             switch (transport) {
                 case TRANSPORT_CELLULAR:
-                    return NetworkTemplate.MATCH_MOBILE_WILDCARD;
+                    return NetworkTemplate.MATCH_MOBILE;
                 case TRANSPORT_ETHERNET:
                     return NetworkTemplate.MATCH_ETHERNET;
                 case TRANSPORT_WIFI:
-                    return NetworkTemplate.MATCH_WIFI_WILDCARD;
+                    return NetworkTemplate.MATCH_WIFI;
                 case TRANSPORT_BLUETOOTH:
                     return NetworkTemplate.MATCH_BLUETOOTH;
                 default:

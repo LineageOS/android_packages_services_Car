@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.annotation.NonNull;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.net.NetworkStats;
 import android.os.PersistableBundle;
 
 import com.android.internal.util.FastXmlSerializer;
@@ -63,7 +62,7 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
         stats.add(buildBucket(UID_1, TAG_NONE, /* rx= */ 4095, /* tx= */ 2047));
         stats.add(buildBucket(UID_0, TAG_1, /* rx= */ 10000, /* tx= */ 10000)); // merges with 1st
 
-        mRefinedStats.addNetworkStats(stats.getNetworkStats());
+        mRefinedStats.addNetworkStats(stats);
         PersistableBundle result = mRefinedStats.toPersistableBundle();
 
         PersistableBundle expected = new PersistableBundle();
@@ -84,7 +83,7 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(mRefinedStats.isEmpty()).isTrue();
 
-        mRefinedStats.addNetworkStats(stats.getNetworkStats());
+        mRefinedStats.addNetworkStats(stats);
         assertThat(mRefinedStats.isEmpty()).isFalse();
     }
 
@@ -95,7 +94,7 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
         stats.add(buildBucket(UID_1, TAG_1, /* rx= */ 4096, /* tx= */ 2048));
         // This one is not present in "other" below.
         stats.add(buildBucket(UID_2, TAG_NONE, /* rx= */ 4096, /* tx= */ 2048));
-        mRefinedStats.addNetworkStats(stats.getNetworkStats());
+        mRefinedStats.addNetworkStats(stats);
 
         FakeNetworkStats stats2 = new FakeNetworkStats();
         stats2.add(buildBucket(UID_1, TAG_NONE, /* rx= */ 6, /* tx= */ 8));
@@ -104,7 +103,7 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
         stats2.add(buildBucket(UID_0, TAG_1, /* rx= */ 6, /* tx= */ 8));
         stats2.add(buildBucket(UID_2, TAG_1, /* rx= */ 6, /* tx= */ 8));
         RefinedStats other = new RefinedStats(/* startMillis= */ 9_000, /* endMillis= */ 15_000);
-        other.addNetworkStats(stats2.getNetworkStats());
+        other.addNetworkStats(stats2);
 
         RefinedStats diff = RefinedStats.subtract(mRefinedStats, other);
 
@@ -120,17 +119,14 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
         assertThat(bundleToXml(diff.toPersistableBundle())).isEqualTo(bundleToXml(expected));
     }
 
-    private static NetworkStats.Entry buildBucket(int uid, int tag, long rx, long tx) {
-        return new NetworkStats.Entry(
-                /* iface= */ null,
+    private static FakeNetworkStats.CustomBucket buildBucket(int uid, int tag, long rx, long tx) {
+        return new FakeNetworkStats.CustomBucket(
+                /* identity= */ null,
                 uid,
-                NetworkStats.SET_DEFAULT,
                 tag,
-                rx,
-                rx,
-                tx,
-                tx,
-                /* operations= */ 0);
+                /* rxBytes= */ rx,
+                /* txBytes= */ tx,
+                /* timestampMillis= */ 0);
     }
 
     /** Converts the bundle to a XML String for easy asserting equality. */

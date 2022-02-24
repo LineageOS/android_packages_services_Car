@@ -16,29 +16,47 @@
 
 package com.android.car.telemetry.publisher.net;
 
+import android.app.usage.NetworkStats;
 import android.net.NetworkIdentity;
-import android.net.NetworkStats;
 
 import java.util.ArrayDeque;
 
 /** A fake for {@link NetworkStats}. */
-public class FakeNetworkStats {
-    private final ArrayDeque<NetworkStats.Entry> mBuckets = new ArrayDeque<>();
+public class FakeNetworkStats extends NetworkStatsWrapper {
+    private final ArrayDeque<NetworkStats.Bucket> mBuckets = new ArrayDeque<>();
 
-    /** Adds the entry to the fake. */
-    public void add(NetworkStats.Entry entry) {
-        mBuckets.add(entry);
+    public FakeNetworkStats() {
+        super(/* networkStats= */ null);
     }
 
-    public NetworkStats getNetworkStats() {
-        NetworkStats stats = new NetworkStats(/* elapsedRealtime= */ 0, /* initialSize= */ 0);
-        mBuckets.forEach(stats::insertEntry);
-        return stats;
+    @Override
+    public boolean hasNextBucket() {
+        return !mBuckets.isEmpty();
     }
 
-    /** A custom implementation of {@link NetworkStats.Entry} for testing purpose. */
-    public static class CustomBucket extends NetworkStats.Entry {
+    @Override
+    public NetworkStats.Bucket getNextBucket() {
+        if (mBuckets.isEmpty()) {
+            return null;
+        }
+        return mBuckets.removeFirst();
+    }
+
+    /** Adds the bucket to the fake. */
+    public void add(NetworkStats.Bucket bucket) {
+        mBuckets.addLast(bucket);
+    }
+
+    /**
+     * A custom implementation of {@link NetworkStats.Bucket} for testing purpose. This class
+     * overrides getter methods, because the original class doesn't allow setting the fields.
+     */
+    public static class CustomBucket extends NetworkStats.Bucket {
         private final NetworkIdentity mIdentity;
+        private final int mUid;
+        private final int mTag;
+        private final long mRxBytes;
+        private final long mTxBytes;
         private final long mTimestampMillis;
 
         public CustomBucket(
@@ -49,10 +67,10 @@ public class FakeNetworkStats {
                 long txBytes,
                 long timestampMillis) {
             mIdentity = identity;
-            this.uid = uid;
-            this.tag = tag;
-            this.rxBytes = rxBytes;
-            this.txBytes = txBytes;
+            mUid = uid;
+            mTag = tag;
+            mRxBytes = rxBytes;
+            mTxBytes = txBytes;
             mTimestampMillis = timestampMillis;
         }
 
@@ -60,9 +78,33 @@ public class FakeNetworkStats {
             return mIdentity;
         }
 
-        // Named "getStartTimeStamp()" to match android.app.usage.NetworkStats.Bucket, which is
-        // used in the upcoming version.
+        @Override
+        public int getUid() {
+            return mUid;
+        }
+
+        @Override
+        public int getTag() {
+            return mTag;
+        }
+
+        @Override
+        public long getRxBytes() {
+            return mRxBytes;
+        }
+
+        @Override
+        public long getTxBytes() {
+            return mTxBytes;
+        }
+
+        @Override
         public long getStartTimeStamp() {
+            return mTimestampMillis;
+        }
+
+        @Override
+        public long getEndTimeStamp() {
             return mTimestampMillis;
         }
     }
