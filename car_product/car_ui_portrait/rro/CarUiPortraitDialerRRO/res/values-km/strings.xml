@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"មិនអាចប្រើផ្ទាំងចុចលេខបានទេ ពេលកំពុងបើកបរ"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"ពេលមានអាសន្ន"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"ភ្ជាប់​ប៊្លូធូស"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"ដើម្បី​ហៅទូរសព្ទ សូមភ្ជាប់​ទូរសព្ទ​របស់អ្នក​ទៅរថយន្ត​របស់អ្នក​តាមរយៈ​ប៊្លូធូស​ជាមុន​សិន។"</string>
 </resources>

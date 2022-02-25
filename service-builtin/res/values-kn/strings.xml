@@ -120,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"ಕಾರಿನ ಆಸನಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"ಕಾರಿನ ಮೂಲ ಮಾಹಿತಿಯನ್ನು ಪಡೆಯಿರಿ"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"ಕಾರಿನ ಮೂಲ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"access ಕಾರಿನ ವಿಶೇಷ ಮಾಹಿತಿಗೆ ಪ್ರವೇಶಿಸಿ"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"ಕಾರಿನ ವಿಶೇಷ ಮಾಹಿತಿಗೆ ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"ಕಾರಿನ ಮಾರಾಟಗಾರರ ಅನುಮತಿ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"ಕಾರಿನ ಮಾರಾಟಗಾರರ ಅನುಮತಿ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>

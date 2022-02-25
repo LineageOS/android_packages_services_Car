@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"Pinaghihigpitan ang paggamit ng dialpad habang nagmamaneho"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"Emergency"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"Kumonekta sa Bluetooth"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"Para makumpleto ang iyong tawag, ikonekta muna ang telepono mo sa iyong sasakyan sa pamamagitan ng Bluetooth."</string>
 </resources>

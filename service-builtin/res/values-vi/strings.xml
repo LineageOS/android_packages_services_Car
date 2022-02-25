@@ -120,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Kiểm soát ghế ngồi trên ô tô."</string>
     <string name="car_permission_label_car_info" msgid="3896442196814275928">"truy cập vào thông tin cơ bản của ô tô"</string>
     <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Truy cập vào thông tin cơ bản của ô tô."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1652444990941850926) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (971997182607169070) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1652444990941850926">"truy cập thông tin đặc quyền của ô tô"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="971997182607169070">"Truy cập thông tin đặc quyền của ô tô."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"truy cập vào thông tin về quyền của nhà sản xuất ô tô"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Truy cập vào thông tin về quyền của nhà sản xuất ô tô."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"đọc trạng thái đèn bên ngoài ô tô"</string>

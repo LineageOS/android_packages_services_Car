@@ -32,6 +32,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.car.hardware.property.CarPropertyManager;
+import android.content.Context;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
@@ -80,6 +81,7 @@ public class VehicleHalTest {
 
     private static final float ANY_SAMPLING_RATE = 60f;
 
+    @Mock private Context mContext;
     @Mock private PowerHalService mPowerHalService;
     @Mock private PropertyHalService mPropertyHalService;
     @Mock private InputHalService mInputHalService;
@@ -107,7 +109,7 @@ public class VehicleHalTest {
     public void setUp() throws Exception {
         when(mVehicle.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
 
-        mVehicleHal = new VehicleHal(mPowerHalService,
+        mVehicleHal = new VehicleHal(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService, mHalClient,
                 mHandlerThread, mVehicle);
@@ -153,6 +155,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
         mVehicleHal.init();
@@ -265,6 +268,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 
@@ -306,6 +310,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Return empty prop configs.
         when(mHalClient.getAllPropConfigs()).thenReturn(new HalPropConfig[0]);
@@ -349,6 +354,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Return empty prop configs.
         when(mHalClient.getAllPropConfigs()).thenReturn(null);
@@ -392,6 +398,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Throw exception.
         when(mHalClient.getAllPropConfigs()).thenThrow(new RemoteException());
@@ -809,6 +816,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 
@@ -878,7 +886,8 @@ public class VehicleHalTest {
 
     // A test class to class protected method of VehicleHal.
     private class VehicleHalTestClass extends VehicleHal {
-        VehicleHalTestClass(PowerHalService powerHal,
+        VehicleHalTestClass(Context context,
+                PowerHalService powerHal,
                 PropertyHalService propertyHal,
                 InputHalService inputHal,
                 VmsHalService vmsHal,
@@ -889,14 +898,14 @@ public class VehicleHalTest {
                 HalClient halClient,
                 HandlerThread handlerThread,
                 VehicleStub vehicleStub) {
-            super(powerHal, propertyHal, inputHal, vmsHal, userHal, diagnosticHal,
+            super(context, powerHal, propertyHal, inputHal, vmsHal, userHal, diagnosticHal,
                     clusterHalService, timeHalService, halClient, handlerThread, vehicleStub);
         }
     }
 
     @Test
     public void testSet() throws Exception {
-        VehicleHalTestClass t = new VehicleHalTestClass(mPowerHalService,
+        VehicleHalTestClass t = new VehicleHalTestClass(mContext, mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
                 mDiagnosticHalService, mClusterHalService, mTimeHalService,
                 mHalClient, mHandlerThread, mVehicle);
@@ -1229,6 +1238,7 @@ public class VehicleHalTest {
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mClusterHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(toHalPropConfigs(mConfigs));
 

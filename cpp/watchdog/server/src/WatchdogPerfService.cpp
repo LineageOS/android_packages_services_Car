@@ -198,6 +198,9 @@ Result<void> WatchdogPerfService::start() {
             mCurrCollectionEvent = EventType::TERMINATED;
             return Error() << "No data processor is registered";
         }
+        mUidStatsCollector->init();
+        mProcStat->init();
+        mProcDiskStats->init();
     }
 
     mCollectionThread = std::thread([&]() {

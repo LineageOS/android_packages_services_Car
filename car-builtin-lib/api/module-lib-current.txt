@@ -15,6 +15,7 @@ package android.car.builtin.app {
 
   public final class ActivityManagerHelper {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
+    method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
     method public void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     method public boolean removeTask(int);

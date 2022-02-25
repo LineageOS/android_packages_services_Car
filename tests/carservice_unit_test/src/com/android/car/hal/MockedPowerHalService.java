@@ -18,6 +18,7 @@ package com.android.car.hal;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.content.Context;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.util.Log;
 
@@ -48,6 +49,7 @@ public class MockedPowerHalService extends PowerHalService {
         VehicleStub vehicleStub = mock(VehicleStub.class);
         when(vehicleStub.getHalPropValueBuilder()).thenReturn(propValueBuilder);
         VehicleHal mockedVehicleHal = new VehicleHal(
+                mock(Context.class),
                 mock(PowerHalService.class),
                 mock(PropertyHalService.class),
                 mock(InputHalService.class),

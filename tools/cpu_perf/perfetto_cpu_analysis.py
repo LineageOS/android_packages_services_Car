@@ -91,13 +91,25 @@ class SystemLoad:
     self.totalLoad = 0.0
     self.processes = [] # ProcessInfo
 
-  def addTimeMeasurements(self, coreData):
+  def addTimeMeasurements(self, coreData, allCores):
+    coreLoads = {} # k: core, v: TotalCoreLoad
+    maxTotalTime = 0
     for entry in coreData:
       coreId = entry.core
       activeTime = entry.activeTime
       idleTime = entry.idleTime
+      totalTime = activeTime + idleTime
+      if maxTotalTime < totalTime:
+        maxTotalTime = totalTime
       load = TotalCoreLoad(coreId, activeTime, idleTime)
-      self.totalLoads.append(load)
+      coreLoads[coreId] = load
+    for c in allCores:
+      if coreLoads.get(c) is not None:
+        continue
+      # this core was not used at all. So add it with idle only
+      coreLoads[c] = TotalCoreLoad(c, 0, maxTotalTime)
+    for c in sorted(coreLoads):
+      self.totalLoads.append(coreLoads[c])
 
   def print(self, cpuConfig):
     print("*Time based CPU load*")
@@ -132,6 +144,9 @@ def init_arguments():
   parser.add_argument('-f', '--configfile', dest='config_file',
                       default=get_script_dir() + '/pixel6.config', type=argparse.FileType('r'),
                       help='CPU config file', )
+  parser.add_argument('-c', '--cpusettings', dest='cpusettings', action='store',
+                      default='default',
+                      help='CPU Settings to apply')
   parser.add_argument('-n', '--number_of_top_processes', dest='number_of_top_processes',
                       action='store', default='5',
                       help='Number of processes to show in performance report')
@@ -139,13 +154,13 @@ def init_arguments():
                       help='Perfetto trace file to analyze')
   return parser.parse_args()
 
-def run_analysis(traceFile, cpuConfig, numTopN=5):
+def run_analysis(traceFile, cpuConfig, cpuSettings, numTopN=5):
   tp = TraceProcessor(file_path=traceFile)
 
   systemLoad = SystemLoad()
   # get idle and active times per each cores
   core_times = tp.query(QUERY_SCHED_CORE_SUM)
-  systemLoad.addTimeMeasurements(core_times)
+  systemLoad.addTimeMeasurements(core_times, cpuSettings.onlines)
 
   cpu_metrics = tp.metric(['android_cpu']).android_cpu
   for p in cpu_metrics.process_info:
@@ -166,8 +181,12 @@ def main():
 
   # parse config
   cpuConfig = parse_config(args.config_file)
+  cpuSettings = cpuConfig.configs.get(args.cpusettings)
+  if cpuSettings is None:
+    print("Cannot find cpusettings {}".format(args.cpusettings))
+    return
 
-  run_analysis(args.trace_file[0], cpuConfig, args.number_of_top_processes)
+  run_analysis(args.trace_file[0], cpuConfig, cpuSettings, args.number_of_top_processes)
 
 if __name__ == '__main__':
   main()

@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"ഡ്രൈവ് ചെയ്യുമ്പോൾ ഡയൽപാഡ് ഉപയോഗം നിയന്ത്രിച്ചിരിക്കുന്നു"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"അടിയന്തരം"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"Bluetooth-ലേക്ക് കണക്‌റ്റ് ചെയ്യുക"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"കോൾ പൂർത്തിയാക്കാൻ, ആദ്യം നിങ്ങളുടെ ഫോൺ Bluetooth വഴി കാറിലേക്ക് കണക്‌റ്റ് ചെയ്യുക."</string>
 </resources>
