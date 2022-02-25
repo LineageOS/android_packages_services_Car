@@ -40,6 +40,7 @@ import androidx.test.filters.SmallTest;
 import com.android.car.CarLocalServices;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceUtils;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 
@@ -89,11 +90,16 @@ public class CarTelemetryServiceTest {
     private SystemStateInterface mMockSystemStateInterface;
     @Mock
     private ResultReceiver mMockAddMetricsConfigCallback;
+    @Mock
+    private CarPowerManagementService mMockCarPowerManagementService;
 
     @Before
     public void setUp() throws Exception {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class,
+                mMockCarPowerManagementService);
         // ActivityManager is used by SystemMonitor
         doAnswer(i -> {
             ActivityManager.MemoryInfo mi = i.getArgument(0);
