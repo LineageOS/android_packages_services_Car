@@ -29,6 +29,9 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -267,6 +270,23 @@ public class ResultStore {
         IoUtils.deleteAllSilently(mInterimResultDirectory);
         IoUtils.deleteAllSilently(mFinalResultDirectory);
         IoUtils.deleteAllSilently(mErrorResultDirectory);
+    }
+
+    /**
+     * Returns the names of MetricsConfigs whose script reached a terminal state.
+     */
+    public Set<String> getFinishedMetricsConfigNames() {
+        HashSet<String> configNames = new HashSet<>();
+        configNames.addAll(mFinalResultCache.keySet());
+        configNames.addAll(mErrorCache.keySet());
+        // prevent NPE
+        if (mFinalResultDirectory.list() != null) {
+            configNames.addAll(Arrays.asList(mFinalResultDirectory.list()));
+        }
+        if (mErrorResultDirectory.list() != null) {
+            configNames.addAll(Arrays.asList(mErrorResultDirectory.list()));
+        }
+        return configNames;
     }
 
     /** Persists data to disk and deletes stale data. */
