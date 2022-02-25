@@ -18,20 +18,18 @@ package com.android.car.telemetry.publisher;
 
 import static android.net.NetworkStats.TAG_NONE;
 import static android.net.NetworkTemplate.OEM_MANAGED_NO;
-import static android.net.NetworkTemplate.OEM_MANAGED_YES;
+import static android.net.NetworkTemplate.OEM_MANAGED_PAID;
+import static android.net.NetworkTemplate.OEM_MANAGED_PRIVATE;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.mock;
-
 import android.annotation.NonNull;
-import android.content.Context;
+import android.app.usage.NetworkStatsManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkIdentity;
 import android.net.NetworkTemplate;
 import android.os.Looper;
 import android.os.PersistableBundle;
-import android.os.RemoteException;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 
@@ -40,8 +38,8 @@ import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
 import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.FakeNetworkStats;
-import com.android.car.telemetry.publisher.net.NetworkStatsServiceProxy;
-import com.android.car.telemetry.publisher.net.RefinedStats;
+import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
+import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;
 import com.android.car.test.FakeHandlerWrapper;
 
 import org.junit.Before;
@@ -57,7 +55,7 @@ import java.util.List;
 /**
  * Tests for {@link ConnectivityPublisher}.
  *
- * <p>Note that {@link TAG_NONE} is a total value across all the tags. NetworkStatsService returns 2
+ * <p>Note that {@link TAG_NONE} is a total value across all the tags. NetworkStatsManager returns 2
  * types of netstats: summary for all (tag is equal to 0, i.e. TAG_NONE), and summary per tag.
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -141,10 +139,7 @@ public class ConnectivityPublisherTest {
     public void setUp() throws Exception {
         mPublisher =
                 new ConnectivityPublisher(
-                        this::onPublisherFailure,
-                        mFakeManager,
-                        mFakeHandler.getMockHandler(),
-                        mock(Context.class));
+                        this::onPublisherFailure, mFakeManager, mFakeHandler.getMockHandler());
     }
 
     @Test
@@ -222,6 +217,8 @@ public class ConnectivityPublisherTest {
         // Pulls netstats only once for wifi.
         assertThat(mFakeManager.getMethodCallCount("querySummary"))
                 .isEqualTo(BASELINE_PULL_COUNT + 1);
+        assertThat(mFakeManager.getMethodCallCount("queryTaggedSummary"))
+                .isEqualTo(BASELINE_PULL_COUNT + 1);
     }
 
     @Test
@@ -234,6 +231,8 @@ public class ConnectivityPublisherTest {
 
         assertThat(mFakeManager.getMethodCallCount("querySummary"))
                 .isEqualTo(BASELINE_PULL_COUNT + 2);
+        assertThat(mFakeManager.getMethodCallCount("queryTaggedSummary"))
+                .isEqualTo(BASELINE_PULL_COUNT + 2);
     }
 
     @Test
@@ -242,8 +241,8 @@ public class ConnectivityPublisherTest {
         mFakeManager.addMobileStats(UID_1, TAG_1, 2500L, 3500L, OEM_MANAGED_NO, mNow);
         mFakeManager.addMobileStats(UID_1, TAG_NONE, 2502L, 3502L, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_1, TAG_2, 30, 30, OEM_MANAGED_NO, mNow);
-        mFakeManager.addWifiStats(UID_2, TAG_2, 10, 10, OEM_MANAGED_YES, mNow);
-        mFakeManager.addWifiStats(UID_3, TAG_2, 6, 6, OEM_MANAGED_YES, mNow);
+        mFakeManager.addWifiStats(UID_2, TAG_2, 10, 10, OEM_MANAGED_PAID, mNow);
+        mFakeManager.addWifiStats(UID_3, TAG_2, 6, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberCell);
 
         mFakeHandler.dispatchQueuedMessages();
@@ -265,8 +264,8 @@ public class ConnectivityPublisherTest {
         mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
         mFakeManager.addMobileStats(UID_1, TAG_2, 5000, 5000, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_1, TAG_1, 30, 30, OEM_MANAGED_NO, mNow);
-        mFakeManager.addWifiStats(UID_2, TAG_NONE, 100L, 200L, OEM_MANAGED_YES, mNow);
-        mFakeManager.addWifiStats(UID_3, TAG_2, 6L, 7L, OEM_MANAGED_YES, mNow);
+        mFakeManager.addWifiStats(UID_2, TAG_NONE, 100L, 200L, OEM_MANAGED_PAID, mNow);
+        mFakeManager.addWifiStats(UID_3, TAG_2, 6L, 7L, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifiOemManaged);
 
         mFakeHandler.dispatchQueuedMessages();
@@ -286,8 +285,8 @@ public class ConnectivityPublisherTest {
         mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
         mFakeManager.addMobileStats(UID_4, TAG_2, 5000, 5000, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_1, TAG_1, 30, 30, OEM_MANAGED_NO, mNow);
-        mFakeManager.addWifiStats(UID_2, TAG_1, 10, 10, OEM_MANAGED_YES, mNow);
-        mFakeManager.addWifiStats(UID_3, TAG_1, 6, 6, OEM_MANAGED_YES, mNow);
+        mFakeManager.addWifiStats(UID_2, TAG_1, 10, 10, OEM_MANAGED_PAID, mNow);
+        mFakeManager.addWifiStats(UID_3, TAG_1, 6, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
         mFakeHandler.dispatchQueuedMessages();
@@ -341,8 +340,8 @@ public class ConnectivityPublisherTest {
     @Test
     public void testSubtractsFromInitialPull() {
         long someTimeAgo = mNow - Duration.ofMinutes(1).toMillis();
-        mFakeManager.addWifiStats(UID_4, TAG_1, 10, 10, OEM_MANAGED_YES, someTimeAgo);
-        mFakeManager.addWifiStats(UID_4, TAG_1, 11, 11, OEM_MANAGED_YES, someTimeAgo);
+        mFakeManager.addWifiStats(UID_4, TAG_1, 10, 10, OEM_MANAGED_PRIVATE, someTimeAgo);
+        mFakeManager.addWifiStats(UID_4, TAG_1, 11, 11, OEM_MANAGED_PAID, someTimeAgo);
         mFakeManager.addWifiStats(UID_4, TAG_1, 12, 12, OEM_MANAGED_NO, someTimeAgo);
         mFakeHandler.dispatchQueuedMessages(); // pulls 10, 11, 12 bytes.
 
@@ -430,8 +429,14 @@ public class ConnectivityPublisherTest {
         }
     }
 
-    /** A fake for {@link INetworkStatsService}. */
-    private static class FakeNetworkStatsManager extends NetworkStatsServiceProxy {
+    /**
+     * A fake for {@link NetworkStatsManager}.
+     *
+     * <p>It's used to find the matching buckets for the given conditions. Both getStartTimestamp()
+     * and getEndTimestamp() is used only in matching during FakeNetworkStatsManager.querySummary()
+     * method, and the values are not used in ConnectivityPublisher class later.
+     */
+    private static class FakeNetworkStatsManager extends NetworkStatsManagerProxy {
         private final ArrayList<FakeNetworkStats.CustomBucket> mBuckets = new ArrayList<>();
         private final HashMap<String, Integer> mMethodCallCount = new HashMap<>();
 
@@ -443,15 +448,11 @@ public class ConnectivityPublisherTest {
         public void addWifiStats(
                 int uid, int tag, long rx, long tx, int oemManaged, long timestampMillis) {
             NetworkIdentity identity =
-                    new NetworkIdentity(
-                            ConnectivityManager.TYPE_WIFI,
-                            /* subType= */ NetworkTemplate.NETWORK_TYPE_ALL,
-                            /* subscriberId= */ null,
-                            /* networkId= */ "guest-wifi",
-                            /* roaming= */ false,
-                            /* metered= */ false,
-                            /* defaultNetwork= */ false,
-                            oemManaged);
+                    new NetworkIdentity.Builder()
+                            .setType(ConnectivityManager.TYPE_WIFI)
+                            .setWifiNetworkKey("guest-wifi")
+                            .setOemManaged(oemManaged)
+                            .build();
             FakeNetworkStats.CustomBucket bucket =
                     new FakeNetworkStats.CustomBucket(
                             identity,
@@ -467,15 +468,12 @@ public class ConnectivityPublisherTest {
         public void addMobileStats(
                 int uid, int tag, long rx, long tx, int oemManaged, long timestampMillis) {
             NetworkIdentity identity =
-                    new NetworkIdentity(
-                            ConnectivityManager.TYPE_MOBILE,
-                            /* subType= */ TelephonyManager.NETWORK_TYPE_GPRS,
-                            /* subscriberId= */ null,
-                            /* networkId= */ null,
-                            /* roaming= */ false,
-                            /* metered= */ false,
-                            /* defaultNetwork= */ true,
-                            oemManaged);
+                    new NetworkIdentity.Builder()
+                            .setType(ConnectivityManager.TYPE_MOBILE)
+                            .setRatType(TelephonyManager.NETWORK_TYPE_GPRS)
+                            .setOemManaged(oemManaged)
+                            .setDefaultNetwork(true)
+                            .build();
             FakeNetworkStats.CustomBucket bucket =
                     new FakeNetworkStats.CustomBucket(
                             identity,
@@ -498,10 +496,21 @@ public class ConnectivityPublisherTest {
 
         @Override
         @NonNull
-        public RefinedStats querySummary(
-                NetworkTemplate template, long start, long end, String callingPackage)
-                throws RemoteException {
+        public NetworkStatsWrapper querySummary(NetworkTemplate template, long start, long end) {
             increaseMethodCall("querySummary", 1);
+            return commonQuerySummary(false, template, start, end);
+        }
+
+        @Override
+        @NonNull
+        public NetworkStatsWrapper queryTaggedSummary(
+                NetworkTemplate template, long start, long end) {
+            increaseMethodCall("queryTaggedSummary", 1);
+            return commonQuerySummary(true, template, start, end);
+        }
+
+        private NetworkStatsWrapper commonQuerySummary(
+                boolean taggedOnly, NetworkTemplate template, long start, long end) {
             FakeNetworkStats result = new FakeNetworkStats();
             for (FakeNetworkStats.CustomBucket bucket : mBuckets) {
                 // NOTE: the actual implementation calculates bucket ratio in the given time range
@@ -509,13 +518,12 @@ public class ConnectivityPublisherTest {
                 if (bucket.getStartTimeStamp() < start || bucket.getStartTimeStamp() > end) {
                     continue;
                 }
-                if (template.matches(bucket.getIdentity())) {
+                boolean bucketHasTag = bucket.getTag() != TAG_NONE;
+                if (taggedOnly == bucketHasTag && template.matches(bucket.getIdentity())) {
                     result.add(bucket);
                 }
             }
-            RefinedStats stats = new RefinedStats(start, end);
-            stats.addNetworkStats(result.getNetworkStats());
-            return stats;
+            return result;
         }
 
         private void increaseMethodCall(String methodName, int count) {

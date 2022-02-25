@@ -17,7 +17,7 @@
 package com.android.car.telemetry.publisher.net;
 
 import android.annotation.NonNull;
-import android.net.NetworkStats;
+import android.app.usage.NetworkStats;
 import android.os.PersistableBundle;
 import android.util.IntArray;
 import android.util.LongArray;
@@ -52,19 +52,19 @@ public class RefinedStats {
     }
 
     /** Adds {@link NetworkStats}. Mutates the current object. */
-    public void addNetworkStats(@NonNull NetworkStats stats) {
-        for (int i = 0; i < stats.size(); i++) {
-            NetworkStats.Entry entry = stats.getValues(i, null);
-            int index = findIndex(entry.uid, entry.tag);
+    public void addNetworkStats(@NonNull NetworkStatsWrapper stats) {
+        while (stats.hasNextBucket()) {
+            NetworkStats.Bucket bucket = stats.getNextBucket();
+            int index = findIndex(bucket.getUid(), bucket.getTag());
             if (index == -1) {
-                mUid.add(entry.uid);
-                mTag.add(entry.tag);
+                mUid.add(bucket.getUid());
+                mTag.add(bucket.getTag());
                 mRxBytes.add(0);
                 mTxBytes.add(0);
                 index = mUid.size() - 1;
             }
-            mRxBytes.set(index, mRxBytes.get(index) + entry.rxBytes);
-            mTxBytes.set(index, mTxBytes.get(index) + entry.txBytes);
+            mRxBytes.set(index, mRxBytes.get(index) + bucket.getRxBytes());
+            mTxBytes.set(index, mTxBytes.get(index) + bucket.getTxBytes());
         }
     }
 
