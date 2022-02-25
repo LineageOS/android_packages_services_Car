@@ -651,7 +651,7 @@ unsigned EvsV4lCamera::decreaseAvailableFrames_Locked(unsigned numToRemove) {
 
 // This is the async callback from the video camera that tells us a frame is ready
 void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
-    LOG(ERROR) << __FUNCTION__;
+    LOG(DEBUG) << __FUNCTION__;
     bool readyForFrame = false;
     unsigned idx = 0;
 
@@ -774,7 +774,6 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         if (mStream) {
             std::vector<BufferDesc> frames;
             frames.push_back(std::move(bufferDesc));
-            LOG(ERROR) << "Delivering a frame";
             flag = mStream->deliverFrame(frames).isOk();
         }
 
