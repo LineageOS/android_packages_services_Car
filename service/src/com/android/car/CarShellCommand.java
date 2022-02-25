@@ -2432,7 +2432,7 @@ final class CarShellCommand extends ShellCommand {
                     FileUtils.copy(in, out);
                     CountDownLatch latch = new CountDownLatch(1);
                     mCarTelemetryService.addMetricsConfig(args[2], out.toByteArray(), status -> {
-                        if (status == CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS) {
+                        if (status == CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED) {
                             writer.printf("MetricsConfig %s is added.\n", args[2]);
                         } else {
                             writer.printf("Failed to add %s. Status is %d.\n", args[2], status);
