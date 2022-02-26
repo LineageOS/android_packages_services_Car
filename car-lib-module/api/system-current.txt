@@ -190,34 +190,16 @@ package android.car {
   }
 
   public final class VehicleUnit {
-    field public static final int AMPERE_HOURS = 100; // 0x64
-    field public static final int BAR = 114; // 0x72
-    field public static final int CELSIUS = 48; // 0x30
     field public static final int DEGREES = 128; // 0x80
-    field public static final int FAHRENHEIT = 49; // 0x31
     field public static final int HERTZ = 3; // 0x3
-    field public static final int IMPERIAL_GALLON = 67; // 0x43
-    field public static final int KELVIN = 50; // 0x32
-    field public static final int KILOMETER = 35; // 0x23
-    field public static final int KILOPASCAL = 112; // 0x70
-    field public static final int KILOWATT_HOUR = 101; // 0x65
-    field public static final int LITER = 65; // 0x41
-    field public static final int METER = 33; // 0x21
-    field public static final int METER_PER_SEC = 1; // 0x1
-    field public static final int MILE = 36; // 0x24
     field public static final int MILLIAMPERE = 97; // 0x61
-    field public static final int MILLILITER = 64; // 0x40
-    field public static final int MILLIMETER = 32; // 0x20
     field public static final int MILLIVOLT = 98; // 0x62
     field public static final int MILLIWATTS = 99; // 0x63
     field public static final int NANO_SECS = 80; // 0x50
     field public static final int PERCENTILE = 16; // 0x10
-    field public static final int PSI = 113; // 0x71
     field public static final int RPM = 2; // 0x2
     field public static final int SECS = 83; // 0x53
     field public static final int SHOULD_NOT_USE = 0; // 0x0
-    field public static final int US_GALLON = 66; // 0x42
-    field public static final int WATT_HOUR = 96; // 0x60
     field public static final int YEAR = 89; // 0x59
   }
 
