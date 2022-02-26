@@ -18,12 +18,14 @@ package com.android.car.admin;
 import static com.android.car.admin.CarDevicePolicyService.DEBUG;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Slog;
 import android.widget.Button;
 
@@ -32,26 +34,33 @@ import com.android.car.R;
 import com.android.car.admin.ui.ManagedDeviceTextView;
 import com.android.internal.annotations.VisibleForTesting;
 
-// TODO(b/171603586): STOPSHIP move UI related activities to CarSettings
 /**
- * Shows a disclaimer when a new user is added in a device that is managed by a device owner.
+ * Shows a disclaimer dialog when a new user is added in a device that is managed by a device owner.
+ *
+ * <p>The dialog text will contain the message from
+ * {@code ManagedDeviceTextView.getManagedDeviceText}.
+ *
+ * <p>The dialog contains two buttons: one to acknowlege the disclaimer; the other to launch
+ * {@code Settings.ACTION_ENTERPRISE_PRIVACY_SETTINGS} for more details. Note: when
+ * {@code Settings.ACTION_ENTERPRISE_PRIVACY_SETTINGS} is closed, the same dialog will be shown.
+ *
+ * <p>Clicking anywhere outside the dialog will dimiss the dialog.
  */
 public final class NewUserDisclaimerActivity extends Activity {
-
-    private static final String TAG = CarLog.tagFor(NewUserDisclaimerActivity.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(NewUserDisclaimerActivity.class);
+    private static final int LEARN_MORE_RESULT_CODE = 1;
     private static final int NOTIFICATION_ID =
             NotificationHelper.NEW_USER_DISCLAIMER_NOTIFICATION_ID;
 
     private Button mAcceptButton;
+    private AlertDialog mDialog;
+    private boolean mLearnMoreLaunched;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        setContentView(R.layout.new_user_disclaimer);
-
-        mAcceptButton = findViewById(R.id.accept_button);
-        mAcceptButton.setOnClickListener((v) -> accept());
+        setupAlertDialog();
     }
 
     @Override
@@ -59,22 +68,67 @@ public final class NewUserDisclaimerActivity extends Activity {
         super.onResume();
 
         if (DEBUG) Slog.d(TAG, "showing UI");
-
+        showAlertDialog();
         PerUserCarDevicePolicyService.getInstance(this).setShown();
-
-        // TODO(b/175057848): automotically finish the activity at x ms if the user doesn't ack it
-        // and/or integrate it with UserNoticeService
     }
 
-    @VisibleForTesting
-    Button getAcceptButton() {
-        return mAcceptButton;
+    private AlertDialog setupAlertDialog() {
+        String managedByOrganizationText = ManagedDeviceTextView.getManagedDeviceText(this)
+                .toString();
+        String managedProfileText = getResources().getString(
+                R.string.new_user_managed_device_text);
+
+        mDialog = new AlertDialog.Builder(/* context= */ this,
+                        com.android.internal.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(R.string.new_user_managed_device_title)
+                .setMessage(managedByOrganizationText + System.lineSeparator()
+                        + System.lineSeparator() + managedProfileText)
+                .setPositiveButton(R.string.new_user_managed_device_acceptance,
+                    (d, which) -> onAccept())
+                .setNegativeButton(R.string.new_user_managed_device_learn_more,
+                    (d, which) -> onLearnMoreClicked())
+                .setCancelable(false)
+                .setOnDismissListener((d) -> onDialogDimissed())
+                .create();
+
+        return mDialog;
     }
 
-    private void accept() {
+    private void showAlertDialog() {
+        if (mDialog == null) {
+            setupAlertDialog();
+        }
+        mDialog.show();
+    }
+
+    private void onAccept() {
         if (DEBUG) Slog.d(TAG, "user accepted");
 
         PerUserCarDevicePolicyService.getInstance(this).setAcknowledged();
+        setResult(RESULT_OK);
+        finish();
+    }
+
+    private void onLearnMoreClicked() {
+        mLearnMoreLaunched = true;
+        startActivityForResult(new Intent(Settings.ACTION_ENTERPRISE_PRIVACY_SETTINGS),
+                LEARN_MORE_RESULT_CODE);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != LEARN_MORE_RESULT_CODE) {
+            if (DEBUG) Slog.w(TAG, "onActivityResult(), invalid request code: " + requestCode);
+            return;
+        }
+        mLearnMoreLaunched = false;
+    }
+
+    private void onDialogDimissed() {
+        if (mLearnMoreLaunched) {
+            return;
+        }
         finish();
     }
 
@@ -83,7 +137,6 @@ public final class NewUserDisclaimerActivity extends Activity {
 
         Notification notification = NotificationHelper
                 .newNotificationBuilder(context, NotificationManager.IMPORTANCE_DEFAULT)
-                // TODO(b/175057848): proper icon?
                 .setSmallIcon(R.drawable.car_ic_mode)
                 .setContentTitle(context.getString(R.string.new_user_managed_notification_title))
                 .setContentText(ManagedDeviceTextView.getManagedDeviceText(context))
@@ -113,5 +166,10 @@ public final class NewUserDisclaimerActivity extends Activity {
         return PendingIntent.getActivity(context, NOTIFICATION_ID,
                 new Intent(context, NewUserDisclaimerActivity.class),
                 PendingIntent.FLAG_IMMUTABLE | extraFlags);
+    }
+
+    @VisibleForTesting
+    AlertDialog getDialog() {
+        return mDialog;
     }
 }
