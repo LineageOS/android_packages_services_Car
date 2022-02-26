@@ -18,6 +18,7 @@ package com.android.car.watchdog;
 
 import static android.app.StatsManager.PULL_SKIP;
 import static android.app.StatsManager.PULL_SUCCESS;
+import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_PAST_15_DAYS;
@@ -29,6 +30,7 @@ import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_NO;
 import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_YES;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DEFAULT;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_USER;
@@ -46,6 +48,7 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.getContentResolverForUser;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
@@ -57,6 +60,7 @@ import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.StatsManager;
@@ -85,6 +89,7 @@ import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -101,6 +106,8 @@ import android.os.SystemClock;
 import android.os.TransactionTooLargeException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.AtomicFile;
@@ -140,6 +147,7 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -159,6 +167,8 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
 
     static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
+    static final String USER_PACKAGE_SEPARATOR = ":";
+    static final String PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR = ";";
 
     private static final String METADATA_FILENAME = "metadata.json";
     private static final String SYSTEM_IO_USAGE_SUMMARY_REPORTED_DATE =
@@ -1008,13 +1018,15 @@ public final class WatchdogPerfHandler {
                 case COMPONENT_ENABLED_STATE_DISABLED:
                 case COMPONENT_ENABLED_STATE_DISABLED_USER:
                 case COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED:
-                    Slogf.w(TAG, "Unable to disable application for user %d, package '%s' since "
-                            + "package is not enabled.", userId, packageName);
+                    Slogf.w(TAG, "Unable to disable application for user %d, package '%s' as the "
+                            + "current enabled state is %s", userId, packageName,
+                            toEnabledStateString(currentEnabledState));
                     return false;
             }
             PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
                     COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
                     mContext.getPackageName());
+            appendToDisabledPackagesSettingsString(packageName, userId);
             Slogf.i(TAG, "Disabled package '%s' on user %d until used due to resource overuse",
                     packageName, userId);
         } catch (Exception e) {
@@ -1023,6 +1035,33 @@ public final class WatchdogPerfHandler {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
+     * {@code Settings} of the given user.
+     */
+    public void removeFromDisabledPackagesSettingsString(String packageName,
+            @UserIdInt int userId) {
+        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
+        // Appending and removing package names to/from the settings string
+        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
+        // these operations using the class wide lock.
+        synchronized (mLock) {
+            ArraySet<String> packages = extractPackages(
+                    Settings.Secure.getString(contentResolverForUser,
+                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
+            if (!packages.remove(packageName)) {
+                return;
+            }
+            String settingsString = constructSettingsString(packages);
+            Settings.Secure.putString(contentResolverForUser,
+                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            if (DEBUG) {
+                Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
+                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            }
+        }
     }
 
     /**
@@ -1692,6 +1731,40 @@ public final class WatchdogPerfHandler {
                         .cancelNotificationAsUser(userHandle, notificationId);
     }
 
+    private void appendToDisabledPackagesSettingsString(String packageName, @UserIdInt int userId) {
+        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
+        // Appending and removing package names to/from the settings string
+        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
+        // these operations using the class wide lock.
+        synchronized (mLock) {
+            ArraySet<String> packages = extractPackages(
+                    Settings.Secure.getString(contentResolverForUser,
+                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
+            if (!packages.add(packageName)) {
+                return;
+            }
+            String settingsString = constructSettingsString(packages);
+            Settings.Secure.putString(contentResolverForUser,
+                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            if (DEBUG) {
+                Slogf.d(TAG, "Appended %s to %s. New value is '%s'", packageName,
+                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+            }
+        }
+    }
+
+    private static ArraySet<String> extractPackages(String settingsString) {
+        return TextUtils.isEmpty(settingsString) ? new ArraySet<>()
+                : new ArraySet<>(Arrays.asList(settingsString.split(
+                        PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR)));
+    }
+
+    @Nullable
+    private static String constructSettingsString(ArraySet<String> packages) {
+        return packages.isEmpty() ? null :
+                TextUtils.join(PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR, packages);
+    }
+
     private void pushIoOveruseMetrics(ArraySet<String> userPackageKeys) {
         SparseArray<AtomsProto.CarWatchdogIoOveruseStats> statsByUid = new SparseArray<>();
         synchronized (mLock) {
@@ -2023,7 +2096,7 @@ public final class WatchdogPerfHandler {
     }
 
     private static String getUserPackageUniqueId(@UserIdInt int userId, String genericPackageName) {
-        return userId + ":" + genericPackageName;
+        return userId + USER_PACKAGE_SEPARATOR + genericPackageName;
     }
 
     @VisibleForTesting
@@ -2392,6 +2465,23 @@ public final class WatchdogPerfHandler {
             perStateBytesBuilder.setGarageModeBytes(garageModeBytes);
         }
         return perStateBytesBuilder.build();
+    }
+
+    private static String toEnabledStateString(int enabledState) {
+        switch (enabledState) {
+            case COMPONENT_ENABLED_STATE_DEFAULT:
+                return "COMPONENT_ENABLED_STATE_DEFAULT";
+            case COMPONENT_ENABLED_STATE_ENABLED:
+                return "COMPONENT_ENABLED_STATE_ENABLED";
+            case COMPONENT_ENABLED_STATE_DISABLED:
+                return "COMPONENT_ENABLED_STATE_DISABLED";
+            case COMPONENT_ENABLED_STATE_DISABLED_USER:
+                return "COMPONENT_ENABLED_STATE_DISABLED_USER";
+            case COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED:
+                return "COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED";
+            default:
+                return "UNKNOWN COMPONENT ENABLED STATE";
+        }
     }
 
     private final class PackageResourceUsage {
