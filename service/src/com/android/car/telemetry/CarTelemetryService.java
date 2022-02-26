@@ -15,16 +15,23 @@
  */
 package com.android.car.telemetry;
 
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_PARSE_FAILED;
-import static android.car.telemetry.CarTelemetryManager.STATUS_METRICS_CONFIG_SUCCESS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_FINISHED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_PENDING;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR;
 
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.ICarTelemetryReportListener;
 import android.car.telemetry.ICarTelemetryService;
-import android.car.telemetry.ICarTelemetryServiceListener;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -46,6 +53,7 @@ import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerController;
 import com.android.car.telemetry.databroker.DataBrokerImpl;
 import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.server.utils.Slogf;
@@ -81,13 +89,13 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     // accessed and updated on the main thread
     private boolean mReleased = false;
 
-    private ICarTelemetryServiceListener mListener;
     private DataBroker mDataBroker;
     private DataBrokerController mDataBrokerController;
     private MetricsConfigStore mMetricsConfigStore;
     private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
+    private SessionController mSessionController;
     private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
@@ -110,6 +118,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // initialize all necessary components
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(rootDirectory);
+            mSessionController = new SessionController(mContext);
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
                     mContext, publisherDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
@@ -137,6 +146,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mTelemetryThreadTraceLog.traceBegin("release");
             mResultStore.flushToDisk();
             mOnShutdownReboot.release();
+            mSessionController.release();
             mTelemetryThreadTraceLog.traceEnd();
         });
         mTelemetryThread.quitSafely();
@@ -188,37 +198,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Registers a listener with CarTelemetryService for the service to send data to cloud app.
-     */
-    @Override
-    public void setListener(@NonNull ICarTelemetryServiceListener listener) {
-        // TODO(b/184890506): verify that only a hardcoded app can set the listener
-        mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
-        mTelemetryHandler.post(() -> {
-            if (DEBUG) {
-                Slogf.d(CarLog.TAG_TELEMETRY, "Setting the listener for car telemetry service");
-            }
-            mListener = listener;
-        });
-    }
-
-    /**
-     * Clears the listener registered with CarTelemetryService.
-     */
-    @Override
-    public void clearListener() {
-        mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "clearListener");
-        mTelemetryHandler.post(() -> {
-            if (DEBUG) {
-                Slogf.d(CarLog.TAG_TELEMETRY, "Clearing the listener for car telemetry service");
-            }
-            mListener = null;
-        });
-    }
-
-    /**
      * Send a telemetry metrics config to the service.
      * @param metricsConfigName name of the MetricsConfig.
      * @param config the serialized bytes of a MetricsConfig object.
@@ -247,15 +226,15 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
         } catch (InvalidProtocolBufferException e) {
             Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
-            return STATUS_METRICS_CONFIG_PARSE_FAILED;
+            return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
         }
         if (!metricsConfig.getName().equals(metricsConfigName)) {
             Slogf.e(CarLog.TAG_TELEMETRY, "Argument config name " + metricsConfigName
                     + " doesn't match name in MetricsConfig (" + metricsConfig.getName() + ").");
-            return STATUS_METRICS_CONFIG_PARSE_FAILED;
+            return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
         }
         int status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
-        if (status != STATUS_METRICS_CONFIG_SUCCESS) {
+        if (status != STATUS_ADD_METRICS_CONFIG_SUCCEEDED) {
             return status;
         }
         // If no error (config is added to the MetricsConfigStore), remove previously collected data
@@ -264,7 +243,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mDataBroker.removeMetricsConfig(metricsConfigName);
         mDataBroker.addMetricsConfig(metricsConfigName, metricsConfig);
         // TODO(b/199410900): update logic once metrics configs have expiration dates
-        return STATUS_METRICS_CONFIG_SUCCESS;
+        return STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
     }
 
     /**
@@ -310,49 +289,53 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Sends script results associated with the given name using the
-     * {@link ICarTelemetryServiceListener}. This method assumes listener is set. Otherwise it
-     * does nothing.
+     * Sends telemetry reports associated with the given config name using the
+     * {@link ICarTelemetryReportListener}.
      *
      * @param metricsConfigName the unique identifier of a MetricsConfig.
+     * @param listener to receive finished report or error.
      */
     @Override
-    public void sendFinishedReports(@NonNull String metricsConfigName) {
+    public void getFinishedReport(@NonNull String metricsConfigName,
+            @NonNull ICarTelemetryReportListener listener) {
         mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendFinishedReports");
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "getFinishedReport");
         mTelemetryHandler.post(() -> {
-            if (mListener == null) {
-                Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
-                return;
-            }
             if (DEBUG) {
                 Slogf.d(CarLog.TAG_TELEMETRY,
                         "Flushing reports for metrics config " + metricsConfigName);
             }
-            mTelemetryThreadTraceLog.traceBegin("sendFinishedReports");
-            PersistableBundle result = mResultStore.getFinalResult(metricsConfigName, true);
-            TelemetryProto.TelemetryError error = mResultStore.getErrorResult(
-                    metricsConfigName, true);
-            if (result != null) {
-                sendFinalResult(metricsConfigName, result);
-            } else if (error != null) {
-                sendError(metricsConfigName, error);
+            mTelemetryThreadTraceLog.traceBegin("getFinishedReport");
+            PersistableBundle report;
+            TelemetryProto.TelemetryError error;
+            if ((report = mResultStore.getFinalResult(metricsConfigName, true)) != null) {
+                sendResult(listener, metricsConfigName, /* report = */ report, /* error = */ null,
+                        /* status = */ STATUS_GET_METRICS_CONFIG_FINISHED);
+            } else if (mResultStore.getInterimResult(metricsConfigName) != null) {
+                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */null,
+                        /* status = */ STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS);
+            } else if ((error = mResultStore.getErrorResult(metricsConfigName, true)) != null) {
+                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */ error,
+                        /* status = */ STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR);
+            } else if (mMetricsConfigStore.containsConfig(metricsConfigName)) {
+                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */ null,
+                        /* status = */ STATUS_GET_METRICS_CONFIG_PENDING);
             } else {
-                Slogf.i(CarLog.TAG_TELEMETRY,
-                        "config " + metricsConfigName + " did not produce any results");
+                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */ null,
+                        /* status = */ STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST);
             }
             mTelemetryThreadTraceLog.traceEnd();
         });
     }
 
     /**
-     * Sends all script results or errors using the {@link ICarTelemetryServiceListener}.
+     * Sends all script reports or errors using the {@link ICarTelemetryReportListener}.
      */
     @Override
-    public void sendAllFinishedReports() {
+    public void getAllFinishedReports(@NonNull ICarTelemetryReportListener listener) {
         // TODO(b/184087869): Implement
         mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendAllFinishedReports");
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "getAllFinishedReports");
         if (DEBUG) {
             Slogf.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
         }
@@ -379,7 +362,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      * CarShellCommand} class, because CarTelemetryService supports only a single listener and the
      * shell command shouldn't replace the existing listener. Other usages are not supported.
      *
-     * <p>It sends {@code ErrorType.UNSPECIFIED} if there are no results.
+     * <p>It sends {@code ErrorType.UNSPECIFIED} if there are no reports.
      *
      * @param metricsConfigName MetricsConfig name.
      * @param deleteResult if true, the result will be deleted from the storage.
@@ -423,24 +406,39 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 .collect(toList());
     }
 
-    private void sendFinalResult(
-            @NonNull String metricsConfigName, @NonNull PersistableBundle result) {
+    @Nullable
+    private byte[] getBytes(@Nullable PersistableBundle report) {
+        if (report == null) {
+            return null;
+        }
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            result.writeToStream(bos);
-            mListener.onResult(metricsConfigName, bos.toByteArray());
-        } catch (RemoteException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+            report.writeToStream(bos);
+            return bos.toByteArray();
         } catch (IOException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "failed to write bundle to output stream", e);
+            String msg = "Failed to write PersistableBundle to output stream. ";
+            Slogf.w(CarLog.TAG_TELEMETRY, msg, e);
+            return null;
         }
     }
 
-    private void sendError(
-            @NonNull String metricsConfigName, @NonNull TelemetryProto.TelemetryError error) {
+    @Nullable
+    private byte[] getBytes(@Nullable TelemetryProto.TelemetryError error) {
+        if (error == null) {
+            return null;
+        }
+        return error.toByteArray();
+    }
+
+    private void sendResult(
+            @NonNull ICarTelemetryReportListener listener,
+            @NonNull String metricsConfigName,
+            @Nullable PersistableBundle report,
+            @Nullable TelemetryProto.TelemetryError error,
+            @CarTelemetryManager.MetricsReportStatus int status) {
         try {
-            mListener.onError(metricsConfigName, error.toByteArray());
+            listener.onResult(metricsConfigName, getBytes(report), getBytes(error), status);
         } catch (RemoteException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportListener", e);
         }
     }
 

@@ -1,6 +1,6 @@
 package android.car.telemetry;
 
-import android.car.telemetry.ICarTelemetryServiceListener;
+import android.car.telemetry.ICarTelemetryReportListener;
 import android.os.ResultReceiver;
 
 /**
@@ -9,16 +9,6 @@ import android.os.ResultReceiver;
  * @hide
  */
 interface ICarTelemetryService {
-
-    /**
-     * Registers a listener with CarTelemetryService for the service to send data to cloud app.
-     */
-    void setListener(in ICarTelemetryServiceListener listener);
-
-    /**
-     * Clears the listener registered with CarTelemetryService.
-     */
-    void clearListener();
 
     /**
      * Adds telemetry MetricsConfigs to CarTelemetryService. Status code is sent to
@@ -39,13 +29,13 @@ interface ICarTelemetryService {
     void removeAllMetricsConfigs();
 
     /**
-     * Sends script results or errors associated with the given name using the
+     * Sends finished telemetry reports or errors associated with the given name using the
      * {@code ICarTelemetryServiceListener}.
      */
-    void sendFinishedReports(in String metricsConfigName);
+    void getFinishedReport(in String metricsConfigName, in ICarTelemetryReportListener listener);
 
     /**
-     * Sends all script results or errors using the {@code ICarTelemetryServiceListener}.
+     * Sends all finished telemetry reports or errors using the {@code ICarTelemetryReportListener}.
      */
-    void sendAllFinishedReports();
+    void getAllFinishedReports(in ICarTelemetryReportListener listener);
 }
