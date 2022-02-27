@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.builtin.content.pm.PackageManagerHelper.PROPERTY_CAR_SERVICE_PACKAGE_NAME;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.content.pm.PackageManagerHelper;
@@ -39,11 +41,6 @@ import java.util.Set;
 
 /** Context for updatable package */
 public class UpdatablePackageContext extends ContextWrapper {
-
-    // TODO(b/216134347): Find a better way to find the package.
-    private static final String[] UPDATABLE_CAR_SERVICE_PACKAGE_CANDIDATES =
-            { "com.android.car.updatable", "com.google.android.car.updatable" };
-
     private static final String TAG = UpdatablePackageContext.class.getSimpleName();
 
     // This is the package context of the com.android.car.updatable
@@ -78,16 +75,17 @@ public class UpdatablePackageContext extends ContextWrapper {
     @Nullable
     private static PackageInfo findUpdatableServicePackage(Context baseContext) {
         PackageInfo info = null;
-        for (int i = 0; i < UPDATABLE_CAR_SERVICE_PACKAGE_CANDIDATES.length; i++) {
-            try {
-                info = baseContext.getPackageManager().getPackageInfo(
-                        UPDATABLE_CAR_SERVICE_PACKAGE_CANDIDATES[i], /* flags= */ 0);
-                if (info != null) {
-                    break;
-                }
-            } catch (PackageManager.NameNotFoundException e) {
-                // ignore
-            }
+        String packageName = SystemProperties.get(
+                PROPERTY_CAR_SERVICE_PACKAGE_NAME, /*def=*/null);
+        if (packageName == null) {
+            throw new IllegalStateException(
+                    PROPERTY_CAR_SERVICE_PACKAGE_NAME + " property not defined");
+        }
+        try {
+            info = baseContext.getPackageManager().getPackageInfo(packageName, /* flags= */ 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            // Just log and move over. Caller will throw exception instead.
+            Slogf.e(TAG, e, "Cannot find updatable car service package:%s", packageName);
         }
         return info;
     }

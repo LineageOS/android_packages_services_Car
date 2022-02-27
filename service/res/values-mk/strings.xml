@@ -16,6 +16,158 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label" msgid="3856145701013760116">"податоци за автомобилот"</string>
+    <string name="car_permission_desc" msgid="8380882495380710920">"пристапува до податоците за автомобилот"</string>
+    <string name="car_permission_label_camera" msgid="5252416343231964822">"пристапува до камерата на автомобилот"</string>
+    <string name="car_permission_desc_camera" msgid="4068809215255794266">"Пристапува до камерите на автомобилот."</string>
+    <string name="car_permission_label_energy" msgid="6248121949829670298">"пристапува до информациите за енергијата на автомобилот"</string>
+    <string name="car_permission_desc_energy" msgid="2813340449923945876">"Пристапува до информациите за енергијата на автомобилот."</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="7886507178868568948">"приспособете ја преостанатата вредност на опсегот на автомобилот"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="6870925796520428028">"Приспособете ја преостанатата вредност на опсегот на автомобилот."</string>
+    <string name="car_permission_label_hvac" msgid="6617872933596403883">"пристапува до клима-уредот на автомобилот"</string>
+    <string name="car_permission_desc_hvac" msgid="8175483245696843780">"Пристапува до клима-уредот на автомобилот."</string>
+    <string name="car_permission_label_mileage" msgid="8154799168140188943">"пристапува до информациите за километража на автомобилот"</string>
+    <string name="car_permission_desc_mileage" msgid="6876654172866557653">"Пристапува до информациите за поминатите километри на автомобилот."</string>
+    <string name="car_permission_label_speed" msgid="6947550167584613290">"ја чита брзината на автомобилот"</string>
+    <string name="car_permission_desc_speed" msgid="4502508626636276430">"Пристапува до информациите за брзината на автомобилот."</string>
+    <string name="car_permission_label_vehicle_dynamics_state" msgid="1899470401989292135">"пристапува до динамичката состојба на автомобилот"</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="7289794036914243582">"Пристапува до динамичката состојба на автомобилот."</string>
+    <string name="car_permission_label_vendor_extension" msgid="5967890803903586484">"пристапува до каналот на продавачот на автомобилот"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="7540719878334710783">"Пристапува до каналот на продавачот на автомобилот за да размени информации во врска со автомобилот."</string>
+    <string name="car_permission_label_radio" msgid="741798449723075266">"управува со радиото на автомобилот"</string>
+    <string name="car_permission_desc_radio" msgid="8526421610980346983">"Пристапува до радиото на автомобилот."</string>
+    <string name="car_permission_label_projection" msgid="1985212724106164140">"го прикажува интерфејсот од телефонот на екранот на автомобилот"</string>
+    <string name="car_permission_desc_projection" msgid="1559176544736036389">"Дозволува апликација да го прикажува интерфејсот од телефонот на екранот на автомобилот."</string>
+    <string name="car_permission_label_access_projection_status" msgid="7507932109622981355">"пристапува до статусот на прикажување"</string>
+    <string name="car_permission_desc_access_projection_status" msgid="2572516824406678748">"Дозволува апликација да го добива статусот на другите апликации што прикажуваат на екранот на автомобилот."</string>
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"поврзување со услуга за прикажување"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Дозволува приклучната станица да се поврзе со интерфејс од највисоко ниво на услугата за прикажување. Не треба да се користи за обични апликации."</string>
+    <string name="car_permission_label_audio_volume" msgid="6073161753828436690">"ја контролира јачината на звукот на автомобилот"</string>
+    <string name="car_permission_label_audio_settings" msgid="2644788330280480581">"управува со поставките за звук на автомобилот"</string>
+    <string name="car_permission_label_mock_vehicle_hal" msgid="8628759844309917746">"го поддржува HAL за возило"</string>
+    <string name="car_permission_label_receive_ducking" msgid="4184585198319857143">"примај настани за намалување јачина на звук"</string>
+    <string name="car_permission_desc_receive_ducking" msgid="9055029762720235199">"Овозможува апликацијата да биде известена кога јачината на нејзиниот звук се намалува кога е пуштено друго аудио во колата."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="8379865471892097425">"Го поддржува HAL за возило на автомобилот за внатрешно тестирање."</string>
+    <string name="car_permission_desc_audio_volume" msgid="1810062289340213408">"Ја контролира јачината на звукот на автомобилот."</string>
+    <string name="car_permission_desc_audio_settings" msgid="8753469153422735720">"Ги контролира поставките за звук на автомобилот."</string>
+    <string name="car_permission_label_control_app_blocking" msgid="2734906804634098968">"Блокирање на апликацијата"</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="2130524117014083334">"Го контролира блокирањето на апликацијата додека возите"</string>
+    <string name="car_permission_car_navigation_manager" msgid="4168358100611909">"Управник за навигација"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="5625534107777784665">"Пријавува податоци за навигацијата до инструменталната табла."</string>
+    <string name="car_permission_car_display_in_cluster" msgid="2409485744908536507">"Директно прикажување на инструменталната табла"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2729068610666581093">"Овозможува апликацијата да најавува активности за прикажување на инструменталната табла"</string>
+    <string name="car_permission_car_cluster_control" msgid="4917913520816036482">"Контрола на инструменталната табла"</string>
+    <string name="car_permission_desc_car_cluster_control" msgid="8532623744618028098">"Стартува апликации на инструменталната табла"</string>
+    <string name="car_permission_car_monitor_cluster_navigation_state" msgid="223112453423702172">"Состојба на навигација на инструменталната табла"</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="2759635057674131091">"Слушајте дали има промени на состојбата на навигација на инструменталната табла"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Прикажување на инструменталната табла"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Примајте податоци од инструменталната табла"</string>
+    <string name="car_permission_label_car_ux_restrictions_configuration" msgid="4570638385984471464">"Конфигурација на ограничувањата на корисничкото искуство"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="4179974887432295126">"Конфигурирајте ги ограничувањата на корисничкото искуство"</string>
+    <string name="car_permission_label_access_private_display_id" msgid="4207459745274529525">"Пристап за читање на ID на приватен екран"</string>
+    <string name="car_permission_desc_access_private_display_id" msgid="3539065359339750314">"Дозволете пристап за читање на ID на приватен екран"</string>
+    <string name="car_permission_label_car_handle_usb_aoap_device" msgid="5240669698300840085">"Комуницирајте со USB-уред во режим на AOAP"</string>
+    <string name="car_permission_desc_car_handle_usb_aoap_device" msgid="4700823022397914114">"Дозволува апликацијата да комуницира со уред во режим на AOAP"</string>
+    <string name="car_permission_label_read_car_occupant_awareness_state" msgid="818872119364539625">"Пристап за читање на „Системот за откривање патници“"</string>
+    <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="442015742478559811">"Овозможува читање на статусот и податоците на откривање за „Системот за откривање патници“"</string>
+    <string name="car_permission_label_control_car_occupant_awareness_system" msgid="3447219007032013941">"Го контролира графиконот на „Системот за откривање патници“"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="4902558671274292019">"Овозможува контролирање на стартувањето и сопирањето на графиконот за откривање на „Системот за откривање патници“"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Влезна услуга на автомобилот"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Ракува со влезните настани"</string>
+    <string name="car_permission_label_diag_read" msgid="2603657747124880">"ги чита дијагностичките податоци"</string>
+    <string name="car_permission_desc_diag_read" msgid="3122990758817893939">"Чита дијагностички податоци од автомобилот."</string>
+    <string name="car_permission_label_diag_clear" msgid="7227324878151886420">"чисти дијагностички податоци"</string>
+    <string name="car_permission_desc_diag_clear" msgid="6783406916068387733">"Ги брише дијагностичките податоци од автомобилот."</string>
+    <string name="car_permission_label_vms_publisher" msgid="4541396323781293716">"Издавач на VMS"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="6830750536044597496">"Објавувајте VMS-пораки"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="8376978106473867104">"Претплатник на VMS"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="5882817943491846827">"Претплатете се на VMS-пораки"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"Услуга на клиентот за VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Сврзувајте се со клиенти за VMS"</string>
+    <string name="car_permission_label_storage_monitoring" msgid="7773498799329366235">"Следење на флеш меморијата"</string>
+    <string name="car_permission_desc_storage_monitoring" msgid="4486683315485717003">"Го следи користењето на флеш меморијата"</string>
+    <string name="car_permission_label_driving_state" msgid="3204448836637774901">"ја слуша состојбата на возење"</string>
+    <string name="car_permission_desc_driving_state" msgid="5052028856273033394">"Ги слуша промените во состојбата на возење."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="2647853046816911370">"Да користи услуга за телеметрија на автомобилот"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="4212665357385193223">"Да собира податоци за добросостојбата на системот на автомобилот."</string>
+    <string name="car_permission_label_use_evs_service" msgid="8159278917947579894">"Користење „EVS-сервис за автомобили“"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="910498022906746740">"Претплата на EVS-видеопреноси"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="5716675626988934153">"да ја побара активноста за преглед на електричните возила"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="6279984523162440951">"да побара системот да ја стартува активноста за преглед на електричните возила"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="9053919227509449263">"да ја контролира активноста за преглед на електричните возила"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="5867306421346764712">"да ја контролира активноста за преглед на системот на електричните возила"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="1718993124653666444">"да ја користи камерата на електричните возила"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="9035874553388533135">"да се претплати на преносите од камерите на електричните возила"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="1541142903277636408">"да го следи статусот на услугата за електричните возила"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9154854621205295182">"да ги слуша промените во статусот на услугата за електричните возила"</string>
+    <string name="car_permission_label_car_engine_detailed" msgid="8649996012786276168">"пристапува до деталите за моторот на автомобилот"</string>
+    <string name="car_permission_desc_car_engine_detailed" msgid="3583905581027878807">"Пристапува до деталните информации за моторот на автомобилот."</string>
+    <string name="car_permission_label_car_energy_ports" msgid="3324528988706519853">"пристапува до вратата за гориво и портата за полнење на автомобилот"</string>
+    <string name="car_permission_desc_car_energy_ports" msgid="6701438024736334941">"Пристапува до вратата за гориво и портата за полнење на автомобилот."</string>
+    <string name="car_permission_label_control_car_energy_ports" msgid="5317361571283632372">"ја контролира вратата за гориво и портата за полнење на автомобилот"</string>
+    <string name="car_permission_desc_control_car_energy_ports" msgid="8983453127380164976">"Ја контролира вратата за гориво и портата за полнење на автомобилот."</string>
+    <string name="car_permission_label_car_identification" msgid="6889481887601307719">"ја чита идентификацијата на автомобилот"</string>
+    <string name="car_permission_desc_car_identification" msgid="81864320402726801">"Пристапува до идентификацијата на автомобилот."</string>
+    <string name="car_permission_label_control_car_doors" msgid="6627514676099379988">"ги контролира вратите на автомобилот"</string>
+    <string name="car_permission_desc_control_car_doors" msgid="7559119686071391685">"Ги контролира вратите на автомобилот."</string>
+    <string name="car_permission_label_control_car_windows" msgid="3458832140283269214">"ги контролира прозорците на автомобилот"</string>
+    <string name="car_permission_desc_control_car_windows" msgid="426215471748362323">"Ги контролира прозорците на автомобилот."</string>
+    <string name="car_permission_label_control_car_mirrors" msgid="6271784545978050112">"ги контролира ретровизорите на автомобилот"</string>
+    <string name="car_permission_desc_control_car_mirrors" msgid="2536264145346893567">"Ги контролира ретровизорите на автомобилот."</string>
+    <string name="car_permission_label_control_car_seats" msgid="4600403453509674558">"ги контролира седиштата на автомобилот"</string>
+    <string name="car_permission_desc_control_car_seats" msgid="8228652169118654679">"Ги контролира седиштата на автомобилот."</string>
+    <string name="car_permission_label_car_info" msgid="3896442196814275928">"пристапува до основните информации за автомобилот"</string>
+    <string name="car_permission_desc_car_info" msgid="5250098935701410923">"Пристапува до основните информации за автомобилот."</string>
+    <string name="car_permission_label_vendor_permission_info" msgid="4727819593719326353">"пристап до информациите за дозволи на продавачот"</string>
+    <string name="car_permission_desc_vendor_permission_info" msgid="9186748457537925936">"Пристап до информациите за дозволи на продавачот."</string>
+    <string name="car_permission_label_car_exterior_lights" msgid="8080239792111744229">"ја чита состојбата на надворешните светла на автомобилот"</string>
+    <string name="car_permission_desc_car_exterior_lights" msgid="2418722929350073266">"Пристапува до состојбата на надворешните светла на автомобилот."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="1004932389059829705">"пристап до времето на епоха за автомобилот"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="3817067783414389615">"Пристап до времето на епоха за автомобилот."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="7982874795576074501">"пристап до обврзувачкиот извор за шифрирање на автомобилот"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="778143292257329196">"Пристап до обврзувачкиот извор за шифрирање на автомобилот."</string>
+    <string name="car_permission_label_control_car_exterior_lights" msgid="6785028867777911397">"ги чита надворешните светла на автомобилот"</string>
+    <string name="car_permission_desc_control_car_exterior_lights" msgid="3925717957064589751">"Ги контролира надворешните светла на автомобилот."</string>
+    <string name="car_permission_label_car_interior_lights" msgid="7195614447993552769">"ги чита внатрешните светла на автомобилот"</string>
+    <string name="car_permission_desc_car_interior_lights" msgid="3792592831374486355">"Пристапува до состојбата на внатрешните светла на автомобилот."</string>
+    <string name="car_permission_label_control_car_interior_lights" msgid="6629160608130729915">"ги контролира внатрешните светла на автомобилот"</string>
+    <string name="car_permission_desc_control_car_interior_lights" msgid="863959178295949919">"Ги контролира внатрешните светла на автомобилот."</string>
+    <string name="car_permission_label_car_exterior_environment" msgid="5101434742490611108">"ја чита надворешната температура на автомобилот"</string>
+    <string name="car_permission_desc_car_exterior_environment" msgid="164942521465730048">"Пристапува до надворешната температура на автомобилот."</string>
+    <string name="car_permission_label_car_tires" msgid="2440749291862371945">"пристапува до информациите за пневматиците на автомобилот"</string>
+    <string name="car_permission_desc_car_tires" msgid="500736462016396859">"Пристапува до информациите за пневматиците на автомобилот."</string>
+    <string name="car_permission_label_car_steering" msgid="4727463306584913810">"ги чита информациите за агол на управувањето на автомобилот"</string>
+    <string name="car_permission_desc_car_steering" msgid="1821983889253369732">"Пристапува до информациите за агол на управувањето на автомобилот."</string>
+    <string name="car_permission_label_read_car_display_units" msgid="585234990173490291">"ги чита единиците на екранот на автомобилот"</string>
+    <string name="car_permission_desc_read_car_display_units" msgid="3207574366759393093">"Чита единици на екранот."</string>
+    <string name="car_permission_label_control_car_display_units" msgid="5858985722109604953">"ги контролира единиците на екранот на автомобилот"</string>
+    <string name="car_permission_desc_control_car_display_units" msgid="7830954172504836184">"Единици на контролната табла."</string>
+    <string name="car_permission_label_car_powertrain" msgid="3804530094990895336">"ги чита информациите за електрониката на автомобилот"</string>
+    <string name="car_permission_desc_car_powertrain" msgid="5221615535635834104">"Пристапува до информациите за електрониката на автомобилот."</string>
+    <string name="car_permission_label_car_power" msgid="7216131624581719109">"ја чита состојбата на моќност на автомобилот"</string>
+    <string name="car_permission_desc_car_power" msgid="923008468355812953">"Пристапува до состојбата на моќност на автомобилот."</string>
+    <string name="car_permission_label_enroll_trust" msgid="8364395402928990289">"Регистрирајте доверлив уред"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="408735649819015042">"Дозволете регистрација на доверлив уред"</string>
+    <string name="car_permission_label_car_test_service" msgid="5215811243017451278">"Контролирање на режимот за тестирање на автомобилот"</string>
+    <string name="car_permission_desc_car_test_service" msgid="5226181986157824153">"Контролирање на режимот за тестирање на автомобилот"</string>
+    <string name="car_permission_label_control_car_features" msgid="4264936355758787908">"Овозможување или оневозможување функции на автомобилот"</string>
+    <string name="car_permission_desc_control_car_features" msgid="7627656996051332945">"Овозможување или оневозможување функции на автомобилот."</string>
+    <string name="car_permission_label_use_car_watchdog" msgid="2245962783201854625">"ја користат „Заштитник за автомобилот“"</string>
+    <string name="car_permission_desc_use_car_watchdog" msgid="2643050837232046637">"Ја користат „Заштитник за автомобилот“."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="2859477101454814068">"контролирање на конфигурацијата на „Заштитник за автомобилот“"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="7812894490620773909">"Контролирање на конфигурацијата на „Заштитник за автомобилот“."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="7271096798066215180">"собирање метрика за „Заштитник за автомобилот“"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5981817186243696026">"Собирање метрика за „Заштитник за автомобилот“."</string>
+    <string name="car_permission_label_read_car_power_policy" msgid="69538753158098551">"читање на правилото за напојување на автомобилот"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="8562221608399499506">"Читање на правилото за напојување на автомобилот."</string>
+    <string name="car_permission_label_control_car_power_policy" msgid="367529304195057471">"контролирање на правилото за напојување на автомобилот"</string>
+    <string name="car_permission_desc_control_car_power_policy" msgid="2023809089516550064">"Контролирање на правилото за напојување на автомобилот."</string>
+    <string name="car_permission_label_adjust_shutdown_process" msgid="6481295713793695820">"приспособете го процесот на исклучување"</string>
+    <string name="car_permission_desc_adjust_shutdown_process" msgid="684374464428541207">"Приспособете го процесот на исклучување."</string>
+    <string name="car_permission_label_template_renderer" msgid="6630939624418479624">"прикажување шаблони"</string>
+    <string name="car_permission_desc_template_renderer" msgid="2848979781479566569">"Прикажување шаблони."</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="4212045012775989131">"да го контролира стартувањето апликации"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="441131343375724874">"да го контролира стартувањето апликации"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-магистралата не успеа"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-магистралата не реагира. Откачете ја и повторно прикачете ја кутијата на главната единица и рестартирајте го автомобилот"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Мојот уред"</string>
