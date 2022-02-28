@@ -25,6 +25,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.annotation.NonNull;
+import android.annotation.UserIdInt;
 import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
@@ -457,6 +458,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void controlProcessHealthCheck(boolean enable) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.controlProcessHealthCheck(enable);
+    }
+
+    /**
+     * Kills a specific package for a user due to resource overuse.
+     *
+     * @return whether package was killed
+     */
+    public boolean performResourceOveruseKill(String packageName, @UserIdInt int userId) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
     }
 
     @VisibleForTesting
