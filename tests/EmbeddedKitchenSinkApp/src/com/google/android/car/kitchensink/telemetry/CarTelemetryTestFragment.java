@@ -396,12 +396,14 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
+    private boolean mReceiveReportNotification = false;
     private CarTelemetryManager mCarTelemetryManager;
     private FinishedReportListenerImpl mListener;
     private AddMetricsConfigCallbackImpl mAddMetricsConfigCallback;
     private KitchenSinkActivity mActivity;
     private TextView mOutputTextView;
     private Button mTootleConfigsBtn;
+    private Button mEnableReportNotificationButton;
     private View mConfigButtonsView; // MetricsConfig buttons
 
     @Override
@@ -424,6 +426,11 @@ public class CarTelemetryTestFragment extends Fragment {
         mConfigButtonsView = view.findViewById(R.id.metrics_config_buttons_view);
         mTootleConfigsBtn = view.findViewById(R.id.toggle_metrics_configs_btn);
         mTootleConfigsBtn.setOnClickListener(this::toggleMetricsConfigButtons);
+        mEnableReportNotificationButton = view.findViewById(R.id.enable_report_notification_btn);
+        mEnableReportNotificationButton.setOnClickListener(this::enableReportNotification);
+        mEnableReportNotificationButton.setText(
+                getString(R.string.receive_report_notification_text, mReceiveReportNotification));
+
         /** VehiclePropertyPublisher on_gear_change */
         view.findViewById(R.id.send_on_gear_change_config)
                 .setOnClickListener(this::onSendGearChangeConfigBtnClick);
@@ -513,6 +520,23 @@ public class CarTelemetryTestFragment extends Fragment {
         boolean visible = mConfigButtonsView.getVisibility() == View.VISIBLE;
         mConfigButtonsView.setVisibility(visible ? View.GONE : View.VISIBLE);
         mTootleConfigsBtn.setText(visible ? "Configs ▶" : "Configs ▼");
+    }
+
+    private void enableReportNotification(View view) {
+        mReceiveReportNotification = !mReceiveReportNotification;
+        mEnableReportNotificationButton.setText(
+                getString(R.string.receive_report_notification_text, mReceiveReportNotification));
+        if (mReceiveReportNotification) {
+            mCarTelemetryManager.setReportReadyListener(mExecutor, this::onReportReady);
+        } else {
+            mCarTelemetryManager.clearReportReadyListener();
+        }
+    }
+
+    /** Implementation of functional interface {@link CarTelemetryManager.ReportReadyListener}. */
+    private void onReportReady(@NonNull String metricsConfigName) {
+        String s = "Report for MetricsConfig " + metricsConfigName + " is ready.";
+        showOutput(s);
     }
 
     private void onSendGearChangeConfigBtnClick(View view) {
