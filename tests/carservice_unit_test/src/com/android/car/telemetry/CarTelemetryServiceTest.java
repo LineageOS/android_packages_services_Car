@@ -25,10 +25,12 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFI
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -239,7 +241,7 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testSendFinishedReports_whenNoReport_shouldReceiveNoReportStatus()
+    public void testGetFinishedReport_whenNoReport_shouldReceiveNoReportStatus()
             throws Exception {
         mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
 
@@ -251,7 +253,7 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testSendFinishedReports_whenNoConfig_shouldReceiveNoConfigStatus()
+    public void testGetFinishedReport_whenNoConfig_shouldReceiveNoConfigStatus()
             throws Exception {
         mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
 
@@ -261,7 +263,7 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testSendFinishedReports_whenInterimResultExists_shouldReceiveInterimResultStatus()
+    public void testGetFinishedReport_whenInterimResultExists_shouldReceiveInterimResultStatus()
             throws Exception {
         mResultStore.putInterimResult(METRICS_CONFIG_NAME, new PersistableBundle());
 
@@ -273,7 +275,7 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testSendFinishedReports_whenFinalResult_shouldReceiveResult() throws Exception {
+    public void testGetFinishedReport_whenFinalResult_shouldReceiveResult() throws Exception {
         PersistableBundle finalResult = new PersistableBundle();
         finalResult.putBoolean("finished", true);
         mResultStore.putFinalResult(METRICS_CONFIG_NAME, finalResult);
@@ -290,7 +292,7 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testSendFinishedReports_whenError_shouldReceiveError() throws Exception {
+    public void testGetFinishedReport_whenError_shouldReceiveError() throws Exception {
         TelemetryProto.TelemetryError error = TelemetryProto.TelemetryError.newBuilder()
                 .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
                 .setMessage("test error")
@@ -304,5 +306,40 @@ public class CarTelemetryServiceTest {
                 eq(error.toByteArray()), eq(STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR));
         // error should have been deleted
         assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNull();
+    }
+
+    @Test
+    public void testGetAllFinishedReports_whenNoResult_shouldGetNothing() throws Exception {
+        mService.getAllFinishedReports(mMockReportListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener, never()).onResult(any(), any(), any(), anyInt());
+    }
+
+    @Test
+    public void testGetAllFinishedReports_shouldSendEverything() throws Exception {
+        String nameFoo = "foo";
+        TelemetryProto.TelemetryError error = TelemetryProto.TelemetryError.newBuilder()
+                .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
+                .setMessage("test error")
+                .build();
+        mResultStore.putErrorResult(nameFoo, error); // result 1
+        String nameBar = "bar";
+        PersistableBundle finalResult = new PersistableBundle();
+        finalResult.putBoolean("finished", true);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        finalResult.writeToStream(bos);
+        mResultStore.putFinalResult(nameBar, finalResult); // result 2
+
+        mService.getAllFinishedReports(mMockReportListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener).onResult(eq(nameFoo), isNull(), eq(error.toByteArray()),
+                eq(STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR));
+        verify(mMockReportListener).onResult(eq(nameBar), eq(bos.toByteArray()), isNull(),
+                eq(STATUS_GET_METRICS_CONFIG_FINISHED));
+        // results should have been deleted
+        assertThat(mResultStore.getErrorResult(nameFoo, false)).isNull();
+        assertThat(mResultStore.getFinalResult(nameBar, false)).isNull();
     }
 }

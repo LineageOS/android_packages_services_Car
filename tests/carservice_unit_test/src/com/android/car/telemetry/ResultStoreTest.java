@@ -184,13 +184,13 @@ public class ResultStoreTest {
     public void testGetFinalResults_whenHasData_shouldReturnMapWithBundle() throws Exception {
         writeBundleToFile(mTestFinalResultDir, "my_metrics_config", TEST_FINAL_BUNDLE);
 
-        assertThat(mResultStore.getFinalResults().get("my_metrics_config").toString())
+        assertThat(mResultStore.getAllFinalResults().get("my_metrics_config").toString())
                 .isEqualTo(TEST_FINAL_BUNDLE.toString());
     }
 
     @Test
     public void testGetFinalResults_whenNoData_shouldReceiveEmptyMap() throws Exception {
-        assertThat(mResultStore.getFinalResults()).isEmpty();
+        assertThat(mResultStore.getAllFinalResults()).isEmpty();
     }
 
     @Test
@@ -198,7 +198,7 @@ public class ResultStoreTest {
         Files.write(new File(mTestFinalResultDir, "my_metrics_config").toPath(),
                 "not a bundle".getBytes(StandardCharsets.UTF_8));
 
-        assertThat(mResultStore.getFinalResults()).isEmpty();
+        assertThat(mResultStore.getAllFinalResults()).isEmpty();
     }
 
     @Test
@@ -225,7 +225,7 @@ public class ResultStoreTest {
 
     @Test
     public void testGetErrorResults_whenNoError_shouldReceiveEmptyMap() {
-        assertThat(mResultStore.getErrorResults()).isEmpty();
+        assertThat(mResultStore.getAllErrorResults()).isEmpty();
     }
 
     @Test
@@ -235,7 +235,7 @@ public class ResultStoreTest {
                 new File(mTestErrorResultDir, metricsConfigName).toPath(),
                 TEST_TELEMETRY_ERROR.toByteArray());
 
-        assertThat(mResultStore.getErrorResults().get("my_metrics_config"))
+        assertThat(mResultStore.getAllErrorResults().get("my_metrics_config"))
             .isEqualTo(TEST_TELEMETRY_ERROR);
     }
 

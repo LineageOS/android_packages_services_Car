@@ -128,8 +128,8 @@ public class ResultStore {
      *
      * @return the final results mapped to config names.
      */
-    public Map<String, PersistableBundle> getFinalResults() {
-        Map<String, PersistableBundle> results = new ArrayMap<>();
+    public ArrayMap<String, PersistableBundle> getAllFinalResults() {
+        ArrayMap<String, PersistableBundle> results = new ArrayMap<>();
         File[] files = mFinalResultDirectory.listFiles();
         if (files == null) {
             return results;
@@ -181,8 +181,8 @@ public class ResultStore {
      * @return the map of errors to each config.
      */
     @NonNull
-    public Map<String, TelemetryProto.TelemetryError> getErrorResults() {
-        Map<String, TelemetryProto.TelemetryError> errors = new ArrayMap<>();
+    public ArrayMap<String, TelemetryProto.TelemetryError> getAllErrorResults() {
+        ArrayMap<String, TelemetryProto.TelemetryError> errors = new ArrayMap<>();
         File[] files = mErrorResultDirectory.listFiles();
         if (files == null) {
             return errors;
