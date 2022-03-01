@@ -37,6 +37,7 @@ import android.app.ActivityManager;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
+import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.content.Context;
 import android.os.Handler;
 import android.os.PersistableBundle;
@@ -81,6 +82,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private Context mMockContext;
     @Mock private ICarTelemetryReportListener mMockReportListener;
+    @Mock private ICarTelemetryReportReadyListener mMockReportReadyListener;
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private SystemStateInterface mMockSystemStateInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
@@ -340,5 +342,20 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         // results should have been deleted
         assertThat(mResultStore.getErrorResult(nameFoo, false)).isNull();
         assertThat(mResultStore.getFinalResult(nameBar, false)).isNull();
+    }
+
+    @Test
+    public void testSetReportReadyListener() throws Exception {
+        String name1 = "name1";
+        String name2 = "name2";
+        mResultStore.putFinalResult(name1, new PersistableBundle());
+        mResultStore.putErrorResult(
+                name2, TelemetryProto.TelemetryError.newBuilder().build());
+
+        mService.setReportReadyListener(mMockReportReadyListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportReadyListener).onReady(eq(name1));
+        verify(mMockReportReadyListener).onReady(eq(name2));
     }
 }
