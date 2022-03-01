@@ -74,7 +74,4 @@ android_library {
     ],
 
     plugins: ["dagger2-compiler"],
-
-    //TODO: b/221480398
-    errorprone: {enabled: false},
 }
