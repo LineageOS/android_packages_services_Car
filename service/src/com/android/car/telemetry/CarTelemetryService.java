@@ -71,8 +71,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.function.BiConsumer;
-import java.util.function.IntConsumer;
 
 /**
  * CarTelemetryService manages OEM telemetry collection, processing and communication
@@ -425,60 +423,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         } catch (RemoteException e) {
             Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportReadyListener", e);
         }
-    }
-
-    /**
-     * Adds the MetricsConfig. This methods is expected to be used only by {@code CarShellCommand}
-     * class, because CarTelemetryService supports only a single listener and the shell command
-     * shouldn't replace the existing listener. Other usages are not supported.
-     * @param metricsConfigName name of the MetricsConfig.
-     * @param config config body serialized as a binary protobuf.
-     * @param statusConsumer receives the status code.
-     */
-    public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config,
-            @NonNull IntConsumer statusConsumer) {
-        mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
-        mTelemetryHandler.post(
-                () -> statusConsumer.accept(addMetricsConfigInternal(metricsConfigName, config)));
-    }
-
-    /**
-     * Returns the finished reports. This methods is expected to be used only by {@code
-     * CarShellCommand} class, because CarTelemetryService supports only a single listener and the
-     * shell command shouldn't replace the existing listener. Other usages are not supported.
-     *
-     * <p>It sends {@code ErrorType.UNSPECIFIED} if there are no reports.
-     *
-     * @param metricsConfigName MetricsConfig name.
-     * @param deleteResult if true, the result will be deleted from the storage.
-     * @param consumer receives the final result or error.
-     */
-    public void getFinishedReports(
-            @NonNull String metricsConfigName,
-            boolean deleteResult,
-            @NonNull BiConsumer<PersistableBundle, TelemetryProto.TelemetryError> consumer) {
-        mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "getFinishedReports");
-        mTelemetryHandler.post(() -> {
-            PersistableBundle result = mResultStore.getFinalResult(metricsConfigName, deleteResult);
-            TelemetryProto.TelemetryError error =
-                    mResultStore.getErrorResult(metricsConfigName, deleteResult);
-            if (result != null) {
-                consumer.accept(result, null);
-            } else if (error != null) {
-                consumer.accept(null, error);
-            } else {
-                // TODO(b/209469238): Create a NO_RESULT error type
-                TelemetryProto.TelemetryError unknownError =
-                        TelemetryProto.TelemetryError.newBuilder()
-                                .setErrorType(
-                                        TelemetryProto.TelemetryError.ErrorType.UNSPECIFIED)
-                                .setMessage("No results")
-                                .build();
-                consumer.accept(null, unknownError);
-            }
-        });
     }
 
     /**
