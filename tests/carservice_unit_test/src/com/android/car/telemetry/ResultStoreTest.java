@@ -31,6 +31,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -100,6 +101,15 @@ public class ResultStoreTest {
         assertThat(activeTestFile3.exists()).isTrue();
     }
 
+    @Test
+    public void testPutInterimResult_shouldNotWriteToDisk() {
+        String metricsConfigName = "my_metrics_config";
+
+        mResultStore.putInterimResult(metricsConfigName, TEST_INTERIM_BUNDLE);
+
+        assertThat(mTestInterimResultDir.list()).asList().doesNotContain(metricsConfigName);
+        assertThat(mResultStore.getInterimResult(metricsConfigName)).isNotNull();
+    }
 
     @Test
     public void testPutInterimResultAndFlushToDisk_shouldReplaceExistingFile() throws Exception {
@@ -213,10 +223,7 @@ public class ResultStoreTest {
     @Test
     public void testGetErrorResult_shouldReceiveError() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        // write serialized error object to file
-        Files.write(
-                new File(mTestErrorResultDir, metricsConfigName).toPath(),
-                TEST_TELEMETRY_ERROR.toByteArray());
+        writeErrorToFile(metricsConfigName, TEST_TELEMETRY_ERROR);
 
         TelemetryProto.TelemetryError error = mResultStore.getErrorResult(metricsConfigName, true);
 
@@ -231,12 +238,20 @@ public class ResultStoreTest {
     @Test
     public void testGetErrorResults_shouldReceiveErrors() throws Exception {
         String metricsConfigName = "my_metrics_config";
-        Files.write(
-                new File(mTestErrorResultDir, metricsConfigName).toPath(),
-                TEST_TELEMETRY_ERROR.toByteArray());
+        writeErrorToFile(metricsConfigName, TEST_TELEMETRY_ERROR);
 
         assertThat(mResultStore.getAllErrorResults().get("my_metrics_config"))
             .isEqualTo(TEST_TELEMETRY_ERROR);
+    }
+
+    @Test
+    public void testPutFinalResult_shouldNotWriteToDisk() {
+        String metricsConfigName = "my_metrics_config";
+
+        mResultStore.putFinalResult(metricsConfigName, TEST_FINAL_BUNDLE);
+
+        assertThat(mTestFinalResultDir.list()).asList().doesNotContain(metricsConfigName);
+        assertThat(mResultStore.getFinalResult(metricsConfigName, false)).isNotNull();
     }
 
     @Test
@@ -251,6 +266,16 @@ public class ResultStoreTest {
         assertThat(mResultStore.getInterimResult(metricsConfigName)).isNull();
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isTrue();
+    }
+
+    @Test
+    public void testPutErrorResult_shouldNotWriteToDisk() {
+        String metricsConfigName = "my_metrics_config";
+
+        mResultStore.putErrorResult(metricsConfigName, TEST_TELEMETRY_ERROR);
+
+        assertThat(mTestErrorResultDir.list()).asList().doesNotContain(metricsConfigName);
+        assertThat(mResultStore.getErrorResult(metricsConfigName, false)).isNotNull();
     }
 
     @Test
@@ -308,6 +333,24 @@ public class ResultStoreTest {
         assertThat(mTestInterimResultDir.listFiles()).isEmpty();
         assertThat(mTestFinalResultDir.listFiles()).isEmpty();
         assertThat(mTestErrorResultDir.listFiles()).isEmpty();
+    }
+
+    @Test
+    public void testGetFinishedMetricsConfigNames() throws Exception {
+        mResultStore.putInterimResult("name0", TEST_INTERIM_BUNDLE);
+        mResultStore.putFinalResult("name1", TEST_FINAL_BUNDLE);
+        mResultStore.putErrorResult("name2", TEST_TELEMETRY_ERROR);
+        writeBundleToFile(mTestFinalResultDir, "name3", TEST_FINAL_BUNDLE);
+        writeErrorToFile("name4", TEST_TELEMETRY_ERROR);
+
+        Set<String> names = mResultStore.getFinishedMetricsConfigNames();
+
+        assertThat(names).containsExactly("name1", "name2", "name3", "name4");
+    }
+
+    private void writeErrorToFile(String fileName, TelemetryProto.TelemetryError error)
+            throws Exception {
+        Files.write(new File(mTestErrorResultDir, fileName).toPath(), error.toByteArray());
     }
 
     private void writeBundleToFile(
