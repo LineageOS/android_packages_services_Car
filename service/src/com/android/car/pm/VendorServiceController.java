@@ -17,7 +17,7 @@
 package com.android.car.pm;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
-import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import static com.android.car.util.Utils.isEventAnyOfTypes;
@@ -66,7 +66,7 @@ class VendorServiceController implements UserLifecycleListener {
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(VendorServiceController.class);
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private static final int MSG_SWITCH_USER = 1;
     private static final int MSG_USER_LOCK_CHANGED = 2;
@@ -118,7 +118,7 @@ class VendorServiceController implements UserLifecycleListener {
         UserLifecycleEventFilter userSwitchingOrUnlockingEventFilter =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
-                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING).build();
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED).build();
         mCarUserService.addUserLifecycleListener(userSwitchingOrUnlockingEventFilter, this);
 
         startOrBindServicesIfNeeded();
@@ -139,16 +139,15 @@ class VendorServiceController implements UserLifecycleListener {
     @Override
     public void onEvent(UserLifecycleEvent event) {
         if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)) {
+                USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
             return;
         }
-        if (Slogf.isLoggable(TAG, Log.DEBUG)) {
+        if (DBG) {
             Slogf.d(TAG, "onEvent(" + event + ")");
         }
 
-        // TODO(b/152069895): Use USER_LIFECYCLE_EVENT_TYPE_UNLOCKED and not care about the
-        //     deprecated unlock=false scenario.
-        if (USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
+        // TODO(b/152069895): remove unlock=false  / use handler.post() directly
+        if (USER_LIFECYCLE_EVENT_TYPE_UNLOCKED == event.getEventType()) {
             Message msg = mHandler.obtainMessage(
                     MSG_USER_LOCK_CHANGED,
                     event.getUserId(),
