@@ -19,11 +19,11 @@
 
 #include "GlWrapper.h"
 
+#include <aidl/android/frameworks/automotive/display/ICarDisplayProxy.h>
 #include <aidl/android/hardware/automotive/evs/BnEvsDisplay.h>
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <aidl/android/hardware/automotive/evs/DisplayDesc.h>
 #include <aidl/android/hardware/automotive/evs/DisplayState.h>
-#include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 
 #include <semaphore.h>
 
@@ -31,7 +31,7 @@
 
 namespace aidl::android::hardware::automotive::evs::implementation {
 
-namespace automotivedisplay = ::android::frameworks::automotive::display::V1_0;
+namespace automotivedisplay = ::aidl::android::frameworks::automotive::display;
 namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
 class EvsGlDisplay final : public ::aidl::android::hardware::automotive::evs::BnEvsDisplay {
@@ -44,8 +44,7 @@ public:
     ::ndk::ScopedAStatus setDisplayState(aidlevs::DisplayState state) override;
 
     // Implementation details
-    // TODO(b/170401743): using AIDL version when IAutomotiveDisplayProxyService is migrated.
-    EvsGlDisplay(const ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService>& service,
+    EvsGlDisplay(const std::shared_ptr<automotivedisplay::ICarDisplayProxy>& service,
                  uint64_t displayId);
     virtual ~EvsGlDisplay() override;
 
@@ -71,7 +70,7 @@ private:
     uint64_t mDisplayId;
     aidlevs::DisplayDesc mInfo;
     aidlevs::DisplayState mRequestedState GUARDED_BY(mLock) = aidlevs::DisplayState::NOT_VISIBLE;
-    ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService> mDisplayProxy;
+    std::shared_ptr<automotivedisplay::ICarDisplayProxy> mDisplayProxy;
 
     GlWrapper mGlWrapper;
     mutable std::mutex mLock;

@@ -23,20 +23,19 @@
 #include <GLES2/gl2ext.h>
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
+#include <aidl/android/frameworks/automotive/display/ICarDisplayProxy.h>
 #include <aidl/android/hardware/automotive/evs/BufferDesc.h>
 #include <android-base/logging.h>
-#include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 #include <bufferqueueconverter/BufferQueueConverter.h>
 
 namespace aidl::android::hardware::automotive::evs::implementation {
 
-namespace automotivedisplay = ::android::frameworks::automotive::display::V1_0;
+namespace automotivedisplay = ::aidl::android::frameworks::automotive::display;
 
 class GlWrapper {
 public:
     GlWrapper() : mSurfaceHolder(::android::SurfaceHolderUniquePtr(nullptr, nullptr)) {}
-    // TODO(b/170401743): using AIDL version when IAutomotiveDisplayProxyService is migrated.
-    bool initialize(const ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService>& svc,
+    bool initialize(const std::shared_ptr<automotivedisplay::ICarDisplayProxy>& svc,
                     uint64_t displayId);
     void shutdown();
 
@@ -46,10 +45,10 @@ public:
                     description);
     void renderImageToScreen();
 
-    void showWindow(const ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService>& svc,
-                    uint64_t id);
-    void hideWindow(const ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService>& svc,
-                    uint64_t id);
+    void showWindow(const std::shared_ptr<automotivedisplay::ICarDisplayProxy>& svc,
+                    uint64_t displayId);
+    void hideWindow(const std::shared_ptr<automotivedisplay::ICarDisplayProxy>& svc,
+                    uint64_t displayId);
 
     unsigned getWidth() { return mWidth; };
     unsigned getHeight() { return mHeight; };
