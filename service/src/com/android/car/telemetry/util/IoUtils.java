@@ -141,7 +141,12 @@ public class IoUtils {
      * Deletes all files silently from the directory. This method does not delete recursively.
      */
     public static void deleteAllSilently(@NonNull File directory) {
-        for (File file : directory.listFiles()) {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            Slogf.i(CarLog.TAG_TELEMETRY, "Skip deleting the empty dir %s", directory.getName());
+            return;
+        }
+        for (File file : files) {
             if (!file.delete()) {
                 Slogf.w(CarLog.TAG_TELEMETRY, "Failed to delete file " + file.getName()
                         + " in directory " + directory.getAbsolutePath());

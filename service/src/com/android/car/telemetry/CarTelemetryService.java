@@ -70,6 +70,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 
@@ -388,7 +389,17 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public void setReportReadyListener(@NonNull ICarTelemetryReportReadyListener listener) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setReportReadyListener");
-        mTelemetryHandler.post(() -> mReportReadyListener = listener);
+        mTelemetryHandler.post(() -> {
+            mReportReadyListener = listener;
+            Set<String> configNames = mResultStore.getFinishedMetricsConfigNames();
+            for (String name : configNames) {
+                try {
+                    mReportReadyListener.onReady(name);
+                } catch (RemoteException e) {
+                    Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportReadyListener", e);
+                }
+            }
+        });
     }
 
     /**
