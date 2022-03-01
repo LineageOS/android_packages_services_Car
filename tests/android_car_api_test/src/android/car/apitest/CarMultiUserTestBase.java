@@ -77,6 +77,14 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     private final CountDownLatch mUserRemoveLatch = new CountDownLatch(1);
     private final List<Integer> mUsersToRemove = new ArrayList<>();
 
+    private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TAG, "Received a broadcast: " + AndroidHelper.toString(intent));
+            mUserRemoveLatch.countDown();
+        }
+    };
+
     // Guard to avoid test failure on @After when @Before failed (as it would hide the real issue)
     private boolean mSetupFinished;
 
@@ -88,12 +96,9 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         mUserManager = getContext().getSystemService(UserManager.class);
 
         IntentFilter filter = new IntentFilter(Intent.ACTION_USER_REMOVED);
-        getContext().registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                mUserRemoveLatch.countDown();
-            }
-        }, filter, Context.RECEIVER_NOT_EXPORTED);
+        getContext().registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        Log.d(TAG, "Registered a broadcast receiver: " + mReceiver
+                + " with filter: " + filter);
 
         List<UserInfo> users = mUserManager.getAliveUsers();
 
@@ -149,6 +154,9 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 Log.w(TAG, "skipping cleanupUserState() because mSetupFinished is false");
                 return;
             }
+
+            getContext().unregisterReceiver(mReceiver);
+            Log.d(TAG, "Unregistered a broadcast receiver: " + mReceiver);
 
             int currentUserId = getCurrentUserId();
             int initialUserId = mInitialUser.id;

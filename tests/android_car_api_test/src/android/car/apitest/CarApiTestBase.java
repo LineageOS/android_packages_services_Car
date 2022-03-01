@@ -52,6 +52,7 @@ import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Collection;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -71,8 +72,8 @@ public abstract class CarApiTestBase {
      */
     private static final int SMALL_NAP_MS = 100;
 
-    protected static final Context sContext = InstrumentationRegistry.getInstrumentation()
-            .getTargetContext();
+    protected static final ReceiverTrackingContext sContext = new ReceiverTrackingContext(
+            InstrumentationRegistry.getInstrumentation().getTargetContext());
 
     private Car mCar;
 
@@ -113,6 +114,15 @@ public abstract class CarApiTestBase {
         Log.d(TAG, "Calling am.setStopUserOnSwitch(default) for " + mTestName.getMethodName());
         getContext().getSystemService(ActivityManager.class)
                 .setStopUserOnSwitch(ActivityManager.STOP_USER_ON_SWITCH_DEFAULT);
+    }
+
+    @After
+    public final void checkReceiversUnregisters() {
+        Collection<String> receivers = sContext.getReceiversInfo();
+        Log.d(TAG, "Checking if all receivers were unregistered.");
+
+        assertWithMessage("Broadcast receivers that are not unregistered: %s", receivers)
+                .that(receivers).isEmpty();
     }
 
     protected Car getCar() {
