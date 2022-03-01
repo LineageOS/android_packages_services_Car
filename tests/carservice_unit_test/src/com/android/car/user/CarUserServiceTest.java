@@ -1718,7 +1718,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         assertThat(newUser).isNotNull();
         assertThat(newUser.getIdentifier()).isEqualTo(userId);
 
-        verify(mMockedUserManager, never()).createGuest(any(Context.class), anyString());
+        verify(mMockedUserManager, never()).createGuest(any(Context.class));
         verifyNoUserRemoved();
         assertNoHalUserRemoval();
     }
