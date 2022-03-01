@@ -1,6 +1,7 @@
 package android.car.telemetry;
 
 import android.car.telemetry.ICarTelemetryReportListener;
+import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.os.ResultReceiver;
 
 /**
@@ -38,4 +39,14 @@ interface ICarTelemetryService {
      * Sends all finished telemetry reports or errors using the {@code ICarTelemetryReportListener}.
      */
     void getAllFinishedReports(in ICarTelemetryReportListener listener);
+
+    /**
+     * Registers a listener for receiving notifications when a report or telemetry error is ready.
+     */
+    void setReportReadyListener(in ICarTelemetryReportReadyListener listener);
+
+    /**
+     * Clears listener to stop receiving notifications when a report or telemetry error is ready.
+     */
+    void clearReportReadyListener();
 }
