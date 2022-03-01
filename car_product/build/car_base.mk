@@ -85,7 +85,7 @@ ifeq ($(ENABLE_EVS_SAMPLE), true)
 # the device.mk with the corresponding selinux policies
 PRODUCT_PACKAGES += evs_app \
                     android.hardware.automotive.evs-default \
-                    android.frameworks.automotive.display@1.0-service
+                    cardisplayproxyd
 include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 endif  # ENABLE_EVS_SAMPLE
 
