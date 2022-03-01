@@ -151,6 +151,9 @@
 
     <uses-permission android:name="android.permission.CALL_PHONE" />
 
+    <!-- Allows sending of notifications in T+ -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+
     <application android:label="@string/app_title"
          android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
