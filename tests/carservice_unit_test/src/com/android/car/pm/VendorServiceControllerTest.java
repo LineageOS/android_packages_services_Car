@@ -166,7 +166,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         // Unlock system user
         mockUserUnlock(UserHandle.USER_SYSTEM);
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
                 UserHandle.USER_SYSTEM);
 
         mContext.assertStartedService(SERVICE_START_SYSTEM_UNLOCKED);
@@ -194,7 +194,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
 
         // Unlock foreground user
         mockUserUnlock(FG_USER_ID);
-        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING, FG_USER_ID);
+        sendUserLifecycleEvent(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, FG_USER_ID);
 
         mContext.assertBoundService(SERVICE_BIND_FG_USER_UNLOCKED);
         mContext.verifyNoMoreServiceLaunches();
