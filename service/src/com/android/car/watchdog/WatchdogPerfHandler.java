@@ -999,6 +999,32 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    /** Disables a package for specific user until used. */
+    public boolean disablePackageForUser(String packageName, @UserIdInt int userId) {
+        try {
+            int currentEnabledState =
+                    PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId);
+            switch (currentEnabledState) {
+                case COMPONENT_ENABLED_STATE_DISABLED:
+                case COMPONENT_ENABLED_STATE_DISABLED_USER:
+                case COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED:
+                    Slogf.w(TAG, "Unable to disable application for user %d, package '%s' since "
+                            + "package is not enabled.", userId, packageName);
+                    return false;
+            }
+            PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
+                    COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
+                    mContext.getPackageName());
+            Slogf.i(TAG, "Disabled package '%s' on user %d until used due to resource overuse",
+                    packageName, userId);
+        } catch (Exception e) {
+            Slogf.e(TAG, e, "Failed to disable application for user %d, package '%s'", userId,
+                    packageName);
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Sets the delay to handle resource overuse after the package is notified of resource overuse.
      */
@@ -1664,31 +1690,6 @@ public final class WatchdogPerfHandler {
     private void cancelNotificationAsUser(int notificationId, UserHandle userHandle) {
         BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
                         .cancelNotificationAsUser(userHandle, notificationId);
-    }
-
-    /** Disables a package for specific user until used. */
-    private boolean disablePackageForUser(String packageName, @UserIdInt int userId) {
-        try {
-            int currentEnabledState =
-                    PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId);
-            if (currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED
-                    || currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED_USER
-                    || currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
-                Slogf.w(TAG, "Unable to disable application for user %d, package '%s' since "
-                        + "package is not enabled.", userId, packageName);
-                return false;
-            }
-            PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
-                    COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
-                    mContext.getPackageName());
-            Slogf.i(TAG, "Disabled user %d's package '%s' until used due to resource overuse",
-                    userId, packageName);
-        } catch (RemoteException e) {
-            Slogf.e(TAG, e, "Failed to disable application for user %d, package '%s'", userId,
-                    packageName);
-            return false;
-        }
-        return true;
     }
 
     private void pushIoOveruseMetrics(ArraySet<String> userPackageKeys) {
