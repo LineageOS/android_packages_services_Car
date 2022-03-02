@@ -437,7 +437,7 @@ package android.car.drivingstate {
   public final class CarUxRestrictions implements android.os.Parcelable {
     ctor public CarUxRestrictions(android.car.drivingstate.CarUxRestrictions);
     method public int describeContents();
-    method @android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo public int getActiveRestrictions();
+    method public int getActiveRestrictions();
     method public int getMaxContentDepth();
     method public int getMaxCumulativeContentItems();
     method public int getMaxRestrictedStringLength();
@@ -459,14 +459,11 @@ package android.car.drivingstate {
   }
 
   public static class CarUxRestrictions.Builder {
-    ctor public CarUxRestrictions.Builder(boolean, @android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo int, long);
+    ctor public CarUxRestrictions.Builder(boolean, int, long);
     method public android.car.drivingstate.CarUxRestrictions build();
     method public android.car.drivingstate.CarUxRestrictions.Builder setMaxContentDepth(int);
     method public android.car.drivingstate.CarUxRestrictions.Builder setMaxCumulativeContentItems(int);
     method public android.car.drivingstate.CarUxRestrictions.Builder setMaxStringLength(int);
-  }
-
-  @IntDef(flag=true, prefix={"UX_RESTRICTIONS_"}, value={android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_DIALPAD, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_FILTERING, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_STRING_LENGTH, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_KEYBOARD, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VIDEO, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_LIMIT_CONTENT, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETUP, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_TEXT_MESSAGE, android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarUxRestrictions.CarUxRestrictionsInfo {
   }
 
   public final class CarUxRestrictionsManager {
@@ -514,7 +511,7 @@ package android.car.hardware {
     method public int describeContents();
     method public int getAreaId();
     method public int getPropertyId();
-    method @android.car.hardware.CarPropertyValue.PropertyStatus public int getStatus();
+    method public int getStatus();
     method public long getTimestamp();
     method @NonNull public T getValue();
     method public void writeToParcel(android.os.Parcel, int);
@@ -522,9 +519,6 @@ package android.car.hardware {
     field public static final int STATUS_AVAILABLE = 0; // 0x0
     field public static final int STATUS_ERROR = 2; // 0x2
     field public static final int STATUS_UNAVAILABLE = 1; // 0x1
-  }
-
-  @IntDef({android.car.hardware.CarPropertyValue.STATUS_AVAILABLE, android.car.hardware.CarPropertyValue.STATUS_UNAVAILABLE, android.car.hardware.CarPropertyValue.STATUS_ERROR}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface CarPropertyValue.PropertyStatus {
   }
 
   @Deprecated public class CarSensorEvent implements android.os.Parcelable {

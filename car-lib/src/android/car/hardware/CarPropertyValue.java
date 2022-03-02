@@ -52,6 +52,7 @@ public final class CarPropertyValue<T> implements Parcelable {
     private final long mTimestamp;
     private final T mValue;
 
+    /** @hide */
     @IntDef({
         STATUS_AVAILABLE,
         STATUS_UNAVAILABLE,
