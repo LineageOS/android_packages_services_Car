@@ -125,6 +125,10 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.android.car.service.overlay.packages=com.android.car.resources.vendor;com.google.android.car.resources.vendor;
 
+# vendor layer can override this
+PRODUCT_SYSTEM_PROPERTIES += \
+    ro.android.car.carservice.package?=com.android.car.updatable
+
 # Automotive specific packages
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
