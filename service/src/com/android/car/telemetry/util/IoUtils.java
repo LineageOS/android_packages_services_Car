@@ -16,12 +16,12 @@
 
 package com.android.car.telemetry.util;
 
-import com.android.server.utils.Slogf;
 import android.annotation.NonNull;
 import android.os.PersistableBundle;
 import android.util.AtomicFile;
 
 import com.android.car.CarLog;
+import com.android.server.utils.Slogf;
 
 import com.google.protobuf.MessageLite;
 
@@ -141,7 +141,12 @@ public class IoUtils {
      * Deletes all files silently from the directory. This method does not delete recursively.
      */
     public static void deleteAllSilently(@NonNull File directory) {
-        for (File file : directory.listFiles()) {
+        File[] files = directory.listFiles();
+        if (files == null) {
+            Slogf.i(CarLog.TAG_TELEMETRY, "Skip deleting the empty dir %s", directory.getName());
+            return;
+        }
+        for (File file : files) {
             if (!file.delete()) {
                 Slogf.w(CarLog.TAG_TELEMETRY, "Failed to delete file " + file.getName()
                         + " in directory " + directory.getAbsolutePath());
