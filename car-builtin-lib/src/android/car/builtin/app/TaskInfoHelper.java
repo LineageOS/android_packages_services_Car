@@ -60,4 +60,8 @@ public class TaskInfoHelper {
                 + " baseIntent=" + task.baseIntent + " baseActivity=" + task.baseActivity
                 + "}";
     }
+
+    private TaskInfoHelper() {
+        throw new UnsupportedOperationException("contains only static members");
+    }
 }

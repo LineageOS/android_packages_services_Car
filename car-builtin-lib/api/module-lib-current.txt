@@ -39,7 +39,6 @@ package android.car.builtin.app {
   }
 
   public class TaskInfoHelper {
-    ctor public TaskInfoHelper();
     method public static int getDisplayId(@NonNull android.app.TaskInfo);
     method public static int getUserId(@NonNull android.app.TaskInfo);
     method public static boolean isVisible(@NonNull android.app.TaskInfo);
