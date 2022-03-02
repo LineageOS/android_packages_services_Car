@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.car.Car;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
+import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.car.telemetry.ICarTelemetryService;
 import android.content.Context;
 import android.os.Handler;
@@ -39,6 +40,7 @@ import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.Trace;
+import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
 import android.util.TimingsTraceLog;
 
@@ -65,7 +67,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.IntConsumer;
 
@@ -89,8 +90,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     // accessed and updated on the main thread
     private boolean mReleased = false;
 
+    // all the following fields are accessed and updated on the telemetry thread
     private DataBroker mDataBroker;
     private DataBrokerController mDataBrokerController;
+    private ICarTelemetryReportReadyListener mReportReadyListener;
     private MetricsConfigStore mMetricsConfigStore;
     private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
@@ -127,7 +130,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
             // controller starts metrics collection after boot complete
             mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
-                    mMetricsConfigStore, mSystemMonitor,
+                    mMetricsConfigStore, this::onReportReady, mSystemMonitor,
                     systemInterface.getSystemStateInterface());
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
@@ -171,22 +174,22 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             writer.println();
         }
         // Print info on stored final results. Configs are inactive after producing final result.
-        Map<String, PersistableBundle> finalResults = mResultStore.getFinalResults();
+        ArrayMap<String, PersistableBundle> finalResults = mResultStore.getAllFinalResults();
         writer.println("Final Results");
         writer.println();
-        for (Map.Entry<String, PersistableBundle> entry : finalResults.entrySet()) {
-            writer.println("    Config name: " + entry.getKey());
+        for (int i = 0; i < finalResults.size(); i++) {
+            writer.println("    Config name: " + finalResults.keyAt(i));
             writer.println("    Bundle keys: "
-                    + Arrays.toString(entry.getValue().keySet().toArray()));
+                    + Arrays.toString(finalResults.valueAt(i).keySet().toArray()));
             writer.println();
         }
         // Print info on stored errors. Configs are inactive after producing errors.
-        Map<String, TelemetryProto.TelemetryError> errors = mResultStore.getErrorResults();
+        ArrayMap<String, TelemetryProto.TelemetryError> errors = mResultStore.getAllErrorResults();
         writer.println("Errors");
         writer.println();
-        for (Map.Entry<String, TelemetryProto.TelemetryError> entry : errors.entrySet()) {
-            writer.println("    Config name: " + entry.getKey());
-            TelemetryProto.TelemetryError error = entry.getValue();
+        for (int i = 0; i < errors.size(); i++) {
+            writer.println("    Config name: " + errors.keyAt(i));
+            TelemetryProto.TelemetryError error = errors.valueAt(i);
             writer.println("    Error");
             writer.println("        Type: " + error.getErrorType());
             writer.println("        Message: " + error.getMessage());
@@ -205,7 +208,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config,
-            ResultReceiver callback) {
+            @NonNull ResultReceiver callback) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
         mTelemetryHandler.post(() -> {
@@ -303,7 +306,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mTelemetryHandler.post(() -> {
             if (DEBUG) {
                 Slogf.d(CarLog.TAG_TELEMETRY,
-                        "Flushing reports for metrics config " + metricsConfigName);
+                        "Getting report for metrics config " + metricsConfigName);
             }
             mTelemetryThreadTraceLog.traceBegin("getFinishedReport");
             PersistableBundle report;
@@ -333,11 +336,62 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public void getAllFinishedReports(@NonNull ICarTelemetryReportListener listener) {
-        // TODO(b/184087869): Implement
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "getAllFinishedReports");
-        if (DEBUG) {
-            Slogf.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
+        mTelemetryHandler.post(() -> {
+            if (DEBUG) {
+                Slogf.d(CarLog.TAG_TELEMETRY, "Getting all reports");
+            }
+            mTelemetryThreadTraceLog.traceBegin("getAllFinishedReports");
+            ArrayMap<String, PersistableBundle> reports = mResultStore.getAllFinalResults();
+            for (int i = 0; i < reports.size(); i++) {
+                mResultStore.removeResult(reports.keyAt(i));
+                sendResult(listener, reports.keyAt(i), reports.valueAt(i),
+                        /* error = */ null, STATUS_GET_METRICS_CONFIG_FINISHED);
+            }
+            ArrayMap<String, TelemetryProto.TelemetryError> errors =
+                    mResultStore.getAllErrorResults();
+            for (int i = 0; i < errors.size(); i++) {
+                mResultStore.removeResult(errors.keyAt(i));
+                sendResult(listener, errors.keyAt(i), /* report = */ null,
+                        errors.valueAt(i), STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR);
+            }
+            mTelemetryThreadTraceLog.traceEnd();
+        });
+    }
+
+    /**
+     * Sets a listener for report ready notifications.
+     */
+    @Override
+    public void setReportReadyListener(@NonNull ICarTelemetryReportReadyListener listener) {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setReportReadyListener");
+        mTelemetryHandler.post(() -> mReportReadyListener = listener);
+    }
+
+    /**
+     * Clears the listener to stop report ready notifications.
+     */
+    @Override
+    public void clearReportReadyListener() {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "clearReportReadyListener");
+        mTelemetryHandler.post(() -> mReportReadyListener = null);
+    }
+
+    /**
+     * Implementation of the functional interface {@link DataBrokerController.ReportReadyListener}.
+     * Invoked from {@link DataBrokerController} when a script produces a report or a runtime error.
+     */
+    private void onReportReady(@NonNull String metricsConfigName) {
+        if (mReportReadyListener == null) {
+            return;
+        }
+        try {
+            mReportReadyListener.onReady(metricsConfigName);
+        } catch (RemoteException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportReadyListener", e);
         }
     }
 
