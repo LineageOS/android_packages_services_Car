@@ -42,14 +42,15 @@ struct Context {
     mutable std::mutex lock;
     const char* hardwareServiceName;
     const char* managerServiceName;
-    std::unique_ptr<Enumerator> enumerator = nullptr;
+    std::unique_ptr<IEvsEnumerator> enumerator = nullptr;
 };
 
 static void startService(Context* context) {
     LOG(INFO) << "EVS managed service connecting to hardware service at "
               << context->hardwareServiceName;
     std::lock_guard<std::mutex> lock_guard{context->lock};
-    context->enumerator = Enumerator::build(context->hardwareServiceName);
+    context->enumerator =
+            std::make_unique<EnumeratorProxy>(Enumerator::build(context->hardwareServiceName));
     if (!context->enumerator) {
         LOG(ERROR) << "Failed to connect to hardware service - quitting from registrationThread";
         exit(1);
