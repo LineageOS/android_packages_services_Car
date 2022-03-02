@@ -62,6 +62,7 @@ import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -3502,6 +3503,43 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 () -> mCarWatchdogService.controlProcessHealthCheck(false));
 
         verify(mMockCarWatchdogDaemon, never()).controlProcessHealthCheck(anyBoolean());
+    }
+
+    @Test
+    public void testDisablePackageForUser() throws Exception {
+        assertWithMessage("Performed resource overuse kill")
+                .that(mCarWatchdogService.performResourceOveruseKill("third_party.package",
+                        /* userId= */ 100)).isTrue();
+
+        assertWithMessage("Package manager disabled packages")
+                .that(mDisabledUserPackages)
+                .containsExactlyElementsIn(Collections.singletonList("100:third_party.package"));
+    }
+
+    @Test
+    public void testDisablePackageForUserWithDisabledPackage() throws Exception {
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(anyString(), anyInt());
+
+        assertWithMessage("Performed resource overuse kill")
+                .that(mCarWatchdogService.performResourceOveruseKill("third_party.package",
+                        /* userId= */ 100)).isFalse();
+
+        assertWithMessage("Package manager disabled packages").that(mDisabledUserPackages)
+                .isEmpty();
+    }
+
+    @Test
+    public void testDisablePackageForUserWithNonexistentPackage() throws Exception {
+        doThrow(IllegalArgumentException.class).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(anyString(), anyInt());
+
+        assertWithMessage("Performed resource overuse kill")
+                .that(mCarWatchdogService.performResourceOveruseKill("fake.package",
+                        /* userId= */ 100)).isFalse();
+
+        assertWithMessage("Package manager disabled packages").that(mDisabledUserPackages)
+                .isEmpty();
     }
 
     @Test

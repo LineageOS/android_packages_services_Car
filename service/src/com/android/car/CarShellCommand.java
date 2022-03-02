@@ -222,6 +222,8 @@ final class CarShellCommand extends ShellCommand {
             "watchdog-io-get-3p-foreground-bytes";
     private static final String COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK =
             "watchdog-control-health-check";
+    private static final String COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL =
+            "watchdog-resource-overuse-kill";
 
     private static final String COMMAND_DRIVING_SAFETY_SET_REGION =
             "set-drivingsafety-region";
@@ -308,6 +310,8 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES,
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK,
+                PERMISSION_USE_CAR_WATCHDOG);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL,
                 PERMISSION_USE_CAR_WATCHDOG);
     }
 
@@ -679,6 +683,9 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
 
+        pw.printf("\t%s <PACKAGE_NAME>\n", COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL);
+        pw.println("\t  Kills PACKAGE_NAME due to resource overuse.");
+
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
         pw.println("\t  Set driving safety region.");
         pw.println("\t  Skipping REGION_STRING leads into resetting to all regions");
@@ -1033,6 +1040,9 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK:
                 controlWatchdogProcessHealthCheck(args, writer);
+                break;
+            case COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL:
+                performResourceOveruseKill(args, writer);
                 break;
             case COMMAND_DRIVING_SAFETY_SET_REGION:
                 setDrivingSafetyRegion(args, writer);
@@ -2396,6 +2406,21 @@ final class CarShellCommand extends ShellCommand {
         }
         mCarWatchdogService.controlProcessHealthCheck(args[1].equals("disable"));
         writer.printf("Watchdog health checking is now %sd \n", args[1]);
+    }
+
+    private void performResourceOveruseKill(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+        String packageName = args[1];
+        int userId = ActivityManager.getCurrentUser();
+        boolean isKilled = mCarWatchdogService.performResourceOveruseKill(packageName, userId);
+        if (isKilled) {
+            writer.printf("Successfully killed package '%s' for user %d\n", packageName, userId);
+        } else {
+            writer.printf("Failed to kill package '%s' for user %d\n", packageName, userId);
+        }
     }
 
     private void printTelemetryHelp(IndentingPrintWriter writer) {
