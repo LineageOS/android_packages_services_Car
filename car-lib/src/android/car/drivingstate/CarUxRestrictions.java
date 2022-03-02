@@ -143,6 +143,7 @@ public final class CarUxRestrictions implements Parcelable {
                     | UX_RESTRICTIONS_NO_SETUP | UX_RESTRICTIONS_NO_TEXT_MESSAGE
                     | UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION;
 
+    /** @hide */
     @IntDef(flag = true,
             prefix = {"UX_RESTRICTIONS_"},
             value = {UX_RESTRICTIONS_BASELINE,
