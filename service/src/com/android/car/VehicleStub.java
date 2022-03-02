@@ -27,6 +27,7 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 
+
 /**
  * VehicleStub represents an IVehicle service interface in either AIDL or legacy HIDL version. It
  * exposes common interface so that the client does not need to care about which version the
@@ -55,6 +56,11 @@ public abstract class VehicleStub {
          */
         void unsubscribe(int prop) throws RemoteException, ServiceSpecificException;
     }
+
+    /**
+     * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
+     */
+    public abstract boolean isAidlVhal();
 
     /**
      * Creates a new VehicleStub to connect to Vehicle HAL.

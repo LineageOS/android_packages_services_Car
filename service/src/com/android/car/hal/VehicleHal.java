@@ -93,6 +93,7 @@ public class VehicleHal implements HalClientCallback {
     private final EvsHalService mEvsHal;
     private final TimeHalService mTimeHalService;
     private final HalPropValueBuilder mPropValueBuilder;
+    private final VehicleStub mVehicleStub;
 
     private final Object mLock = new Object();
 
@@ -170,11 +171,12 @@ public class VehicleHal implements HalClientCallback {
                 mEvsHal,
                 mTimeHalService,
                 mPropertyHal);
-      // mPropertyHal must be the last so that on init/release
-      // it can be used for all other HAL services properties.
+        // mPropertyHal must be the last so that on init/release
+        // it can be used for all other HAL services properties.
         mHalClient = halClient != null
                 ? halClient : new HalClient(vehicle, mHandlerThread.getLooper(),
                 /* callback= */ this);
+        mVehicleStub = vehicle;
     }
 
     private void fetchAllPropConfigs() {
@@ -827,6 +829,20 @@ public class VehicleHal implements HalClientCallback {
                         + "in areaId: %d // 0x%x.\n", propId, propId, areaId, areaId);
             }
         }
+    }
+
+    /**
+     * Gets all property configs from VHAL.
+     */
+    public HalPropConfig[] getAllPropConfigs() throws RemoteException, ServiceSpecificException {
+        return mVehicleStub.getAllPropConfigs();
+    }
+
+    /**
+     * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.
+     */
+    public boolean isAidlVhal() {
+        return mVehicleStub.isAidlVhal();
     }
 
     private static void dumpPropHelper(PrintWriter pw, int propId) {
