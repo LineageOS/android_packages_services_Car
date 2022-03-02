@@ -248,7 +248,7 @@ PRODUCT_LOCALES := \
 PRODUCT_BOOT_JARS += \
     android.car.builtin
 
-USE_CAR_FRAMEWORK_APEX := true
+USE_CAR_FRAMEWORK_APEX ?= true
 
 ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_PACKAGES += com.android.car.framework
@@ -260,6 +260,7 @@ ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-module.stubs.system
     PRODUCT_HIDDENAPI_STUBS_TEST := android.car-module.stubs.test
 else # !USE_CAR_FRAMEWORK_APEX
+    $(warning NOT using CarFramework APEX)
     PRODUCT_BOOT_JARS += android.car
     PRODUCT_PACKAGES += android.car CarServiceUpdatableNonModule car-frameworks-service-module
     PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service-module
