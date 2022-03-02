@@ -16,9 +16,12 @@
 
 package com.android.car.watchdog;
 
+import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.content.Intent.ACTION_PACKAGE_CHANGED;
 import static android.content.Intent.ACTION_USER_REMOVED;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -35,6 +38,7 @@ import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
@@ -59,6 +63,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArraySet;
+import android.util.Log;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -82,8 +87,8 @@ import java.util.List;
  * Service to implement CarWatchdogManager API.
  */
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
-    static final boolean DEBUG = false; // STOPSHIP if true
     static final String TAG = CarLog.tagFor(CarWatchdogService.class);
+    static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
     static final String ACTION_GARAGE_MODE_ON =
             "com.android.server.jobscheduler.GARAGE_MODE_ON";
     static final String ACTION_GARAGE_MODE_OFF =
@@ -130,7 +135,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            UserHandle userHandle;
             switch (action) {
                 case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 case ACTION_LAUNCH_APP_SETTINGS:
@@ -150,8 +154,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     }
                     notifyGarageModeChange(garageMode);
                     return;
-                case ACTION_USER_REMOVED:
-                    userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
+                case ACTION_USER_REMOVED: {
+                    UserHandle userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
                     int userId = userHandle.getIdentifier();
                     try {
                         mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE,
@@ -166,6 +170,25 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     }
                     mWatchdogPerfHandler.deleteUser(userId);
                     return;
+                }
+                case ACTION_PACKAGE_CHANGED: {
+                    String packageName = intent.getData().getSchemeSpecificPart();
+                    int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
+                    if (userId == USER_NULL) {
+                        return;
+                    }
+                    try {
+                        if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
+                                userId) == COMPONENT_ENABLED_STATE_ENABLED) {
+                            mWatchdogPerfHandler.removeFromDisabledPackagesSettingsString(
+                                    packageName, userId);
+                        }
+                    } catch (RemoteException e) {
+                        Slogf.e(TAG, e,
+                                "Failed to verify enabled setting for user %d, package '%s'",
+                                userId, packageName);
+                    }
+                }
             }
         }
     };
@@ -688,6 +711,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
                 Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
+
+        // The package data scheme applies only for the ACTION_PACKAGE_CHANGED action. So, add a
+        // filter for this action separately. Otherwise, the broadcast receiver won't receive
+        // notifications for other actions.
+        IntentFilter packageChangedFilter = new IntentFilter();
+        packageChangedFilter.addAction(ACTION_PACKAGE_CHANGED);
+        packageChangedFilter.addDataScheme("package");
+
+        mContext.registerReceiverForAllUsers(mBroadcastReceiver, packageChangedFilter,
+                /* broadcastPermission= */ null, /* scheduler= */ null,
                 Context.RECEIVER_NOT_EXPORTED);
     }
 
