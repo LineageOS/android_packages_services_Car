@@ -29,10 +29,6 @@ import android.car.builtin.util.Slogf;
 import android.os.Bundle;
 import android.os.RemoteException;
 
-import com.android.internal.annotations.GuardedBy;
-
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -47,29 +43,17 @@ public final class ActivityManagerHelper {
 
     private static final String TAG = "CAR.AM";  // CarLog.TAG_AM
 
-    private static Object sLock = new Object();
-
-    private IActivityManager mAm;
-
-    @GuardedBy("sLock")
-    private static ActivityManagerHelper sActivityManagerBuiltIn;
-
-    private ActivityManagerHelper() {
-        mAm = ActivityManager.getService();
+    // Lazy initialization holder class idiom for static fields; See go/ej3e-83 for the detail.
+    private static class ActivityManagerHolder {
+        static final IActivityManager sAm = ActivityManager.getService();
     }
 
-    /**
-     * Get instance of {@code IActivityManagerBuiltIn}
-     */
-    @NonNull
-    public static ActivityManagerHelper getInstance() {
-        synchronized (sLock) {
-            if (sActivityManagerBuiltIn == null) {
-                sActivityManagerBuiltIn = new ActivityManagerHelper();
-            }
+    private static IActivityManager getActivityManager() {
+        return ActivityManagerHolder.sAm;
+    }
 
-            return sActivityManagerBuiltIn;
-        }
+    private ActivityManagerHelper() {
+        throw new UnsupportedOperationException("contains only static members");
     }
 
     /**
@@ -77,8 +61,8 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    public boolean startUserInBackground(@UserIdInt int userId) {
-        return runRemotely(() -> mAm.startUserInBackground(userId),
+    public static boolean startUserInBackground(@UserIdInt int userId) {
+        return runRemotely(() -> getActivityManager().startUserInBackground(userId),
                 "error while startUserInBackground %d", userId);
     }
 
@@ -87,9 +71,10 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    public boolean startUserInForeground(@UserIdInt int userId) {
+    public static boolean startUserInForeground(@UserIdInt int userId) {
         return runRemotely(
-                () -> mAm.startUserInForegroundWithListener(userId, /* listener= */ null),
+                () -> getActivityManager().startUserInForegroundWithListener(
+                        userId, /* listener= */ null),
                 "error while startUserInForeground %d", userId);
     }
 
@@ -98,9 +83,10 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    public int stopUserWithDelayedLocking(@UserIdInt int userId, boolean force) {
+    public static int stopUserWithDelayedLocking(@UserIdInt int userId, boolean force) {
         return runRemotely(
-                () -> mAm.stopUserWithDelayedLocking(userId, force, /* callback= */ null),
+                () -> getActivityManager().stopUserWithDelayedLocking(
+                        userId, force, /* callback= */ null),
                 "error while stopUserWithDelayedLocking %d", userId);
     }
 
@@ -109,8 +95,8 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    public boolean unlockUser(@UserIdInt int userId) {
-        return runRemotely(() -> mAm.unlockUser(userId,
+    public static boolean unlockUser(@UserIdInt int userId) {
+        return runRemotely(() -> getActivityManager().unlockUser(userId,
                 /* token= */ null, /* secret= */ null, /* listener= */ null),
                 "error while unlocking user %d", userId);
     }
@@ -120,13 +106,14 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    public void stopAllTasksForUser(@UserIdInt int userId) {
+    public static void stopAllTasksForUser(@UserIdInt int userId) {
         try {
-            for (RootTaskInfo info : mAm.getAllRootTaskInfos()) {
+            IActivityManager am = getActivityManager();
+            for (RootTaskInfo info : am.getAllRootTaskInfos()) {
                 for (int i = 0; i < info.childTaskIds.length; i++) {
                     if (info.childTaskUserIds[i] == userId) {
                         int taskId = info.childTaskIds[i];
-                        if (!mAm.removeTask(taskId)) {
+                        if (!am.removeTask(taskId)) {
                             Slogf.w(TAG, "could not remove task " + taskId);
                         }
                     }
@@ -145,7 +132,7 @@ public final class ActivityManagerHelper {
         return new ActivityOptions(bOptions);
     }
 
-    private <T> T runRemotely(Callable<T> callable, String format, Object...args) {
+    private static <T> T runRemotely(Callable<T> callable, String format, Object...args) {
         try {
             return callable.call();
         } catch (Exception e) {
@@ -153,20 +140,19 @@ public final class ActivityManagerHelper {
         }
     }
 
-    private RuntimeException logAndReThrow(Exception e, String format, Object...args) {
+    @SuppressWarnings("AnnotateFormatMethod")
+    private static RuntimeException logAndReThrow(Exception e, String format, Object...args) {
         String msg = String.format(format, args);
         Slogf.e(TAG, msg, e);
         return new IllegalStateException(msg, e);
     }
 
-    private final Object mLock = new Object();
-
     /**
      * Makes the root task of the given taskId focused.
      */
-    public void setFocusedRootTask(int taskId) {
+    public static void setFocusedRootTask(int taskId) {
         try {
-            mAm.setFocusedRootTask(taskId);
+            getActivityManager().setFocusedRootTask(taskId);
         } catch (RemoteException e) {
             Slogf.e(TAG, "Failed to setFocusedRootTask", e);
         }
@@ -175,73 +161,56 @@ public final class ActivityManagerHelper {
     /**
      * Removes the given task.
      */
-    public boolean removeTask(int taskId) {
+    public static boolean removeTask(int taskId) {
         try {
-            return mAm.removeTask(taskId);
+            return getActivityManager().removeTask(taskId);
         } catch (RemoteException e) {
             Slogf.e(TAG, "Failed to removeTask", e);
         }
         return false;
     }
 
-    public interface ProcessObserverCallback {
-        default void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
+    /**
+     * Callback to monitor Processes in the system
+     */
+    public abstract static class ProcessObserverCallback {
+        /** Called when the foreground Activities are changed. */
+        public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
         }
-        default void onProcessDied(int pid, int uid) {}
+        /** Called when the Process is died. */
+        public void onProcessDied(int pid, int uid) {}
+
+        final IProcessObserver.Stub mIProcessObserver = new IProcessObserver.Stub() {
+            @Override
+            public void onForegroundActivitiesChanged(
+                    int pid, int uid, boolean foregroundActivities) throws RemoteException {
+                ProcessObserverCallback.this.onForegroundActivitiesChanged(
+                        pid, uid, foregroundActivities);
+            }
+
+            @Override
+            public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes)
+                    throws RemoteException {
+                // Not used
+            }
+
+            @Override
+            public void onProcessDied(int pid, int uid) throws RemoteException {
+                ProcessObserverCallback.this.onProcessDied(pid, uid);
+            }
+        };
     }
-
-    @GuardedBy("mLock")
-    private ArrayList<ProcessObserverCallback> mProcessObserverCallbacks = new ArrayList<>();
-
-    private final IProcessObserver.Stub mProcessObserver = new IProcessObserver.Stub() {
-        @Override
-        public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities)
-                throws RemoteException {
-            List<ProcessObserverCallback> callbacks;
-            synchronized (mLock) {
-                callbacks = mProcessObserverCallbacks;
-            }
-            for (int i = 0, size = callbacks.size(); i < size; ++i) {
-                callbacks.get(i).onForegroundActivitiesChanged(pid, uid, foregroundActivities);
-            }
-        }
-
-        @Override
-        public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes)
-                throws RemoteException {
-            // Not used
-        }
-
-        @Override
-        public void onProcessDied(int pid, int uid) throws RemoteException {
-            List<ProcessObserverCallback> callbacks;
-            synchronized (mLock) {
-                callbacks = mProcessObserverCallbacks;
-            }
-            for (int i = 0, size = callbacks.size(); i < size; ++i) {
-                callbacks.get(i).onProcessDied(pid, uid);
-            }
-        }
-    };
 
     /**
      * Registers a callback to be invoked when the process states are changed.
      * @param callback a callback to register
      */
-    public void registerProcessObserverCallback(ProcessObserverCallback callback) {
-        synchronized (mLock) {
-            if (mProcessObserverCallbacks.isEmpty()) {
-                try {
-                    mAm.registerProcessObserver(mProcessObserver);
-                } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to register ProcessObserver", e);
-                    throw new RuntimeException(e);
-                }
-            }
-            // Make a copy of callbacks not to affect on-going callbacks.
-            mProcessObserverCallbacks =
-                    (ArrayList<ProcessObserverCallback>) mProcessObserverCallbacks.clone();
-            mProcessObserverCallbacks.add(callback);
+    public static void registerProcessObserverCallback(ProcessObserverCallback callback) {
+        try {
+            getActivityManager().registerProcessObserver(callback.mIProcessObserver);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to register ProcessObserver", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -249,20 +218,12 @@ public final class ActivityManagerHelper {
      * Unregisters the given callback.
      * @param callback a callback to unregister
      */
-    public void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
-        synchronized (mLock) {
-            // Make a copy of callbacks not to affect on-going callbacks.
-            mProcessObserverCallbacks =
-                    (ArrayList<ProcessObserverCallback>) mProcessObserverCallbacks.clone();
-            mProcessObserverCallbacks.remove(callback);
-            if (mProcessObserverCallbacks.isEmpty()) {
-                try {
-                    mAm.unregisterProcessObserver(mProcessObserver);
-                } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to unregister listener", e);
-                    throw new RuntimeException(e);
-                }
-            }
+    public static void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
+        try {
+            getActivityManager().unregisterProcessObserver(callback.mIProcessObserver);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to unregister listener", e);
+            throw new RuntimeException(e);
         }
     }
 
