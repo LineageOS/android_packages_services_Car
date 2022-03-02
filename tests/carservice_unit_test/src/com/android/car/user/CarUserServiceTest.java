@@ -166,6 +166,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
 
+    private static final int PRE_CREATION_STAGE_BEFORE_SUSPEND = 1;
+    private static final int PRE_CREATION_STAGE_ON_SYSTEM_START = 2;
+
     private static final boolean HAS_CALLER_RESTRICTIONS = true;
     private static final boolean NO_CALLER_RESTRICTIONS = false;
 
@@ -2436,6 +2439,26 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testInitBootUser_preCreateUser() throws Exception {
+        mockUserPreCreationStage(PRE_CREATION_STAGE_ON_SYSTEM_START);
+
+        CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+
+        service.initBootUser();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
+    public void testInitBootUser_noPreCreateUser() throws Exception {
+        mCarUserService.initBootUser();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator, never()).managePreCreatedUsers();
+    }
+
+    @Test
     public void testUpdatePreCreatedUser_success() throws Exception {
         mCarUserService.updatePreCreatedUsers();
         waitForHandlerThreadToFinish();
@@ -2447,6 +2470,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testOnSuspend_replace() throws Exception {
         mockExistingUsersAndCurrentUser(mGuestUser);
         when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
+        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
@@ -2461,6 +2485,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testOnSuspend_notReplace() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
+        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
@@ -2468,6 +2493,26 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         verify(mInitialUserSetter, never()).set(any());
         verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
+    public void testOnSuspend_preCreateUser() throws Exception {
+        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
+
+        CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+
+        service.onSuspend();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
+    public void testOnSuspend_noPreCreateUser() throws Exception {
+        mCarUserService.onSuspend();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator, never()).managePreCreatedUsers();
     }
 
     @Test
@@ -2573,6 +2618,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.createUser(name, userType, flags, timeoutMs, receiver,
                 hasCallerRestrictions);
         waitForHandlerThreadToFinish();
+    }
+
+    private void mockUserPreCreationStage(int stage) {
+        when(mMockedResources
+                .getInteger(com.android.car.R.integer.config_userPreCreationStage))
+                        .thenReturn(stage);
     }
 
     private void switchUser(@UserIdInt int userId, int timeoutMs,
