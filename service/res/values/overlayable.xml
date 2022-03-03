@@ -96,6 +96,8 @@
           <item type="bool" name="config_preventTemplatedAppsFromShowingDialog"/>
           <item type="string" name="config_template_activity_class_name" translatable="false"/>
           <item type="bool" name="config_enableExternalCarTimeToExternalTimeSuggestion"/>
+          <item type="integer" name="config_userPreCreationStage"/>
+          <item type="integer" name="config_userPreCreationDelay"/>
           <!-- Params from config.xml that can be overlaid -->
         </policy>
         <!-- END VENDOR CUSTOMIZATION -->
