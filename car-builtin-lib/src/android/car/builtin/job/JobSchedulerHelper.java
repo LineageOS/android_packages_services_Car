@@ -32,16 +32,13 @@ import java.util.List;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class JobSchedulerHelper {
 
-    private final JobScheduler mJobScheduler;
-
-    /** Constructs {@link JobSchedulerHelper}. */
-    public JobSchedulerHelper(Context context) {
-        mJobScheduler = context.getSystemService(JobScheduler.class);
+    private JobSchedulerHelper() {
+        throw new UnsupportedOperationException("contains only static members");
     }
 
     /** Gets the number of running jobs which are executed when a device goes idle. */
-    public int getNumberOfRunningJobsAtIdle() {
-        List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
+    public static int getNumberOfRunningJobsAtIdle(Context context) {
+        List<JobInfo> startedJobs = context.getSystemService(JobScheduler.class).getStartedJobs();
         if (startedJobs == null) {
             return 0;
         }
@@ -56,8 +53,9 @@ public final class JobSchedulerHelper {
     }
 
     /** Gets the number of jobs which are scheduled for execution at idle but not finished. */
-    public int getNumberOfPendingJobs() {
-        List<JobSnapshot> allScheduledJobs = mJobScheduler.getAllJobSnapshots();
+    public static int getNumberOfPendingJobs(Context context) {
+        List<JobSnapshot> allScheduledJobs =
+                context.getSystemService(JobScheduler.class).getAllJobSnapshots();
         if (allScheduledJobs == null) {
             return 0;
         }

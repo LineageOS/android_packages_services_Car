@@ -105,9 +105,8 @@ package android.car.builtin.input {
 package android.car.builtin.job {
 
   public final class JobSchedulerHelper {
-    ctor public JobSchedulerHelper(android.content.Context);
-    method public int getNumberOfPendingJobs();
-    method public int getNumberOfRunningJobsAtIdle();
+    method public static int getNumberOfPendingJobs(android.content.Context);
+    method public static int getNumberOfRunningJobsAtIdle(android.content.Context);
   }
 
 }
@@ -233,11 +232,10 @@ package android.car.builtin.os {
 package android.car.builtin.power {
 
   public final class PowerManagerHelper {
-    ctor public PowerManagerHelper(android.content.Context);
-    method public int getMaximumScreenBrightnessSetting();
-    method public int getMinimumScreenBrightnessSetting();
-    method public void setDisplayState(boolean, long);
-    method public void shutdown(boolean, String, boolean);
+    method public static int getMaximumScreenBrightnessSetting(android.content.Context);
+    method public static int getMinimumScreenBrightnessSetting(android.content.Context);
+    method public static void setDisplayState(android.content.Context, boolean, long);
+    method public static void shutdown(android.content.Context, boolean, String, boolean);
   }
 
 }
