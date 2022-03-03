@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"డ్రైవింగ్ చేస్తున్నప్పుడు డయల్‌ప్యాడ్‌ను ఉపయోగించడం పరిమితం చేయబడింది"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"ఎమర్జెన్సీ"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"బ్లూటూత్‌కు కనెక్ట్ చేయండి"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"మీ కాల్‌ను పూర్తి చేయడానికి, మొదట మీ ఫోన్‌ను బ్లూటూత్ ద్వారా మీ కారుకు కనెక్ట్ చేయండి."</string>
 </resources>

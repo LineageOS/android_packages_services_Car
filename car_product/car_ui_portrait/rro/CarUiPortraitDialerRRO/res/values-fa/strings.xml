@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"استفاده از صفحه شماره‌گیری هنگام رانندگی محدود شده است"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"اضطراری"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"اتصال به بلوتوث"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"برای تکمیل تماستان، ابتدا تلفنتان را ازطریق بلوتوث به خودرو متصل کنید."</string>
 </resources>
