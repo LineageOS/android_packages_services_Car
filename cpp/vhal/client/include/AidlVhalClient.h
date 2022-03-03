@@ -77,37 +77,37 @@ public:
                   std::shared_ptr<AidlVhalClient::SetValueCallbackFunc> callback) override;
 
     // Add the callback that would be called when VHAL binder died.
-    android::base::Result<void> addOnBinderDiedCallback(
+    android::hardware::automotive::vehicle::VhalResult<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     // Remove a previously added OnBinderDied callback.
-    android::base::Result<void> removeOnBinderDiedCallback(
+    android::hardware::automotive::vehicle::VhalResult<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
-    android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
-            override;
-    android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
-            std::vector<int32_t> propIds) override;
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    getAllPropConfigs() override;
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    getPropConfigs(std::vector<int32_t> propIds) override;
 
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
 
     // Converts a non-okay status to an error {@code Result}.
     template <class T>
-    inline static android::base::Result<T> statusToError(const ndk::ScopedAStatus& status,
-                                                         const std::string& msg) {
-        int32_t statusCode = android::hardware::automotive::vehicle::toInt(
-                aidl::android::hardware::automotive::vehicle::StatusCode::INTERNAL_ERROR);
+    inline static android::hardware::automotive::vehicle::VhalResult<T> statusToError(
+            const ndk::ScopedAStatus& status, const std::string& msg) {
+        using StatusCode = aidl::android::hardware::automotive::vehicle::StatusCode;
+        using StatusError = android::hardware::automotive::vehicle::StatusError;
+        StatusCode statusCode = StatusCode::INTERNAL_ERROR;
         if (status.getExceptionCode() == EX_SERVICE_SPECIFIC) {
-            statusCode = status.getServiceSpecificError();
+            statusCode = static_cast<StatusCode>(status.getServiceSpecificError());
         } else if (status.getExceptionCode() == EX_TRANSACTION_FAILED) {
             if (status.getStatus() != STATUS_DEAD_OBJECT) {
                 // STATUS_DEAD_OBJECT is fatal and should not return TRY_AGAIN.
-                statusCode = android::hardware::automotive::vehicle::toInt(
-                        aidl::android::hardware::automotive::vehicle::StatusCode::TRY_AGAIN);
+                statusCode = StatusCode::TRY_AGAIN;
             }
         }
-        return android::base::Error(statusCode) << msg << ", error: " << status.getDescription();
+        return StatusError(statusCode) << msg << ", error: " << status.getDescription();
     }
 
 private:
@@ -146,7 +146,8 @@ private:
     void onBinderDiedWithContext();
     void onBinderUnlinkedWithContext();
 
-    android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> parseVehiclePropConfigs(
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    parseVehiclePropConfigs(
             const aidl::android::hardware::automotive::vehicle::VehiclePropConfigs& configs);
 
     // Test-only functions:
@@ -260,10 +261,11 @@ public:
             std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal,
             std::shared_ptr<ISubscriptionCallback> callback);
 
-    android::base::Result<void> subscribe(
+    android::hardware::automotive::vehicle::VhalResult<void> subscribe(
             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) override;
-    android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+    android::hardware::automotive::vehicle::VhalResult<void> unsubscribe(
+            const std::vector<int32_t>& propIds) override;
 
 private:
     std::shared_ptr<SubscriptionVehicleCallback> mSubscriptionCallback;

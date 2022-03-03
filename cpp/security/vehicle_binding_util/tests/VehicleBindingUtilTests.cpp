@@ -28,6 +28,7 @@
 #include <IHalPropValue.h>
 #include <IVhalClient.h>
 #include <VehicleHalTypes.h>
+#include <VehicleUtils.h>
 
 #include <iterator>
 
@@ -49,12 +50,11 @@ using android::frameworks::automotive::vhal::ISubscriptionCallback;
 using android::frameworks::automotive::vhal::ISubscriptionClient;
 using android::frameworks::automotive::vhal::IVhalClient;
 using android::hardware::Void;
+using android::hardware::automotive::vehicle::StatusError;
+using android::hardware::automotive::vehicle::VhalResult;
 
 template <typename T>
 using VhalReturn = android::hardware::Return<T>;
-
-using ::android::base::Error;
-using ::android::base::Result;
 
 using ::testing::_;
 using ::testing::DoAll;
@@ -78,16 +78,16 @@ public:
     MOCK_METHOD(void, setValue, (const IHalPropValue&, std::shared_ptr<SetValueCallbackFunc>),
                 (override));
 
-    MOCK_METHOD(Result<void>, addOnBinderDiedCallback, (std::shared_ptr<OnBinderDiedCallbackFunc>),
-                (override));
-
-    MOCK_METHOD(Result<void>, removeOnBinderDiedCallback,
+    MOCK_METHOD(VhalResult<void>, addOnBinderDiedCallback,
                 (std::shared_ptr<OnBinderDiedCallbackFunc>), (override));
 
-    MOCK_METHOD(Result<std::vector<std::unique_ptr<IHalPropConfig>>>, getAllPropConfigs, (),
+    MOCK_METHOD(VhalResult<void>, removeOnBinderDiedCallback,
+                (std::shared_ptr<OnBinderDiedCallbackFunc>), (override));
+
+    MOCK_METHOD(VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>, getAllPropConfigs, (),
                 (override));
 
-    MOCK_METHOD(Result<std::vector<std::unique_ptr<IHalPropConfig>>>, getPropConfigs,
+    MOCK_METHOD(VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>, getPropConfigs,
                 (std::vector<int32_t>), (override));
 
     MOCK_METHOD(std::unique_ptr<ISubscriptionClient>, getSubscriptionClient,
@@ -197,7 +197,7 @@ TEST_F(VehicleBindingUtilTests, GetSeedVhalPropertyFails) {
                          const std::shared_ptr<MockVehicle::GetValueCallbackFunc>& callback) {
                 EXPECT_EQ(propValue.getPropId(),
                           toInt(VehicleProperty::STORAGE_ENCRYPTION_BINDING_SEED));
-                (*callback)(Error(static_cast<int>(StatusCode::NOT_AVAILABLE)));
+                (*callback)(StatusError(StatusCode::NOT_AVAILABLE));
             });
     EXPECT_EQ(BindingStatus::ERROR, setVehicleBindingSeed(mMockVehicle, mMockExecutor, mMockCsrng));
 }
@@ -210,7 +210,7 @@ TEST_F(VehicleBindingUtilTests, SetSeedVhalPropertyFails) {
     EXPECT_CALL(*mMockVehicle, setValue(_, _))
             .WillOnce([](const IHalPropValue&,
                          const std::shared_ptr<MockVehicle::SetValueCallbackFunc>& callback) {
-                (*callback)(Error(static_cast<int>(StatusCode::NOT_AVAILABLE)));
+                (*callback)(StatusError(StatusCode::NOT_AVAILABLE));
             });
 
     EXPECT_EQ(BindingStatus::ERROR, setVehicleBindingSeed(mMockVehicle, mMockExecutor, mMockCsrng));

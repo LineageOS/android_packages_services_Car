@@ -709,8 +709,7 @@ Result<void> WatchdogProcessService::updateVhal(const VehiclePropValue& value) {
     halPropValue->setInt32Values(value.value.int32Values);
     halPropValue->setInt64Values(value.value.int64Values);
     halPropValue->setStringValue(value.value.stringValue);
-    Result<void> result = mVhalService->setValueSync(*halPropValue);
-    if (!result.ok()) {
+    if (auto result = mVhalService->setValueSync(*halPropValue); !result.ok()) {
         return Error() << "Failed to set propValue(" << propId
                        << ") to VHAL, error: " << result.error().message();
     }
