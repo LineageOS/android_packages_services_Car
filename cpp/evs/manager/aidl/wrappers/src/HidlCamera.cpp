@@ -91,9 +91,10 @@ Return<void> HidlCamera::doneWithFrame(const hidlevs::V1_0::BufferDesc& buffer) 
     }
 
     std::vector<BufferDesc> buffersToReturn(1);
+    int bufferId = aidlBuffer.bufferId;  // save pre move() for log message.
     buffersToReturn[0] = std::move(aidlBuffer);
     if (auto status = mAidlCamera->doneWithFrame(std::move(buffersToReturn)); !status.isOk()) {
-        LOG(WARNING) << "Failed to return a buffer " << aidlBuffer.bufferId
+        LOG(WARNING) << "Failed to return a buffer " << bufferId
                      << ", status = " << status.getServiceSpecificError();
     }
 
