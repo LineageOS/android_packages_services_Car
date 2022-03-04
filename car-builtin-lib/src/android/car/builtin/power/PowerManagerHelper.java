@@ -28,51 +28,53 @@ import android.os.PowerManager;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class PowerManagerHelper {
 
-    private final PowerManager mPowerManager;
-
-    public PowerManagerHelper(Context context) {
-        mPowerManager = context.getSystemService(PowerManager.class);
+    private PowerManagerHelper() {
+        throw new UnsupportedOperationException("contains only static members");
     }
 
     /**
      * Gets the maximum supported screen brightness setting.
      * This wraps {@link PowerManager.getMaximumScreenBrightnessSetting}.
      *
+     * @param context Context to use.
      * @return The maximum value that can be set by the user.
      */
-    public int getMaximumScreenBrightnessSetting() {
-        return mPowerManager.getMaximumScreenBrightnessSetting();
+    public static int getMaximumScreenBrightnessSetting(Context context) {
+        return context.getSystemService(PowerManager.class).getMaximumScreenBrightnessSetting();
     }
 
     /**
      * Gets the minimum supported screen brightness setting.
      * This wraps {@link PowerManager.getMinimumScreenBrightnessSetting}.
      *
+     * @param context Context to use.
      * @return The minimum value that can be set by the user.
      */
-    public int getMinimumScreenBrightnessSetting() {
-        return mPowerManager.getMinimumScreenBrightnessSetting();
+    public static int getMinimumScreenBrightnessSetting(Context context) {
+        return context.getSystemService(PowerManager.class).getMinimumScreenBrightnessSetting();
     }
 
     /**
      * Forces the {@link com.android.server.display.DisplayGroup#DEFAULT default display group}
      * to turn on or off.
      *
+     * @param context Context to use.
      * @param on Whether to turn the display on or off.
      * @param upTime The time when the request was issued, in the
      * {@link SystemClock#uptimeMillis()} time base.
      */
-    public void setDisplayState(boolean on, long upTime) {
+    public static void setDisplayState(Context context, boolean on, long upTime) {
+        PowerManager powerManager = context.getSystemService(PowerManager.class);
         if (on) {
-            mPowerManager.wakeUp(upTime, PowerManager.WAKE_REASON_UNKNOWN, "wake up by CarService");
+            powerManager.wakeUp(upTime, PowerManager.WAKE_REASON_UNKNOWN, "wake up by CarService");
         } else {
-            mPowerManager.goToSleep(upTime, PowerManager.GO_TO_SLEEP_REASON_APPLICATION,
+            powerManager.goToSleep(upTime, PowerManager.GO_TO_SLEEP_REASON_APPLICATION,
                     /* flag= */ 0);
         }
     }
 
     /** Turns off the device. */
-    public void shutdown(boolean confirm, String reason, boolean wait) {
-        mPowerManager.shutdown(confirm, reason, wait);
+    public static void shutdown(Context context, boolean confirm, String reason, boolean wait) {
+        context.getSystemService(PowerManager.class).shutdown(confirm, reason, wait);
     }
 }

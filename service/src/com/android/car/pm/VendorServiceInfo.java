@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 import android.annotation.IntDef;
+import android.annotation.Nullable;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -28,7 +29,7 @@ import java.lang.annotation.RetentionPolicy;
  * Describes configuration of the vendor service that needs to be started by Car Service. This is
  * immutable object to store only service configuration.
  */
-class VendorServiceInfo {
+final class VendorServiceInfo {
     private static final String KEY_BIND = "bind";
     private static final String KEY_USER_SCOPE = "user";
     private static final String KEY_TRIGGER = "trigger";
@@ -67,10 +68,11 @@ class VendorServiceInfo {
     private final @Bind int mBind;
     private final @UserScope int mUserScope;
     private final @Trigger int mTrigger;
+    @Nullable
     private final ComponentName mComponentName;
 
-    private VendorServiceInfo(ComponentName componentName, @Bind int bind, @UserScope int userScope,
-            @Trigger int trigger) {
+    private VendorServiceInfo(@Nullable ComponentName componentName, @Bind int bind,
+            @UserScope int userScope, @Trigger int trigger) {
         mComponentName = componentName;
         mUserScope = userScope;
         mTrigger = trigger;
@@ -178,14 +180,53 @@ class VendorServiceInfo {
     @Override
     public String toString() {
         return "VendorService{"
-                + "component=" + mComponentName
-                + ", bind=" + mBind
-                + ", trigger=" + mTrigger
-                + ", user=" + mUserScope
+                + "component=" + toShortString()
+                + ", bind=" + bindToString(mBind)
+                + ", trigger=" + triggerToString(mTrigger)
+                + ", userScope=" + userScopeToString(mUserScope)
                 + '}';
     }
 
     String toShortString() {
-        return mComponentName != null ? mComponentName.toShortString() : "";
+        return mComponentName != null ? mComponentName.flattenToShortString() : "N/A";
+    }
+
+    // NOTE: cannot use DebugUtils below because constants are private
+
+    private static String bindToString(@Bind int bind) {
+        switch (bind) {
+            case BIND:
+                return "BIND";
+            case START:
+                return "START";
+            case START_FOREGROUND:
+                return "START_FOREGROUND";
+            default:
+                return "INVALID-" + bind;
+        }
+    }
+
+    private static String triggerToString(@Trigger int trigger) {
+        switch (trigger) {
+            case TRIGGER_ASAP:
+                return "ASAP";
+            case TRIGGER_UNLOCKED:
+                return "UNLOCKED";
+            default:
+                return "INVALID-" + trigger;
+        }
+    }
+
+    private static String userScopeToString(@UserScope int userScope) {
+        switch (userScope) {
+            case USER_SCOPE_ALL:
+                return "ALL";
+            case USER_SCOPE_FOREGROUND:
+                return "FOREGROUND";
+            case USER_SCOPE_SYSTEM:
+                return "SYSTEM";
+            default:
+                return "INVALID-" + userScope;
+        }
     }
 }
