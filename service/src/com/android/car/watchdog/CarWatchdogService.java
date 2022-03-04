@@ -23,6 +23,8 @@ import static android.content.Intent.ACTION_USER_REMOVED;
 import static com.android.car.CarLog.TAG_WATCHDOG;
 
 import android.annotation.NonNull;
+import android.annotation.UserIdInt;
+import android.app.ActivityThread;
 import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
@@ -453,6 +455,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void controlProcessHealthCheck(boolean disable) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.controlProcessHealthCheck(disable);
+    }
+
+    /**
+     * Kills a specific package for a user due to resource overuse.
+     *
+     * @return whether package was killed
+     */
+    public boolean performResourceOveruseKill(String packageName, @UserIdInt int userId) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        return mWatchdogPerfHandler.disablePackageForUser(ActivityThread.getPackageManager(),
+                packageName, userId);
     }
 
     @VisibleForTesting

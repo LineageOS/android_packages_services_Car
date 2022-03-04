@@ -19,6 +19,7 @@ import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.Car.PERMISSION_CAR_POWER;
 import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
 import static android.car.Car.PERMISSION_USE_CAR_WATCHDOG;
+import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
@@ -117,6 +118,7 @@ import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -131,7 +133,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 final class CarShellCommand extends ShellCommand {
 
@@ -221,6 +222,8 @@ final class CarShellCommand extends ShellCommand {
             "watchdog-io-get-3p-foreground-bytes";
     private static final String COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK =
             "watchdog-control-health-check";
+    private static final String COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL =
+            "watchdog-resource-overuse-kill";
 
     private static final String COMMAND_DRIVING_SAFETY_SET_REGION =
             "set-drivingsafety-region";
@@ -307,6 +310,8 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES,
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK,
+                PERMISSION_USE_CAR_WATCHDOG);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL,
                 PERMISSION_USE_CAR_WATCHDOG);
     }
 
@@ -678,6 +683,9 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
 
+        pw.printf("\t%s <PACKAGE_NAME>\n", COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL);
+        pw.println("\t  Kills PACKAGE_NAME due to resource overuse.");
+
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
         pw.println("\t  Set driving safety region.");
         pw.println("\t  Skipping REGION_STRING leads into resetting to all regions");
@@ -1032,6 +1040,9 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK:
                 controlWatchdogProcessHealthCheck(args, writer);
+                break;
+            case COMMAND_WATCHDOG_RESOURCE_OVERUSE_KILL:
+                performResourceOveruseKill(args, writer);
                 break;
             case COMMAND_DRIVING_SAFETY_SET_REGION:
                 setDrivingSafetyRegion(args, writer);
@@ -2397,6 +2408,21 @@ final class CarShellCommand extends ShellCommand {
         writer.printf("Watchdog health checking is now %sd \n", args[1]);
     }
 
+    private void performResourceOveruseKill(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+        String packageName = args[1];
+        int userId = ActivityManager.getCurrentUser();
+        boolean isKilled = mCarWatchdogService.performResourceOveruseKill(packageName, userId);
+        if (isKilled) {
+            writer.printf("Successfully killed package '%s' for user %d\n", packageName, userId);
+        } else {
+            writer.printf("Failed to kill package '%s' for user %d\n", packageName, userId);
+        }
+    }
+
     private void printTelemetryHelp(IndentingPrintWriter writer) {
         writer.println("A CLI to interact with CarTelemetryService.");
         writer.println("\nUSAGE: adb shell cmd car_service telemetry <subcommand> [options]");
@@ -2406,21 +2432,28 @@ final class CarShellCommand extends ShellCommand {
         writer.println("\t  Adds MetricsConfig from STDIN. Only a binary proto is supported.");
         writer.println("\tremove <name>");
         writer.println("\t  Removes metrics config.");
+        writer.println("\tremove-all");
+        writer.println("\t  Removes all metrics configs.");
         writer.println("\tlist");
         writer.println("\t  Lists the config metrics in the service.");
-        writer.println("\tget-results [-d] [-w] <name>");
-        writer.println("\t  Gets the results for the metrics config.");
-        writer.println("\t  Pass -d to delete the fetched results from the storage.");
-        writer.println("\t  Pass -w to wait for the result.");
+        writer.println("\tget-result <name>");
+        writer.println("\t  Gets if available or waits for the results for the metrics config.");
         writer.println("\nEXAMPLES:");
-        writer.println("\t$ adb shell cmd car_service telemetry add mykey 1 < config1.protobin");
+        writer.println("\t$ adb shell cmd car_service telemetry add name < config1.protobin");
         writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
-        writer.println("\n\t$ adb shell cmd car_service telemetry get-results mykey");
+        writer.println("\n\t$ adb shell cmd car_service telemetry get-result name");
     }
 
     private void handleTelemetryCommands(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             printTelemetryHelp(writer);
+            return;
+        }
+        Car car = Car.createCar(mContext);
+        CarTelemetryManager carTelemetryManager =
+                (CarTelemetryManager) car.getCarManager(Car.CAR_TELEMETRY_SERVICE);
+        if (carTelemetryManager == null) {
+            writer.println("telemetry service is not enabled, cannot use CLI");
             return;
         }
         String cmd = args[1];
@@ -2436,15 +2469,19 @@ final class CarShellCommand extends ShellCommand {
                         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                     FileUtils.copy(in, out);
                     CountDownLatch latch = new CountDownLatch(1);
-                    mCarTelemetryService.addMetricsConfig(args[2], out.toByteArray(), status -> {
-                        if (status == CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED) {
-                            writer.printf("MetricsConfig %s is added.\n", args[2]);
-                        } else {
-                            writer.printf("Failed to add %s. Status is %d.\n", args[2], status);
-                        }
-                        latch.countDown();
-                    });
-                    writer.printf("Adding %s... Please see logcat for details.\n", args[2]);
+                    carTelemetryManager.addMetricsConfig(args[2], out.toByteArray(), Runnable::run,
+                            (metricsConfigName, statusCode) -> {
+                                if (statusCode == STATUS_ADD_METRICS_CONFIG_SUCCEEDED) {
+                                    writer.printf("MetricsConfig %s is added.\n", args[2]);
+                                } else {
+                                    writer.printf(
+                                            "Failed to add %s. Status is %d. "
+                                                    + "Please see logcat for details.\n",
+                                            args[2],
+                                            statusCode);
+                                }
+                                latch.countDown();
+                            });
                     latch.await(TELEMETRY_RESULT_WAIT_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
                 } catch (IOException | InterruptedException | NumberFormatException e) {
                     writer.println("Failed to read from stdin: " + e);
@@ -2456,8 +2493,17 @@ final class CarShellCommand extends ShellCommand {
                     printTelemetryHelp(writer);
                     return;
                 }
-                mCarTelemetryService.removeMetricsConfig(args[2]);
+                carTelemetryManager.removeMetricsConfig(args[2]);
                 writer.printf("Removing %s... Please see logcat for details.\n", args[2]);
+                break;
+            case "remove-all":
+                if (args.length != 2) {
+                    writer.println("Invalid number of arguments.");
+                    printTelemetryHelp(writer);
+                    return;
+                }
+                carTelemetryManager.removeAllMetricsConfigs();
+                writer.printf("Removing all MetricsConfigs... Please see logcat for details.\n");
                 break;
             case "list":
                 writer.println("Active metric configs:");
@@ -2465,69 +2511,62 @@ final class CarShellCommand extends ShellCommand {
                     writer.printf("- %s\n", configDetails);
                 });
                 break;
-            case "get-results":
-                if (args.length < 3 || args.length > 5) {
+            case "get-result":
+                if (args.length != 3) {
                     writer.println("Invalid number of arguments.");
                     printTelemetryHelp(writer);
                     return;
                 }
-                String configName = null;
-                boolean deleteResults = false;
-                boolean waitForResults = false;
-                for (int i = 2; i < args.length; i++) {
-                    switch (args[i]) {
-                        case "-d":
-                            deleteResults = true;
-                            break;
-                        case "-w":
-                            waitForResults = true;
-                            break;
-                        default:
-                            configName = args[i];
+                String configName = args[2];
+                CountDownLatch latch = new CountDownLatch(1);
+                CarTelemetryManager.MetricsReportCallback callback =
+                        (metricsConfigName, report, telemetryError, status) -> {
+                            if (report != null) {
+                                parseTelemetryReport(report, writer);
+                            } else if (telemetryError != null) {
+                                parseTelemetryError(telemetryError, writer);
+                            }
+                            latch.countDown();
+                        };
+                carTelemetryManager.clearReportReadyListener();
+                carTelemetryManager.setReportReadyListener(Runnable::run, metricsConfigName -> {
+                    if (metricsConfigName.equals(configName)) {
+                        carTelemetryManager.getFinishedReport(
+                                metricsConfigName, Runnable::run, callback);
                     }
-                }
-                if (configName == null) {
-                    writer.println("Config name is required.");
-                    printTelemetryHelp(writer);
-                    return;
-                }
-                if (waitForResults) {
+                });
+                try {
                     writer.println("Waiting for the result...");
                     writer.flush();
+                    latch.await();
+                } catch (InterruptedException e) {
+                    writer.println("Result await error: " + e);
+                } finally {
+                    carTelemetryManager.clearReportReadyListener();
                 }
-                while (true) {
-                    CountDownLatch latch = new CountDownLatch(1);
-                    AtomicReference<PersistableBundle> finalResult = new AtomicReference<>(null);
-                    AtomicReference<TelemetryError> finalError = new AtomicReference<>(null);
-                    mCarTelemetryService.getFinishedReports(configName, deleteResults,
-                            (result, error) -> {
-                                finalResult.set(result);
-                                finalError.set(error);
-                                latch.countDown();
-                            });
-                    try {
-                        latch.await(TELEMETRY_RESULT_WAIT_TIMEOUT.toSeconds(), TimeUnit.SECONDS);
-                    } catch (InterruptedException e) {
-                        writer.println("Result await error: " + e);
-                        return;
-                    }
-                    if (finalError.get() != null) {
-                        // TODO(b/209469238): Create a NO_RESULT error type
-                        boolean isEmptyResult = finalError.get().getErrorType().equals(
-                                TelemetryError.ErrorType.UNSPECIFIED);
-                        if (waitForResults && isEmptyResult) {
-                            SystemClock.sleep(2000);  // do not spam CarTelemetryService
-                            continue; // continue the loop
-                        }
-                        writer.println("Error: " + finalError.get().getErrorType().name() + ": "
-                                + finalError.get().getMessage());
-                    } else {
-                        writer.println(finalResult.get());
-                    }
-                    return;
-                }
+                break;
             default:
                 printTelemetryHelp(writer);
+        }
+    }
+
+    private void parseTelemetryReport(byte[] report, IndentingPrintWriter writer) {
+        try {
+            PersistableBundle bundle = PersistableBundle.readFromStream(
+                    new ByteArrayInputStream(report));
+            writer.println(bundle);
+        } catch (IOException e) {
+            writer.println("Report is received, but parsing report failed: " + e);
+        }
+    }
+
+    private void parseTelemetryError(byte[] telemetryError, IndentingPrintWriter writer) {
+        try {
+            TelemetryError error = TelemetryError.parseFrom(telemetryError);
+            writer.println("Error: " + error.getErrorType().name() + ": "
+                    + error.getMessage());
+        } catch (IOException e) {
+            writer.println("Error is received, but parsing error failed: " + e);
         }
     }
 

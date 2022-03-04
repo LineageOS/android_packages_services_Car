@@ -361,10 +361,12 @@ public final class CarTelemetryManager extends CarManagerBase {
      * helps clients decide when is a good time to call {@link
      * #getFinishedReport(String, Executor, MetricsReportCallback)}.
      *
-     * <p>If a listener is not registered when the report or error was the produced, notification
-     * will not be sent to a listener that is registered later. Clients who do not register a
-     * listener should use {@link #getFinishedReport(String, Executor, MetricsReportCallback)}
-     * periodically to check for report ready states.
+     * <p>When a listener is set, it will receive notifications for reports or errors that are
+     * already produced before the listener is registered.
+     *
+     * <p>Clients who do not register a listener should use {@link
+     * #getFinishedReport(String, Executor, MetricsReportCallback)} periodically to check for
+     * report.
      *
      * @param executor The {@link Executor} on which the callback will be invoked.
      * @param listener The listener to receive report ready notifications.
