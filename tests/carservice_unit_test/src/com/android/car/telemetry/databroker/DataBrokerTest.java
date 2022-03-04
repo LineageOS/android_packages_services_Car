@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.Nullable;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.hardware.CarPropertyConfig;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Handler;
@@ -41,7 +42,6 @@ import android.util.TimingsTraceLog;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;

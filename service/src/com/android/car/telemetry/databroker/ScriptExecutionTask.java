@@ -17,9 +17,8 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
+import android.car.telemetry.TelemetryProto;
 import android.os.PersistableBundle;
-
-import com.android.car.telemetry.TelemetryProto;
 
 /**
  * A wrapper class containing all the necessary information to invoke the ScriptExecutor API. It
