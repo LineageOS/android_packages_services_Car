@@ -267,8 +267,9 @@ class GarageMode {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
+            writer.printf("GarageMode is %sactive\n", (mGarageModeActive ? "" : "not "));
             mGarageModeRecorder.dump(writer);
-            if (!mGarageModeActive) { //TODO(b/217739337) print value of mGarageModeActive
+            if (!mGarageModeActive) {
                 return;
             }
             writer.printf("GarageMode idle checker is %srunning\n",
