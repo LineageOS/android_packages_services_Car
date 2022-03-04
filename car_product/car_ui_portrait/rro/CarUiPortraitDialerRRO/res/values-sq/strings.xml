@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"Përdorimi i bllokut të formimit të numrit është i kufizuar gjatë drejtimit të makinës"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"Urgjencë"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"Lidhu me Bluetooth"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"Për të përfunduar telefonatën, në fillim lidh telefonin me makinën nëpërmjet Bluetooth-it."</string>
 </resources>

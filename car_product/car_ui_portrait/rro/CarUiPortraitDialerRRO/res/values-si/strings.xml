@@ -20,5 +20,7 @@
     <string name="restricted_dialing_mode_label" msgid="7172816353849537731">"රිය පදවන අතරතුර ඇමතුම් පෑඩ භාවිතය සීමා කර ඇත"</string>
     <string name="emergency_button_text" msgid="5012352862848993348">"හදිසි අවස්ථාව"</string>
     <string name="connect_bluetooth_button_text" msgid="3404373747160373407">"බ්ලූටූත් වෙත සබඳින්න"</string>
+    <string name="decline_call" msgid="3593508497959313142"></string>
+    <string name="answer_call" msgid="5688982198411188640"></string>
     <string name="no_hfp" msgid="2403350988312998712">"ඔබගේ ඇමතුම සම්පූර්ණ කිරීමට, පළමුව ඔබගේ දුරකථනය ඔබගේ මෝටර් රථයට බ්ලූටූත් හරහා සම්බන්ධ කරන්න."</string>
 </resources>
