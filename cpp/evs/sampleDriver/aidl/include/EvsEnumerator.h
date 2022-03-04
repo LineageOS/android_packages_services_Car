@@ -23,6 +23,7 @@
 
 #include <aidl/android/hardware/automotive/evs/BnEvsEnumerator.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
+#include <aidl/android/hardware/automotive/evs/DeviceStatusType.h>
 #include <aidl/android/hardware/automotive/evs/IEvsCamera.h>
 #include <aidl/android/hardware/automotive/evs/IEvsEnumeratorStatusCallback.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
@@ -70,8 +71,12 @@ public:
     // Implementation details
     EvsEnumerator(const ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService>& service);
 
+    void notifyDeviceStatusChange(const std::string_view& deviceName,
+                                  aidlevs::DeviceStatusType type);
+
     // Monitor hotplug devices
-    static void EvsHotplugThread(std::atomic<bool>& running);
+    static void EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
+                                 std::atomic<bool>& running);
 
 private:
     struct CameraRecord {
@@ -88,6 +93,8 @@ private:
     static bool qualifyCaptureDevice(const char* deviceName);
     static CameraRecord* findCameraById(const std::string& cameraId);
     static void enumerateCameras();
+    static bool addCaptureDevice(const std::string& deviceName);
+    static bool removeCaptureDevice(const std::string& deviceName);
     static void enumerateDisplays();
 
     // NOTE:  All members values are static so that all clients operate on the same state
@@ -105,6 +112,8 @@ private:
     static sp<automotivedisplay::IAutomotiveDisplayProxyService> sDisplayProxy;
     static std::unordered_map<uint8_t, uint64_t> sDisplayPortList;
     static uint64_t sInternalDisplayId;
+
+    std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback> mCallback;
 
     // Dumpsys commands
     binder_status_t parseCommand(int fd, const std::vector<std::string>& options);
