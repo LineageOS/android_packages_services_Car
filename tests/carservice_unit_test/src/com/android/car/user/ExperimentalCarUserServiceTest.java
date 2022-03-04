@@ -39,6 +39,7 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.user.UserCreationResult;
 import android.car.user.UserSwitchResult;
@@ -78,7 +79,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
     public void setUp() {
         mExperimentalCarUserService =
                 new ExperimentalCarUserService(mMockContext, mCarUserService, mMockedUserManager,
-                        mMockedActivityManagerHelper, mMockedUserHandleHelper);
+                        mMockedUserHandleHelper);
 
         // TODO(b/172262561): refactor this call, which is not assigning the service to anything
         // (but without it some tests fail due to NPE).
@@ -223,8 +224,8 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
         int passenger3Id = 93;
         int zone1Id = 1;
         int zone2Id = 2;
-        doReturn(true).when(mMockedActivityManagerHelper)
-                .startUserInBackground(anyInt());
+        doReturn(true)
+                .when(() -> ActivityManagerHelper.startUserInBackground(anyInt()));
         assertThat(mExperimentalCarUserService.startPassenger(passenger1Id, zone1Id)).isTrue();
         assertThat(mExperimentalCarUserService.startPassenger(passenger2Id, zone2Id)).isTrue();
         assertThat(mExperimentalCarUserService.startPassenger(passenger3Id, zone2Id)).isFalse();
@@ -241,8 +242,8 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
 
         associateParentChild(user1, passenger1);
         mockGetCurrentUser(user1Id);
-        doReturn(true).when(mMockedActivityManagerHelper)
-                .startUserInBackground(anyInt());
+        doReturn(true)
+                .when(() -> ActivityManagerHelper.startUserInBackground(anyInt()));
         assertThat(mExperimentalCarUserService.startPassenger(passenger1Id, zoneId)).isTrue();
         assertThat(mExperimentalCarUserService.stopPassenger(passenger1Id)).isTrue();
         // Test of stopping an already stopped passenger.
