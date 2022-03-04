@@ -182,7 +182,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             "Cannot create user because calling user %s has the '%s' restriction";
 
     private final Context mContext;
-    private final ActivityManagerHelper mAmHelper;
     private final ActivityManager mAm;
     private final UserManager mUserManager;
     private final DevicePolicyManager mDpm;
@@ -310,12 +309,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
-            @NonNull ActivityManagerHelper amHelper,
             int maxRunningUsers,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
         this(context, hal, userManager, new UserHandleHelper(context, userManager),
                 context.getSystemService(DevicePolicyManager.class),
-                context.getSystemService(ActivityManager.class), amHelper, maxRunningUsers,
+                context.getSystemService(ActivityManager.class), maxRunningUsers,
                 /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService,
                 null);
     }
@@ -326,7 +324,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull UserHandleHelper userHandleHelper,
             @NonNull DevicePolicyManager dpm,
             @NonNull ActivityManager am,
-            @NonNull ActivityManagerHelper amHelper,
             int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter,
             @Nullable UserPreCreator userPreCreator,
@@ -336,7 +333,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mContext = context;
         mHal = hal;
         mAm = am;
-        mAmHelper = amHelper;
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
         mDpm = dpm;
@@ -1855,7 +1851,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        if (!mAmHelper.startUserInBackground(userId)) {
+        if (!ActivityManagerHelper.startUserInBackground(userId)) {
             Slogf.w(TAG, "Failed to start user %d in background", userId);
             sendUserStartResult(userId, UserStartResult.STATUS_ANDROID_FAILURE, receiver);
             return;
@@ -1899,11 +1895,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (user == ActivityManager.getCurrentUser()) {
                 continue;
             }
-            if (mAmHelper.startUserInBackground(user)) {
+            if (ActivityManagerHelper.startUserInBackground(user)) {
                 if (mUserManager.isUserUnlockingOrUnlocked(UserHandle.of(user))) {
                     // already unlocked / unlocking. No need to unlock.
                     startedUsers.add(user);
-                } else if (mAmHelper.unlockUser(user)) {
+                } else if (ActivityManagerHelper.unlockUser(user)) {
                     startedUsers.add(user);
                 } else { // started but cannot unlock
                     Slogf.w(TAG, "Background user started but cannot be unlocked: %s", user);
@@ -1953,7 +1949,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId) {
-        int r = mAmHelper.stopUserWithDelayedLocking(userId, true);
+        int r = ActivityManagerHelper.stopUserWithDelayedLocking(userId, true);
         switch(r) {
             case USER_OP_SUCCESS:
                 return UserStopResult.STATUS_SUCCESSFUL;

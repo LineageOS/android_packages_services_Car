@@ -71,7 +71,6 @@ public final class CarActivityService extends ICarActivityService.Stub
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     private final Context mContext;
-    private final ActivityManagerHelper mAm;
 
     private final Object mLock = new Object();
 
@@ -102,7 +101,6 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     public CarActivityService(Context context) {
         mContext = context;
-        mAm = ActivityManagerHelper.getInstance();
     }
 
     @Override
@@ -376,7 +374,7 @@ public final class CarActivityService extends ICarActivityService.Stub
     private void findTaskAndGrantFocus(ComponentName activity) {
         TaskInfo taskInfo = getTaskInfoForTopActivity(activity);
         if (taskInfo != null) {
-            mAm.setFocusedRootTask(taskInfo.taskId);
+            ActivityManagerHelper.setFocusedRootTask(taskInfo.taskId);
             return;
         }
         Slogf.i(CarLog.TAG_AM, "cannot give focus, cannot find Activity:" + activity);

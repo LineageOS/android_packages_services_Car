@@ -21,6 +21,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static com.android.car.CarLog.TAG_AM;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,7 +29,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
@@ -80,8 +80,6 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Mock
     private Context mContext;
     @Mock
-    private ActivityManagerHelper mActivityManager;
-    @Mock
     private CarActivityService mActivityService;
     @Mock
     private UserManager mUserManager;
@@ -107,8 +105,9 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
-            .spyStatic(ActivityManager.class)
-            .spyStatic(CarLocalServices.class);
+                .spyStatic(ActivityManager.class)
+                .spyStatic(ActivityManagerHelper.class)
+                .spyStatic(CarLocalServices.class);
     }
 
     @Before
@@ -117,7 +116,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         doReturn(mCarUserService).when(() -> CarLocalServices.getService(CarUserService.class));
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
         when(mDisplayManager.getDisplay(mValidDisplayId)).thenReturn(mValidDisplay);
-        mFixedActivityService = new FixedActivityService(mContext, mActivityManager,
+        mFixedActivityService = new FixedActivityService(mContext,
                 mActivityService, mUserManager, mDisplayManager, mUserHandleHelper);
     }
 
@@ -313,15 +312,15 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         boolean started = mFixedActivityService.startFixedActivityModeForDisplayAndUser(
                 intent, options, displayToBeRemoved, userId);
         assertThat(started).isTrue();
-        assertThat(mFixedActivityService.getRunningFixedActivity(displayToBeRemoved)).isNotNull();
+        assertThat(mFixedActivityService.hasRunningFixedActivity(displayToBeRemoved)).isTrue();
 
         // The display is still valid.
         mFixedActivityService.launchIfNecessary();
-        assertThat(mFixedActivityService.getRunningFixedActivity(displayToBeRemoved)).isNotNull();
+        assertThat(mFixedActivityService.hasRunningFixedActivity(displayToBeRemoved)).isTrue();
 
         // The display is removed.
         mFixedActivityService.launchIfNecessary();
-        assertThat(mFixedActivityService.getRunningFixedActivity(displayToBeRemoved)).isNull();
+        assertThat(mFixedActivityService.hasRunningFixedActivity(displayToBeRemoved)).isFalse();
     }
 
     @Test
@@ -364,19 +363,19 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
                 options, mValidDisplayId, userId);
         assertThat(ret).isTrue();
         // To check if monitoring is started.
-        verify(mActivityManager).registerProcessObserverCallback(
-                any(ActivityManagerHelper.ProcessObserverCallback.class));
+        verify(() -> ActivityManagerHelper.registerProcessObserverCallback(
+                any(ActivityManagerHelper.ProcessObserverCallback.class)));
 
         mFixedActivityService.stopFixedActivityMode(mValidDisplayId);
-        verify(mActivityManager).unregisterProcessObserverCallback(
-                any(ActivityManagerHelper.ProcessObserverCallback.class));
+        verify(() -> ActivityManagerHelper.unregisterProcessObserverCallback(
+                any(ActivityManagerHelper.ProcessObserverCallback.class)));
     }
 
     @Test
     public void testStopFixedActivityMode_invalidDisplayId() throws Exception {
         mFixedActivityService.stopFixedActivityMode(Display.DEFAULT_DISPLAY);
-        verify(mActivityManager, never()).unregisterProcessObserverCallback(
-                any(ActivityManagerHelper.ProcessObserverCallback.class));
+        verify(() -> ActivityManagerHelper.unregisterProcessObserverCallback(
+                any(ActivityManagerHelper.ProcessObserverCallback.class)), never());
     }
 
     @Test
@@ -478,11 +477,9 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         verify(mCarUserService).addUserLifecycleListener(any(), any());
 
         if (runningFixedActivityExpected) {
-            assertThat(mFixedActivityService.getRunningFixedActivity(mValidDisplayId))
-                    .isNotNull();
+            assertThat(mFixedActivityService.hasRunningFixedActivity(mValidDisplayId)).isTrue();
         } else {
-            assertThat(mFixedActivityService.getRunningFixedActivity(mValidDisplayId))
-                    .isNull();
+            assertThat(mFixedActivityService.hasRunningFixedActivity(mValidDisplayId)).isFalse();
         }
     }
 
