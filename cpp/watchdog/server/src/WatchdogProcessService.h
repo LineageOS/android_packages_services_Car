@@ -44,6 +44,13 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+// Forward declaration for testing use only.
+namespace internal {
+
+class WatchdogProcessServicePeer;
+
+}  // namespace internal
+
 class IWatchdogServiceHelper;
 
 class WatchdogProcessService : public android::RefBase {
@@ -236,6 +243,9 @@ private:
             GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
     android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper GUARDED_BY(mMutex);
+
+    // For unit tests.
+    friend class internal::WatchdogProcessServicePeer;
 };
 
 }  // namespace watchdog
