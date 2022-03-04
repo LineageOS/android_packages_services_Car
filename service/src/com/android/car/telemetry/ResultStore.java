@@ -280,11 +280,13 @@ public class ResultStore {
         configNames.addAll(mFinalResultCache.keySet());
         configNames.addAll(mErrorCache.keySet());
         // prevent NPE
-        if (mFinalResultDirectory.list() != null) {
-            configNames.addAll(Arrays.asList(mFinalResultDirectory.list()));
+        String[] fileNames = mFinalResultDirectory.list();
+        if (fileNames != null) {
+            configNames.addAll(Arrays.asList(fileNames));
         }
-        if (mErrorResultDirectory.list() != null) {
-            configNames.addAll(Arrays.asList(mErrorResultDirectory.list()));
+        fileNames = mErrorResultDirectory.list();
+        if (fileNames != null) {
+            configNames.addAll(Arrays.asList(fileNames));
         }
         return configNames;
     }
