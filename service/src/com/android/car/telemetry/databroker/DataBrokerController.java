@@ -17,11 +17,11 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
+import android.car.telemetry.TelemetryProto;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.telemetry.MetricsConfigStore;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;

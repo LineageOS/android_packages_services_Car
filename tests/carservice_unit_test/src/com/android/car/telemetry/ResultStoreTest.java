@@ -19,6 +19,7 @@ package com.android.car.telemetry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import android.car.telemetry.TelemetryProto;
 import android.os.PersistableBundle;
 
 import org.junit.Before;

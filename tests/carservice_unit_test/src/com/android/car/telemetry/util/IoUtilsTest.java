@@ -21,9 +21,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.testng.Assert.assertThrows;
 
+import android.car.telemetry.TelemetryProto;
 import android.os.PersistableBundle;
-
-import com.android.car.telemetry.TelemetryProto;
 
 import org.junit.Before;
 import org.junit.Test;

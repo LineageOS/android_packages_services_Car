@@ -21,6 +21,7 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFI
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.TelemetryProto;
 
 import org.junit.Before;
 import org.junit.Test;

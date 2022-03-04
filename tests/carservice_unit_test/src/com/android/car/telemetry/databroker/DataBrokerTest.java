@@ -30,6 +30,7 @@ import android.annotation.Nullable;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.hardware.CarPropertyConfig;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.pm.PackageInfo;
@@ -44,7 +45,6 @@ import android.util.Log;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
