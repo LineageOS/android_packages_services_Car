@@ -319,6 +319,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.network.TetherProvisioningCarrierDialogActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$TetherSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2535,6 +2544,15 @@
         </activity-alias>
 
         <activity-alias
+            android:name="com.android.settings.TextReadingForSetupWizardActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity-alias>
+
+        <activity-alias
             android:name="com.android.settings.ConfirmDeviceCredentialActivity"
             android:enabled="false"
             android:exported="false"
@@ -2751,6 +2769,15 @@
 
         <receiver
             android:name="com.android.settings.sim.receivers.SimCompleteBootReceiver"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </receiver>
+
+        <receiver
+            android:name="com.android.settings.safetycenter.SafetySourceBroadcastReceiver"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
