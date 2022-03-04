@@ -26,6 +26,7 @@ import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExis
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -36,7 +37,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -150,7 +150,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected LocationManager mLocationManager;
     @Mock protected UserHalService mUserHal;
     @Mock protected ActivityManager mMockedActivityManager;
-    @Mock protected ActivityManagerHelper mMockedActivityManagerHelper;
     @Mock protected UserManager mMockedUserManager;
     @Mock protected DevicePolicyManager mMockedDevicePolicyManager;
     @Mock protected Resources mMockedResources;
@@ -517,7 +516,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 mMockedUserHandleHelper,
                 mMockedDevicePolicyManager,
                 mMockedActivityManager,
-                mMockedActivityManagerHelper,
                 /* maxRunningUsers= */ 3,
                 mInitialUserSetter,
                 mUserPreCreator,
@@ -564,7 +562,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     // TODO(b/210864238): Move the helper methods to AndroidMockitoHelper.
     protected void mockAmStartUserInBackground(@UserIdInt int userId, boolean result)
             throws Exception {
-        when(mMockedActivityManagerHelper.startUserInBackground(userId)).thenReturn(result);
+        doReturn(result).when(() -> ActivityManagerHelper.startUserInBackground(userId));
     }
 
     protected void mockRemoveUser(@NonNull UserHandle user) {
@@ -597,14 +595,16 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected void mockStopUserWithDelayedLocking(@UserIdInt int userId, int result)
             throws Exception {
-        when(mMockedActivityManagerHelper.stopUserWithDelayedLocking(userId, true))
-                .thenReturn(result);
+        doReturn(result)
+                .when(() -> ActivityManagerHelper.stopUserWithDelayedLocking(
+                        userId, /* force= */ true));
     }
 
     protected void mockStopUserWithDelayedLockingThrowsIllegalStateException(@UserIdInt int userId)
             throws Exception {
-        when(mMockedActivityManagerHelper.stopUserWithDelayedLocking(userId, true))
-                .thenThrow(new IllegalStateException());
+        doThrow(new IllegalStateException())
+                .when(() -> ActivityManagerHelper.stopUserWithDelayedLocking(
+                        userId, /* force= */ true));
     }
 
     protected void mockHalGetInitialInfo(@UserIdInt int currentUserId,

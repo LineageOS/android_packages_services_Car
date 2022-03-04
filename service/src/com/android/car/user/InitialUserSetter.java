@@ -630,19 +630,18 @@ final class InitialUserSetter {
     @VisibleForTesting
     void unlockSystemUser() {
         Slogf.i(TAG, "unlocking system user");
-        ActivityManagerHelper am = ActivityManagerHelper.getInstance();
-
         TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         t.traceBegin("UnlockSystemUser");
         // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
         // update the state and USER_SYSTEM unlock happens twice.
         t.traceBegin("am.startUser");
-        boolean started = am.startUserInBackground(UserHandle.SYSTEM.getIdentifier());
+        boolean started = ActivityManagerHelper.startUserInBackground(
+                UserHandle.SYSTEM.getIdentifier());
         t.traceEnd();
         if (!started) {
             Slogf.w(TAG, "could not restart system user in foreground; trying unlock instead");
             t.traceBegin("am.unlockUser");
-            boolean unlocked = am.unlockUser(UserHandle.SYSTEM.getIdentifier());
+            boolean unlocked = ActivityManagerHelper.unlockUser(UserHandle.SYSTEM.getIdentifier());
             t.traceEnd();
             if (!unlocked) {
                 Slogf.w(TAG, "could not unlock system user neither");
@@ -658,7 +657,7 @@ final class InitialUserSetter {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }
-        return ActivityManagerHelper.getInstance().startUserInForeground(userId);
+        return ActivityManagerHelper.startUserInForeground(userId);
     }
 
     private void notifyListener(@Nullable UserHandle initialUser) {
