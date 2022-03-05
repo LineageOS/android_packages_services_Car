@@ -116,3 +116,6 @@ allow carservice_app proc_loadavg:file { open read getattr };
 # Allow finding game_service and content_capture_service
 allow carservice_app game_service:service_manager find;
 allow carservice_app content_capture_service:service_manager find;
+
+# Allow finding hint_service
+allow carservice_app hint_service:service_manager find;

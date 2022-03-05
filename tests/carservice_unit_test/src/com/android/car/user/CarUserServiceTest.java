@@ -25,6 +25,7 @@ import static android.car.test.mocks.JavaMockitoHelper.getResult;
 import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectGuestUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExists;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -46,6 +47,7 @@ import static org.testng.Assert.expectThrows;
 
 import android.app.ActivityManager;
 import android.car.ICarResultReceiver;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
@@ -530,8 +532,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
 
-        when(mMockedActivityManagerHelper.startUserInBackground(user2)).thenReturn(true);
-        when(mMockedActivityManagerHelper.unlockUser(user2)).thenReturn(true);
+        doReturn(true).when(() -> ActivityManagerHelper.startUserInBackground(user2));
+        doReturn(true).when(() -> ActivityManagerHelper.unlockUser(user2));
         assertThat(mCarUserService.startAllBackgroundUsersInGarageMode()).containsExactly(user2);
         sendUserUnlockedEvent(user2);
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
@@ -577,7 +579,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 mMockedUserHandleHelper,
                 mMockedDevicePolicyManager,
                 mMockedActivityManager,
-                mMockedActivityManagerHelper,
                 /* maxRunningUsers= */ 3,
                 mInitialUserSetter,
                 mUserPreCreator,

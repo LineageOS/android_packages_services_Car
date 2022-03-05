@@ -16,22 +16,22 @@ package android.car.builtin.app {
   public final class ActivityManagerHelper {
     method public static int checkComponentPermission(@NonNull String, int, int, boolean);
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
-    method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
-    method public void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
-    method public boolean removeTask(int);
-    method public void setFocusedRootTask(int);
-    method public boolean startUserInBackground(int);
-    method public boolean startUserInForeground(int);
-    method public void stopAllTasksForUser(int);
-    method public int stopUserWithDelayedLocking(int, boolean);
-    method public boolean unlockUser(int);
-    method public void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
+    method public static void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
+    method public static boolean removeTask(int);
+    method public static void setFocusedRootTask(int);
+    method public static boolean startUserInBackground(int);
+    method public static boolean startUserInForeground(int);
+    method public static void stopAllTasksForUser(int);
+    method public static int stopUserWithDelayedLocking(int, boolean);
+    method public static boolean unlockUser(int);
+    method public static void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     field public static final int INVALID_TASK_ID = -1; // 0xffffffff
   }
 
-  public static interface ActivityManagerHelper.ProcessObserverCallback {
-    method public default void onForegroundActivitiesChanged(int, int, boolean);
-    method public default void onProcessDied(int, int);
+  public abstract static class ActivityManagerHelper.ProcessObserverCallback {
+    ctor public ActivityManagerHelper.ProcessObserverCallback();
+    method public void onForegroundActivitiesChanged(int, int, boolean);
+    method public void onProcessDied(int, int);
   }
 
   public final class KeyguardManagerHelper {

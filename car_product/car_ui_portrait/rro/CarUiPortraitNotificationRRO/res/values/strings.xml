@@ -16,11 +16,7 @@
   -->
 
 <resources>
-    <!-- The assistant action label to read aloud a message notification and optionally prompt user to respond [CHAR_LIMIT=20]-->
-    <string name="assist_action_play_label"></string>
-    <string name="assist_action_reply_label"></string>
-    <string name="action_mute_short"></string>
-
     <!-- Notification header text displayed on top of the notification center shade [CHAR_LIMIT=25] -->
     <string name="notification_header">Notification Center</string>
 </resources>
+
