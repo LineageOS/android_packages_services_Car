@@ -52,7 +52,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.view.Display;
 
 import com.android.car.CarLocalServices;
@@ -81,8 +80,6 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     private Context mContext;
     @Mock
     private CarActivityService mActivityService;
-    @Mock
-    private UserManager mUserManager;
     @Mock
     private DisplayManager mDisplayManager;
     @Mock
@@ -117,7 +114,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
         when(mDisplayManager.getDisplay(mValidDisplayId)).thenReturn(mValidDisplay);
         mFixedActivityService = new FixedActivityService(mContext,
-                mActivityService, mUserManager, mDisplayManager, mUserHandleHelper);
+                mActivityService, mDisplayManager, mUserHandleHelper);
     }
 
     @After
