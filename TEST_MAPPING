@@ -1,7 +1,13 @@
 {
   "auto-service-experimental-code-presubmit": [
     {
-      "name": "ExperimentalCarServiceTests"
+      "name": "ExperimentalCarServiceTests",
+      "options": [
+        {
+          // Test is compiled only with x86_64 libraries. b/215646341#comment33
+          "exclude-filter": "x86 ExperimentalCarServiceTests"
+        }
+      ]
     }
   ],
   "auto-postsubmit": [
