@@ -36,6 +36,7 @@ java_defaults {
         ":android.car.cluster.navigation-src",
         ":android.car.watchdoglib-src",
         ":cartelemetry-cardata-proto-srcs",
+        ":cartelemetryservice-proto-srcs",
         ":com.android.car.procfsinspector-client-src",
         ":statslog-Car-java-gen",
         ":vehicle-hal-support-lib-src",
@@ -200,12 +201,4 @@ filegroup {
         "src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl",
     ],
     path: "src",
-}
-
-// Public protos for CarTelemetryManager clients.
-filegroup {
-    name: "cartelemetryservice-proto-srcs",
-    srcs: [
-        "proto/android/car/telemetry/telemetry.proto"
-    ],
 }

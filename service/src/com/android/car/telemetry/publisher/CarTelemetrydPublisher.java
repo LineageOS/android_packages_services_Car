@@ -22,13 +22,13 @@ import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
+import android.car.telemetry.TelemetryProto;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;

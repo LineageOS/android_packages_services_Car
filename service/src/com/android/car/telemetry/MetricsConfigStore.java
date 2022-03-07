@@ -23,6 +23,7 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFI
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slogf;
+import android.car.telemetry.TelemetryProto;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
 
