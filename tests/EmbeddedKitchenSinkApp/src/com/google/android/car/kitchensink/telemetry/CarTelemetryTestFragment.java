@@ -46,7 +46,6 @@ import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -256,7 +255,11 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_APP_CRASH_OCCURRED =
             new StringBuilder()
                     .append("function onAppCrashOccurred(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
+                    .append("    result = {}\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("    end\n")
+                    .append("    on_script_finished(result)\n")
                     .append("end\n")
                     .toString();
 
@@ -284,7 +287,11 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_ANR_OCCURRED =
             new StringBuilder()
                     .append("function onAnrOccurred(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
+                    .append("    result = {}\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("    end\n")
+                    .append("    on_script_finished(result)\n")
                     .append("end\n")
                     .toString();
 
@@ -311,7 +318,11 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_WTF_OCCURRED =
             new StringBuilder()
                     .append("function onWtfOccurred(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
+                    .append("    result = {}\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("    end\n")
+                    .append("    on_script_finished(result)\n")
                     .append("end\n")
                     .toString();
 
@@ -790,27 +801,22 @@ public class CarTelemetryTestFragment extends Fragment {
         @Override
         public void onResult(
                 @NonNull String metricsConfigName,
-                @Nullable byte[] report,
+                @Nullable PersistableBundle report,
                 @Nullable byte[] telemetryError,
                 @CarTelemetryManager.MetricsReportStatus int status) {
             if (report != null) {
-                parseReport(metricsConfigName, report);
+                StringBuilder sb = new StringBuilder("PersistableBundle[\n");
+                for (String key : report.keySet()) {
+                    sb.append("    " + key + ": " + report.get(key) + ",\n");
+                }
+                sb.append("]");
+                showOutput("Result for " + metricsConfigName + ": " + sb.toString());
             } else if (telemetryError != null) {
                 parseError(metricsConfigName, telemetryError);
             } else {
                 showOutput("No report exists for MetricsConfig " + metricsConfigName
                         + ", reason = " + statusCodeToString(status));
             }
-        }
-
-        private void parseReport(@NonNull String metricsConfigName, @NonNull byte[] report) {
-            PersistableBundle bundle;
-            try (ByteArrayInputStream bis = new ByteArrayInputStream(report)) {
-                bundle = PersistableBundle.readFromStream(bis);
-            } catch (IOException e) {
-                bundle = null;
-            }
-            showOutput("Result for " + metricsConfigName + ": " + bundle.toString());
         }
 
         private void parseError(@NonNull String metricsConfigName, @NonNull byte[] error) {
