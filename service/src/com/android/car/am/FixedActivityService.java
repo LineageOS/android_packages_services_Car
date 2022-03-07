@@ -238,14 +238,12 @@ public final class FixedActivityService implements CarServiceBase {
 
     public FixedActivityService(Context context, CarActivityService activityService) {
         this(context, activityService,
-                context.getSystemService(UserManager.class),
                 context.getSystemService(DisplayManager.class),
                 new UserHandleHelper(context, context.getSystemService(UserManager.class)));
     }
 
     @VisibleForTesting
-    FixedActivityService(Context context,
-            CarActivityService activityService, UserManager userManager,
+    FixedActivityService(Context context, CarActivityService activityService,
             DisplayManager displayManager, UserHandleHelper userHandleHelper) {
         mContext = context;
         mActivityService = activityService;
