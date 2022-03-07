@@ -38,6 +38,7 @@ import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
 import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.car.telemetry.ICarTelemetryService;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;

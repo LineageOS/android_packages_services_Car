@@ -19,11 +19,11 @@ package com.android.car.telemetry.publisher;
 import android.annotation.NonNull;
 import android.app.StatsManager;
 import android.app.usage.NetworkStatsManager;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.os.Handler;
 
 import com.android.car.CarPropertyService;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.internal.util.Preconditions;
 

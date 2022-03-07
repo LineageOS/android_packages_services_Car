@@ -25,6 +25,14 @@ filegroup {
     ],
 }
 
+// Public protos for CarTelemetryManager clients.
+filegroup {
+    name: "cartelemetryservice-proto-srcs",
+    srcs: [
+        "src/android/car/telemetry/telemetry.proto"
+    ],
+}
+
 java_library {
     name: "android.car.cluster.navigation",
     proto: {
