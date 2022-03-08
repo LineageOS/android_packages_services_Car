@@ -18,5 +18,8 @@ $(eval $(call declare-1p-copy-files,packages/services/Car,))
 
 include $(CLEAR_VARS)
 
+# Include car_ui_portrait
+include $(LOCAL_PATH)/car_product/car_ui_portrait/Android.mk
+
 # Include the sub-makefiles
 include $(call all-makefiles-under,$(LOCAL_PATH))
