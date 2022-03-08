@@ -1212,15 +1212,15 @@ package android.car.settings {
 package android.car.storagemonitoring {
 
   public final class CarStorageMonitoringManager {
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getAggregateIoStats();
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getBootIoStats();
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStats> getIoStatsDeltas();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getAggregateIoStats();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStatsEntry> getBootIoStats();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.IoStats> getIoStatsDeltas();
     method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public int getPreEolIndicatorStatus();
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public long getShutdownDiskWriteAmount();
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public android.car.storagemonitoring.WearEstimate getWearEstimate();
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory();
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener);
-    method @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public long getShutdownDiskWriteAmount();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public android.car.storagemonitoring.WearEstimate getWearEstimate();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public java.util.List<android.car.storagemonitoring.WearEstimateChange> getWearEstimateHistory();
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void registerListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener);
+    method @Deprecated @RequiresPermission(android.car.Car.PERMISSION_STORAGE_MONITORING) public void unregisterListener(android.car.storagemonitoring.CarStorageMonitoringManager.IoStatsListener);
     field public static final String INTENT_EXCESSIVE_IO = "android.car.storagemonitoring.EXCESSIVE_IO";
     field public static final int PRE_EOL_INFO_NORMAL = 1; // 0x1
     field public static final int PRE_EOL_INFO_UNKNOWN = 0; // 0x0
@@ -1229,48 +1229,48 @@ package android.car.storagemonitoring {
     field public static final long SHUTDOWN_COST_INFO_MISSING = -1L; // 0xffffffffffffffffL
   }
 
-  public static interface CarStorageMonitoringManager.IoStatsListener {
-    method public void onSnapshot(android.car.storagemonitoring.IoStats);
+  @Deprecated public static interface CarStorageMonitoringManager.IoStatsListener {
+    method @Deprecated public void onSnapshot(android.car.storagemonitoring.IoStats);
   }
 
-  public final class IoStats implements android.os.Parcelable {
-    ctor public IoStats(java.util.List<android.car.storagemonitoring.IoStatsEntry>, long);
-    ctor public IoStats(android.os.Parcel);
-    method public int describeContents();
-    method public android.car.storagemonitoring.IoStatsEntry.Metrics getBackgroundTotals();
-    method public android.car.storagemonitoring.IoStatsEntry.Metrics getForegroundTotals();
-    method public java.util.List<android.car.storagemonitoring.IoStatsEntry> getStats();
-    method public long getTimestamp();
-    method public android.car.storagemonitoring.IoStatsEntry.Metrics getTotals();
-    method public android.car.storagemonitoring.IoStatsEntry getUserIdStats(int);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStats> CREATOR;
+  @Deprecated public final class IoStats implements android.os.Parcelable {
+    ctor @Deprecated public IoStats(java.util.List<android.car.storagemonitoring.IoStatsEntry>, long);
+    ctor @Deprecated public IoStats(android.os.Parcel);
+    method @Deprecated public int describeContents();
+    method @Deprecated public android.car.storagemonitoring.IoStatsEntry.Metrics getBackgroundTotals();
+    method @Deprecated public android.car.storagemonitoring.IoStatsEntry.Metrics getForegroundTotals();
+    method @Deprecated public java.util.List<android.car.storagemonitoring.IoStatsEntry> getStats();
+    method @Deprecated public long getTimestamp();
+    method @Deprecated public android.car.storagemonitoring.IoStatsEntry.Metrics getTotals();
+    method @Deprecated public android.car.storagemonitoring.IoStatsEntry getUserIdStats(int);
+    method @Deprecated public void writeToParcel(android.os.Parcel, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStats> CREATOR;
   }
 
-  public final class IoStatsEntry implements android.os.Parcelable {
-    ctor public IoStatsEntry(int, long, android.car.storagemonitoring.IoStatsEntry.Metrics, android.car.storagemonitoring.IoStatsEntry.Metrics);
-    ctor public IoStatsEntry(android.os.Parcel);
-    ctor public IoStatsEntry(android.car.storagemonitoring.UidIoRecord, long);
-    method public int describeContents();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry> CREATOR;
-    field public final android.car.storagemonitoring.IoStatsEntry.Metrics background;
-    field public final android.car.storagemonitoring.IoStatsEntry.Metrics foreground;
-    field public final long runtimeMillis;
-    field public final int uid;
+  @Deprecated public final class IoStatsEntry implements android.os.Parcelable {
+    ctor @Deprecated public IoStatsEntry(int, long, android.car.storagemonitoring.IoStatsEntry.Metrics, android.car.storagemonitoring.IoStatsEntry.Metrics);
+    ctor @Deprecated public IoStatsEntry(android.os.Parcel);
+    ctor @Deprecated public IoStatsEntry(android.car.storagemonitoring.UidIoRecord, long);
+    method @Deprecated public int describeContents();
+    method @Deprecated public void writeToParcel(android.os.Parcel, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry> CREATOR;
+    field @Deprecated public final android.car.storagemonitoring.IoStatsEntry.Metrics background;
+    field @Deprecated public final android.car.storagemonitoring.IoStatsEntry.Metrics foreground;
+    field @Deprecated public final long runtimeMillis;
+    field @Deprecated public final int uid;
   }
 
-  public static final class IoStatsEntry.Metrics implements android.os.Parcelable {
-    ctor public IoStatsEntry.Metrics(long, long, long, long, long);
-    ctor public IoStatsEntry.Metrics(android.os.Parcel);
-    method public int describeContents();
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry.Metrics> CREATOR;
-    field public final long bytesRead;
-    field public final long bytesReadFromStorage;
-    field public final long bytesWritten;
-    field public final long bytesWrittenToStorage;
-    field public final long fsyncCalls;
+  @Deprecated public static final class IoStatsEntry.Metrics implements android.os.Parcelable {
+    ctor @Deprecated public IoStatsEntry.Metrics(long, long, long, long, long);
+    ctor @Deprecated public IoStatsEntry.Metrics(android.os.Parcel);
+    method @Deprecated public int describeContents();
+    method @Deprecated public void writeToParcel(android.os.Parcel, int);
+    field @Deprecated public static final android.os.Parcelable.Creator<android.car.storagemonitoring.IoStatsEntry.Metrics> CREATOR;
+    field @Deprecated public final long bytesRead;
+    field @Deprecated public final long bytesReadFromStorage;
+    field @Deprecated public final long bytesWritten;
+    field @Deprecated public final long bytesWrittenToStorage;
+    field @Deprecated public final long fsyncCalls;
   }
 
   public final class LifetimeWriteInfo implements android.os.Parcelable {
