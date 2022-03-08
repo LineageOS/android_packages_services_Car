@@ -37,53 +37,51 @@ namespace powerpolicy {
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
 
-using android::base::Error;
-using android::base::Result;
-using android::base::StartsWith;
-using android::base::StringAppendF;
-using android::base::StringPrintf;
-using android::base::WriteStringToFd;
-using android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
-using tinyxml2::XML_SUCCESS;
-using tinyxml2::XMLDocument;
-using tinyxml2::XMLElement;
+using ::android::base::Error;
+using ::android::base::Result;
+using ::android::base::StartsWith;
+using ::android::base::StringAppendF;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
+using ::android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
+using ::tinyxml2::XML_SUCCESS;
+using ::tinyxml2::XMLDocument;
+using ::tinyxml2::XMLElement;
 
 namespace {
 
 // Vendor power policy filename.
-constexpr const char* kVendorPolicyFile = "/vendor/etc/automotive/power_policy.xml";
+constexpr const char kVendorPolicyFile[] = "/vendor/etc/automotive/power_policy.xml";
 
 // Tags and attributes in vendor power policy XML file.
-constexpr const char* kTagRoot = "powerPolicy";
-constexpr const char* kTagPolicyGroups = "policyGroups";
-constexpr const char* kTagPolicyGroup = "policyGroup";
-constexpr const char* kTagDefaultPolicy = "defaultPolicy";
-constexpr const char* kTagNoDefaultPolicy = "noDefaultPolicy";
-constexpr const char* kTagPolicies = "policies";
-constexpr const char* kTagPolicy = "policy";
-constexpr const char* kTagOtherComponents = "otherComponents";
-constexpr const char* kTagComponent = "component";
-constexpr const char* kTagSystemPolicyOverrides = "systemPolicyOverrides";
-constexpr const char* kAttrBehavior = "behavior";
-constexpr const char* kAttrId = "id";
-constexpr const char* kAttrState = "state";
+constexpr const char kTagRoot[] = "powerPolicy";
+constexpr const char kTagPolicyGroups[] = "policyGroups";
+constexpr const char kTagPolicyGroup[] = "policyGroup";
+constexpr const char kTagDefaultPolicy[] = "defaultPolicy";
+constexpr const char kTagNoDefaultPolicy[] = "noDefaultPolicy";
+constexpr const char kTagPolicies[] = "policies";
+constexpr const char kTagPolicy[] = "policy";
+constexpr const char kTagOtherComponents[] = "otherComponents";
+constexpr const char kTagComponent[] = "component";
+constexpr const char kTagSystemPolicyOverrides[] = "systemPolicyOverrides";
+constexpr const char kAttrBehavior[] = "behavior";
+constexpr const char kAttrId[] = "id";
+constexpr const char kAttrState[] = "state";
 
 // Power states.
-constexpr const char* kPowerStateOn = "on";
-constexpr const char* kPowerStateOff = "off";
-constexpr const char* kPowerStateUntouched = "untouched";
+constexpr const char kPowerStateOn[] = "on";
+constexpr const char kPowerStateOff[] = "off";
+constexpr const char kPowerStateUntouched[] = "untouched";
 
 // Power transitions that a power policy can be applied with.
-constexpr const char* kPowerTransitionWaitForVhal = "WaitForVHAL";
-constexpr const char* kPowerTransitionOn = "On";
-constexpr const char* kPowerTransitionShutdownStart = "ShutdownStart";
-constexpr const char* kPowerTransitionDeepSleepEntry = "DeepSleepEntry";
+constexpr const char kPowerTransitionWaitForVhal[] = "WaitForVHAL";
+constexpr const char kPowerTransitionOn[] = "On";
 
 const PowerComponent INVALID_POWER_COMPONENT = static_cast<PowerComponent>(-1);
 const int32_t INVALID_VEHICLE_POWER_STATE = -1;
 
-constexpr const char* kPowerComponentPrefix = "POWER_COMPONENT_";
-constexpr const char* kSystemPolicyPrefix = "system_power_policy_";
+constexpr const char kPowerComponentPrefix[] = "POWER_COMPONENT_";
+constexpr const char kSystemPolicyPrefix[] = "system_power_policy_";
 
 // System power policy definition: ID, enabled components, and disabled components.
 const std::vector<PowerComponent> kNoUserInteractionEnabledComponents =
