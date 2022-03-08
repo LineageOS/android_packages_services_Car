@@ -23,6 +23,7 @@ import static org.testng.Assert.assertThrows;
 import android.car.Car;
 import android.car.ICar;
 import android.car.annotation.AddedIn;
+import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.MinimumPlatformSdkVersion;
 import android.car.hardware.CarSensorManager;
 import android.content.ComponentName;
@@ -89,6 +90,31 @@ public class CarTest {
         public int val;
 
         @AddedIn(majorVersion = 31, minorVersion = 0)
+        public void method1() {
+        }
+    }
+
+
+    @AddedInOrBefore(majorVersion = 31)
+    @MinimumPlatformSdkVersion(30)
+    private static class AnnotationTest3 {
+        @AddedInOrBefore(majorVersion = 31)
+        @MinimumPlatformSdkVersion(29)
+        public int val;
+
+        @AddedInOrBefore(majorVersion = 31)
+        public void method1() {
+        }
+    }
+
+    @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
+    @MinimumPlatformSdkVersion(30)
+    private static class AnnotationTest4 {
+        @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
+        @MinimumPlatformSdkVersion(29)
+        public int val;
+
+        @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
         public void method1() {
         }
     }
