@@ -37,6 +37,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarPropertyService;
@@ -46,6 +47,7 @@ import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -66,6 +68,8 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
+    private static final String TAG = DataBrokerTest.class.getSimpleName();
+
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
     private static final int PRIORITY_HIGH = 1;
@@ -160,9 +164,30 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
                 false);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        if (mDataBroker != null) {
+            // Remove all to make sure that those are not kicked in after test.
+            mDataBroker.getTelemetryHandler().removeMessages(DataBrokerImpl.MSG_HANDLE_TASK);
+            mDataBroker.getTelemetryHandler().removeMessages(
+                    DataBrokerImpl.MSG_BIND_TO_SCRIPT_EXECUTOR);
+            mDataBroker.getTelemetryHandler().removeMessages(
+                    DataBrokerImpl.MSG_STOP_HANGING_SCRIPT);
+        }
+        Log.i(TAG, "tearDown completed");
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder.spyStatic(ParcelFileDescriptor.class);
+    }
+
+    @Test
+    public void testStopHangingScript_shouldUnbindScriptExecutor() throws Exception {
+        mDataBroker.getTelemetryHandler().sendEmptyMessage(DataBrokerImpl.MSG_STOP_HANGING_SCRIPT);
+
+        waitForTelemetryThreadToFinish();
+        verify(mMockContext).unbindService(any());
     }
 
     @Test
@@ -441,6 +466,33 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         // invokeScript() failed, task is re-queued and re-run
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(2);
         assertThat(taskQueue).isEmpty();
+    }
+
+    @Test
+    public void testScheduleNextTask_shouldPreventHangingScript() throws Exception {
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+
+        waitForTelemetryThreadToFinish();
+        assertThat(mDataBroker.getTelemetryHandler().hasMessages(
+                DataBrokerImpl.MSG_STOP_HANGING_SCRIPT)).isTrue();
+    }
+
+    @Test
+    public void testScheduleNextTask_whenScriptReturns_shouldCancelStopHangingScriptMessage()
+            throws Exception {
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+        waitForTelemetryThreadToFinish();
+        mFakeScriptExecutor.notifyScriptSuccess(mData); // script returns
+
+        waitForTelemetryThreadToFinish();
+        assertThat(mDataBroker.getTelemetryHandler().hasMessages(
+                DataBrokerImpl.MSG_STOP_HANGING_SCRIPT)).isFalse();
     }
 
     @Test
