@@ -19,6 +19,7 @@ package android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
+import android.car.annotation.AddedInOrBefore;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
@@ -35,12 +36,14 @@ public final class VehiclePropertyIds {
     /**
      * Undefined property.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID = 0;
     /**
      * VIN of vehicle
      * Requires permission: {@link Car#PERMISSION_IDENTIFICATION}.
      */
     @RequiresPermission(Car.PERMISSION_IDENTIFICATION)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_VIN = 286261504;
     /**
      * Manufacturer of vehicle.
@@ -55,6 +58,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_MAKE = 286261505;
     /**
      * Model of vehicle.
@@ -69,6 +73,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_MODEL = 286261506;
     /**
      * Model year of vehicle.
@@ -83,6 +88,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_MODEL_YEAR = 289407235;
     /**
      * Fuel capacity of the vehicle in milliliters.
@@ -97,6 +103,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_FUEL_CAPACITY = 291504388;
     /**
      * List the {@link FuelType}s the vehicle may use.
@@ -111,6 +118,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_FUEL_TYPE = 289472773;
     /**
      * Battery capacity of the vehicle in watt-hours (Wh), if EV or hybrid. This is the nominal
@@ -126,6 +134,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_EV_BATTERY_CAPACITY = 291504390;
     /**
      * List of {@link android.car.hardware.property.EvChargingConnectorType}s this vehicle may use.
@@ -140,6 +149,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_EV_CONNECTOR_TYPE = 289472775;
     /**
      * {@link PortLocationType} for the fuel door location.
@@ -154,6 +164,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_FUEL_DOOR_LOCATION = 289407240;
     /**
      * {@link PortLocationType} for the EV port location
@@ -168,6 +179,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_EV_PORT_LOCATION = 289407241;
     /**
      * List {@link PortLocationType}s for Multiple EV port locations.
@@ -182,6 +194,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_MULTI_EV_PORT_LOCATIONS = 289472780;
     /**
      * Driver's {@link VehicleAreaSeat} seat location.
@@ -196,6 +209,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_DRIVER_SEAT = 356516106;
     /**
      * Vehicle's exterior dimensions in millimeters.
@@ -222,12 +236,14 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INFO_EXTERIOR_DIMENSIONS = 289472779;
     /**
      * Current odometer value of the vehicle in kilometers.
      * The property is protected by the signature permission: android.car.permission.CAR_MILEAGE.
      */
     @RequiresPermission(Car.PERMISSION_MILEAGE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PERF_ODOMETER = 291504644;
     /**
      * Speed of the vehicle in meters per second.
@@ -248,6 +264,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PERF_VEHICLE_SPEED = 291504647;
     /**
      * Speed of the vehicle in meters per second for displays.
@@ -265,6 +282,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648;
     /**
      * Front bicycle model steering angle for vehicle in degrees.
@@ -273,6 +291,7 @@ public final class VehiclePropertyIds {
      * Requires permission: {@link Car#PERMISSION_READ_STEERING_STATE}.
      */
     @RequiresPermission(Car.PERMISSION_READ_STEERING_STATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PERF_STEERING_ANGLE = 291504649;
     /**
      * Rear bicycle model steering angle for vehicle in degrees.
@@ -281,6 +300,7 @@ public final class VehiclePropertyIds {
      * Requires permission: {@link Car#PERMISSION_READ_STEERING_STATE}.
      */
     @RequiresPermission(Car.PERMISSION_READ_STEERING_STATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PERF_REAR_STEERING_ANGLE = 291504656;
     /**
      * Temperature of engine coolant in celsius.
@@ -288,6 +308,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_ENGINE_DETAILED.
      */
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_COOLANT_TEMP = 291504897;
     /**
      * Engine oil level
@@ -295,6 +316,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_ENGINE_DETAILED.
      */
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_OIL_LEVEL = 289407747;
     /**
      * Temperature of engine oil in celsius.
@@ -302,6 +324,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_ENGINE_DETAILED.
      */
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_OIL_TEMP = 291504900;
     /**
      * Engine rpm
@@ -309,6 +332,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_ENGINE_DETAILED.
      */
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ENGINE_RPM = 291504901;
     /**
      * Reports wheel ticks.
@@ -357,6 +381,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int WHEEL_TICK = 290521862;
     /**
      * Fuel remaining in the vehicle in milliliters.
@@ -376,6 +401,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FUEL_LEVEL = 291504903;
     /**
      * Fuel door open.
@@ -397,6 +423,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FUEL_DOOR_OPEN = 287310600;
     /**
      * EV battery level in watt-hours (Wh), if EV or hybrid.
@@ -416,6 +443,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_BATTERY_LEVEL = 291504905;
     /**
      * EV charge port open.
@@ -437,6 +465,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_PORT_OPEN = 287310602;
     /**
      * EV charge port connected.
@@ -456,6 +485,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY_PORTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_PORT_CONNECTED = 287310603;
     /**
      * EV instantaneous charge rate in milliwatts.
@@ -478,6 +508,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_BATTERY_INSTANTANEOUS_CHARGE_RATE = 291504908;
     /**
      * Range remaining in meters.
@@ -501,6 +532,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int RANGE_REMAINING = 291504904;
     /**
      * Tire pressure in kilopascals.
@@ -510,6 +542,7 @@ public final class VehiclePropertyIds {
      * The property is protected by the signature permission: android.car.permission.CAR_TIRES.
      */
     @RequiresPermission(Car.PERMISSION_TIRES)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TIRE_PRESSURE = 392168201;
     /**
      * Critically low tire pressure
@@ -521,6 +554,7 @@ public final class VehiclePropertyIds {
      * (that is, {@code minFloatValue}, {@code maxFloatValue}) are not applicable to this property.
      */
     @RequiresPermission(Car.PERMISSION_TIRES)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CRITICALLY_LOW_TIRE_PRESSURE = 392168202;
     /**
      * Currently selected gear by user.
@@ -568,6 +602,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int GEAR_SELECTION = 289408000;
     /**
      * Vehicle transmission's current {@link VehicleGear}.
@@ -619,6 +654,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CURRENT_GEAR = 289408001;
     /**
      * Parking brake state.
@@ -633,6 +669,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PARKING_BRAKE_ON = 287310850;
     /**
      * Auto-apply parking brake.
@@ -647,6 +684,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PARKING_BRAKE_AUTO_APPLY = 287310851;
     /**
      * Warning for fuel low level.
@@ -676,6 +714,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FUEL_LEVEL_LOW = 287310853;
     /**
      * Night mode.
@@ -693,6 +732,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_ENVIRONMENT)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int NIGHT_MODE = 287310855;
     /**
      * State of the vehicles turn signals
@@ -700,6 +740,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS .
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TURN_SIGNAL_STATE = 289408008;
     /**
      * Vehicle's ignition state.
@@ -721,6 +762,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IGNITION_STATE = 289408009;
     /**
      * ABS is active
@@ -728,6 +770,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_DYNAMICS_STATE.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DYNAMICS_STATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ABS_ACTIVE = 287310858;
     /**
      * Traction Control is active
@@ -735,6 +778,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_DYNAMICS_STATE.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DYNAMICS_STATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TRACTION_CONTROL_ACTIVE = 287310859;
     /**
      * Fan speed setting
@@ -742,6 +786,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_FAN_SPEED = 356517120;
     /**
      * Fan direction setting
@@ -749,6 +794,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_FAN_DIRECTION = 356517121;
     /**
      * HVAC current temperature in celsius.
@@ -756,6 +802,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_TEMPERATURE_CURRENT = 358614274;
     /**
      * HVAC, target temperature set.
@@ -790,6 +837,7 @@ public final class VehiclePropertyIds {
      * value in {@code configArray} of {@code HVAC_TEMPERATURE_SET} by itself.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_TEMPERATURE_SET = 358614275;
     /**
      * Suggested values for setting HVAC temperature.
@@ -830,6 +878,7 @@ public final class VehiclePropertyIds {
      * that the value is 70.0 Fahrenheit in the car’s UI.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_TEMPERATURE_VALUE_SUGGESTION = 291570965;
     /**
      * On/off defrost for designated window
@@ -837,6 +886,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_DEFROSTER = 320865540;
     /**
      * On/off AC for designated areaId
@@ -844,6 +894,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_AC_ON = 354419973;
     /**
      * On/off max AC
@@ -851,6 +902,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_MAX_AC_ON = 354419974;
     /**
      * On/off max defrost
@@ -858,6 +910,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_MAX_DEFROST_ON = 354419975;
     /**
      * Recirculation on/off
@@ -865,6 +918,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_RECIRC_ON = 354419976;
     /**
      * Enable temperature coupling between areas.
@@ -872,6 +926,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_DUAL_ON = 354419977;
     /**
      * On/off automatic mode
@@ -879,6 +934,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_AUTO_ON = 354419978;
     /**
      * Seat heating/cooling
@@ -886,6 +942,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_SEAT_TEMPERATURE = 356517131;
     /**
      * Side Mirror Heat
@@ -893,6 +950,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_SIDE_MIRROR_HEAT = 339739916;
     /**
      * Steering Wheel Heating/Cooling
@@ -900,6 +958,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_STEERING_WHEEL_HEAT = 289408269;
     /**
      * Temperature units for display
@@ -907,6 +966,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270;
     /**
      * Actual fan speed
@@ -914,6 +974,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_ACTUAL_FAN_SPEED_RPM = 356517135;
     /**
      * Represents global power state for HVAC. Setting this property to false
@@ -926,6 +987,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_POWER_ON = 354419984;
     /**
      * Fan Positions Available
@@ -933,6 +995,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_FAN_DIRECTION_AVAILABLE = 356582673;
     /**
      * Automatic recirculation on/off
@@ -940,6 +1003,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_AUTO_RECIRC_ON = 354419986;
     /**
      * Seat ventilation
@@ -947,6 +1011,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_SEAT_VENTILATION = 356517139;
     /**
      * ELECTRIC DEFROSTER
@@ -988,6 +1053,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
             Car.PERMISSION_VENDOR_EXTENSION}))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int DISTANCE_DISPLAY_UNITS = 289408512;
     /**
      * Fuel volume units for display.
@@ -1019,6 +1085,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
             Car.PERMISSION_VENDOR_EXTENSION}))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513;
     /**
      * Tire pressure units for display.
@@ -1051,6 +1118,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
             Car.PERMISSION_VENDOR_EXTENSION}))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514;
     /**
      * EV battery units for display.
@@ -1083,6 +1151,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
             Car.PERMISSION_VENDOR_EXTENSION}))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_BATTERY_DISPLAY_UNITS = 289408515;
     /**
      * Speed units for display.
@@ -1115,6 +1184,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
             Car.PERMISSION_VENDOR_EXTENSION}))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_SPEED_DISPLAY_UNITS = 289408516;
     /**
      * Fuel consumption units for display.
@@ -1143,6 +1213,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
             Car.PERMISSION_VENDOR_EXTENSION}))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364;
     /**
      * Outside temperature in celsius.
@@ -1157,6 +1228,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_ENVIRONMENT)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ENV_OUTSIDE_TEMPERATURE = 291505923;
     /**
      * Property to control power state of application processor
@@ -1166,6 +1238,7 @@ public final class VehiclePropertyIds {
      * The property is protected by the signature permission: android.car.permission.CAR_POWER.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_POWER_STATE_REQ = 289475072;
     /**
      * Property to report power state of application processor
@@ -1175,6 +1248,7 @@ public final class VehiclePropertyIds {
      * The property is protected by the signature permission: android.car.permission.CAR_POWER.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_POWER_STATE_REPORT = 289475073;
     /**
      * Property to report bootup reason for the current power on. This is a
@@ -1185,6 +1259,7 @@ public final class VehiclePropertyIds {
      * The property is protected by the signature permission: android.car.permission.CAR_POWER.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_POWER_BOOTUP_REASON = 289409538;
     /**
      * Property to represent brightness of the display. Some cars have single
@@ -1193,10 +1268,12 @@ public final class VehiclePropertyIds {
      * The property is protected by the signature permission: android.car.permission.CAR_POWER.
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int DISPLAY_BRIGHTNESS = 289409539;
     /**
      * Property to feed H/W input events to android
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HW_KEY_INPUT = 289475088;
     /**
      * Door position
@@ -1207,6 +1284,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_DOORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_DOORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int DOOR_POS = 373295872;
     /**
      * Door move
@@ -1214,6 +1292,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_DOORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_DOORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int DOOR_MOVE = 373295873;
     /**
      * Door lock
@@ -1221,6 +1300,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_DOORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_DOORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int DOOR_LOCK = 371198722;
     /**
      * Mirror Z Position
@@ -1228,6 +1308,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_MIRRORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_Z_POS = 339741504;
     /**
      * Mirror Z Move
@@ -1235,6 +1316,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_MIRRORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_Z_MOVE = 339741505;
     /**
      * Mirror Y Position
@@ -1242,6 +1324,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_MIRRORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_Y_POS = 339741506;
     /**
      * Mirror Y Move
@@ -1249,6 +1332,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_MIRRORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_Y_MOVE = 339741507;
     /**
      * Mirror Lock
@@ -1256,6 +1340,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_MIRRORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_LOCK = 287312708;
     /**
      * Mirror Fold
@@ -1263,6 +1348,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_MIRRORS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_MIRRORS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MIRROR_FOLD = 287312709;
     /**
      * Seat memory select
@@ -1274,6 +1360,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_MEMORY_SELECT = 356518784;
     /**
      * Seat memory set
@@ -1285,6 +1372,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_MEMORY_SET = 356518785;
     /**
      * Seatbelt buckled
@@ -1294,6 +1382,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BELT_BUCKLED = 354421634;
     /**
      * Seatbelt height position
@@ -1301,6 +1390,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BELT_HEIGHT_POS = 356518787;
     /**
      * Seatbelt height move
@@ -1308,6 +1398,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BELT_HEIGHT_MOVE = 356518788;
     /**
      * Seat fore/aft position
@@ -1315,6 +1406,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_FORE_AFT_POS = 356518789;
     /**
      * Seat fore/aft move
@@ -1322,6 +1414,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_FORE_AFT_MOVE = 356518790;
     /**
      * Seat backrest angle 1 position
@@ -1329,6 +1422,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BACKREST_ANGLE_1_POS = 356518791;
     /**
      * Seat backrest angle 1 move
@@ -1338,6 +1432,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BACKREST_ANGLE_1_MOVE = 356518792;
     /**
      * Seat backrest angle 2 position
@@ -1345,6 +1440,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BACKREST_ANGLE_2_POS = 356518793;
     /**
      * Seat backrest angle 2 move
@@ -1352,6 +1448,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_BACKREST_ANGLE_2_MOVE = 356518794;
     /**
      * Seat height position
@@ -1359,6 +1456,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEIGHT_POS = 356518795;
     /**
      * Seat height move
@@ -1366,6 +1464,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEIGHT_MOVE = 356518796;
     /**
      * Seat depth position
@@ -1373,6 +1472,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_DEPTH_POS = 356518797;
     /**
      * Seat depth move
@@ -1380,6 +1480,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_DEPTH_MOVE = 356518798;
     /**
      * Seat tilt position
@@ -1387,6 +1488,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_TILT_POS = 356518799;
     /**
      * Seat tilt move
@@ -1394,6 +1496,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_TILT_MOVE = 356518800;
     /**
      * Lumber fore/aft position
@@ -1401,6 +1504,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_LUMBAR_FORE_AFT_POS = 356518801;
     /**
      * Lumbar fore/aft move
@@ -1408,6 +1512,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_LUMBAR_FORE_AFT_MOVE = 356518802;
     /**
      * Lumbar side support position
@@ -1415,6 +1520,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_LUMBAR_SIDE_SUPPORT_POS = 356518803;
     /**
      * Lumbar side support move
@@ -1422,6 +1528,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_LUMBAR_SIDE_SUPPORT_MOVE = 356518804;
     /**
      * Headrest height position
@@ -1429,6 +1536,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_HEIGHT_POS = 289409941;
     /**
      * Headrest height move
@@ -1436,6 +1544,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_HEIGHT_MOVE = 356518806;
     /**
      * Headrest angle position
@@ -1443,6 +1552,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_ANGLE_POS = 356518807;
     /**
      * Headrest angle move
@@ -1450,6 +1560,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_ANGLE_MOVE = 356518808;
     /**
      * Headrest fore/aft position
@@ -1457,6 +1568,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_FORE_AFT_POS = 356518809;
     /**
      * Headrest fore/aft move
@@ -1464,6 +1576,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_HEADREST_FORE_AFT_MOVE = 356518810;
     /**
      * Seat Occupancy
@@ -1471,6 +1584,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_SEATS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_SEATS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SEAT_OCCUPANCY = 356518832;
     /**
      * Window Position
@@ -1478,6 +1592,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_WINDOWS
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int WINDOW_POS = 322964416;
     /**
      * Window Move
@@ -1485,6 +1600,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_WINDOWS
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int WINDOW_MOVE = 322964417;
     /**
      * Window Lock
@@ -1492,6 +1608,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_WINDOWS
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WINDOWS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int WINDOW_LOCK = 320867268;
     /**
      * Vehicle Maps Service (VMS) message
@@ -1499,6 +1616,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.VMS_PUBLISHER and android.car.permission.VMS_SUBSCRIBER.
      */
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
+    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_MAP_SERVICE = 299895808;
     /**
      * OBD2 Live Sensor Data
@@ -1508,6 +1626,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_DIAGNOSTICS.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int OBD2_LIVE_FRAME = 299896064;
     /**
      * OBD2 Freeze Frame Sensor Data
@@ -1518,6 +1637,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_DIAGNOSTICS.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int OBD2_FREEZE_FRAME = 299896065;
     /**
      * OBD2 Freeze Frame Information
@@ -1525,6 +1645,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_DIAGNOSTICS.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int OBD2_FREEZE_FRAME_INFO = 299896066;
     /**
      * OBD2 Freeze Frame Clear
@@ -1535,6 +1656,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CLEAR_CAR_DIAGNOSTICS.
      */
     @RequiresPermission(Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int OBD2_FREEZE_FRAME_CLEAR = 299896067;
     /**
      * Headlights State
@@ -1542,6 +1664,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HEADLIGHTS_STATE = 289410560;
     /**
      * High beam lights state
@@ -1549,6 +1672,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HIGH_BEAM_LIGHTS_STATE = 289410561;
     /**
      * Fog light state
@@ -1572,6 +1696,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FOG_LIGHTS_STATE = 289410562;
     /**
      * Hazard light status
@@ -1579,6 +1704,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HAZARD_LIGHTS_STATE = 289410563;
     /**
      * Headlight switch
@@ -1586,6 +1712,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HEADLIGHTS_SWITCH = 289410576;
     /**
      * High beam light switch
@@ -1593,6 +1720,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HIGH_BEAM_LIGHTS_SWITCH = 289410577;
     /**
      * Fog light switch
@@ -1617,6 +1745,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FOG_LIGHTS_SWITCH = 289410578;
     /**
      * Hazard light switch
@@ -1624,30 +1753,35 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HAZARD_LIGHTS_SWITCH = 289410579;
     /**
      * Cabin lights
      * Requires permission: {@link Car#PERMISSION_READ_INTERIOR_LIGHTS}.
      */
     @RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CABIN_LIGHTS_STATE = 289410817;
     /**
      * Cabin lights switch
      * Requires permission: {@link Car#PERMISSION_CONTROL_INTERIOR_LIGHTS}.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CABIN_LIGHTS_SWITCH = 289410818;
     /**
      * Reading lights
      * Requires permission: {@link Car#PERMISSION_READ_INTERIOR_LIGHTS}.
      */
     @RequiresPermission(Car.PERMISSION_READ_INTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int READING_LIGHTS_STATE = 356519683;
     /**
      * Reading lights switch
      * Requires permission: {@link Car#PERMISSION_CONTROL_INTERIOR_LIGHTS}.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_INTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int READING_LIGHTS_SWITCH = 356519684;
 
     /**
@@ -1816,6 +1950,7 @@ public final class VehiclePropertyIds {
      * <p>This value denotes the number of milliseconds that have elapsed since 1/1/1970 UTC.
      */
     @RequiresPermission(Car.PERMISSION_CAR_EPOCH_TIME)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EPOCH_TIME = 290457094;
 
     /**
@@ -1827,6 +1962,7 @@ public final class VehiclePropertyIds {
      * boots.
      */
     @RequiresPermission(Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STORAGE_ENCRYPTION_BINDING_SEED = 292554247;
 
     /**
@@ -1847,6 +1983,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ELECTRONIC_TOLL_COLLECTION_CARD_TYPE = 289410873;
 
     /**
@@ -1867,6 +2004,7 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874;
 
     /**
@@ -1878,6 +2016,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FRONT_FOG_LIGHTS_STATE = 289410875;
 
     /**
@@ -1889,6 +2028,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FRONT_FOG_LIGHTS_SWITCH = 289410876;
 
     /**
@@ -1900,6 +2040,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int REAR_FOG_LIGHTS_STATE = 289410877;
 
     /**
@@ -1911,6 +2052,7 @@ public final class VehiclePropertyIds {
      * android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int REAR_FOG_LIGHTS_SWITCH = 289410878;
 
     /**
@@ -1928,6 +2070,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_CURRENT_DRAW_LIMIT = 291508031;
 
     /**
@@ -1945,6 +2088,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_PERCENT_LIMIT = 291508032;
 
     /**
@@ -1958,6 +2102,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_STATE = 289410880;
 
     /**
@@ -1972,6 +2117,7 @@ public final class VehiclePropertyIds {
      *  property.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_SWITCH = 287313729;
 
     /**
@@ -1985,6 +2131,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_CHARGE_TIME_REMAINING = 289410882;
 
     /**
@@ -1999,6 +2146,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int EV_REGENERATIVE_BRAKING_STATE = 289410883;
 
     /**
@@ -2014,6 +2162,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int VEHICLE_CURB_WEIGHT = 289410886;
 
      /**
@@ -2028,6 +2177,7 @@ public final class VehiclePropertyIds {
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_PRIVILEGED_CAR_INFO))
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TRAILER_PRESENT = 289410885;
 
     /**
@@ -2041,6 +2191,7 @@ public final class VehiclePropertyIds {
     /**
      * Gets a user-friendly representation of a property.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static String toString(int property) {
         switch (property) {
             case INVALID:

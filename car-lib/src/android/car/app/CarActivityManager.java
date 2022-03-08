@@ -25,6 +25,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.car.user.CarUserManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -52,13 +53,16 @@ public final class CarActivityManager extends CarManagerBase {
     private static final String TAG = CarUserManager.class.getSimpleName();
 
     /** Indicates that the operation was successful. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_SUCCESS = 0;
     /** Indicates that the operation was failed with the unknown reason. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_FAILURE = -1;
     /**
      * Indicates that the operation was failed because the requester isn't the current user or
      * the system user
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int RESULT_INVALID_USER = -2;
 
     /** @hide */
@@ -118,6 +122,7 @@ public final class CarActivityManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_APP_LAUNCH)
     @ResultTypeEnum
+    @AddedInOrBefore(majorVersion = 33)
     public int setPersistentActivity(
             @NonNull ComponentName activity, int displayId, int featureId) {
         try {

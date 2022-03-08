@@ -25,6 +25,7 @@ import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.car.builtin.util.Slogf;
 import android.os.Binder;
@@ -48,6 +49,7 @@ import java.util.concurrent.Executor;
 @RequiredFeature(Car.CAR_EVS_SERVICE)
 @SystemApi
 public final class CarEvsManager extends CarManagerBase {
+    @AddedInOrBefore(majorVersion = 33)
     public static final String EXTRA_SESSION_TOKEN = "android.car.evs.extra.SESSION_TOKEN";
 
     private static final String TAG = CarEvsManager.class.getSimpleName();
@@ -79,11 +81,13 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * Service type to represent the rearview camera service.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SERVICE_TYPE_REARVIEW = 0;
 
     /**
      * Service type to represent the surround view service.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SERVICE_TYPE_SURROUNDVIEW = 1;
 
     /** @hide */
@@ -97,22 +101,26 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * State that a corresponding service type is not available.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SERVICE_STATE_UNAVAILABLE = 0;
 
     /**
      * State that a corresponding service type is inactive; it's available but not used
      * by any clients.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SERVICE_STATE_INACTIVE = 1;
 
     /**
      * State that CarEvsManager received a service request from the client.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SERVICE_STATE_REQUESTED = 2;
 
     /**
      * State that a corresponding service type is actively being used.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SERVICE_STATE_ACTIVE = 3;
 
     /** @hide */
@@ -128,41 +136,49 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * This is a default EVS stream event type.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_NONE = 0;
 
     /**
      * EVS stream event to notify a video stream has been started.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_STREAM_STARTED = 1;
 
     /**
      * EVS stream event to notify a video stream has been stopped.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_STREAM_STOPPED = 2;
 
     /**
      * EVS stream event to notify that a video stream is dropped.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_FRAME_DROPPED = 3;
 
     /**
      * EVS stream event occurs when a timer for a new frame's arrival is expired.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_TIMEOUT = 4;
 
     /**
      * EVS stream event occurs when a camera parameter is changed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_PARAMETER_CHANGED = 5;
 
     /**
      * EVS stream event to notify the primary owner has been changed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_PRIMARY_OWNER_CHANGED = 6;
 
     /**
      * Other EVS stream errors
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STREAM_EVENT_OTHER_ERRORS = 7;
 
     /** @hide */
@@ -182,16 +198,19 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * Status to tell that a request is successfully processed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_NONE = 0;
 
     /**
      * Status to tell a requested service is not available.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_UNAVAILABLE = -1;
 
     /**
      * Status to tell CarEvsService is busy to serve the privileged client.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_BUSY = -2;
 
     /** @hide */
@@ -306,6 +325,7 @@ public final class CarEvsManager extends CarManagerBase {
      *         exists.
      */
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
+    @AddedInOrBefore(majorVersion = 33)
     public void setStatusListener(@NonNull @CallbackExecutor Executor executor,
             @NonNull CarEvsStatusListener listener) {
         if (DBG) {
@@ -336,6 +356,7 @@ public final class CarEvsManager extends CarManagerBase {
      * {@link #CarEvsStatusListener} object.
      */
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
+    @AddedInOrBefore(majorVersion = 33)
     public void clearStatusListener() {
         if (DBG) {
             Slogf.d(TAG, "Unregistering a service monitoring callback.");
@@ -471,6 +492,7 @@ public final class CarEvsManager extends CarManagerBase {
      * the EVS service.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
+    @AddedInOrBefore(majorVersion = 33)
     public void returnFrameBuffer(@NonNull CarEvsBufferDescriptor buffer) {
         Objects.requireNonNull(buffer);
         try {
@@ -493,6 +515,7 @@ public final class CarEvsManager extends CarManagerBase {
      *         {@link #ERROR_NONE} will be returned for all other cases.
      */
     @RequiresPermission(Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY)
+    @AddedInOrBefore(majorVersion = 33)
     public @CarEvsError int startActivity(@CarEvsServiceType int type) {
         try {
             return mService.startActivity(type);
@@ -507,6 +530,7 @@ public final class CarEvsManager extends CarManagerBase {
      * Requests the system to stop a current activity launched via {@link #startActivity}.
      */
     @RequiresPermission(Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY)
+    @AddedInOrBefore(majorVersion = 33)
     public void stopActivity() {
         try {
             mService.stopActivity();
@@ -533,6 +557,7 @@ public final class CarEvsManager extends CarManagerBase {
      *         {@link #ERROR_NONE} for all other cases.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
+    @AddedInOrBefore(majorVersion = 33)
     public @CarEvsError int startVideoStream(
             @CarEvsServiceType int type,
             @Nullable IBinder token,
@@ -565,6 +590,7 @@ public final class CarEvsManager extends CarManagerBase {
      * Requests to stop a current {@link #CarEvsServiceType}.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
+    @AddedInOrBefore(majorVersion = 33)
     public void stopVideoStream() {
         synchronized (mStreamLock) {
             if (mStreamCallback == null) {
@@ -593,6 +619,7 @@ public final class CarEvsManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public CarEvsStatus getCurrentStatus() {
         try {
             return mService.getCurrentStatus();
@@ -609,6 +636,7 @@ public final class CarEvsManager extends CarManagerBase {
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY)
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public IBinder generateSessionToken() {
         IBinder token = null;
         try {
@@ -632,6 +660,7 @@ public final class CarEvsManager extends CarManagerBase {
      * @return true if a given service type is available on the system.
      */
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isSupported(@CarEvsServiceType int type) {
         try {
             return mService.isSupported(type);

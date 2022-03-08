@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.content.ContextHelper;
 import android.os.Handler;
 import android.os.IBinder;
@@ -138,6 +139,7 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
     /**
      * Unregisters the registered {@link OnUxRestrictionsChangedListener}
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void unregisterListener() {
         CarUxRestrictionsChangeListenerToService serviceListener;
         synchronized (mLock) {
