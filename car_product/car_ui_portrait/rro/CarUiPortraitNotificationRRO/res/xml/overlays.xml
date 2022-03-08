@@ -116,6 +116,7 @@
     <item target="layout/car_warning_notification_template" value="@layout/car_warning_notification_template"/>
     <item target="layout/headsup_container_bottom" value="@layout/headsup_container_bottom"/>
     <item target="layout/message_headsup_notification_template" value="@layout/message_headsup_notification_template" />
+    <item target="layout/car_notification_header_view" value="@layout/car_notification_header_view"/>
     <item target="layout/notification_center_activity" value="@layout/notification_center_activity"/>
 
     <item target="drawable/ic_reply" value="@drawable/ic_reply"/>
