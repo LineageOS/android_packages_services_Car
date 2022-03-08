@@ -1107,7 +1107,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 listVhalProps(writer);
                 break;
             case COMMAND_GET_VHAL_BACKEND:
-                listVhalBackend(writer);
+                getVhalBackend(writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -2850,6 +2850,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private void listVhalProps(IndentingPrintWriter writer) {
+        // Note: The output here is used in AtsVehicleDeviceTest. DO NOT CHANGE the format without
+        // updating AtsVehicleDeviceTest.
         writer.println("All supported property IDs from Vehicle HAL:");
         List<Integer> propIds = new ArrayList<>();
         try {
@@ -2863,7 +2865,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
     }
 
-    private void listVhalBackend(IndentingPrintWriter writer) {
+    private void getVhalBackend(IndentingPrintWriter writer) {
+        // Note: The output here is used in AtsVehicleDeviceTest. DO NOT CHANGE the format without
+        // updating AtsVehicleDeviceTest.
         if (mHal.isAidlVhal()) {
             writer.println("Vehicle HAL backend: AIDL");
         } else {
