@@ -87,7 +87,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.os.Binder;
 import android.os.Build;
 import android.os.FileUtils;
-import android.os.PersistableBundle;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.ShellCommand;
@@ -118,7 +117,6 @@ import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -2522,7 +2520,11 @@ final class CarShellCommand extends ShellCommand {
                 CarTelemetryManager.MetricsReportCallback callback =
                         (metricsConfigName, report, telemetryError, status) -> {
                             if (report != null) {
-                                parseTelemetryReport(report, writer);
+                                writer.println("PersistableBundle[");
+                                for (String key : report.keySet()) {
+                                    writer.println("    " + key + ": " + report.get(key) + ",");
+                                }
+                                writer.println("]");
                             } else if (telemetryError != null) {
                                 parseTelemetryError(telemetryError, writer);
                             }
@@ -2547,16 +2549,6 @@ final class CarShellCommand extends ShellCommand {
                 break;
             default:
                 printTelemetryHelp(writer);
-        }
-    }
-
-    private void parseTelemetryReport(byte[] report, IndentingPrintWriter writer) {
-        try {
-            PersistableBundle bundle = PersistableBundle.readFromStream(
-                    new ByteArrayInputStream(report));
-            writer.println(bundle);
-        } catch (IOException e) {
-            writer.println("Report is received, but parsing report failed: " + e);
         }
     }
 

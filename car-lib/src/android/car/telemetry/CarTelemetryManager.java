@@ -26,6 +26,7 @@ import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.util.Slog;
@@ -163,14 +164,14 @@ public final class CarTelemetryManager extends CarManagerBase {
          * TODO(b/184964661): Publish the documentation for the format of the finished reports.
          *
          * @param metricsConfigName name of the MetricsConfig that the report is associated with.
-         * @param report the car telemetry report as serialized bytes. Null if there is no report.
+         * @param report the car telemetry report. Null if there is no report.
          * @param telemetryError the serialized telemetry metrics configuration runtime execution
          *     error.
          * @param status of the metrics report. See {@link MetricsReportStatus}.
          */
         void onResult(
                 @NonNull String metricsConfigName,
-                @Nullable byte[] report,
+                @Nullable PersistableBundle report,
                 @Nullable byte[] telemetryError,
                 @MetricsReportStatus int status);
     }
@@ -314,7 +315,7 @@ public final class CarTelemetryManager extends CarManagerBase {
                 @Override
                 public void onResult(
                         @NonNull String metricsConfigName,
-                        @Nullable byte[] report,
+                        @Nullable PersistableBundle report,
                         @Nullable byte[] telemetryError,
                         int status) {
                     executor.execute(() ->
@@ -344,7 +345,7 @@ public final class CarTelemetryManager extends CarManagerBase {
                 @Override
                 public void onResult(
                         @NonNull String metricsConfigName,
-                        @Nullable byte[] report,
+                        @Nullable PersistableBundle report,
                         @Nullable byte[] telemetryError,
                         int status) {
                     executor.execute(() ->

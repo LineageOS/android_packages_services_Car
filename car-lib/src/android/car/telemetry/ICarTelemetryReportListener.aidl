@@ -16,6 +16,8 @@
 
 package android.car.telemetry;
 
+import android.os.PersistableBundle;
+
 /**
  * Binder interface implemented by {@code CarTelemetryManager}. Enables sending telemetry reports
  * from {@code CarTelemetryService} to {@code CarTelemetryManager}.
@@ -29,10 +31,13 @@ oneway interface ICarTelemetryReportListener {
      * The parameter will no longer be stored in {@code CarTelemetryService}.
      *
      * @param metricsConfigName the metrics config name that the report is associated with.
-     * @param report the serialized bytes of the script execution report message.
+     * @param report script execution report.
      * @param telemetryError the serialized bytes of the telemetry error object.
      * @param status of the metrics report.
      */
     void onResult(
-            in String metricsConfigName, in byte[] report, in byte[] telemetryError, in int status);
+            in String metricsConfigName,
+            in PersistableBundle report,
+            in byte[] telemetryError,
+            in int status);
 }
