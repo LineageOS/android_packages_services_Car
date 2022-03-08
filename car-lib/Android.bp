@@ -100,6 +100,7 @@ java_library {
     aidl: {
         include_dirs: [
             "packages/modules/Bluetooth/framework/aidl-export",
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
         ],
     },
     exclude_srcs: [
