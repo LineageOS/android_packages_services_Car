@@ -24,7 +24,6 @@
 #include <aidl/android/frameworks/automotive/powerpolicy/BnCarPowerPolicyServer.h>
 #include <aidl/android/frameworks/automotive/powerpolicy/internal/BnCarPowerPolicySystemNotification.h>
 #include <android-base/result.h>
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <utils/Looper.h>
