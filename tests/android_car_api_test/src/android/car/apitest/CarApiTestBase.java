@@ -154,6 +154,7 @@ public abstract class CarApiTestBase {
         @Override
         public void onServiceDisconnected(ComponentName name) {
             assertMainThread();
+            fail("Car service crashed");
         }
     }
 
