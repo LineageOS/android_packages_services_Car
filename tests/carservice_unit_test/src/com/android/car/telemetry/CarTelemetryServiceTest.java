@@ -57,9 +57,9 @@ import com.android.car.telemetry.systemmonitor.SystemMonitor;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 
@@ -285,10 +285,11 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
 
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        finalResult.writeToStream(bos);
-        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), eq(bos.toByteArray()),
+        ArgumentCaptor<PersistableBundle> reportCaptor =
+                ArgumentCaptor.forClass(PersistableBundle.class);
+        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), reportCaptor.capture(),
                 isNull(), eq(STATUS_GET_METRICS_CONFIG_FINISHED));
+        assertThat(reportCaptor.getValue().toString()).isEqualTo(finalResult.toString());
         // result should have been deleted
         assertThat(mResultStore.getFinalResult(METRICS_CONFIG_NAME, false)).isNull();
     }
@@ -329,8 +330,6 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         String nameBar = "bar";
         PersistableBundle finalResult = new PersistableBundle();
         finalResult.putBoolean("finished", true);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        finalResult.writeToStream(bos);
         mResultStore.putFinalResult(nameBar, finalResult); // result 2
 
         mService.getAllFinishedReports(mMockReportListener);
@@ -338,8 +337,11 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
         verify(mMockReportListener).onResult(eq(nameFoo), isNull(), eq(error.toByteArray()),
                 eq(STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR));
-        verify(mMockReportListener).onResult(eq(nameBar), eq(bos.toByteArray()), isNull(),
+        ArgumentCaptor<PersistableBundle> reportCaptor =
+                ArgumentCaptor.forClass(PersistableBundle.class);
+        verify(mMockReportListener).onResult(eq(nameBar), reportCaptor.capture(), isNull(),
                 eq(STATUS_GET_METRICS_CONFIG_FINISHED));
+        assertThat(reportCaptor.getValue().toString()).isEqualTo(finalResult.toString());
         // results should have been deleted
         assertThat(mResultStore.getErrorResult(nameFoo, false)).isNull();
         assertThat(mResultStore.getFinalResult(nameBar, false)).isNull();
