@@ -21,6 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -46,26 +47,33 @@ import java.util.List;
 public final class ProjectionStatus implements Parcelable {
     /** This state indicates that projection is not actively running and no compatible mobile
      * devices available. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_STATE_INACTIVE = 0;
 
     /** At least one phone connected and ready to project. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_STATE_READY_TO_PROJECT = 1;
 
     /** Projecting in the foreground */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_STATE_ACTIVE_FOREGROUND = 2;
 
     /** Projection is running in the background */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_STATE_ACTIVE_BACKGROUND = 3;
 
     private static final int PROJECTION_STATE_MAX = PROJECTION_STATE_ACTIVE_BACKGROUND;
 
     /** This status is used when projection is not actively running */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_TRANSPORT_NONE = 0;
 
     /** This status is used when projection is not actively running */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_TRANSPORT_USB = 1;
 
     /** This status is used when projection is not actively running */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_TRANSPORT_WIFI = 2;
 
     private static final int PROJECTION_TRANSPORT_MAX = PROJECTION_TRANSPORT_WIFI;
@@ -143,11 +151,13 @@ public final class ProjectionStatus implements Parcelable {
     /** Returns projection state which could be one of the constants starting with
      * {@code #PROJECTION_STATE_}.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @ProjectionState int getState() {
         return mState;
     }
 
     /** Returns package name of the projection receiver app. */
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull String getPackageName() {
         return mPackageName;
     }
@@ -158,6 +168,7 @@ public final class ProjectionStatus implements Parcelable {
     }
 
     /** Returns true if currently projecting either in the foreground or in the background. */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isActive() {
         return mState == PROJECTION_STATE_ACTIVE_BACKGROUND
                 || mState == PROJECTION_STATE_ACTIVE_FOREGROUND;
@@ -166,11 +177,13 @@ public final class ProjectionStatus implements Parcelable {
     /** Returns transport which is used for active projection or
      * {@link #PROJECTION_TRANSPORT_NONE} if projection is not running.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @ProjectionTransport int getTransport() {
         return mTransport;
     }
 
     /** Returns a list of currently connected mobile devices. */
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull List<MobileDevice> getConnectedMobileDevices() {
         return new ArrayList<>(mConnectedMobileDevices);
     }
@@ -211,6 +224,7 @@ public final class ProjectionStatus implements Parcelable {
          * @param transport transport of current projection, must be one of the
          * {@code PROJECTION_TRANSPORT_*}
          */
+        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Builder setProjectionTransport(@ProjectionTransport int transport) {
             checkProjectionTransport(transport);
             mTransport = transport;
@@ -223,6 +237,7 @@ public final class ProjectionStatus implements Parcelable {
          * @param mobileDevice connected mobile device
          * @return this builder
          */
+        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Builder addMobileDevice(MobileDevice mobileDevice) {
             mMobileDevices.add(mobileDevice);
             return this;
@@ -241,6 +256,7 @@ public final class ProjectionStatus implements Parcelable {
         }
 
         /** Creates {@link ProjectionStatus} object. */
+        @AddedInOrBefore(majorVersion = 33)
         public ProjectionStatus build() {
             return new ProjectionStatus(this);
         }
@@ -310,17 +326,20 @@ public final class ProjectionStatus implements Parcelable {
         }
 
         /** Returns the device id which uniquely identifies the mobile device within projection  */
+        @AddedInOrBefore(majorVersion = 33)
         public int getId() {
             return mId;
         }
 
         /** Returns the name of the device */
+        @AddedInOrBefore(majorVersion = 33)
         public @NonNull String getName() {
             return mName;
         }
 
         /** Returns a list of available projection transports. See {@code PROJECTION_TRANSPORT_*}
          * for possible values. */
+        @AddedInOrBefore(majorVersion = 33)
         public @NonNull List<Integer> getAvailableTransports() {
             List<Integer> transports = new ArrayList<>(mAvailableTransports.length);
             for (int transport : mAvailableTransports) {
@@ -330,6 +349,7 @@ public final class ProjectionStatus implements Parcelable {
         }
 
         /** Indicates whether this mobile device is currently projecting */
+        @AddedInOrBefore(majorVersion = 33)
         public boolean isProjecting() {
             return mProjecting;
         }
@@ -392,6 +412,7 @@ public final class ProjectionStatus implements Parcelable {
              * {@code PROJECTION_TRANSPORT_*}
              * @return this builder
              */
+            @AddedInOrBefore(majorVersion = 33)
             public @NonNull Builder addTransport(@ProjectionTransport int transport) {
                 checkProjectionTransport(transport);
                 mAvailableTransports.add(transport);
@@ -404,6 +425,7 @@ public final class ProjectionStatus implements Parcelable {
              * @param projecting {@code True} if this mobile device currently projecting
              * @return this builder
              */
+            @AddedInOrBefore(majorVersion = 33)
             public @NonNull Builder setProjecting(boolean projecting) {
                 mProjecting = projecting;
                 return this;
@@ -421,6 +443,7 @@ public final class ProjectionStatus implements Parcelable {
             }
 
             /** Creates new instance of {@link MobileDevice} */
+            @AddedInOrBefore(majorVersion = 33)
             public @NonNull MobileDevice build() {
                 return new MobileDevice(this);
             }

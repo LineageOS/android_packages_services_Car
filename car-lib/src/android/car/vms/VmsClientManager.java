@@ -22,6 +22,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -54,6 +55,7 @@ public final class VmsClientManager extends CarManagerBase {
          *
          * @param client API client
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onClientConnected(@NonNull VmsClient client);
 
         /**
@@ -61,6 +63,7 @@ public final class VmsClientManager extends CarManagerBase {
          *
          * @param availableLayers Current layer availability
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onLayerAvailabilityChanged(@NonNull VmsAvailableLayers availableLayers);
 
         /**
@@ -68,6 +71,7 @@ public final class VmsClientManager extends CarManagerBase {
          *
          * @param subscriptionState Current subscription state
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onSubscriptionStateChanged(@NonNull VmsSubscriptionState subscriptionState);
 
         /**
@@ -77,6 +81,7 @@ public final class VmsClientManager extends CarManagerBase {
          * @param layer       Packet layer
          * @param packet      Packet data
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onPacketReceived(int providerId, @NonNull VmsLayer layer, @NonNull byte[] packet);
     }
 
@@ -163,6 +168,7 @@ public final class VmsClientManager extends CarManagerBase {
      * @param callback
      */
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
+    @AddedInOrBefore(majorVersion = 33)
     public void unregisterVmsClientCallback(@NonNull VmsClientCallback callback) {
         VmsClient client;
         synchronized (mLock) {

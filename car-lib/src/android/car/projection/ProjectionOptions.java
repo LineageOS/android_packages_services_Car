@@ -21,6 +21,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
+import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -38,9 +39,11 @@ public class ProjectionOptions {
     private static final String KEY_PREFIX = "android.car.projection.";
 
     /** Immersive full screen mode (all system bars are hidden) */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int UI_MODE_FULL_SCREEN = 0;
 
     /** Show status and navigation bars. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int UI_MODE_BLENDED = 1;
 
     private static final int UI_MODE_DEFAULT = UI_MODE_FULL_SCREEN;
@@ -52,21 +55,25 @@ public class ProjectionOptions {
 
     /** Indicates that head unit didn't specify information about access point mode.  This value
      * can only be seen on Android SDK 31 and below. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_MODE_NOT_SPECIFIED = 0;
 
     /** Projection access point was created such that it may provide Internet access. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_MODE_TETHERED = 1;
 
     /**
      * Projection access point was created as local-only hotspot, without Internet access and the
      * credentials will be auto-generated for every access point initialization.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_MODE_LOHS_DYNAMIC_CREDENTIALS = 2;
 
     /**
      * Projection access point was created as local-only hotspot, without Internet access and the
      * credentials will persist reboots.  Credentials still can be reseted by user or app request.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int AP_MODE_LOHS_STATIC_CREDENTIALS = 3;
 
     /** @hide */
@@ -110,6 +117,7 @@ public class ProjectionOptions {
      * Returns combination of flags from View.SYSTEM_UI_FLAG_* which will be used by projection
      * receiver app during rendering.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @ProjectionUiMode int getUiMode() {
         return mUiMode;
     }
@@ -125,6 +133,7 @@ public class ProjectionOptions {
      *     <li>{@link #AP_MODE_LOHS_STATIC_CREDENTIALS}</li>
      * </ul>
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @ProjectionAccessPointMode int getProjectionAccessPointMode() {
         return mApMode;
     }
@@ -132,6 +141,7 @@ public class ProjectionOptions {
     /**
      * Returns {@link ActivityOptions} that needs to be applied when launching projection activity
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable ActivityOptions getActivityOptions() {
         return mActivityOptions;
     }
@@ -142,11 +152,13 @@ public class ProjectionOptions {
      *
      * <p>If the method returns null then consent dialog should not be shown.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable ComponentName getConsentActivity() {
         return mConsentActivity;
     }
 
     /** Converts current object to {@link Bundle} */
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull Bundle toBundle() {
         Bundle bundle = new Bundle();
         if (mActivityOptions != null) {

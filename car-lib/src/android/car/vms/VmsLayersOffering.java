@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -91,6 +92,7 @@ public final class VmsLayersOffering implements Parcelable {
     /**
      * Layers and dependencies in the offering
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull Set<VmsLayerDependency> getDependencies() {
         return mDependencies;
     }
@@ -98,6 +100,7 @@ public final class VmsLayersOffering implements Parcelable {
     /**
      * ID of the publisher making the offering
      */
+    @AddedInOrBefore(majorVersion = 33)
     public int getPublisherId() {
         return mPublisherId;
     }
@@ -141,6 +144,7 @@ public final class VmsLayersOffering implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -151,6 +155,7 @@ public final class VmsLayersOffering implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */

@@ -19,6 +19,7 @@ package android.car.admin;
 import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
+import android.car.annotation.AddedInOrBefore;
 import android.car.user.UserRemovalResult;
 
 import com.android.car.internal.util.DebugUtils;
@@ -39,27 +40,32 @@ public final class RemoveUserResult {
     /**
      * User was removed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS = 1;
 
     /**
      * User was removed, and it was the last admin user.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS_LAST_ADMIN_REMOVED = 2;
 
     /**
      * When the user is set as ephemeral so that it is scheduled for removal. This occurs when the
      * user can't be immediately removed, such as when the current user is being removed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS_SET_EPHEMERAL = 3;
 
     /**
      * User was not removed because it doesn't exist.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4;
 
     /**
      * User was not removed because arguments passed to the method were invalid.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 5;
 
     /**
@@ -67,11 +73,13 @@ public final class RemoveUserResult {
      * occurs when the user can't be immediately removed, such as when the current user is being
      * removed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL = 6;
 
     /**
      * User was not removed for some other reason not described above.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_GENERIC = 100;
 
     /** @hide */
@@ -133,6 +141,7 @@ public final class RemoveUserResult {
      *         {@link RemoveUserResult#STATUS_FAILURE_GENERIC}, or
      *         {@link RemoveUserResult#STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL}.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -140,6 +149,7 @@ public final class RemoveUserResult {
     /**
      * Gets whether the operation was successful or not.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESS || mStatus == STATUS_SUCCESS_LAST_ADMIN_REMOVED
                 || mStatus == STATUS_SUCCESS_SET_EPHEMERAL

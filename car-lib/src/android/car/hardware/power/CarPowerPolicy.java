@@ -19,6 +19,7 @@ package android.car.hardware.power;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -110,6 +111,7 @@ public final class CarPowerPolicy implements Parcelable {
      * ID of power policy.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull String getPolicyId() {
         return mPolicyId;
     }
@@ -119,6 +121,7 @@ public final class CarPowerPolicy implements Parcelable {
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull int[] getEnabledComponents() {
         return mEnabledComponents;
     }
@@ -128,12 +131,14 @@ public final class CarPowerPolicy implements Parcelable {
      * {@code android.frameworks.automotive.powerpolicy.PowerComponent}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull int[] getDisabledComponents() {
         return mDisabledComponents;
     }
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -146,6 +151,7 @@ public final class CarPowerPolicy implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
