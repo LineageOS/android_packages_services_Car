@@ -16,18 +16,20 @@
 
 package com.google.android.car.kitchensink.telemetry;
 
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ANR_OCCURRED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_CRASH_OCCURRED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ANR_OCCURRED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_CRASH_OCCURRED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.ConnectivityPublisher;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -40,14 +42,10 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher;
-
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDateTime;
@@ -257,7 +255,11 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_APP_CRASH_OCCURRED =
             new StringBuilder()
                     .append("function onAppCrashOccurred(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
+                    .append("    result = {}\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("    end\n")
+                    .append("    on_script_finished(result)\n")
                     .append("end\n")
                     .toString();
 
@@ -285,7 +287,11 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_ANR_OCCURRED =
             new StringBuilder()
                     .append("function onAnrOccurred(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
+                    .append("    result = {}\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("    end\n")
+                    .append("    on_script_finished(result)\n")
                     .append("end\n")
                     .toString();
 
@@ -312,7 +318,11 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_WTF_OCCURRED =
             new StringBuilder()
                     .append("function onWtfOccurred(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
+                    .append("    result = {}\n")
+                    .append("    for k, v in pairs(published_data) do\n")
+                    .append("        result[k] = v[1]\n")
+                    .append("    end\n")
+                    .append("    on_script_finished(result)\n")
                     .append("end\n")
                     .toString();
 
@@ -346,7 +356,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final TelemetryProto.Publisher WIFI_NETSTATS_PUBLISHER =
             TelemetryProto.Publisher.newBuilder()
                     .setConnectivity(
-                            TelemetryProto.ConnectivityPublisher.newBuilder()
+                            ConnectivityPublisher.newBuilder()
                                     .setTransport(ConnectivityPublisher.Transport.TRANSPORT_WIFI)
                                     .setOemType(ConnectivityPublisher.OemType.OEM_NONE))
                     .build();
@@ -791,27 +801,22 @@ public class CarTelemetryTestFragment extends Fragment {
         @Override
         public void onResult(
                 @NonNull String metricsConfigName,
-                @Nullable byte[] report,
+                @Nullable PersistableBundle report,
                 @Nullable byte[] telemetryError,
                 @CarTelemetryManager.MetricsReportStatus int status) {
             if (report != null) {
-                parseReport(metricsConfigName, report);
+                StringBuilder sb = new StringBuilder("PersistableBundle[\n");
+                for (String key : report.keySet()) {
+                    sb.append("    " + key + ": " + report.get(key) + ",\n");
+                }
+                sb.append("]");
+                showOutput("Result for " + metricsConfigName + ": " + sb.toString());
             } else if (telemetryError != null) {
                 parseError(metricsConfigName, telemetryError);
             } else {
                 showOutput("No report exists for MetricsConfig " + metricsConfigName
                         + ", reason = " + statusCodeToString(status));
             }
-        }
-
-        private void parseReport(@NonNull String metricsConfigName, @NonNull byte[] report) {
-            PersistableBundle bundle;
-            try (ByteArrayInputStream bis = new ByteArrayInputStream(report)) {
-                bundle = PersistableBundle.readFromStream(bis);
-            } catch (IOException e) {
-                bundle = null;
-            }
-            showOutput("Result for " + metricsConfigName + ": " + bundle.toString());
         }
 
         private void parseError(@NonNull String metricsConfigName, @NonNull byte[] error) {

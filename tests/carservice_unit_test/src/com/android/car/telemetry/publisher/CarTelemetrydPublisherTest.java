@@ -29,6 +29,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.Nullable;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
+import android.car.telemetry.TelemetryProto;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.os.IBinder;
 import android.os.Looper;
@@ -36,7 +37,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 
 import com.android.car.CarLog;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeHandlerWrapper;
 

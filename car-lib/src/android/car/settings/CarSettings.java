@@ -177,7 +177,10 @@ public class CarSettings {
         /**
          * Key to enable / disable rotary key event filtering. When enabled, a USB keyboard can be
          * used as a stand-in for a rotary controller.
+         * The value is boolean (1 or 0).
+         * @hide
          */
+        @SystemApi
         public static final String KEY_ROTARY_KEY_EVENT_FILTER =
                 "android.car.ROTARY_KEY_EVENT_FILTER";
 

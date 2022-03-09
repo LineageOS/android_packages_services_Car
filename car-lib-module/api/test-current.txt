@@ -152,7 +152,7 @@ package android.car.telemetry {
   }
 
   public static interface CarTelemetryManager.MetricsReportCallback {
-    method public void onResult(@NonNull String, @Nullable byte[], @Nullable byte[], int);
+    method public void onResult(@NonNull String, @Nullable android.os.PersistableBundle, @Nullable byte[], int);
   }
 
   public static interface CarTelemetryManager.ReportReadyListener {
