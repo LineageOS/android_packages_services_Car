@@ -20,6 +20,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarLibLog;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -51,6 +52,7 @@ public final class CarNavigationStatusManager extends CarManagerBase {
      */
     @Deprecated
     @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
+    @AddedInOrBefore(majorVersion = 33)
     public void sendEvent(int eventType, Bundle bundle) {
         sendNavigationStateChange(bundle);
     }
@@ -66,6 +68,7 @@ public final class CarNavigationStatusManager extends CarManagerBase {
      *                 {@link android.car.CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION} focus.
      */
     @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
+    @AddedInOrBefore(majorVersion = 33)
     public void sendNavigationStateChange(Bundle bundle) {
         try {
             mService.onNavigationStateChanged(bundle);
@@ -81,6 +84,7 @@ public final class CarNavigationStatusManager extends CarManagerBase {
 
     /** Returns navigation features of instrument cluster */
     @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
+    @AddedInOrBefore(majorVersion = 33)
     public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
         try {
             return mService.getInstrumentClusterInfo();

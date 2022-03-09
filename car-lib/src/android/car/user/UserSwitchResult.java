@@ -21,6 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.TestApi;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserManager;
 
@@ -45,46 +46,54 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     /**
      * When user switch is successful for both HAL and Android.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * When user switch is only successful for Hal but not for Android. Hal user switch rollover
      * message have been sent.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
      * When user switch fails for HAL. User switch for Android is not called.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_HAL_FAILURE = CommonResults.STATUS_HAL_FAILURE;
 
     /**
      * When user switch fails for HAL for some internal error. User switch for Android is not
      * called.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
 
     /**
      * When given parameters or environment states are invalid for switching user. HAL or Android
      * user switch is not requested.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
 
     /**
      * When user switch fails because of driving safety UX restrictions.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_UX_RESTRICTION_FAILURE =
             CommonResults.STATUS_UX_RESTRICTION_FAILURE;
 
     /**
      * When target user is same as current user.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_OK_USER_ALREADY_IN_FOREGROUND =
             CommonResults.LAST_COMMON_STATUS + 1;
 
     /**
      * When another user switch request for the same target user is in process.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO =
             CommonResults.LAST_COMMON_STATUS + 2;
 
@@ -92,18 +101,21 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * When another user switch request for a new different target user is received. Previous
      * request is abandoned.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST =
             CommonResults.LAST_COMMON_STATUS + 3;
 
     /**
      * When switching users is currently not allowed for the user this process is running under.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_NOT_SWITCHABLE =
             CommonResults.LAST_COMMON_STATUS + 4;
 
     /**
      * When logout was called but the current user was not switched by a device admin.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_NOT_LOGGED_IN =
             CommonResults.LAST_COMMON_STATUS + 5;
 
@@ -306,6 +318,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      *         {@link UserSwitchResult#STATUS_NOT_LOGGED_IN}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -327,6 +340,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * Gets the error message, if any.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable String getErrorMessage() {
         return mErrorMessage;
     }
@@ -346,6 +360,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
