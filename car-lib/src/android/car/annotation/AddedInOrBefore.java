@@ -33,9 +33,7 @@ import java.lang.annotation.Target;
  * {@link android.car.Car#API_VERSION_MINOR_INT} for minor version.
  *
  * @hide
- * @deprecated Change all such annotations with AddedIn annotation with correct API version.
  */
-@Deprecated
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE, FIELD, TYPE, METHOD})
 public @interface AddedInOrBefore {
