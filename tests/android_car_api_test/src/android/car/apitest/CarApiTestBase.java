@@ -168,7 +168,9 @@ public abstract class CarApiTestBase {
             PowerManager powerManager = sContext.getSystemService(PowerManager.class);
             // clear log
             runShellCommand("logcat -b all -c");
-            runShellCommand("cmd car_service suspend --skip-garagemode");
+            // We use a simulated suspend because physically suspended devices cannot be woken up by
+            // a shell command.
+            runShellCommand("cmd car_service suspend --simulate --skip-garagemode");
             // Check for suspend success
             waitUntil("screen is still on after suspend",
                     SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
