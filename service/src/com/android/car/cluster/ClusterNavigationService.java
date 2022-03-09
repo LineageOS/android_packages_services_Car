@@ -20,6 +20,9 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.builtin.util.Slogf;
+import android.car.cluster.navigation.NavigationState.Maneuver;
+import android.car.cluster.navigation.NavigationState.NavigationStateProto;
+import android.car.cluster.navigation.NavigationState.Step;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
@@ -38,6 +41,8 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
 import java.util.Objects;
 
 /**
@@ -52,6 +57,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
     static final String TAG = CarLog.TAG_CLUSTER;
 
     private static final ContextOwner NO_OWNER = new ContextOwner(0, 0);
+    private static final String NAV_STATE_PROTO_BUNDLE_KEY = "navstate2";
 
     private final Context mContext;
     private final AppFocusService mAppFocusService;
@@ -76,6 +82,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
     public void onNavigationStateChanged(Bundle bundle) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
         assertNavigationFocus();
+        assertNavStateProtoValid(bundle);
         ClusterNavigationServiceCallback callback;
         synchronized (mLock) {
             callback = mClusterServiceCallback;
@@ -184,6 +191,29 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
         if (callback == null) return;
 
         callback.notifyNavContextOwnerChanged(newOwner);
+    }
+
+    private void assertNavStateProtoValid(Bundle bundle) {
+        byte[] protoBytes = bundle.getByteArray(NAV_STATE_PROTO_BUNDLE_KEY);
+        if (protoBytes == null) {
+            throw new IllegalArgumentException("Received navigation state byte array is null.");
+        }
+        try {
+            NavigationStateProto navigationStateProto = NavigationStateProto.parseFrom(protoBytes);
+            if (navigationStateProto.getStepsCount() == 0) {
+                return;
+            }
+            for (Step step : navigationStateProto.getStepsList()) {
+                Maneuver maneuver = step.getManeuver();
+                if (!Maneuver.TypeV2.UNKNOWN_V2.equals(maneuver.getTypeV2())
+                        && Maneuver.Type.UNKNOWN.equals(maneuver.getType())) {
+                    throw new IllegalArgumentException(
+                        "Maneuver#type must be populated if Maneuver#typeV2 is also populated.");
+                }
+            }
+        } catch (InvalidProtocolBufferException e) {
+            throw new IllegalArgumentException("Error parsing navigation state proto", e);
+        }
     }
 
     static class ContextOwner {
