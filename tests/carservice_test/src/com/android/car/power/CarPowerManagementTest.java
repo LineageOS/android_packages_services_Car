@@ -39,22 +39,24 @@ import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
-import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.MockedCarTestBase;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.user.CarUserService;
 import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.internal.annotations.GuardedBy;
 
 import com.google.android.collect.Lists;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.Objects;
@@ -74,11 +76,14 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
     private final PowerStatePropertyHandler mPowerStateHandler = new PowerStatePropertyHandler();
     private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
+    private final SystemStateInterfaceForSuspend mMockSystemStateInterface =
+            new SystemStateInterfaceForSuspend();
 
     @Override
     protected SystemInterface.Builder getSystemInterfaceBuilder() {
         SystemInterface.Builder builder = super.getSystemInterfaceBuilder();
-        return builder.withDisplayInterface(mMockDisplayInterface);
+        return builder.withDisplayInterface(mMockDisplayInterface)
+                .withSystemStateInterface(mMockSystemStateInterface);
     }
 
     @Override
@@ -96,11 +101,16 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
     }
 
+    @Override
+    protected void configureResourceOverrides(MockResources resources) {
+        super.configureResourceOverrides(resources);
+        resources.overrideResource(com.android.car.R.integer.config_maxSuspendWaitDuration, 10000);
+    }
+
     /**********************************************************************************************
      * Test immediate shutdown
      **********************************************************************************************/
     @Test
-    @UiThreadTest
     public void testImmediateShutdownFromWaitForVhal() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -110,7 +120,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testImmediateShutdownFromWaitForVhal_ErrorCodeFromVhal() throws Exception {
         // The exceptions from VHAL should be handled in PowerHalService and not propagated.
 
@@ -145,13 +154,12 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testImmediateShutdownFromOn() throws Exception {
         assertWaitForVhal();
         // Transition to ON state first
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.ON,
-                0,
+                /* param= */ 0,
                 VehicleApPowerStateReport.ON);
         // Send immediate shutdown from ON state
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -161,7 +169,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testImmediateShutdownFromShutdownPrepare() throws Exception {
         assertWaitForVhal();
         registerListenerToFakeGarageMode();
@@ -182,7 +189,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
      * Test cancelling of shutdown.
      **********************************************************************************************/
     @Test
-    @UiThreadTest
     public void testCancelShutdownFromShutdownPrepare() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -192,12 +198,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         // Shutdown may only be cancelled from SHUTDOWN_PREPARE
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.CANCEL_SHUTDOWN,
-                0,
+                /* param= */  0,
                 VehicleApPowerStateReport.SHUTDOWN_CANCELLED);
     }
 
     @Test
-    @UiThreadTest
     public void testCancelShutdownFromWaitForFinish() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -207,7 +212,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         // After DEEP_SLEEP_ENTRY, we're in WAIT_FOR_FINISH
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.CANCEL_SHUTDOWN,
-                0,
+                /* param= */ 0,
                 VehicleApPowerStateReport.SHUTDOWN_CANCELLED);
     }
 
@@ -215,7 +220,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
      * Test for invalid state transtions
      **********************************************************************************************/
     @Test
-    @UiThreadTest
     public void testInvalidTransitionsFromWaitForVhal() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0);
@@ -223,20 +227,18 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testInvalidTransitionsFromOn() throws Exception {
         assertWaitForVhal();
         // Transition to ON state first
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.ON,
-                0,
+                /* param= */ 0,
                 VehicleApPowerStateReport.ON);
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.CANCEL_SHUTDOWN, 0);
         mPowerStateHandler.sendStateAndExpectNoResponse(VehicleApPowerStateReq.FINISHED, 0);
     }
 
     @Test
-    @UiThreadTest
     public void testInvalidTransitionsFromPrepareShutdown() throws Exception {
         assertWaitForVhal();
         registerListenerToFakeGarageMode();
@@ -261,7 +263,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testInvalidTransitionsFromWaitForFinish() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -281,7 +282,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testInvalidTransitionsFromWaitForFinish2() throws Exception {
         assertWaitForVhal();
         mPowerStateHandler.sendStateAndCheckResponse(
@@ -305,7 +305,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
      **********************************************************************************************/
     // This test also verifies the display state as the device goes in and out of suspend.
     @Test
-    @UiThreadTest
     public void testSleepEntry() throws Exception {
         PowerPolicyListener powerPolicyListener = new PowerPolicyListener(POWER_POLICY_S2R);
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
@@ -318,7 +317,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         mMockDisplayInterface.waitForDisplayState(false);
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.ON,
-                0,
+                /* param= */ 0,
                 VehicleApPowerStateReport.ON);
         mMockDisplayInterface.waitForDisplayState(true);
         mPowerStateHandler.sendPowerState(
@@ -341,13 +340,12 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testSleepImmediateEntry() throws Exception {
         assertWaitForVhal();
         mMockDisplayInterface.waitForDisplayState(false);
         mPowerStateHandler.sendStateAndCheckResponse(
                 VehicleApPowerStateReq.ON,
-                0,
+                /* param= */ 0,
                 VehicleApPowerStateReport.ON);
         mMockDisplayInterface.waitForDisplayState(true);
         mPowerStateHandler.sendPowerState(
@@ -357,7 +355,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     }
 
     @Test
-    @UiThreadTest
     public void testInvalidPowerStateEvent() throws Exception {
         assertWaitForVhal();
 
@@ -369,6 +366,48 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                             .build());
 
         assertEquals(mPowerStateHandler.getSetWaitSemaphore().availablePermits(), 0);
+    }
+
+    @Test
+    public void testUnallowedPowerStateEventAtSuspend() throws Exception {
+        PowerPolicyListener powerPolicyListener = new PowerPolicyListener(POWER_POLICY_S2R);
+        CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.WIFI).build();
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+        cpms.addPowerPolicyListener(filter, powerPolicyListener);
+
+        assertWaitForVhal();
+
+        mPowerStateHandler.sendStateAndCheckResponse(
+                VehicleApPowerStateReq.ON,
+                /* param= */ 0,
+                VehicleApPowerStateReport.ON);
+        mMockDisplayInterface.waitForDisplayState(true);
+        // Makes the suspend unsuccessful.
+        mMockSystemStateInterface.setExpectedSuspendStatus(/* expectedStatus= */ false);
+        mPowerStateHandler.sendPowerState(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
+
+        assertResponse(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, /* expectedParam= */ 0,
+                /* checkParam= */ false);
+
+        mPowerStateHandler.sendPowerState(VehicleApPowerStateReq.FINISHED, /* param= */ 0);
+        powerPolicyListener.waitForPowerPolicy();
+
+        // Sends unallowed power state request.
+        mPowerStateHandler.sendPowerState(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY);
+
+        // Makes the suspend successful.
+        mMockSystemStateInterface.setExpectedSuspendStatus(/* expectedStatus= */ true);
+
+        assertResponseTransient(VehicleApPowerStateReport.DEEP_SLEEP_EXIT, /* expectedParam= */ 0,
+                /* checkParam= */ true);
+
+        cpms.removePowerPolicyListener(powerPolicyListener);
     }
 
     // Check that 'expectedState' was reached and is the current state.
@@ -634,6 +673,40 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         public void waitForPowerPolicy() throws Exception {
             JavaMockitoHelper.await(mLatch, POLICY_APPLICATION_TIMEOUT_MS);
+        }
+    }
+
+    private static final class SystemStateInterfaceForSuspend implements SystemStateInterface {
+
+        private final Object mLock = new Object();
+
+        @GuardedBy("mLock")
+        private boolean mExpectedSuspendStatus = true;
+
+        @Override
+        public void shutdown() {}
+
+        @Override
+        public boolean enterDeepSleep() {
+            synchronized (mLock) {
+                return mExpectedSuspendStatus;
+            }
+        }
+
+        @Override
+        public boolean enterHibernation() {
+            synchronized (mLock) {
+                return mExpectedSuspendStatus;
+            }
+        }
+
+        @Override
+        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
+
+        public void setExpectedSuspendStatus(boolean expectedStatus) {
+            synchronized (mLock) {
+                mExpectedSuspendStatus = expectedStatus;
+            }
         }
     }
 }
