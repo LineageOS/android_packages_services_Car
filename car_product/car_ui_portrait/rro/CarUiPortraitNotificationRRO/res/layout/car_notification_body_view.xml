@@ -68,13 +68,4 @@
         android:layout_below="@id/notification_body_content"
         android:layout_marginTop="@dimen/message_count_top_margin"
         style="@style/NotificationBodyContentText"/>
-
-    <DateTimeView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/notification_body_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginEnd="@dimen/time_margin"
-        style="@style/NotificationHeaderText"/>
 </merge>
