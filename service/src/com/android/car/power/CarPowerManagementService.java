@@ -2088,17 +2088,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void simulateSuspendAndMaybeReboot(boolean shouldReboot,
             @PowerState.ShutdownType int shutdownType, boolean skipGarageMode) {
         boolean isDeepSleep = shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
-        if (isDeepSleep) {
-            if (isDeepSleepAvailable()) {
-                throw new IllegalStateException("Can't simulate deep sleep: a real deep sleep is "
-                        + "supported by the device");
-            }
-        } else {
-            if (isHibernationAvailable()) {
-                throw new IllegalStateException("Can't simulate hibernation: a real hibernation is "
-                        + "supported by the device");
-            }
-        }
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
@@ -2292,14 +2281,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             if (!isHibernationAvailable()) {
                 throw new IllegalStateException("The device doesn't support hibernation");
             }
-            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY
-                    : VehicleApPowerStateShutdownParam.CAN_SLEEP;
+            param = skipGarageMode ? VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY
+                    : VehicleApPowerStateShutdownParam.CAN_HIBERNATE;
         } else {
             if (!isDeepSleepAvailable()) {
                 throw new IllegalStateException("The device doesn't support deep sleep");
             }
-            param = skipGarageMode ? VehicleApPowerStateShutdownParam.HIBERNATE_IMMEDIATELY
-                    : VehicleApPowerStateShutdownParam.CAN_HIBERNATE;
+            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY
+                    : VehicleApPowerStateShutdownParam.CAN_SLEEP;
         }
         PowerState state = new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, param);
         synchronized (mLock) {
