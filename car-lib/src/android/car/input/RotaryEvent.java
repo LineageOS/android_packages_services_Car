@@ -19,6 +19,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -149,6 +150,7 @@ public final class RotaryEvent implements Parcelable {
      * can be {@link CarInputManager#INPUT_TYPE_ROTARY_NAVIGATION}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @CarInputManager.InputTypeEnum int getInputType() {
         return mInputType;
     }
@@ -157,6 +159,7 @@ public final class RotaryEvent implements Parcelable {
      * Indicates if the event is clockwise (={@code true}) or counterclockwise (={@code false}).
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isClockwise() {
         return mClockwise;
     }
@@ -169,6 +172,7 @@ public final class RotaryEvent implements Parcelable {
      * capture timestamps for each click, all the timestamps will be the same.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull long[] getUptimeMillisForClicks() {
         return mUptimeMillisForClicks;
     }
@@ -208,6 +212,7 @@ public final class RotaryEvent implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -222,6 +227,7 @@ public final class RotaryEvent implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */

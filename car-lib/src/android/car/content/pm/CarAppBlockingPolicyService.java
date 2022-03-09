@@ -18,6 +18,7 @@ package android.car.content.pm;
 import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.Car;
+import android.car.annotation.AddedInOrBefore;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.IBinder;
@@ -37,6 +38,7 @@ public abstract class CarAppBlockingPolicyService extends Service {
 
     private static final String TAG = CarAppBlockingPolicyService.class.getSimpleName();
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final String SERVICE_INTERFACE =
             "android.car.content.pm.CarAppBlockingPolicyService";
 
@@ -47,6 +49,7 @@ public abstract class CarAppBlockingPolicyService extends Service {
      * Return the app blocking policy. This is called from binder thread.
      * @return
      */
+    @AddedInOrBefore(majorVersion = 33)
     protected abstract CarAppBlockingPolicy getAppBlockingPolicy();
 
     @Override
@@ -55,6 +58,7 @@ public abstract class CarAppBlockingPolicyService extends Service {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public IBinder onBind(Intent intent) {
         Log.i(TAG, "onBind");
         return mBinder;

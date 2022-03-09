@@ -22,6 +22,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -83,6 +84,7 @@ public final class CarPerformanceManager extends CarManagerBase {
          *
          * @param info CPU availability information.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onCpuAvailabilityChange(@NonNull CpuAvailabilityInfo info);
     }
 
@@ -96,6 +98,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @throws IllegalStateException if {@code listener} is already added.
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public void addCpuAvailabilityChangeListener(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CpuAvailabilityMonitoringConfig config,
@@ -115,6 +118,7 @@ public final class CarPerformanceManager extends CarManagerBase {
      * interface.
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     public void removeCpuAvailabilityChangeListener(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CpuAvailabilityChangeListener listener) {

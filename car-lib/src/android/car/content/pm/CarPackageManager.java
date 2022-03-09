@@ -27,6 +27,7 @@ import android.annotation.UserIdInt;
 import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedInOrBefore;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
@@ -56,6 +57,7 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 0x1;
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -70,6 +72,7 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FLAG_SET_POLICY_ADD = 0x2;
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -83,6 +86,7 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FLAG_SET_POLICY_REMOVE = 0x4;
 
     /**
@@ -199,6 +203,7 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @SystemApi
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public void setAppBlockingPolicy(
             String packageName, CarAppBlockingPolicy policy, @SetPolicyFlags int flags) {
         if ((flags & FLAG_SET_POLICY_WAIT_FOR_CHANGE) != 0
@@ -243,6 +248,7 @@ public final class CarPackageManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
         try {
             return mService.isActivityBackedBySafeActivity(activityName);
@@ -257,6 +263,7 @@ public final class CarPackageManager extends CarManagerBase {
      * @hide
      */
     @TestApi
+    @AddedInOrBefore(majorVersion = 33)
     public void setEnableActivityBlocking(boolean enable) {
         try {
             mService.setEnableActivityBlocking(enable);
@@ -274,6 +281,7 @@ public final class CarPackageManager extends CarManagerBase {
      * @return true if the activity is distraction optimized, false if it isn't or if the value
      *         could not be determined.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isActivityDistractionOptimized(String packageName, String className) {
         try {
             return mService.isActivityDistractionOptimized(packageName, className);
@@ -290,6 +298,7 @@ public final class CarPackageManager extends CarManagerBase {
      * @return true if the pending intent represents an activity that is distraction optimized,
      *         false if it isn't or if the value could not be determined.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isPendingIntentDistractionOptimized(@NonNull PendingIntent pendingIntent) {
         try {
             return mService.isPendingIntentDistractionOptimized(pendingIntent);
@@ -306,6 +315,7 @@ public final class CarPackageManager extends CarManagerBase {
      * @param className
      * @return
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isServiceDistractionOptimized(String packageName, String className) {
         try {
             return mService.isServiceDistractionOptimized(packageName, className);

@@ -21,6 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.Car;
+import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.RequiredFeature;
 import android.hardware.HardwareBuffer;
 import android.os.Parcel;
@@ -81,11 +82,13 @@ public final class CarEvsBufferDescriptor implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull final Parcel dest, final int flags) {
         dest.writeInt(mId);
         mHardwareBuffer.writeToParcel(dest, flags);
@@ -101,6 +104,7 @@ public final class CarEvsBufferDescriptor implements Parcelable {
      *
      * @return A 32-bit signed integer unique buffer identifier.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public int getId() {
         return mId;
     }
@@ -112,6 +116,7 @@ public final class CarEvsBufferDescriptor implements Parcelable {
      * @return the registered {@link android.hardware.HardwareBuffer}.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public HardwareBuffer getHardwareBuffer() {
         return mHardwareBuffer;
     }
