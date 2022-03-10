@@ -62,9 +62,7 @@ import com.android.server.utils.Slogf;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -416,21 +414,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     @Nullable
-    private byte[] getBytes(@Nullable PersistableBundle report) {
-        if (report == null) {
-            return null;
-        }
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            report.writeToStream(bos);
-            return bos.toByteArray();
-        } catch (IOException e) {
-            String msg = "Failed to write PersistableBundle to output stream. ";
-            Slogf.w(CarLog.TAG_TELEMETRY, msg, e);
-            return null;
-        }
-    }
-
-    @Nullable
     private byte[] getBytes(@Nullable TelemetryProto.TelemetryError error) {
         if (error == null) {
             return null;
@@ -445,7 +428,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             @Nullable TelemetryProto.TelemetryError error,
             @CarTelemetryManager.MetricsReportStatus int status) {
         try {
-            listener.onResult(metricsConfigName, getBytes(report), getBytes(error), status);
+            listener.onResult(metricsConfigName, report, getBytes(error), status);
         } catch (RemoteException e) {
             Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportListener", e);
         }
