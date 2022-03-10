@@ -46,10 +46,10 @@ using CarPowerPolicyPtr =
         std::shared_ptr<::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy>;
 using PolicyGroup = std::unordered_map<int32_t, std::string>;
 
-constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";
-constexpr const char* kSystemPolicyIdAllOn = "system_power_policy_all_on";
-constexpr const char* kSystemPolicyIdInitialOn = "system_power_policy_initiall_on";
-constexpr const char* kSystemPolicyIdSuspendToRam = "system_power_policy_suspend_to_ram";
+constexpr const char kSystemPolicyIdNoUserInteraction[] = "system_power_policy_no_user_interaction";
+constexpr const char kSystemPolicyIdAllOn[] = "system_power_policy_all_on";
+constexpr const char kSystemPolicyIdInitialOn[] = "system_power_policy_initiall_on";
+constexpr const char kSystemPolicyIdSuspendToRam[] = "system_power_policy_suspend_to_ram";
 
 // Forward declaration for testing use only.
 namespace internal {
