@@ -18,6 +18,7 @@ package android.car.hardware.property;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,6 +35,7 @@ public final class EvChargingConnectorType {
     /**
      * The vehicle does not know the charging connector type.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int UNKNOWN = 0;
 
     /**
@@ -41,6 +43,7 @@ public final class EvChargingConnectorType {
      *
      * <p>It is colloquially known as the "Yazaki connector" or "J1772 connector".
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IEC_TYPE_1_AC = 1;
 
     /**
@@ -48,6 +51,7 @@ public final class EvChargingConnectorType {
      *
      * <p>It is colloquially known as the "Mennekes connector".
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IEC_TYPE_2_AC = 2;
 
     /**
@@ -55,6 +59,7 @@ public final class EvChargingConnectorType {
      *
      * <p>It is colloquially known as the "Scame connector".
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IEC_TYPE_3_AC = 3;
 
     /**
@@ -62,6 +67,7 @@ public final class EvChargingConnectorType {
      *
      * <p>It is colloquially known as the "Chademo connector".
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IEC_TYPE_4_DC = 4;
 
     /**
@@ -69,6 +75,7 @@ public final class EvChargingConnectorType {
      *
      * <p>It is colloquially known as the “CCS1 connector” or “Combo1 connector".
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IEC_TYPE_1_CCS_DC = 5;
 
     /**
@@ -76,26 +83,33 @@ public final class EvChargingConnectorType {
      *
      * <p>It is colloquially known as the “CCS2 connector” or “Combo2 connector”.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int IEC_TYPE_2_CCS_DC = 6;
 
     /** Connector of Tesla Roadster */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TESLA_ROADSTER = 7;
 
     /** High Power Wall Charger of Tesla */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TESLA_HPWC = 8;
 
     /** Supercharger of Tesla */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int TESLA_SUPERCHARGER = 9;
 
     /** GBT_AC Fast Charging Standard */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int GBT_AC = 10;
 
     /** GBT_DC Fast Charging Standard */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int GBT_DC = 11;
 
     /**
      * Connector type to use when no other types apply.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int OTHER = 101;
 
     /** @hide */
@@ -123,6 +137,7 @@ public final class EvChargingConnectorType {
      * Gets a user-friendly representation of a charging connector type.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static String toString(@EvChargingConnectorType.Enum int connectorType) {
         switch (connectorType) {
             case UNKNOWN:

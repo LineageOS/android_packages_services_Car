@@ -18,6 +18,7 @@ package android.car;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -34,33 +35,39 @@ public final class VehicleIgnitionState {
     /**
      * The vehicle's ignition state is undefined.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int UNDEFINED = 0;
 
     /**
      * Steering wheel is locked. If car can be in {@code LOCK} and {@code OFF} state at the same
      * time than HAL must report {@code LOCK} state.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int LOCK = 1;
 
     /**
      * Steering wheel is not locked, engine and all accessories are off. If car can be in {@code
      * LOCK} and {@code OFF} state at the same time than HAL must report {@code LOCK} state.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int OFF = 2;
 
     /**
      * Typically in this state accessories become available (e.g. radio). Instrument cluster and
      * engine are turned off
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ACC = 3;
 
     /**
      * Ignition is in state on. Accessories and instrument cluster available, engine might be
      * running or ready to be started.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ON = 4;
 
     /** Typically in this state engine is starting (cranking). */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int START = 5;
 
     private VehicleIgnitionState() {
@@ -70,6 +77,7 @@ public final class VehicleIgnitionState {
      * Gets a user-friendly representation of an ignition state.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static String toString(@VehicleIgnitionState.Enum int ignitionState) {
         switch (ignitionState) {
             case UNDEFINED:

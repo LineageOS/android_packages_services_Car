@@ -17,6 +17,7 @@
 package android.car.settings;
 
 import android.annotation.SystemApi;
+import android.car.annotation.AddedInOrBefore;
 
 /**
  * System-level, car-related settings.
@@ -141,6 +142,7 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL =
                 "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
 
@@ -155,6 +157,7 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES =
                 "android.car.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES";
 
@@ -181,6 +184,7 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_ROTARY_KEY_EVENT_FILTER =
                 "android.car.ROTARY_KEY_EVENT_FILTER";
 
@@ -191,6 +195,7 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER =
                 "android.car.ENABLE_INITIAL_NOTICE_SCREEN_TO_USER";
 
@@ -201,6 +206,7 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_SETUP_WIZARD_IN_PROGRESS =
                 "android.car.SETUP_WIZARD_IN_PROGRESS";
 
@@ -219,6 +225,7 @@ public class CarSettings {
          * @hide
          */
         @SystemApi
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE =
                 "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
     }

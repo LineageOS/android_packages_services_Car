@@ -23,6 +23,7 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.app.ActivityManager;
+import android.car.annotation.AddedInOrBefore;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -249,6 +250,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -263,6 +265,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
