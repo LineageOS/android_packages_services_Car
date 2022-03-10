@@ -171,7 +171,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private final ArrayList<ICarPowerStateListener> mInternalPowerListeners = new ArrayList<>();
 
     @GuardedBy("mLock")
-    private final PowerListenerSet mListenersWeAreWaitingFor = new PowerListenerSet();
+    private final ArraySet<IBinder> mListenersWeAreWaitingFor = new ArraySet<>();
     @GuardedBy("mLock")
     private final LinkedList<CpmsState> mPendingPowerStates = new LinkedList<>();
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -1038,7 +1038,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 ICarPowerStateListener listener = mInternalPowerListeners.get(i);
                 completingInternalListeners.register(listener);
                 if (allowCompletion) {
-                    mListenersWeAreWaitingFor.add(listener);
+                    mListenersWeAreWaitingFor.add(listener.asBinder());
                 }
             }
             int idx = mPowerManagerListenersWithCompletion.beginBroadcast();
@@ -1246,7 +1246,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             found = mInternalPowerListeners.remove(listener);
         }
         if (found) {
-            removeListenerFromWaitingList(listener);
+            removeListenerFromWaitingList(listener.asBinder());
         }
     }
 
@@ -1399,7 +1399,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void handleListenerCompletion(int state, Object listener,
+    private void handleListenerCompletion(int state, ICarPowerStateListener listener,
             ArraySet<Integer> notAllowedStates) {
         synchronized (mLock) {
             if (notAllowedStates.contains(mStateForCompletion)) {
@@ -1413,7 +1413,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 return;
             }
         }
-        removeListenerFromWaitingList(listener);
+        removeListenerFromWaitingList(listener.asBinder());
     }
 
 
@@ -1426,9 +1426,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void removeListenerFromWaitingList(Object listener) {
+    private void removeListenerFromWaitingList(IBinder binderListener) {
         synchronized (mLock) {
-            mListenersWeAreWaitingFor.remove(listener);
+            mListenersWeAreWaitingFor.remove(binderListener);
         }
         // Signals a thread to check if all listeners complete.
         mListenerCompletionSem.release();
@@ -1828,35 +1828,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     service.doHandleProcessingComplete();
                     break;
             }
-        }
-    }
-
-    private static final class PowerListenerSet {
-
-        private final ArraySet<Object> mListeners = new ArraySet();
-
-        public void clear() {
-            mListeners.clear();
-        }
-
-        public boolean isEmpty() {
-            return mListeners.isEmpty();
-        }
-
-        public void add(Object listener) {
-            if (isSupportedListener(listener)) {
-                mListeners.add(listener);
-            }
-        }
-
-        public void remove(Object listener) {
-            if (isSupportedListener(listener)) {
-                mListeners.remove(listener);
-            }
-        }
-
-        private boolean isSupportedListener(Object listener) {
-            return listener instanceof IBinder || listener instanceof ICarPowerStateListener;
         }
     }
 
