@@ -23,7 +23,9 @@ import static android.net.NetworkTemplate.OEM_MANAGED_PRIVATE;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
 import android.app.usage.NetworkStatsManager;
@@ -39,6 +41,7 @@ import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 
 import com.android.car.telemetry.ResultStore;
+import com.android.car.telemetry.UidPackageMapper;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.FakeNetworkStats;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
@@ -140,6 +143,8 @@ public class ConnectivityPublisherTest {
     private static final int UID_3 = 3;
     private static final int UID_4 = 4;
 
+    @Mock private UidPackageMapper mMockUidMapper;
+
     private final long mNow = System.currentTimeMillis(); // since epoch
 
     private final FakeHandlerWrapper mFakeHandler =
@@ -168,10 +173,11 @@ public class ConnectivityPublisherTest {
     public void setUp() throws Exception {
         mTestRootDir = Files.createTempDirectory("car_telemetry_test").toFile();
         mResultStore = new ResultStore(mTestRootDir);
+        when(mMockUidMapper.getPackagesForUid(anyInt())).thenReturn(List.of("pkg1"));
         mPublisher =
                 new ConnectivityPublisher(
                         this::onPublisherFailure, mFakeManager, mFakeHandler.getMockHandler(),
-                        mResultStore, mMockSessionController);
+                        mResultStore, mMockSessionController, mMockUidMapper);
         verify(mMockSessionController).registerCallback(
                 mSessionControllerCallbackArgumentCaptor.capture());
     }

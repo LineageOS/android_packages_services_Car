@@ -37,6 +37,7 @@ import android.util.ArrayMap;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.ResultStore;
+import com.android.car.telemetry.UidPackageMapper;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;
@@ -59,6 +60,9 @@ import java.util.regex.Pattern;
  * hours buckets, we won't be able to get precise netstats if we use the buckets mechanism, that's
  * why we will be storing baseline (or previous) netstats in ConnectivityPublisher to find netstats
  * diff between now and the last pull.
+ *
+ * <p>Schema for this publisher data is defined and documented in the
+ * {@link RefinedStats#toPersistableBundle} method.
  */
 public class ConnectivityPublisher extends AbstractPublisher {
     // The default bucket duration used when query a snapshot from NetworkStatsService. The value
@@ -76,8 +80,8 @@ public class ConnectivityPublisher extends AbstractPublisher {
     // All the methods in this class are expected to be called on this handler's thread.
     private final Handler mTelemetryHandler;
 
+    private final UidPackageMapper mUidMapper;
     private final TimingsTraceLog mTraceLog;
-
     private final ResultStore mResultStore;
 
     private NetworkStatsManagerProxy mNetworkStatsManager;
@@ -87,11 +91,12 @@ public class ConnectivityPublisher extends AbstractPublisher {
             @NonNull NetworkStatsManagerProxy networkStatsManager,
             @NonNull Handler telemetryHandler,
             @NonNull ResultStore resultStore,
-            @NonNull SessionController sessionController) {
+            @NonNull SessionController sessionController, @NonNull UidPackageMapper uidMapper) {
         super(failureListener);
         mNetworkStatsManager = networkStatsManager;
         mTelemetryHandler = telemetryHandler;
         mResultStore = resultStore;
+        mUidMapper = uidMapper;
         mTraceLog = new TimingsTraceLog(CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         for (Transport transport : Transport.values()) {
             if (transport.equals(Transport.TRANSPORT_UNDEFINED)) {
@@ -245,7 +250,8 @@ public class ConnectivityPublisher extends AbstractPublisher {
 
         // By subtracting, it calculates network usage since the last pull.
         RefinedStats diff = RefinedStats.subtract(current, previous);
-        PersistableBundle data = diff.toPersistableBundle();
+        PersistableBundle data = diff.toPersistableBundle(mUidMapper);
+
         mTraceLog.traceEnd();
 
         return data;

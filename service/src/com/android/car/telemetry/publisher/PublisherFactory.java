@@ -25,6 +25,7 @@ import android.os.Handler;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
+import com.android.car.telemetry.UidPackageMapper;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.internal.util.Preconditions;
@@ -52,6 +53,7 @@ public class PublisherFactory {
     private final File mPublisherDirectory;
     private final Handler mTelemetryHandler;
     private final Context mContext;  // CarService context
+    private final UidPackageMapper mUidMapper;
 
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
@@ -69,13 +71,15 @@ public class PublisherFactory {
             @NonNull Context context,
             @NonNull File publisherDirectory,
             @NonNull SessionController sessionController,
-            @NonNull ResultStore resultStore) {
+            @NonNull ResultStore resultStore,
+            @NonNull UidPackageMapper uidMapper) {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         mContext = context;
         mPublisherDirectory = publisherDirectory;
         mSessionController = sessionController;
         mResultStore = resultStore;
+        mUidMapper = uidMapper;
     }
 
     /** Returns the publisher by given type. This method is thread-safe. */
@@ -116,7 +120,8 @@ public class PublisherFactory {
                                 new ConnectivityPublisher(
                                         mFailureListener,
                                         new NetworkStatsManagerProxy(networkStatsManager),
-                                        mTelemetryHandler, mResultStore, mSessionController);
+                                        mTelemetryHandler, mResultStore, mSessionController,
+                                        mUidMapper);
                     }
                     return mConnectivityPublisher;
                 default:
