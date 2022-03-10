@@ -170,12 +170,13 @@ public abstract class CarApiTestBase {
             runShellCommand("logcat -b all -c");
             // We use a simulated suspend because physically suspended devices cannot be woken up by
             // a shell command.
-            runShellCommand("cmd car_service suspend --simulate --skip-garagemode");
+            runShellCommand("cmd car_service suspend --simulate --skip-garagemode "
+                    + "--wakeup-after 3");
             // Check for suspend success
             waitUntil("screen is still on after suspend",
                     SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
 
-            runShellCommand("cmd car_service resume");
+            // The device will resume after 3 seconds.
             waitForLogcatMessage("logcat -b events", "car_user_svc_initial_user_info_req_complete: "
                     + InitialUserInfoRequestType.RESUME, 60_000);
         } catch (Exception e) {
