@@ -110,6 +110,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     public static final long INVALID_TIMEOUT = -1L;
 
+    public static final int NO_WAKEUP_BY_TIMER = -1;
+
     static final String TAG = CarLog.tagFor(CarPowerManagementService.class);
 
     private static final String WIFI_STATE_FILENAME = "wifi_state";
@@ -196,6 +198,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private boolean mWakeFromSimulatedSleep;
     @GuardedBy("mSimulationWaitObject")
     private boolean mInSimulatedDeepSleepMode;
+    @GuardedBy("mSimulationWaitObject")
+    private int mResumeDelayFromSimulatedSuspend = NO_WAKEUP_BY_TIMER;
 
     @GuardedBy("mLock")
     private CpmsState mCurrentState;
@@ -675,10 +679,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     || newState.mShutdownType == PowerState.SHUTDOWN_TYPE_POWER_OFF) {
                 mActionOnFinish = ACTION_ON_FINISH_SHUTDOWN;
             } else if (newState.mShutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP) {
-                mActionOnFinish = isDeepSleepAvailable() ? ACTION_ON_FINISH_DEEP_SLEEP
+                boolean isDeepSleepOnFinish =
+                        isDeepSleepAvailable() || newState.mState == CpmsState.SIMULATE_SLEEP;
+                mActionOnFinish = isDeepSleepOnFinish ? ACTION_ON_FINISH_DEEP_SLEEP
                         : ACTION_ON_FINISH_SHUTDOWN;
             } else if (newState.mShutdownType == PowerState.SHUTDOWN_TYPE_HIBERNATION) {
-                mActionOnFinish = isHibernationAvailable() ? ACTION_ON_FINISH_HIBERNATION
+                boolean isHibernationOnFinish = isHibernationAvailable()
+                        || newState.mState == CpmsState.SIMULATE_HIBERNATION;
+                mActionOnFinish = isHibernationOnFinish ? ACTION_ON_FINISH_HIBERNATION
                         : ACTION_ON_FINISH_SHUTDOWN;
             } else {
                 Slogf.wtf(TAG, "handleShutdownPrepare - incorrect state " + newState);
@@ -2055,7 +2063,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     /**
      * Resume after a manually-invoked suspend.
-     * Invoked using "adb shell dumpsys activity service com.android.car resume".
+     * Invoked using "adb shell dumpsys cmd car_service resume".
      */
     public void forceSimulatedResume() {
         synchronized (mLock) {
@@ -2085,18 +2093,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * This is similar to {@code 'onApPowerStateChange()'} except that it needs to create a
      * {@code CpmsState} that is not directly derived from a {@code VehicleApPowerStateReq}.
      */
-    public void simulateSuspendAndMaybeReboot(boolean shouldReboot,
-            @PowerState.ShutdownType int shutdownType, boolean skipGarageMode) {
+    public void simulateSuspendAndMaybeReboot(@PowerState.ShutdownType int shutdownType,
+            boolean shouldReboot, boolean skipGarageMode, int wakeupAfter) {
         boolean isDeepSleep = shutdownType == PowerState.SHUTDOWN_TYPE_DEEP_SLEEP;
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
+            mResumeDelayFromSimulatedSuspend = wakeupAfter;
         }
         synchronized (mLock) {
             mRebootAfterGarageMode = shouldReboot;
             mPendingPowerStates.addFirst(new CpmsState(isDeepSleep ? CpmsState.SIMULATE_SLEEP
                             : CpmsState.SIMULATE_HIBERNATION,
-                    CarPowerManager.STATE_SHUTDOWN_PREPARE, !skipGarageMode));
+                    CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE, !skipGarageMode));
         }
         mHandler.handlePowerStateChange();
     }
@@ -2373,6 +2382,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void simulateSleepByWaiting() {
         Slogf.i(TAG, "Starting to simulate Deep Sleep by waiting");
         synchronized (mSimulationWaitObject) {
+            if (mResumeDelayFromSimulatedSuspend >= 0) {
+                Slogf.i(TAG, "Scheduling a wakeup after %d seconds",
+                        mResumeDelayFromSimulatedSuspend);
+                Handler handler = new Handler(Looper.getMainLooper());
+                handler.postDelayed(() -> forceSimulatedResume(),
+                        mResumeDelayFromSimulatedSuspend * 1000);
+            }
             while (!mWakeFromSimulatedSleep) {
                 try {
                     mSimulationWaitObject.wait();
