@@ -18,8 +18,8 @@
 #define CPP_POWERPOLICY_SERVER_SRC_POLICYMANAGER_H_
 
 #include <aidl/android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleApPowerStateReport.h>
 #include <android-base/result.h>
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <utils/Vector.h>
 
 #include <tinyxml2.h>
@@ -76,7 +76,7 @@ public:
     android::base::Result<CarPowerPolicyMeta> getPowerPolicy(const std::string& policyId) const;
     android::base::Result<CarPowerPolicyPtr> getDefaultPowerPolicyForState(
             const std::string& groupId,
-            android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport state) const;
+            aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport state) const;
     bool isPowerPolicyGroupAvailable(const std::string& groupId) const;
     bool isPreemptivePowerPolicy(const std::string& policyId) const;
     android::base::Result<void> definePowerPolicy(
