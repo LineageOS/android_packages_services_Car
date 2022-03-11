@@ -16,8 +16,8 @@
 
 #include "PolicyManager.h"
 
+#include <aidl/android/hardware/automotive/vehicle/VehicleApPowerStateReport.h>
 #include <android-base/file.h>
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <gmock/gmock.h>
 
 #include <unordered_set>
@@ -29,10 +29,9 @@ namespace powerpolicy {
 
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
-
-using android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
-using tinyxml2::XML_SUCCESS;
-using tinyxml2::XMLDocument;
+using ::aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport;
+using ::tinyxml2::XML_SUCCESS;
+using ::tinyxml2::XMLDocument;
 
 namespace {
 

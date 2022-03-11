@@ -19,7 +19,10 @@
 
 #include "CarPowerPolicyServer.h"
 
+#include <aidl/android/hardware/automotive/vehicle/StatusCode.h>
 #include <aidl/android/hardware/automotive/vehicle/SubscribeOptions.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleApPowerStateReport.h>
+#include <aidl/android/hardware/automotive/vehicle/VehicleProperty.h>
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <android/binder_ibinder.h>
@@ -45,8 +48,10 @@ using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicyFilter
 using ::aidl::android::frameworks::automotive::powerpolicy::ICarPowerPolicyChangeCallback;
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
 using ::aidl::android::frameworks::automotive::powerpolicy::internal::PolicyState;
+using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
-
+using ::aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport;
+using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using ::android::defaultServiceManager;
 using ::android::IBinder;
 using ::android::Looper;
@@ -68,15 +73,7 @@ using ::android::frameworks::automotive::vhal::IVhalClient;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::interfacesEqual;
 using ::android::hardware::Return;
-using ::android::hardware::automotive::vehicle::V2_0::IVehicle;
-using ::android::hardware::automotive::vehicle::V2_0::StatusCode;
-using ::android::hardware::automotive::vehicle::V2_0::SubscribeFlags;
-using ::android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
-using ::android::hardware::automotive::vehicle::V2_0::VehiclePropConfig;
-using ::android::hardware::automotive::vehicle::V2_0::VehicleProperty;
-using ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue;
 using ::android::hidl::base::V1_0::IBase;
-
 using ::ndk::ScopedAIBinder_DeathRecipient;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
@@ -89,10 +86,10 @@ const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to V
 const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
 const int32_t kMaxConnectionRetry = 25;                // Retry up to 5 seconds.
 
-constexpr const char* kCarServiceInterface = "car_service";
-constexpr const char* kCarPowerPolicyServerInterface =
+constexpr const char kCarServiceInterface[] = "car_service";
+constexpr const char kCarPowerPolicyServerInterface[] =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
-constexpr const char* kCarPowerPolicySystemNotificationInterface =
+constexpr const char kCarPowerPolicySystemNotificationInterface[] =
         "android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification/"
         "default";
 

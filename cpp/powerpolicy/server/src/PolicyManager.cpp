@@ -36,14 +36,13 @@ namespace powerpolicy {
 
 using ::aidl::android::frameworks::automotive::powerpolicy::CarPowerPolicy;
 using ::aidl::android::frameworks::automotive::powerpolicy::PowerComponent;
-
+using ::aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StartsWith;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
-using ::android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport;
 using ::tinyxml2::XML_SUCCESS;
 using ::tinyxml2::XMLDocument;
 using ::tinyxml2::XMLElement;
