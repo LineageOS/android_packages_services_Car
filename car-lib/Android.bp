@@ -99,6 +99,7 @@ java_library {
     ],
     aidl: {
         include_dirs: [
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
             "system/bt/binder",
         ],
     },
