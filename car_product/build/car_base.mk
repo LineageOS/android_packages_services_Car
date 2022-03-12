@@ -69,7 +69,7 @@ PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
 endif
 
 # EVS service
-PRODUCT_PACKAGES += android.automotive.evs.manager@1.1
+PRODUCT_PACKAGES += evsmanagerd
 
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
@@ -77,7 +77,7 @@ ifeq ($(ENABLE_EVS_SAMPLE), true)
 LOCAL_EVS_PROPERTIES ?= persist.automotive.evs.mode=0
 PRODUCT_PRODUCT_PROPERTIES += $(LOCAL_EVS_PROPERTIES)
 PRODUCT_PACKAGES += evs_app \
-                    android.hardware.automotive.evs@1.1-sample \
+                    android.hardware.automotive.evs-default \
                     android.frameworks.automotive.display@1.0-service
 include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 endif

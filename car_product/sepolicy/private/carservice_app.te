@@ -119,3 +119,6 @@ allow carservice_app content_capture_service:service_manager find;
 
 # Allow finding hint_service
 allow carservice_app hint_service:service_manager find;
+
+# Allow finding AIDL EVS service
+allow carservice_app evsmanagerd_service:service_manager find;
