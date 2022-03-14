@@ -101,6 +101,10 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
 
     private boolean mIsKeyguardLocked = false;
 
+    public CarUserNoticeServiceTest() {
+        super(CarUserNoticeService.TAG);
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session

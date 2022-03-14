@@ -77,7 +77,9 @@ import com.android.internal.annotations.VisibleForTesting;
  */
 public final class CarUserNoticeService implements CarServiceBase {
 
-    private static final String TAG = CarLog.tagFor(CarUserNoticeService.class);
+    @VisibleForTesting
+    static final String TAG = CarLog.tagFor(CarUserNoticeService.class);
+
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
     // Keyguard unlocking can be only polled as we cannot dismiss keyboard.
