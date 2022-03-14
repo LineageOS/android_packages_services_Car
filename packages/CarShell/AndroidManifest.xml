@@ -45,6 +45,7 @@
     <uses-permission android:name="android.car.permission.CAR_POWER" />
     <!-- Permission required for ATS tests - AtsCarTests#CarPowerManagerTest-->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
+    <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS" />
     <!-- Permissions required for ATS tests - AtsCarTests#CarWatchdogManagerTest-->
     <uses-permission android:name="android.car.permission.USE_CAR_WATCHDOG" />
     <uses-permission android:name="android.car.permission.COLLECT_CAR_WATCHDOG_METRICS" />
