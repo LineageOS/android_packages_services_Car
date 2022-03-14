@@ -16,8 +16,8 @@
 
 package android.car.os;
 
-import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ExperimentalFeature;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
@@ -27,7 +27,7 @@ import com.android.car.internal.util.DataClass;
  *
  * @hide
  */
-@SystemApi
+@ExperimentalFeature
 @DataClass(genToString = true, genHiddenBuilder = true)
 public final class CpuAvailabilityInfo implements Parcelable {
     /** Returns the CPUSET, whose availability info is recorded in this object.
