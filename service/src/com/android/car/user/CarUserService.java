@@ -329,7 +329,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @Nullable UserPreCreator userPreCreator,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
             @Nullable Handler handler) {
-        Slogf.d(TAG, "constructed for user %s", context.getUser());
+        Slogf.d(TAG, "CarUserService(): DBG=%b, user=%s", DBG, context.getUser());
         mContext = context;
         mHal = hal;
         mAm = am;
@@ -360,6 +360,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (DBG) {
             Slogf.d(TAG, "init()");
         }
+
         mCarUxRestrictionService.registerUxRestrictionsChangeListener(
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
 
@@ -371,6 +372,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (DBG) {
             Slogf.d(TAG, "release()");
         }
+
         mCarUxRestrictionService
                 .unregisterUxRestrictionsChangeListener(mCarUxRestrictionsChangeListener);
     }
@@ -534,7 +536,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             EventLogHelper.writeCarUserServiceResetLifecycleListener(uid,
                     listener.packageName);
-            Slogf.d(TAG, "Removing %s (using binder %s)", listener, receiverBinder);
+            if (DBG) {
+                Slogf.d(TAG, "Removing %s (using binder %s)", listener, receiverBinder);
+            }
             mAppLifecycleListeners.remove(receiverBinder);
 
             listener.onDestroy();
@@ -940,8 +944,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         synchronized (mLockUser) {
             if (DBG) {
-                Slogf.d(TAG, "handleSwitchUser(%d): currentuser=%s, isLogout=%b", targetUserId,
-                        currentUser, isLogout);
+                Slogf.d(TAG, "handleSwitchUser(%d): currentuser=%s, isLogout=%b, "
+                        + "mUserIdForUserSwitchInProcess=%b", targetUserId, currentUser, isLogout,
+                        mUserIdForUserSwitchInProcess);
             }
 
             // If there is another request for the same target user, return another request in
@@ -950,13 +955,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // user switch request in process for different target user, but that request is now
             // ignored.
             if (mUserIdForUserSwitchInProcess == targetUserId) {
-                Slogf.w(TAG, "Another user switch request in process for the requested target "
-                        + "user: %d", targetUserId);
-
+                Slogf.w(TAG, "switchUser(%s): another user switch request (id=%d) in process for "
+                        + "that user", targetUser, mRequestIdForUserSwitchInProcess);
                 int resultStatus = UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO;
                 sendUserSwitchResult(receiver, isLogout, resultStatus);
                 return;
             } else {
+                if (DBG) {
+                    Slogf.d(TAG, "Changing mUserIdForUserSwitchInProcess from %d to %d",
+                            mUserIdForUserSwitchInProcess, targetUserId);
+                }
                 mUserIdForUserSwitchInProcess = targetUserId;
                 mRequestIdForUserSwitchInProcess = 0;
             }
@@ -2007,6 +2015,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void onUserLifecycleEvent(@UserLifecycleEventType int eventType,
             @UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        if (DBG) {
+            Slogf.d(TAG, "onUserLifecycleEvent(): event=%d, from=%d, to=%d", eventType, fromUserId,
+                    toUserId);
+        }
         int userId = toUserId;
 
         // Handle special cases first...
@@ -2051,7 +2063,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
         // Must use a different TimingsTraceLog because it's another thread
-        Slogf.d(TAG, "Notifying %d app listeners of %s", listenersSize, event);
+        if (DBG) {
+            Slogf.d(TAG, "Notifying %d app listeners of %s", listenersSize, event);
+        }
         int userId = event.getUserId();
         TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         int eventType = event.getEventType();
@@ -2094,7 +2108,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     event);
             return;
         }
-
         int userId = event.getUserId();
         int eventType = event.getEventType();
         t.traceBegin("notify-listeners-user-" + userId + "-event-" + eventType);
@@ -2104,13 +2117,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (filter != null && !filter.apply(event)) {
                 if (DBG) {
                     Slogf.d(TAG, "Skipping service listener %s for event %s due to the filter %s"
-                                    + " evaluated to false", listenerName, event, filter);
+                            + " evaluated to false", listenerName, event, filter);
                 }
                 continue;
             }
             if (DBG) {
-                Slogf.d(TAG, "Notifying %d service listeners of %s",
-                        mUserLifecycleListeners.size(), event);
+                Slogf.d(TAG, "Notifying %d service listeners of %s", mUserLifecycleListeners.size(),
+                        event);
             }
             EventLogHelper.writeCarUserServiceNotifyInternalLifecycleListener(listenerName,
                     eventType, event.getPreviousUserId(), userId);
@@ -2141,11 +2154,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void notifyLegacyUserSwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        if (DBG) {
+            Slogf.d(TAG, "notifyLegacyUserSwitch(%d, %d): mUserIdForUserSwitchInProcess=%d",
+                    fromUserId, toUserId, mUserIdForUserSwitchInProcess);
+        }
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != USER_NULL) {
                 if (DBG) {
-                    Slogf.d(TAG, "notifyLegacyUserSwitch(%d, %d): not needed, normal switch for %d",
-                            fromUserId, toUserId, mUserIdForUserSwitchInProcess);
+                    Slogf.d(TAG, "Not needed, 'standard' switch");
                 }
                 return;
             }
@@ -2158,7 +2174,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
-        if (!isUserHalSupported()) return;
+        if (!isUserHalSupported()) {
+            if (DBG) {
+                Slogf.d(TAG, "notifyHalLegacySwitch(): not calling UserHal (not supported)");
+            }
+            return;
+        }
 
         // switch HAL user
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, mUserHandleHelper,
