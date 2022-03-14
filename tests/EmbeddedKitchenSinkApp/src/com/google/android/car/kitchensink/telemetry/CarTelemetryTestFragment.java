@@ -16,18 +16,20 @@
 
 package com.google.android.car.kitchensink.telemetry;
 
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ANR_OCCURRED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_CRASH_OCCURRED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ANR_OCCURRED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_CRASH_OCCURRED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_CPU_TIME;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.WTF_OCCURRED;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.ConnectivityPublisher;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -39,9 +41,6 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
@@ -357,7 +356,7 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final TelemetryProto.Publisher WIFI_NETSTATS_PUBLISHER =
             TelemetryProto.Publisher.newBuilder()
                     .setConnectivity(
-                            TelemetryProto.ConnectivityPublisher.newBuilder()
+                            ConnectivityPublisher.newBuilder()
                                     .setTransport(ConnectivityPublisher.Transport.TRANSPORT_WIFI)
                                     .setOemType(ConnectivityPublisher.OemType.OEM_NONE))
                     .build();

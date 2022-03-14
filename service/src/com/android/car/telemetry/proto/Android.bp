@@ -23,9 +23,9 @@ java_library {
     },
     srcs: [
         ":cartelemetry-cardata-proto-srcs",
+        ":cartelemetryservice-proto-srcs",
         "atoms.proto",
         "stats_log.proto",
         "statsd_config.proto",
-        "telemetry.proto",
     ],
 }

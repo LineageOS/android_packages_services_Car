@@ -24,11 +24,11 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.telemetry.TelemetryProto;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.telemetry.MetricsConfigStore;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
