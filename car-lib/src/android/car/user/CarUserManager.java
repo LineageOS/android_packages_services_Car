@@ -368,9 +368,8 @@ public final class CarUserManager extends CarManagerBase {
         super(car);
 
         mDumper = addDumpable(car.getContext(), () -> new Dumper());
-        if (DBG) {
-            Log.d(TAG, "mDumper: " + mDumper);
-        }
+        Log.d(TAG, "CarUserManager(): DBG= " + DBG + ", mDumper=" + mDumper);
+
         mService = service;
         mUserManager = userManager;
     }
