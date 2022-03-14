@@ -31,12 +31,16 @@ import org.junit.runners.JUnit4;
 import org.mockito.Mock;
 
 @RunWith(JUnit4.class)
-public class CarSafetyAccessibilityServiceImplTest extends
+public final class CarSafetyAccessibilityServiceImplTest extends
         AbstractExtendedMockitoCarServiceTestCase {
     @Mock
     private CarPackageManagerService mMockCarPackageManagerService;
 
     private CarSafetyAccessibilityServiceImpl mCarSafetyAccessibilityService;
+
+    public CarSafetyAccessibilityServiceImplTest() {
+        super(NO_LOG_TAGS);
+    }
 
     @Before
     public void setup() {
