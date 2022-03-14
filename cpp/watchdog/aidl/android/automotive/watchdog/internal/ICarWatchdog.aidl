@@ -19,6 +19,7 @@ package android.automotive.watchdog.internal;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 
@@ -76,21 +77,21 @@ interface ICarWatchdog {
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param service              Watchdog service that is responding.
-   * @param clientsNotResponding Array of process id of clients which haven't responded to the
-   *                             mediator.
+   * @param clientsNotResponding List of process identifiers of clients which haven't responded to
+   *                             the mediator.
    * @param sessionId            Session id given by watchdog server.
    */
-  void tellCarWatchdogServiceAlive(
-          in ICarWatchdogServiceForSystem service, in int[] clientsNotResponding, in int sessionId);
+  void tellCarWatchdogServiceAlive(in ICarWatchdogServiceForSystem service,
+          in List<ProcessIdentifier> processIdentifiers, in int sessionId);
 
   /**
    * Tell watchdog server that the monitor has finished dumping process information.
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
    * @param monitor              Watchdog monitor that is registered to watchdog server.
-   * @param pid                  Process id that has been dumped.
+   * @param pid                  Process identifier of the process that has been dumped.
    */
-  void tellDumpFinished(in ICarWatchdogMonitor monitor, in int pid);
+  void tellDumpFinished(in ICarWatchdogMonitor monitor, in ProcessIdentifier processIdentifier);
 
   /**
    * Notify watchdog server about the system state change.
