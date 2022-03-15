@@ -60,7 +60,7 @@ int main() {
     }
 
     std::atomic<bool> running{true};
-    std::thread hotplugHandler(EvsEnumerator::EvsHotplugThread, std::ref(running));
+    std::thread hotplugHandler(EvsEnumerator::EvsHotplugThread, service, std::ref(running));
 
     const std::string instanceName =
             std::string(EvsEnumerator::descriptor) + std::string(kHwInstanceName);
