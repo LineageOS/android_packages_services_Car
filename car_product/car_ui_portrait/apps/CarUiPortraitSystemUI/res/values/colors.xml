@@ -43,4 +43,7 @@
 
     <color name="dark_mode_icon_color_single_tone">@color/car_nav_icon_fill_color</color>
     <color name="light_mode_icon_color_single_tone">@color/car_nav_icon_fill_color</color>
+
+    <color name="title_bar_display_area_handle_bar_color">#9aa0a6</color>
+    <color name="title_bar_display_area_background_color">#ffffff</color>
 </resources>
