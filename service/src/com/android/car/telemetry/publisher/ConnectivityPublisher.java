@@ -20,6 +20,10 @@ import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
 import android.annotation.NonNull;
 import android.app.usage.NetworkStats;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
+import android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
+import android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import android.net.NetworkTemplate;
 import android.os.Handler;
 import android.os.PersistableBundle;
@@ -30,10 +34,6 @@ import android.util.ArrayMap;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
-import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
-import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;

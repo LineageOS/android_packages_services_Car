@@ -29,6 +29,8 @@ import static java.nio.charset.StandardCharsets.UTF_16;
 
 import android.annotation.NonNull;
 import android.app.StatsManager.StatsUnavailableException;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
@@ -42,8 +44,6 @@ import com.android.car.telemetry.AtomsProto.ProcessMemoryState;
 import com.android.car.telemetry.StatsLogProto;
 import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.statsconverters.ConfigMetricsReportListConverter;
 import com.android.car.telemetry.publisher.statsconverters.StatsConversionException;

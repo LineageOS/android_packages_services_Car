@@ -17,8 +17,7 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
-
-import com.android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto;
 
 /** Interface for the data path. Handles data forwarding from publishers to subscribers */
 public interface DataBroker {
@@ -36,7 +35,7 @@ public interface DataBroker {
     }
 
     /**
-     * Adds an active {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
+     * Adds an active {@link android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
      * execution. When updating the MetricsConfig to a newer version, the caller must call
      * {@link #removeMetricsConfig(String)} first to clear the old MetricsConfig.
      * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
@@ -47,7 +46,7 @@ public interface DataBroker {
             @NonNull String metricsConfigName, @NonNull TelemetryProto.MetricsConfig metricsConfig);
 
     /**
-     * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
+     * Removes a {@link android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
      *
      * @param metricsConfigName to identify the MetricsConfig to be removed.
@@ -55,8 +54,7 @@ public interface DataBroker {
     void removeMetricsConfig(@NonNull String metricsConfigName);
 
     /**
-     * Removes all {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}s and
-     * subscriptions.
+     * Removes all {@link android.car.telemetry.TelemetryProto.MetricsConfig}s and subscriptions.
      */
     void removeAllMetricsConfigs();
 
