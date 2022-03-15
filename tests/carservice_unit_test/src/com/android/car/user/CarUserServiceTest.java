@@ -773,7 +773,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testRemoveUser_androidFailure() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         int targetUserId = mRegularUserId;
-        mockRemoveUser(mRegularUser, UserManager.REMOVE_RESULT_ERROR);
+        mockRemoveUser(mRegularUser, UserManager.REMOVE_RESULT_ERROR_UNKNOWN);
 
         removeUser(targetUserId, NO_CALLER_RESTRICTIONS, mUserRemovalFuture);
 
