@@ -83,7 +83,7 @@ public final class CarUserManager extends CarManagerBase {
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
     private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
@@ -339,6 +339,10 @@ public final class CarUserManager extends CarManagerBase {
     public CarUserManager(@NonNull Car car, @NonNull ICarUserService service,
             @NonNull UserManager userManager) {
         super(car);
+
+        if (DBG) {
+            Log.d(TAG, "DBG enabled");
+        }
 
         mService = service;
         mUserManager = userManager;
