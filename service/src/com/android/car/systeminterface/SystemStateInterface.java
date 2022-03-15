@@ -80,6 +80,10 @@ public interface SystemStateInterface {
         return true;
     }
 
+    /**
+     * @deprecated see {@link ProcfsInspector}
+     */
+    @Deprecated
     default List<ProcessInfo> getRunningProcesses() {
         return ProcfsInspector.readProcessTable();
     }

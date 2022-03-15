@@ -27,6 +27,11 @@ import com.android.internal.annotations.GuardedBy;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @deprecated use {@link com.android.car.watchdog.CarWatchdogService} and its related classes
+ * for I/O related tasks.
+ */
+@Deprecated
 public class IoStatsTracker {
 
     // NOTE: this class is not thread safe
