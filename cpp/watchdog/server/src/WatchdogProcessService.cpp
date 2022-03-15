@@ -285,14 +285,22 @@ Status WatchdogProcessService::tellDumpFinished(const sp<aawi::ICarWatchdogMonit
 
 void WatchdogProcessService::setEnabled(bool isEnabled) {
     Mutex::Autolock lock(mMutex);
-    if (mIsEnabled != isEnabled) {
-        ALOGI("%s is %s", kServiceName, isEnabled ? "enabled" : "disabled");
+    if (mIsEnabled == isEnabled) {
+        return;
     }
+    ALOGI("%s is %s", kServiceName, isEnabled ? "enabled" : "disabled");
     mIsEnabled = isEnabled;
-    if (mIsEnabled) {
-        for (const auto& timeout : kTimeouts) {
-            startHealthCheckingLocked(timeout);
-        }
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
+    if (!mIsEnabled) {
+        return;
+    }
+    mVhalHeartBeat.eventTime = uptimeMillis();
+    std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMs + kHealthCheckDelayMs;
+    mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
+                                       Message(MSG_VHAL_HEALTH_CHECK));
+    for (const auto& timeout : kTimeouts) {
+        mHandlerLooper->removeMessages(mMessageHandler, static_cast<int>(timeout));
+        startHealthCheckingLocked(timeout);
     }
 }
 
@@ -790,6 +798,9 @@ void WatchdogProcessService::updateVhalHeartBeat(int64_t value) {
     bool wrongHeartBeat;
     {
         Mutex::Autolock lock(mMutex);
+        if (!mIsEnabled) {
+            return;
+        }
         wrongHeartBeat = value <= mVhalHeartBeat.value;
         mVhalHeartBeat.eventTime = uptimeMillis();
         mVhalHeartBeat.value = value;
@@ -809,7 +820,7 @@ void WatchdogProcessService::checkVhalHealth() {
     int64_t currentUptime = uptimeMillis();
     {
         Mutex::Autolock lock(mMutex);
-        if (mVhalService == nullptr) {
+        if (mVhalService == nullptr || !mIsEnabled) {
             return;
         }
         lastEventTime = mVhalHeartBeat.eventTime;
