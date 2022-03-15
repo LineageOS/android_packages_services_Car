@@ -17,18 +17,16 @@
 #include "EvsServiceContext.h"
 
 #include <android-base/logging.h>
-#include <android/hardware_buffer.h>
 #include <nativehelper/JNIHelp.h>
 
 #include <jni.h>
 
-using ::android::sp;
 using ::android::automotive::evs::EvsServiceContext;
 
 namespace {
 
 // EvsHalWrapperImpl class
-constexpr const char* kCarEvsServiceClassName = "com/android/car/evs/EvsHalWrapperImpl";
+constexpr const char kCarEvsServiceClassName[] = "com/android/car/evs/EvsHalWrapperImpl";
 
 /*
  * Connects to the Extended View System service
