@@ -35,11 +35,11 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.telemetry.TelemetryProto;
 import android.os.Looper;
 import android.os.PersistableBundle;
 
 import com.android.car.CarPropertyService;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeHandlerWrapper;
 

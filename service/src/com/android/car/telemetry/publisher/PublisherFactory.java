@@ -18,6 +18,7 @@ package com.android.car.telemetry.publisher;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.net.INetworkStatsService;
 import android.os.Handler;
@@ -25,7 +26,6 @@ import android.os.IBinder;
 import android.os.ServiceManager;
 
 import com.android.car.CarPropertyService;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.net.NetworkStatsServiceProxy;
 import com.android.internal.util.Preconditions;
 

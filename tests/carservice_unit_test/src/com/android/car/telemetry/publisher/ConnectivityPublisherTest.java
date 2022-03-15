@@ -25,6 +25,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.mock;
 
 import android.annotation.NonNull;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
+import android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkIdentity;
@@ -35,9 +38,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
-import com.android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.FakeNetworkStats;
 import com.android.car.telemetry.publisher.net.NetworkStatsServiceProxy;
