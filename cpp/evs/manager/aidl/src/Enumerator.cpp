@@ -106,6 +106,13 @@ std::shared_ptr<IEvsEnumerator> Enumerator::connectToAidlHal(
         return nullptr;
     }
 
+    // Register a device status callback
+    mDeviceStatusCallback =
+            ::ndk::SharedRefBase::make<EvsDeviceStatusCallbackImpl>(ref<Enumerator>());
+    if (!service->registerStatusCallback(mDeviceStatusCallback).isOk()) {
+        LOG(WARNING) << "Failed to register a device status callback";
+    }
+
     return std::move(service);
 }
 
@@ -498,8 +505,9 @@ ScopedAStatus Enumerator::getDisplayIdList(std::vector<uint8_t>* _aidl_return) {
 }
 
 ScopedAStatus Enumerator::registerStatusCallback(
-        [[maybe_unused]] const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
-    // TODO(b/195672428): Implement this method
+        const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
+    std::lock_guard lock(mLock);
+    mDeviceStatusCallbacks.insert(callback);
     return ScopedAStatus::ok();
 }
 
@@ -785,6 +793,24 @@ void Enumerator::cmdDumpDevice(int fd, const char** args, uint32_t numArgs) {
             WriteStringToFd(pDisplay->toString(kSingleIndent), fd);
         }
     }
+}
+
+void Enumerator::broadcastDeviceStatusChange(const std::vector<aidlevs::DeviceStatus>& list) {
+    std::lock_guard lock(mLock);
+    auto it = mDeviceStatusCallbacks.begin();
+    while (it != mDeviceStatusCallbacks.end()) {
+        if (!(*it)->deviceStatusChanged(list).isOk()) {
+            mDeviceStatusCallbacks.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+ScopedAStatus Enumerator::EvsDeviceStatusCallbackImpl::deviceStatusChanged(
+        const std::vector<aidlevs::DeviceStatus>& list) {
+    mEnumerator->broadcastDeviceStatusChange(list);
+    return ScopedAStatus::ok();
 }
 
 }  // namespace aidl::android::automotive::evs::implementation

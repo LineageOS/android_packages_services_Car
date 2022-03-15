@@ -20,6 +20,7 @@
 #include "EvsGlDisplay.h"
 #include "EvsV4lCamera.h"
 
+#include <aidl/android/hardware/automotive/evs/DeviceStatusType.h>
 #include <aidl/android/hardware/automotive/evs/EvsResult.h>
 #include <aidl/android/hardware/automotive/evs/Rotation.h>
 #include <aidl/android/hardware/graphics/common/BufferUsage.h>
@@ -37,6 +38,7 @@
 
 namespace {
 
+using ::aidl::android::hardware::automotive::evs::DeviceStatusType;
 using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::Rotation;
 using ::aidl::android::hardware::graphics::common::BufferUsage;
@@ -70,8 +72,14 @@ std::unique_ptr<ConfigManager> EvsEnumerator::sConfigManager;
 std::unordered_map<uint8_t, uint64_t> EvsEnumerator::sDisplayPortList;
 uint64_t EvsEnumerator::sInternalDisplayId;
 
-void EvsEnumerator::EvsHotplugThread(std::atomic<bool>& running) {
+void EvsEnumerator::EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
+                                     std::atomic<bool>& running) {
     // Watch new video devices
+    if (!service) {
+        LOG(ERROR) << "EvsEnumerator is invalid";
+        return;
+    }
+
     auto notifyFd = inotify_init();
     if (notifyFd < 0) {
         LOG(ERROR) << "Failed to initialize inotify.  Exiting a thread loop";
@@ -103,32 +111,19 @@ void EvsEnumerator::EvsHotplugThread(std::atomic<bool>& running) {
                 continue;
             }
 
-            std::string deviceId = std::string(kDevicePath) + std::string(event->name);
+            std::string deviceName = std::string(kDevicePath) + std::string(event->name);
             if (event->mask & IN_CREATE) {
-                // NOTE: we are here adding new device without a validation
-                CameraRecord cam(deviceId.data());
-                if (sConfigManager) {
-                    std::unique_ptr<ConfigManager::CameraInfo>& camInfo =
-                            sConfigManager->getCameraInfo(deviceId);
-                    if (camInfo) {
-                        uint8_t* ptr = reinterpret_cast<uint8_t*>(camInfo->characteristics);
-                        const size_t len = get_camera_metadata_size(camInfo->characteristics);
-                        cam.desc.metadata.insert(cam.desc.metadata.end(), ptr, ptr + len);
-                    }
-                }
-                {
-                    LOG(INFO) << "adding a camera " << deviceId;
-                    std::lock_guard<std::mutex> lock(sLock);
-                    sCameraList.insert_or_assign(deviceId, std::move(cam));
-                    sCameraSignal.notify_all();
+                if (addCaptureDevice(deviceName)) {
+                    service->notifyDeviceStatusChange(deviceName,
+                                                      DeviceStatusType::CAMERA_AVAILABLE);
                 }
             }
 
             if (event->mask & IN_DELETE) {
-                LOG(INFO) << "removing a camera " << deviceId;
-                std::lock_guard<std::mutex> lock(sLock);
-                sCameraList.erase(deviceId);
-                sCameraSignal.notify_all();
+                if (removeCaptureDevice(deviceName)) {
+                    service->notifyDeviceStatusChange(deviceName,
+                                                      DeviceStatusType::CAMERA_NOT_AVAILABLE);
+                }
             }
         }
     }
@@ -163,6 +158,43 @@ bool EvsEnumerator::checkPermission() {
     return true;
 }
 
+bool EvsEnumerator::addCaptureDevice(const std::string& deviceName) {
+    if (!qualifyCaptureDevice(deviceName.data())) {
+        LOG(DEBUG) << deviceName << " is not qualified for this EVS HAL implementation";
+        return false;
+    }
+
+    CameraRecord cam(deviceName.data());
+    if (sConfigManager) {
+        std::unique_ptr<ConfigManager::CameraInfo>& camInfo =
+                sConfigManager->getCameraInfo(deviceName);
+        if (camInfo) {
+            uint8_t* ptr = reinterpret_cast<uint8_t*>(camInfo->characteristics);
+            const size_t len = get_camera_metadata_size(camInfo->characteristics);
+            cam.desc.metadata.insert(cam.desc.metadata.end(), ptr, ptr + len);
+        }
+    }
+
+    {
+        std::lock_guard lock(sLock);
+        // insert_or_assign() returns std::pair<std::unordered_map<>, bool>
+        auto result = sCameraList.insert_or_assign(deviceName, std::move(cam));
+        LOG(INFO) << deviceName << (std::get<1>(result) ? " is added" : " is modified");
+    }
+
+    return true;
+}
+
+bool EvsEnumerator::removeCaptureDevice(const std::string& deviceName) {
+    std::lock_guard lock(sLock);
+    if (sCameraList.erase(deviceName) != 0) {
+        LOG(INFO) << deviceName << " is removed";
+        return true;
+    }
+
+    return false;
+}
+
 void EvsEnumerator::enumerateCameras() {
     // For every video* entry in the dev folder, see if it reports suitable capabilities
     // WARNING:  Depending on the driver implementations this could be slow, especially if
@@ -180,21 +212,15 @@ void EvsEnumerator::enumerateCameras() {
         LOG_FATAL("Failed to open /dev folder\n");
     }
     struct dirent* entry;
-    {
-        std::lock_guard<std::mutex> lock(sLock);
+    while ((entry = readdir(dir)) != nullptr) {
+        // We're only looking for entries starting with 'video'
+        if (strncmp(entry->d_name, "video", 5) == 0) {
+            std::string deviceName("/dev/");
+            deviceName += entry->d_name;
+            ++videoCount;
 
-        while ((entry = readdir(dir)) != nullptr) {
-            // We're only looking for entries starting with 'video'
-            if (strncmp(entry->d_name, "video", 5) == 0) {
-                std::string deviceName("/dev/");
-                deviceName += entry->d_name;
-                ++videoCount;
-                if (sCameraList.find(deviceName) != sCameraList.end()) {
-                    LOG(INFO) << deviceName << " has been added already.";
-                } else if (qualifyCaptureDevice(deviceName.data())) {
-                    sCameraList.insert_or_assign(deviceName, deviceName.data());
-                    ++captureCount;
-                }
+            if (addCaptureDevice(deviceName)) {
+                ++captureCount;
             }
         }
     }
@@ -246,29 +272,14 @@ ScopedAStatus EvsEnumerator::getCameraList(std::vector<CameraDesc>* _aidl_return
         }
     }
 
-    if (!sConfigManager) {
-        const auto numCameras = sCameraList.size();
+    // Build up a packed array of CameraDesc for return
+    _aidl_return->resize(sCameraList.size());
+    unsigned i = 0;
+    for (const auto& [key, cam] : sCameraList) {
+        (*_aidl_return)[i++] = cam.desc;
+    }
 
-        // Build up a packed array of CameraDesc for return
-        _aidl_return->resize(numCameras);
-        unsigned i = 0;
-        for (auto&& [key, cam] : sCameraList) {
-            (*_aidl_return)[i++] = cam.desc;
-        }
-    } else {
-        // Build up a packed array of CameraDesc for return
-        for (auto&& [key, cam] : sCameraList) {
-            std::unique_ptr<ConfigManager::CameraInfo>& tempInfo =
-                    sConfigManager->getCameraInfo(key);
-            if (tempInfo) {
-                uint8_t* ptr = reinterpret_cast<uint8_t*>(tempInfo->characteristics);
-                const size_t len = get_camera_metadata_size(tempInfo->characteristics);
-                cam.desc.metadata.insert(cam.desc.metadata.end(), ptr, ptr + len);
-            }
-
-            _aidl_return->push_back(cam.desc);
-        }
-
+    if (sConfigManager) {
         // Adding camera groups that represent logical camera devices
         auto camGroups = sConfigManager->getCameraGroupIdList();
         for (auto&& id : camGroups) {
@@ -481,9 +492,27 @@ ScopedAStatus EvsEnumerator::isHardware(bool* flag) {
     return ScopedAStatus::ok();
 }
 
+void EvsEnumerator::notifyDeviceStatusChange(const std::string_view& deviceName,
+                                             DeviceStatusType type) {
+    std::lock_guard lock(sLock);
+    if (!mCallback) {
+        return;
+    }
+
+    std::vector<DeviceStatus> status {{ .id = std::string(deviceName), .status = type }};
+    if (!mCallback->deviceStatusChanged(status).isOk()) {
+        LOG(WARNING) << "Failed to notify a device status change, name = " << deviceName
+                     << ", type = " << static_cast<int>(type);
+    }
+}
+
 ScopedAStatus EvsEnumerator::registerStatusCallback(
-        [[maybe_unused]] const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
-    // TODO(b/195672428): Implement this method
+        const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
+    std::lock_guard lock(sLock);
+    if (mCallback) {
+        LOG(INFO) << "Replacing an existing device status callback";
+    }
+    mCallback = callback;
     return ScopedAStatus::ok();
 }
 
