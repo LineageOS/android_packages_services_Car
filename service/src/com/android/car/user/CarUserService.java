@@ -1127,7 +1127,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // "has caller restrictions"
         boolean overrideDevicePolicy = hasCallerRestrictions;
         int result = mUserManager.removeUserWhenPossible(user, overrideDevicePolicy);
-        if (result == UserManager.REMOVE_RESULT_ERROR) {
+        if (!UserManager.isRemoveResultSuccessful(result)) {
             sendUserRemovalResult(userId, UserRemovalResult.STATUS_ANDROID_FAILURE, receiver);
             return;
         }
