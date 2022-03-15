@@ -147,6 +147,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private static final String TAG = CarLog.tagFor(CarUserService.class);
 
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+
     /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
     public static final String BUNDLE_USER_ID = "user.id";
     /** {@code int} extra used to represent user flags in a {@link IResultReceiver} response. */
@@ -340,7 +342,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
             @Nullable Handler handler) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "constructed for user " + context.getUserId());
+            Slog.d(TAG, "CarUserService(): DBG=" + DBG + ", user=" + context.getUserId());
         }
         mContext = context;
         mHal = hal;
@@ -370,7 +372,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void init() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DBG) {
             Slog.d(TAG, "init()");
         }
         mCarUxRestrictionService.registerUxRestrictionsChangeListener(
@@ -381,7 +383,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     @Override
     public void release() {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DBG) {
             Slog.d(TAG, "release()");
         }
         mCarUxRestrictionService
@@ -741,7 +743,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         IBinder receiverBinder = receiver.asBinder();
         AppLifecycleListener listener = new AppLifecycleListener(uid, packageName, receiver,
                 (l) -> onListenerDeath(l));
-        Slogf.d(TAG, "Adding %s (using binder %s)", listener, receiverBinder);
+        if (DBG) {
+            Slogf.d(TAG, "Adding %s (using binder %s)", listener, receiverBinder);
+        }
         mHandler.post(() -> mAppLifecycleListeners.put(receiverBinder, listener));
     }
 
@@ -767,7 +771,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_RESET_LIFECYCLE_LISTENER, uid,
                     listener.packageName);
-            Slogf.d(TAG, "Removing %s (using binder %s)", listener, receiverBinder);
+            if (DBG) {
+                Slogf.d(TAG, "Removing %s (using binder %s)", listener, receiverBinder);
+            }
             mAppLifecycleListeners.remove(receiverBinder);
 
             listener.onDestroy();
@@ -1153,7 +1159,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int currentUser = ActivityManager.getCurrentUser();
         int targetUserId = targetUser.id;
         if (currentUser == targetUserId) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DBG) {
                 Slog.d(TAG, "Current user is same as requested target user: " + targetUserId);
             }
             int resultStatus = UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND;
@@ -1185,7 +1191,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         synchronized (mLockUser) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DBG) {
                 Slog.d(TAG, "handleSwitchUser(" + targetUserId + "): currentuser=" + currentUser
                         + ", isLogout=" + isLogout
                         + ", mUserIdForUserSwitchInProcess=" + mUserIdForUserSwitchInProcess);
@@ -1197,16 +1203,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // user switch request in process for different target user, but that request is now
             // ignored.
             if (mUserIdForUserSwitchInProcess == targetUserId) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slog.d(TAG,
-                            "Another user switch request in process for the requested target user: "
-                                    + targetUserId);
-                }
-
+                Slog.w(TAG, "switchUser(" + targetUserId  + "): another user switch request "
+                        + "(id=" + mRequestIdForUserSwitchInProcess + ") in process for that user");
                 int resultStatus = UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO;
                 sendUserSwitchResult(receiver, eventLogTag, resultStatus);
                 return;
             } else {
+                if (DBG) {
+                    Slog.d(TAG, "Changing mUserIdForUserSwitchInProcess from "
+                            + mUserIdForUserSwitchInProcess + " to " + targetUserId);
+                }
                 mUserIdForUserSwitchInProcess = targetUserId;
                 mRequestIdForUserSwitchInProcess = 0;
             }
@@ -1215,7 +1221,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager);
         SwitchUserRequest request = createUserSwitchRequest(targetUserId, usersInfo);
 
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DBG) {
             Slog.d(TAG, "calling mHal.switchUser(" + request + ")");
         }
         mHal.switchUser(request, timeoutMs, (halCallbackStatus, resp) -> {
@@ -1240,7 +1246,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 if (mUserIdForUserSwitchInProcess != targetUserId) {
                     // Another user switch request received while HAL responded. No need to process
                     // this request further
-                    if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    if (DBG) {
                         Slog.d(TAG, "Another user switch received while HAL responsed. Request"
                                 + " abondoned for : " + targetUserId + ". Current user in process: "
                                 + mUserIdForUserSwitchInProcess);
@@ -1566,7 +1572,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
                 return;
             }
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DBG) {
                 Slog.d(TAG, "Created user: " + newUser.toFullString());
             }
             EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_CREATED, newUser.id,
@@ -1590,14 +1596,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         request.newUserInfo.userId = newUser.id;
         request.newUserInfo.flags = UserHalHelper.convertFlags(newUser);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DBG) {
             Slog.d(TAG, "Create user request: " + request);
         }
 
         try {
             mHal.createUser(request, timeoutMs, (status, resp) -> {
                 int resultStatus = UserCreationResult.STATUS_HAL_INTERNAL_FAILURE;
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                if (DBG) {
                     Slog.d(TAG, "createUserResponse: status="
                             + UserHalHelper.halCallbackStatusToString(status) + ", resp=" + resp);
                 }
@@ -1761,7 +1767,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             }
             UserIdentificationAssociationResponse response = UserIdentificationAssociationResponse
                     .forSuccess(responseTypes, resp.errorMessage);
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DBG) {
                 Slog.d(TAG, "setUserIdentificationAssociation(): resp= " + resp
                         + ", converted=" + response);
             }
@@ -1853,11 +1859,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
                 // Some other user switch is in process.
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slog.d(TAG, "User switch for user: " + mUserIdForUserSwitchInProcess
-                            + " is in process. Abandoning it as a new user switch is requested"
-                            + " for the target user: " + targetUserId);
-                }
+                Slog.w(TAG, "User switch for user: " + mUserIdForUserSwitchInProcess
+                        + " is in process. Abandoning it as a new user switch is requested"
+                        + " for the target user: " + targetUserId);
             }
             mUserIdForUserSwitchInProcess = targetUserId;
             mRequestIdForUserSwitchInProcess = requestId;
@@ -2243,6 +2247,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void onUserLifecycleEvent(@UserLifecycleEventType int eventType,
             @UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        if (DBG) {
+            Slog.d(TAG, "onUserLifecycleEvent(): event=" + eventType + ", from=" + fromUserId
+                    + ", to=" + toUserId);
+        }
         int userId = toUserId;
 
         // Handle special cases first...
@@ -2265,7 +2273,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (mUserIdForUserSwitchInProcess == UserHandle.USER_NULL
                 || mUserIdForUserSwitchInProcess != userId
                 || mRequestIdForUserSwitchInProcess == 0) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
+            if (DBG) {
                 Slog.d(TAG, "No user switch request Id. No android post switch sent.");
             }
             return;
@@ -2282,7 +2290,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
         // Must use a different TimingsTraceLog because it's another thread
-        Slogf.d(TAG, "Notifying %d app listeners of %s", listenersSize, event);
+        if (DBG) {
+            Slogf.d(TAG, "Notifying %d app listeners of %s", listenersSize, event);
+        }
         int userId = event.getUserId();
         TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
         int eventType = event.getEventType();
@@ -2316,7 +2326,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (mUserLifecycleListeners.isEmpty()) {
             Slog.w(TAG, "Not notifying internal UserLifecycleListeners");
             return;
-        } else if (Log.isLoggable(TAG, Log.DEBUG)) {
+        } else if (DBG) {
             Slog.d(TAG, "Notifying " + mUserLifecycleListeners.size()
                     + " service listeners of " + event);
         }
@@ -2361,11 +2371,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void notifyLegacyUserSwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
+        if (DBG) {
+            Slog.d(TAG, "notifyHalLegacySwitch(from=" + fromUserId + ", to=" + toUserId);
+        }
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
-                if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slogf.d(TAG, "notifyLegacyUserSwitch(" + fromUserId + ", " + toUserId
-                            + "): not needed, normal switch for " + mUserIdForUserSwitchInProcess);
+                if (DBG) {
+                    Slogf.d(TAG, "Not needed, normal switch for " + mUserIdForUserSwitchInProcess);
                 }
                 return;
             }
@@ -2378,7 +2390,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
-        if (!isUserHalSupported()) return;
+        if (!isUserHalSupported()) {
+            if (DBG) {
+                Slog.d(TAG, "notifyHalLegacySwitch(): not calling UserHal (not supported)");
+            }
+            return;
+        }
 
         // switch HAL user
         UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUserManager, fromUserId);
