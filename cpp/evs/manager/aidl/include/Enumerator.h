@@ -22,8 +22,8 @@
 #include "stats/include/StatsCollector.h"
 
 #include <aidl/android/hardware/automotive/evs/BnEvsEnumerator.h>
+#include <aidl/android/hardware/automotive/evs/BnEvsEnumeratorStatusCallback.h>
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
-#include <aidl/android/hardware/automotive/evs/IEvsEnumeratorStatusCallback.h>
 #include <system/camera_metadata.h>
 
 #include <list>
@@ -64,11 +64,23 @@ public:
 
     // Implementation details
     bool init(const std::string_view& hardwareServiceName);
+    void broadcastDeviceStatusChange(const std::vector<aidlevs::DeviceStatus>& list);
 
     // Destructor
     virtual ~Enumerator();
 
 private:
+    class EvsDeviceStatusCallbackImpl : public aidlevs::BnEvsEnumeratorStatusCallback {
+    public:
+        EvsDeviceStatusCallbackImpl(const std::shared_ptr<Enumerator>& enumerator) :
+              mEnumerator(enumerator) {}
+        ::ndk::ScopedAStatus deviceStatusChanged(
+                const std::vector<aidlevs::DeviceStatus>& status) override;
+
+    private:
+        std::shared_ptr<Enumerator> mEnumerator;
+    };
+
     bool checkPermission() const;
     bool isLogicalCamera(const camera_metadata_t* metadata) const;
     std::unordered_set<std::string> getPhysicalCameraIds(const std::string& id);
@@ -108,6 +120,16 @@ private:
 
     // Boolean flag to tell whether EvsDisplay is owned exclusively or not
     bool mDisplayOwnedExclusively;
+
+    // Callback to listen to device status changes
+    std::shared_ptr<EvsDeviceStatusCallbackImpl> mDeviceStatusCallback;
+
+    // Mutex to protect resources related with a device status callback
+    mutable std::mutex mLock;
+
+    // Clients to forward device status callback messages
+    std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks
+            GUARDED_BY(mLock);
 };
 
 }  // namespace aidl::android::automotive::evs::implementation
