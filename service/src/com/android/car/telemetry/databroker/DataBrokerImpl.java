@@ -18,6 +18,8 @@ package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.MetricsConfig;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -38,8 +40,6 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.telemetry.ResultStore;
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.MetricsConfig;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
