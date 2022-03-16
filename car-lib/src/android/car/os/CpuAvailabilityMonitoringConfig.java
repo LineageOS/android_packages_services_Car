@@ -17,8 +17,8 @@
 package android.car.os;
 
 import android.annotation.SuppressLint;
-import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ExperimentalFeature;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
@@ -28,7 +28,7 @@ import com.android.car.internal.util.DataClass;
  *
  * @hide
  */
-@SystemApi
+@ExperimentalFeature
 @DataClass(genToString = true, genBuilder = true, genHiddenConstDefs = true)
 public final class CpuAvailabilityMonitoringConfig implements Parcelable {
     /** Constant to monitor all cpusets. */

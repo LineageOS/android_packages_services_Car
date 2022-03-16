@@ -31,6 +31,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ExperimentalFeature;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
@@ -56,7 +57,6 @@ import android.car.media.CarMediaIntents;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
-import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
@@ -393,8 +393,7 @@ public final class Car {
      *
      * @hide
      */
-    @MandatoryFeature
-    @SystemApi
+    @ExperimentalFeature
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
 
@@ -1048,7 +1047,6 @@ public final class Car {
      *
      * @hide
      */
-    @SystemApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_COLLECT_CAR_CPU_INFO =
             "android.car.permission.COLLECT_CAR_CPU_INFO";
@@ -2194,9 +2192,6 @@ public final class Car {
                 break;
             case CAR_WATCHDOG_SERVICE:
                 manager = new CarWatchdogManager(this, binder);
-                break;
-            case CAR_PERFORMANCE_SERVICE:
-                manager = new CarPerformanceManager(this, binder);
                 break;
             case CAR_INPUT_SERVICE:
                 manager = new CarInputManager(this, binder);
