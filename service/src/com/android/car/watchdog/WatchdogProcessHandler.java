@@ -25,6 +25,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.car.builtin.util.Slogf;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
@@ -33,6 +34,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -41,6 +43,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Handles clients' health status checking and reporting the statuses to the watchdog daemon.
@@ -354,10 +357,10 @@ public final class WatchdogProcessHandler {
     }
 
     private void reportHealthCheckResult(int sessionId) {
-        int[] clientsNotResponding;
+        List<ProcessIdentifier> clientsNotResponding;
         ArrayList<ClientInfo> clientsToNotify;
         synchronized (mLock) {
-            clientsNotResponding = toIntArray(mClientsNotResponding);
+            clientsNotResponding = toProcessIdentifierList(mClientsNotResponding);
             clientsToNotify = new ArrayList<>(mClientsNotResponding);
             mClientsNotResponding.clear();
         }
@@ -382,13 +385,17 @@ public final class WatchdogProcessHandler {
     }
 
     @NonNull
-    private int[] toIntArray(@NonNull ArrayList<ClientInfo> list) {
-        int size = list.size();
-        int[] intArray = new int[size];
-        for (int i = 0; i < size; i++) {
-            intArray[i] = list.get(i).pid;
+    private List<ProcessIdentifier> toProcessIdentifierList(
+            @NonNull ArrayList<ClientInfo> clientInfos) {
+        List<ProcessIdentifier> processIdentifiers = new ArrayList<>(clientInfos.size());
+        for (int i = 0; i < clientInfos.size(); i++) {
+            ClientInfo clientInfo = clientInfos.get(i);
+            ProcessIdentifier processIdentifier = new ProcessIdentifier();
+            processIdentifier.pid = clientInfo.pid;
+            processIdentifier.startTimeMillis = clientInfo.startTimeMillis;
+            processIdentifiers.add(processIdentifier);
         }
-        return intArray;
+        return processIdentifiers;
     }
 
     private String timeoutToString(int timeout) {
@@ -422,6 +429,7 @@ public final class WatchdogProcessHandler {
     private final class ClientInfo implements IBinder.DeathRecipient {
         public final ICarWatchdogServiceCallback client;
         public final int pid;
+        public final long startTimeMillis;
         @UserIdInt public final int userId;
         public final int timeout;
         public volatile int sessionId;
@@ -430,6 +438,8 @@ public final class WatchdogProcessHandler {
                 int timeout) {
             this.client = client;
             this.pid = pid;
+            // TODO(b/213939034): Read pid start time and populate this field.
+            this.startTimeMillis = SystemClock.elapsedRealtime();
             this.userId = userId;
             this.timeout = timeout;
         }

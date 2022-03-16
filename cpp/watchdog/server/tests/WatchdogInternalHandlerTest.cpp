@@ -46,6 +46,7 @@ using aawi::GarageMode;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PowerCycle;
+using aawi::ProcessIdentifier;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
 using ::android::String16;
@@ -256,7 +257,10 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnUnregisterMonitorWithNonSystemCal
 TEST_F(WatchdogInternalHandlerTest, TestCarWatchdogServiceAlive) {
     setSystemCallingUid();
     sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
-    std::vector clientsNotResponding = {123};
+    std::vector<ProcessIdentifier> clientsNotResponding;
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = 123;
+    clientsNotResponding.push_back(processIdentifier);
     EXPECT_CALL(*mMockWatchdogProcessService,
                 tellCarWatchdogServiceAlive(service, clientsNotResponding, 456))
             .WillOnce(Return(Status::ok()));
@@ -268,7 +272,10 @@ TEST_F(WatchdogInternalHandlerTest, TestCarWatchdogServiceAlive) {
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnCarWatchdogServiceWithNonSystemCallingUid) {
     sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
-    std::vector clientsNotResponding = {123};
+    std::vector<ProcessIdentifier> clientsNotResponding;
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = 123;
+    clientsNotResponding.push_back(processIdentifier);
     EXPECT_CALL(*mMockWatchdogProcessService, tellCarWatchdogServiceAlive(_, _, _)).Times(0);
     Status status =
             mWatchdogInternalHandler->tellCarWatchdogServiceAlive(service, clientsNotResponding,
@@ -279,16 +286,20 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnCarWatchdogServiceWithNonSystemCa
 TEST_F(WatchdogInternalHandlerTest, TestTellDumpFinished) {
     setSystemCallingUid();
     sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
-    EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, 456))
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = 456;
+    EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, processIdentifier))
             .WillOnce(Return(Status::ok()));
-    Status status = mWatchdogInternalHandler->tellDumpFinished(monitor, 456);
+    Status status = mWatchdogInternalHandler->tellDumpFinished(monitor, processIdentifier);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnTellDumpFinishedWithNonSystemCallingUid) {
     sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(_, _)).Times(0);
-    Status status = mWatchdogInternalHandler->tellDumpFinished(monitor, 456);
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = 456;
+    Status status = mWatchdogInternalHandler->tellDumpFinished(monitor, processIdentifier);
     ASSERT_FALSE(status.isOk()) << status;
 }
 

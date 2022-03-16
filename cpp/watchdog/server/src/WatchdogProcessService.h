@@ -23,6 +23,7 @@
 #include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/PowerCycle.h>
+#include <android/automotive/watchdog/internal/ProcessIdentifier.h>
 #include <android/automotive/watchdog/internal/UserState.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
@@ -83,11 +84,13 @@ public:
     virtual android::binder::Status tellCarWatchdogServiceAlive(
             const android::sp<
                     android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service,
-            const std::vector<int32_t>& clientsNotResponding, int32_t sessionId);
+            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+                    clientsNotResponding,
+            int32_t sessionId);
     virtual android::binder::Status tellDumpFinished(
             const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor,
-            int32_t pid);
+            const android::automotive::watchdog::internal::ProcessIdentifier& processIdentifier);
     virtual void setEnabled(bool isEnabled);
     virtual void notifyUserStateChange(userid_t userId, bool isStarted);
 
@@ -192,14 +195,18 @@ private:
     android::base::Result<void> startHealthCheckingLocked(TimeoutLength timeout);
     android::base::Result<void> dumpAndKillClientsIfNotResponding(TimeoutLength timeout);
     android::base::Result<void> dumpAndKillAllProcesses(
-            const std::vector<int32_t>& processesNotResponding, bool reportToVhal);
+            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+                    processesNotResponding,
+            bool reportToVhal);
     int32_t getNewSessionId();
     android::base::Result<void> updateVhal(
             const aidl::android::hardware::automotive::vehicle::VehiclePropValue& value);
     android::base::Result<void> connectToVhalLocked();
     void subscribeToVhalHeartBeatLocked();
     void reportWatchdogAliveToVhal();
-    void reportTerminatedProcessToVhal(const std::vector<int32_t>& processesNotResponding);
+    void reportTerminatedProcessToVhal(
+            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+                    processesNotResponding);
     android::base::Result<std::string> readProcCmdLine(int32_t pid);
     void handleBinderDeath(const android::wp<android::IBinder>& who);
     void handleVhalDeath();

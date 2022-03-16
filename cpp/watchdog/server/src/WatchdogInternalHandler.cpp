@@ -37,6 +37,7 @@ using aawi::ComponentType;
 using aawi::GarageMode;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::PowerCycle;
+using aawi::ProcessIdentifier;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
 using ::android::String16;
@@ -134,7 +135,7 @@ Status WatchdogInternalHandler::unregisterMonitor(const sp<aawi::ICarWatchdogMon
 
 Status WatchdogInternalHandler::tellCarWatchdogServiceAlive(
         const android::sp<ICarWatchdogServiceForSystem>& service,
-        const std::vector<int32_t>& clientsNotResponding, int32_t sessionId) {
+        const std::vector<ProcessIdentifier>& clientsNotResponding, int32_t sessionId) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
@@ -146,7 +147,8 @@ Status WatchdogInternalHandler::tellCarWatchdogServiceAlive(
                                                                 sessionId);
 }
 Status WatchdogInternalHandler::tellDumpFinished(
-        const android::sp<aawi::ICarWatchdogMonitor>& monitor, int32_t pid) {
+        const android::sp<aawi::ICarWatchdogMonitor>& monitor,
+        const ProcessIdentifier& processIdentifier) {
     Status status = checkSystemUser();
     if (!status.isOk()) {
         return status;
@@ -154,7 +156,7 @@ Status WatchdogInternalHandler::tellDumpFinished(
     if (monitor == nullptr) {
         return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogMonitorError);
     }
-    return mWatchdogProcessService->tellDumpFinished(monitor, pid);
+    return mWatchdogProcessService->tellDumpFinished(monitor, processIdentifier);
 }
 
 Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, int32_t arg1,
