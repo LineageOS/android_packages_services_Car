@@ -2160,10 +2160,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
         synchronized (mLockUser) {
             if (mUserIdForUserSwitchInProcess != USER_NULL) {
-                if (DBG) {
-                    Slogf.d(TAG, "Not needed, 'standard' switch");
+                if (mUserIdForUserSwitchInProcess == toUserId) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Ignoring, not legacy");
+                    }
+                    return;
                 }
-                return;
+                if (DBG) {
+                    Slogf.d(TAG, "Resetting mUserIdForUserSwitchInProcess");
+                }
+                mUserIdForUserSwitchInProcess = USER_NULL;
+                mRequestIdForUserSwitchInProcess = 0;
             }
         }
 
