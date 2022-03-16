@@ -23,6 +23,11 @@ import android.util.Log;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * @deprecated use {@link com.android.car.watchdog.CarWatchdogService} and its related classes
+ * for I/O related tasks.
+ */
+@Deprecated
 public final class ProcfsInspector {
     private static final String TAG = "car.procfsinspector";
     private static final String SERVICE_NAME = "com.android.car.procfsinspector";
