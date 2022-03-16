@@ -742,7 +742,7 @@ public class ICarImpl extends ICar.Stub {
         writer.println("Android SDK_INT:" + Build.VERSION.SDK_INT);
         writer.println("Car API major:" + Car.API_VERSION_MAJOR_INT);
         writer.println("Car API minor:" + Car.API_VERSION_MINOR_INT);
-        writer.println("CarBuiltin API minor:" + CarBuiltin.API_VERSION_MINOR_INT);
+        writer.println("CarBuiltin API minor:" + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
         writer.println("CarServiceBuiltin minor:"
                 + BuiltinPackageDependency.getBuiltinServiceMinorVersion(
                 mCarServiceBuiltinPackageContext));

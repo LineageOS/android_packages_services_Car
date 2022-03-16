@@ -2,7 +2,7 @@
 package android.car.builtin {
 
   public final class CarBuiltin {
-    field public static final int API_VERSION_MINOR_INT = 0; // 0x0
+    field public static final int PLATFORM_VERSION_MINOR_INT;
   }
 
   public final class PermissionHelper {
