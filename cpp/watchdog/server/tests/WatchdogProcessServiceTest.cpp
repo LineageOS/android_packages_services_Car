@@ -32,6 +32,7 @@ namespace aawi = ::android::automotive::watchdog::internal;
 namespace afav = ::android::frameworks::automotive::vhal;
 namespace aahav = ::aidl::android::hardware::automotive::vehicle;
 
+using aawi::ProcessIdentifier;
 using ::android::IBinder;
 using ::android::sp;
 using ::android::binder::Status;
@@ -63,6 +64,13 @@ public:
 private:
     sp<MockBinder> mBinder;
 };
+
+ProcessIdentifier constructProcessIdentifier(int32_t pid, int64_t startTimeMillis) {
+    ProcessIdentifier processIdentifier;
+    processIdentifier.pid = pid;
+    processIdentifier.startTimeMillis = startTimeMillis;
+    return processIdentifier;
+}
 
 }  // namespace
 
@@ -237,18 +245,31 @@ TEST_F(WatchdogProcessServiceTest, TestTellCarWatchdogServiceAlive) {
 
     sp<MockCarWatchdogServiceForSystem> mockService = new MockCarWatchdogServiceForSystem();
 
-    std::vector<int32_t> pids = {111, 222};
-    ASSERT_FALSE(
-            mWatchdogProcessService->tellCarWatchdogServiceAlive(mockService, pids, 1234).isOk())
+    std::vector<ProcessIdentifier> processIdentifiers;
+    processIdentifiers.push_back(
+            constructProcessIdentifier(/* pid= */ 111, /* startTimeMillis= */ 0));
+    processIdentifiers.push_back(
+            constructProcessIdentifier(/* pid= */ 222, /* startTimeMillis= */ 0));
+    ASSERT_FALSE(mWatchdogProcessService
+                         ->tellCarWatchdogServiceAlive(mockService, processIdentifiers, 1234)
+                         .isOk())
             << "tellCarWatchdogServiceAlive not synced with checkIfAlive should return an error";
 }
 
 TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
     sp<aawi::ICarWatchdogMonitor> monitor = expectNormalCarWatchdogMonitor();
-    ASSERT_FALSE(mWatchdogProcessService->tellDumpFinished(monitor, 1234).isOk())
+    ASSERT_FALSE(mWatchdogProcessService
+                         ->tellDumpFinished(monitor,
+                                            constructProcessIdentifier(/* pid= */ 1234,
+                                                                       /* startTimeMillis= */ 0))
+                         .isOk())
             << "Unregistered monitor cannot call tellDumpFinished";
     mWatchdogProcessService->registerMonitor(monitor);
-    Status status = mWatchdogProcessService->tellDumpFinished(monitor, 1234);
+    Status status =
+            mWatchdogProcessService
+                    ->tellDumpFinished(monitor,
+                                       constructProcessIdentifier(/* pid= */ 1234,
+                                                                  /* startTimeMillis= */ 0));
     ASSERT_TRUE(status.isOk()) << status;
 }
 

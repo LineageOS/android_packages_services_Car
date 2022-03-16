@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.os.Handler;
@@ -207,7 +208,7 @@ public final class CarWatchdogDaemonHelper {
      * Tells car watchdog daemon that the service is alive.
      *
      * @param service Car watchdog service which has been pined by car watchdog daemon.
-     * @param clientsNotResponding Array of process ID that are not responding.
+     * @param clientsNotResponding List of process identifiers of clients that are not responding.
      * @param sessionId Session ID that car watchdog daemon has given.
      * @throws IllegalArgumentException If the service is not registered,
      *                                  or session ID is not correct.
@@ -215,7 +216,7 @@ public final class CarWatchdogDaemonHelper {
      * @throws RemoteException
      */
     public void tellCarWatchdogServiceAlive(
-            ICarWatchdogServiceForSystem service, int[] clientsNotResponding,
+            ICarWatchdogServiceForSystem service, List<ProcessIdentifier> clientsNotResponding,
             int sessionId) throws RemoteException {
         invokeDaemonMethod(
                 (daemon) -> daemon.tellCarWatchdogServiceAlive(
@@ -226,13 +227,14 @@ public final class CarWatchdogDaemonHelper {
      * Tells car watchdog daemon that the monitor has dumped clients' process information.
      *
      * @param monitor Car watchdog monitor that dumped process information.
-     * @param pid ID of process that has been dumped.
+     * @param processIdentifier Process identifier of process that has been dumped.
      * @throws IllegalArgumentException If the monitor is not registered.
      * @throws IllegalStateException If car watchdog daemon is not connected.
      * @throws RemoteException
      */
-    public void tellDumpFinished(ICarWatchdogMonitor monitor, int pid) throws RemoteException {
-        invokeDaemonMethod((daemon) -> daemon.tellDumpFinished(monitor, pid));
+    public void tellDumpFinished(ICarWatchdogMonitor monitor,
+            ProcessIdentifier processIdentifier) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.tellDumpFinished(monitor, processIdentifier));
     }
 
     /**
