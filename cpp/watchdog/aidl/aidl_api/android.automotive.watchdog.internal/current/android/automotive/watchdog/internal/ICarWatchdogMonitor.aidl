@@ -33,5 +33,5 @@
 
 package android.automotive.watchdog.internal;
 interface ICarWatchdogMonitor {
-  oneway void onClientsNotResponding(in int[] pids);
+  oneway void onClientsNotResponding(in List<android.automotive.watchdog.internal.ProcessIdentifier> processIdentifiers);
 }

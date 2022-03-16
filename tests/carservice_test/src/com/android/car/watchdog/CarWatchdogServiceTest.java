@@ -34,6 +34,7 @@ import static org.mockito.Mockito.when;
 import android.app.StatsManager;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
@@ -60,6 +61,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -67,6 +69,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -107,6 +110,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private IBinder mMockServiceBinder;
     @Mock private ICarWatchdog mMockCarWatchdogDaemon;
     @Mock private WatchdogStorage mMockWatchdogStorage;
+
+    @Captor private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
@@ -190,22 +195,20 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         TestClient client = new TestClient(new BadTestClient());
         client.registerClient();
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        ArgumentCaptor<int[]> notRespondingClients = ArgumentCaptor.forClass(int[].class);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
-                        notRespondingClients.capture(), eq(123456));
-        assertThat(notRespondingClients.getValue().length).isEqualTo(0);
+                        mProcessIdentifiersCaptor.capture(), eq(123456));
+        assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
         mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
-                        notRespondingClients.capture(), eq(987654));
-        assertThat(notRespondingClients.getValue().length).isEqualTo(0);
+                        mProcessIdentifiersCaptor.capture(), eq(987654));
+        assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
     }
 
     @Test
     public void testMultipleClients() throws Exception {
         expectRunningUser();
-        ArgumentCaptor<int[]> pidsCaptor = ArgumentCaptor.forClass(int[].class);
         ArrayList<TestClient> clients = new ArrayList<>(Arrays.asList(
                 new TestClient(new NoSelfCheckGoodClient()),
                 new TestClient(new SelfCheckGoodClient()),
@@ -222,14 +225,16 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         }
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
-                        pidsCaptor.capture(), eq(123456));
-        assertThat(pidsCaptor.getValue().length).isEqualTo(0);
+                        mProcessIdentifiersCaptor.capture(), eq(123456));
+        assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
 
         mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
+
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
-                        pidsCaptor.capture(), eq(987654));
-        assertThat(pidsCaptor.getValue().length).isEqualTo(2);
+                        mProcessIdentifiersCaptor.capture(), eq(987654));
+
+        assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(2);
     }
 
     private ICarWatchdogServiceForSystem registerCarWatchdogService() throws Exception {
@@ -248,10 +253,9 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         TestClient client = new TestClient(androidClient);
         client.registerClient();
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
-        ArgumentCaptor<int[]> notRespondingClients = ArgumentCaptor.forClass(int[].class);
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
-                        notRespondingClients.capture(), eq(123456));
+                        mProcessIdentifiersCaptor.capture(), eq(123456));
         // Checking Android client health is asynchronous, so wait at most 1 second.
         int repeat = 10;
         while (repeat > 0) {
@@ -263,13 +267,16 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
             repeat--;
         }
         assertThat(androidClient.getLastSessionId()).isNotEqualTo(INVALID_SESSION_ID);
-        assertThat(notRespondingClients.getValue().length).isEqualTo(0);
+        assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
         assertThat(androidClient.makeSureHealthCheckDone()).isEqualTo(true);
+
         mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
+
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
                 .tellCarWatchdogServiceAlive(eq(mWatchdogServiceForSystemImpl),
-                        notRespondingClients.capture(), eq(987654));
-        assertThat(notRespondingClients.getValue().length).isEqualTo(badClientCount);
+                        mProcessIdentifiersCaptor.capture(), eq(987654));
+
+        assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(badClientCount);
     }
 
     private void expectRunningUser() {

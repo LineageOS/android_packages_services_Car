@@ -99,6 +99,7 @@ import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
@@ -233,7 +234,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<SparseArray<List<String>>> mPackagesByUserIdCaptor;
     @Captor private ArgumentCaptor<StatsPullAtomCallback> mStatsPullAtomCallbackCaptor;
     @Captor private ArgumentCaptor<Intent> mIntentCaptor;
-    @Captor private ArgumentCaptor<int[]> mIntArrayCaptor;
     @Captor private ArgumentCaptor<byte[]> mOveruseStatsCaptor;
     @Captor private ArgumentCaptor<byte[]> mKilledStatsCaptor;
     @Captor private ArgumentCaptor<Integer> mOverusingUidCaptor;
@@ -244,6 +244,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Captor private ArgumentCaptor<UserHandle> mUserHandle;
     @Captor private ArgumentCaptor<SparseArray<String>> mHeadsUpPackages;
     @Captor private ArgumentCaptor<SparseArray<String>> mNotificationCenterPackages;
+    @Captor private ArgumentCaptor<List<ProcessIdentifier>> mProcessIdentifiersCaptor;
 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
@@ -376,7 +377,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
         verify(mMockCarWatchdogDaemon,
                 timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), any(int[].class), eq(123456));
+                eq(mWatchdogServiceForSystemImpl), any(), eq(123456));
     }
 
     @Test
@@ -4080,13 +4081,18 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private void testClientHealthCheck(TestClient client, int badClientCount) throws Exception {
         mCarWatchdogService.registerClient(client, TIMEOUT_CRITICAL);
         mWatchdogServiceForSystemImpl.checkIfAlive(123456, TIMEOUT_CRITICAL);
+
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), mIntArrayCaptor.capture(), eq(123456));
-        assertThat(mIntArrayCaptor.getValue()).isEmpty();
+                eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(123456));
+
+        assertThat(mProcessIdentifiersCaptor.getValue()).isEmpty();
+
         mWatchdogServiceForSystemImpl.checkIfAlive(987654, TIMEOUT_CRITICAL);
+
         verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
-                eq(mWatchdogServiceForSystemImpl), mIntArrayCaptor.capture(), eq(987654));
-        assertThat(mIntArrayCaptor.getValue().length).isEqualTo(badClientCount);
+                eq(mWatchdogServiceForSystemImpl), mProcessIdentifiersCaptor.capture(), eq(987654));
+
+        assertThat(mProcessIdentifiersCaptor.getValue().size()).isEqualTo(badClientCount);
     }
 
     private List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
