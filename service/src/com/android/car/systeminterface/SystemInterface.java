@@ -113,6 +113,10 @@ public class SystemInterface implements ActivityManagerInterface,
         mTimeInterface.scheduleAction(r, delayMs);
     }
 
+    /**
+     * @deprecated see {@link ProcessInfo}
+     */
+    @Deprecated
     @Override
     public List<ProcessInfo> getRunningProcesses() {
         return mSystemStateInterface.getRunningProcesses();
