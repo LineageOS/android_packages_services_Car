@@ -95,14 +95,18 @@ std::shared_ptr<IVhalClient> AidlVhalClient::create() {
 }
 
 std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate() {
-    if (!AServiceManager_isDeclared(AIDL_VHAL_SERVICE)) {
-        ALOGD("AIDL VHAL service is not declared");
+    return tryCreate(AIDL_VHAL_SERVICE);
+}
+
+std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor) {
+    if (!AServiceManager_isDeclared(descriptor)) {
+        ALOGD("AIDL VHAL service, descriptor: %s is not declared", descriptor);
         return nullptr;
     }
     std::shared_ptr<IVehicle> aidlVhal =
-            IVehicle::fromBinder(SpAIBinder(AServiceManager_getService(AIDL_VHAL_SERVICE)));
+            IVehicle::fromBinder(SpAIBinder(AServiceManager_getService(descriptor)));
     if (aidlVhal == nullptr) {
-        ALOGW("AIDL VHAL service is not available");
+        ALOGW("AIDL VHAL service, descriptor: %s is not available", descriptor);
         return nullptr;
     }
     ABinderProcess_startThreadPool();

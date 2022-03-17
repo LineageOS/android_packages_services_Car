@@ -64,6 +64,14 @@ std::shared_ptr<IVhalClient> HidlVhalClient::tryCreate() {
     return std::make_shared<HidlVhalClient>(hidlVhal);
 }
 
+std::shared_ptr<IVhalClient> HidlVhalClient::tryCreate(const char* descriptor) {
+    sp<IVehicle> hidlVhal = IVehicle::tryGetService(descriptor);
+    if (hidlVhal == nullptr) {
+        return nullptr;
+    }
+    return std::make_shared<HidlVhalClient>(hidlVhal);
+}
+
 HidlVhalClient::HidlVhalClient(sp<IVehicle> hal) : mHal(hal) {
     mDeathRecipient = sp<HidlVhalClient::DeathRecipient>::make(this);
     mHal->linkToDeath(mDeathRecipient, /*cookie=*/0);

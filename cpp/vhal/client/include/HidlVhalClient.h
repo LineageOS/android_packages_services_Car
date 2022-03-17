@@ -42,6 +42,7 @@ class HidlVhalClient final : public IVhalClient {
 public:
     static std::shared_ptr<IVhalClient> create();
     static std::shared_ptr<IVhalClient> tryCreate();
+    static std::shared_ptr<IVhalClient> tryCreate(const char* descriptor);
 
     explicit HidlVhalClient(
             ::android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> hal);

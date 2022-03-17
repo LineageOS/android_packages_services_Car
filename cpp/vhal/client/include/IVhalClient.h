@@ -70,6 +70,12 @@ public:
     // Try to get the VHAL service and create a client. Return nullptr if failed to connect to VHAL.
     static std::shared_ptr<IVhalClient> tryCreate();
 
+    // Try to create a client based on the AIDL VHAL service descriptor.
+    static std::shared_ptr<IVhalClient> tryCreateAidlClient(const char* descriptor);
+
+    // Try to create a client based on the HIDL VHAL service descriptor.
+    static std::shared_ptr<IVhalClient> tryCreateHidlClient(const char* descriptor);
+
     // The default timeout for callbacks.
     constexpr static int64_t DEFAULT_TIMEOUT_IN_SEC = 10;
 
