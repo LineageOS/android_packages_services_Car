@@ -168,6 +168,10 @@ private:
     std::unique_ptr<HidlVhalClient> mVhalClient;
 };
 
+TEST_F(HidlVhalClientTest, testIsAidl) {
+    ASSERT_FALSE(getClient()->isAidlVhal());
+}
+
 TEST_F(HidlVhalClientTest, testGetValue) {
     Result<std::unique_ptr<IHalPropValue>> result;
     Result<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
