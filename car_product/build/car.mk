@@ -129,6 +129,9 @@ PRODUCT_SYSTEM_PROPERTIES += \
 PRODUCT_SYSTEM_PROPERTIES += \
     ro.android.car.carservice.package?=com.android.car.updatable
 
+# Update with PLATFORM_VERSION_MINOR_INT update
+PRODUCT_SYSTEM_PROPERTIES += ro.android.car.version.platform_minor=0
+
 # Automotive specific packages
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \

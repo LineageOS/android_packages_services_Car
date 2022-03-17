@@ -49,6 +49,7 @@ namespace aawi = ::android::automotive::watchdog::internal;
 
 using aawi::BnCarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystem;
+using aawi::ProcessIdentifier;
 using ::aidl::android::hardware::automotive::vehicle::BnVehicle;
 using ::aidl::android::hardware::automotive::vehicle::ProcessTerminationReason;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
@@ -111,16 +112,15 @@ std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
     }
 }
 
-std::string pidArrayToString(const std::vector<int32_t>& pids) {
-    size_t size = pids.size();
+std::string toPidString(const std::vector<ProcessIdentifier>& processIdentifiers) {
+    size_t size = processIdentifiers.size();
     if (size == 0) {
         return "";
     }
     std::string buffer;
-    StringAppendF(&buffer, "%d", pids[0]);
+    StringAppendF(&buffer, "%d", processIdentifiers[0].pid);
     for (size_t i = 1; i < size; i++) {
-        int pid = pids[i];
-        StringAppendF(&buffer, ", %d", pid);
+        StringAppendF(&buffer, ", %d", processIdentifiers[i].pid);
     }
     return buffer;
 }
@@ -245,20 +245,14 @@ Status WatchdogProcessService::tellClientAlive(const sp<ICarWatchdogClient>& cli
 
 Status WatchdogProcessService::tellCarWatchdogServiceAlive(
         const sp<ICarWatchdogServiceForSystem>& service,
-        const std::vector<int32_t>& clientsNotResponding, int32_t sessionId) {
+        const std::vector<ProcessIdentifier>& clientsNotResponding, int32_t sessionId) {
     Status status;
     {
         Mutex::Autolock lock(mMutex);
         if (DEBUG) {
-            std::string buffer;
-            int size = clientsNotResponding.size();
-            if (size != 0) {
-                StringAppendF(&buffer, "%d", clientsNotResponding[0]);
-                for (size_t i = 1; i < clientsNotResponding.size(); i++) {
-                    StringAppendF(&buffer, ", %d", clientsNotResponding[i]);
-                }
+            if (clientsNotResponding.size() > 0) {
                 ALOGD("CarWatchdogService(session: %d) responded with non-responding clients: %s",
-                      sessionId, buffer.c_str());
+                      sessionId, toPidString(clientsNotResponding).c_str());
             }
         }
         status = tellClientAliveLocked(BnCarWatchdogServiceForSystem::asBinder(service), sessionId);
@@ -270,7 +264,7 @@ Status WatchdogProcessService::tellCarWatchdogServiceAlive(
 }
 
 Status WatchdogProcessService::tellDumpFinished(const sp<aawi::ICarWatchdogMonitor>& monitor,
-                                                int32_t pid) {
+                                                const ProcessIdentifier& processIdentifier) {
     Mutex::Autolock lock(mMutex);
     if (mMonitor == nullptr || monitor == nullptr ||
         aawi::BnCarWatchdogMonitor::asBinder(monitor) !=
@@ -279,7 +273,7 @@ Status WatchdogProcessService::tellDumpFinished(const sp<aawi::ICarWatchdogMonit
                 fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                   "The monitor is not registered or an invalid monitor is given");
     }
-    ALOGI("Process(pid: %d) has been dumped and killed", pid);
+    ALOGI("Process(pid: %d) has been dumped and killed", processIdentifier.pid);
     return Status::ok();
 }
 
@@ -548,7 +542,7 @@ Result<void> WatchdogProcessService::startHealthCheckingLocked(TimeoutLength tim
 }
 
 Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLength timeout) {
-    std::vector<int32_t> processIds;
+    std::vector<ProcessIdentifier> processIdentifiers;
     std::vector<const ClientInfo*> clientsToNotify;
     {
         Mutex::Autolock lock(mMutex);
@@ -567,23 +561,28 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
                                        });
             if (pid != -1 && mStoppedUserIds.count(userId) == 0) {
                 clientsToNotify.emplace_back(&it->second);
-                processIds.push_back(pid);
+                ProcessIdentifier processIdentifier;
+                processIdentifier.pid = pid;
+                // TODO(b/213939034): Read pid start time and populate
+                //  processIdentifier.startTimeMillis
+                processIdentifier.startTimeMillis = elapsedRealtime();
+                processIdentifiers.push_back(processIdentifier);
             }
         }
     }
     for (const ClientInfo*& clientInfo : clientsToNotify) {
         clientInfo->prepareProcessTermination();
     }
-    return dumpAndKillAllProcesses(processIds, true);
+    return dumpAndKillAllProcesses(processIdentifiers, true);
 }
 
 Result<void> WatchdogProcessService::dumpAndKillAllProcesses(
-        const std::vector<int32_t>& processesNotResponding, bool reportToVhal) {
+        const std::vector<ProcessIdentifier>& processesNotResponding, bool reportToVhal) {
     size_t size = processesNotResponding.size();
     if (size == 0) {
         return {};
     }
-    std::string pidString = pidArrayToString(processesNotResponding);
+    std::string pidString = toPidString(processesNotResponding);
     sp<aawi::ICarWatchdogMonitor> monitor;
     {
         Mutex::Autolock lock(mMutex);
@@ -662,16 +661,16 @@ void WatchdogProcessService::reportWatchdogAliveToVhal() {
 }
 
 void WatchdogProcessService::reportTerminatedProcessToVhal(
-        const std::vector<int32_t>& processesNotResponding) {
+        const std::vector<ProcessIdentifier>& processesNotResponding) {
     if (mNotSupportedVhalProperties.count(VehicleProperty::WATCHDOG_TERMINATED_PROCESS) > 0) {
         ALOGW("VHAL doesn't support WATCHDOG_TERMINATED_PROCESS. Terminated process is not "
               "reported to VHAL.");
         return;
     }
-    for (auto&& pid : processesNotResponding) {
-        const auto& retCmdLine = readProcCmdLine(pid);
+    for (auto&& processIdentifier : processesNotResponding) {
+        const auto& retCmdLine = readProcCmdLine(processIdentifier.pid);
         if (!retCmdLine.ok()) {
-            ALOGW("Failed to get process command line for pid(%d): %s", pid,
+            ALOGW("Failed to get process command line for pid(%d): %s", processIdentifier.pid,
                   retCmdLine.error().message().c_str());
             continue;
         }
@@ -778,7 +777,8 @@ void WatchdogProcessService::subscribeToVhalHeartBeatLocked() {
     if (auto result =
                 mVhalService->getSubscriptionClient(mPropertyChangeListener)->subscribe(options);
         !result.ok()) {
-        ALOGW("Failed to subscribe to VHAL_HEARTBEAT. Checking VHAL health is disabled.");
+        ALOGW("Failed to subscribe to VHAL_HEARTBEAT. Checking VHAL health is disabled. '%s'",
+              result.error().message().c_str());
         return;
     }
     std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMs + kHealthCheckDelayMs;
@@ -834,7 +834,7 @@ void WatchdogProcessService::checkVhalHealth() {
 void WatchdogProcessService::terminateVhal() {
     using android::hidl::manager::V1_0::IServiceManager;
 
-    std::vector<int32_t> processIds;
+    std::vector<ProcessIdentifier> processIdentifiers;
     sp<IServiceManager> manager = IServiceManager::getService();
     Return<void> ret = manager->debugDump([&](auto& hals) {
         for (const auto& info : hals) {
@@ -843,7 +843,12 @@ void WatchdogProcessService::terminateVhal() {
             }
             // TODO(b/216735836): terminate AIDL VHAL.
             if (info.interfaceName == kVhalInterfaceName) {
-                processIds.push_back(info.pid);
+                ProcessIdentifier processIdentifier;
+                processIdentifier.pid = info.pid;
+                // TODO(b/213939034): Read pid start time and populate
+                //  processIdentifier.startTimeMillis
+                processIdentifier.startTimeMillis = elapsedRealtime();
+                processIdentifiers.push_back(processIdentifier);
                 break;
             }
         }
@@ -852,11 +857,11 @@ void WatchdogProcessService::terminateVhal() {
     if (!ret.isOk()) {
         ALOGE("Failed to terminate VHAL: could not get VHAL process id");
         return;
-    } else if (processIds.empty()) {
+    } else if (processIdentifiers.empty()) {
         ALOGE("Failed to terminate VHAL: VHAL is not running");
         return;
     }
-    dumpAndKillAllProcesses(processIds, false);
+    dumpAndKillAllProcesses(processIdentifiers, false);
 }
 
 std::string WatchdogProcessService::ClientInfo::toString() const {

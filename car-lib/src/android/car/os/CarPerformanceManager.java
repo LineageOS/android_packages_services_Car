@@ -19,10 +19,10 @@ package android.car.os;
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
-import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ExperimentalFeature;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -33,9 +33,11 @@ import java.util.concurrent.Executor;
  * CarPerformanceManager allows applications to tweak performance settings for their
  * processes/threads and listen for CPU available change notifications.
  *
+ * <p>This feature is still under development and will not be available for user builds.
+ *
  * @hide
  */
-@SystemApi
+@ExperimentalFeature
 public final class CarPerformanceManager extends CarManagerBase {
     private static final String TAG = CarPerformanceManager.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
