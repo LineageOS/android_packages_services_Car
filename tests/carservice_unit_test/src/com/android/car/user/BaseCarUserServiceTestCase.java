@@ -49,7 +49,6 @@ import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
-import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -67,7 +66,6 @@ import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
-import android.content.pm.UserInfo.UserInfoFlag;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.hardware.automotive.vehicle.CreateUserRequest;
@@ -85,8 +83,6 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.NewUserRequest;
-import android.os.NewUserResponse;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -118,7 +114,6 @@ import org.mockito.Mock;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -289,55 +284,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         return listener;
     }
 
-    // TODO(b/199446283): Move mock create user methods to AndroidMockitoHelper
-    /**
-     * Mocks a successful call to {@code UserManager#createUser(NewUserRequest)}
-     */
-    @NonNull
-    protected void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull UserHandle user) {
-        NewUserResponse response = new NewUserResponse(user, UserManager.USER_OPERATION_SUCCESS);
-        when(um.createUser(isNewUserRequest(name, userType, flags))).thenReturn(response);
-    }
-
-    /**
-     * Mocks a call to {@code UserManager#createUser(NewUserRequest)} that returns the given
-     * response.
-     */
-    @NonNull
-    protected void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull NewUserResponse response) {
-        when(um.createUser(isNewUserRequest(name, userType, flags))).thenReturn(response);
-    }
-    /**
-     * Mocks a call to {@code UserManager#createUser(NewUserRequest)} that throws the given
-     * runtime exception.
-     */
-    @NonNull
-    protected void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @NonNull RuntimeException e) {
-        when(um.createUser(isNewUserRequest(name, userType, flags))).thenThrow(e);
-    }
-
     protected void mockNoLogoutUserId() {
         mockLogoutUser(/* userHandle= */ null);
     }
 
     protected void mockLogoutUser(UserHandle userHandle) {
         when(mMockedDevicePolicyManager.getLogoutUser()).thenReturn(userHandle);
-    }
-
-    /**
-     * Mocks a successful call to {@code UserManager#createUser(NewUserRequest)}
-     */
-    @NonNull
-    protected void mockUmCreateGuest(@NonNull UserManager um, @Nullable String name,
-            @UserIdInt int userId) {
-        NewUserResponse response = new NewUserResponse(UserHandle.of(userId),
-                UserManager.USER_OPERATION_SUCCESS);
-        when(um.createUser(
-                isNewUserRequest(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)))
-                        .thenReturn(response);
     }
 
     protected void verifyListenerOnEventInvoked(int expectedNewUserId, int expectedEventType)
@@ -559,12 +511,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         mockGetCurrentUser(user.getIdentifier());
     }
 
-    // TODO(b/210864238): Move the helper methods to AndroidMockitoHelper.
-    protected void mockAmStartUserInBackground(@UserIdInt int userId, boolean result)
-            throws Exception {
-        doReturn(result).when(() -> ActivityManagerHelper.startUserInBackground(userId));
-    }
-
     protected void mockRemoveUser(@NonNull UserHandle user) {
         mockRemoveUser(user, UserManager.REMOVE_RESULT_REMOVED);
     }
@@ -591,20 +537,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             @RemoveResult int result) {
         mockUmRemoveUserWhenPossible(mMockedUserManager, user, overrideDevicePolicy, result,
                 /* listener= */ null);
-    }
-
-    protected void mockStopUserWithDelayedLocking(@UserIdInt int userId, int result)
-            throws Exception {
-        doReturn(result)
-                .when(() -> ActivityManagerHelper.stopUserWithDelayedLocking(
-                        userId, /* force= */ true));
-    }
-
-    protected void mockStopUserWithDelayedLockingThrowsIllegalStateException(@UserIdInt int userId)
-            throws Exception {
-        doThrow(new IllegalStateException())
-                .when(() -> ActivityManagerHelper.stopUserWithDelayedLocking(
-                        userId, /* force= */ true));
     }
 
     protected void mockHalGetInitialInfo(@UserIdInt int currentUserId,
@@ -1003,44 +935,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected UserIdentificationGetRequest isUserIdentificationGetRequest(
             @NonNull UserHandle user, @NonNull int[] types) {
         return argThat(new UserIdentificationGetRequestMatcher(user, types));
-    }
-
-    @NonNull
-    protected NewUserRequest isNewUserRequest(@Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags) {
-        return argThat(new NewUserRequestMatcher(name, userType, flags));
-    }
-
-    protected static final class NewUserRequestMatcher implements
-            ArgumentMatcher<NewUserRequest> {
-
-        private final String mName;
-        private final String mUserType;
-        private final int mFlags;
-
-        public NewUserRequestMatcher(String name, String userType, int flags) {
-            mName = name;
-            mUserType = userType;
-            mFlags = flags;
-        }
-
-        @Override
-        public boolean matches(NewUserRequest request) {
-            if (request.isAdmin()
-                    && ((mFlags & UserManagerHelper.FLAG_ADMIN) != UserManagerHelper.FLAG_ADMIN)) {
-                return false;
-            }
-            if (request.isEphemeral() && ((mFlags
-                    & UserManagerHelper.FLAG_EPHEMERAL) != UserManagerHelper.FLAG_EPHEMERAL)) {
-                return false;
-            }
-
-            if (!request.getUserType().equals(mUserType)) return false;
-
-            if (!Objects.equals(request.getName(), mName)) return false;
-
-            return true;
-        }
     }
 
     protected final class UserIdentificationGetRequestMatcher implements
