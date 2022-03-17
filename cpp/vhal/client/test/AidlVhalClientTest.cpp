@@ -290,6 +290,10 @@ private:
     TestLinkUnlinkImpl* mLinkUnlinkImpl;
 };
 
+TEST_F(AidlVhalClientTest, testIsAidl) {
+    ASSERT_TRUE(getClient()->isAidlVhal());
+}
+
 TEST_F(AidlVhalClientTest, testGetValueNormal) {
     VehiclePropValue testProp{
             .prop = TEST_PROP_ID,
