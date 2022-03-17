@@ -24,6 +24,8 @@
 #include <aidl/android/hardware/automotive/vehicle/SubscribeOptions.h>
 #include <android-base/result.h>
 
+#include <VehicleUtils.h>
+
 namespace android {
 namespace frameworks {
 namespace automotive {
@@ -54,11 +56,13 @@ public:
 class ISubscriptionClient {
 public:
     virtual ~ISubscriptionClient() = default;
-    virtual android::base::Result<void> subscribe(
+
+    virtual android::hardware::automotive::vehicle::VhalResult<void> subscribe(
             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) = 0;
 
-    virtual android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) = 0;
+    virtual android::hardware::automotive::vehicle::VhalResult<void> unsubscribe(
+            const std::vector<int32_t>& propIds) = 0;
 };
 
 // IVhalClient is a thread-safe client for AIDL or HIDL VHAL backend.
@@ -81,9 +85,10 @@ public:
 
     virtual ~IVhalClient() = default;
 
-    using GetValueCallbackFunc =
-            std::function<void(android::base::Result<std::unique_ptr<IHalPropValue>>)>;
-    using SetValueCallbackFunc = std::function<void(android::base::Result<void>)>;
+    using GetValueCallbackFunc = std::function<void(
+            android::hardware::automotive::vehicle::VhalResult<std::unique_ptr<IHalPropValue>>)>;
+    using SetValueCallbackFunc =
+            std::function<void(android::hardware::automotive::vehicle::VhalResult<void>)>;
     using OnBinderDiedCallbackFunc = std::function<void()>;
 
     /**
@@ -131,8 +136,8 @@ public:
      *    status code as error code. For AIDL backend, this would return TRY_AGAIN error on timeout.
      *    For HIDL backend, because HIDL backend is synchronous, timeout does not apply.
      */
-    virtual android::base::Result<std::unique_ptr<IHalPropValue>> getValueSync(
-            const IHalPropValue& requestValue);
+    virtual android::hardware::automotive::vehicle::VhalResult<std::unique_ptr<IHalPropValue>>
+    getValueSync(const IHalPropValue& requestValue);
 
     /**
      * Set a property value asynchronously.
@@ -153,7 +158,8 @@ public:
      *    error code. For AIDL backend, this would return TRY_AGAIN error on timeout.
      *    For HIDL backend, because HIDL backend is synchronous, timeout does not apply.
      */
-    virtual android::base::Result<void> setValueSync(const IHalPropValue& requestValue);
+    virtual android::hardware::automotive::vehicle::VhalResult<void> setValueSync(
+            const IHalPropValue& requestValue);
 
     /**
      * Add a callback that would be called when the binder connection to VHAL died.
@@ -161,7 +167,7 @@ public:
      * @param callback The callback that would be called when the binder died.
      * @return An okay result on success or an error on failure.
      */
-    virtual android::base::Result<void> addOnBinderDiedCallback(
+    virtual android::hardware::automotive::vehicle::VhalResult<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
     /**
@@ -170,7 +176,7 @@ public:
      * @param callback The callback that would be removed.
      * @return An okay result on success, or an error if the callback is not added before.
      */
-    virtual android::base::Result<void> removeOnBinderDiedCallback(
+    virtual android::hardware::automotive::vehicle::VhalResult<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) = 0;
 
     /**
@@ -178,7 +184,8 @@ public:
      *
      * @return An okay result that contains all property configs on success or an error on failure.
      */
-    virtual android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>>
+    virtual android::hardware::automotive::vehicle::VhalResult<
+            std::vector<std::unique_ptr<IHalPropConfig>>>
     getAllPropConfigs() = 0;
 
     /**
@@ -188,8 +195,9 @@ public:
      * @return An okay result that contains property configs for specified properties on success or
      *    an error if failed to get any of the property configs.
      */
-    virtual android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
-            std::vector<int32_t> propIds) = 0;
+    virtual android::hardware::automotive::vehicle::VhalResult<
+            std::vector<std::unique_ptr<IHalPropConfig>>>
+    getPropConfigs(std::vector<int32_t> propIds) = 0;
 
     /**
      * Get a {@code ISubscriptionClient} that could be used to subscribe/unsubscribe to properties.
