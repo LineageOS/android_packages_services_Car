@@ -42,6 +42,7 @@ using ::android::base::Result;
 using ::android::frameworks::automotive::vhal::IHalPropValue;
 using ::android::frameworks::automotive::vhal::IVhalClient;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
+using ::android::hardware::automotive::vehicle::VhalResult;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
@@ -303,7 +304,7 @@ StatusCode EvsStateControl::invokeGet(VehiclePropValue* pRequestedPropValue) {
     // We are only setting int32Values.
     halPropValue->setInt32Values(pRequestedPropValue->value.int32Values);
 
-    Result<std::unique_ptr<IHalPropValue>> result = mVehicle->getValueSync(*halPropValue);
+    VhalResult<std::unique_ptr<IHalPropValue>> result = mVehicle->getValueSync(*halPropValue);
 
     if (!result.ok()) {
         return static_cast<StatusCode>(result.error().code());

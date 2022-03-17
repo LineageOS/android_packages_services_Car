@@ -43,9 +43,9 @@ using aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using aidl::android::hardware::automotive::vehicle::VehiclePropValue;
-using android::base::Result;
 using android::frameworks::automotive::vhal::IHalPropValue;
 using android::frameworks::automotive::vhal::IVhalClient;
+using android::hardware::automotive::vehicle::VhalResult;
 
 template <typename T>
 using hidl_vec = android::hardware::hidl_vec<T>;
@@ -74,9 +74,7 @@ BindingStatus setSeedVhalProperty(std::shared_ptr<IVhalClient> vehicle,
                                         toInt(VehicleArea::GLOBAL));
     propValue->setByteValues(seed);
 
-    Result<void> result = vehicle->setValueSync(*propValue);
-
-    if (!result.ok()) {
+    if (auto result = vehicle->setValueSync(*propValue); !result.ok()) {
         LOG(ERROR) << "Unable to set the VHAL property: error: " << result.error();
         return BindingStatus::ERROR;
     }
@@ -89,7 +87,7 @@ BindingStatus getSeedVhalProperty(std::shared_ptr<IVhalClient> vehicle,
     auto desired_prop = vehicle->createHalPropValue(
             static_cast<int32_t>(VehicleProperty::STORAGE_ENCRYPTION_BINDING_SEED));
 
-    Result<std::unique_ptr<IHalPropValue>> result = vehicle->getValueSync(*desired_prop);
+    VhalResult<std::unique_ptr<IHalPropValue>> result = vehicle->getValueSync(*desired_prop);
 
     BindingStatus status = BindingStatus::ERROR;
     if (!result.ok()) {
