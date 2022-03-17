@@ -34,10 +34,10 @@ namespace vhal {
 namespace hidl_test {
 
 using ::android::sp;
-using ::android::base::Result;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::automotive::vehicle::toInt;
+using ::android::hardware::automotive::vehicle::VhalResult;
 using ::android::hardware::automotive::vehicle::V2_0::IVehicle;
 using ::android::hardware::automotive::vehicle::V2_0::IVehicleCallback;
 using ::android::hardware::automotive::vehicle::V2_0::StatusCode;
@@ -173,12 +173,12 @@ TEST_F(HidlVhalClientTest, testIsAidl) {
 }
 
 TEST_F(HidlVhalClientTest, testGetValue) {
-    Result<std::unique_ptr<IHalPropValue>> result;
-    Result<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
+    VhalResult<std::unique_ptr<IHalPropValue>> result;
+    VhalResult<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
     auto callback = std::make_shared<HidlVhalClient::GetValueCallbackFunc>(
-            [resultPtr, gotResultPtr](Result<std::unique_ptr<IHalPropValue>> r) {
+            [resultPtr, gotResultPtr](VhalResult<std::unique_ptr<IHalPropValue>> r) {
                 *resultPtr = std::move(r);
                 *gotResultPtr = true;
             });
@@ -199,12 +199,12 @@ TEST_F(HidlVhalClientTest, testGetValue) {
 TEST_F(HidlVhalClientTest, testGetValueError) {
     getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
 
-    Result<std::unique_ptr<IHalPropValue>> result;
-    Result<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
+    VhalResult<std::unique_ptr<IHalPropValue>> result;
+    VhalResult<std::unique_ptr<IHalPropValue>>* resultPtr = &result;
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
     auto callback = std::make_shared<HidlVhalClient::GetValueCallbackFunc>(
-            [resultPtr, gotResultPtr](Result<std::unique_ptr<IHalPropValue>> r) {
+            [resultPtr, gotResultPtr](VhalResult<std::unique_ptr<IHalPropValue>> r) {
                 *resultPtr = std::move(r);
                 *gotResultPtr = true;
             });
@@ -216,12 +216,12 @@ TEST_F(HidlVhalClientTest, testGetValueError) {
 }
 
 TEST_F(HidlVhalClientTest, testSetValue) {
-    Result<void> result;
-    Result<void>* resultPtr = &result;
+    VhalResult<void> result;
+    VhalResult<void>* resultPtr = &result;
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
     auto callback = std::make_shared<HidlVhalClient::SetValueCallbackFunc>(
-            [resultPtr, gotResultPtr](Result<void> r) {
+            [resultPtr, gotResultPtr](VhalResult<void> r) {
                 *resultPtr = std::move(r);
                 *gotResultPtr = true;
             });
@@ -236,12 +236,12 @@ TEST_F(HidlVhalClientTest, testSetValue) {
 TEST_F(HidlVhalClientTest, testSetValueError) {
     getVhal()->setStatus(StatusCode::INTERNAL_ERROR);
 
-    Result<void> result;
-    Result<void>* resultPtr = &result;
+    VhalResult<void> result;
+    VhalResult<void>* resultPtr = &result;
     bool gotResult = false;
     bool* gotResultPtr = &gotResult;
     auto callback = std::make_shared<HidlVhalClient::SetValueCallbackFunc>(
-            [resultPtr, gotResultPtr](Result<void> r) {
+            [resultPtr, gotResultPtr](VhalResult<void> r) {
                 *resultPtr = std::move(r);
                 *gotResultPtr = true;
             });

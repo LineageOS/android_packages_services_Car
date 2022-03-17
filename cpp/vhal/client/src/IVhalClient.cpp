@@ -29,7 +29,7 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
-using ::android::base::Result;
+using ::android::hardware::automotive::vehicle::VhalResult;
 
 std::shared_ptr<IVhalClient> IVhalClient::create() {
     auto client = AidlVhalClient::create();
@@ -57,17 +57,17 @@ std::shared_ptr<IVhalClient> IVhalClient::tryCreateHidlClient(const char* descri
     return HidlVhalClient::tryCreate(descriptor);
 }
 
-Result<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
+VhalResult<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
         const IHalPropValue& requestValue) {
     struct {
         std::mutex lock;
         std::condition_variable cv;
-        Result<std::unique_ptr<IHalPropValue>> result;
+        VhalResult<std::unique_ptr<IHalPropValue>> result;
         bool gotResult = false;
     } s;
 
     auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
-            [&s](Result<std::unique_ptr<IHalPropValue>> r) {
+            [&s](VhalResult<std::unique_ptr<IHalPropValue>> r) {
                 {
                     std::lock_guard<std::mutex> lockGuard(s.lock);
                     s.result = std::move(r);
@@ -84,15 +84,15 @@ Result<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
     return std::move(s.result);
 }
 
-Result<void> IVhalClient::setValueSync(const IHalPropValue& requestValue) {
+VhalResult<void> IVhalClient::setValueSync(const IHalPropValue& requestValue) {
     struct {
         std::mutex lock;
         std::condition_variable cv;
-        Result<void> result;
+        VhalResult<void> result;
         bool gotResult = false;
     } s;
 
-    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](Result<void> r) {
+    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](VhalResult<void> r) {
         {
             std::lock_guard<std::mutex> lockGuard(s.lock);
             s.result = std::move(r);

@@ -37,14 +37,14 @@ namespace vhal {
 
 namespace {
 
-using ::android::base::Error;
 using ::android::base::Join;
-using ::android::base::Result;
 using ::android::base::StringPrintf;
 using ::android::hardware::automotive::vehicle::fromStableLargeParcelable;
 using ::android::hardware::automotive::vehicle::PendingRequestPool;
+using ::android::hardware::automotive::vehicle::StatusError;
 using ::android::hardware::automotive::vehicle::toInt;
 using ::android::hardware::automotive::vehicle::vectorToStableLargeParcelable;
+using ::android::hardware::automotive::vehicle::VhalResult;
 
 using ::aidl::android::hardware::automotive::vehicle::GetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::GetValueRequests;
@@ -57,6 +57,7 @@ using ::aidl::android::hardware::automotive::vehicle::SetValueResult;
 using ::aidl::android::hardware::automotive::vehicle::SetValueResults;
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
+using ::aidl::android::hardware::automotive::vehicle::toString;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfigs;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropError;
@@ -174,25 +175,25 @@ void AidlVhalClient::setValue(const IHalPropValue& requestValue,
     mGetSetValueClient->setValue(requestId, requestValue, callback, mGetSetValueClient);
 }
 
-Result<void> AidlVhalClient::addOnBinderDiedCallback(
+VhalResult<void> AidlVhalClient::addOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     mOnBinderDiedCallbacks.insert(callback);
     return {};
 }
 
-Result<void> AidlVhalClient::removeOnBinderDiedCallback(
+VhalResult<void> AidlVhalClient::removeOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     if (mOnBinderDiedCallbacks.find(callback) == mOnBinderDiedCallbacks.end()) {
-        return Error(toInt(StatusCode::INVALID_ARG))
+        return StatusError(StatusCode::INVALID_ARG)
                 << "The callback to remove was not added before";
     }
     mOnBinderDiedCallbacks.erase(callback);
     return {};
 }
 
-Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
     VehiclePropConfigs configs;
     if (ScopedAStatus status = mHal->getAllPropConfigs(&configs); !status.isOk()) {
         return statusToError<
@@ -202,7 +203,7 @@ Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropC
     return parseVehiclePropConfigs(configs);
 }
 
-Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConfigs(
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConfigs(
         std::vector<int32_t> propIds) {
     VehiclePropConfigs configs;
     if (ScopedAStatus status = mHal->getPropConfigs(propIds, &configs); !status.isOk()) {
@@ -214,11 +215,11 @@ Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConf
     return parseVehiclePropConfigs(configs);
 }
 
-Result<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::parseVehiclePropConfigs(
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::parseVehiclePropConfigs(
         const VehiclePropConfigs& configs) {
     auto parcelableResult = fromStableLargeParcelable(configs);
     if (!parcelableResult.ok()) {
-        return Error(toInt(StatusCode::INTERNAL_ERROR))
+        return StatusError(StatusCode::INTERNAL_ERROR)
                 << "failed to parse VehiclePropConfigs returned from VHAL, error: "
                 << parcelableResult.error().getMessage();
     }
@@ -446,11 +447,12 @@ void GetSetValueClient::onGetValue(const GetValueResult& result) {
     int32_t propId = pendingRequest->propId;
     int32_t areaId = pendingRequest->areaId;
     if (result.status != StatusCode::OK) {
-        int status = toInt(result.status);
-        (*callback)(Error(status) << "failed to get value for propId: " << propId
-                                  << ", areaId: " << areaId << ": status: " << status);
+        StatusCode status = result.status;
+        (*callback)(StatusError(status)
+                    << "failed to get value for propId: " << propId << ", areaId: " << areaId
+                    << ": status: " << toString(status));
     } else if (!result.prop.has_value()) {
-        (*callback)(Error(toInt(StatusCode::INTERNAL_ERROR))
+        (*callback)(StatusError(StatusCode::INTERNAL_ERROR)
                     << "failed to get value for propId: " << propId << ", areaId: " << areaId
                     << ": returns no value");
     } else {
@@ -488,9 +490,9 @@ void GetSetValueClient::onSetValue(const SetValueResult& result) {
     int32_t propId = pendingRequest->propId;
     int32_t areaId = pendingRequest->areaId;
     if (result.status != StatusCode::OK) {
-        int status = toInt(result.status);
-        (*callback)(Error(status) << "failed to set value for propId: " << propId
-                                  << ", areaId: " << areaId << ": status: " << status);
+        (*callback)(StatusError(result.status)
+                    << "failed to set value for propId: " << propId << ", areaId: " << areaId
+                    << ": status: " << toString(result.status));
     } else {
         (*callback)({});
     }
@@ -527,7 +529,7 @@ void GetSetValueClient::onTimeout(const std::unordered_set<int64_t>& requestIds,
         }
 
         (*pendingRequest->callback)(
-                Error(toInt(StatusCode::TRY_AGAIN))
+                StatusError(StatusCode::TRY_AGAIN)
                 << "failed to get/set value for propId: " << pendingRequest->propId
                 << ", areaId: " << pendingRequest->areaId << ": request timed out");
     }
@@ -546,7 +548,7 @@ AidlSubscriptionClient::AidlSubscriptionClient(std::shared_ptr<IVehicle> hal,
     mSubscriptionCallback = SharedRefBase::make<SubscriptionVehicleCallback>(callback);
 }
 
-Result<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOptions>& options) {
+VhalResult<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOptions>& options) {
     std::vector<int32_t> propIds;
     for (const SubscribeOptions& option : options) {
         propIds.push_back(option.propId);
@@ -564,7 +566,7 @@ Result<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOption
     return {};
 }
 
-Result<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
+VhalResult<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
     if (auto status = mHal->unsubscribe(mSubscriptionCallback, propIds); !status.isOk()) {
         return AidlVhalClient::statusToError<
                 void>(status,
