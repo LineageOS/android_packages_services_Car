@@ -49,6 +49,14 @@ std::shared_ptr<IVhalClient> IVhalClient::tryCreate() {
     return HidlVhalClient::tryCreate();
 }
 
+std::shared_ptr<IVhalClient> IVhalClient::tryCreateAidlClient(const char* descriptor) {
+    return AidlVhalClient::tryCreate(descriptor);
+}
+
+std::shared_ptr<IVhalClient> IVhalClient::tryCreateHidlClient(const char* descriptor) {
+    return HidlVhalClient::tryCreate(descriptor);
+}
+
 Result<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
         const IHalPropValue& requestValue) {
     struct {

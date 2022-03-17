@@ -54,6 +54,7 @@ public:
 
     static std::shared_ptr<IVhalClient> create();
     static std::shared_ptr<IVhalClient> tryCreate();
+    static std::shared_ptr<IVhalClient> tryCreate(const char* descriptor);
 
     explicit AidlVhalClient(
             std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicle> hal);
