@@ -1377,6 +1377,34 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSwitchUser_multipleCallsDifferentUser_beforeFirstUserUnlock_legacySwitch()
+            throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
+        mockAmSwitchUser(mGuestUser, true);
+
+        // First switch, using CarUserManager
+        switchUser(mGuestUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        // update current user due to successful user switch
+        mockCurrentUser(mGuestUser);
+
+        assertHalSwitch(mAdminUserId, mGuestUserId);
+        // Unlock event was not sent, so it should not receive postSwitch
+        assertNoPostSwitch();
+
+        // Second switch, using legacy APIs
+        sendUserSwitchingEvent(mGuestUserId, mAdminUserId);
+
+        verify(mUserHal).legacyUserSwitch(
+                isSwitchUserRequest(/* requestId= */ 0, mGuestUserId, mAdminUserId));
+    }
+
+    @Test
     public void testSwitchUser_multipleCallsDifferentUser_beforeHALResponded()
             throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
