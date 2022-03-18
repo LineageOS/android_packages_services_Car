@@ -562,6 +562,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated wear estimate data is unreliable
+     */
+    @Deprecated
     @Override
     public WearEstimate getWearEstimate() {
         mStorageMonitoringPermission.assertGranted();
@@ -574,6 +578,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated wear estimate data is unreliable
+     */
+    @Deprecated
     @Override
     public List<WearEstimateChange> getWearEstimateHistory() {
         mStorageMonitoringPermission.assertGranted();
@@ -584,6 +592,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated use
+     * {@link com.android.car.watchdog.CarWatchdogService#getResourceOveruseStats(int, int)}
+     * instead.
+     * WARNING: The metrics provided are aggregated through time and could include data retrieved
+     * after system boot. Also, the I/O stats are only for the calling package.
+     */
+    @Deprecated
     @Override
     public List<IoStatsEntry> getBootIoStats() {
         mStorageMonitoringPermission.assertGranted();
@@ -594,6 +610,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated use
+     * {@link com.android.car.watchdog.CarWatchdogService#getResourceOveruseStats(int, int)} instead.
+     * WARNING: The I/O stats returned are only for the calling package.
+     */
+    @Deprecated
     @Override
     public List<IoStatsEntry> getAggregateIoStats() {
         mStorageMonitoringPermission.assertGranted();
@@ -605,6 +627,14 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated use
+     * {@link com.android.car.watchdog.CarWatchdogService#getResourceOveruseStats(int, int)}
+     * instead.
+     * WARNING: The metrics provided are aggregated through time and could include data not related
+     * to system shutdown. Also, the I/O stats are only for the calling package.
+     */
+    @Deprecated
     @Override
     public long getShutdownDiskWriteAmount() {
         mStorageMonitoringPermission.assertGranted();
@@ -615,6 +645,12 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated use
+     * {@link com.android.car.watchdog.CarWatchdogService#getResourceOveruseStats(int, int)} instead.
+     * WARNING: The I/O stats returned are only for the calling package.
+     */
+    @Deprecated
     @Override
     public List<IoStats> getIoStatsDeltas() {
         mStorageMonitoringPermission.assertGranted();
@@ -626,6 +662,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         }
     }
 
+    /**
+     * @deprecated {@link IIoStatsListener} is deprecated
+     */
+    @Deprecated
     @Override
     public void registerListener(IIoStatsListener listener) {
         mStorageMonitoringPermission.assertGranted();
@@ -635,6 +675,10 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
         mListeners.register(listener);
     }
 
+    /**
+     * @deprecated {@link IIoStatsListener} is deprecated
+     */
+    @Deprecated
     @Override
     public void unregisterListener(IIoStatsListener listener) {
         mStorageMonitoringPermission.assertGranted();
