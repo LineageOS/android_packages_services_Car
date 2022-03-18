@@ -742,33 +742,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("Android SDK_INT:" + Build.VERSION.SDK_INT);
         writer.println("Car API major:" + Car.API_VERSION_MAJOR_INT);
         writer.println("Car API minor:" + Car.API_VERSION_MINOR_INT);
-        writer.println("CarBuiltin API minor:" + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
-        writer.println("CarServiceBuiltin minor:"
-                + BuiltinPackageDependency.getBuiltinServiceMinorVersion(
-                mCarServiceBuiltinPackageContext));
-        String helperMinorString = "CarServiceHelper minor:";
-        int helperServiceMinorVersion = getHelperServiceBuiltinMinorVersion();
-        if (helperServiceMinorVersion < 0) {
-            writer.println(helperMinorString + "not available yet");
-        } else {
-            writer.println(helperMinorString + helperServiceMinorVersion);
-        }
-    }
-
-    private int getHelperServiceBuiltinMinorVersion() {
-        ICarServiceHelper helper;
-        synchronized (mLock) {
-            helper = mICarServiceHelper;
-        }
-        int helperBuiltinMinor = -1;
-        if (helper != null) {
-            try {
-                helperBuiltinMinor = helper.getServiceHelperBuiltinMinorVersion();
-            } catch (RemoteException e) {
-                Slogf.e(CarLog.TAG_SERVICE, "system server crashed?");
-            }
-        }
-        return helperBuiltinMinor;
+        writer.println("Car Platform minor:" + Car.PLATFORM_VERSION_MINOR_INT);
+        writer.println("CarBuiltin Platform minor:" + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

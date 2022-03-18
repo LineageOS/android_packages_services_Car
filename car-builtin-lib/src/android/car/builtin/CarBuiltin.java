@@ -40,9 +40,9 @@ public final class CarBuiltin {
      * {@link android.os.Build.VERSION#SDK_INT}.
      *
      * <p>It will reset to {@code 0} whenever {@link android.os.Build.VERSION#SDK_INT} is updated
-     * and will increase by {@code 1} if car builtin or car API is changed with the same
-     * {@link android.os.Build.VERSION#SDK_INT}. Client should check this version to use APIs which
-     * were added in a minor only version update.
+     * and will increase by {@code 1} if car builtin or or other car platform part is changed with
+     * the same {@link android.os.Build.VERSION#SDK_INT}. Client should check this version to use
+     * APIs which were added in a minor only version update.
      */
     public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties.getInt(
             PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
