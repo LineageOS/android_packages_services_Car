@@ -38,7 +38,11 @@ import java.util.Objects;
  * behalf of one user of the system, as collected by the kernel.
  *
  * @hide
+ *
+ * @deprecated use {@link android.car.watchdog.CarWatchdogManager} and its related classes
+ * for I/O related tasks.
  */
+@Deprecated
 @SystemApi
 public final class IoStatsEntry implements Parcelable {
 

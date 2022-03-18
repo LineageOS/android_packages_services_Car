@@ -40,7 +40,11 @@ import java.util.StringJoiner;
  * Delta of uid_io stats taken at a sample point.
  *
  * @hide
+ *
+ * @deprecated use {@link android.car.watchdog.CarWatchdogManager} and its related classes
+ * for I/O related tasks.
  */
+@Deprecated
 @SystemApi
 public final class IoStats implements Parcelable {
     public static final Creator<IoStats> CREATOR = new Creator<IoStats>() {
