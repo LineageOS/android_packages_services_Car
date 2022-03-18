@@ -20,19 +20,6 @@ import android.content.Intent;
 
 /** Proxy service for CarServciceImpl */
 public class CarService extends ServiceProxy {
-    /**
-     * Represents a minor version change of car service builtin for the same
-     * {@link android.os.Build.VERSION#SDK_INT}.
-     *
-     * <p>It will reset to {@code 0} whenever {@link android.os.Build.VERSION#SDK_INT} is updated
-     * and will increase by {@code 1} if car service builtin is changed with the same
-     * {@link android.os.Build.VERSION#SDK_INT}. Updatable car service may check this version to
-     * have different behavior access minor revision.
-     *
-     * <p> ADDED FOR FUTURE COMPATIBILITY. DO NOT REMOVE THIS.
-     */
-    public static final int VERSION_MINOR_INT = 0;
-
     public CarService() {
         super(UpdatablePackageDependency.CAR_SERVICE_IMPL_CLASS);
     }

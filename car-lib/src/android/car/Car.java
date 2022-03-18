@@ -35,6 +35,7 @@ import android.car.annotation.ExperimentalFeature;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
+import android.car.builtin.CarBuiltin;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
@@ -122,6 +123,20 @@ public final class Car {
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int API_VERSION_MINOR_INT = 0;
+
+    /**
+     * Represents a minor version change of car platform for the same
+     * {@link android.os.Build.VERSION#SDK_INT}.
+     *
+     * <p>It will reset to {@code 0} whenever {@link android.os.Build.VERSION#SDK_INT} is updated
+     * and will increase by {@code 1} if car builtin or other car platform part is changed with the
+     * same {@link android.os.Build.VERSION#SDK_INT}. Client should check this version to use APIs
+     * which were added in a minor only version update.
+     *
+     * TODO(b/224982783) Remove "hide" in future release.
+     * @hide
+     */
+    public static final int PLATFORM_VERSION_MINOR_INT = CarBuiltin.PLATFORM_VERSION_MINOR_INT;
 
     /**
      * Binder service name of car service registered to service manager.
