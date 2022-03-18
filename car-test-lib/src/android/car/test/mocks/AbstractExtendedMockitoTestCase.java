@@ -34,6 +34,7 @@ import android.app.ActivityManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.Trace;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -203,7 +204,13 @@ public abstract class AbstractExtendedMockitoTestCase {
             Log.v(TAG, "will wait for " + handlerThreads.size() + " HandlerThreads");
         }
         for (int i = 0; i < handlerThreads.size(); i++) {
-            Handler handler = new Handler(handlerThreads.get(i).getLooper());
+            Looper looper = handlerThreads.get(i).getLooper();
+            if (looper == null) {
+                Log.w(TAG, "Ignoring thread " + handlerThreads.get(i)
+                        + ". It doesn't have a looper.");
+                continue;
+            }
+            Handler handler = new Handler(looper);
             SyncRunnable sr = new SyncRunnable(() -> { });
             handler.post(sr);
             syncs.add(sr);

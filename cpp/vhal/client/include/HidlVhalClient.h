@@ -42,11 +42,14 @@ class HidlVhalClient final : public IVhalClient {
 public:
     static std::shared_ptr<IVhalClient> create();
     static std::shared_ptr<IVhalClient> tryCreate();
+    static std::shared_ptr<IVhalClient> tryCreate(const char* descriptor);
 
     explicit HidlVhalClient(
-            ::android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> hal);
+            android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> hal);
 
     ~HidlVhalClient();
+
+    bool isAidlVhal() override;
 
     std::unique_ptr<IHalPropValue> createHalPropValue(int32_t propId) override;
 
@@ -59,18 +62,18 @@ public:
                   std::shared_ptr<HidlVhalClient::SetValueCallbackFunc> callback) override;
 
     // Add the callback that would be called when VHAL binder died.
-    ::android::base::Result<void> addOnBinderDiedCallback(
+    android::hardware::automotive::vehicle::VhalResult<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     // Remove a previously added OnBinderDied callback.
-    ::android::base::Result<void> removeOnBinderDiedCallback(
+    android::hardware::automotive::vehicle::VhalResult<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
-    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs()
-            override;
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    getAllPropConfigs() override;
 
-    ::android::base::Result<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
-            std::vector<int32_t> propIds) override;
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    getPropConfigs(std::vector<int32_t> propIds) override;
 
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
@@ -78,19 +81,19 @@ public:
 private:
     friend class hidl_test::HidlVhalClientTest;
 
-    class DeathRecipient : public ::android::hardware::hidl_death_recipient {
+    class DeathRecipient : public android::hardware::hidl_death_recipient {
     public:
         explicit DeathRecipient(HidlVhalClient* client);
 
         void serviceDied(uint64_t cookie,
-                         const ::android::wp<android::hidl::base::V1_0::IBase>& who) override;
+                         const android::wp<android::hidl::base::V1_0::IBase>& who) override;
 
     private:
         HidlVhalClient* mClient;
     };
 
-    ::android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> mHal;
-    ::android::sp<DeathRecipient> mDeathRecipient;
+    android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> mHal;
+    android::sp<DeathRecipient> mDeathRecipient;
 
     std::mutex mLock;
     std::unordered_set<std::shared_ptr<OnBinderDiedCallbackFunc>> mOnBinderDiedCallbacks
@@ -105,34 +108,33 @@ class HidlSubscriptionClient final : public ISubscriptionClient {
 public:
     ~HidlSubscriptionClient() = default;
 
-    HidlSubscriptionClient(
-            ::android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> hal,
-            std::shared_ptr<ISubscriptionCallback> callback);
+    HidlSubscriptionClient(android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> hal,
+                           std::shared_ptr<ISubscriptionCallback> callback);
 
-    ::android::base::Result<void> subscribe(
-            const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
+    android::hardware::automotive::vehicle::VhalResult<void> subscribe(
+            const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) override;
-    ::android::base::Result<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+    android::hardware::automotive::vehicle::VhalResult<void> unsubscribe(
+            const std::vector<int32_t>& propIds) override;
 
 private:
     std::shared_ptr<ISubscriptionCallback> mCallback;
-    ::android::sp<::android::hardware::automotive::vehicle::V2_0::IVehicle> mHal;
-    ::android::sp<SubscriptionCallback> mVhalCallback;
+    android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> mHal;
+    android::sp<SubscriptionCallback> mVhalCallback;
 };
 
-class SubscriptionCallback :
-      public ::android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
+class SubscriptionCallback : public android::hardware::automotive::vehicle::V2_0::IVehicleCallback {
 public:
     explicit SubscriptionCallback(std::shared_ptr<ISubscriptionCallback> callback);
 
-    ::android::hardware::Return<void> onPropertyEvent(
-            const ::android::hardware::hidl_vec<
+    android::hardware::Return<void> onPropertyEvent(
+            const android::hardware::hidl_vec<
                     hardware::automotive::vehicle::V2_0::VehiclePropValue>& propValues) override;
-    ::android::hardware::Return<void> onPropertySet(
-            const ::android::hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue)
+    android::hardware::Return<void> onPropertySet(
+            const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& propValue)
             override;
-    ::android::hardware::Return<void> onPropertySetError(
-            ::android::hardware::automotive::vehicle::V2_0::StatusCode status, int32_t propId,
+    android::hardware::Return<void> onPropertySetError(
+            android::hardware::automotive::vehicle::V2_0::StatusCode status, int32_t propId,
             int32_t areaId) override;
 
 private:

@@ -67,7 +67,4 @@ interface ICarServiceHelper {
      * service would send back this information.
      */
     void sendInitialUser(in UserHandle user) = 6;
-
-    /** Returns the minor version int of servicehelper builtin. */
-    int getServiceHelperBuiltinMinorVersion() = 7;
 }
