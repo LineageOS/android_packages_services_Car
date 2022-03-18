@@ -3757,6 +3757,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         }).when(mSpiedWatchdogStorage).saveIoUsageStats(any());
         doReturn(mUserPackageSettingsEntries).when(mSpiedWatchdogStorage).getUserPackageSettings();
         doReturn(mIoUsageStatsEntries).when(mSpiedWatchdogStorage).getTodayIoUsageStats();
+        doReturn(List.of()).when(mSpiedWatchdogStorage)
+                .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
         doAnswer(args -> sampleDailyIoUsageSummariesForAWeek(args.getArgument(1),
                 SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER))
                 .when(mSpiedWatchdogStorage)
