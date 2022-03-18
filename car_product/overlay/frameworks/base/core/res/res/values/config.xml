@@ -170,4 +170,8 @@
     <string name="config_notificationAccessConfirmationActivity" translatable="false">
         com.android.car.settings/com.android.car.settings.notifications.NotificationAccessConfirmationActivity
     </string>
+
+    <!-- Determines whether SafetyCenter feature is enabled.
+         SafetyCenter is not yet supported on cars. -->
+    <bool name="config_enableSafetyCenter">false</bool>
 </resources>
