@@ -26,6 +26,7 @@
         <!-- use for CarServiceUnitTest -->
         <permission name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
         <permission name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
+        <permission name="android.permission.LOCATION_BYPASS"/>
         <permission name="android.permission.LOCATION_HARDWARE"/>
         <permission name="android.permission.LOCK_DEVICE"/>
         <permission name="android.permission.MANAGE_USB"/>
