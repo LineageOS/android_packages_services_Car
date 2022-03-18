@@ -250,7 +250,7 @@ VhalResult<void> HidlSubscriptionClient::subscribe(
         hidlOptions.push_back(SubscribeOptions{
                 .propId = option.propId,
                 .sampleRate = option.sampleRate,
-                .flags = SubscribeFlags::UNDEFINED,
+                .flags = SubscribeFlags::EVENTS_FROM_CAR,
         });
     }
     auto result = mHal->subscribe(mVhalCallback, hidlOptions);
