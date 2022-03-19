@@ -65,6 +65,7 @@ java_sdk_library {
     visibility: [
         "//packages/services/Car/car-lib",
         "//packages/services/Car/car-lib-module",
+        "//packages/services/Car/car-test-lib",
         "//packages/services/Car/procfs-inspector/client",
         "//packages/services/Car/service-builtin",
         "//packages/services/Car/service",
