@@ -16,8 +16,13 @@
 
 package com.android.car.user;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockAmStartUserInBackground;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmSwitchUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
+import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLocking;
+import static android.car.test.mocks.AndroidMockitoHelper.mockStopUserWithDelayedLockingThrows;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserSwitchability;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
@@ -584,7 +589,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 mUserPreCreator,
                 mCarUxRestrictionService,
                 mMockedHandler);
-        mockStopUserWithDelayedLockingThrowsIllegalStateException(userId);
+        mockStopUserWithDelayedLockingThrows(userId, new IllegalStateException());
 
         carUserServiceLocal.stopUser(userId, userStopResult);
 

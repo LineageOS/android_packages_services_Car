@@ -16,10 +16,12 @@
 package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -28,6 +30,8 @@ import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
+import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.Visitor;
 import android.content.Context;
@@ -39,12 +43,16 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
 import android.os.Looper;
+import android.os.NewUserRequest;
+import android.os.NewUserResponse;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
 import android.os.UserManager.UserSwitchabilityResult;
 import android.util.Log;
+
+import org.mockito.ArgumentMatcher;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,10 +90,95 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a call to {@link ActivityManagerHelper#startUserInBackground(int)}.
+     *
+     * * <p><b>Note: </b>it must be made inside a
+     *      * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     *      * {@code spyStatic(ActivityManagerHelper.class)}.
+     */
+    public static void mockAmStartUserInBackground(@UserIdInt int userId, boolean result)
+            throws Exception {
+        doReturn(result).when(() -> ActivityManagerHelper.startUserInBackground(userId));
+    }
+
+    /**
+     * Mocks a call to {@link ActivityManagerHelper#stopUserWithDelayedLocking(int, boolean)}.
+     *
+     * * <p><b>Note: </b>it must be made inside a
+     *      * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     *      * {@code spyStatic(ActivityManagerHelper.class)}.
+     */
+    public static void mockStopUserWithDelayedLocking(@UserIdInt int userId, int result)
+            throws Exception {
+        doReturn(result)
+                .when(() -> ActivityManagerHelper.stopUserWithDelayedLocking(
+                        userId, /* force= */ true));
+    }
+
+    /**
+     * Mocks a throwing call to
+     *     {@link ActivityManagerHelper#stopUserWithDelayedLocking(int, boolean)}.
+     *
+     * * <p><b>Note: </b>it must be made inside a
+     *      * {@link com.android.dx.mockito.inline.extended.StaticMockitoSession} built with
+     *      * {@code spyStatic(ActivityManagerHelper.class)}.
+     */
+    public static void mockStopUserWithDelayedLockingThrows(@UserIdInt int userId,
+            Throwable throwable) throws Exception {
+        doThrow(throwable).when(() -> ActivityManagerHelper.stopUserWithDelayedLocking(
+                userId, /* force= */ true));
+    }
+
+    /**
      * Mocks a call to {@link DevicePolicyManager#logoutUser()}.
      */
-    public static void mockDpmLogoutUser(@NonNull DevicePolicyManager dpm, int result) {
+    public static void mockDpmLogoutUser(DevicePolicyManager dpm, int result) {
         when(dpm.logoutUser()).thenReturn(result);
+    }
+
+    /**
+     * Mocks a successful call to {@code UserManager#createUser(NewUserRequest)}
+     */
+    public static void mockUmCreateUser(UserManager um, @Nullable String name, String userType,
+            @UserInfoFlag int flags, UserHandle user) {
+        NewUserResponse response = new NewUserResponse(user, UserManager.USER_OPERATION_SUCCESS);
+        when(um.createUser(isNewUserRequest(name, userType, flags))).thenReturn(response);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#createUser(NewUserRequest)} that returns the given
+     * response.
+     */
+    public static void mockUmCreateUser(UserManager um, @Nullable String name, String userType,
+            @UserInfoFlag int flags, NewUserResponse response) {
+        when(um.createUser(isNewUserRequest(name, userType, flags))).thenReturn(response);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#createUser(NewUserRequest)} that throws the given
+     * runtime exception.
+     */
+    public static void mockUmCreateUser(UserManager um, @Nullable String name, String userType,
+            @UserInfoFlag int flags, RuntimeException e) {
+        when(um.createUser(isNewUserRequest(name, userType, flags))).thenThrow(e);
+    }
+
+    /**
+     * Mocks a successful call to {@code UserManager#createUser(NewUserRequest)}
+     */
+    public static void mockUmCreateGuest(UserManager um, @Nullable String name,
+            @UserIdInt int userId) {
+        NewUserResponse response = new NewUserResponse(UserHandle.of(userId),
+                UserManager.USER_OPERATION_SUCCESS);
+        when(um.createUser(
+                isNewUserRequest(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0)))
+                .thenReturn(response);
+    }
+
+    @NonNull
+    private static NewUserRequest isNewUserRequest(@Nullable String name,
+            @NonNull String userType, @UserInfoFlag int flags) {
+        return argThat(new NewUserRequestMatcher(name, userType, flags));
     }
 
     /**
@@ -405,5 +498,37 @@ public final class AndroidMockitoHelper {
 
     private AndroidMockitoHelper() {
         throw new UnsupportedOperationException("contains only static methods");
+    }
+
+    static final class NewUserRequestMatcher implements
+            ArgumentMatcher<NewUserRequest> {
+
+        private final String mName;
+        private final String mUserType;
+        private final int mFlags;
+
+        NewUserRequestMatcher(String name, String userType, int flags) {
+            mName = name;
+            mUserType = userType;
+            mFlags = flags;
+        }
+
+        @Override
+        public boolean matches(NewUserRequest request) {
+            if (request.isAdmin()
+                    && ((mFlags & UserManagerHelper.FLAG_ADMIN) != UserManagerHelper.FLAG_ADMIN)) {
+                return false;
+            }
+            if (request.isEphemeral() && ((mFlags
+                    & UserManagerHelper.FLAG_EPHEMERAL) != UserManagerHelper.FLAG_EPHEMERAL)) {
+                return false;
+            }
+
+            if (!request.getUserType().equals(mUserType)) return false;
+
+            if (!Objects.equals(request.getName(), mName)) return false;
+
+            return true;
+        }
     }
 }
