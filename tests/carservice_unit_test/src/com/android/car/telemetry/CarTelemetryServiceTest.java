@@ -119,7 +119,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
         when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        when(mDependencies.getPublisherFactory(any(), any(), any(), any()))
+        when(mDependencies.getPublisherFactory(any(), any(), any(), any(), any(), any()))
                 .thenReturn(mPublisherFactory);
 
         mService = new CarTelemetryService(mMockContext, mMockCarPropertyService, mDependencies);
