@@ -708,7 +708,8 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onSendStatsAndConnectivityConfigBtnClick(View view) {
         String luaScript;
         try (InputStream is =
-                getResources().openRawResource(R.raw.telemetry_stats_and_connectivity_script)) {
+                     getResources().openRawResource(
+                             R.raw.telemetry_stats_and_connectivity_script)) {
             byte[] bytes = new byte[is.available()];
             is.read(bytes);
             luaScript = new String(bytes);
@@ -718,6 +719,12 @@ public class CarTelemetryTestFragment extends Fragment {
                             + "reading Lua script from file failed.");
             return;
         }
+        showOutput(
+                "If the config added successfully, emulate power state change by first running:\n"
+                        + "$ adb shell cmd car_service suspend\n"
+                        + "and, after 1 minute pause:\n"
+                        + "$ adb shell cmd car_service resume\n"
+                        + "Repeat this 3 times and then attempt to pull the report.");
         TelemetryProto.MetricsConfig config =
                 METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.toBuilder().setScript(luaScript).build();
         mCarTelemetryManager.addMetricsConfig(

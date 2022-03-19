@@ -43,7 +43,7 @@ public class SessionAnnotation {
     // due to a crash. Populated from sys.boot.reason property.
     public final String bootReason;
 
-    SessionAnnotation(
+    public SessionAnnotation(
             int sessionId,
             @SessionController.SessionControllerState int sessionState,
             long createdAtSinceBootMillis,

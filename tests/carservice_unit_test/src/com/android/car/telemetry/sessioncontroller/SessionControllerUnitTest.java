@@ -16,9 +16,6 @@
 
 package com.android.car.telemetry.sessioncontroller;
 
-import static android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -30,8 +27,10 @@ import static org.mockito.Mockito.when;
 
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.content.Context;
 import android.os.Handler;
+import android.os.RemoteException;
 
 import com.android.car.CarLocalServices;
 import com.android.car.power.CarPowerManagementService;
@@ -60,10 +59,8 @@ public class SessionControllerUnitTest
     private Handler mDirectHandler; // Runs the messages on the current thread immediately
     @Mock
     private CarPowerManagementService mMockCarPowerManagementService;
-    @Mock
-    private CarPowerManager mMockCarPowerManager;
     @Captor
-    private ArgumentCaptor<CarPowerStateListener> mPowerStateListenerCaptor;
+    private ArgumentCaptor<ICarPowerStateListener> mPowerStateListenerCaptor;
 
     private SessionController mSessionController;
 
@@ -105,11 +102,9 @@ public class SessionControllerUnitTest
             runnable.run();
             return true;
         });
-        doReturn(mMockCarPowerManager).when(
-                () -> CarLocalServices.createCarPowerManager(mMockContext));
         mSessionController = new SessionController(mMockContext, mDirectHandler);
-        verify(mMockCarPowerManager).setListener(any(), mPowerStateListenerCaptor.capture());
-        doNothing().when(mMockCarPowerManager).clearListener();
+        verify(mMockCarPowerManagementService).registerInternalListener(
+                mPowerStateListenerCaptor.capture());
     }
 
     @After
@@ -121,10 +116,10 @@ public class SessionControllerUnitTest
 
     @Test
     public void testRegisterCallback_stateChangeTriggersCallback()
-            throws InterruptedException {
+            throws InterruptedException, RemoteException {
         mSessionController.registerCallback(mCallback);
 
-        mPowerStateListenerCaptor.getValue().onStateChanged(CarPowerManager.STATE_ON);
+        mPowerStateListenerCaptor.getValue().onStateChanged(CarPowerManager.STATE_ON, 0);
 
         boolean gotResponse = mCallback.awaitResponse(CALLBACK_TIMEOUT_SEC);
         assertWithMessage("Failed to get the callback method called by SessionController on time")
@@ -136,10 +131,11 @@ public class SessionControllerUnitTest
     }
 
     @Test
-    public void testGetSessionAnnotation_sessionOnSessionOffSequence() throws InterruptedException {
+    public void testGetSessionAnnotation_sessionOnSessionOffSequence()
+            throws InterruptedException, RemoteException {
         mSessionController.registerCallback(mCallback);
 
-        mPowerStateListenerCaptor.getValue().onStateChanged(CarPowerManager.STATE_ON);
+        mPowerStateListenerCaptor.getValue().onStateChanged(CarPowerManager.STATE_ON, 0);
 
         boolean gotResponse = mCallback.awaitResponse(CALLBACK_TIMEOUT_SEC);
 
@@ -158,7 +154,8 @@ public class SessionControllerUnitTest
         assertThat(mSessionController.getSessionAnnotation()).isEqualTo(mCallback.annotation);
 
         // Emulate power state change
-        mPowerStateListenerCaptor.getValue().onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE);
+        mPowerStateListenerCaptor.getValue().onStateChanged(CarPowerManager.STATE_SHUTDOWN_PREPARE,
+                0);
         gotResponse = mCallback.awaitResponse(CALLBACK_TIMEOUT_SEC);
 
         assertWithMessage("Failed to get the callback method called by SessionController on time")
@@ -187,7 +184,7 @@ public class SessionControllerUnitTest
 
     @Test
     public void testInitSession_triggersCallback() {
-        doReturn(CarPowerManager.STATE_ON).when(mMockCarPowerManager).getPowerState();
+        doReturn(CarPowerManager.STATE_ON).when(mMockCarPowerManagementService).getPowerState();
         mSessionController.registerCallback(mCallback);
 
         mSessionController.initSession();

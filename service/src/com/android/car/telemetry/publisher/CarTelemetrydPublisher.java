@@ -30,6 +30,7 @@ import android.os.RemoteException;
 import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -205,4 +206,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     private void onCarDataListReceived(@NonNull CarDataInternal[] dataList) {
         // TODO(b/189142577): implement
     }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 }

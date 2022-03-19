@@ -18,7 +18,7 @@ function indexOf(array, value)
 end
 
 GOOGLE_MAPS_PROCESS_NAME = 'com.google.android.apps.maps'
-MIN_NETSTATS_DATA_RECEIVED = 5
+MIN_NETSTATS_DATA_RECEIVED = 3
 
 function onProcessCpuTime(published_data, state)
     local processNameArray = published_data['process_name']

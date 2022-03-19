@@ -109,8 +109,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
          * Get a PublisherFactory instance.
          */
         public PublisherFactory getPublisherFactory(CarPropertyService carPropertyService,
-                Handler handler, Context context, File publisherDirectory) {
-            return new PublisherFactory(carPropertyService, handler, context, publisherDirectory);
+                Handler handler, Context context, File publisherDirectory,
+                SessionController sessionController, ResultStore resultStore) {
+            return new PublisherFactory(carPropertyService, handler, context, publisherDirectory,
+                    sessionController, resultStore);
         }
     }
 
@@ -141,7 +143,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mResultStore = new ResultStore(rootDirectory);
             mSessionController = new SessionController(mContext, mTelemetryHandler);
             mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
-                    mTelemetryHandler, mContext, publisherDirectory);
+                    mTelemetryHandler, mContext, publisherDirectory, mSessionController,
+                    mResultStore);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
                     mTelemetryThreadTraceLog);
             ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
@@ -221,9 +224,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     /**
      * Send a telemetry metrics config to the service.
+     *
      * @param metricsConfigName name of the MetricsConfig.
-     * @param config the serialized bytes of a MetricsConfig object.
-     * @param callback to send status code to CarTelemetryManager.
+     * @param config            the serialized bytes of a MetricsConfig object.
+     * @param callback          to send status code to CarTelemetryManager.
      */
     @Override
     public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config,
@@ -315,7 +319,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      * {@link ICarTelemetryReportListener}.
      *
      * @param metricsConfigName the unique identifier of a MetricsConfig.
-     * @param listener to receive finished report or error.
+     * @param listener          to receive finished report or error.
      */
     @Override
     public void getFinishedReport(@NonNull String metricsConfigName,
