@@ -18,7 +18,6 @@
 
 #include "android/hardware/automotive/vehicle/2.0/types.h"
 
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <utils/StrongPointer.h>
 
 #include <IVhalClient.h>

@@ -35,6 +35,7 @@
 namespace android {
 namespace automotive {
 namespace security {
+
 namespace {
 
 using ::aidl::android::hardware::automotive::vehicle::StatusCode;
@@ -42,16 +43,16 @@ using ::aidl::android::hardware::automotive::vehicle::SubscribeOptions;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
-using android::frameworks::automotive::vhal::AidlHalPropConfig;
-using android::frameworks::automotive::vhal::AidlHalPropValue;
-using android::frameworks::automotive::vhal::IHalPropConfig;
-using android::frameworks::automotive::vhal::IHalPropValue;
-using android::frameworks::automotive::vhal::ISubscriptionCallback;
-using android::frameworks::automotive::vhal::ISubscriptionClient;
-using android::frameworks::automotive::vhal::IVhalClient;
-using android::hardware::Void;
-using android::hardware::automotive::vehicle::StatusError;
-using android::hardware::automotive::vehicle::VhalResult;
+using ::android::frameworks::automotive::vhal::AidlHalPropConfig;
+using ::android::frameworks::automotive::vhal::AidlHalPropValue;
+using ::android::frameworks::automotive::vhal::IHalPropConfig;
+using ::android::frameworks::automotive::vhal::IHalPropValue;
+using ::android::frameworks::automotive::vhal::ISubscriptionCallback;
+using ::android::frameworks::automotive::vhal::ISubscriptionClient;
+using ::android::frameworks::automotive::vhal::IVhalClient;
+using ::android::hardware::Void;
+using ::android::hardware::automotive::vehicle::StatusError;
+using ::android::hardware::automotive::vehicle::VhalResult;
 
 template <typename T>
 using VhalReturn = android::hardware::Return<T>;

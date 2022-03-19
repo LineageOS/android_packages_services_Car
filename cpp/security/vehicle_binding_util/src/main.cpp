@@ -18,7 +18,6 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/logging.h>
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IServiceManager.h>
 #include <binder/Status.h>
 
@@ -31,12 +30,11 @@
 
 namespace {
 
-using android::defaultServiceManager;
-using android::automotive::security::BindingStatus;
-using android::automotive::security::DefaultCsrng;
-using android::automotive::security::DefaultExecutor;
-using android::frameworks::automotive::vhal::IVhalClient;
-using android::hardware::automotive::vehicle::V2_0::IVehicle;
+using ::android::defaultServiceManager;
+using ::android::automotive::security::BindingStatus;
+using ::android::automotive::security::DefaultCsrng;
+using ::android::automotive::security::DefaultExecutor;
+using ::android::frameworks::automotive::vhal::IVhalClient;
 
 static int printHelp(int argc, char* argv[]);
 static int setBinding(int /*argc*/, char*[] /*argv*/);
