@@ -35,17 +35,18 @@
 namespace android {
 namespace automotive {
 namespace security {
+
 namespace {
 
-using aidl::android::hardware::automotive::vehicle::StatusCode;
-using aidl::android::hardware::automotive::vehicle::VehicleArea;
-using aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
-using aidl::android::hardware::automotive::vehicle::VehicleProperty;
-using aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
-using aidl::android::hardware::automotive::vehicle::VehiclePropValue;
-using android::frameworks::automotive::vhal::IHalPropValue;
-using android::frameworks::automotive::vhal::IVhalClient;
-using android::hardware::automotive::vehicle::VhalResult;
+using ::aidl::android::hardware::automotive::vehicle::StatusCode;
+using ::aidl::android::hardware::automotive::vehicle::VehicleArea;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
+using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
+using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
+using ::android::frameworks::automotive::vhal::IHalPropValue;
+using ::android::frameworks::automotive::vhal::IVhalClient;
+using ::android::hardware::automotive::vehicle::VhalResult;
 
 template <typename T>
 using hidl_vec = android::hardware::hidl_vec<T>;
