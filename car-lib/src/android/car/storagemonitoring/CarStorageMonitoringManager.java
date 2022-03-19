@@ -50,7 +50,11 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
 
     /**
      * Implementers will be notified on every new I/O activity calculated stats.
+     *
+     * @deprecated use {@link android.car.watchdog.CarWatchdogManager} and its related classes
+     * for I/O related tasks.
      */
+    @Deprecated
     public interface IoStatsListener {
 
         /**
@@ -142,7 +146,10 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * Current technology in common automotive usage offers estimates in 10% increments.
      *
      * If either or both indicators are not available, they will be reported as UNKNOWN.
+     *
+     * @deprecated wear estimate data is unreliable
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public WearEstimate getWearEstimate() {
@@ -163,7 +170,10 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * Current technology in common automotive usage offers estimates in 10% increments.
      *
      * If no indicators are available, an empty list will be returned.
+     *
+     * @deprecated wear estimate data is unreliable
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public List<WearEstimateChange> getWearEstimateHistory() {
@@ -183,7 +193,13 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * of the broadcast and the collection of the data.
      *
      * If the information is not available, an empty list will be returned.
+     *
+     * @deprecated use
+     * {@link android.car.watchdog.CarWatchdogManager#getResourceOveruseStats(int, int)} instead.
+     * WARNING: The metrics provided are aggregated through time and could include data retrieved
+     * after system boot. Also, the I/O stats are only for the calling package.
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public List<IoStatsEntry> getBootIoStats() {
@@ -214,7 +230,13 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * may end up being used in calculations.</p>
      *
      * <p>If the information is not available, SHUTDOWN_COST_INFO_MISSING will be returned.</p>s
+     *
+     * @deprecated use
+     * {@link android.car.watchdog.CarWatchdogManager#getResourceOveruseStats(int, int)} instead.
+     * WARNING: The metrics provided are aggregated through time and could include data not related
+     * to system shutdown. Also, the I/O stats are only for the calling package.
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public long getShutdownDiskWriteAmount() {
@@ -232,7 +254,12 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * The samples provided might be as old as the value of the ioStatsRefreshRateSeconds setting.
      *
      * If the information is not available, an empty list will be returned.
+     *
+     * @deprecated use
+     * {@link android.car.watchdog.CarWatchdogManager#getResourceOveruseStats(int, int)} instead.
+     * WARNING: The I/O stats returned are only for the calling package.
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public List<IoStatsEntry> getAggregateIoStats() {
@@ -253,7 +280,12 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * The samples are returned in order from the oldest to the newest.
      *
      * If the information is not available, an empty list will be returned.
+     *
+     * @deprecated use
+     * {@link android.car.watchdog.CarWatchdogManager#getResourceOveruseStats(int, int)} instead.
+     * WARNING: The I/O stats returned are only for the calling package.
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public List<IoStats> getIoStatsDeltas() {
@@ -271,7 +303,17 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * activity. Registered listeners will receive those deltas as they are available.
      *
      * The timing of availability of the deltas is configurable by the OEM.
+     *
+     * @deprecated {@link IIoStatsListener} is deprecated. Use
+     * {@link android.car.watchdog.CarWatchdogManager#getResourceOveruseStats(int, int)} to obtain
+     * I/O usage metrics or
+     * {@link android.car.watchdog.CarWatchdogManager#addResourceOveruseListener(
+     * java.util.concurrent.Executor, int,
+     * android.car.watchdog.CarWatchdogManager.ResourceOveruseListener)} to be alerted when the
+     * package either overuses I/O storage or is about to overuse I/O storage.
+     * WARNING: The I/O stats returned are only for the calling package.
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public void registerListener(IoStatsListener listener) {
@@ -290,7 +332,10 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
 
     /**
      * This method removes a registered listener of I/O stats deltas.
+     *
+     * @deprecated see {@link CarStorageMonitoringManager#registerListener(IoStatsListener)}
      */
+    @Deprecated
     @RequiresPermission(value = Car.PERMISSION_STORAGE_MONITORING)
     @AddedInOrBefore(majorVersion = 33)
     public void unregisterListener(IoStatsListener listener) {
