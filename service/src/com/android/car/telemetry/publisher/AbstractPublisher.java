@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.car.telemetry.TelemetryProto;
 
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 
 import java.util.List;
 
@@ -52,6 +53,13 @@ public abstract class AbstractPublisher {
     AbstractPublisher(@NonNull PublisherFailureListener failureListener) {
         mFailureListener = failureListener;
     }
+
+    /**
+     * Handles driving session update changes. Must be overridden by concrete publisher classes.
+     *
+     * @param annotation Contains annotating information about the state change.
+     */
+    protected abstract void handleSessionStateChange(@NonNull SessionAnnotation annotation);
 
     /**
      * Adds a subscriber that listens for data produced by this publisher.
