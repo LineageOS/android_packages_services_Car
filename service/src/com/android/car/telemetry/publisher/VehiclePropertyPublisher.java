@@ -33,6 +33,7 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
@@ -184,4 +185,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             }
         });
     }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 }

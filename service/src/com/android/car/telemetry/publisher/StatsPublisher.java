@@ -48,6 +48,7 @@ import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.statsconverters.ConfigMetricsReportListConverter;
 import com.android.car.telemetry.publisher.statsconverters.StatsConversionException;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 import com.android.car.telemetry.util.IoUtils;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -730,4 +731,7 @@ public class StatsPublisher extends AbstractPublisher {
                         .setWhat(WTF_OCCURRED_ATOM_MATCHER_ID))
                 .build();
     }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 }

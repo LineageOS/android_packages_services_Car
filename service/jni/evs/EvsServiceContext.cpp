@@ -151,8 +151,7 @@ bool EvsServiceContext::initialize(JNIEnv* env, jobject thiz) {
         return false;
     }
 
-    // TODO(b/223905367): Replace below with non-blocking call
-    AIBinder* binder = ::AServiceManager_waitForService(kEvsManagerServiceName);
+    AIBinder* binder = ::AServiceManager_checkService(kEvsManagerServiceName);
     if (binder == nullptr) {
         LOG(ERROR) << "IEvsEnumerator is not ready yet.";
         return false;
