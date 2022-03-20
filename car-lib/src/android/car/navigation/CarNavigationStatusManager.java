@@ -66,6 +66,11 @@ public final class CarNavigationStatusManager extends CarManagerBase {
      *
      * @throws IllegalStateException if the client is not holding
      *                 {@link android.car.CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION} focus.
+     * @throws IllegalArgumentException if {@code bundle} is null, if it cannot be parsed or if the
+     *                 {@link android.car.cluster.navigation.NavigationState.NavigationStateProto}
+     *                 generated after parsing is not valid. This object is not valid if it contains
+     *                 a {@link android.car.cluster.navigation.NavigationState.Maneuver} where
+     *                 Maneuver#typeV2 is populated but Maneuver#type is not.
      */
     @RequiresPermission(Car.PERMISSION_CAR_NAVIGATION_MANAGER)
     @AddedInOrBefore(majorVersion = 33)
