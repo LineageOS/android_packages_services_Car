@@ -155,6 +155,8 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
+    private static final String PARAM_SKIP_GARAGEMODE = "--skip-garagemode";
+    private static final String PARAM_REBOOT = "--reboot";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
@@ -323,7 +325,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String PARAM_ON_MODE = "on";
     private static final String PARAM_OFF_MODE = "off";
     private static final String PARAM_QUERY_MODE = "query";
-    private static final String PARAM_REBOOT = "reboot";
+    private static final String PARAM_REBOOT_AFTER_GARAGEMODE = "reboot";
     private static final String PARAM_MUTE = "mute";
     private static final String PARAM_UNMUTE = "unmute";
 
@@ -655,8 +657,7 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Define and apply the cts_verifier_on power policy with "
                 + "--enable WIFI,LOCATION,BLUETOOTH");
 
-        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
-                POWER_OFF_SHUTDOWN);
+        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE, PARAM_REBOOT);
         pw.println("\t  Powers off the car.");
 
         pw.printf("\t%s <CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
@@ -1998,13 +1999,21 @@ final class CarShellCommand extends ShellCommand {
             case PARAM_QUERY_MODE:
                 mGarageModeService.dump(writer);
                 break;
-            case PARAM_REBOOT:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(true);
-                writer.println("Entering Garage Mode. Will reboot when it completes.");
+            case PARAM_REBOOT_AFTER_GARAGEMODE:
+                writer.printf("\"cmd car_service garagemode reboot\" is deprecated. Use "
+                        + "\"cmd car_service power-off --reboot\" next time\n");
+                try {
+                    mCarPowerManagementService.powerOffFromCommand(/*skipGarageMode= */ false,
+                            /* reboot= */ true);
+                    writer.println("Entering Garage Mode. Will reboot when it completes.");
+                } catch (IllegalStateException e) {
+                    writer.printf("Entering Garage Mode failed: %s\n", e.getMessage());
+                }
                 break;
             default:
                 writer.printf("Unknown value: %s. Valid argument: %s|%s|%s|%s\n",
-                        arg, PARAM_ON_MODE, PARAM_OFF_MODE, PARAM_QUERY_MODE, PARAM_REBOOT);
+                        arg, PARAM_ON_MODE, PARAM_OFF_MODE, PARAM_QUERY_MODE,
+                        PARAM_REBOOT_AFTER_GARAGEMODE);
         }
     }
 
@@ -2152,22 +2161,23 @@ final class CarShellCommand extends ShellCommand {
     private void powerOff(String[] args, IndentingPrintWriter writer) {
         int index = 1;
         boolean skipGarageMode = false;
-        boolean shutdown = false;
+        boolean reboot = false;
         while (index < args.length) {
             switch (args[index]) {
-                case POWER_OFF_SKIP_GARAGEMODE:
+                case PARAM_SKIP_GARAGEMODE:
                     skipGarageMode = true;
                     break;
-                case POWER_OFF_SHUTDOWN:
-                    shutdown = true;
+                case PARAM_REBOOT:
+                    reboot = true;
                     break;
                 default:
-                    writer.printf("Not supported option: %s\n", args[index]);
+                    writer.printf("Invalid usage: %s [%s] [%s]\n", COMMAND_POWER_OFF,
+                            PARAM_SKIP_GARAGEMODE, PARAM_REBOOT);
                     return;
             }
             index++;
         }
-        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, shutdown);
+        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, reboot);
     }
 
     /**
