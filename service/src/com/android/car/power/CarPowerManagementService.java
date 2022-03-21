@@ -2282,14 +2282,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     /**
      * Powers off the device.
      */
-    public void powerOffFromCommand(boolean skipGarageMode) {
+    public void powerOffFromCommand(boolean skipGarageMode, boolean reboot) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        Slogf.i(TAG, "Powering off %s Garage Mode", skipGarageMode ? "with" : "without");
+        Slogf.i(TAG, "%s %s Garage Mode", reboot ? "Rebooting" : "Powering off",
+                skipGarageMode ? "with" : "without");
         int param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
                 : VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
         PowerState state = new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, param);
         synchronized (mLock) {
-            mRebootAfterGarageMode = false;
+            mRebootAfterGarageMode = reboot;
             mPendingPowerStates.addFirst(new CpmsState(state));
             mLock.notify();
         }
