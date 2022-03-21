@@ -287,10 +287,12 @@ void WatchdogProcessService::setEnabled(bool isEnabled) {
     if (!mIsEnabled) {
         return;
     }
-    mVhalHeartBeat.eventTime = uptimeMillis();
-    std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMs + kHealthCheckDelayMs;
-    mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
-                                       Message(MSG_VHAL_HEALTH_CHECK));
+    if (mNotSupportedVhalProperties.count(VehicleProperty::VHAL_HEARTBEAT) == 0) {
+        mVhalHeartBeat.eventTime = uptimeMillis();
+        std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMs + kHealthCheckDelayMs;
+        mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
+                                           Message(MSG_VHAL_HEALTH_CHECK));
+    }
     for (const auto& timeout : kTimeouts) {
         mHandlerLooper->removeMessages(mMessageHandler, static_cast<int>(timeout));
         startHealthCheckingLocked(timeout);
