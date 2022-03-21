@@ -169,6 +169,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String PARAM_REAL = "--real";
     private static final String PARAM_AUTO = "--auto";
     private static final String PARAM_SKIP_GARAGEMODE = "--skip-garagemode";
+    private static final String PARAM_REBOOT = "--reboot";
     private static final String PARAM_WAKEUP_AFTER = "--wakeup-after";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
@@ -349,7 +350,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String PARAM_ON_MODE = "on";
     private static final String PARAM_OFF_MODE = "off";
     private static final String PARAM_QUERY_MODE = "query";
-    private static final String PARAM_REBOOT = "reboot";
+    private static final String PARAM_REBOOT_AFTER_GARAGEMODE = "reboot";
     private static final String PARAM_MUTE = "mute";
     private static final String PARAM_UNMUTE = "unmute";
 
@@ -694,7 +695,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Define and apply the cts_verifier_on power policy with "
                 + "--enable WIFI,LOCATION,BLUETOOTH");
 
-        pw.printf("\t%s [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE);
+        pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE, PARAM_REBOOT);
         pw.println("\t  Powers off the car.");
 
         pw.printf("\t%s <CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
@@ -2202,12 +2203,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case PARAM_QUERY_MODE:
                 mGarageModeService.dump(writer);
                 break;
-            case PARAM_REBOOT:
+            case PARAM_REBOOT_AFTER_GARAGEMODE:
+                writer.printf("\"cmd car_service garagemode reboot\" is deprecated. Use "
+                        + "\"cmd car_service power-off --reboot\" next time");
                 try {
-                    mCarPowerManagementService.simulateSuspendAndMaybeReboot(
-                            PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
-                            /* shouldReboot= */ true, /*skipGarageMode= */ false,
-                            CarPowerManagementService.NO_WAKEUP_BY_TIMER);
+                    mCarPowerManagementService.powerOffFromCommand(/*skipGarageMode= */ false,
+                            /* reboot= */ true);
                     writer.println("Entering Garage Mode. Will reboot when it completes.");
                 } catch (IllegalStateException e) {
                     writer.printf("Entering Garage Mode failed: %s\n", e.getMessage());
@@ -2215,7 +2216,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             default:
                 writer.printf("Unknown value: %s. Valid argument: %s|%s|%s|%s\n",
-                        arg, PARAM_ON_MODE, PARAM_OFF_MODE, PARAM_QUERY_MODE, PARAM_REBOOT);
+                        arg, PARAM_ON_MODE, PARAM_OFF_MODE, PARAM_QUERY_MODE,
+                        PARAM_REBOOT_AFTER_GARAGEMODE);
         }
     }
 
@@ -2362,15 +2364,24 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private void powerOff(String[] args, IndentingPrintWriter writer) {
         boolean skipGarageMode = false;
-        if (args.length > 2
-                || (args.length == 2 && !args[1].equals(PARAM_SKIP_GARAGEMODE))) {
-            writer.printf("Invalid usage: %s [%s]\n", COMMAND_POWER_OFF, PARAM_SKIP_GARAGEMODE);
-            return;
+        boolean reboot = false;
+        int index = 1;
+        while (index < args.length) {
+            switch (args[index]) {
+                case PARAM_SKIP_GARAGEMODE:
+                    skipGarageMode = true;
+                    break;
+                case PARAM_REBOOT:
+                    reboot = true;
+                    break;
+                default:
+                    writer.printf("Invalid usage: %s [%s] [%s]\n", COMMAND_POWER_OFF,
+                            PARAM_SKIP_GARAGEMODE, PARAM_REBOOT);
+                    return;
+            }
+            index++;
         }
-        if (args.length == 2) {
-            skipGarageMode = true;
-        }
-        mCarPowerManagementService.powerOffFromCommand(skipGarageMode);
+        mCarPowerManagementService.powerOffFromCommand(skipGarageMode, reboot);
     }
 
     /**
