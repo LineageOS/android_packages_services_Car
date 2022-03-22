@@ -191,13 +191,9 @@ public class ConnectivityPublisherTest {
         if (savedResult.keySet().size() != 2) {
             return false;
         }
-        PersistableBundle annotationKey = savedResult.getPersistableBundle(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT);
-        if (annotationKey == null) {
-            return false;
-        }
-        return annotationKey.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
-                && annotationKey.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
+
+        return savedResult.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
+                && savedResult.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
                 == expectedSessionId;
     }
 
@@ -328,11 +324,7 @@ public class ConnectivityPublisherTest {
         assertThat(mDataSubscriberWifiOemManaged.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifiOemManaged.get(0);
 
-        PersistableBundle annotationPushed = result.getPersistableBundle(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT);
-        assertThat(annotationPushed).isNotNull();
-        assertThat(annotationPushed.getInt(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
+        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
         assertThat(result.getInt("size")).isEqualTo(2);
         assertThat(result.getIntArray("uid")).asList().containsExactly(UID_2, UID_3);
         assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_NONE, TAG_2);
@@ -361,11 +353,7 @@ public class ConnectivityPublisherTest {
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
-        PersistableBundle annotationPushed = result.getPersistableBundle(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT);
-        assertThat(annotationPushed).isNotNull();
-        assertThat(annotationPushed.getInt(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
+        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
         // Matches only UID_1.
         assertThat(result.getInt("size")).isEqualTo(1);
         assertThat(result.getIntArray("uid")).asList().containsExactly(UID_1);

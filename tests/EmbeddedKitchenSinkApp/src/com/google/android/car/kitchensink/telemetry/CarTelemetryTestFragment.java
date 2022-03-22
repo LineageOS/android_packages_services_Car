@@ -26,6 +26,7 @@ import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.W
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.RawRes;
 import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.TelemetryProto;
@@ -46,8 +47,14 @@ import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executor;
@@ -366,6 +373,20 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String WIFI_TOP_CONSUMERS_CONFIG_NAME =
             METRICS_CONFIG_WIFI_TOP_CONSUMERS.getName();
 
+    // This config uses the script "R.raw.telemetry_driving_sessions_script".
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_DRIVING_SESSIONS =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("wifi_stats_with_driving_sessions")
+                    .setVersion(1)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onWifiStatsForDrivingSessions")
+                                    .setPublisher(WIFI_NETSTATS_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final String WIFI_STATS_DRIVING_SESSIONS_CONFIG_NAME =
+            METRICS_CONFIG_DRIVING_SESSIONS.getName();
+
     /**
      * PROCESS_CPU_TIME + PROCESS_MEMORY + WIFI_NETSTATS section. Reuses the same publisher
      * configuration that were defined above for PROCESS_CPU_TIME, PROCESS_MEMORY, and
@@ -504,6 +525,19 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveStatsAndConnectivityConfigBtnClick);
         view.findViewById(R.id.get_stats_and_connectivity_report)
                 .setOnClickListener(this::onGetStatsAndConnectivityReportBtnClick);
+        /** Driving sessions section */
+        view.findViewById(R.id.send_driving_sessions_config)
+                .setOnClickListener(this::onSendDrivingSessionsConfigBtnClick);
+        view.findViewById(R.id.download_data)
+                .setOnClickListener(this::onDownloadDataBtnClick);
+        view.findViewById(R.id.emulate_suspend_to_RAM)
+                .setOnClickListener(this::onEmulateSuspendToRAMBtnClick);
+        view.findViewById(R.id.emulate_reboot)
+                .setOnClickListener(this::onEmulateRebootBtnClick);
+        view.findViewById(R.id.remove_driving_sessions_config)
+                .setOnClickListener(this::onRemoveDrivingSessionsConfigBtnClick);
+        view.findViewById(R.id.get_driving_sessions_report)
+                .setOnClickListener(this::onGetDrivingSessionsReportBtnClick);
         /** Print mem info button */
         view.findViewById(R.id.print_mem_info_btn).setOnClickListener(this::onPrintMemInfoBtnClick);
         return view;
@@ -686,7 +720,8 @@ public class CarTelemetryTestFragment extends Fragment {
                 WIFI_TOP_CONSUMERS_CONFIG_NAME,
                 METRICS_CONFIG_WIFI_TOP_CONSUMERS
                         .toBuilder()
-                        .setScript(readTelemetryStatsAndConnectivityScript())
+                        .setScript(
+                                readTelemetryScript(R.raw.telemetry_stats_and_connectivity_script))
                         .build()
                         .toByteArray(),
                 mExecutor,
@@ -704,7 +739,7 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onSendStatsAndConnectivityConfigBtnClick(View view) {
-        String luaScript = readTelemetryStatsAndConnectivityScript();
+        String luaScript = readTelemetryScript(R.raw.telemetry_stats_and_connectivity_script);
         showOutput(
                 "If the config added successfully, emulate power state change by first running:\n"
                         + "$ adb shell cmd car_service suspend\n"
@@ -720,16 +755,15 @@ public class CarTelemetryTestFragment extends Fragment {
                 mAddMetricsConfigCallback);
     }
 
-    private String readTelemetryStatsAndConnectivityScript() {
+    private String readTelemetryScript(@RawRes int fileResourceId) {
         try (InputStream is =
-                getResources().openRawResource(R.raw.telemetry_stats_and_connectivity_script)) {
+                     getResources().openRawResource(fileResourceId)) {
             byte[] bytes = new byte[is.available()];
             is.read(bytes);
             return new String(bytes);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "Unable to send MetricsConfig that combines Memory and CPU atoms, because "
-                            + "reading Lua script from file failed.");
+                    "Unable to send MetricsConfig, because reading Lua script from file failed.");
         }
     }
 
@@ -741,6 +775,129 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onGetStatsAndConnectivityReportBtnClick(View view) {
         mCarTelemetryManager.getFinishedReport(
                 STATS_AND_CONNECTIVITY_CONFIG_NAME, mExecutor, mListener);
+    }
+
+    private void onSendDrivingSessionsConfigBtnClick(View view) {
+        String luaScript = readTelemetryScript(R.raw.telemetry_driving_sessions_script);
+        showOutput(
+                "If the config added successfully, please induce three driving sessions\n"
+                        + "by using both Suspend-to-RAM and Reboot buttons and then check "
+                        + "generated report\n"
+                        + "Suggested sequence: \n"
+                        + "1) Load new script\n"
+                        + "2) Click DOWNLOAD DATA button and note the size of the file downloaded"
+                        + ".\n"
+                        + "3) Click on SUSPEND TO RAM to complete the 1st driving session. The "
+                        + "app should reappear after a brief break.\n"
+                        + "4) Click DOWNLOAD DATA to download the same file the 2nd time.\n"
+                        + "5) Click on REBOOT button to complete the 2nd driving session and test"
+                        + " preserving of session data on disk at shutdown.\n"
+                        + "6) After the reboot is complete, bring up the Kitchensink app and "
+                        + "telemetry screen again to continue the test.\n"
+                        + "7) Click DOWNLOAD DATA to download the same file the 3rd time.\n"
+                        + "8) Click on SUSPEND TO RAM to complete the 3rd driving session.\n"
+                        + "9) After the screen and the app are brought back up, click on GET "
+                        + "REPORT.\n"
+                        + "10) The report requires 3 driving sessions to be generated.\n"
+                        + "11) In the report, there will be three separate entries that show "
+                        + "total traffic for kitchen sink app.\n"
+                        + "12) Each entry corresponds to a driving session.\n"
+                        + "13) Each entry should show the number of bytes transferred at least "
+                        + "equal to the size of the file downloaded each of the 3 times.\n"
+        );
+        TelemetryProto.MetricsConfig config =
+                METRICS_CONFIG_DRIVING_SESSIONS.toBuilder().setScript(luaScript).build();
+        mCarTelemetryManager.addMetricsConfig(
+                WIFI_STATS_DRIVING_SESSIONS_CONFIG_NAME,
+                config.toByteArray(),
+                mExecutor,
+                mAddMetricsConfigCallback);
+    }
+
+    private void onDownloadDataBtnClick(View view) {
+        showOutput("Downloading data using curl...");
+
+        // First, create a directory where the file will be downloaded.
+        File tempDirectory;
+        try {
+            tempDirectory = Files.createTempDirectory(mActivity.getFilesDir().toPath(),
+                    "downloadDir").toFile();
+        } catch (IOException e) {
+            showOutput(e.toString());
+            return;
+        }
+
+        boolean status = runCommand(tempDirectory, "curl", "-O", "-L",
+                "https://yts.devicecertification.youtube/yts_server.zip");
+        Path filePath = Paths.get(tempDirectory.getAbsolutePath(), "yts_server.zip");
+        if (status && Files.exists(filePath)) {
+            try {
+                showOutput("Successfully downloaded a file with size " + Files.size(filePath)
+                        + " bytes.");
+            } catch (IOException e) {
+                showOutput(
+                        "Successfully downloaded a file but exception occurred: " + e.toString());
+            }
+        }
+
+        // clean up by removing the temporary download directory with all its contents.
+        tempDirectory.delete();
+    }
+
+    private boolean runCommand(@Nullable File currentDirectory, String... command) {
+        Process p = null;
+        BufferedReader is;
+        StringBuffer out = new StringBuffer();
+        boolean success = false;
+        try {
+            ProcessBuilder processBuilder = new ProcessBuilder(command);
+            processBuilder.redirectErrorStream(true);
+            if (currentDirectory != null) {
+                processBuilder.directory(currentDirectory);
+            }
+            p = processBuilder.start();
+            is = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            String line;
+
+            while ((line = is.readLine()) != null) {
+                out.append(line);
+                out.append(System.lineSeparator());
+            }
+            p.waitFor();
+            is.close();
+        } catch (Exception e) {
+            showOutput(e.toString());
+        } finally {
+            if (p != null) {
+                p.destroy();
+            }
+        }
+        if (p != null) {
+            int processExitValue = p.exitValue();
+            if (processExitValue == 0) {
+                showOutput(out.toString().trim());
+                success = true;
+            }
+        }
+        return success;
+    }
+
+    private void onEmulateSuspendToRAMBtnClick(View view) {
+        runCommand(null, "cmd", "car_service", "suspend", "--simulate", "--wakeup-after", "3");
+    }
+
+    private void onEmulateRebootBtnClick(View view) {
+        runCommand(null, "cmd", "car_service", "power-off", "--reboot");
+    }
+
+    private void onRemoveDrivingSessionsConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for stats data & connectivity data...");
+        mCarTelemetryManager.removeMetricsConfig(WIFI_STATS_DRIVING_SESSIONS_CONFIG_NAME);
+    }
+
+    private void onGetDrivingSessionsReportBtnClick(View view) {
+        mCarTelemetryManager.getFinishedReport(
+                WIFI_STATS_DRIVING_SESSIONS_CONFIG_NAME, mExecutor, mListener);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */
