@@ -242,6 +242,8 @@
                asap - the service might be bound when user is not fully loaded, be careful with
                       this value, the service also needs to have directBootAware flag set to true
                userUnlocked - start service when user unlocked the device
+               userPostUnlocked - start service later after user unlocked. This is used when the
+                                  service is not urgent and can wait to start.
                The default value is 'userUnlocked'
 
          If the service bound/started for foreground user it will be unbound/stopped when user
