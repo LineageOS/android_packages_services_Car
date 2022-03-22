@@ -363,13 +363,13 @@
          1 - always play
          2 - retain per source, play based on last remembered playback state for the new source
          3 - retain previous state, play based on previous source's playback state -->
-    <integer name="config_mediaSourceChangedAutoplay">2</integer>
+    <integer name="config_mediaSourceChangedAutoplay">0</integer>
     <!-- Configuration to enable media center to autoplay on boot -->
     <integer name="config_mediaBootAutoplay">2</integer>
     <!-- Setting this flag to true allows for browsing a different source than the
          one that is currently playing audio. By default, there is only one active
          source in the car, for both playback and browse. -->
-    <bool name="config_mediaSourceIndependentPlayback">false</bool>
+    <bool name="config_mediaSourceIndependentPlayback">true</bool>
 
     <!--
         Specifies optional features that can be enabled by this image. Note that vhal can disable
