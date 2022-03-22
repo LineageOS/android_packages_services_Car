@@ -103,6 +103,15 @@ public final class CarUserManager extends CarManagerBase {
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 
     /**
+     * {@link UserLifecycleEvent} called after a user is starting, for components to perform
+     * non-urgent tasks for user starting.
+     *
+     * @hide
+     */
+    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_STARTING =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_STARTING;
+
+    /**
      * {@link UserLifecycleEvent} called when switching to a different foreground user, for
      * components that have special behavior for whichever user is currently in the foreground.
      *
@@ -118,6 +127,15 @@ public final class CarUserManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
+    /**
+     * {@link UserLifecycleEvent} called after switching to a different foreground user, for
+     * components to perform non-urgent tasks for user switching.
+     *
+     * @hide
+     */
+    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING;
 
     /**
      * {@link UserLifecycleEvent} called when an existing user is in the process of being unlocked.
@@ -146,6 +164,15 @@ public final class CarUserManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
+
+    /**
+     * {@link UserLifecycleEvent} called after an existing user is unlocked for components to
+     * perform non-urgent tasks for user unlocked.
+     *
+     * @hide
+     */
+    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 
     /**
      * {@link UserLifecycleEvent} called when an existing user is stopping, for components to
