@@ -18,6 +18,7 @@ package com.android.car.telemetry.sessioncontroller;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.content.Context;
@@ -27,6 +28,7 @@ import android.os.SystemClock;
 import android.os.SystemProperties;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.power.CarPowerManagementService;
 
 import java.lang.annotation.Retention;
@@ -98,7 +100,13 @@ public class SessionController {
         mContext = context;
         mTelemetryHandler = telemetryHandler;
         mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
-        mCarPowerManagementService.registerInternalListener(mCarPowerStateListener);
+        if (mCarPowerManagementService != null) {
+            mCarPowerManagementService.registerInternalListener(mCarPowerStateListener);
+        } else {
+            Slogf.e(CarLog.TAG_TELEMETRY,
+                    "CarPowerManagementService cannot be null. SessionController was not properly"
+                            + " initialized.");
+        }
     }
 
     private void onCarPowerStateChanged(int state) {
