@@ -345,14 +345,6 @@ public class CarTelemetryTestFragment extends Fragment {
                     .build();
     private static final String WTF_OCCURRED_CONFIG_NAME = METRICS_CONFIG_WTF_OCCURRED_V1.getName();
 
-    /** Wifi Netstats */
-    private static final String LUA_SCRIPT_ON_WIFI_NETSTATS =
-            new StringBuilder()
-                    .append("function onWifiNetstats(published_data, state)\n")
-                    .append("    on_script_finished(published_data)\n")
-                    .append("end\n")
-                    .toString();
-
     private static final TelemetryProto.Publisher WIFI_NETSTATS_PUBLISHER =
             TelemetryProto.Publisher.newBuilder()
                     .setConnectivity(
@@ -360,18 +352,19 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setTransport(ConnectivityPublisher.Transport.TRANSPORT_WIFI)
                                     .setOemType(ConnectivityPublisher.OemType.OEM_NONE))
                     .build();
-    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_WIFI_NETSTATS =
+    // This config uses the script "R.raw.telemetry_stats_and_connectivity_script".
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_WIFI_TOP_CONSUMERS =
             TelemetryProto.MetricsConfig.newBuilder()
-                    .setName("wifi_netstats_config")
+                    .setName("wifi_top_consumers")
                     .setVersion(1)
-                    .setScript(LUA_SCRIPT_ON_WIFI_NETSTATS)
                     .addSubscribers(
                             TelemetryProto.Subscriber.newBuilder()
-                                    .setHandler("onWifiNetstats")
+                                    .setHandler("onWifiNetstatsForTopConsumers")
                                     .setPublisher(WIFI_NETSTATS_PUBLISHER)
                                     .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
-    private static final String WIFI_NETSTATS_CONFIG_NAME = METRICS_CONFIG_WIFI_NETSTATS.getName();
+    private static final String WIFI_TOP_CONSUMERS_CONFIG_NAME =
+            METRICS_CONFIG_WIFI_TOP_CONSUMERS.getName();
 
     /**
      * PROCESS_CPU_TIME + PROCESS_MEMORY + WIFI_NETSTATS section. Reuses the same publisher
@@ -690,35 +683,28 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private void onSendWifiNetstatsConfigBtnClick(View view) {
         mCarTelemetryManager.addMetricsConfig(
-                WIFI_NETSTATS_CONFIG_NAME,
-                METRICS_CONFIG_WIFI_NETSTATS.toByteArray(),
+                WIFI_TOP_CONSUMERS_CONFIG_NAME,
+                METRICS_CONFIG_WIFI_TOP_CONSUMERS
+                        .toBuilder()
+                        .setScript(readTelemetryStatsAndConnectivityScript())
+                        .build()
+                        .toByteArray(),
                 mExecutor,
                 mAddMetricsConfigCallback);
     }
 
     private void onRemoveWifiNetstatsConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for wifi netstats...");
-        mCarTelemetryManager.removeMetricsConfig(WIFI_NETSTATS_CONFIG_NAME);
+        mCarTelemetryManager.removeMetricsConfig(WIFI_TOP_CONSUMERS_CONFIG_NAME);
     }
 
     private void onGetWifiNetstatsReportBtnClick(View view) {
-        mCarTelemetryManager.getFinishedReport(WIFI_NETSTATS_CONFIG_NAME, mExecutor, mListener);
+        mCarTelemetryManager.getFinishedReport(
+                WIFI_TOP_CONSUMERS_CONFIG_NAME, mExecutor, mListener);
     }
 
     private void onSendStatsAndConnectivityConfigBtnClick(View view) {
-        String luaScript;
-        try (InputStream is =
-                     getResources().openRawResource(
-                             R.raw.telemetry_stats_and_connectivity_script)) {
-            byte[] bytes = new byte[is.available()];
-            is.read(bytes);
-            luaScript = new String(bytes);
-        } catch (IOException e) {
-            showOutput(
-                    "Unable to send MetricsConfig that combines Memory and CPU atoms, because "
-                            + "reading Lua script from file failed.");
-            return;
-        }
+        String luaScript = readTelemetryStatsAndConnectivityScript();
         showOutput(
                 "If the config added successfully, emulate power state change by first running:\n"
                         + "$ adb shell cmd car_service suspend\n"
@@ -732,6 +718,19 @@ public class CarTelemetryTestFragment extends Fragment {
                 config.toByteArray(),
                 mExecutor,
                 mAddMetricsConfigCallback);
+    }
+
+    private String readTelemetryStatsAndConnectivityScript() {
+        try (InputStream is =
+                getResources().openRawResource(R.raw.telemetry_stats_and_connectivity_script)) {
+            byte[] bytes = new byte[is.available()];
+            is.read(bytes);
+            return new String(bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(
+                    "Unable to send MetricsConfig that combines Memory and CPU atoms, because "
+                            + "reading Lua script from file failed.");
+        }
     }
 
     private void onRemoveStatsAndConnectivityConfigBtnClick(View view) {
