@@ -375,8 +375,7 @@ public class BluetoothConnectionRetryManager {
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
         mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
 
-        mUserContext.registerReceiver(mBluetoothBroadcastReceiver, filter,
-                Context.RECEIVER_NOT_EXPORTED);
+        mUserContext.registerReceiver(mBluetoothBroadcastReceiver, filter);
     }
 
     /**
