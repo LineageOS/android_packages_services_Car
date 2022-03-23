@@ -300,8 +300,7 @@ public final class BluetoothDeviceManager {
 
         load();
 
-        mUserContext.registerReceiver(mBluetoothBroadcastReceiver, filter,
-                Context.RECEIVER_NOT_EXPORTED);
+        mUserContext.registerReceiver(mBluetoothBroadcastReceiver, filter);
     }
 
     /**
