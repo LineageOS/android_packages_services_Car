@@ -223,7 +223,7 @@ public class MapMceTestFragment extends Fragment {
     void launchDevicePicker() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevicePicker.ACTION_DEVICE_SELECTED);
-        getContext().registerReceiver(mPickerReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        getContext().registerReceiver(mPickerReceiver, filter);
 
         Intent intent = new Intent(BluetoothDevicePicker.ACTION_LAUNCH);
         intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
@@ -271,9 +271,11 @@ public class MapMceTestFragment extends Fragment {
         intentFilter.addAction(ACTION_MESSAGE_SENT_SUCCESSFULLY);
         intentFilter.addAction(ACTION_MESSAGE_DELIVERED_SUCCESSFULLY);
         intentFilter.addAction(MAP_CLIENT_ACTION_MESSAGE_RECEIVED);
-        intentFilter.addAction(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
         getContext().registerReceiver(mTransmissionStatusReceiver, intentFilter,
                 Context.RECEIVER_NOT_EXPORTED);
+
+        intentFilter = new IntentFilter(BluetoothMapClient.ACTION_CONNECTION_STATE_CHANGED);
+        getContext().registerReceiver(mTransmissionStatusReceiver, intentFilter);
     }
 
     private void sendNewMsgOnClick(int msgType) {
