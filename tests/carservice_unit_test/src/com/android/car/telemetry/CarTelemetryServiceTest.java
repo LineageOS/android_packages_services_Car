@@ -89,6 +89,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     @Mock private SystemStateInterface mMockSystemStateInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarTelemetryService.Dependencies mDependencies;
+    @Mock private UidPackageMapper mMockUidMapper;
     @Mock private PublisherFactory mPublisherFactory;
     @Mock private SystemMonitor mMockSystemMonitor;
     @Mock private ResultReceiver mMockAddMetricsConfigCallback;
@@ -119,7 +120,8 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
         when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        when(mDependencies.getPublisherFactory(any(), any(), any(), any(), any(), any()))
+        when(mDependencies.getUidPackageMapper(any(), any())).thenReturn(mMockUidMapper);
+        when(mDependencies.getPublisherFactory(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(mPublisherFactory);
 
         mService = new CarTelemetryService(mMockContext, mMockCarPropertyService, mDependencies);
