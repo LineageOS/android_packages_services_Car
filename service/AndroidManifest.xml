@@ -373,7 +373,7 @@
     <!-- Allows an application to use car's telemetry service.
          <p>Protection level: signature|privileged
     -->
-    <permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE"
+    <permission android:name="com.android.car.permission.USE_CAR_TELEMETRY_SERVICE"
                 android:protectionLevel="signature|privileged"
                 android:label="@string/car_permission_label_use_telemetry_service"
                 android:description="@string/car_permission_desc_use_telemetry_service"/>
