@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <overlayable name="CarServiceCustomization">
         <!-- START VENDOR CUSTOMIZATION -->
-        <policy type="product|system|vendor">
+        <policy type="product|system|vendor|odm|oem">
           <!-- Params from config.xml that can be overlaid -->
           <item type="bool" name="audioUseDynamicRouting"/>
           <item type="bool" name="audioUseCarVolumeGroupMuting"/>
