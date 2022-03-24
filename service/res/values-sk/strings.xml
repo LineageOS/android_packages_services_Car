@@ -22,10 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Získajte prístup ku kamerám auta."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"získať prístup k informáciám o energii auta"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Získajte prístup k informáciám o palive a energii auta."</string>
-    <!-- no translation found for car_permission_label_control_car_energy (2788215385574313796) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_energy (8765015897869031807) -->
-    <skip />
+    <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Ovládanie nastavení nabíjania (EV) auta"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Ovládanie nastavení nabíjania (EV) auta."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"úprava dojazdu auta – zostatok"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Úprava zostávajúcej hodnoty dojazdu auta."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"získať prístup ku kúreniu, vzduchotechnike a klimatizácii auta"</string>
@@ -62,10 +60,8 @@
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Povoliť aplikácii deklarovať aktivity, aby sa zobrazili v klastri prístrojov"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Ovládanie klastra prístrojov"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Spustiť aplikácie v klastri nástrojov"</string>
-    <!-- no translation found for car_permission_car_monitor_cluster_navigation_state (7025307242306902441) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_monitor_cluster_navigation_state (8745047153878713339) -->
-    <skip />
+    <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Stav navigácie klastra prístroja"</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Sledovať zmeny stavu navigácie klastru prístroja"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Vykresľovanie klastra prístrojov"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Získavať údaje o klastri prístrojov"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Konfigurácia obmedzení dojmu používateľa"</string>
@@ -124,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Ovládanie sedadiel auta."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"získať prístup k základným informáciám o aute"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Prístup k základným informáciám o aute."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1304018073760220785) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (2245117655328125350) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"prístup k informáciám o aute s obmedzenou prístupnosťou"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Prístup k informáciám o aute s obmedzenou prístupnosťou."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"prístup k informáciám o povoleniach dodávateľa auta"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Prístup k informáciám o povoleniach dodávateľa auta."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"čítať stav vonkajších svetiel auta"</string>
@@ -172,10 +166,8 @@
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Čítanie pravidiel pre napájanie komponentov auta."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"ovládanie pravidiel pre napájanie komponentov auta"</string>
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Ovládanie pravidiel pre napájanie komponentov auta."</string>
-    <!-- no translation found for car_permission_label_adjust_shutdown_process (184826150481255557) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_adjust_shutdown_process (5059212045073049971) -->
-    <skip />
+    <string name="car_permission_label_adjust_shutdown_process" msgid="184826150481255557">"upraviť postup vypnutia"</string>
+    <string name="car_permission_desc_adjust_shutdown_process" msgid="5059212045073049971">"Úprava postupu vypnutia."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"vykresľovanie šablón"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Vykresľovanie šablón."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"ovládanie spúšťaných aplikácií"</string>
