@@ -243,7 +243,7 @@ package android.car.builtin.power {
 package android.car.builtin.provider {
 
   public final class SettingsHelper {
-    field @Deprecated public static final String SYSTEM_LOCALES = "system_locales";
+    field public static final String SYSTEM_LOCALES = "system_locales";
   }
 
 }
