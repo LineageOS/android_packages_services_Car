@@ -73,7 +73,10 @@ public class SessionController {
                         onCarPowerStateChanged(state);
                         // completeHandlingPowerStateChange must be called to allow
                         // CarPowerManagementService to move on to the next power state.
-                        mCarPowerManagementService.completeHandlingPowerStateChange(state, this);
+                        if (mCarPowerManagementService != null) {
+                            mCarPowerManagementService.completeHandlingPowerStateChange(state,
+                                    this);
+                        }
                     });
                 }
             };
@@ -135,7 +138,9 @@ public class SessionController {
     public void initSession() {
         mBootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
         // Read the current power state and handle it.
-        onCarPowerStateChanged(mCarPowerManagementService.getPowerState());
+        if (mCarPowerManagementService != null) {
+            onCarPowerStateChanged(mCarPowerManagementService.getPowerState());
+        }
     }
 
     /**
@@ -197,6 +202,11 @@ public class SessionController {
 
     /** Gracefully cleans up the class state when the car telemetry service is shutting down. */
     public void release() {
-        mCarPowerManagementService.unregisterInternalListener(mCarPowerStateListener);
+        if (mCarPowerManagementService != null) {
+            mCarPowerManagementService.unregisterInternalListener(mCarPowerStateListener);
+        } else {
+            Slogf.e(CarLog.TAG_TELEMETRY,
+                    "CarPowerManagementService instance cannot be null.");
+        }
     }
 }
