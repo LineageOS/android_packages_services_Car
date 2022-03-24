@@ -394,6 +394,7 @@ public final class AndroidMockitoHelper {
     public static <T extends IInterface> void mockQueryService(@NonNull String name,
             @NonNull IBinder binder, @NonNull T service) {
         doReturn(binder).when(() -> ServiceManager.getService(name));
+        doReturn(binder).when(() -> ServiceManager.checkService(name));
         when(binder.queryLocalInterface(anyString())).thenReturn(service);
     }
 

@@ -319,7 +319,7 @@ public final class CarWatchdogDaemonHelper {
 
     private boolean makeBinderConnection() {
         long currentTimeMs = SystemClock.uptimeMillis();
-        IBinder binder = ServiceManagerHelper.getService(CAR_WATCHDOG_DAEMON_INTERFACE);
+        IBinder binder = ServiceManagerHelper.checkService(CAR_WATCHDOG_DAEMON_INTERFACE);
         if (binder == null) {
             Log.w(mTag, "Getting car watchdog daemon binder failed");
             return false;
