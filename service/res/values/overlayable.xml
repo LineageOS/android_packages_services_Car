@@ -99,6 +99,10 @@
           <item type="integer" name="config_userPreCreationStage"/>
           <item type="integer" name="config_userPreCreationDelay"/>
           <!-- Params from config.xml that can be overlaid -->
+
+          <!-- XML files that can be overlaid -->
+          <item type="xml" name="car_ux_restrictions_map"/>
+          <!-- XML files that can be overlaid -->
         </policy>
         <!-- END VENDOR CUSTOMIZATION -->
     </overlayable>
