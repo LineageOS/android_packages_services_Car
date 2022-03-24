@@ -17,6 +17,7 @@
 package com.android.systemui;
 
 import com.android.systemui.dagger.GlobalModule;
+import com.android.systemui.wmshell.CarUiPortraitWMComponent;
 
 import javax.inject.Singleton;
 
@@ -36,6 +37,12 @@ interface CarUiPortraitGlobalRootComponent extends CarGlobalRootComponent {
     interface Builder extends CarGlobalRootComponent.Builder {
         CarUiPortraitGlobalRootComponent build();
     }
+
+    /**
+     * Builder for a WMComponent.
+     */
+    @Override
+    CarUiPortraitWMComponent.Builder getWMComponentBuilder();
 
     @Override
     CarUiPortraitSysUIComponent.Builder getSysUIComponent();
