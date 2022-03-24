@@ -82,7 +82,7 @@ std::string toString(const std::vector<int32_t>& values) {
 
 std::shared_ptr<IVhalClient> AidlVhalClient::create() {
     if (!AServiceManager_isDeclared(AIDL_VHAL_SERVICE)) {
-        ALOGD("AIDL VHAL service is not declared");
+        ALOGD("AIDL VHAL service is not declared, maybe HIDL VHAL is used instead?");
         return nullptr;
     }
     std::shared_ptr<IVehicle> aidlVhal =
@@ -101,7 +101,8 @@ std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate() {
 
 std::shared_ptr<IVhalClient> AidlVhalClient::tryCreate(const char* descriptor) {
     if (!AServiceManager_isDeclared(descriptor)) {
-        ALOGD("AIDL VHAL service, descriptor: %s is not declared", descriptor);
+        ALOGD("AIDL VHAL service, descriptor: %s is not declared, maybe HIDL VHAL is used instead?",
+              descriptor);
         return nullptr;
     }
     std::shared_ptr<IVehicle> aidlVhal =
