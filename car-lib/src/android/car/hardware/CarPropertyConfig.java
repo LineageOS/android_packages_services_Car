@@ -212,7 +212,8 @@ public final class CarPropertyConfig<T> implements Parcelable {
     }
 
     /**
-     * @return Property identifier
+     * @return Property identifier, must be one of enums in
+     *   {@link android.car.VehiclePropertyIds}.
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getPropertyId() {
