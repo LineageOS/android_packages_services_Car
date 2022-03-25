@@ -22,10 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Kufikia kamera ya gari lako."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"kufikia maelezo ya nishati ya gari"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"Kufikia maelezo ya nishati ya gari lako."</string>
-    <!-- no translation found for car_permission_label_control_car_energy (2788215385574313796) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_energy (8765015897869031807) -->
-    <skip />
+    <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"Dhibiti mipangilio ya mfumo wa chaji wa gari la umeme"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"Dhibiti mipangilio ya mfumo wa chaji wa gari lako la umeme."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"kurekebisha umbali unaosalia wa kusafiri wa gari"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Kurekebisha thamani inayosalia ya umbali wa kusafiri wa gari."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"kufikia hali ya joto, hewa na kiyoyozi (hvac) katika gari"</string>
@@ -62,10 +60,8 @@
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Ruhusu programu itangaze shughuli zinazoonyeshwa kwenye kikundi cha zana"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Kidhibiti cha kikundi cha zana"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Kuanzisha programu katika kikundi cha data"</string>
-    <!-- no translation found for car_permission_car_monitor_cluster_navigation_state (7025307242306902441) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_monitor_cluster_navigation_state (8745047153878713339) -->
-    <skip />
+    <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Hali ya uelekezaji kwenye kikundi cha zana"</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Sikiliza mabadiliko ya hali ya uelekezaji kwenye kikundi cha zana"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Uwasilishaji wa Kikundi cha Zana"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Kupokea data ya kikundi cha zana"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Mipangilio ya Masharti ya UX"</string>
@@ -124,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"Kudhibiti viti vya gari."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"kufikia maelezo ya msingi ya gari"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"Kufikia maelezo ya msingi ya gari."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1304018073760220785) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (2245117655328125350) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"fikia taarifa za gari zinazofikiwa na watu mahususi"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"Fikia taarifa za gari zinazofikiwa na watu mahususi."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"kufikia maelezo ya ruhusa ya muuzaji wa gari"</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Kufikia maelezo ya ruhusa ya muuzaji wa gari"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"kusoma hali ya taa za nje ya gari"</string>
@@ -172,10 +166,8 @@
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Soma sera ya nishati ya gari."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"dhibiti sera ya nishati ya gari"</string>
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Dhibiti sera ya nishati ya gari."</string>
-    <!-- no translation found for car_permission_label_adjust_shutdown_process (184826150481255557) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_adjust_shutdown_process (5059212045073049971) -->
-    <skip />
+    <string name="car_permission_label_adjust_shutdown_process" msgid="184826150481255557">"rekebisha mchakato wa kuzima"</string>
+    <string name="car_permission_desc_adjust_shutdown_process" msgid="5059212045073049971">"Rekebisha mchakato wa kuzima."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"kutekeleza violezo"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Kutekeleza violezo."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"kudhibiti programu za kufungua"</string>

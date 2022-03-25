@@ -22,10 +22,8 @@
     <string name="car_permission_desc_camera" msgid="917024932164501426">"차량 카메라에 액세스"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"차량 에너지 정보 액세스"</string>
     <string name="car_permission_desc_energy" msgid="3392963810053235407">"차량 에너지 정보에 액세스"</string>
-    <!-- no translation found for car_permission_label_control_car_energy (2788215385574313796) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_car_energy (8765015897869031807) -->
-    <skip />
+    <string name="car_permission_label_control_car_energy" msgid="2788215385574313796">"차량의 EV 충전 설정 관리"</string>
+    <string name="car_permission_desc_control_car_energy" msgid="8765015897869031807">"차량의 EV 충전 설정을 관리합니다."</string>
     <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"차량의 잔여 주행거리 조정"</string>
     <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"차량의 잔여 주행거리를 조정하세요."</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"차량 공조기에 액세스"</string>
@@ -62,10 +60,8 @@
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"애플리케이션이 계기판에 표시할 활동을 선언하도록 허용"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"계기판 제어"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"계기판에서 앱 실행"</string>
-    <!-- no translation found for car_permission_car_monitor_cluster_navigation_state (7025307242306902441) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_monitor_cluster_navigation_state (8745047153878713339) -->
-    <skip />
+    <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"계기판 내비게이션 상태"</string>
+    <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"계기판 내비게이션 상태 변화를 수신합니다."</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"계기판 렌더링"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"계기판 데이터 수신"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX 제한사항 설정"</string>
@@ -124,10 +120,8 @@
     <string name="car_permission_desc_control_car_seats" msgid="2407536601226470563">"차량 시트를 제어합니다."</string>
     <string name="car_permission_label_car_info" msgid="4707513570676492315">"차량의 기본 정보에 액세스"</string>
     <string name="car_permission_desc_car_info" msgid="2118081474543537653">"차량의 기본 정보에 액세스합니다."</string>
-    <!-- no translation found for car_permission_label_privileged_car_info (1304018073760220785) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_privileged_car_info (2245117655328125350) -->
-    <skip />
+    <string name="car_permission_label_privileged_car_info" msgid="1304018073760220785">"차량의 기밀 정보 액세스"</string>
+    <string name="car_permission_desc_privileged_car_info" msgid="2245117655328125350">"차량의 기밀 정보에 액세스합니다."</string>
     <string name="car_permission_label_vendor_permission_info" msgid="4471260460536888654">"차량 공급업체 권한 정보에 액세스합니다."</string>
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"차량 공급업체 권한 정보에 액세스합니다."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"차량 외부 조명 상태 읽기"</string>
@@ -172,10 +166,8 @@
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"차량 전원 정책을 읽습니다."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"차량 전원 정책 관리"</string>
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"차량 전원 정책을 관리합니다."</string>
-    <!-- no translation found for car_permission_label_adjust_shutdown_process (184826150481255557) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_adjust_shutdown_process (5059212045073049971) -->
-    <skip />
+    <string name="car_permission_label_adjust_shutdown_process" msgid="184826150481255557">"종료 프로세스 조정"</string>
+    <string name="car_permission_desc_adjust_shutdown_process" msgid="5059212045073049971">"종료 프로세스를 조정합니다."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"템플릿 렌더링"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"템플릿 렌더링"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"애플리케이션 실행을 제어합니다."</string>

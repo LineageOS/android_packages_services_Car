@@ -26,12 +26,10 @@ import android.annotation.SystemApi;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class SettingsHelper {
 
+    // TODO(b/226458202): deprecated constant (and class) when we provide the proper API
     /**
      * Value of {@link android.provider.Settings.System#SYSTEM_LOCALES}.
-     *
-     * @deprecated TODO(b/196240549): provide setLocale API instead
      */
-    @Deprecated
     public static final String SYSTEM_LOCALES = "system_locales";
 
     private SettingsHelper() {
