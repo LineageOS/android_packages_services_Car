@@ -354,6 +354,12 @@ void EvsServiceContext::onNewEvent(const EvsEventDesc& event) {
 bool EvsServiceContext::onNewFrame(const BufferDesc& bufferDesc) {
     // Create AHardwareBuffer from ::aidl::android::hardware::automotive::evs::BufferDesc
     native_handle_t* nativeHandle = makeFromAidl(bufferDesc.buffer.handle);
+    const auto handleGuard = ::android::base::make_scope_guard([nativeHandle] {
+        // We only need to free an allocated memory because a source buffer is
+        // owned by EVS HAL implementation.
+        free(nativeHandle);
+    });
+
     if (nativeHandle == nullptr ||
         !std::all_of(nativeHandle->data + 0, nativeHandle->data + nativeHandle->numFds,
                      [](int fd) { return fd >= 0; })) {
