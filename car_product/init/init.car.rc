@@ -2,16 +2,3 @@
 on post-fs-data
     mkdir /data/system/car 0700 system system
     mkdir /data/system/car/watchdog 0700 system system
-
-# A property to enable EVS services conditionally
-on property:persist.automotive.evs.mode=0
-    # stop EVS and automotive display services
-    stop evsmanagerd
-    stop android.hardware.automotive.evs-default
-    stop cardisplayproxyd
-
-on property:persist.automotive.evs.mode=1
-    # start EVS and automotive display services
-    start cardisplayproxyd
-    start android.hardware.automotive.evs-default
-    start evsmanagerd
