@@ -27,10 +27,10 @@ import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.W
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.VehiclePropertyIds;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.TelemetryProto;
 import android.car.telemetry.TelemetryProto.ConnectivityPublisher;
-import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.util.Log;
@@ -70,7 +70,7 @@ public class CarTelemetryTestFragment extends Fragment {
             TelemetryProto.Publisher.newBuilder()
                     .setVehicleProperty(
                             TelemetryProto.VehiclePropertyPublisher.newBuilder()
-                                    .setVehiclePropertyId(VehicleProperty.GEAR_SELECTION)
+                                    .setVehiclePropertyId(VehiclePropertyIds.GEAR_SELECTION)
                                     .setReadRate(0f)
                                     .build())
                     .build();
