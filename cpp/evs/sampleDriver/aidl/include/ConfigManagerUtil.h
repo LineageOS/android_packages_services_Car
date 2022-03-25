@@ -16,9 +16,9 @@
 #ifndef CPP_EVS_SAMPLEDRIVER_AIDL_INCLUDE_CONFIGMANAGERUTIL_H
 #define CPP_EVS_SAMPLEDRIVER_AIDL_INCLUDE_CONFIGMANAGERUTIL_H
 
-#include <android-base/macros.h>
 #include <aidl/android/hardware/automotive/evs/CameraParam.h>
 #include <aidl/android/hardware/graphics/common/PixelFormat.h>
+#include <android-base/macros.h>
 #include <system/camera_metadata.h>
 
 #include <string>
