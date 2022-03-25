@@ -258,14 +258,14 @@ bool GlWrapper::initialize(const sp<IAutomotiveDisplayProxyService>& pWindowProx
     EGLint numConfigs = -1;
     eglChooseConfig(mDisplay, config_attribs, &egl_config, 1, &numConfigs);
     if (numConfigs != 1) {
-        LOG(ERROR) << "Didn't find a suitable format for our display window";
+        LOG(ERROR) << "Didn't find a suitable format for our display window, " << getEGLError();
         return false;
     }
 
     // Create the EGL render target surface
     mSurface = eglCreateWindowSurface(mDisplay, egl_config, mWindow, nullptr);
     if (mSurface == EGL_NO_SURFACE) {
-        LOG(ERROR) << "eglCreateWindowSurface failed.";
+        LOG(ERROR) << "eglCreateWindowSurface failed, " << getEGLError();
         return false;
     }
 
@@ -316,7 +316,9 @@ void GlWrapper::shutdown() {
     }
 
     // Release all GL resources
-    eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    if (eglGetCurrentContext() == mContext) {
+        eglMakeCurrent(mDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    }
     eglDestroySurface(mDisplay, mSurface);
     eglDestroyContext(mDisplay, mContext);
     eglTerminate(mDisplay);
@@ -346,36 +348,36 @@ void GlWrapper::hideWindow(const sp<IAutomotiveDisplayProxyService>& pWindowProx
 
 bool GlWrapper::updateImageTexture(buffer_handle_t handle,
                                    const HardwareBufferDescription& description) {
-    // If we haven't done it yet, create an "image" object to wrap the gralloc buffer
-    if (mKHRimage == EGL_NO_IMAGE_KHR) {
-        // create a temporary GraphicBuffer to wrap the provided handle
-        sp<GraphicBuffer> pGfxBuffer =
-                new GraphicBuffer(description.width, description.height,
-                                  static_cast<::android::PixelFormat>(description.format),
-                                  description.layers, static_cast<uint32_t>(description.usage),
-                                  description.stride, const_cast<native_handle_t*>(handle),
-                                  false /* keep ownership */
-                );
-        if (!pGfxBuffer) {
-            LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap our native handle";
-            return false;
-        }
-
-        // Get a GL compatible reference to the graphics buffer we've been given
-        EGLint eglImageAttributes[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
-        EGLClientBuffer cbuf = static_cast<EGLClientBuffer>(pGfxBuffer->getNativeBuffer());
-        mKHRimage = eglCreateImageKHR(mDisplay, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, cbuf,
-                                      eglImageAttributes);
-        if (mKHRimage == EGL_NO_IMAGE_KHR) {
-            LOG(ERROR) << "Error creating EGLImage: " << getEGLError();
-            return false;
-        }
-
-        // Update the texture handle we already created to refer to this gralloc buffer
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, mTextureMap);
-        glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, static_cast<GLeglImageOES>(mKHRimage));
+    if (mKHRimage != EGL_NO_IMAGE_KHR) {
+        return true;
     }
+
+    // Create a temporary GraphicBuffer to wrap the provided handle.
+    sp<GraphicBuffer> pGfxBuffer =
+            new GraphicBuffer(description.width, description.height,
+                              static_cast<::android::PixelFormat>(description.format),
+                              description.layers, static_cast<uint32_t>(description.usage),
+                              description.stride, const_cast<native_handle_t*>(handle),
+                              /* keepOwnership= */ false);
+    if (!pGfxBuffer) {
+        LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap our native handle";
+        return false;
+    }
+
+    // Get a GL compatible reference to the graphics buffer we've been given
+    EGLint eglImageAttributes[] = {EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE};
+    EGLClientBuffer cbuf = static_cast<EGLClientBuffer>(pGfxBuffer->getNativeBuffer());
+    mKHRimage = eglCreateImageKHR(mDisplay, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, cbuf,
+                                  eglImageAttributes);
+    if (mKHRimage == EGL_NO_IMAGE_KHR) {
+        LOG(ERROR) << "Error creating EGLImage: " << getEGLError();
+        return false;
+    }
+
+    // Update the texture handle we already created to refer to this gralloc buffer
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, mTextureMap);
+    glEGLImageTargetTexture2DOES(GL_TEXTURE_2D, static_cast<GLeglImageOES>(mKHRimage));
 
     return true;
 }
@@ -432,7 +434,9 @@ void GlWrapper::renderImageToScreen() {
 
     glFinish();
 
-    eglSwapBuffers(mDisplay, mSurface);
+    if (eglSwapBuffers(mDisplay, mSurface) == EGL_FALSE) {
+        LOG(WARNING) << "Failed to swap EGL buffers, " << getEGLError();
+    }
 }
 
 }  // namespace aidl::android::hardware::automotive::evs::implementation

@@ -25,6 +25,10 @@
 #include <aidl/android/hardware/automotive/evs/DisplayState.h>
 #include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 
+#include <semaphore.h>
+
+#include <thread>
+
 namespace aidl::android::hardware::automotive::evs::implementation {
 
 namespace automotivedisplay = ::android::frameworks::automotive::display::V1_0;
@@ -49,20 +53,46 @@ public:
     void forceShutdown();
 
 private:
-    // A graphics buffer into which we'll store images
+    // A graphics buffer into which we'll store images.  This member variable
+    // will be protected by semaphores.
     struct BufferRecord {
         ::aidl::android::hardware::graphics::common::HardwareBufferDescription description;
         buffer_handle_t handle;
         int fingerprint;
     } mBuffer;
-    aidlevs::DisplayDesc mInfo;
-    aidlevs::DisplayState mRequestedState = aidlevs::DisplayState::NOT_VISIBLE;
 
-    bool mFrameBusy = false;  // A flag telling us our buffer is in use
-    GlWrapper mGlWrapper;
-    ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService> mDisplayProxy;
+    // State of a rendering thread
+    enum class RenderThreadStates {
+        kStopped = 0,
+        kStopping = 1,
+        kRunning = 2,
+    };
+
     uint64_t mDisplayId;
-    mutable std::mutex mAccessLock;
+    aidlevs::DisplayDesc mInfo;
+    aidlevs::DisplayState mRequestedState GUARDED_BY(mLock) = aidlevs::DisplayState::NOT_VISIBLE;
+    ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService> mDisplayProxy;
+
+    GlWrapper mGlWrapper;
+    mutable std::mutex mLock;
+
+    // This tells us whether or not our buffer is in use.  Protected by
+    // semaphores.
+    bool mBufferBusy = false;
+
+    // Variables to synchronize a rendering thread w/ main and binder threads
+    std::thread mRenderThread;
+    std::atomic<RenderThreadStates> mState = RenderThreadStates::kRunning;
+    bool mBufferReady = false;
+    // Render the contents of forwarded buffers
+    void renderFrames();
+    // Initialize GL in the context of a caller's thread and prepare a graphic
+    // buffer to use.
+    bool initializeGlContextLocked() REQUIRES(mLock);
+
+    sem_t mBufferReadyToUse;
+    sem_t mBufferReadyToRender;
+    sem_t mBufferDone;
 };
 
 }  // namespace aidl::android::hardware::automotive::evs::implementation
