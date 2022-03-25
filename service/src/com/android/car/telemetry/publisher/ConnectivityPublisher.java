@@ -131,10 +131,9 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 if (bundle == null) {
                     continue;
                 }
+                annotation.addAnnotationsToBundle(bundle);
                 resultsToStore.putPersistableBundle(mSubscribers.keyAt(i).toString(), bundle);
             }
-            resultsToStore.putPersistableBundle(SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT,
-                    annotation.toPersistableBundle());
             mResultStore.putPublisherData(ConnectivityPublisher.class.getSimpleName(),
                     resultsToStore);
         }
@@ -196,15 +195,6 @@ public class ConnectivityPublisher extends AbstractPublisher {
             Slogf.d(CarLog.TAG_TELEMETRY, "Data from the previous session is not found. Quitting.");
             return;
         }
-        PersistableBundle annotationBundle = previousSessionData.getPersistableBundle(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT);
-        if (annotationBundle == null) {
-            Slogf.e(CarLog.TAG_TELEMETRY,
-                    "Annotation bundle is unexpectedly missing. Halting any further processing of"
-                            + " the session data.");
-            return;
-        }
-        previousSessionData.remove(SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT);
         for (String key : previousSessionData.keySet()) {
             QueryParam queryParam = QueryParam.fromString(key);
             if (queryParam == null) {
@@ -214,9 +204,12 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 continue;
             }
             PersistableBundle data = previousSessionData.getPersistableBundle(key);
+            if (!data.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)) {
+                Slogf.e(CarLog.TAG_TELEMETRY,
+                        "Session annotations is unexpectedly missing. Skipping this batch.");
+                continue;
+            }
             ArrayList<DataSubscriber> subscribers = mSubscribers.get(queryParam);
-            data.putPersistableBundle(SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT,
-                    annotationBundle);
             for (DataSubscriber subscriber : subscribers) {
                 subscriber.push(data);
             }
