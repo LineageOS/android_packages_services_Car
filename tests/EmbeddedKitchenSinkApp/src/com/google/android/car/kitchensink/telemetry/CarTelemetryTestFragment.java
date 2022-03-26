@@ -811,12 +811,8 @@ public class CarTelemetryTestFragment extends Fragment {
                 @Nullable byte[] telemetryError,
                 @CarTelemetryManager.MetricsReportStatus int status) {
             if (report != null) {
-                StringBuilder sb = new StringBuilder("PersistableBundle[\n");
-                for (String key : report.keySet()) {
-                    sb.append("    " + key + ": " + report.get(key) + ",\n");
-                }
-                sb.append("]");
-                showOutput("Result for " + metricsConfigName + ": " + sb.toString());
+                report.size(); // unparcel()'s
+                showOutput("Result for " + metricsConfigName + ": " + report);
             } else if (telemetryError != null) {
                 parseError(metricsConfigName, telemetryError);
             } else {

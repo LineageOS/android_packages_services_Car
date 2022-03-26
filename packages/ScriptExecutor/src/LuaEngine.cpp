@@ -228,10 +228,12 @@ int LuaEngine::loadScript(const char* scriptBody) {
         // ~20 elements and its critical function because all interaction with
         // Lua happens via the stack.
         // Starting read about Lua stack: https://www.lua.org/pil/24.2.html
+        const char* error = lua_tostring(mLuaState, -1);
         lua_pop(mLuaState, 1);
         std::ostringstream out;
         out << "Error encountered while loading the script. A possible cause could be syntax "
-               "errors in the script.";
+               "errors in the script. Error: "
+            << error;
         sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(), "");
         return status;
     }
@@ -268,10 +270,12 @@ int LuaEngine::run() {
     // Doc on lua_pcall: https://www.lua.org/manual/5.3/manual.html#lua_pcall
     int status = lua_pcall(mLuaState, /* nargs= */ 2, /* nresults= */ 0, /*errfunc= */ 0);
     if (status) {
+        const char* error = lua_tostring(mLuaState, -1);
         lua_pop(mLuaState, 1);  // pop the error object from the stack.
         std::ostringstream out;
         out << "Error encountered while running the script. The returned error code=" << status
-            << ". Refer to lua.h file of Lua C API library for error code definitions.";
+            << ". Refer to lua.h file of Lua C API library for error code definitions. Error: "
+            << error;
         sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(), "");
     }
     return status;
