@@ -122,6 +122,8 @@
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.permission.MONITOR_INPUT"/>
     <uses-permission android:name="android.permission.SET_ACTIVITY_WATCHER"/>
+    <!-- use for CarWatchdogReliabilityTest -->
+    <uses-permission android:name="android.car.permission.USE_CAR_WATCHDOG" />
     <!-- needed for User fragment to lock user data -->
     <uses-permission android:name="android.permission.STORAGE_INTERNAL"/>
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
