@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"پایش مصرف فضای ذخیره‌سازی فلاش"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"گوش دادن به وضعیت رانندگی"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"به تغییرات حالت رانندگی گوش دهید."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"استفاده از سرویس دوری‌سنجی خودرو"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"جمع‌آوری داده‌های سلامت سیستم خودرو."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"استفاده از «سرویس EVS خودرو»"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"مشترک شدن در جاری‌سازی ویدیویی EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"درخواست فعالیت پیش‌نمای EVS"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"به اطلاعات مجوز فروشنده خودرو دسترسی پیدا کنید."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"خواندن وضعیت چراغ‌های خارجی خودرو"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"به وضعیت چراغ‌های خارجی خودرو دسترسی پیدا کنید."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"دسترسی به ساعت یونیکس خودرو"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"دسترسی به ساعت یونیکس خودرو."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"دسترسی به ساعت یونیکس خودرو"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"دسترسی به ساعت یونیکس خودرو."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"دسترسی به مبنای پیوست رمزگذاری خودرو"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"دسترسی به مبنای پیوست رمزگذاری خودرو."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"خواندن چراغ‌های خارجی خودرو"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"کنترل خط‌مشی روشن/خاموش شدن مؤلفه‌های خودرو."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"پرداز زدن الگوها"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"پرداز زدن الگوها."</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"کنترل راه‌اندازی برنامه‌ها"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"کنترل راه‌اندازی برنامه‌ها."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"دستگاه من"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"مهمان"</string>
     <string name="importance_default" msgid="8587741629268312938">"اهمیت پیش‌فرض"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"بعداً بازنشانی شود"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"دفعه بعدی که خودرو راه‌اندازی شد، سیستم اطلاعات-سرگرمی بازنشانی می‌شود."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"برای شروع بازنشانی، خودرو باید پارک شده باشد."</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> عملکرد سیستم را تحت‌تأثیر قرار داده است"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"برای بهبود عملکرد سیستم، برنامه را غیرفعال کنید. در «تنظیمات» می‌توانید برنامه را دوباره فعال کنید."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"برای ادامه استفاده از برنامه، برنامه را اولویت‌بندی کنید."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"برای بهبود عملکرد سیستم، برنامه را حذف نصب کنید."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"غیرفعال کردن برنامه"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"الویت‌بندی برنامه"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"حذف نصب برنامه"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> غیرفعال شد. در «تنظیمات» می‌توانید آن را دوباره فعال کنید."</string>
 </resources>

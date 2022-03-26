@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"የብልጭታ ማከማቻ አጠቃቀምን ይቆጣጠሩ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"የመንዳት ሁነታን በማዳመጥ ላይ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ለመኪና አነዳድ ሁኔታ ለውጦች ያዳምጡ።"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"የመኪና ቴሌሜትሪ አገልግሎትን ይጠቀሙ"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"የመኪና ሥርዓት ጤና ውሂብ ይሰብስቡ።"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"የመኪና ኢቪኤስ አገልግሎት ይጠቀሙ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ለኢቪኤስ ቪዲዮ ዥረቶች ይመዝገቡ"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"የኢቪኤስ ቅድመ-እይታ እንቅስቃሴን መጠየቅ"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"የመኪና አቅራቢ ፈቃድ መረጃን መድረስ።"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"የመኪናውን የውጭ መብራቶች ሁኔታ ድረስበት"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"የመኪናውን የውጭ መብራቶች ሁነታ ይድረሱባቸው።"</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"የመኪናውን የUNIX ጊዜ ይድረሱ"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"የመኪናውን የUNIX ጊዜ ይድረሱ።"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"የመኪናው ጥንተ ጊዜ ዘንድ ይድረሱ"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"የመኪናው ጥንተ ጊዜ ዘንድ ይድረሱ።"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"የመኪና ምስጠራ ማሰሪያ ዘር ይድረሱ"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"የመኪና ምስጠራ ማሰሪያ ዘር ይድረሱ።"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"የመኪናውን የውጭ መብራቶች አንብብ"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"የመኪና ኃይል መመሪያን ተቆጣጠር።"</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"የቅንብር ደንቦችን ምስል ሥራ።"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"የቅንብር ደንቦችን ምስል ሥራ።"</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"መተግበሪያዎችን ማስጀመር መቆጣጠር"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"መተግበሪያዎችን ማስጀመር መቆጣጠር።"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"የእኔ መሣሪያ"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"እንግዳ"</string>
     <string name="importance_default" msgid="8587741629268312938">"ነባሪ አስፈላጊነት"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"በኋላ ዳግም አስጀምር"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"መኪናው በሚቀጥለው ጊዜ ሲጀምር የኢንፎቴይንመንት ሥርዓቱ ዳግም ይጀምራል።"</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"ዳግም ማስጀመርን ለመጀመር መኪናው መቆም አለበት።"</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> በስርዓትዎ አፈጻጸም ላይ ተጽዕኖ እያሳረፈ ነው"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"የስርዓት አፈጻጸምን ለማሻሻል መተግበሪያን ያሰናክሉ። በቅንብሮች ውስጥ መተግበሪያውን እንደገና ማንቃት ይችላሉ።"</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"መተግበሪያን መጠቀሙን ለመቀጠል ለመተግበሪያ ቅድሚያ ይስጡ።"</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"የስርዓት አፈጻጸምን ለማሻሻል መተግበሪያን ያራግፉ።"</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"መተግበሪያን አሰናክል"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"ለመተግበሪያ ቅድሚያ ስጥ"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"መተግበሪያን አራግፍ"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> ተሰናክሏል። በቅንብሮች ውስጥ እንደገና ሊያነቁት ይችላሉ።"</string>
 </resources>

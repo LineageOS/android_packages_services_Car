@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"监控闪存使用情况"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"监听驾车状态"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"监听驾车状态变化。"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"使用汽车遥测服务"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"收集汽车系统运行状况数据。"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"使用汽车 EVS 服务"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"订阅 EVS 视频串流"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"请求 EVS 预览活动"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"访问汽车的供应商权限信息。"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"读取汽车的外部灯具状态信息"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"访问汽车的外部灯具状态信息。"</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"获取汽车的 UNIX 时间"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"获取汽车的 UNIX 时间。"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"获取汽车的 epoch 新纪元时间"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"获取汽车的 epoch 新纪元时间。"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"获取汽车的加密绑定种子"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"获取汽车的加密绑定种子。"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"读取汽车的外部灯具信息"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"控制汽车电源政策。"</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"渲染模板"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"渲染模板。"</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"控制应用启动"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"控制应用启动。"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的设备"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"访客"</string>
     <string name="importance_default" msgid="8587741629268312938">"重要性：默认"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"以后再重置"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"信息娱乐系统将在下次汽车发动时重置。"</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"必须停车才能启动重置流程。"</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"“<xliff:g id="ID_1">^1</xliff:g>”给系统性能造成了影响"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"停用应用可提高系统性能。您可以在“设置”中重新启用应用。"</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"优先运行应用可继续使用应用。"</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"卸载应用可提高系统性能。"</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"停用应用"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"优先运行应用"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"卸载应用"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"已停用“<xliff:g id="ID_1">^1</xliff:g>”。您可以在“设置”中重新启用该应用。"</string>
 </resources>
