@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ़्लैश डिवाइस की मेमोरी के इस्तेमाल की निगरानी कर सकता है"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"गाड़ी चलाते समय होने वाले बदलावों की स्थिति को सुन सकता है"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"गाड़ी चलाते समय होने वाले बदलावों को सुन सकता है."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"कार टेलीमेट्री सेवा इस्तेमाल करें"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"कार के सिस्टम की परफ़ॉर्मेंस का डेटा इकट्ठा करें."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार की ईवीएस सेवा का इस्तेमाल करें"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ईवीएस वीडियो स्ट्रीम की सदस्यता लें"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"ईवीएस की झलक से जुड़ी गतिविधि का अनुरोध करें"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति देख सकता है"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति ऐक्सेस कर सकता है."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"कार के यूएनआईएक्स टाइम को ऐक्सेस करें"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"कार के यूएनआईएक्स टाइम को ऐक्सेस करें."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"कार के epoch टाइम को ऐक्सेस करें"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"कार के epoch टाइम को ऐक्सेस करें."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कार के एन्क्रिप्शन बाइंडिंग सीड को ऐक्सेस करें"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कार के एन्क्रिप्शन बाइंडिंग सीड को ऐक्सेस करें"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कार के बाहरी हिस्से में लगी लाइटें नियंत्रित कर सकता है"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"कार पावर नीति कंट्रोल करें."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"टेंप्लेट बनाएं"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"टेंप्लेट बनाएं."</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"लॉन्च किए जाने वाले ऐप्लिकेशन कंट्रोल करता है"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"लॉन्च किए जाने वाले ऐप्लिकेशन कंट्रोल करता है."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"मेहमान"</string>
     <string name="importance_default" msgid="8587741629268312938">"डिफ़ॉल्ट अहमियत"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"बाद में रीसेट करें"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"अगली बार कार के स्टार्ट होने पर, सूचना और मनोरंजन की सुविधा देने वाला डिवाइस रीसेट होगा."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"रीसेट शुरू करने के लिए ज़रूरी है कि कार पार्क हो."</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g>, आपके सिस्टम की परफ़ॉर्मेंस पर असर डालता है"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"सिस्टम की परफ़ॉर्मेंस को बेहतर बनाने के लिए, ऐप्लिकेशन बंद करें. आप सेटिंग में जाकर, ऐप्लिकेशन को दोबारा चालू कर सकते हैं."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"ऐप्लिकेशन का इस्तेमाल करते रहने के लिए, उसे प्राथमिकता दें."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"सिस्टम की परफ़ॉर्मेंस को बेहतर बनाने के लिए, ऐप्लिकेशन को अनइंस्टॉल करें."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"ऐप्लिकेशन बंद करें"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"ऐप्लिकेशन को प्राथमिकता दें"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"ऐप्लिकेशन अनइंस्टॉल करें"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> को बंद कर दिया गया है. आप सेटिंग में जाकर, इसे दोबारा चालू कर सकते हैं."</string>
 </resources>
