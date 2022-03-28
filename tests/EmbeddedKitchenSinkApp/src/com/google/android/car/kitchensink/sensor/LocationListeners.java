@@ -42,7 +42,7 @@ public class LocationListeners {
 
     private class SensorHelper implements SensorEventListener {
         private static final String TAG = "CAR.SENSOR.KS";
-        private static final String LOC_SENSOR_FORMAT = "%12.8f, %12.8f, %12.8f";
+        private static final String LOC_SENSOR_FORMAT = "%12.8f";
 
         private final SensorManager mSensorMgr;
         private final int mSensorType;
@@ -102,9 +102,12 @@ public class LocationListeners {
                 return;
             }
 
-            final String es = String.format("%s %s: (" + LOC_SENSOR_FORMAT + ")",
-                    mSensorName, mSensorUnits,
-                    event.values[0], event.values[1], event.values[2]);
+            String es = String.format("%s %s: (" + LOC_SENSOR_FORMAT,
+                    mSensorName, mSensorUnits, event.values[0]);
+            for (int i = 1; i < event.values.length; i++) {
+                es = es + String.format(", " + LOC_SENSOR_FORMAT, event.values[i]);
+            }
+            es = es + ")";
 
             mUpdate.accept(es);
         }
@@ -129,6 +132,8 @@ public class LocationListeners {
                 "uT", "Magnetometer", mTextUpdateHandler::setMagField));
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_GYROSCOPE,
                 "Rad/s", "Gyroscope", mTextUpdateHandler::setGyroField));
+        mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_ACCELEROMETER_LIMITED_AXES,
+                "m/s2", "Accel Limited Axes", mTextUpdateHandler::setAccelLimitedAxesField));
     }
 
     public void startListening() {

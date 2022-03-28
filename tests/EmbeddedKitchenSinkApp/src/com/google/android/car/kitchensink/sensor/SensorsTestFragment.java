@@ -138,6 +138,7 @@ public class SensorsTestFragment extends Fragment {
     private TextView mAccelInfo;
     private TextView mGyroInfo;
     private TextView mMagInfo;
+    private TextView mAccelLimitedAxesInfo;
 
     @Nullable
     @Override
@@ -156,6 +157,7 @@ public class SensorsTestFragment extends Fragment {
         mAccelInfo = (TextView) view.findViewById(R.id.accel_info);
         mGyroInfo = (TextView) view.findViewById(R.id.gyro_info);
         mMagInfo = (TextView) view.findViewById(R.id.mag_info);
+        mAccelLimitedAxesInfo = (TextView) view.findViewById(R.id.accel_limited_axes_info);
 
         mNaString = getContext().getString(R.string.sensor_na);
         return view;
@@ -308,11 +310,11 @@ public class SensorsTestFragment extends Fragment {
         if (value == null) {
             return mNaString;
         }
-        return Double.toString(value.getTimestamp() / (1000L * 1000L * 1000L)) + " seconds";
+        return Double.toString(value.getTimestamp() / (1000L * 1000L * 1000L)) + " sec";
     }
 
     private String getTimestampNow() {
-        return Double.toString(System.nanoTime() / (1000L * 1000L * 1000L)) + " seconds";
+        return Double.toString(System.nanoTime() / (1000L * 1000L * 1000L)) + " sec";
     }
 
     private String getStringOfPropertyValue(CarPropertyValue value) {
@@ -349,6 +351,10 @@ public class SensorsTestFragment extends Fragment {
 
         public void setMagField(String value) {
             setTimestampedTextField(mMagInfo, value);
+        }
+
+        public void setAccelLimitedAxesField(String value) {
+            setTimestampedTextField(mAccelLimitedAxesInfo, value);
         }
 
         private void setTimestampedTextField(TextView text, String value) {
