@@ -134,6 +134,8 @@ public class LocationListeners {
                 "Rad/s", "Gyroscope", mTextUpdateHandler::setGyroField));
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_ACCELEROMETER_LIMITED_AXES,
                 "m/s2", "Accel Limited Axes", mTextUpdateHandler::setAccelLimitedAxesField));
+        mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_GYROSCOPE_LIMITED_AXES,
+                "Rad/s", "Gyro Limited Axes", mTextUpdateHandler::setGyroLimitedAxesField));
     }
 
     public void startListening() {
