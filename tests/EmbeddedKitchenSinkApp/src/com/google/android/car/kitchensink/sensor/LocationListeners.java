@@ -140,6 +140,20 @@ public class LocationListeners {
                 "m/s2", "Accel Limited Axes", mTextUpdateHandler::setAccelLimitedAxesField));
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_GYROSCOPE_LIMITED_AXES,
                 "Rad/s", "Gyro Limited Axes", mTextUpdateHandler::setGyroLimitedAxesField));
+        mSensors.add(
+                new SensorHelper(
+                        mSensorMgr,
+                        Sensor.TYPE_ACCELEROMETER_LIMITED_AXES_UNCALIBRATED,
+                        "m/s2",
+                        "Accel Limited Axes Uncal",
+                        mTextUpdateHandler::setAccelLimitedAxesUncalField));
+        mSensors.add(
+                new SensorHelper(
+                        mSensorMgr,
+                        Sensor.TYPE_GYROSCOPE_LIMITED_AXES_UNCALIBRATED,
+                        "Rad/s",
+                        "Gyro Limited Axes Uncal",
+                        mTextUpdateHandler::setGyroLimitedAxesUncalField));
     }
 
     public void startListening() {
