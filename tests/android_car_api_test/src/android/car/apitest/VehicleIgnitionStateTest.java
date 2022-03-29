@@ -42,17 +42,17 @@ public final class VehicleIgnitionStateTest {
     public static Collection constantValues() {
         return Arrays.asList(new Object[][]{
                 {android.car.VehicleIgnitionState.UNDEFINED,
-                        android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState.UNDEFINED},
+                        android.hardware.automotive.vehicle.VehicleIgnitionState.UNDEFINED},
                 {android.car.VehicleIgnitionState.LOCK,
-                        android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState.LOCK},
+                        android.hardware.automotive.vehicle.VehicleIgnitionState.LOCK},
                 {android.car.VehicleIgnitionState.OFF,
-                        android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState.OFF},
+                        android.hardware.automotive.vehicle.VehicleIgnitionState.OFF},
                 {android.car.VehicleIgnitionState.ACC,
-                        android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState.ACC},
+                        android.hardware.automotive.vehicle.VehicleIgnitionState.ACC},
                 {android.car.VehicleIgnitionState.ON,
-                        android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState.ON},
+                        android.hardware.automotive.vehicle.VehicleIgnitionState.ON},
                 {android.car.VehicleIgnitionState.START,
-                        android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState.START}
+                        android.hardware.automotive.vehicle.VehicleIgnitionState.START}
         });
     }
 
