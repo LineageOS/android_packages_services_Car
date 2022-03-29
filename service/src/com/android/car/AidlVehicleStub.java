@@ -54,6 +54,7 @@ import com.android.car.internal.LargeParcelable;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -319,6 +320,11 @@ final class AidlVehicleStub extends VehicleStub {
             throw new ServiceSpecificException(StatusCode.INTERNAL_ERROR,
                     "set value request timeout for property: " + request.value);
         }
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, ArrayList<String> args) throws RemoteException {
+        mAidlVehicle.asBinder().dump(fd, args.toArray(new String[args.size()]));
     }
 
     @Nullable
