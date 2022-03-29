@@ -128,10 +128,14 @@ public class LocationListeners {
 
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_ACCELEROMETER,
                 "m/s2", "Accelerometer", mTextUpdateHandler::setAccelField));
-        mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_MAGNETIC_FIELD,
-                "uT", "Magnetometer", mTextUpdateHandler::setMagField));
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_GYROSCOPE,
                 "Rad/s", "Gyroscope", mTextUpdateHandler::setGyroField));
+        mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_MAGNETIC_FIELD,
+                "uT", "Magnetometer", mTextUpdateHandler::setMagField));
+        mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_ACCELEROMETER_UNCALIBRATED,
+                "m/s2", "Accel Uncal", mTextUpdateHandler::setAccelUncalField));
+        mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_GYROSCOPE_UNCALIBRATED,
+                "Rad/s", "Gyro Uncal", mTextUpdateHandler::setGyroUncalField));
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_ACCELEROMETER_LIMITED_AXES,
                 "m/s2", "Accel Limited Axes", mTextUpdateHandler::setAccelLimitedAxesField));
         mSensors.add(new SensorHelper(mSensorMgr, Sensor.TYPE_GYROSCOPE_LIMITED_AXES,

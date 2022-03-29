@@ -117,7 +117,7 @@ public class SensorsTestFragment extends Fragment {
                         Log.v(TAG, "New car property value: " + value);
                     }
                     mValueMap.put(value.getPropertyId(), value);
-                    refreshSensorInfoText();
+                    refreshCarSensorInfoText();
                 }
                 @Override
                 public void onErrorEvent(int propId, int zone) {
@@ -133,11 +133,13 @@ public class SensorsTestFragment extends Fragment {
     private String mNaString;
     private List<CarPropertyConfig> mCarPropertyConfigs;
 
-    private TextView mSensorInfo;
+    private TextView mCarSensorInfo;
     private TextView mLocationInfo;
     private TextView mAccelInfo;
     private TextView mGyroInfo;
     private TextView mMagInfo;
+    private TextView mAccelUncalInfo;
+    private TextView mGyroUncalInfo;
     private TextView mAccelLimitedAxesInfo;
     private TextView mGyroLimitedAxesInfo;
 
@@ -151,13 +153,15 @@ public class SensorsTestFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.sensors, container, false);
         mActivity = (KitchenSinkActivity) getHost();
-        mSensorInfo = (TextView) view.findViewById(R.id.sensor_info);
-        mSensorInfo.setMovementMethod(new ScrollingMovementMethod());
+        mCarSensorInfo = (TextView) view.findViewById(R.id.car_sensor_info);
+        mCarSensorInfo.setMovementMethod(new ScrollingMovementMethod());
         mLocationInfo = (TextView) view.findViewById(R.id.location_info);
         mLocationInfo.setMovementMethod(new ScrollingMovementMethod());
         mAccelInfo = (TextView) view.findViewById(R.id.accel_info);
         mGyroInfo = (TextView) view.findViewById(R.id.gyro_info);
         mMagInfo = (TextView) view.findViewById(R.id.mag_info);
+        mAccelUncalInfo = (TextView) view.findViewById(R.id.accel_uncal_info);
+        mGyroUncalInfo = (TextView) view.findViewById(R.id.gyro_uncal_info);
         mAccelLimitedAxesInfo = (TextView) view.findViewById(R.id.accel_limited_axes_info);
         mGyroLimitedAxesInfo = (TextView) view.findViewById(R.id.gyro_limited_axes_info);
 
@@ -259,11 +263,11 @@ public class SensorsTestFragment extends Fragment {
         Log.d(TAG, "onRequestPermissionsResult reqCode=" + requestCode);
     }
 
-    private void refreshSensorInfoText() {
+    private void refreshCarSensorInfoText() {
         String summaryString;
         List<String> summary = formSummary();
         summaryString = TextUtils.join("\n", summary);
-        mHandler.post(() -> mSensorInfo.setText(summaryString));
+        mHandler.post(() -> mCarSensorInfo.setText(summaryString));
     }
 
     private List<String> formSummary() {
@@ -353,6 +357,14 @@ public class SensorsTestFragment extends Fragment {
 
         public void setMagField(String value) {
             setTimestampedTextField(mMagInfo, value);
+        }
+
+        public void setAccelUncalField(String value) {
+            setTimestampedTextField(mAccelUncalInfo, value);
+        }
+
+        public void setGyroUncalField(String value) {
+            setTimestampedTextField(mGyroUncalInfo, value);
         }
 
         public void setAccelLimitedAxesField(String value) {

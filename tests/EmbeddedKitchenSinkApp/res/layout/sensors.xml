@@ -34,33 +34,35 @@
             android:id="@+id/location_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            android:textStyle="bold"/>
+            android:scrollbars="vertical"/>
         <TextView
             android:id="@+id/accel_info"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/gyro_info"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/mag_info"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/accel_uncal_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/gyro_uncal_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/accel_limited_axes_info"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"/>
         <TextView
             android:id="@+id/gyro_limited_axes_info"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <!--  Bottom area -->
@@ -78,11 +80,10 @@
             android:text="@string/sensor_title"
             android:textStyle="bold"/>
         <TextView
-            android:id="@+id/sensor_info"
+            android:id="@+id/car_sensor_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:scrollbars="vertical"
-            android:textStyle="bold"/>
+            android:scrollbars="vertical"/>
     </LinearLayout>
 
 </RelativeLayout>
