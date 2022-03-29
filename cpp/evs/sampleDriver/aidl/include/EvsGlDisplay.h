@@ -78,11 +78,12 @@ private:
 
     // This tells us whether or not our buffer is in use.  Protected by
     // semaphores.
-    bool mFrameBusy = false;
+    bool mBufferBusy = false;
 
     // Variables to synchronize a rendering thread w/ main and binder threads
     std::thread mRenderThread;
     std::atomic<int> mState = STOPPED;
+    bool mBufferReady = false;
     void renderFrames();
     bool initializeGlContextLocked() REQUIRES(mLock);
 
