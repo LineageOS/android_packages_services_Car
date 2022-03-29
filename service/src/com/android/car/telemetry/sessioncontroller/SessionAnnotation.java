@@ -27,7 +27,6 @@ import java.util.Objects;
  * respective public fields are equal by value.
  */
 public class SessionAnnotation {
-    public static final String ANNOTATION_BUNDLE_KEY_ROOT = "sessionAnnotation";
     public static final String ANNOTATION_BUNDLE_KEY_SESSION_ID = "sessionId";
     public static final String ANNOTATION_BUNDLE_KEY_SESSION_STATE = "sessionState";
     public static final String ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS =
@@ -66,7 +65,7 @@ public class SessionAnnotation {
     @Override
     public String toString() {
         return new StringBuilder()
-                .append(ANNOTATION_BUNDLE_KEY_ROOT).append("{")
+                .append("{")
                 .append(ANNOTATION_BUNDLE_KEY_SESSION_ID).append(": ")
                 .append(sessionId).append(", ")
                 .append(ANNOTATION_BUNDLE_KEY_SESSION_STATE).append(": ")
@@ -103,36 +102,17 @@ public class SessionAnnotation {
     }
 
     /**
-     * Converts this {@link SessionAnnotation} object to its {@link PersistableBundle}
-     * representation.
+     * Adds annotations to a provided {@link PersistableBundle} object.
+     *
+     * @param bundle A {@link PersistableBundle} that we want to get the annotations to.
      */
-    @NonNull
-    public PersistableBundle toPersistableBundle() {
-        PersistableBundle bundle = new PersistableBundle();
+    public void addAnnotationsToBundle(@NonNull PersistableBundle bundle) {
         bundle.putInt(ANNOTATION_BUNDLE_KEY_SESSION_ID, sessionId);
         bundle.putInt(ANNOTATION_BUNDLE_KEY_SESSION_STATE, sessionState);
         bundle.putLong(ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS,
                 createdAtSinceBootMillis);
         bundle.putLong(ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS, createdAtMillis);
         bundle.putString(ANNOTATION_BUNDLE_KEY_BOOT_REASON, bootReason);
-        return bundle;
-    }
-
-    /**
-     * Adds annotations to a provided {@link PersistableBundle} object in the form of a nested
-     * {@link PersistableBundle}.
-     *
-     * @param bundle A {@link PersistableBundle} that we want to get the annotations to.
-     * @throws IllegalArgumentException if the bundle already has a field that annotations are
-     *                                  logged under.
-     */
-    public void addAnnotationsToBundle(PersistableBundle bundle) {
-        if (bundle.containsKey(ANNOTATION_BUNDLE_KEY_ROOT)) {
-            throw new IllegalArgumentException(
-                    "Provided bundle object already has a key with name: "
-                            + ANNOTATION_BUNDLE_KEY_ROOT);
-        }
-        bundle.putPersistableBundle(ANNOTATION_BUNDLE_KEY_ROOT, this.toPersistableBundle());
     }
 
 }
