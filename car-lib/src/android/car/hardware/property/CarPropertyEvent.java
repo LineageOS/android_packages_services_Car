@@ -19,6 +19,7 @@ package android.car.hardware.property;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -27,7 +28,9 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /** @hide */
 public class CarPropertyEvent implements Parcelable {
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROPERTY_EVENT_PROPERTY_CHANGE = 0;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROPERTY_EVENT_ERROR = 1;
     /**
      * EventType of this message
@@ -46,6 +49,7 @@ public class CarPropertyEvent implements Parcelable {
     /**
      * @return EventType field
      */
+    @AddedInOrBefore(majorVersion = 33)
     public int getEventType() {
         return mEventType;
     }
@@ -53,6 +57,7 @@ public class CarPropertyEvent implements Parcelable {
     /**
      * Returns {@link CarPropertyValue} associated with this event.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public CarPropertyValue<?> getCarPropertyValue() {
         return mCarPropertyValue;
     }
@@ -110,6 +115,7 @@ public class CarPropertyEvent implements Parcelable {
      * The status of {@link CarPropertyValue} should be {@link CarPropertyValue#STATUS_ERROR}.
      * In {@link CarPropertyManager}, the value of {@link CarPropertyValue} will be dropped.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static CarPropertyEvent createErrorEventWithErrorCode(int propertyId, int areaId,
             @CarPropertyManager.CarSetPropertyErrorCode int errorCode) {
         CarPropertyValue<Integer> valueWithErrorCode = new CarPropertyValue<>(propertyId, areaId,
@@ -119,6 +125,7 @@ public class CarPropertyEvent implements Parcelable {
         return event;
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public @CarPropertyManager.CarSetPropertyErrorCode int getErrorCode() {
         return mErrorCode;
     }

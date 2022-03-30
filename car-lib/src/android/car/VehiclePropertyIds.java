@@ -1021,6 +1021,7 @@ public final class VehiclePropertyIds {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556;
     /**
      * Distance units for display.
@@ -1792,6 +1793,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INITIAL_USER_INFO = 299896583;
 
     /**
@@ -1802,6 +1804,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SWITCH_USER = 299896584;
 
     /**
@@ -1812,6 +1815,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CREATE_USER = 299896585;
 
     /**
@@ -1822,6 +1826,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int REMOVE_USER = 299896586;
 
     /**
@@ -1832,6 +1837,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION = 299896587;
 
     /**
@@ -1842,6 +1848,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int POWER_POLICY_REQ = 286265121;
 
     /**
@@ -1852,6 +1859,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int POWER_POLICY_GROUP_REQ = 286265122;
 
     /**
@@ -1862,6 +1870,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CURRENT_POWER_POLICY = 286265123;
 
     /**
@@ -1872,6 +1881,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int WATCHDOG_ALIVE = 290459441;
 
     /**
@@ -1882,6 +1892,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int WATCHDOG_TERMINATED_PROCESS = 299896626;
 
     /**
@@ -1892,6 +1903,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int VHAL_HEARTBEAT = 290459443;
 
     /**
@@ -1902,6 +1914,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CLUSTER_SWITCH_UI = 289410868;
 
     /**
@@ -1912,6 +1925,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CLUSTER_DISPLAY_STATE = 289476405;
 
     /**
@@ -1922,6 +1936,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CLUSTER_REPORT_STATE = 299896630;
 
     /**
@@ -1932,6 +1947,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CLUSTER_REQUEST_DISPLAY = 289410871;
 
     /**
@@ -1942,6 +1958,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int CLUSTER_NAVIGATION_STATE = 292556600;
 
     /**

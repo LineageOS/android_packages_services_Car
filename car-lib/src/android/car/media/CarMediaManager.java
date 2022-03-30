@@ -190,6 +190,7 @@ public final class CarMediaManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isIndependentPlaybackConfig() {
         try {
             return mService.isIndependentPlaybackConfig();
@@ -204,6 +205,7 @@ public final class CarMediaManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(value = android.Manifest.permission.MEDIA_CONTENT_CONTROL)
+    @AddedInOrBefore(majorVersion = 33)
     public void setIndependentPlaybackConfig(boolean independent) {
         try {
             mService.setIndependentPlaybackConfig(independent);

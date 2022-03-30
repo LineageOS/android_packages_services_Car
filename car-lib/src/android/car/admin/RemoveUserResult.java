@@ -162,6 +162,7 @@ public final class RemoveUserResult {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static String statusToString(@Status int status) {
         return DebugUtils.valueToString(RemoveUserResult.class, "STATUS_", status);
     }

@@ -19,6 +19,7 @@ package android.car.user;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -41,26 +42,31 @@ public final class UserStopResult implements Parcelable, OperationResult {
     /**
      * When user stop is successful.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
      * When user stop fails.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
      /**
      * When user to stop doesn't exits.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 1;
 
     /**
      * When user to stop is the system user.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_SYSTEM_USER = CommonResults.LAST_COMMON_STATUS + 2;
 
     /**
      * When user to stop is the current user.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_FAILURE_CURRENT_USER = CommonResults.LAST_COMMON_STATUS + 3;
 
      /**
@@ -117,6 +123,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
@@ -179,6 +186,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
      * {@link UserStopResult#STATUS_FAILURE_CURRENT_USER}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }

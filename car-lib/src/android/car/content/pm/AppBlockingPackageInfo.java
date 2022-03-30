@@ -152,6 +152,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
     };
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public void verify() throws IllegalArgumentException {
         if (signatures == null && (flags & FLAG_SYSTEM_APP) == 0) {
             throw new IllegalArgumentException(
@@ -160,6 +161,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isActivityCovered(String className) {
         if ((flags & FLAG_WHOLE_ACTIVITY) != 0) {
             return true;

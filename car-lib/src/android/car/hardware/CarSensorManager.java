@@ -48,6 +48,7 @@ public final class CarSensorManager extends CarManagerBase {
     private static final String TAG = "CarSensorManager";
     private final CarPropertyManager mCarPropertyMgr;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED1                   = 1;
     /**
      * This sensor represents vehicle speed in m/s.
@@ -95,6 +96,7 @@ public final class CarSensorManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_GEAR                        = 0x11400400;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED8                   = 8;
     /**
      * Day/night sensor. Sensor data is intValues[0].
@@ -109,28 +111,40 @@ public final class CarSensorManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE     = 0x11600703;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED10                  = 10;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED11                  = 11;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED12                  = 12;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED13                  = 13;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED14                  = 14;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED15                  = 15;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED16                  = 16;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED17                  = 17;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED18                  = 18;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED19                  = 19;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED20                  = 20;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED21                  = 21;
     /**
      * Represents ignition state. The value should be one of the constants that starts with
@@ -159,6 +173,7 @@ public final class CarSensorManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_TRACTION_CONTROL_ACTIVE     = 0x1120040b;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SENSOR_TYPE_RESERVED26                  = 26;
     /**
      * Set to true if the fuel door is open.
@@ -529,6 +544,7 @@ public final class CarSensorManager extends CarManagerBase {
      * @return CarSensorConfig object
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public CarSensorConfig getSensorConfig(@SensorType int type) {
         Bundle b = null;
         switch (type) {

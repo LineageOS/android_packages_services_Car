@@ -160,6 +160,7 @@ public final class IoStatsEntry implements Parcelable {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public IoStatsEntry delta(IoStatsEntry other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
@@ -199,6 +200,7 @@ public final class IoStatsEntry implements Parcelable {
      * It matches UID, and I/O activity values, but ignores runtime.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean representsSameMetrics(UidIoRecord record) {
         return record.uid == uid
                 && record.foreground_rchar == foreground.bytesRead
@@ -327,6 +329,7 @@ public final class IoStatsEntry implements Parcelable {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public Metrics delta(Metrics other) {
             return new Metrics(bytesRead - other.bytesRead,
                 bytesWritten - other.bytesWritten,

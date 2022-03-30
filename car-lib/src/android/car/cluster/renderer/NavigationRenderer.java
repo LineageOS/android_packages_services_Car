@@ -46,6 +46,7 @@ public abstract class NavigationRenderer {
      *
      * @removed Replaced by {@link #onNavigationStateChanged(Bundle)}
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void onEvent(int eventType, Bundle bundle) {
     }
 

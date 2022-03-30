@@ -129,6 +129,7 @@ public final class Car {
      * @hide
      */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_SERVICE_BINDER_SERVICE_NAME = "car_service";
 
     /**
@@ -224,6 +225,7 @@ public final class Car {
      * @hide
      */
     @OptionalFeature
+    @AddedInOrBefore(majorVersion = 33)
     public static final String EXPERIMENTAL_CAR_USER_SERVICE = "experimental_car_user_service";
 
     /**
@@ -245,6 +247,7 @@ public final class Car {
      */
     @OptionalFeature
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_INSTRUMENT_CLUSTER_SERVICE = "cluster_service";
 
     /**
@@ -371,6 +374,7 @@ public final class Car {
      * @hide
      */
     @MandatoryFeature
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
 
     /**
@@ -410,6 +414,7 @@ public final class Car {
      * @hide
      */
     @OptionalFeature
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CLUSTER_HOME_SERVICE = "cluster_home_service";
 
     /**
@@ -590,6 +595,7 @@ public final class Car {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_CAR_MONITOR_CLUSTER_NAVIGATION_STATE =
             "android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE";
 
@@ -601,6 +607,7 @@ public final class Car {
      * @hide
      */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_CAR_DISPLAY_IN_CLUSTER =
             "android.car.permission.CAR_DISPLAY_IN_CLUSTER";
 
@@ -832,6 +839,7 @@ public final class Car {
      * @hide
      */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_BIND_VMS_CLIENT =
             "android.car.permission.BIND_VMS_CLIENT";
 
@@ -879,6 +887,7 @@ public final class Car {
      * @hide
      */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION =
             "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
 
@@ -1073,6 +1082,7 @@ public final class Car {
      * @hide
      */
     @SdkConstant(SdkConstantType.SERVICE_ACTION)
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_TEMPLATE_HOST_RENDERER_SERVICE =
             "android.car.template.host.RendererService";
 
@@ -1105,6 +1115,7 @@ public final class Car {
      * and above. Apps must use {@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
      */
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_EXTRA_MEDIA_PACKAGE = "android.car.intent.extra.MEDIA_PACKAGE";
 
     /**
@@ -1117,6 +1128,7 @@ public final class Car {
 
     /** @hide */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_SERVICE_INTERFACE_NAME = CommonConstants.CAR_SERVICE_INTERFACE;
 
     private static final String CAR_SERVICE_PACKAGE = "com.android.car";
@@ -1131,6 +1143,7 @@ public final class Car {
      * @hide
      */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
 
     /**
@@ -1819,6 +1832,7 @@ public final class Car {
 
     /** @hide */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     public ServiceConnection getServiceConnectionListener() {
         return mServiceConnectionListener;
     }
@@ -2024,18 +2038,21 @@ public final class Car {
 
     /** @hide */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public Context getContext() {
         return mContext;
     }
 
     /** @hide */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     public Handler getEventHandler() {
         return mEventHandler;
     }
 
     /** @hide */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     public <T> T handleRemoteExceptionFromCarService(RemoteException e, T returnValue) {
         handleRemoteExceptionFromCarService(e);
         return returnValue;
@@ -2043,6 +2060,7 @@ public final class Car {
 
     /** @hide */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public void handleRemoteExceptionFromCarService(RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
             Log.w(TAG_CAR, "Car service threw TransactionTooLargeException", e);
@@ -2084,6 +2102,7 @@ public final class Car {
 
     /** @hide */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static <T> T handleRemoteExceptionFromCarService(Service service, RemoteException e,
             T returnValue) {
         handleRemoteExceptionFromCarService(service, e);
@@ -2092,6 +2111,7 @@ public final class Car {
 
     /** @hide */
     @VisibleForHiddenApiCheck
+    @AddedInOrBefore(majorVersion = 33)
     public static  void handleRemoteExceptionFromCarService(Service service, RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
             Log.w(TAG_CAR, "Car service threw TransactionTooLargeException, client:"

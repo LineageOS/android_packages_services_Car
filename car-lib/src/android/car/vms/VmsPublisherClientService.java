@@ -100,6 +100,7 @@ public abstract class VmsPublisherClientService extends Service {
      * @hide
      */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     protected void onCarLifecycleChanged(Car car, boolean ready) {
         if (DBG) Log.d(TAG, "Car service ready: " + ready);
         if (ready) {

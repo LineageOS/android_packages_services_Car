@@ -115,6 +115,7 @@ public final class CarAudioManager extends CarManagerBase {
      * Volume Group ID when volume group not found.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INVALID_VOLUME_GROUP_ID = -1;
 
     /**
@@ -140,6 +141,7 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID =
             "android.car.media.AUDIOFOCUS_EXTRA_REQUEST_ZONE_ID";
 
@@ -603,6 +605,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @AddedInOrBefore(majorVersion = 33)
     public int getZoneIdForUid(int uid) {
         try {
             return mService.getZoneIdForUid(uid);
@@ -620,6 +623,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @AddedInOrBefore(majorVersion = 33)
     public boolean setZoneIdForUid(int zoneId, int uid) {
         try {
             return mService.setZoneIdForUid(zoneId, uid);
@@ -636,6 +640,7 @@ public final class CarAudioManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @AddedInOrBefore(majorVersion = 33)
     public boolean clearZoneIdForUid(int uid) {
         try {
             return mService.clearZoneIdForUid(uid);

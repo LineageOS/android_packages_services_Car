@@ -82,6 +82,7 @@ import java.util.stream.Collectors;
 public final class CarUserManager extends CarManagerBase {
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String TAG = CarUserManager.class.getSimpleName();
 
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
@@ -180,8 +181,10 @@ public final class CarUserManager extends CarManagerBase {
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BUNDLE_PARAM_ACTION = "action";
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BUNDLE_PARAM_PREVIOUS_USER_ID = "previous_user";
 
     /**
@@ -189,6 +192,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_KEY_FOB = 1;
 
     /**
@@ -196,6 +200,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_1 = 101;
 
     /**
@@ -203,6 +208,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_2 = 102;
 
     /**
@@ -210,6 +216,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_3 = 103;
 
     /**
@@ -217,6 +224,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_TYPE_CUSTOM_4 = 104;
 
     /**
@@ -240,6 +248,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_ASSOCIATE_CURRENT_USER = 1;
 
     /**
@@ -248,6 +257,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_CURRENT_USER = 2;
 
     /**
@@ -256,6 +266,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_ALL_USERS = 3;
 
     /**
@@ -277,6 +288,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_UNKNOWN = 1;
 
     /**
@@ -285,6 +297,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER = 2;
 
     /**
@@ -293,6 +306,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATED_ANOTHER_USER = 3;
 
     /**
@@ -301,6 +315,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_IDENTIFICATION_ASSOCIATION_VALUE_NOT_ASSOCIATED_ANY_USER = 4;
 
     /**
@@ -418,6 +433,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
     public AsyncFuture<UserSwitchResult> logoutUser() {
         int uid = myUid();
         try {
@@ -489,6 +505,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
     public AsyncFuture<UserCreationResult> createGuest(@Nullable String name) {
         return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
     }
@@ -498,6 +515,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
@@ -516,6 +534,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
     public void updatePreCreatedUsers() {
         int uid = myUid();
         EventLogHelper.writeCarUserManagerPreCreateUserReq(uid);
@@ -540,6 +559,7 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public UserRemovalResult removeUser(@UserIdInt int userId) {
         int uid = myUid();
         EventLogHelper.writeCarUserManagerRemoveUserReq(uid, userId);
@@ -708,6 +728,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isUserHalUserAssociationSupported() {
         try {
             return mService.isUserHalUserAssociationSupported();
@@ -724,6 +745,7 @@ public final class CarUserManager extends CarManagerBase {
     @NonNull
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
     public UserIdentificationAssociationResponse getUserIdentificationAssociation(
             @UserIdentificationAssociationType int... types) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(types), "must have at least one type");
@@ -761,6 +783,7 @@ public final class CarUserManager extends CarManagerBase {
     @NonNull
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
     public AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(
             @UserIdentificationAssociationType int[] types,
             @UserIdentificationAssociationSetValue int[] values) {
@@ -818,6 +841,7 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @AddedInOrBefore(majorVersion = 33)
     public void setUserSwitchUiCallback(@NonNull UserSwitchUiCallback callback) {
         Preconditions.checkArgument(callback != null, "Null callback");
         UserSwitchUiCallbackReceiver userSwitchUiCallbackReceiver =
@@ -981,6 +1005,7 @@ public final class CarUserManager extends CarManagerBase {
      */
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isValidUser(@UserIdInt int userId) {
         List<UserHandle> allUsers = mUserManager.getUserHandles(/* excludeDying=*/ true);
         for (int i = 0; i < allUsers.size(); i++) {
@@ -1040,6 +1065,7 @@ public final class CarUserManager extends CarManagerBase {
          * @hide
          */
         @UserIdInt
+        @AddedInOrBefore(majorVersion = 33)
         public int getUserId() {
             return mUserId;
         }
@@ -1062,6 +1088,7 @@ public final class CarUserManager extends CarManagerBase {
          * @hide
          */
         @UserIdInt
+        @AddedInOrBefore(majorVersion = 33)
         public int getPreviousUserId() {
             return mPreviousUserId;
         }
@@ -1147,6 +1174,7 @@ public final class CarUserManager extends CarManagerBase {
         /**
          * Called to notify that user switch dialog should be shown now.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void showUserSwitchDialog(@UserIdInt int userId);
     }
 }
