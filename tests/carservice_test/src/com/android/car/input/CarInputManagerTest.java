@@ -46,7 +46,7 @@ import androidx.test.filters.MediumTest;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.MockedCarTestBase;
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.Test;

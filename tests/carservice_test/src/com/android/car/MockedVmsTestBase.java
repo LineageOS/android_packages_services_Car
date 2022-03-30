@@ -36,8 +36,8 @@ import android.hardware.automotive.vehicle.VmsStartSessionMessageIntegerValuesIn
 import android.util.Log;
 import android.util.Pair;
 
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal;
+import com.android.car.hal.test.AidlMockedVehicleHal;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 
 import org.junit.Before;
 

@@ -45,7 +45,7 @@ import android.view.KeyEvent;
 
 import androidx.test.filters.RequiresDevice;
 
-import com.android.car.vehiclehal.test.AidlVehiclePropConfigBuilder;
+import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 
 import org.junit.After;
 import org.junit.Before;

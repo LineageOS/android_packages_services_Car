@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
 import android.annotation.CheckResult;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
 
 /** A builder class for {@link android.hardware.automotive.vehicle.V2_0.VehiclePropValue} */
-public class VehiclePropValueBuilder {
+public class HidlVehiclePropValueBuilder {
     private final VehiclePropValue mPropValue;
 
-    public static VehiclePropValueBuilder newBuilder(int propId) {
-        return new VehiclePropValueBuilder(propId);
+    public static HidlVehiclePropValueBuilder newBuilder(int propId) {
+        return new HidlVehiclePropValueBuilder(propId);
     }
 
-    public static VehiclePropValueBuilder newBuilder(VehiclePropValue propValue) {
-        return new VehiclePropValueBuilder(propValue);
+    public static HidlVehiclePropValueBuilder newBuilder(VehiclePropValue propValue) {
+        return new HidlVehiclePropValueBuilder(propValue);
     }
 
-    private VehiclePropValueBuilder(int propId) {
+    private HidlVehiclePropValueBuilder(int propId) {
         mPropValue = new VehiclePropValue();
         mPropValue.prop = propId;
     }
 
-    private VehiclePropValueBuilder(VehiclePropValue propValue) {
+    private HidlVehiclePropValueBuilder(VehiclePropValue propValue) {
         mPropValue = clone(propValue);
     }
 
@@ -57,25 +57,25 @@ public class VehiclePropValueBuilder {
     }
 
     @CheckResult
-    public VehiclePropValueBuilder setAreaId(int areaId) {
+    public HidlVehiclePropValueBuilder setAreaId(int areaId) {
         mPropValue.areaId = areaId;
         return this;
     }
 
     @CheckResult
-    public VehiclePropValueBuilder setTimestamp(long timestamp) {
+    public HidlVehiclePropValueBuilder setTimestamp(long timestamp) {
         mPropValue.timestamp = timestamp;
         return this;
     }
 
     @CheckResult
-    public VehiclePropValueBuilder setTimestamp() {
+    public HidlVehiclePropValueBuilder setTimestamp() {
         mPropValue.timestamp = SystemClock.elapsedRealtimeNanos();
         return this;
     }
 
     @CheckResult
-    public VehiclePropValueBuilder addIntValue(int... values) {
+    public HidlVehiclePropValueBuilder addIntValue(int... values) {
         for (int val : values) {
             mPropValue.value.int32Values.add(val);
         }
@@ -83,7 +83,7 @@ public class VehiclePropValueBuilder {
     }
 
     @CheckResult
-    public VehiclePropValueBuilder addFloatValue(float... values) {
+    public HidlVehiclePropValueBuilder addFloatValue(float... values) {
         for (float val : values) {
             mPropValue.value.floatValues.add(val);
         }
@@ -91,7 +91,7 @@ public class VehiclePropValueBuilder {
     }
 
     @CheckResult
-    public VehiclePropValueBuilder addByteValue(byte... values) {
+    public HidlVehiclePropValueBuilder addByteValue(byte... values) {
         for (byte val : values) {
             mPropValue.value.bytes.add(val);
         }
@@ -99,7 +99,7 @@ public class VehiclePropValueBuilder {
     }
 
     @CheckResult
-    public VehiclePropValueBuilder setInt64Value(long... values) {
+    public HidlVehiclePropValueBuilder setInt64Value(long... values) {
         for (long val : values) {
             mPropValue.value.int64Values.add(val);
         }
@@ -107,14 +107,14 @@ public class VehiclePropValueBuilder {
     }
 
     @CheckResult
-    public VehiclePropValueBuilder setBooleanValue(boolean value) {
+    public HidlVehiclePropValueBuilder setBooleanValue(boolean value) {
         mPropValue.value.int32Values.clear();
         mPropValue.value.int32Values.add(value ? 1 : 0);
         return this;
     }
 
     @CheckResult
-    public VehiclePropValueBuilder setStringValue(String val) {
+    public HidlVehiclePropValueBuilder setStringValue(String val) {
         mPropValue.value.stringValue = val;
         return this;
     }

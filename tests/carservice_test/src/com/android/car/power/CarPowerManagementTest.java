@@ -43,12 +43,12 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.MockedCarTestBase;
+import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.user.CarUserService;
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 import com.android.internal.annotations.GuardedBy;
 
 import com.google.android.collect.Lists;
