@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
@@ -46,9 +47,11 @@ public class CarSafetyAccessibilityServiceImplTest extends
 
     @Test
     public void onAccessibilityEvent_carPackageManagerServiceNotified() {
-        mCarSafetyAccessibilityService.onAccessibilityEvent(new AccessibilityEvent());
+        AccessibilityEvent event = new AccessibilityEvent();
+        event.setPackageName("com.test");
+        mCarSafetyAccessibilityService.onAccessibilityEvent(event);
 
-        verify(mMockCarPackageManagerService).onWindowChangeEvent();
+        verify(mMockCarPackageManagerService).onWindowChangeEvent(eq(event));
     }
 
     @Override
