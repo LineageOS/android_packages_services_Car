@@ -93,7 +93,7 @@ void EvsGlDisplay::forceShutdown() {
         // get called.
         if (mBuffer.handle != nullptr) {
             // Report if we're going away while a buffer is outstanding
-            if (mFrameBusy || mState == RUN) {
+            if (mBufferBusy || mState == RUN) {
                 LOG(ERROR) << "EvsGlDisplay going down while client is holding a buffer";
             }
             mState = STOPPING;
@@ -185,24 +185,19 @@ void EvsGlDisplay::renderFrames() {
         }
 
         // Display buffer is ready.
-        mFrameBusy = false;
+        mBufferBusy = false;
         sem_post(&mBufferReadyToUse);
     }
 
     while (mState == RUN) {
-        timespec nextFrameTimeout;
-        if (clock_gettime(CLOCK_REALTIME, &nextFrameTimeout) == -1) {
-            LOG(ERROR) << "clock_gettime() fails; exiting a rendering thread";
-            break;
-        }
-
-        nextFrameTimeout.tv_sec += kTimeoutInSeconds;
         int err = 0;
         do {
-            err = sem_timedwait(&mBufferReadyToRender, &nextFrameTimeout);
-        } while (err == -1 && errno == EINTR);
+            err = sem_wait(&mBufferReadyToRender);
+        } while ((err == -1 && errno == EINTR) && !mBufferReady && mState == RUN);
+
         if (err != 0) {
-            LOG(ERROR) << "A rendering thread timed out; exiting";
+            // sem_wait() returns EINVAL.
+            LOG(ERROR) << "A semaphore is not valid; exiting";
             break;
         }
 
@@ -224,7 +219,10 @@ void EvsGlDisplay::renderFrames() {
                        << " ms.";
             debugFirstFrameDisplayed = true;
         }
-        mFrameBusy = false;
+
+        // Mark current frame is consumed.
+        mBufferBusy = false;
+        mBufferReady = false;
         sem_post(&mBufferDone);
     }
 
@@ -352,7 +350,7 @@ ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
     }
 
     // Do we have a frame available?
-    if (mFrameBusy) {
+    if (mBufferBusy) {
         // This means either we have a 2nd client trying to compete for buffers
         // (an unsupported mode of operation) or else the client hasn't returned
         // a previously issued buffer yet (they're behaving badly).
@@ -363,7 +361,7 @@ ScopedAStatus EvsGlDisplay::getTargetBuffer(BufferDesc* _aidl_return) {
     }
 
     // Mark our buffer as busy
-    mFrameBusy = true;
+    mBufferBusy = true;
 
     // Send the buffer to the client
     LOG(VERBOSE) << "Providing display buffer handle " << mBuffer.handle;
@@ -399,7 +397,7 @@ ScopedAStatus EvsGlDisplay::returnTargetBufferForDisplay(const BufferDesc& buffe
         LOG(ERROR) << "Got an unrecognized frame returned.";
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
     }
-    if (!mFrameBusy) {
+    if (!mBufferBusy) {
         LOG(ERROR) << "A frame was returned with no outstanding frames.";
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
     }
