@@ -1,0 +1,2 @@
+# Allow to perform a binder IPC to evsmanagerd
+binder_call(evs_app, evsmanagerd)
