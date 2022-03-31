@@ -61,10 +61,10 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                         /*REAR_FOG_LIGHTS_SWITCH=*/289410878,
                         /*EV_CHARGE_CURRENT_DRAW_LIMIT=*/291508031,
                         /*EV_CHARGE_PERCENT_LIMIT=*/291508032,
-                        /*EV_CHARGE_STATE=*/289410880,
-                        /*EV_CHARGE_SWITCH=*/287313729,
-                        /*EV_CHARGE_TIME_REMAINING=*/289410882,
-                        /*EV_REGENERATIVE_BRAKING_STATE=*/289410883,
+                        /*EV_CHARGE_STATE=*/289410881,
+                        /*EV_CHARGE_SWITCH=*/287313730,
+                        /*EV_CHARGE_TIME_REMAINING=*/289410883,
+                        /*EV_REGENERATIVE_BRAKING_STATE=*/289410884,
                         /*VEHICLE_CURB_WEIGHT=*/289410886,
                         /*TRAILER_PRESENT=*/289410885));
 
