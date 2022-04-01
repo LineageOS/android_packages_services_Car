@@ -38,6 +38,7 @@
 
 namespace {
 
+using ::aidl::android::frameworks::automotive::display::ICarDisplayProxy;
 using ::aidl::android::hardware::automotive::evs::DeviceStatusType;
 using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::automotive::evs::Rotation;
@@ -45,7 +46,6 @@ using ::aidl::android::hardware::graphics::common::BufferUsage;
 using ::android::base::EqualsIgnoreCase;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
-using ::android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
 using ::ndk::ScopedAStatus;
 using std::chrono_literals::operator""s;
 
@@ -54,6 +54,7 @@ constexpr std::chrono::seconds kEnumerationTimeout = 10s;
 constexpr std::string_view kDevicePath = "/dev/";
 constexpr std::string_view kPrefix = "video";
 constexpr size_t kEventBufferSize = 512;
+constexpr uint64_t kInvalidDisplayId = std::numeric_limits<uint64_t>::max();
 const std::set<uid_t> kAllowedUids = {AID_AUTOMOTIVE_EVS, AID_SYSTEM, AID_ROOT};
 
 }  // namespace
@@ -68,9 +69,8 @@ std::weak_ptr<EvsGlDisplay> EvsEnumerator::sActiveDisplay;
 std::mutex EvsEnumerator::sLock;
 std::condition_variable EvsEnumerator::sCameraSignal;
 std::unique_ptr<ConfigManager> EvsEnumerator::sConfigManager;
-::android::sp<IAutomotiveDisplayProxyService> EvsEnumerator::sDisplayProxy;
+std::shared_ptr<ICarDisplayProxy> EvsEnumerator::sDisplayProxy;
 std::unordered_map<uint8_t, uint64_t> EvsEnumerator::sDisplayPortList;
-uint64_t EvsEnumerator::sInternalDisplayId;
 
 void EvsEnumerator::EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
                                      std::atomic<bool>& running) {
@@ -129,7 +129,7 @@ void EvsEnumerator::EvsHotplugThread(std::shared_ptr<EvsEnumerator> service,
     }
 }
 
-EvsEnumerator::EvsEnumerator(const ::android::sp<IAutomotiveDisplayProxyService>& proxyService) {
+EvsEnumerator::EvsEnumerator(const std::shared_ptr<ICarDisplayProxy>& proxyService) {
     LOG(DEBUG) << "EvsEnumerator is created.";
 
     if (!sConfigManager) {
@@ -144,7 +144,7 @@ EvsEnumerator::EvsEnumerator(const ::android::sp<IAutomotiveDisplayProxyService>
 
     // Enumerate existing devices
     enumerateCameras();
-    enumerateDisplays();
+    mInternalDisplayId = enumerateDisplays();
 }
 
 bool EvsEnumerator::checkPermission() {
@@ -229,27 +229,34 @@ void EvsEnumerator::enumerateCameras() {
               << "of " << videoCount << " checked.";
 }
 
-void EvsEnumerator::enumerateDisplays() {
+uint64_t EvsEnumerator::enumerateDisplays() {
     LOG(INFO) << __FUNCTION__ << ": Starting display enumeration";
+    uint64_t internalDisplayId = kInvalidDisplayId;
     if (!sDisplayProxy) {
-        LOG(ERROR) << "AutomotiveDisplayProxyService is not available!";
-        return;
+        LOG(ERROR) << "ICarDisplayProxy is not available!";
+        return internalDisplayId;
     }
 
-    sDisplayProxy->getDisplayIdList([](const auto& displayIds) {
+    std::vector<int64_t> displayIds;
+    if (auto status = sDisplayProxy->getDisplayIdList(&displayIds); !status.isOk()) {
+        LOG(ERROR) << "Failed to retrieve a display id list"
+                   << ::android::statusToString(status.getStatus());
+        return internalDisplayId;
+    }
+
+    if (displayIds.size() > 0) {
         // The first entry of the list is the internal display.  See
         // SurfaceFlinger::getPhysicalDisplayIds() implementation.
-        if (displayIds.size() > 0) {
-            sInternalDisplayId = displayIds[0];
-            for (const auto& id : displayIds) {
-                const auto port = id & 0xFF;
-                LOG(INFO) << "Display " << std::hex << id << " is detected on the port, " << port;
-                sDisplayPortList.insert_or_assign(port, id);
-            }
+        internalDisplayId = displayIds[0];
+        for (const auto& id : displayIds) {
+            const auto port = id & 0xFF;
+            LOG(INFO) << "Display " << std::hex << id << " is detected on the port, " << port;
+            sDisplayPortList.insert_or_assign(port, id);
         }
-    });
+    }
 
     LOG(INFO) << "Found " << sDisplayPortList.size() << " displays";
+    return internalDisplayId;
 }
 
 // Methods from ::android::hardware::automotive::evs::IEvsEnumerator follow.
@@ -426,7 +433,7 @@ ScopedAStatus EvsEnumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay
     }
 
     // Create a new display interface and return it.
-    pActiveDisplay = ::ndk::SharedRefBase::make<EvsGlDisplay>(sDisplayProxy, sInternalDisplayId);
+    pActiveDisplay = ::ndk::SharedRefBase::make<EvsGlDisplay>(sDisplayProxy, mInternalDisplayId);
     sActiveDisplay = pActiveDisplay;
 
     LOG(DEBUG) << "Returning new EvsGlDisplay object " << pActiveDisplay.get();
@@ -476,9 +483,9 @@ ScopedAStatus EvsEnumerator::getDisplayIdList(std::vector<uint8_t>* list) {
     if (sDisplayPortList.size() > 0) {
         output.resize(sDisplayPortList.size());
         unsigned i = 0;
-        output[i++] = sInternalDisplayId & 0xFF;
+        output[i++] = mInternalDisplayId & 0xFF;
         for (const auto& [port, id] : sDisplayPortList) {
-            if (sInternalDisplayId != id) {
+            if (mInternalDisplayId != id) {
                 output[i++] = port;
             }
         }

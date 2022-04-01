@@ -21,14 +21,13 @@
 #include "EvsGlDisplay.h"
 #include "EvsV4lCamera.h"
 
+#include <aidl/android/frameworks/automotive/display/ICarDisplayProxy.h>
 #include <aidl/android/hardware/automotive/evs/BnEvsEnumerator.h>
 #include <aidl/android/hardware/automotive/evs/CameraDesc.h>
 #include <aidl/android/hardware/automotive/evs/DeviceStatusType.h>
 #include <aidl/android/hardware/automotive/evs/IEvsCamera.h>
 #include <aidl/android/hardware/automotive/evs/IEvsEnumeratorStatusCallback.h>
 #include <aidl/android/hardware/automotive/evs/Stream.h>
-// TODO(b/170401743): using AIDL version when IAutomotiveDisplayProxyService is migrated.
-#include <android/frameworks/automotive/display/1.0/IAutomotiveDisplayProxyService.h>
 #include <utils/Thread.h>
 
 #include <atomic>
@@ -37,7 +36,6 @@
 
 namespace aidl::android::hardware::automotive::evs::implementation {
 
-namespace automotivedisplay = ::android::frameworks::automotive::display::V1_0;
 namespace aidlevs = ::aidl::android::hardware::automotive::evs;
 
 class EvsEnumerator final : public ::aidl::android::hardware::automotive::evs::BnEvsEnumerator {
@@ -69,7 +67,9 @@ public:
     binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
 
     // Implementation details
-    EvsEnumerator(const ::android::sp<automotivedisplay::IAutomotiveDisplayProxyService>& service);
+    EvsEnumerator(const std::shared_ptr<
+                  ::aidl::android::frameworks::automotive::display::ICarDisplayProxy>&
+                          proxyService);
 
     void notifyDeviceStatusChange(const std::string_view& deviceName,
                                   aidlevs::DeviceStatusType type);
@@ -95,7 +95,8 @@ private:
     static void enumerateCameras();
     static bool addCaptureDevice(const std::string& deviceName);
     static bool removeCaptureDevice(const std::string& deviceName);
-    static void enumerateDisplays();
+    // Enumerate available displays and return an id of the internal display
+    static uint64_t enumerateDisplays();
 
     // NOTE:  All members values are static so that all clients operate on the same state
     //        That is to say, this is effectively a singleton despite the fact that HIDL
@@ -109,10 +110,11 @@ private:
     static std::mutex sLock;                               // Mutex on shared camera device list.
     static std::condition_variable sCameraSignal;          // Signal on camera device addition.
     static std::unique_ptr<ConfigManager> sConfigManager;  // ConfigManager
-    static sp<automotivedisplay::IAutomotiveDisplayProxyService> sDisplayProxy;
+    static std::shared_ptr<::aidl::android::frameworks::automotive::display::ICarDisplayProxy>
+            sDisplayProxy;
     static std::unordered_map<uint8_t, uint64_t> sDisplayPortList;
-    static uint64_t sInternalDisplayId;
 
+    uint64_t mInternalDisplayId;
     std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback> mCallback;
 
     // Dumpsys commands
