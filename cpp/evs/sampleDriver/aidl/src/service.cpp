@@ -19,9 +19,7 @@
 
 #include <android/binder_manager.h>
 #include <android/binder_process.h>
-#include <utils/Errors.h>
 #include <utils/Log.h>
-#include <utils/StrongPointer.h>
 
 #include <unistd.h>
 
@@ -31,10 +29,10 @@
 
 namespace {
 
+using ::aidl::android::frameworks::automotive::display::ICarDisplayProxy;
 using ::aidl::android::hardware::automotive::evs::implementation::EvsEnumerator;
-using ::android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
 
-constexpr std::string_view kDisplayServiceInstanceName = "default";
+constexpr std::string_view kDisplayServiceInstanceName = "/default";
 constexpr std::string_view kHwInstanceName = "/hw/1";
 constexpr int kNumBinderThreads = 1;
 
@@ -43,10 +41,18 @@ constexpr int kNumBinderThreads = 1;
 int main() {
     LOG(INFO) << "EVS Hardware Enumerator service is starting";
 
-    android::sp<IAutomotiveDisplayProxyService> displayService =
-            IAutomotiveDisplayProxyService::getService(kDisplayServiceInstanceName.data());
+    const std::string displayServiceInstanceName =
+            std::string(ICarDisplayProxy::descriptor) + std::string(kDisplayServiceInstanceName);
+    if (!AServiceManager_isDeclared(displayServiceInstanceName.data())) {
+        // TODO: We may just want to disable EVS display.
+        LOG(ERROR) << displayServiceInstanceName << " is required.";
+        return EXIT_FAILURE;
+    }
+
+    std::shared_ptr<ICarDisplayProxy> displayService = ICarDisplayProxy::fromBinder(
+            ::ndk::SpAIBinder(AServiceManager_waitForService(displayServiceInstanceName.data())));
     if (!displayService) {
-        LOG(ERROR) << "Cannot use AutomotiveDisplayProxyService.  Exiting.";
+        LOG(ERROR) << "Cannot use " << displayServiceInstanceName << ".  Exiting.";
         return EXIT_FAILURE;
     }
 

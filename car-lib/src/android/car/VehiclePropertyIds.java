@@ -2103,7 +2103,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @AddedInOrBefore(majorVersion = 33)
-    public static final int EV_CHARGE_STATE = 289410880;
+    public static final int EV_CHARGE_STATE = 289410881;
 
     /**
      * Start or stop charging the EV battery.
@@ -2118,7 +2118,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_ENERGY)
     @AddedInOrBefore(majorVersion = 33)
-    public static final int EV_CHARGE_SWITCH = 287313729;
+    public static final int EV_CHARGE_SWITCH = 287313730;
 
     /**
      * Estimated charge time remaining in seconds.
@@ -2132,7 +2132,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @AddedInOrBefore(majorVersion = 33)
-    public static final int EV_CHARGE_TIME_REMAINING = 289410882;
+    public static final int EV_CHARGE_TIME_REMAINING = 289410883;
 
     /**
      * Regenerative braking or one-pedal drive state of the car.
@@ -2147,7 +2147,7 @@ public final class VehiclePropertyIds {
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @AddedInOrBefore(majorVersion = 33)
-    public static final int EV_REGENERATIVE_BRAKING_STATE = 289410883;
+    public static final int EV_REGENERATIVE_BRAKING_STATE = 289410884;
 
     /**
      * Vehicle’s curb weight
