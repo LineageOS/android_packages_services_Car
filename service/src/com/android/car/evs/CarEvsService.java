@@ -631,9 +631,12 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     // The last event EvsHalService reported.  This will be set to null when a related service
     // request is handled.
+    //
+    // To properly handle a HAL event that occurred before CarEvsService is ready, we initialize
+    // mLastEvsHalEvent with a zero timestamp here.
     @GuardedBy("mLock")
-    private EvsHalEvent mLastEvsHalEvent = new EvsHalEvent(SystemClock.elapsedRealtimeNanos(),
-            CarEvsManager.SERVICE_TYPE_REARVIEW, /* on = */false);
+    private EvsHalEvent mLastEvsHalEvent = new EvsHalEvent(/* timestamp= */ 0,
+            CarEvsManager.SERVICE_TYPE_REARVIEW, /* on= */ false);
 
     // Stops a current video stream and unregisters a callback
     private void stopVideoStreamAndUnregisterCallback(ICarEvsStreamCallback callback) {

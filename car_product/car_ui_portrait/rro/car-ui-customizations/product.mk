@@ -25,9 +25,9 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_customization-com-android-car-carlauncher \
     generated_caruiportrait_customization-com-android-car-home \
     generated_caruiportrait_customization-com-android-car-media \
+    generated_caruiportrait_customization-com-android-car-messenger \
     generated_caruiportrait_customization-com-android-car-radio \
     generated_caruiportrait_customization-com-android-car-calendar \
-    generated_caruiportrait_customization-com-android-car-companiondevicesupport \
     generated_caruiportrait_customization-com-android-car-systemupdater \
     generated_caruiportrait_customization-com-android-car-dialer \
     generated_caruiportrait_customization-com-android-car-linkviewer \
@@ -40,6 +40,7 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_customization-com-google-android-apps-automotive-inputmethod \
     generated_caruiportrait_customization-com-google-android-apps-automotive-inputmethod-dev \
     generated_caruiportrait_customization-com-google-android-apps-automotive-templates-host \
+    generated_caruiportrait_customization-com-google-android-companiondevicesupport \
     generated_caruiportrait_customization-com-google-android-embedded-projection \
     generated_caruiportrait_customization-com-google-android-gms \
     generated_caruiportrait_customization-com-google-android-gsf \

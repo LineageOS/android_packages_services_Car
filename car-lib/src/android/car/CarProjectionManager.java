@@ -703,6 +703,21 @@ public final class CarProjectionManager extends CarManagerBase {
     }
 
     /**
+     * Resets projection access point credentials if system was configured to persist local-only
+     * hotspot credentials.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
+    public void resetProjectionAccessPointCredentials() {
+        try {
+            mService.resetProjectionAccessPointCredentials();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
      * Callback class for applications to receive updates about the LocalOnlyHotspot status.
      */
     public abstract static class ProjectionAccessPointCallback {

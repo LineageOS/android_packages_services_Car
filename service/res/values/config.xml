@@ -175,6 +175,14 @@
          recurring overuse.  -->
     <integer name="recurringResourceOveruseTimes">2</integer>
 
+    <!-- The number of top UID I/O usage summaries to report on car watchdog I/O usage
+         summary atom pull.  -->
+    <integer name="uidIoUsageSummaryTopCount">10</integer>
+
+    <!-- The minimum number of total bytes written to disk by the system required to
+         report the stats on car watchdog I/O usage summary atom pull. Currently 500 MiB.  -->
+    <integer name="ioUsageSummaryMinSystemTotalWrittenBytes">524288000</integer>
+
     <!-- The name of an intent to be notified by CarService whenever it detects too many
          samples with excessive I/O activity. Value must either be an empty string, which
          means that no notification will take place, or be in the format of a flattened
@@ -261,6 +269,13 @@
          If this value is true then tethering is enabled. Otherwise, local-only hotspot will be
          created. -->
     <bool name="config_projectionAccessPointTethering" translatable="false">false</bool>
+
+    <!-- If projection Access Point is configured to not provide Internet access (not tethered,
+         see config_projectionAccessPointTethering) then this flag will be used to control
+         whether Wi-Fi configuration will persist reboots. By default new Wi-Fi credentials are
+         created for every local-only hotspot (LOHS) instantiation, changing this flag to true
+         will make LOHS credentials persistent. -->
+    <bool name="config_stableLocalOnlyHotspotConfig" translatable="false">false</bool>
 
     <!-- The package name of a service to be launched by CarService to bind to an active media
          service on the current  user.
@@ -431,4 +446,19 @@
     <string name="config_template_activity_class_name">
         androidx.car.app.activity.CarAppActivity
     </string>
+
+    <!-- Configuration to set when pre-created users should be managed by CarService. Car Service
+         will make sure it has the number of pre-created users defined by the system properties
+         android.car.number_pre_created_users and android.car.number_pre_created_guests.
+         Supported flags:
+         1 - Before suspend
+         2 - After system start
+         Flags can be combined. In this case, 3 means manage pre-created users after system start
+         and before suspend. If pre-created users are managed after system start then
+         config_userPreCreationDelay will be used to wait before managing pre-created users. -->
+    <integer name="config_userPreCreationStage">3</integer>
+
+    <!-- How many milli-seconds CarService should wait before managing pre-created users after
+         system start. This property only applied when config_userPreCreationStage flag is 2. -->
+    <integer name="config_userPreCreationDelay">5000</integer>
 </resources>

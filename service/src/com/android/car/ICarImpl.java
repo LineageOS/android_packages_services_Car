@@ -854,7 +854,7 @@ public class ICarImpl extends ICar.Stub {
                 mCarProjectionService, mCarPowerManagementService, mFixedActivityService,
                 mFeatureController, mCarInputService, mCarNightService, mSystemInterface,
                 mGarageModeService, mCarUserService, mCarOccupantZoneService, mCarEvsService,
-                mCarWatchdogService);
+                mCarWatchdogService, mCarTelemetryService);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

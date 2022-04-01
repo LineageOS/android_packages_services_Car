@@ -19,6 +19,7 @@ package com.android.car.user;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestrictionForUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserOrSetEphemeral;
 import static android.car.test.mocks.JavaMockitoHelper.getResult;
 import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -57,12 +58,14 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
+import android.app.admin.DevicePolicyManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase.ExpectWtf;
 import android.car.test.mocks.BlockingAnswer;
 import android.car.test.util.BlockingResultReceiver;
 import android.car.testapi.BlockingUserLifecycleListener;
@@ -105,11 +108,14 @@ import android.location.LocationManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
+import android.os.UserManager.UserSwitchabilityResult;
 import android.sysprop.CarProperties;
+import android.util.DebugUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -160,6 +166,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final int NON_EXISTING_USER = 55; // must not be on mExistingUsers
 
+    private static final int PRE_CREATION_STAGE_BEFORE_SUSPEND = 1;
+    private static final int PRE_CREATION_STAGE_ON_SYSTEM_START = 2;
+
     private static final boolean HAS_CALLER_RESTRICTIONS = true;
     private static final boolean NO_CALLER_RESTRICTIONS = false;
 
@@ -171,6 +180,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserHalService mUserHal;
     @Mock private IActivityManager mMockedIActivityManager;
     @Mock private UserManager mMockedUserManager;
+    @Mock private DevicePolicyManager mMockedDevicePolicyManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
     @Mock private InitialUserSetter mInitialUserSetter;
@@ -221,6 +231,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             getClass().getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+
+    private final @UserIdInt int mAdminUserId = mAdminUser.id;
+    private final @UserIdInt int mGuestUserId = mGuestUser.id;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
@@ -787,6 +800,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -801,15 +816,16 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
         verifyNoUserSwitch();
         assertNoHalUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
     public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws Exception {
-        when(mMockedUserManager.getUserSwitchability())
-                .thenReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED);
+        mockUmGetUserSwitchability(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED);
         mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_INVALID_REQUEST);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -820,6 +836,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.switchDriver(mAdminUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1144,13 +1161,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testSwitchUser_noUserSwitchability() throws Exception {
         UserInfo currentUser = mAdminUser;
         mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
-        doReturn(UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED).when(mMockedUserManager)
-                .getUserSwitchability();
+        mockUmGetUserSwitchability(UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
 
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_NOT_SWITCHABLE);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_NOT_SWITCHABLE);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1159,10 +1175,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         switchUser(mAdminUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
-
+        assertUserSwitchResult(getUserSwitchResult(),
+                UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
         verifyNoUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1173,15 +1189,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         switchUser(mRegularUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
         verify(mUserHal, never()).switchUser(any(), anyInt(), any());
-
         // update current user due to successful user switch
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
         assertNoHalUserSwitch();
         assertNoPostSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1191,9 +1206,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         switchUser(mRegularUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_ANDROID_FAILURE);
         assertNoHalUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1207,12 +1222,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
         // update current user due to successful user switch
         mockCurrentUser(mGuestUser);
         sendUserUnlockedEvent(mGuestUser.id);
         assertPostSwitch(requestId, mGuestUser.id, mGuestUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1226,9 +1241,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_ANDROID_FAILURE);
         assertPostSwitch(requestId, mAdminUser.id, mGuestUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1241,9 +1256,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         UserSwitchResult result = getUserSwitchResult();
-        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_FAILURE);
+        assertUserSwitchResult(result.getStatus(), UserSwitchResult.STATUS_HAL_FAILURE);
         assertThat(result.getErrorMessage()).isEqualTo(mSwitchUserResponse.errorMessage);
         verifyNoUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1255,9 +1271,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
         verifyNoUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1268,10 +1284,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         initService();
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
-        assertThat(getUserSwitchResult().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+        assertUserSwitchResult(getUserSwitchResult(),
+                UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
         assertNoHalUserSwitch();
         verifyNoUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1286,19 +1303,20 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // Should be ok first time...
         ICarUxRestrictionsChangeListener listener = initService();
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
-        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
 
         // ...but then fail after the state changed
         mockCurrentUser(mGuestUser);
         updateUxRestrictions(listener, /* restricted= */ true); // changed state
         switchUser(mAdminUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture2);
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+        assertUserSwitchResult(getUserSwitchResult2(),
+                UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
 
         // Verify only initial call succeeded (if second was also called the mocks, verify() would
         // fail because it was called more than once()
         assertHalSwitchAnyUser();
         verifyAnyUserSwitch();
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1321,12 +1339,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mRegularUser, true);
         switchUser(mRegularUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture2);
 
-        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult2(), UserSwitchResult.STATUS_SUCCESSFUL);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1351,11 +1369,39 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
 
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult2(), UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
+    }
+
+    @Test
+    public void testSwitchUser_multipleCallsDifferentUser_beforeFirstUserUnlock_legacySwitch()
+            throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
+        mockAmSwitchUser(mGuestUser, true);
+
+        // First switch, using CarUserManager
+        switchUser(mGuestUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        // update current user due to successful user switch
+        mockCurrentUser(mGuestUser);
+
+        assertHalSwitch(mAdminUserId, mGuestUserId);
+        // Unlock event was not sent, so it should not receive postSwitch
+        assertNoPostSwitch();
+
+        // Second switch, using legacy APIs
+        sendUserSwitchingEvent(mGuestUserId, mAdminUserId);
+
+        verify(mUserHal).legacyUserSwitch(
+                isSwitchUserRequest(/* requestId= */ 0, mGuestUserId, mAdminUserId));
     }
 
     @Test
@@ -1376,11 +1422,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mRegularUser, true);
         switchUser(mRegularUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture2);
 
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult2(), UserSwitchResult.STATUS_SUCCESSFUL);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1404,11 +1450,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockCurrentUser(mRegularUser);
         sendUserUnlockedEvent(mRegularUser.id);
 
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult2(), UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1435,14 +1481,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserUnlockedEvent(mRegularUser.id);
         blockingAnswer.unblock();
 
-        UserSwitchResult result = getUserSwitchResult();
-        assertThat(result.getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult(),
+                UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST);
+        assertUserSwitchResult(getUserSwitchResult2(), UserSwitchResult.STATUS_SUCCESSFUL);
         assertPostSwitch(newRequestId, mRegularUser.id, mRegularUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1457,10 +1502,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // calling another user switch before unlock
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture2);
 
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
+        assertUserSwitchResult(getUserSwitchResult2(),
+                UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1476,11 +1522,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         // calling another user switch before unlock
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture2);
 
-        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult2(),
+                UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertNoPostSwitch();
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1502,16 +1549,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockCurrentUser(mGuestUser);
         sendUserUnlockedEvent(mGuestUser.id);
 
-        assertThat(getUserSwitchResult().getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-        assertThat(getUserSwitchResult2().getStatus())
-                .isEqualTo(UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        assertUserSwitchResult(getUserSwitchResult2(),
+                UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO);
         assertPostSwitch(requestId, mGuestUser.id, mGuestUser.id);
         assertHalSwitch(mAdminUser.id, mGuestUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
     public void testSwitchUser_InvalidPermission() throws Exception {
         mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
+
         assertThrows(SecurityException.class, () -> mCarUserService
                 .switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture));
     }
@@ -1519,10 +1568,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testLegacyUserSwitch_ok() throws Exception {
         mockExistingUsers(mExistingUsers);
+        int targetUserId = mRegularUser.id;
+        int sourceUserId = mAdminUser.id;
 
-        sendUserSwitchingEvent(mAdminUser.id, mRegularUser.id);
+        mockCallerUid(Binder.getCallingUid(), true);
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
 
-        verify(mUserHal).legacyUserSwitch(isSwitchUserRequest(0, mAdminUser.id, mRegularUser.id));
+        sendUserSwitchingEvent(sourceUserId, targetUserId);
+
+        verify(mUserHal).legacyUserSwitch(
+                isSwitchUserRequest(/* requestId= */ 0, sourceUserId, targetUserId));
+        verify(mSwitchUserUiReceiver).send(targetUserId, null);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1534,13 +1591,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mGuestUser, true);
-        switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
+        int targetUserId = mGuestUser.id;
+        mockCallerUid(Binder.getCallingUid(), true);
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
+        switchUser(targetUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // Act - trigger legacy switch
-        sendUserSwitchingEvent(mAdminUser.id, mGuestUser.id);
+        sendUserSwitchingEvent(mAdminUser.id, targetUserId);
 
         // Assert
         verify(mUserHal, never()).legacyUserSwitch(any());
+        verify(mSwitchUserUiReceiver).send(targetUserId, null);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1549,12 +1611,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int callerId = Binder.getCallingUid();
         mockCallerUid(callerId, true);
         int requestId = 42;
+        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
+
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
         mSwitchUserResponse.requestId = requestId;
         mockHalSwitch(mAdminUser.id, mGuestUser, mSwitchUserResponse);
         mockAmSwitchUser(mGuestUser, true);
 
-        mCarUserService.setUserSwitchUiCallback(mSwitchUserUiReceiver);
         switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
 
         // update current user due to successful user switch
@@ -1581,6 +1644,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserUnlockedEvent(mRegularUser.id);
 
         assertPostSwitch(requestId, mRegularUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
     }
 
     @Test
@@ -1592,6 +1656,148 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.switchAndroidUserFromHal(requestId, mRegularUser.id);
 
         assertPostSwitch(requestId, mAdminUser.id, mRegularUser.id);
+        assertLogoutUserNotCleared();
+    }
+
+    @Test
+    public void testLogoutUser_currentUserNotSwitchedByDeviceAdmin() throws Exception {
+        mockNoLogoutUserId();
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_NOT_LOGGED_IN);
+        assertLogoutUserNotCleared();
+    }
+
+    @Test
+    @ExpectWtf
+    public void testLogoutUser_logoutUserDoesntExist() throws Exception {
+        mockLogoutUserId(mAdminUserId);
+        // No need to mock um.getUser(mAdminUserId) - it will return null by default
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertLogoutUserNotCleared();
+    }
+
+    @Test
+    public void testLogoutUser_halNotSupported_noUserSwitchability() throws Exception {
+        mockLogoutUser(mAdminUser);
+        mockUserHalSupported(false);
+        mockAmSwitchUser(mAdminUser, true);
+
+        mockUmGetUserSwitchability(UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED);
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        assertLogoutUserCleared();
+    }
+
+    @Test
+    public void testLogoutUser_halNotSupported_success() throws Exception {
+        mockLogoutUser(mAdminUser);
+        mockUserHalSupported(false);
+        mockAmSwitchUser(mAdminUser, true);
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        assertLogoutUserCleared();
+    }
+
+    @Test
+    public void testLogoutUser_halNotSupported_failure() throws Exception {
+        mockLogoutUser(mAdminUser);
+        mockUserHalSupported(false);
+        // Don't need to call mockAmSwitchUser() because it returns false by default
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertLogoutUserNotCleared();
+    }
+
+    @Test
+    public void testLogoutUser_halSuccessAndroidSuccess() throws Exception {
+        mockExistingUsersAndCurrentUser(mGuestUser);
+        mockLogoutUser(mAdminUser);
+        mockUserHalSupported(true);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
+        mockAmSwitchUser(mAdminUser, true);
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_SUCCESSFUL);
+        assertLogoutUserCleared();
+
+        // update current user due to successful user switch
+        mockCurrentUser(mAdminUser);
+        sendUserUnlockedEvent(mAdminUserId);
+        assertPostSwitch(requestId, mAdminUserId, mAdminUserId);
+    }
+
+    @Test
+    public void testLogoutUser_halSuccessAndroidFailure() throws Exception {
+        mockExistingUsersAndCurrentUser(mGuestUser);
+        mockLogoutUser(mAdminUser);
+        mockUserHalSupported(true);
+        int requestId = 42;
+        mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
+        mSwitchUserResponse.requestId = requestId;
+        mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
+        // Don't need to call mockAmSwitchUser() because it returns false by default
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(), UserSwitchResult.STATUS_ANDROID_FAILURE);
+        assertLogoutUserNotCleared();
+        assertPostSwitch(requestId, mGuestUserId, mAdminUserId);
+    }
+
+    @Test
+    public void testLogoutUser_halFailure() throws Exception {
+        mockExistingUsersAndCurrentUser(mGuestUser);
+        mockLogoutUser(mAdminUser);
+        mockUserHalSupported(true);
+        mSwitchUserResponse.status = SwitchUserStatus.FAILURE;
+        mSwitchUserResponse.errorMessage = "Error Message";
+        mockHalSwitch(mGuestUserId, mAdminUser, mSwitchUserResponse);
+
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        UserSwitchResult result = getUserSwitchResult();
+        assertUserSwitchResult(result, UserSwitchResult.STATUS_HAL_FAILURE);
+        assertThat(result.getErrorMessage()).isEqualTo(mSwitchUserResponse.errorMessage);
+        assertLogoutUserNotCleared();
+        verifyNoUserSwitch();
+    }
+
+    @Test
+    public void testLogoutUser_failUxRestrictedOnInit() throws Exception {
+        mockGetUxRestrictions(/*restricted= */ true);
+        mockLogoutUser(mAdminUser);
+
+        initService();
+        logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(),
+                UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
+        assertLogoutUserNotCleared();
+        assertNoHalUserSwitch();
+        verifyNoUserSwitch();
+    }
+
+    @Test
+    public void testLogoutUser_InvalidPermission() throws Exception {
+        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
+
+        assertThrows(SecurityException.class, () -> mCarUserService
+                .logoutUser(mAsyncCallTimeoutMs, mUserSwitchFuture));
     }
 
     @Test
@@ -1708,6 +1914,22 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertNoHalUserCreation();
+        assertNoHalUserRemoval();
+    }
+
+    @Test
+    public void testCreateUser_disallowAddUser() throws Exception {
+        mockUmHasUserRestrictionForUser(mMockedUserManager, Process.myUserHandle(),
+                UserManager.DISALLOW_ADD_USER, /* value= */ true);
+        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
+                /* flags= */ 0, 42);
+
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY, /* flags= */ 0,
+                mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+
+        UserCreationResult result = getUserCreationResult();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_ANDROID_FAILURE);
         assertNoHalUserCreation();
         assertNoHalUserRemoval();
     }
@@ -2174,7 +2396,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         verify(mInitialUserSetter).set(argThat((info) -> {
             return info.type == InitialUserSetter.TYPE_DEFAULT_BEHAVIOR
-                    && info.userLocales == null;
+                    && info.userLocales == null && info.supportsOverrideUserIdProperty;
         }));
     }
 
@@ -2245,6 +2467,26 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testInitBootUser_preCreateUser() throws Exception {
+        mockUserPreCreationStage(PRE_CREATION_STAGE_ON_SYSTEM_START);
+
+        CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+
+        service.initBootUser();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
+    public void testInitBootUser_noPreCreateUser() throws Exception {
+        mCarUserService.initBootUser();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator, never()).managePreCreatedUsers();
+    }
+
+    @Test
     public void testUpdatePreCreatedUser_success() throws Exception {
         mCarUserService.updatePreCreatedUsers();
         waitForHandlerThreadToFinish();
@@ -2256,6 +2498,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testOnSuspend_replace() throws Exception {
         mockExistingUsersAndCurrentUser(mGuestUser);
         when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
+        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
@@ -2270,6 +2513,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testOnSuspend_notReplace() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
+        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
 
         CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ true);
         service.onSuspend();
@@ -2277,6 +2521,26 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         verify(mInitialUserSetter, never()).set(any());
         verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
+    public void testOnSuspend_preCreateUser() throws Exception {
+        mockUserPreCreationStage(PRE_CREATION_STAGE_BEFORE_SUSPEND);
+
+        CarUserService service = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+
+        service.onSuspend();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
+    public void testOnSuspend_noPreCreateUser() throws Exception {
+        mCarUserService.onSuspend();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator, never()).managePreCreatedUsers();
     }
 
     @Test
@@ -2384,9 +2648,20 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         waitForHandlerThreadToFinish();
     }
 
+    private void mockUserPreCreationStage(int stage) {
+        when(mMockedResources
+                .getInteger(com.android.car.R.integer.config_userPreCreationStage))
+                        .thenReturn(stage);
+    }
+
     private void switchUser(@UserIdInt int userId, int timeoutMs,
             @NonNull AndroidFuture<UserSwitchResult> receiver) {
         mCarUserService.switchUser(userId, timeoutMs, receiver);
+        waitForHandlerThreadToFinish();
+    }
+
+    private void logoutUser(int timeoutMs, @NonNull AndroidFuture<UserSwitchResult> receiver) {
+        mCarUserService.logoutUser(timeoutMs, receiver);
         waitForHandlerThreadToFinish();
     }
 
@@ -2449,6 +2724,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 mMockContext,
                 mUserHal,
                 mMockedUserManager,
+                mMockedDevicePolicyManager,
                 mMockedIActivityManager,
                 /* maxRunningUsers= */ 3,
                 mInitialUserSetter,
@@ -2505,6 +2781,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
         when(mMockedIActivityManager.switchUser(user.id)).thenReturn(result);
+    }
+
+    private void mockUmGetUserSwitchability(@UserSwitchabilityResult int result) {
+        when(mMockedUserManager.getUserSwitchability()).thenReturn(result);
     }
 
     private void mockRemoveUser(@NonNull UserInfo user) {
@@ -2770,6 +3050,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         when(mCarUxRestrictionService.getCurrentUxRestrictions()).thenReturn(restrictions);
     }
 
+    private void mockNoLogoutUserId() {
+        mockLogoutUserId(UserHandle.USER_NULL);
+    }
+
+    private void mockLogoutUser(UserInfo user) {
+        mockLogoutUserId(user.id);
+        mockUmGetUserInfo(mMockedUserManager, user);
+    }
+
+    private void mockLogoutUserId(@UserIdInt int userId) {
+        when(mMockedDevicePolicyManager.getLogoutUserId()).thenReturn(userId);
+    }
+
     /**
      * Asserts a {@link UsersInfo} that was created based on {@link #mockCurrentUsers(UserInfo)}.
      */
@@ -2899,6 +3192,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
+    private void assertLogoutUserCleared() {
+        verify(mMockedDevicePolicyManager).clearLogoutUser();
+    }
+
+    private void assertLogoutUserNotCleared() {
+        verify(mMockedDevicePolicyManager, never()).clearLogoutUser();
+    }
+
     @NonNull
     private static SwitchUserRequest isSwitchUserRequest(int requestId,
             @UserIdInt int currentUserId, @UserIdInt int targetUserId) {
@@ -2961,6 +3262,21 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void sendUserSwitchingEvent(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         sendUserLifecycleEvent(fromUserId, toUserId,
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING);
+    }
+
+    private void assertUserSwitchResult(UserSwitchResult result, int expected) {
+        assertUserSwitchResult(result.getStatus(), expected);
+    }
+
+    private void assertUserSwitchResult(int actual, int expected) {
+        assertWithMessage("user switch result (where %s=%s and %s=%s)",
+                expected, userSwitchResultToString(expected),
+                actual, userSwitchResultToString(actual))
+                        .that(actual).isEqualTo(expected);
+    }
+
+    private static String userSwitchResultToString(int status) {
+        return DebugUtils.constantToString(UserSwitchResult.class, "STATUS_", status);
     }
 
     @NonNull

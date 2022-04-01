@@ -16,9 +16,8 @@
 
 package com.android.car.telemetry.databroker;
 
-import android.car.telemetry.MetricsConfigKey;
-
-import com.android.car.telemetry.TelemetryProto;
+import android.annotation.NonNull;
+import android.car.telemetry.TelemetryProto;
 
 /** Interface for the data path. Handles data forwarding from publishers to subscribers */
 public interface DataBroker {
@@ -30,33 +29,32 @@ public interface DataBroker {
         /**
          * Listens to script finished event.
          *
-         * @param key that uniquely identifies the config whose script finished.
+         * @param metricsConfigName that uniquely identifies the config whose script finished.
          */
-        void onScriptFinished(MetricsConfigKey key);
+        void onScriptFinished(@NonNull String metricsConfigName);
     }
 
     /**
-     * Adds an active {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
+     * Adds an active {@link android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
      * execution. When updating the MetricsConfig to a newer version, the caller must call
      * {@link #removeMetricsConfig(String)} first to clear the old MetricsConfig.
      * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
-     *
-     * @param key the unique identifier of the MetricsConfig.
+     * @param metricsConfigName name of the MetricsConfig.
      * @param metricsConfig to be added and queued for execution.
      */
-    void addMetricsConfig(MetricsConfigKey key, TelemetryProto.MetricsConfig metricsConfig);
+    void addMetricsConfig(
+            @NonNull String metricsConfigName, @NonNull TelemetryProto.MetricsConfig metricsConfig);
 
     /**
-     * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
+     * Removes a {@link android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
      *
-     * @param key the unique identifier of the MetricsConfig to be removed.
+     * @param metricsConfigName to identify the MetricsConfig to be removed.
      */
-    void removeMetricsConfig(MetricsConfigKey key);
+    void removeMetricsConfig(@NonNull String metricsConfigName);
 
     /**
-     * Removes all {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}s and
-     * subscriptions.
+     * Removes all {@link android.car.telemetry.TelemetryProto.MetricsConfig}s and subscriptions.
      */
     void removeAllMetricsConfigs();
 
@@ -64,7 +62,7 @@ public interface DataBroker {
      * Adds a {@link ScriptExecutionTask} to the priority queue. This method will schedule the
      * next task if a task is not currently running.
      */
-    void addTaskToQueue(ScriptExecutionTask task);
+    void addTaskToQueue(@NonNull ScriptExecutionTask task);
 
     /**
      * Checks system health state and executes a task if condition allows.
@@ -76,7 +74,7 @@ public interface DataBroker {
      *
      * @param callback script finished callback.
      */
-    void setOnScriptFinishedCallback(ScriptFinishedCallback callback);
+    void setOnScriptFinishedCallback(@NonNull ScriptFinishedCallback callback);
 
     /**
      * Sets the priority which affects which subscribers can consume data. Invoked by controller to

@@ -32,6 +32,7 @@ car_service_sources = [
     ":iscriptexecutor_aidl",
     "src/**/*.java",
     ":statslog-Car-java-gen",
+    ":cartelemetryservice-proto-srcs",
 ]
 
 common_lib_deps = [

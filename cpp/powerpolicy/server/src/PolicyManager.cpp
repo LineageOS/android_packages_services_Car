@@ -122,6 +122,7 @@ const std::vector<PowerComponent> kSuspendToRamDisabledComponents = {PowerCompon
                                                                      PowerComponent::BLUETOOTH,
                                                                      PowerComponent::WIFI,
                                                                      PowerComponent::LOCATION,
+                                                                     PowerComponent::MICROPHONE,
                                                                      PowerComponent::CPU};
 const std::unordered_set<PowerComponent> kNoUserInteractionConfigurableComponents =
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};

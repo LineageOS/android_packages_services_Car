@@ -27,6 +27,7 @@ allow carservice_app {
     bluetooth_manager_service
     connectivity_service
     content_service
+    device_policy_service
     deviceidle_service
     display_service
     graphicsstats_service
@@ -35,6 +36,7 @@ allow carservice_app {
     location_service
     lock_settings_service
     media_session_service
+    netstats_service  # for CarTelemetryService
     network_management_service
     power_service
     procfsinspector_service
@@ -110,3 +112,6 @@ allow carservice_app proc_loadavg:file { open read getattr };
 # Allow finding game_service and content_capture_service
 allow carservice_app game_service:service_manager find;
 allow carservice_app content_capture_service:service_manager find;
+
+# Allow finding hint_service
+allow carservice_app hint_service:service_manager find;

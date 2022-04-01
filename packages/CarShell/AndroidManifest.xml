@@ -56,4 +56,6 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY" />
     <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA" />
     <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS" />
+    <!-- Permissions required for CarTelemetryManagerPermissionTest -->
+    <uses-permission android:name="com.android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
 </manifest>
