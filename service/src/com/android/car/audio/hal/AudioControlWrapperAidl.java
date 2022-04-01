@@ -40,6 +40,7 @@ import android.util.Log;
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioGainConfigInfo;
 import com.android.car.audio.CarDuckingInfo;
+import com.android.car.audio.CarHalAudioUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -203,13 +204,13 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         DuckingInfo[] duckingInfos = new DuckingInfo[carDuckingInfos.size()];
         for (int i = 0; i < carDuckingInfos.size(); i++) {
             CarDuckingInfo info = Objects.requireNonNull(carDuckingInfos.get(i));
-            duckingInfos[i] = info.generateDuckingInfo();
+            duckingInfos[i] = CarHalAudioUtils.generateDuckingInfo(info);
         }
 
         try {
             mAudioControl.onDevicesToDuckChange(duckingInfos);
         } catch (RemoteException e) {
-            Slogf.e(TAG, "onDevicesToDuckChange failed", e);
+            Slogf.e(TAG, e, "onDevicesToDuckChange failed");
         }
     }
 
@@ -222,7 +223,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.onDevicesToMuteChange(mutingInfoToHal);
         } catch (RemoteException e) {
-            Slogf.e(TAG, "onDevicesToMuteChange failed", e);
+            Slogf.e(TAG, e, "onDevicesToMuteChange failed");
         }
     }
 

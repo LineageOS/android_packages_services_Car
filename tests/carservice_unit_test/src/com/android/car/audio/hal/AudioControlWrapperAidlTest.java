@@ -57,6 +57,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import com.android.car.audio.CarAudioGainConfigInfo;
 import com.android.car.audio.CarDuckingInfo;
+import com.android.car.audio.CarHalAudioUtils;
 import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
@@ -194,8 +195,9 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToDuckChange_callsHalWithDuckingInfo() throws Exception {
-        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
-                new ArrayList<>(), new int[0]);
+        CarDuckingInfo carDuckingInfo =
+                new CarDuckingInfo(
+                        ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
@@ -207,8 +209,14 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToDuckChange_convertsUsagesToXsdStrings() throws Exception {
-        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
-                new ArrayList<>(), new int[]{USAGE_MEDIA, USAGE_NOTIFICATION});
+        CarDuckingInfo carDuckingInfo =
+                new CarDuckingInfo(
+                        ZONE_ID,
+                        new ArrayList<>(),
+                        new ArrayList<>(),
+                        CarHalAudioUtils.usagesToMetadatas(
+                                new int[] {USAGE_MEDIA, USAGE_NOTIFICATION},
+                                /* CarAudioZone= */ null));
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
@@ -224,8 +232,12 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void onDevicesToDuckChange_passesAlongAddressesToDuck() throws Exception {
         String mediaAddress = "media_bus";
         String navigationAddress = "navigation_bus";
-        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID,
-                Arrays.asList(mediaAddress, navigationAddress), new ArrayList<>(), new int[0]);
+        CarDuckingInfo carDuckingInfo =
+                new CarDuckingInfo(
+                        ZONE_ID,
+                        Arrays.asList(mediaAddress, navigationAddress),
+                        new ArrayList<>(),
+                        new ArrayList<>());
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
@@ -240,8 +252,12 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     public void onDevicesToDuckChange_passesAlongAddressesToUnduck() throws Exception {
         String notificationAddress = "notification_bus";
         String callAddress = "call_address";
-        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
-                Arrays.asList(notificationAddress, callAddress), new int[0]);
+        CarDuckingInfo carDuckingInfo =
+                new CarDuckingInfo(
+                        ZONE_ID,
+                        new ArrayList<>(),
+                        Arrays.asList(notificationAddress, callAddress),
+                        new ArrayList<>());
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
@@ -254,8 +270,9 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToDuckChange_passesAlongZoneId() throws Exception {
-        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
-                new ArrayList<>(), new int[0]);
+        CarDuckingInfo carDuckingInfo =
+                new CarDuckingInfo(
+                        ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
@@ -267,10 +284,12 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToDuckChange_multipleZones_passesADuckingInfoPerZone() throws Exception {
-        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
-                new ArrayList<>(), new int[0]);
-        CarDuckingInfo secondaryCarDuckingInfo = new CarDuckingInfo(SECONDARY_ZONE_ID,
-                new ArrayList<>(), new ArrayList<>(), new int[0]);
+        CarDuckingInfo carDuckingInfo =
+                new CarDuckingInfo(
+                        ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
+        CarDuckingInfo secondaryCarDuckingInfo =
+                new CarDuckingInfo(
+                        SECONDARY_ZONE_ID, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo,
                 secondaryCarDuckingInfo));
