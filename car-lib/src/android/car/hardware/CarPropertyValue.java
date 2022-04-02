@@ -38,8 +38,11 @@ import java.nio.charset.StandardCharsets;
  * Stores values broken down by area for a vehicle property.
  *
  * <p>This class is a java representation of {@code struct VehiclePropValue} defined in
- * {@code hardware/interfaces/automotive/vehicle/2.0/types.hal}. See
- * {@link com.android.car.hal.CarPropertyUtils} to learn conversion details.
+ * {@code hardware/interfaces/automotive/vehicle/aidl/android/hardware/automotive/vehicle/VehiclePropValue.aidl}.
+ * See {@link com.android.car.hal.CarPropertyUtils} to learn conversion details.
+ *
+ * Client should use {@code android.car.*} types when dealing with property ID, area ID or property
+ * value and MUST NOT use {@code android.hardware.automotive.vehicle.*} types directly.
  *
  * @param <T> refer to Parcel#writeValue(Object) to get a list of all supported types. The class
  *            should be visible to framework as default class loader is being used here.
@@ -82,8 +85,17 @@ public final class CarPropertyValue<T> implements Parcelable {
     /**
      * Creates an instance of CarPropertyValue.
      *
-     * @param propertyId Property ID
-     * @param areaId Area ID of Property
+     * @param propertyId Property ID, must be one of enums in
+     *   {@link android.car.VehiclePropertyIds}.
+     * @param areaId Area ID of Property, must be one of enums in one of the following classes:
+     *   <ul>
+     *     <li><{@link android.car.VehicleAreaWindow}</li>
+     *     <li><{@link android.car.VehicleAreaDoor}</li>
+     *     <li><{@link android.car.VehicleAreaSeat}</li>
+     *     <li><{@link android.car.VehicleAreaMirror}</li>
+     *     <li><{@link android.car.VehicleAreaWheel}</li>
+     *   </ul>
+     *   or 0 for global property.
      * @param value Value of Property
      * @hide
      */
@@ -97,8 +109,17 @@ public final class CarPropertyValue<T> implements Parcelable {
      * monotonically increasing using the same time base as
      * {@link SystemClock#elapsedRealtimeNanos()}.
      *
-     * @param propertyId Property ID
-     * @param areaId     Area ID of Property
+     * @param propertyId Property ID, must be one of enums in
+     *   {@link android.car.VehiclePropertyIds}.
+     * @param areaId     Area ID of Property, must be one of enums in one of the following classes:
+     *   <ul>
+     *     <li><{@link android.car.VehicleAreaWindow}</li>
+     *     <li><{@link android.car.VehicleAreaDoor}</li>
+     *     <li><{@link android.car.VehicleAreaSeat}</li>
+     *     <li><{@link android.car.VehicleAreaMirror}</li>
+     *     <li><{@link android.car.VehicleAreaWheel}</li>
+     *   </ul>
+     *   or 0 for global property.
      * @param status     Status of Property
      * @param timestamp  Elapsed time in nanoseconds since boot
      * @param value      Value of Property
@@ -183,7 +204,8 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Property id of CarPropertyValue
+     * @return Property id of CarPropertyValue, must be one of enums in
+     *   {@link android.car.VehiclePropertyIds}.
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getPropertyId() {
@@ -191,7 +213,15 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Area id of CarPropertyValue
+     * @return Area id of CarPropertyValue, must be one of enums in one of the following classes:
+     *   <ul>
+     *     <li><{@link android.car.VehicleAreaWindow}</li>
+     *     <li><{@link android.car.VehicleAreaDoor}</li>
+     *     <li><{@link android.car.VehicleAreaSeat}</li>
+     *     <li><{@link android.car.VehicleAreaMirror}</li>
+     *     <li><{@link android.car.VehicleAreaWheel}</li>
+     *   </ul>
+     *   or 0 for global property.
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getAreaId() {
