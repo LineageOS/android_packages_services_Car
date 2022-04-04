@@ -1075,6 +1075,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         public String getLastDefinedPolicyId() {
             return mLastDefinedPolicyId;
         }
+
+        @Override
+        public String getInterfaceHash() {
+            return ICarPowerPolicySystemNotification.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarPowerPolicySystemNotification.VERSION;
+        }
     }
 
     private final class MockedPowerPolicyListener extends ICarPowerPolicyListener.Stub {

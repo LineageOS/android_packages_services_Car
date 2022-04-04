@@ -276,5 +276,15 @@ public class CarWatchdogDaemonHelperTest {
         public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
             return new ArrayList<>();
         }
+
+        @Override
+        public String getInterfaceHash() {
+            return ICarWatchdogServiceForSystem.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarWatchdogServiceForSystem.VERSION;
+        }
     }
 }

@@ -826,5 +826,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             }
             return service.mWatchdogPerfHandler.getTodayIoUsageStats();
         }
+
+        @Override
+        public String getInterfaceHash() {
+            return ICarWatchdogServiceForSystemImpl.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarWatchdogServiceForSystemImpl.VERSION;
+        }
     }
 }
