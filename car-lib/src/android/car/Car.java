@@ -136,6 +136,7 @@ public final class Car {
      * TODO(b/224982783) Remove "hide" in future release.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PLATFORM_VERSION_MINOR_INT = CarBuiltin.PLATFORM_VERSION_MINOR_INT;
 
     /**
