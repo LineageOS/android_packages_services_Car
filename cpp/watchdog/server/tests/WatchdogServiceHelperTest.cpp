@@ -76,7 +76,7 @@ public:
     explicit WatchdogServiceHelperPeer(const sp<WatchdogServiceHelper>& helper) : mHelper(helper) {}
     ~WatchdogServiceHelperPeer() { mHelper.clear(); }
 
-    Result<void> init(const android::sp<WatchdogProcessService>& watchdogProcessService) {
+    Result<void> init(const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService) {
         return mHelper->init(watchdogProcessService);
     }
 
@@ -154,11 +154,11 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnInitWithErrorFromWatchdogProcessSer
     sp<MockWatchdogProcessService> mockWatchdogProcessService(new MockWatchdogProcessService());
 
     EXPECT_CALL(*mockWatchdogProcessService, registerWatchdogServiceHelper(_))
-            .WillOnce([](const sp<IWatchdogServiceHelper>&) -> Result<void> {
+            .WillOnce([](const sp<WatchdogServiceHelperInterface>&) -> Result<void> {
                 return Error() << "Failed to register";
             });
 
-    auto result = helper->init(nullptr);
+    auto result = helper->init(mockWatchdogProcessService);
 
     ASSERT_FALSE(result.ok()) << "Watchdog service helper init should fail on error from "
                               << "watchdog process service registration error";

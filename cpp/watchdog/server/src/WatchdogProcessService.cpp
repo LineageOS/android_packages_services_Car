@@ -155,7 +155,7 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
     mVhalHealthCheckWindowMs = std::chrono::seconds(vhalHealthCheckIntervalSec);
 }
 Result<void> WatchdogProcessService::registerWatchdogServiceHelper(
-        const sp<IWatchdogServiceHelper>& helper) {
+        const sp<WatchdogServiceHelperInterface>& helper) {
     if (helper == nullptr) {
         return Error() << "Must provide a non-null watchdog service helper instance";
     }
