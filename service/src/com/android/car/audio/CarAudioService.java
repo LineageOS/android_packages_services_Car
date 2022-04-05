@@ -29,6 +29,7 @@ import static android.media.AudioManager.FLAG_SHOW_UI;
 import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -237,6 +238,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (mUseDynamicRouting) {
                 setupDynamicRoutingLocked();
                 setupHalAudioFocusListenerLocked();
+                setupHalAudioGainCallbackLocked();
                 setupAudioConfigurationCallbackLocked();
                 setupPowerPolicyListener();
             } else {
@@ -672,6 +674,19 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         mHalAudioFocus = new HalAudioFocus(mAudioManager, mAudioControlWrapper, getAudioZoneIds());
         mHalAudioFocus.registerFocusListener();
+    }
+
+    @GuardedBy("mImplLock")
+    private void setupHalAudioGainCallbackLocked() {
+        AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
+        if (!audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK)) {
+            Slogf.d(CarLog.TAG_AUDIO, "HalAudioGainCallback is not supported on this device");
+            return;
+        }
+        mAudioControlWrapper.registerAudioGainCallback((reasons, gains) -> {
+            // TODO(b/224886068): Add missing audio gain management
+            Slogf.d(CarLog.TAG_AUDIO, "onAudioGainChanged reasons" + reasons + ", gains=" + gains);
+        });
     }
 
     /**
@@ -1470,7 +1485,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private AudioControlWrapper getAudioControlWrapperLocked() {
         if (mAudioControlWrapper == null) {
             mAudioControlWrapper = AudioControlFactory.newAudioControl();
-            mAudioControlWrapper.linkToDeath(this::resetHalAudioFocus);
+            mAudioControlWrapper.linkToDeath(this::audioControlDied);
         }
         return mAudioControlWrapper;
     }
@@ -1479,6 +1494,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (mHalAudioFocus != null) {
             mHalAudioFocus.reset();
             mHalAudioFocus.registerFocusListener();
+        }
+    }
+
+    private void audioControlDied() {
+        resetHalAudioFocus();
+        synchronized (mImplLock) {
+            setupHalAudioGainCallbackLocked();
         }
     }
 
