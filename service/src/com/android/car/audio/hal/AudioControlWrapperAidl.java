@@ -68,11 +68,11 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
     private AudioControlDeathRecipient mDeathRecipient;
 
-    static @Nullable IBinder getService() {
+    public static @Nullable IBinder getService() {
         return ServiceManagerHelper.waitForDeclaredService(AUDIO_CONTROL_SERVICE);
     }
 
-    AudioControlWrapperAidl(IBinder binder) {
+    public AudioControlWrapperAidl(IBinder binder) {
         mBinder = Objects.requireNonNull(binder);
         mAudioControl = IAudioControl.Stub.asInterface(binder);
     }
