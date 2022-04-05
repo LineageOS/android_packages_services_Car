@@ -94,18 +94,21 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME = "blocked_activity";
     /**
      * int task id of the blocked task.
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID = "blocked_task_id";
     /**
      * Name of root activity of blocked task.
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME = "root_activity_name";
     /**
      * Boolean indicating whether the root activity is distraction-optimized (DO).
@@ -113,6 +116,7 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO = "is_root_activity_do";
 
     /**
@@ -120,6 +124,7 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BLOCKING_INTENT_EXTRA_DISPLAY_ID = "display_id";
 
     /**
@@ -127,6 +132,7 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String DRIVING_SAFETY_REGION_ALL = "android.car.drivingsafetyregion.all";
 
     /**
@@ -142,6 +148,7 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String DRIVING_SAFETY_ACTIVITY_METADATA_REGIONS =
             "android.car.drivingsafetyregions";
 
@@ -150,6 +157,7 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_NO_PACKAGE = -100;
 
     /** @hide */
@@ -225,6 +233,7 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void restartTask(int taskId) {
         try {
             mService.restartTask(taskId);
@@ -335,6 +344,7 @@ public final class CarPackageManager extends CarManagerBase {
     @RequiresPermission(anyOf = {PERMISSION_CONTROL_APP_BLOCKING,
             Car.PERMISSION_CAR_DRIVING_STATE})
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public String getCurrentDrivingSafetyRegion() {
         try {
             return mService.getCurrentDrivingSafetyRegion();
@@ -366,6 +376,7 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @RequiresPermission(allOf = {PERMISSION_CONTROL_APP_BLOCKING,
             android.Manifest.permission.QUERY_ALL_PACKAGES})
+    @AddedInOrBefore(majorVersion = 33)
     public void controlTemporaryActivityBlockingBypassingAsUser(String packageName,
             String activityClassName, boolean bypass, @UserIdInt int userId)
             throws NameNotFoundException {
@@ -403,6 +414,7 @@ public final class CarPackageManager extends CarManagerBase {
     @RequiresPermission(allOf = {PERMISSION_CONTROL_APP_BLOCKING,
             android.Manifest.permission.QUERY_ALL_PACKAGES})
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public List<String> getSupportedDrivingSafetyRegionsForActivityAsUser(String packageName,
             String activityClassName, @UserIdInt int userId) throws NameNotFoundException {
         try {

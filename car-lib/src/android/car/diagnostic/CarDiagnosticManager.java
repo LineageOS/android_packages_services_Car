@@ -57,6 +57,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
     public @interface FrameType {}
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final @FrameType int[] FRAME_TYPES = {
         FRAME_TYPE_LIVE,
         FRAME_TYPE_FREEZE

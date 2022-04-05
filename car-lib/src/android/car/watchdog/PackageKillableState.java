@@ -96,6 +96,7 @@ public final class PackageKillableState implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String killableStateToString(@KillableState int value) {
         switch (value) {
             case KILLABLE_STATE_YES:

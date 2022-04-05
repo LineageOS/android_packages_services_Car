@@ -21,6 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.CallSuper;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Parcel;
@@ -108,6 +109,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      * @return the completed future
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static <U> AndroidFuture<U> completedFuture(U value) {
         AndroidFuture<U> future = new AndroidFuture<>();
         future.complete(value);
@@ -149,6 +151,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     @CallSuper
+    @AddedInOrBefore(majorVersion = 33)
     protected void onCompleted(@Nullable T res, @Nullable Throwable err) {
         cancelTimeout();
 
@@ -236,6 +239,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      * Calls the provided listener, handling any exceptions that may arise.
      */
     // package-private to avoid synthetic method when called from lambda
+    @AddedInOrBefore(majorVersion = 33)
     static <TT> void callListener(
             @NonNull BiConsumer<? super TT, ? super Throwable> listener,
             @Nullable TT res, @Nullable Throwable err) {
@@ -262,11 +266,13 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
 
     /** @inheritDoc */
     //@Override //TODO uncomment once java 9 APIs are exposed to frameworks
+    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> orTimeout(long timeout, @NonNull TimeUnit unit) {
         mTimeoutHandler.postDelayed(this::triggerTimeout, this, unit.toMillis(timeout));
         return this;
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     void triggerTimeout() {
         cancelTimeout();
         if (!isDone()) {
@@ -279,6 +285,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      *
      * @return {@code this} for chaining
      */
+    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> cancelTimeout() {
         mTimeoutHandler.removeCallbacksAndMessages(this);
         return this;
@@ -287,6 +294,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     /**
      * Specifies the handler on which timeout is to be triggered
      */
+    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> setTimeoutHandler(@NonNull Handler h) {
         cancelTimeout();
         mTimeoutHandler = Preconditions.checkNotNull(h);
@@ -410,6 +418,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     }
 
     /** @see CompletionStage#thenCombine */
+    @AddedInOrBefore(majorVersion = 33)
     public AndroidFuture<T> thenCombine(@NonNull CompletionStage<Void> other) {
         return thenCombine(other, (res, aVoid) -> res);
     }
@@ -464,6 +473,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
      *
      * The resulting future is immediately completed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static <T> AndroidFuture<T> supply(Supplier<T> supplier) {
         return supplyAsync(supplier, DIRECT_EXECUTOR);
     }
@@ -471,6 +481,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     /**
      * @see CompletableFuture#supplyAsync(Supplier, Executor)
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static <T> AndroidFuture<T> supplyAsync(Supplier<T> supplier, Executor executor) {
         return new SupplyAsync<>(supplier, executor);
     }
@@ -531,6 +542,7 @@ public class AndroidFuture<T> extends CompletableFuture<T> implements Parcelable
     /**
      * Exceptions coming out of {@link #get} are wrapped in {@link ExecutionException}
      */
+    @AddedInOrBefore(majorVersion = 33)
     Throwable unwrapExecutionException(Throwable t) {
         return t instanceof ExecutionException
                 ? t.getCause()

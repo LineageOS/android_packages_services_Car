@@ -50,6 +50,7 @@ public final class WearEstimate implements Parcelable {
     public static final int UNKNOWN = -1;
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final WearEstimate UNKNOWN_ESTIMATE = new WearEstimate(UNKNOWN, UNKNOWN);
 
     public static final Parcelable.Creator<WearEstimate> CREATOR =
@@ -137,6 +138,7 @@ public final class WearEstimate implements Parcelable {
     /**
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.beginObject();
         jsonWriter.name("wearEstimateTypeA").value(typeA);

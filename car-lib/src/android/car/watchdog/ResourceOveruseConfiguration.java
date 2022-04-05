@@ -149,6 +149,7 @@ public final class ResourceOveruseConfiguration implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String componentTypeToString(@ComponentType int value) {
         switch (value) {
             case COMPONENT_TYPE_SYSTEM:

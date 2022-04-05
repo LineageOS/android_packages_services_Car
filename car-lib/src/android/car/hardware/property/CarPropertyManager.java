@@ -465,6 +465,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @hide
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public String getReadPermission(int propId) {
         if (DBG) {
             Log.d(TAG, "getReadPermission, propId: 0x" + toHexString(propId));
@@ -485,6 +486,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @hide
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public String getWritePermission(int propId) {
         if (DBG) {
             Log.d(TAG, "getWritePermission, propId: 0x" + toHexString(propId));
