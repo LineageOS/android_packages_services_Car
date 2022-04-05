@@ -141,6 +141,7 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String cpusetToString(@Cpuset int value) {
         switch (value) {
             case CPUSET_ALL:
@@ -162,6 +163,7 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String ignorePercentToString(@IgnorePercent int value) {
         switch (value) {
             case IGNORE_PERCENT_LOWER_BOUND:
@@ -183,6 +185,7 @@ public final class CpuAvailabilityMonitoringConfig implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String timeoutActionToString(@TimeoutAction int value) {
         switch (value) {
             case TIMEOUT_ACTION_NOTIFICATION:

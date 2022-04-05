@@ -186,6 +186,7 @@ public final class CarProjectionManager extends CarManagerBase {
     public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_UP = 7;
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int NUM_KEY_EVENTS = 8;
 
     /** @hide */
@@ -204,10 +205,13 @@ public final class CarProjectionManager extends CarManagerBase {
     public @interface KeyEventNum {}
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_AP_STARTED = 0;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_AP_STOPPED = 1;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int PROJECTION_AP_FAILED = 2;
 
     private final ICarProjection mService;
@@ -273,6 +277,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
         registerProjectionListener(listener, voiceSearchFilter);
     }
@@ -308,6 +313,7 @@ public final class CarProjectionManager extends CarManagerBase {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @Deprecated
+    @AddedInOrBefore(majorVersion = 33)
     public void unregsiterProjectionListener() {
         unregisterProjectionListener();
     }

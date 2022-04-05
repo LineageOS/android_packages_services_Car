@@ -19,6 +19,7 @@ package android.car.vms;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -71,11 +72,13 @@ public class VmsRegistrationInfo implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull VmsAvailableLayers getAvailableLayers() {
         return mAvailableLayers;
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull VmsSubscriptionState getSubscriptionState() {
         return mSubscriptionState;
     }

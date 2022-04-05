@@ -96,6 +96,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER =
             "android.car.cluster.renderer.IInstrumentClusterHelper";
 
@@ -392,6 +393,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @hide
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public ComponentName getComponentFromPackage(@NonNull String packageName) {
         PackageManager packageManager = getPackageManager();
 

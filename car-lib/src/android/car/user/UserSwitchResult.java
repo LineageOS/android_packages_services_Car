@@ -208,6 +208,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
@@ -332,6 +333,7 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
      * @hide
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Integer getAndroidFailureStatus() {
         return mAndroidFailureStatus;
     }

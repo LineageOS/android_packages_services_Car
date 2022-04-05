@@ -107,6 +107,7 @@ public final class CarAudioPatchHandle implements Parcelable {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public String getSourceAddress() {
         return mSourceAddress;
     }
@@ -116,6 +117,7 @@ public final class CarAudioPatchHandle implements Parcelable {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public String getSinkAddress() {
         return mSinkAddress;
     }
@@ -125,6 +127,7 @@ public final class CarAudioPatchHandle implements Parcelable {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public int getHandleId() {
         return mHandleId;
     }

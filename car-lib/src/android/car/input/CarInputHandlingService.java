@@ -23,6 +23,7 @@ import android.annotation.SystemApi;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarLibLog;
+import android.car.annotation.AddedInOrBefore;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -66,7 +67,9 @@ public abstract class CarInputHandlingService extends Service {
     private static final String TAG = CarLibLog.TAG_INPUT;
     private static final boolean DBG = false;
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CALLBACK_BINDER_CODE = IBinder.FIRST_CALL_TRANSACTION;
 
     private final InputFilter[] mHandledKeys;
