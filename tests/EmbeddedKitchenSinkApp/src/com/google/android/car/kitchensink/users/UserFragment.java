@@ -35,6 +35,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.storage.StorageManager;
 import android.text.TextUtils;
+import android.util.DebugUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -44,8 +45,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 
 import androidx.fragment.app.Fragment;
-
-import com.android.car.internal.util.DebugUtils;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
@@ -320,7 +319,7 @@ public final class UserFragment extends Fragment {
         int value = associate ? USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_ASSOCIATE_CURRENT_USER :
                 USER_IDENTIFICATION_ASSOCIATION_SET_VALUE_DISASSOCIATE_CURRENT_USER;
         Log.d(TAG, "associateKey(" + associate + "): setting to " + DebugUtils.constantToString(
-                CarUserManager.class, value));
+                CarUserManager.class, /* prefix= */ "", value));
 
         AsyncFuture<UserIdentificationAssociationResponse> future = mCarUserManager
                 .setUserIdentificationAssociation(
@@ -339,7 +338,8 @@ public final class UserFragment extends Fragment {
                 error = "HAL call failed: " + result;
             } else {
                 int newValue = result.getValues()[0];
-                String newValueName = DebugUtils.constantToString(CarUserManager.class, newValue);
+                String newValueName = DebugUtils.constantToString(CarUserManager.class,
+                        /* prefix= */ "", newValue);
                 Log.d(TAG, "New status: " + newValueName);
                 associated = (
                         newValue == USER_IDENTIFICATION_ASSOCIATION_VALUE_ASSOCIATE_CURRENT_USER);
