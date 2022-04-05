@@ -76,6 +76,18 @@ public final class AudioControlWrapperV1 implements AudioControlWrapper {
     }
 
     @Override
+    public void registerAudioGainCallback(HalAudioGainCallback gainCallback) {
+        throw new UnsupportedOperationException(
+                "Audio Gain Callback is unsupported for IAudioControl@1.0");
+    }
+
+    @Override
+    public void unregisterAudioGainCallback() {
+        throw new UnsupportedOperationException(
+                "Audio Gain Callback is unsupported for IAudioControl@1.0");
+    }
+
+    @Override
     public boolean supportsFeature(int feature) {
         return false;
     }
