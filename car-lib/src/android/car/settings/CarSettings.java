@@ -53,6 +53,7 @@ public class CarSettings {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String DEFAULT_USER_RESTRICTIONS_SET =
                 "android.car.DEFAULT_USER_RESTRICTIONS_SET";
 
@@ -62,6 +63,7 @@ public class CarSettings {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String DISABLE_INSTRUMENTATION_SERVICE =
                 "android.car.DISABLE_INSTRUMENTATION_SERVICE";
 
@@ -71,6 +73,7 @@ public class CarSettings {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String ENABLE_USER_SWITCH_DEVELOPER_MESSAGE =
                 "android.car.ENABLE_USER_SWITCH_DEVELOPER_MESSAGE";
 
@@ -79,6 +82,7 @@ public class CarSettings {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String LAST_ACTIVE_USER_ID =
                         "android.car.LAST_ACTIVE_USER_ID";
 
@@ -87,6 +91,7 @@ public class CarSettings {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String LAST_ACTIVE_PERSISTENT_USER_ID =
                         "android.car.LAST_ACTIVE_PERSISTENT_USER_ID";
 
@@ -97,6 +102,7 @@ public class CarSettings {
          *
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String SYSTEM_BAR_VISIBILITY_OVERRIDE =
                 "android.car.SYSTEM_BAR_VISIBILITY_OVERRIDE";
     }
@@ -106,6 +112,7 @@ public class CarSettings {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int[] DEFAULT_GARAGE_MODE_WAKE_UP_TIME = {0, 0};
 
     /**
@@ -113,6 +120,7 @@ public class CarSettings {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int DEFAULT_GARAGE_MODE_MAINTENANCE_WINDOW = 10 * 60 * 1000; // 10 mins
 
     /**
@@ -166,6 +174,7 @@ public class CarSettings {
          * Written to and read by {@link com.android.car.BluetoothDeviceManager}
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_BLUETOOTH_DEVICES =
                 "android.car.KEY_BLUETOOTH_DEVICES";
 
@@ -174,6 +183,7 @@ public class CarSettings {
          * Read and written by {@link com.android.car.BluetoothProfileInhibitManager}.
          * @hide
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static final String KEY_BLUETOOTH_PROFILES_INHIBITED =
                 "android.car.BLUETOOTH_PROFILES_INHIBITED";
 

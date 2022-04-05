@@ -17,6 +17,7 @@
 package android.car.vms;
 
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseBooleanArray;
@@ -123,6 +124,7 @@ public final class VmsSubscriptionHelper {
      * Gets the current set of subscriptions.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public Set<VmsAssociatedLayer> getSubscriptions() {
         return Stream.concat(
                 mLayerSubscriptions.stream().map(

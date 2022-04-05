@@ -52,6 +52,7 @@ public class CarPowerManager extends CarManagerBase {
     private static final boolean DBG = false;
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String TAG = CarPowerManager.class.getSimpleName();
 
     private static final int FIRST_POWER_COMPONENT = PowerComponentUtil.FIRST_POWER_COMPONENT;
@@ -381,6 +382,7 @@ public class CarPowerManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @AddedInOrBefore(majorVersion = 33)
     public void requestShutdownOnNextSuspend() {
         try {
             mService.requestShutdownOnNextSuspend();
@@ -395,6 +397,7 @@ public class CarPowerManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CAR_POWER)
+    @AddedInOrBefore(majorVersion = 33)
     public void scheduleNextWakeupTime(int seconds) {
         try {
             mService.scheduleNextWakeupTime(seconds);

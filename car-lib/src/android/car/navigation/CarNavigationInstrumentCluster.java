@@ -127,6 +127,7 @@ public final class CarNavigationInstrumentCluster implements Parcelable {
      * Contains extra information about instrument cluster.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public Bundle getExtra() {
         return mExtra;
     }

@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcelable;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -46,6 +47,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
 
     /**
@@ -54,6 +56,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
 
     /**
@@ -62,6 +65,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_HAL_FAILURE = CommonResults.STATUS_HAL_FAILURE;
 
     /**
@@ -70,12 +74,14 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
 
     /**
      * {@link Status} called when given parameters or environment states are invalid for creating
      * user - HAL or Android user creation is not requested.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
 
     /**
@@ -171,6 +177,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:
@@ -253,6 +260,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      *         {@link UserCreationResult#STATUS_INVALID_REQUEST}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Status int getStatus() {
         return mStatus;
     }
@@ -265,6 +273,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      * {@code null} when the {@link #getStatus() status} is not {@link #STATUS_ANDROID_FAILURE}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable Integer getAndroidFailureStatus() {
         return mAndroidFailureStatus;
     }
@@ -273,6 +282,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      * Gets the created user.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable UserHandle getUser() {
         return mUser;
     }
@@ -281,6 +291,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      * Gets the error message sent by HAL, if any.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable String getErrorMessage() {
         return mErrorMessage;
     }
@@ -291,6 +302,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
      * @hide
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable String getInternalErrorMessage() {
         return mInternalErrorMessage;
     }
