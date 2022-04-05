@@ -88,6 +88,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.util.SparseLongArray;
 import android.view.Display;
+import android.view.accessibility.AccessibilityEvent;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -1764,9 +1765,18 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
      * Called when a window change event is received by the {@link CarSafetyAccessibilityService}.
      */
     @VisibleForTesting
-    void onWindowChangeEvent() {
+    void onWindowChangeEvent(@NonNull AccessibilityEvent event) {
         Slogf.d(TAG, "onWindowChange event received");
-        mHandler.post(() -> blockTopActivitiesIfNecessary());
+        boolean receivedFromActivityBlockingActivity =
+                mActivityBlockingActivity.getPackageName().contentEquals(event.getPackageName())
+                        && mActivityBlockingActivity.getClassName().contentEquals(
+                        event.getClassName());
+        if (!receivedFromActivityBlockingActivity) {
+            mHandler.post(() -> blockTopActivitiesIfNecessary());
+        } else {
+            Slogf.d(TAG, "Discarded onWindowChangeEvent received from "
+                    + "ActivityBlockingActivity");
+        }
     }
 
     /**
