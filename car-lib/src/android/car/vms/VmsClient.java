@@ -289,6 +289,7 @@ public final class VmsClient {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void register() throws RemoteException {
         VmsRegistrationInfo registrationInfo = mService.registerClient(
                 mClientToken, mClientCallback, mLegacyClient);
@@ -303,6 +304,7 @@ public final class VmsClient {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void unregister() throws RemoteException {
         mService.unregisterClient(mClientToken);
     }

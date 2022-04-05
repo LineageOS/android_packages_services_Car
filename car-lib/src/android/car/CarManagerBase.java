@@ -20,6 +20,7 @@ import static android.car.CarLibLog.TAG_CAR;
 
 import android.annotation.Nullable;
 import android.app.Activity;
+import android.car.annotation.AddedInOrBefore;
 import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -43,18 +44,22 @@ public abstract class CarManagerBase {
         mCar = car;
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     protected Context getContext() {
         return mCar.getContext();
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     protected Handler getEventHandler() {
         return mCar.getEventHandler();
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     protected <T> T handleRemoteExceptionFromCarService(RemoteException e, T returnValue) {
         return mCar.handleRemoteExceptionFromCarService(e, returnValue);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     protected void handleRemoteExceptionFromCarService(RemoteException e) {
         mCar.handleRemoteExceptionFromCarService(e);
     }
@@ -62,6 +67,7 @@ public abstract class CarManagerBase {
     /**
      * Handles runtime and remote exception from CarService.
      */
+    @AddedInOrBefore(majorVersion = 33)
     protected <T> T handleExceptionFromCarService(Exception e, T returnValue) {
         if (e instanceof RemoteException) {
             return handleRemoteExceptionFromCarService((RemoteException) e, returnValue);
@@ -85,6 +91,7 @@ public abstract class CarManagerBase {
      * work any more as all binders are invalid. Client should re-create all Car*Managers when
      * car service is restarted.
      */
+    @AddedInOrBefore(majorVersion = 33)
     protected abstract void onCarDisconnected();
 
     /**
@@ -94,6 +101,7 @@ public abstract class CarManagerBase {
      * @return supplied dumpable, or {@code null} if {@code container} is not compatible.
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     protected <T extends Dumpable> T addDumpable(Object container, Supplier<T> dumpableSupplier) {
         if (container instanceof Activity) {
             T dumpable = dumpableSupplier.get();

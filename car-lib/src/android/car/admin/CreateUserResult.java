@@ -113,6 +113,7 @@ public final class CreateUserResult {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static CreateUserResult forGenericError() {
         return new CreateUserResult(null);
     }

@@ -45,6 +45,7 @@ public final class CarInfoManager extends CarManagerBase {
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_KEY_MANUFACTURER = 0x11100101;
     /**
      * Key for model name of the car. This information may not necessarily allow distinguishing
@@ -53,12 +54,14 @@ public final class CarInfoManager extends CarManagerBase {
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_KEY_MODEL = 0x11100102;
     /**
      * Key for model year of the car in AD. Passed in basic info Bundle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_KEY_MODEL_YEAR = 0x11400103;
     /**
      * Key for unique identifier for the car. This is not VIN, and id is persistent until user
@@ -66,36 +69,42 @@ public final class CarInfoManager extends CarManagerBase {
      * @hide
      */
     @ValueTypeDef(type = String.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final String BASIC_INFO_KEY_VEHICLE_ID = "android.car.vehicle-id";
     /**
      * Key for product configuration info.
      * @hide
      */
     @ValueTypeDef(type = String.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final String INFO_KEY_PRODUCT_CONFIGURATION = "android.car.product-config";
     /**
      * Key for driver seat of the car.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_DRIVER_SEAT = 0x1540010a;
     /**
      * Key for EV port location of vehicle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_EV_PORT_LOCATION = 0x11400109;
     /**
      * Key for fuel door location of vehicle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_FUEL_DOOR_LOCATION = 0x11400108;
     /**
      * Key for Fuel Capacity in milliliters.  Passed in basic info Bundle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_FUEL_CAPACITY = 0x11600104;
     /**
      * Key for Fuel Types.  This is an array of fuel types the vehicle supports.
@@ -103,12 +112,14 @@ public final class CarInfoManager extends CarManagerBase {
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_FUEL_TYPES = 0x11410105;
     /**
      * Key for EV Battery Capacity in WH.  Passed in basic info Bundle.
      * @hide
      */
     @ValueTypeDef(type = Integer.class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_EV_BATTERY_CAPACITY = 0x11600106;
     /**
      * Key for EV Connector Types.  This is an array of connector types the vehicle supports.
@@ -116,6 +127,7 @@ public final class CarInfoManager extends CarManagerBase {
      * @hide
      */
     @ValueTypeDef(type = Integer[].class)
+    @AddedInOrBefore(majorVersion = 33)
     public static final int BASIC_INFO_EV_CONNECTOR_TYPES = 0x11410107;
 
     /**
@@ -304,6 +316,7 @@ public final class CarInfoManager extends CarManagerBase {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         mCarPropertyMgr.onCarDisconnected();
     }
