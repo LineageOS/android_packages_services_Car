@@ -472,6 +472,32 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testDeviceRebootBroadcast() throws Exception {
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(Intent.ACTION_REBOOT)
+                        .setFlags(Intent.FLAG_RECEIVER_FOREGROUND));
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
+    }
+
+    @Test
+    public void testDeviceShutdownBroadcast() throws Exception {
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(Intent.ACTION_SHUTDOWN)
+                        .setFlags(Intent.FLAG_RECEIVER_FOREGROUND));
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
+    }
+
+    @Test
+    public void testDeviceShutdownBroadcastWithoutFlagReceiverForeground() throws Exception {
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(Intent.ACTION_SHUTDOWN));
+        verify(mMockCarWatchdogDaemon, never()).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, /* arg2= */ 0);
+    }
+
+    @Test
     public void testDisableAppBroadcast() throws Exception {
         String packageName = "system_package";
         UserHandle userHandle = UserHandle.of(100);
