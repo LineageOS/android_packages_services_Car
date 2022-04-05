@@ -31,7 +31,7 @@ public final class CarSafetyAccessibilityServiceImpl extends CarSafetyAccessibil
         CarPackageManagerService carPackageManagerService =
                 CarLocalServices.getService(CarPackageManagerService.class);
         if (carPackageManagerService != null) {
-            carPackageManagerService.onWindowChangeEvent();
+            carPackageManagerService.onWindowChangeEvent(event);
         }
     }
 }
