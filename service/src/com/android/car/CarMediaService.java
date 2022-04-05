@@ -1072,6 +1072,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         if (isMediaService(defaultComponent)) {
             return defaultComponent;
         }
+        Slogf.e(CarLog.TAG_MEDIA, "No media service in the default component: " + defaultComponent);
         return null;
     }
 
