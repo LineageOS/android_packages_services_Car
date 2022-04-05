@@ -251,7 +251,15 @@ package android.car.builtin.provider {
 package android.car.builtin.util {
 
   public final class AssistUtilsHelper {
+    method public static void hideCurrentSession(@NonNull android.content.Context);
+    method public static boolean isSessionRunning(@NonNull android.content.Context);
+    method public static void registerVoiceInteractionSessionListenerHelper(@NonNull android.content.Context, @NonNull android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionListenerHelper);
     method public static boolean showPushToTalkSessionForActiveService(@NonNull android.content.Context, @NonNull android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper);
+  }
+
+  public static interface AssistUtilsHelper.VoiceInteractionSessionListenerHelper {
+    method public void onVoiceSessionHidden();
+    method public void onVoiceSessionShown();
   }
 
   public static interface AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper {
