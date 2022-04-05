@@ -89,6 +89,7 @@ public abstract class AoapService extends Service {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_NEW_DEVICE_ATTACHED = 1;
 
     /**
@@ -96,6 +97,7 @@ public abstract class AoapService extends Service {
      * with one of the {@code RESULT_*} constant.
      *
      * @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_NEW_DEVICE_ATTACHED_RESPONSE = 2;
 
     /**
@@ -105,6 +107,7 @@ public abstract class AoapService extends Service {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_CAN_SWITCH_TO_AOAP = 3;
 
     /**
@@ -112,12 +115,15 @@ public abstract class AoapService extends Service {
      * with one of the {@code RESULT_*} constant.
      *
      * @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int MSG_CAN_SWITCH_TO_AOAP_RESPONSE = 4;
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String KEY_DEVICE = "usb-device";
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final String KEY_RESULT = "result";
 
 

@@ -93,6 +93,7 @@ public final class LifetimeWriteInfo implements Parcelable {
     /**
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToJson(JsonWriter jsonWriter) throws IOException {
         jsonWriter.beginObject();
         jsonWriter.name("partition").value(partition);

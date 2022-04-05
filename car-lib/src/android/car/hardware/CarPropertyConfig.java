@@ -187,6 +187,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * string. Most properties do not need to set this.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public String getConfigString() {
         return mConfigString;
     }
@@ -258,6 +259,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return the number of areaIds for properties.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public int getAreaCount() {
         return mSupportedAreas.size();
     }
@@ -296,6 +298,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * Throws {@link IllegalStateException} if supported area count not equals to one.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public int getFirstAndOnlyAreaId() {
         if (mSupportedAreas.size() != 1) {
             throw new IllegalStateException("Expected one and only area in this property. Prop: 0x"
@@ -310,6 +313,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return true if areaId is existing.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean hasArea(int areaId) {
         return mSupportedAreas.indexOfKey(areaId) >= 0;
     }

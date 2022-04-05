@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.annotation.AddedInOrBefore;
 import android.car.user.CarUserManager.UserIdentificationAssociationValue;
 import android.os.Parcelable;
 
@@ -141,6 +142,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * <p>A successful option has non-null {@link #getValues()}
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mSuccess;
     }
@@ -149,6 +151,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * Gets the error message returned by the HAL.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable String getErrorMessage() {
         return mErrorMessage;
     }
@@ -167,6 +170,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * {@link android.hardware.automotive.vehicle.UserIdentificationAssociationSetValue}.
      */
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable int[] getValues() {
         return mValues;
     }

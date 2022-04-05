@@ -88,6 +88,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
     /**
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static VmsSubscriberManager wrap(Car car, @Nullable VmsClientManager clientManager) {
         if (clientManager == null) {
             return null;

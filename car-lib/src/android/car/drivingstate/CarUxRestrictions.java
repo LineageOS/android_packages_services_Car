@@ -246,6 +246,7 @@ public final class CarUxRestrictions implements Parcelable {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public long getTimeStamp() {
         return mTimeStamp;
     }
