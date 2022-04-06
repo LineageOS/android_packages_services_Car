@@ -40,7 +40,7 @@
     <string name="bugreport_upload_gcs_button_text" msgid="5844929656507607424">"GCSకు అప్‌లోడ్ చేయండి"</string>
     <string name="toast_permissions_denied" msgid="7054832711916992770">"దయచేసి అనుమతులను మంజూరు చేయండి"</string>
     <string name="toast_bug_report_in_progress" msgid="8319601113129121579">"బగ్ రిపోర్ట్‌ ఇప్పటికే సేకరించబడుతోంది"</string>
-    <string name="toast_bug_report_started" msgid="7154589593986557754">"బగ్‌ను నివేదించడం మొదలైంది"</string>
+    <string name="toast_bug_report_started" msgid="7154589593986557754">"బగ్‌ను రిపోర్ట్ చేయడం మొదలైంది"</string>
     <string name="toast_status_failed" msgid="6365384202315043395">"బగ్ రిపోర్ట్‌ విఫలమైంది"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"స్క్రీన్ క్యాప్చర్ విఫలమైంది"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"డంప్ స్థితి విఫలమైంది"</string>
