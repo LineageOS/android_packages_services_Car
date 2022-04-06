@@ -72,7 +72,7 @@ import java.util.function.Supplier;
  * VMS client implementation that proxies VmsPublisher/VmsSubscriber API calls to the Vehicle HAL
  * using HAL-specific message encodings.
  *
- * @see android.hardware.automotive.vehicle.V2_0
+ * @see android.hardware.automotive.vehicle.IVehicle
  */
 public class VmsHalService extends HalServiceBase {
     private static final boolean DBG = false;
