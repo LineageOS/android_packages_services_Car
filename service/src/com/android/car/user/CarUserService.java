@@ -2033,7 +2033,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         mHandler.post(() -> {
             handleNotifyServiceUserLifecycleListeners(event);
-            handleNotifyAppUserLifecycleListeners(event);
+            // POST_UNLOCKED event is meant only for internal service listeners. Skip sending it to
+            // app listeners.
+            if (eventType != CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED) {
+                handleNotifyAppUserLifecycleListeners(event);
+            }
         });
     }
 

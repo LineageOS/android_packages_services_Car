@@ -16,12 +16,14 @@
 
 package com.android.car.pm;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import static com.android.car.util.Utils.isEventAnyOfTypes;
 
+import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.util.Slogf;
@@ -93,7 +95,8 @@ final class VendorServiceController implements UserLifecycleListener {
         UserLifecycleEventFilter userSwitchingOrUnlockingEventFilter =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
-                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED).build();
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED).build();
         mCarUserService.addUserLifecycleListener(userSwitchingOrUnlockingEventFilter, this);
 
         startOrBindServicesIfNeeded();
@@ -114,7 +117,7 @@ final class VendorServiceController implements UserLifecycleListener {
     @Override
     public void onEvent(UserLifecycleEvent event) {
         if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
-                USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)) {
+                USER_LIFECYCLE_EVENT_TYPE_UNLOCKED, USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED)) {
             return;
         }
         if (DBG) {
@@ -126,7 +129,10 @@ final class VendorServiceController implements UserLifecycleListener {
                 mHandler.post(() -> handleOnUserSwitching(userId));
                 break;
             case USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
-                mHandler.post(() -> handleOnUserUnlocked(userId));
+                mHandler.post(() -> handleOnUserUnlocked(userId, /* forPostUnlock= */ false));
+                break;
+            case USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED:
+                mHandler.post(() -> handleOnUserUnlocked(userId, /* forPostUnlock= */ true));
                 break;
             default:
                 // Shouldn't happen as listener was registered with filter
@@ -152,31 +158,33 @@ final class VendorServiceController implements UserLifecycleListener {
         }
 
         if (userId != UserHandle.SYSTEM.getIdentifier()) {
-            startOrBindServicesForUser(UserHandle.of(userId));
+            startOrBindServicesForUser(UserHandle.of(userId), /* forPostUnlock= */ null);
         } else {
             Slogf.wtf(TAG, "Unexpected to receive switch user event for system user");
         }
     }
 
-    private void handleOnUserUnlocked(@UserIdInt int userId) {
+    private void handleOnUserUnlocked(@UserIdInt int userId, boolean forPostUnlock) {
         int currentUserId = ActivityManager.getCurrentUser();
 
         if (DBG) {
-            Slogf.i(TAG, "onUserLockedChanged(): user=%d, currentUser=%d", userId, currentUserId);
+            Slogf.i(TAG, "handleOnUserUnlocked(): user=%d, currentUser=%d", userId, currentUserId);
         }
         if ((userId == currentUserId || userId == UserHandle.SYSTEM.getIdentifier())) {
-            startOrBindServicesForUser(UserHandle.of(userId));
+            startOrBindServicesForUser(UserHandle.of(userId), forPostUnlock);
         }
     }
 
-    private void startOrBindServicesForUser(UserHandle user) {
+    private void startOrBindServicesForUser(UserHandle user, @Nullable Boolean forPostUnlock) {
         boolean unlocked = mUserManager.isUserUnlockingOrUnlocked(user);
         boolean systemUser = UserHandle.SYSTEM.equals(user);
         for (VendorServiceInfo service: mVendorServiceInfos) {
+            if (forPostUnlock != null && service.shouldStartOnPostUnlock() != forPostUnlock) {
+                continue;
+            }
             boolean userScopeChecked = (!systemUser && service.isForegroundUserService())
                     || (systemUser && service.isSystemUserService());
-            boolean triggerChecked = service.shouldStartAsap()
-                    || (unlocked && service.shouldStartOnUnlock());
+            boolean triggerChecked = service.shouldStartAsap() || unlocked;
 
             if (userScopeChecked && triggerChecked) {
                 startOrBindService(service, user);
@@ -186,9 +194,9 @@ final class VendorServiceController implements UserLifecycleListener {
 
     private void startOrBindServicesIfNeeded() {
         int userId = ActivityManager.getCurrentUser();
-        startOrBindServicesForUser(UserHandle.SYSTEM);
+        startOrBindServicesForUser(UserHandle.SYSTEM, /* forPostUnlock= */ null);
         if (userId > 0) {
-            startOrBindServicesForUser(UserHandle.of(userId));
+            startOrBindServicesForUser(UserHandle.of(userId), /* forPostUnlock= */ null);
         }
     }
 

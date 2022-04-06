@@ -413,6 +413,25 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         verify(mLifecycleEventReceiver).send(eq(mRegularUserId), any());
     }
 
+    @Test
+    public void testOnUserLifecycleEvent_postUnlockedEvent_notifiesServiceListenersOnly()
+            throws Exception {
+        // Arrange: add listeners with null filters.
+        UserLifecycleListener mockServiceListener = mock(UserLifecycleListener.class);
+        mCarUserService.addUserLifecycleListener(/* filter= */ null, mockServiceListener);
+        mCarUserService.setLifecycleListenerForApp("package1", /* filter= */ null,
+                mLifecycleEventReceiver);
+
+        // Act: user post-unlocked event occurs.
+        sendUserLifecycleEvent(/* fromUser */ 0, mRegularUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED);
+        waitForHandlerThreadToFinish();
+
+        // Verify: service listener has been called but app listener has not.
+        verify(mockServiceListener).onEvent(any(UserLifecycleEvent.class));
+        verify(mLifecycleEventReceiver, never()).send(anyInt(), any());
+    }
+
     /**
      * Test that the {@link CarUserService} disables the location service for headless user 0 upon
      * first run.
