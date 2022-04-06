@@ -22,6 +22,9 @@ import static android.media.AudioFormat.CHANNEL_OUT_STEREO;
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 
 import static com.android.car.audio.CarAudioDeviceInfo.DEFAULT_SAMPLE_RATE;
+import static com.android.car.audio.GainBuilder.MAX_GAIN;
+import static com.android.car.audio.GainBuilder.MIN_GAIN;
+import static com.android.car.audio.GainBuilder.STEP_SIZE;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -30,7 +33,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.media.AudioDeviceInfo;
-import android.media.AudioDevicePort;
 import android.media.AudioGain;
 import android.media.AudioManager;
 
@@ -44,10 +46,6 @@ import org.mockito.Mock;
 public class CarAudioDeviceInfoTest {
 
     private static final String TEST_ADDRESS = "test address";
-    private static final int MIN_GAIN = 0;
-    private static final int MAX_GAIN = 100;
-    private static final int DEFAULT_GAIN = 50;
-    private static final int STEP_SIZE = 2;
 
     @Mock
     private AudioManager mAudioManager;
@@ -180,7 +178,8 @@ public class CarAudioDeviceInfoTest {
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
 
-        assertWithMessage("Device Info Max Gain").that(info.getMaxGain()).isEqualTo(MAX_GAIN);
+        assertWithMessage("Device Info Max Gain")
+                .that(info.getMaxGain()).isEqualTo(MAX_GAIN);
     }
 
     @Test
@@ -188,7 +187,8 @@ public class CarAudioDeviceInfoTest {
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
 
-        assertWithMessage("Device Info Min Gain").that(info.getMinGain()).isEqualTo(MIN_GAIN);
+        assertWithMessage("Device Info Min Gain")
+                .that(info.getMinGain()).isEqualTo(MIN_GAIN);
     }
 
     @Test
@@ -197,7 +197,7 @@ public class CarAudioDeviceInfoTest {
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
 
         assertWithMessage("Device Info Default Gain").that(info.getDefaultGain())
-                .isEqualTo(DEFAULT_GAIN);
+                .isEqualTo(GainBuilder.DEFAULT_GAIN);
     }
 
     @Test
@@ -205,7 +205,8 @@ public class CarAudioDeviceInfoTest {
         AudioDeviceInfo audioDeviceInfo = getMockAudioDeviceInfo();
         CarAudioDeviceInfo info = new CarAudioDeviceInfo(mAudioManager, audioDeviceInfo);
 
-        assertWithMessage("Device Info Step Vale").that(info.getStepValue()).isEqualTo(STEP_SIZE);
+        assertWithMessage("Device Info Step Vale").that(info.getStepValue())
+                .isEqualTo(STEP_SIZE);
     }
 
     @Test
@@ -254,54 +255,9 @@ public class CarAudioDeviceInfoTest {
     }
 
     private AudioDeviceInfo getMockAudioDeviceInfo(AudioGain[] gains) {
-        AudioDeviceInfo mockInfo = mock(AudioDeviceInfo.class);
-        AudioDevicePort mockPort = mock(AudioDevicePort.class);
-        when(mockInfo.getPort()).thenReturn(mockPort);
-        when(mockPort.gains()).thenReturn(gains);
-        when(mockInfo.getAddress()).thenReturn(TEST_ADDRESS);
-        return mockInfo;
-    }
-
-    private static class GainBuilder {
-        int mMode = AudioGain.MODE_JOINT;
-        int mMaxValue = MAX_GAIN;
-        int mMinValue = MIN_GAIN;
-        int mDefaultValue = DEFAULT_GAIN;
-        int mStepSize = STEP_SIZE;
-
-        GainBuilder setMode(int mode) {
-            mMode = mode;
-            return this;
-        }
-
-        GainBuilder setMaxValue(int maxValue) {
-            mMaxValue = maxValue;
-            return this;
-        }
-
-        GainBuilder setMinValue(int minValue) {
-            mMinValue = minValue;
-            return this;
-        }
-
-        GainBuilder setDefaultValue(int defaultValue) {
-            mDefaultValue = defaultValue;
-            return this;
-        }
-
-        GainBuilder setStepSize(int stepSize) {
-            mStepSize = stepSize;
-            return this;
-        }
-
-        AudioGain build() {
-            AudioGain mockGain = mock(AudioGain.class);
-            when(mockGain.mode()).thenReturn(mMode);
-            when(mockGain.maxValue()).thenReturn(mMaxValue);
-            when(mockGain.minValue()).thenReturn(mMinValue);
-            when(mockGain.defaultValue()).thenReturn(mDefaultValue);
-            when(mockGain.stepValue()).thenReturn(mStepSize);
-            return mockGain;
-        }
+        return new AudioDeviceInfoBuilder()
+                .setAddressName(TEST_ADDRESS)
+                .setAudioGains(gains)
+                .build();
     }
 }

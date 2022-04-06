@@ -23,9 +23,11 @@ import android.annotation.SystemApi;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.RemoteException;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
+import com.android.internal.app.IVoiceInteractionSessionListener;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.util.Objects;
@@ -44,6 +46,46 @@ public final class AssistUtilsHelper {
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
 
     /**
+     * Determines if there is a voice interaction session running.
+     *
+     * @param context used to build the assist utils.
+     * @return {@code true} if a session is running, {@code false} otherwise.
+     */
+    public static boolean isSessionRunning(@NonNull Context context) {
+        AssistUtils assistUtils = getAssistUtils(context);
+
+        return assistUtils.isSessionRunning();
+    }
+
+    /**
+     * Hides the current voice interaction session running
+     *
+     * @param context used to build the assist utils.
+     */
+    public static void hideCurrentSession(@NonNull Context context) {
+        AssistUtils assistUtils = getAssistUtils(context);
+
+        assistUtils.hideCurrentSession();
+    }
+
+    /**
+     * Registers a listener to monitor when the voice sessions are shown or hidden.
+     *
+     * @param context used to build the assist utils.
+     * @param sessionListener listener that will receive shown or hidden voice sessions callback.
+     */
+    // TODO(b/221604866) : Add unregister method
+    public static void registerVoiceInteractionSessionListenerHelper(@NonNull Context context,
+            @NonNull VoiceInteractionSessionListenerHelper sessionListener) {
+        Objects.requireNonNull(sessionListener, "Session listener must not be null.");
+
+        AssistUtils assistUtils = getAssistUtils(context);
+
+        assistUtils.registerVoiceInteractionSessionListener(
+                new InternalVoiceInteractionSessionListener(sessionListener));
+    }
+
+    /**
      * Shows the {@link android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK}
      * session for active service, if the assistant component is active for the current user.
      *
@@ -52,9 +94,8 @@ public final class AssistUtilsHelper {
     public static boolean showPushToTalkSessionForActiveService(@NonNull Context context,
             @NonNull VoiceInteractionSessionShowCallbackHelper callback) {
         Objects.requireNonNull(callback, "On shown callback must not be null.");
-        Objects.requireNonNull(context, "context cannot be null");
 
-        AssistUtils assistUtils = new AssistUtils(context);
+        AssistUtils assistUtils = getAssistUtils(context);
         int currentUserId = ActivityManager.getCurrentUser();
 
 
@@ -75,6 +116,11 @@ public final class AssistUtilsHelper {
         return true;
     }
 
+    private static AssistUtils getAssistUtils(@NonNull Context context) {
+        Objects.requireNonNull(context, "Context must not be null.");
+        return new AssistUtils(context);
+    }
+
     /**
      * See {@link IVoiceInteractionSessionShowCallback}
      */
@@ -90,6 +136,22 @@ public final class AssistUtilsHelper {
         void onShown();
     }
 
+    /**
+     * See {@link IVoiceInteractionSessionListener}
+     */
+    public interface VoiceInteractionSessionListenerHelper {
+
+        /**
+         * See {@link IVoiceInteractionSessionListener#onVoiceSessionShown()}
+         */
+        void onVoiceSessionShown();
+
+        /**
+         * See {@link IVoiceInteractionSessionListener#onVoiceSessionHidden()}
+         */
+        void onVoiceSessionHidden();
+    }
+
     private static final class InternalVoiceInteractionSessionShowCallback extends
             IVoiceInteractionSessionShowCallback.Stub {
         private final VoiceInteractionSessionShowCallbackHelper mCallbackHelper;
@@ -101,22 +163,42 @@ public final class AssistUtilsHelper {
 
         @Override
         public void onFailed() {
-            if (mCallbackHelper == null) {
-                return;
-            }
             mCallbackHelper.onFailed();
         }
 
         @Override
         public void onShown() {
-            if (mCallbackHelper == null) {
-                return;
-            }
             mCallbackHelper.onShown();
         }
     }
 
-    private AssistUtilsHelper(Context context) {
+    private static final class InternalVoiceInteractionSessionListener extends
+            IVoiceInteractionSessionListener.Stub {
+
+        private final VoiceInteractionSessionListenerHelper mListenerHelper;
+
+        InternalVoiceInteractionSessionListener(
+                VoiceInteractionSessionListenerHelper listenerHelper) {
+            mListenerHelper = listenerHelper;
+        }
+
+        @Override
+        public void onVoiceSessionShown() throws RemoteException {
+            mListenerHelper.onVoiceSessionShown();
+        }
+
+        @Override
+        public void onVoiceSessionHidden() throws RemoteException {
+            mListenerHelper.onVoiceSessionHidden();
+        }
+
+        @Override
+        public void onSetUiHints(Bundle args) throws RemoteException {
+            Slogf.d(TAG, "onSetUiHints() not used");
+        }
+    }
+
+    private AssistUtilsHelper() {
         throw new UnsupportedOperationException("contains only static members");
     }
 }

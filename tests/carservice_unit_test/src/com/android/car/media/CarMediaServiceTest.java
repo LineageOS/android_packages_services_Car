@@ -25,6 +25,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.doAnswer;
@@ -40,6 +41,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AndroidMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
@@ -95,6 +97,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private UserHandleHelper mUserHandleHelper;
+    @Mock private SharedPreferences mMockSharedPreferences;
+    @Mock private SharedPreferences.Editor mMockSharedPreferencesEditor;
 
     private CarMediaService mCarMediaService;
 
@@ -113,6 +117,15 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
+        when(mContext.getSharedPreferences(anyString(), anyInt()))
+                .thenReturn(mMockSharedPreferences);
+        when(mMockSharedPreferences.edit()).thenReturn(mMockSharedPreferencesEditor);
+        when(mMockSharedPreferencesEditor.putInt(anyString(), anyInt()))
+                .thenReturn(mMockSharedPreferencesEditor);
+        when(mMockSharedPreferencesEditor.putLong(anyString(), anyLong()))
+                .thenReturn(mMockSharedPreferencesEditor);
+        when(mMockSharedPreferencesEditor.putString(anyString(), anyString()))
+                .thenReturn(mMockSharedPreferencesEditor);
 
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);

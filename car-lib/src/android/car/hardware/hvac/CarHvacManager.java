@@ -476,6 +476,7 @@ public final class CarHvacManager extends CarManagerBase {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mLock) {
             mCallbacks.clear();

@@ -88,10 +88,13 @@ public final class VehicleAreaSeat {
     private VehicleAreaSeat() {}
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SIDE_LEFT = -1;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SIDE_CENTER = 0;
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int SIDE_RIGHT = 1;
     /**
      * Convert row number and side into {@link Enum}.
@@ -101,6 +104,7 @@ public final class VehicleAreaSeat {
      *
      * @hide */
     @Enum
+    @AddedInOrBefore(majorVersion = 33)
     public static int fromRowAndSide(int rowNumber, int side) {
         if (rowNumber < 1 || rowNumber > 3) {
             return SEAT_UNKNOWN;

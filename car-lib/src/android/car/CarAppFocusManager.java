@@ -97,6 +97,7 @@ public final class CarAppFocusManager extends CarManagerBase {
      * Update this after adding a new app type.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int APP_FOCUS_MAX = 2;
 
     /** @hide */
@@ -239,6 +240,7 @@ public final class CarAppFocusManager extends CarManagerBase {
      * @hide
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public List<String> getAppTypeOwner(@AppFocusType int appType) {
         try {
             return mService.getAppTypeOwner(appType);

@@ -18,8 +18,7 @@ package com.google.android.car.kitchensink.property;
 
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
-
-import com.android.car.internal.util.DebugUtils;
+import android.util.DebugUtils;
 
 class PropertyInfo implements Comparable<PropertyInfo> {
     public final CarPropertyConfig mConfig;
@@ -29,7 +28,7 @@ class PropertyInfo implements Comparable<PropertyInfo> {
     PropertyInfo(CarPropertyConfig config) {
         mConfig = config;
         mPropId = config.getPropertyId();
-        mName = DebugUtils.constantToString(VehiclePropertyIds.class, mPropId);
+        mName = DebugUtils.constantToString(VehiclePropertyIds.class, /* prefix= */ "", mPropId);
     }
 
     @Override

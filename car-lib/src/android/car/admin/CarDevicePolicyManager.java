@@ -69,6 +69,7 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      * @hide
      */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     public static final String TAG = CarDevicePolicyManager.class.getSimpleName();
 
     private final ICarDevicePolicyService mService;
@@ -94,8 +95,10 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     public static final int USER_TYPE_GUEST = 2;
 
     /** @hide - Used on test cases only */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int FIRST_USER_TYPE = USER_TYPE_REGULAR;
     /** @hide - Used on test cases only */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int LAST_USER_TYPE = USER_TYPE_GUEST;
 
     private static final int DEVICE_POLICY_MANAGER_TIMEOUT_MS =
@@ -296,6 +299,7 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public void setUserDisclaimerShown(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
         try {
@@ -306,6 +310,7 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public void setUserDisclaimerAcknowledged(@NonNull UserHandle user) {
         Objects.requireNonNull(user, "user cannot be null");
         try {

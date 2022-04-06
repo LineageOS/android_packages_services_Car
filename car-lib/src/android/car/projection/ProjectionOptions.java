@@ -173,6 +173,7 @@ public class ProjectionOptions {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static Builder builder() {
         return new Builder();
     }
@@ -185,30 +186,35 @@ public class ProjectionOptions {
         private int mApMode = AP_MODE_NOT_SPECIFIED;
 
         /** Sets {@link ActivityOptions} to launch projection activity. */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setProjectionActivityOptions(ActivityOptions activityOptions) {
             mActivityOptions = activityOptions;
             return this;
         }
 
         /** Set UI for projection activity. It can be one of {@code UI_MODE_*} constants. */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setUiMode(@ProjectionUiMode int uiMode) {
             mUiMode = uiMode;
             return this;
         }
 
         /** Sets consent activity which will be shown before starting projection. */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setConsentActivity(ComponentName consentActivity) {
             mConsentActivity = consentActivity;
             return this;
         }
 
         /** Sets projection access point mode */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setAccessPointMode(@ProjectionAccessPointMode int accessPointMode) {
             this.mApMode = accessPointMode;
             return this;
         }
 
         /** Creates an instance of {@link android.car.projection.ProjectionOptions} */
+        @AddedInOrBefore(majorVersion = 33)
         public ProjectionOptions build() {
             return new ProjectionOptions(this);
         }
