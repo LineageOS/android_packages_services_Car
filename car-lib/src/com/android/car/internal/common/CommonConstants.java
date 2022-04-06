@@ -45,9 +45,7 @@ public final class CommonConstants {
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4;
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5;
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6;
-    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_STARTING = 7;
-    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING = 8;
-    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED = 9;
+    public static final int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED = 7;
 
     // CarService Constants
     public static final String CAR_SERVICE_INTERFACE = "android.car.ICar";
@@ -59,8 +57,6 @@ public final class CommonConstants {
             USER_LIFECYCLE_EVENT_TYPE_UNLOCKED,
             USER_LIFECYCLE_EVENT_TYPE_STOPPING,
             USER_LIFECYCLE_EVENT_TYPE_STOPPED,
-            USER_LIFECYCLE_EVENT_TYPE_POST_STARTING,
-            USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING,
             USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED,
     })
     @Retention(RetentionPolicy.SOURCE)
