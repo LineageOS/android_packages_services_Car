@@ -67,8 +67,9 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES += \
     ro.carrier=unknown
 
-PRODUCT_SYSTEM_PROPERTIES += \
-    persist.bluetooth.enablenewavrcp=false
+# Set default Bluetooth profiles
+TARGET_SYSTEM_PROP += \
+    packages/services/Car/car_product/properties/bluetooth.prop
 
 PRODUCT_SYSTEM_DEFAULT_PROPERTIES += \
     config.disable_systemtextclassifier=true
