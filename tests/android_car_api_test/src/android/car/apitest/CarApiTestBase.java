@@ -31,7 +31,7 @@ import android.car.Car;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
-import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
+import android.hardware.automotive.vehicle.InitialUserInfoRequestType;
 import android.os.Build;
 import android.os.IBinder;
 import android.os.Looper;

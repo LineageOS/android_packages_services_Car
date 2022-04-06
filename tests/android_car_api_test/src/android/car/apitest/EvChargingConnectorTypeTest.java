@@ -19,7 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.hardware.property.EvChargingConnectorType;
-import android.hardware.automotive.vehicle.V2_0.EvConnectorType;
+import android.hardware.automotive.vehicle.EvConnectorType;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import androidx.test.runner.AndroidJUnit4;
