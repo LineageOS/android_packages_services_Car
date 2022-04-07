@@ -47,10 +47,12 @@ final class VendorServiceInfo {
 
     private static final int TRIGGER_ASAP = 0;
     private static final int TRIGGER_UNLOCKED = 1;
+    private static final int TRIGGER_POST_UNLOCKED = 2;
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({
             TRIGGER_ASAP,
             TRIGGER_UNLOCKED,
+            TRIGGER_POST_UNLOCKED,
     })
     @interface Trigger {}
 
@@ -89,6 +91,10 @@ final class VendorServiceInfo {
 
     boolean shouldStartOnUnlock() {
         return mTrigger == TRIGGER_UNLOCKED;
+    }
+
+    boolean shouldStartOnPostUnlock() {
+        return mTrigger == TRIGGER_POST_UNLOCKED;
     }
 
     boolean shouldStartAsap() {
@@ -138,34 +144,49 @@ final class VendorServiceInfo {
 
                 switch (key) {
                     case KEY_BIND:
-                        if ("bind".equals(val)) {
-                            bind = BIND;
-                        } else if ("start".equals(val)) {
-                            bind = START;
-                        } else if ("startForeground".equals(val)) {
-                            bind = START_FOREGROUND;
-                        } else {
-                            throw new IllegalArgumentException("Unexpected bind option: " + val);
+                        switch (val) {
+                            case "bind":
+                                bind = BIND;
+                                break;
+                            case "start":
+                                bind = START;
+                                break;
+                            case "startForeground":
+                                bind = START_FOREGROUND;
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Unexpected bind option: "
+                                        + val);
                         }
                         break;
                     case KEY_USER_SCOPE:
-                        if ("all".equals(val)) {
-                            userScope = USER_SCOPE_ALL;
-                        } else if ("system".equals(val)) {
-                            userScope = USER_SCOPE_SYSTEM;
-                        } else if ("foreground".equals(val)) {
-                            userScope = USER_SCOPE_FOREGROUND;
-                        } else {
-                            throw new IllegalArgumentException("Unexpected user scope: " + val);
+                        switch (val) {
+                            case "all":
+                                userScope = USER_SCOPE_ALL;
+                                break;
+                            case "system":
+                                userScope = USER_SCOPE_SYSTEM;
+                                break;
+                            case "foreground":
+                                userScope = USER_SCOPE_FOREGROUND;
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Unexpected user scope: " + val);
                         }
                         break;
                     case KEY_TRIGGER:
-                        if ("asap".equals(val)) {
-                            trigger = TRIGGER_ASAP;
-                        } else if ("userUnlocked".equals(val)) {
-                            trigger = TRIGGER_UNLOCKED;
-                        } else {
-                            throw new IllegalArgumentException("Unexpected trigger: " + val);
+                        switch (val) {
+                            case "asap":
+                                trigger = TRIGGER_ASAP;
+                                break;
+                            case "userUnlocked":
+                                trigger = TRIGGER_UNLOCKED;
+                                break;
+                            case "userPostUnlocked":
+                                trigger = TRIGGER_POST_UNLOCKED;
+                                break;
+                            default:
+                                throw new IllegalArgumentException("Unexpected trigger: " + val);
                         }
                         break;
                     default:
@@ -212,6 +233,8 @@ final class VendorServiceInfo {
                 return "ASAP";
             case TRIGGER_UNLOCKED:
                 return "UNLOCKED";
+            case TRIGGER_POST_UNLOCKED:
+                return "POST_UNLOCKED";
             default:
                 return "INVALID-" + trigger;
         }

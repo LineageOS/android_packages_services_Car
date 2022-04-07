@@ -100,7 +100,9 @@ public final class WearEstimateChange implements Parcelable {
         oldEstimate = in.readParcelable(WearEstimate.class.getClassLoader());
         newEstimate = in.readParcelable(WearEstimate.class.getClassLoader());
         uptimeAtChange = in.readLong();
-        dateAtChange = Instant.ofEpochMilli(in.readLong());
+        long secs = in.readLong();
+        int nanos = in.readInt();
+        dateAtChange = Instant.ofEpochSecond(secs, nanos);
         isAcceptableDegradation = in.readInt() == 1;
     }
 
@@ -117,7 +119,8 @@ public final class WearEstimateChange implements Parcelable {
         dest.writeParcelable(oldEstimate, flags);
         dest.writeParcelable(newEstimate, flags);
         dest.writeLong(uptimeAtChange);
-        dest.writeLong(dateAtChange.toEpochMilli());
+        dest.writeLong(dateAtChange.getEpochSecond());
+        dest.writeInt(dateAtChange.getNano());
         dest.writeInt(isAcceptableDegradation ? 1 : 0);
     }
 
