@@ -56,6 +56,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
+import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.user.CarUserService;
 import com.android.car.vehiclehal.test.AidlMockedVehicleHal;
@@ -100,6 +101,7 @@ public class MockedCarTestBase {
     private AidlMockedVehicleHal mAidlMockedVehicleHal;
     private SystemInterface mFakeSystemInterface;
     private MockedCarTestContext mMockedCarTestContext;
+    private CarTelemetryService mCarTelemetryService;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
@@ -147,6 +149,10 @@ public class MockedCarTestBase {
     }
 
     protected void configureMockedHal() {
+    }
+
+    protected CarTelemetryService createCarTelemetryService() {
+        return mock(CarTelemetryService.class);
     }
 
     /**
@@ -253,6 +259,8 @@ public class MockedCarTestBase {
         mMockedCarTestContext = (MockedCarTestContext) getContext();
         configureResourceOverrides((MockResources) mMockedCarTestContext.getResources());
 
+        mCarTelemetryService = createCarTelemetryService();
+
         // Setup mocks
         doAnswer((invocation) -> {
             UserLifecycleListener listener = invocation.getArgument(/* index= */ 1);
@@ -291,7 +299,7 @@ public class MockedCarTestBase {
         ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, /*builtinContext=*/null,
                 mockedVehicleStub, mFakeSystemInterface, /*vehicleInterfaceName=*/"MockedCar",
                 mCarUserService, mCarWatchdogService, mCarPerformanceService, mGarageModeService,
-                mPowerPolicyDaemon);
+                mPowerPolicyDaemon, mCarTelemetryService);
 
         spyOnBeforeCarImplInit(carImpl);
         carImpl.init();

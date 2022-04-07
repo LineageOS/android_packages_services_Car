@@ -49,6 +49,7 @@ import com.android.car.systeminterface.SystemInterface.Builder;
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.systeminterface.TimeInterface;
 import com.android.car.systeminterface.WakeLockInterface;
+import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.watchdog.CarWatchdogService;
 
@@ -91,6 +92,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
     @Mock private CarWatchdogService mMockCarWatchdogService;
     @Mock private CarPerformanceService mMockCarPerformanceService;
     @Mock private GarageModeService mMockGarageModeService;
+    @Mock private CarTelemetryService mMockCarTelemetryService;
 
     private Context mContext;
     private SystemInterface mFakeSystemInterface;
@@ -176,7 +178,7 @@ public final class ICarImplTest extends AbstractExtendedMockitoTestCase {
         ICarImpl carImpl = new ICarImpl(mContext, null, mMockVehicle, mFakeSystemInterface,
                 "MockedCar", /* carUserService= */ null, mMockCarWatchdogService,
                 mMockCarPerformanceService, mMockGarageModeService,
-                new MockedCarTestBase.FakeCarPowerPolicyDaemon());
+                new MockedCarTestBase.FakeCarPowerPolicyDaemon(), mMockCarTelemetryService);
         carImpl.init();
         Car mCar = new Car(mContext, carImpl, /* handler= */ null);
 
