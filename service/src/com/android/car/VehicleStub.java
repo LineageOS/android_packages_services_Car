@@ -66,19 +66,26 @@ public abstract class VehicleStub {
      * Creates a new VehicleStub to connect to Vehicle HAL.
      *
      * Create a new VehicleStub to connect to Vehicle HAL according to which backend (AIDL or HIDL)
-     * is available. Caller must call isValid to check the returned {@code VehicleStub} before using
-     * it.
+     * is available. This function will throw {@link IllegalStateException} if no vehicle HAL is
+     * available.
      *
      * @return a vehicle stub to connect to Vehicle HAL.
      */
-    public static VehicleStub newVehicleStub() {
+    public static VehicleStub newVehicleStub() throws IllegalStateException {
         VehicleStub stub = new AidlVehicleStub();
         if (stub.isValid()) {
             return stub;
         }
 
-        Slogf.w(CarLog.TAG_SERVICE, "No AIDL vehicle HAL found, fall back to HIDL version");
-        return new HidlVehicleStub();
+        Slogf.i(CarLog.TAG_SERVICE, "No AIDL vehicle HAL found, fall back to HIDL version");
+
+        stub = new HidlVehicleStub();
+
+        if (!stub.isValid()) {
+            throw new IllegalStateException("Vehicle HAL service is not available.");
+        }
+
+        return stub;
     }
 
     /**
