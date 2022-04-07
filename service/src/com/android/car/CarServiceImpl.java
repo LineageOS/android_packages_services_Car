@@ -60,10 +60,6 @@ public class CarServiceImpl extends ProxiedService {
 
         EventLogHelper.writeCarServiceCreate(/* hasVhal= */ mVehicle.isValid());
 
-        if (!mVehicle.isValid()) {
-            throw new IllegalStateException("Vehicle HAL service is not available.");
-        }
-
         mVehicleInterfaceName = mVehicle.getInterfaceDescriptor();
 
         Slogf.i(CarLog.TAG_SERVICE, "Connected to " + mVehicleInterfaceName);
