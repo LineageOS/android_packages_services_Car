@@ -633,7 +633,7 @@ public class VehicleHal implements HalClientCallback {
      * @throws IllegalArgumentException if argument is invalid
      * @throws ServiceSpecificException if VHAL returns error
      */
-    protected void set(HalPropValue propValue)
+    public void set(HalPropValue propValue)
             throws IllegalArgumentException, ServiceSpecificException {
         mHalClient.setValue(propValue);
     }
