@@ -268,18 +268,26 @@
     </string-array>
 
     <!-- The consent activity that must be shown for every unknown mobile device before projection
-         gets started.  The format is: com.your.package/com.your.Activity  -->
+         gets started.  The format is: com.your.package/com.your.Activity
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+    -->
     <string name="config_projectionConsentActivity" translatable="false"/>
 
     <!-- Display Id where projection rendering activity needs to be shown, Specify -1 to use system
-         defaults -->
+         defaults
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+     -->
     <integer name="config_projectionActivityDisplayId" translatable="false">-1</integer>
 
     <!-- Bounds of the projection activity on the screen. It should be in the pixels and screen
-         coordinates in the following order: left, top, right, bottom. -->
+         coordinates in the following order: left, top, right, bottom.
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+    -->
     <integer-array name="config_projectionActivityLaunchBounds" translatable="false"/>
 
-    <!-- UI mode for projection activity. See ProjectionOptions class for possible values. -->
+    <!-- UI mode for projection activity. See ProjectionOptions class for possible values.
+         NOTE: deprecated for aareceiver, see integration guide to use aareceiver specific RROs.
+    -->
     <integer name="config_projectionUiMode" translatable="false">0</integer>
 
     <!-- Configure whether access point created for wireless projection should be in tethered mode.
