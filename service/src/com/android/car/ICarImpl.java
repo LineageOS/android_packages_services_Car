@@ -134,7 +134,8 @@ public class ICarImpl extends ICar.Stub {
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarMediaService mCarMediaService;
     private final CarUserService mCarUserService;
-    @Nullable private final ExperimentalCarUserService mExperimentalCarUserService;
+    @Nullable
+    private final ExperimentalCarUserService mExperimentalCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
     private final VmsBrokerService mVmsBrokerService;
@@ -177,7 +178,7 @@ public class ICarImpl extends ICar.Stub {
         this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
                 /* carPerformanceService= */ null, /* garageModeService= */ null,
-                /* powerPolicyDaemon= */ null);
+                /* powerPolicyDaemon= */ null, /*carTelemetryService= */ null);
     }
 
     @VisibleForTesting
@@ -187,7 +188,8 @@ public class ICarImpl extends ICar.Stub {
             @Nullable CarWatchdogService carWatchdogService,
             @Nullable CarPerformanceService carPerformanceService,
             @Nullable GarageModeService garageModeService,
-            @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
+            @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon,
+            @Nullable CarTelemetryService carTelemetryService) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
                 CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
@@ -376,7 +378,8 @@ public class ICarImpl extends ICar.Stub {
                 mClusterHomeService = constructWithTrace(
                         t, ClusterHomeService.class,
                         () -> new ClusterHomeService(serviceContext, mHal.getClusterHal(),
-                        mClusterNavigationService, mCarOccupantZoneService, mFixedActivityService));
+                                mClusterNavigationService, mCarOccupantZoneService,
+                                mFixedActivityService));
             } else {
                 Slogf.w(TAG, "Can't init ClusterHomeService, since Old cluster service is running");
                 mClusterHomeService = null;
@@ -394,7 +397,12 @@ public class ICarImpl extends ICar.Stub {
         }
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_TELEMETRY_SERVICE)) {
-            mCarTelemetryService = new CarTelemetryService(serviceContext, mCarPropertyService);
+            if (carTelemetryService == null) {
+                mCarTelemetryService = constructWithTrace(t, CarTelemetryService.class,
+                        () -> new CarTelemetryService(serviceContext, mCarPropertyService));
+            } else {
+                mCarTelemetryService = carTelemetryService;
+            }
         } else {
             mCarTelemetryService = null;
         }
