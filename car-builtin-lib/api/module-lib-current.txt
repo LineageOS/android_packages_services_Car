@@ -62,6 +62,32 @@ package android.car.builtin.bluetooth {
 
 }
 
+package android.car.builtin.bluetooth.le {
+
+  public final class AdvertisingSetCallbackHelper {
+    method public static android.bluetooth.le.AdvertisingSetCallback createRealCallbackFromProxy(@NonNull android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper.Callback);
+  }
+
+  public abstract static class AdvertisingSetCallbackHelper.Callback {
+    ctor public AdvertisingSetCallbackHelper.Callback();
+    method public void onAdvertisingDataSet(android.bluetooth.le.AdvertisingSet, int);
+    method public void onAdvertisingEnabled(android.bluetooth.le.AdvertisingSet, boolean, int);
+    method public void onAdvertisingParametersUpdated(android.bluetooth.le.AdvertisingSet, int, int);
+    method public void onAdvertisingSetStarted(android.bluetooth.le.AdvertisingSet, int, int);
+    method public void onAdvertisingSetStopped(android.bluetooth.le.AdvertisingSet);
+    method public void onOwnAddressRead(android.bluetooth.le.AdvertisingSet, int, String);
+    method public void onPeriodicAdvertisingDataSet(android.bluetooth.le.AdvertisingSet, int);
+    method public void onPeriodicAdvertisingEnabled(android.bluetooth.le.AdvertisingSet, boolean, int);
+    method public void onPeriodicAdvertisingParametersUpdated(android.bluetooth.le.AdvertisingSet, int);
+    method public void onScanResponseDataSet(android.bluetooth.le.AdvertisingSet, int);
+  }
+
+  public final class AdvertisingSetHelper {
+    method @RequiresPermission(allOf={android.Manifest.permission.BLUETOOTH_ADVERTISE, android.Manifest.permission.BLUETOOTH_PRIVILEGED}) public static void getOwnAddress(@NonNull android.bluetooth.le.AdvertisingSet);
+  }
+
+}
+
 package android.car.builtin.content {
 
   public final class ContextHelper {
