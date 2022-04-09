@@ -424,16 +424,19 @@ void WatchdogProcessService::terminate() {
     }
     mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
     mServiceStarted = false;
-    if (mVhalService != nullptr) {
+    if (mVhalService == nullptr) {
+        return;
+    }
+    if (mNotSupportedVhalProperties.count(VehicleProperty::VHAL_HEARTBEAT) == 0) {
         std::vector<int32_t> propIds = {static_cast<int32_t>(VehicleProperty::VHAL_HEARTBEAT)};
         auto result =
                 mVhalService->getSubscriptionClient(mPropertyChangeListener)->unsubscribe(propIds);
         if (!result.ok()) {
             ALOGW("Failed to unsubscribe from VHAL_HEARTBEAT.");
         }
-        mVhalService->removeOnBinderDiedCallback(mOnBinderDiedCallback);
-        mVhalService.reset();
     }
+    mVhalService->removeOnBinderDiedCallback(mOnBinderDiedCallback);
+    mVhalService.reset();
 }
 
 Status WatchdogProcessService::registerClientLocked(const ClientInfo& clientInfo,
