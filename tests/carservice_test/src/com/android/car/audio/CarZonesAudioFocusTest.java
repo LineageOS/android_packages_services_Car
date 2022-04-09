@@ -37,11 +37,9 @@ import static org.mockito.Mockito.when;
 import android.car.media.CarAudioManager;
 import android.content.ContentResolver;
 import android.content.pm.PackageManager;
-import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseArray;
 
@@ -61,8 +59,6 @@ public class CarZonesAudioFocusTest {
     private static final String MEDIA_CLIENT_ID = "media-client-id";
     private static final String NAVIGATION_CLIENT_ID = "nav-client-id";
     private static final String CALL_CLIENT_ID = "call-client-id";
-    private static final String PACKAGE_NAME = "com.android.car.audio";
-    private static final int AUDIO_FOCUS_FLAG = 0;
     private static final int PRIMARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE;
     private static final int SECONDARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
     private static final int MEDIA_CLIENT_UID_1 = 1086753;
@@ -492,77 +488,5 @@ public class CarZonesAudioFocusTest {
                 .thenReturn(mContentResolver);
         when(mCarAudioSettings.isRejectNavigationOnCallEnabledInSettings(TEST_USER_ID))
                 .thenReturn(rejectNavigationOnCall);
-    }
-
-    public class AudioFocusInfoBuilder {
-        private int mUsage;
-        private int mClientUid;
-        private String mClientId;
-        private int mGainRequest;
-        private String mPackageName = PACKAGE_NAME;
-        private Bundle mBundle = null;
-        private int mLossReceived = AudioManager.AUDIOFOCUS_NONE;
-        private int mFlags = AUDIO_FOCUS_FLAG;
-        private int mSdk = Build.VERSION.SDK_INT;
-        private boolean mDelayedFocusRequestEnabled = false;
-
-        public AudioFocusInfoBuilder setUsage(int usage) {
-            mUsage = usage;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setClientUid(int clientUid) {
-            mClientUid = clientUid;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setClientId(String clientId) {
-            mClientId = clientId;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setPackageName(String packageName) {
-            mPackageName = packageName;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setGainRequest(int gainRequest) {
-            mGainRequest = gainRequest;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setLossReceived(int lossReceived) {
-            mLossReceived = lossReceived;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setSdk(int sdk) {
-            mSdk = sdk;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder setBundle(Bundle bundle) {
-            mBundle = bundle;
-            return this;
-        }
-
-        public AudioFocusInfoBuilder
-                setDelayedFocusRequestEnable(boolean delayedFocusRequestEnabled) {
-            mDelayedFocusRequestEnabled = delayedFocusRequestEnabled;
-            return this;
-        }
-
-        public AudioFocusInfo createAudioFocusInfo() {
-            AudioAttributes.Builder builder = new AudioAttributes.Builder().setUsage(mUsage);
-            if (mBundle != null) {
-                builder = builder.addBundle(mBundle);
-            }
-            if (mDelayedFocusRequestEnabled) {
-                mFlags = mFlags | AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
-            }
-            AudioAttributes audioAttributes = builder.build();
-            return new AudioFocusInfo(audioAttributes, mClientUid, mClientId,
-                    mPackageName, mGainRequest, mLossReceived, mFlags, mSdk);
-        }
     }
 }
