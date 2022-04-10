@@ -1,0 +1,610 @@
+class @hide DriverMonitoringDetection package android.car.occupantawareness
+    field int confidenceLevel;
+    field boolean isLookingOnRoad;
+    field long gazeDurationMillis;
+    field Creator<DriverMonitoringDetection> CREATOR;
+    method int describeContents();
+    method String toString();
+    method void writeToParcel(Parcel dest, int flags);
+class @hide OccupantAwarenessDetection package android.car.occupantawareness
+    field int role;
+    field long timestampMillis;
+    field boolean isPresent;
+    field GazeDetection gazeDetection;
+    field DriverMonitoringDetection driverMonitoringDetection;
+    field Creator<OccupantAwarenessDetection> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method String toString();
+class @hide Point3D package android.car.occupantawareness
+    field double x;
+    field double y;
+    field double z;
+    field Creator<Point3D> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method String toString();
+class @hide SystemStatusEvent package android.car.occupantawareness
+    field int systemStatus;
+    field int detectionType;
+    field Creator<SystemStatusEvent> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method String toString();
+class @hide GazeDetection package android.car.occupantawareness
+    field int confidenceLevel;
+    field Point3D leftEyePosition;
+    field Point3D rightEyePosition;
+    field Point3D headAngleUnitVector;
+    field Point3D gazeAngleUnitVector;
+    field int gazeTarget;
+    field long durationOnTargetMillis;
+    field Creator<GazeDetection> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method String toString();
+class @hide OccupantAwarenessManager package android.car.occupantawareness
+    method @hide void onCarDisconnected();
+class OccupantAwarenessManager.ChangeCallback package android.car.occupantawareness
+    method void onDetectionEvent(OccupantAwarenessDetection event);
+class @hide @SystemApi ProjectionStatus package android.car.projection
+    field jectionStatus> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method Bundle getExtras();
+    method Builder builder(String packageName, int state);
+    method String toString();
+class ProjectionStatus.Builder package android.car.projection
+    method Builder setExtras(Bundle extras);
+class ProjectionStatus.MobileDevice package android.car.projection
+    field ileDevice> CREATOR;
+    method void writeToParcel(Parcel dest, int flags);
+    method Bundle getExtras();
+    method int describeContents();
+    method Builder builder(int id, String name);
+    method String toString();
+class ProjectionStatus.MobileDevice.Builder package android.car.projection
+    method Builder setExtras(Bundle extras);
+class @hide @SystemApi ProjectionOptions package android.car.projection
+    method @hide String toString();
+class @hide @SystemApi CarEvsManager package android.car.evs
+    method @hide void onCarDisconnected();
+interface CarEvsManager.CarEvsStatusListener package android.car.evs
+    method void onStatusChanged(CarEvsStatus status);
+interface CarEvsManager.CarEvsStreamCallback package android.car.evs
+    method void onStreamEvent(int event);
+    method void onNewFrame(CarEvsBufferDescriptor buffer);
+class @hide @SystemApi CarEvsStatus package android.car.evs
+    field Creator<CarEvsStatus> CREATOR;
+    method String toString();
+class @hide @SystemApi CarEvsBufferDescriptor package android.car.evs
+    field Creator<CarEvsBufferDescriptor> CREATOR;
+    method String toString();
+class @hide @SystemApi CarMediaManager package android.car.media
+    method @hide void onCarDisconnected();
+interface CarMediaManager.MediaSourceChangedListener package android.car.media
+    method void onMediaSourceChanged(ComponentName componentName);
+class @hide @SystemApi CarAudioPatchHandle package android.car.media
+    field Creator<CarAudioPatchHandle> CREATOR;
+    method String toString();
+class CarAudioManager package android.car.media
+    method @hide void onCarDisconnected();
+class CarAudioManager.CarVolumeCallback package android.car.media
+    method void onGroupVolumeChanged(int zoneId, int groupId, int flags);
+    method void onMasterMuteChanged(int zoneId, int flags);
+    method void onGroupMuteChanged(int zoneId, int groupId, int flags);
+class @hide @SystemApi CarAppBlockingPolicy package android.car.content.pm
+    field Creator<CarAppBlockingPolicy> CREATOR;
+    method int hashCode();
+    method boolean equals(Object obj);
+    method String toString();
+class CarPackageManager package android.car.content.pm
+    method @hide void onCarDisconnected();
+class @hide @SystemApi AppBlockingPackageInfo package android.car.content.pm
+    field Creator<AppBlockingPackageInfo> CREATOR;
+    method int hashCode();
+    method boolean equals(Object obj);
+    method String toString();
+class @hide @SystemApi CarAppBlockingPolicyService package android.car.content.pm
+    method int onStartCommand(Intent intent, int flags, int startId);
+    method boolean onUnbind(Intent intent);
+class CarOccupantZoneManager package android.car
+    method @hide void onCarDisconnected();
+class CarOccupantZoneManager.OccupantZoneInfo package android.car
+    field Creator<OccupantZoneInfo> CREATOR;
+    method boolean equals(Object other);
+    method int hashCode();
+    method String toString();
+interface CarOccupantZoneManager.OccupantZoneConfigChangeListener package android.car
+    method void onOccupantZoneConfigChanged(int changeFlags);
+class @hide @SystemApi CarUserManager package android.car.user
+    field @hide int USER_LIFECYCLE_EVENT_TYPE_POST_STARTING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_STARTING;
+    field @hide int USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING;
+    field @hide int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
+    method @hide void onCarDisconnected();
+class @hide @SystemApi CarUserManager.UserLifecycleEvent package android.car.user
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide ExperimentalCarUserManager package android.car.user
+    method @hide void onCarDisconnected();
+class @hide UserStopResult package android.car.user
+    field Creator<UserStopResult> CREATOR;
+    method boolean isSuccess(int status);
+    method boolean isSuccess();
+    method String toString();
+    method void writeToParcel(android.os.Parcel dest, int flags);
+    method int describeContents();
+class @hide UserCreationResult package android.car.user
+    field Creator<UserCreationResult> CREATOR;
+    method boolean isSuccess();
+    method int describeContents();
+    method String toString();
+    method void writeToParcel(android.os.Parcel dest, int flags);
+class @hide UserRemovalResult package android.car.user
+    field Creator<UserRemovalResult> CREATOR;
+    method boolean isSuccess();
+    method String toString();
+    method void writeToParcel(android.os.Parcel dest, int flags);
+    method int describeContents();
+class @hide @SystemApi UserLifecycleEventFilter package android.car.user
+    field Creator<UserLifecycleEventFilter> CREATOR;
+    method @hide int[] getEventTypes();
+    method @hide int[] getUserIds();
+    method boolean apply(UserLifecycleEvent event);
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide UserLifecycleEventFilter.Builder package android.car.user
+    method Builder addEventType(int eventType);
+    method Builder addUser(UserHandle userHandle);
+    method UserLifecycleEventFilter build();
+class @hide UserStartResult package android.car.user
+    field Creator<UserStartResult> CREATOR;
+    method boolean isSuccess();
+    method String toString();
+    method void writeToParcel(android.os.Parcel dest, int flags);
+    method int describeContents();
+class @hide UserIdentificationAssociationResponse package android.car.user
+    field Creator<UserIdentificationAssociationResponse> CREATOR;
+    method UserIdentificationAssociationResponse forFailure();
+    method UserIdentificationAssociationResponse forFailure(String errorMessage);
+    method UserIdentificationAssociationResponse forSuccess(int[] values);
+    method UserIdentificationAssociationResponse forSuccess(int[] values, String errorMessage);
+    method String toString();
+    method void writeToParcel(android.os.Parcel dest, int flags);
+    method int describeContents();
+class @hide UserSwitchResult package android.car.user
+    field Creator<UserSwitchResult> CREATOR;
+    method boolean isSuccess();
+    method int describeContents();
+    method String toString();
+class @hide CarTestManager package android.car.test
+    method @hide void onCarDisconnected();
+class @hide CarBugreportManager package android.car
+    method void requestBugreport(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput, CarBugreportManagerCallback callback);
+    method void onCarDisconnected();
+class CarBugreportManager.CarBugreportManagerCallback package android.car
+    method void onProgress(float progress);
+    method void onError(int errorCode);
+    method void onFinished();
+class @hide @SystemApi AoapService package android.car
+    method void onCreate();
+    method boolean onUnbind(Intent intent);
+    method void dump(FileDescriptor fd, PrintWriter writer, String[] args);
+class @hide @SystemApi CarProjectionManager package android.car
+    method @hide void onCarDisconnected();
+interface CarProjectionManager.ProjectionKeyEventHandler package android.car
+    method void onKeyEvent(int event);
+interface CarProjectionManager.ProjectionStatusListener package android.car
+    method void onProjectionStatusChanged(int state, String packageName, List<ProjectionStatus> details);
+class @hide StartUserInBackgroundResult package android.car.admin
+    method String toString();
+class @hide @SystemApi CarDevicePolicyManager package android.car.admin
+    method @hide void onCarDisconnected();
+class @hide @SystemApi RemoveUserResult package android.car.admin
+    method String toString();
+class @hide StopUserResult package android.car.admin
+    method String toString();
+class @hide @SystemApi CreateUserResult package android.car.admin
+    method String toString();
+class @hide @SystemApi IoStatsEntry package android.car.storagemonitoring
+    field Creator<IoStatsEntry> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method @hide void writeToJson(JsonWriter jsonWriter);
+    method boolean equals(Object other);
+    method int hashCode();
+    method String toString();
+class IoStatsEntry.Metrics package android.car.storagemonitoring
+    field Creator<IoStatsEntry.Metrics> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method @hide void writeToJson(JsonWriter jsonWriter);
+    method boolean equals(Object other);
+    method int hashCode();
+    method String toString();
+class @hide @SystemApi IoStats package android.car.storagemonitoring
+    field tats> CREATOR;
+    method int hashCode();
+    method boolean equals(Object other);
+    method String toString();
+class @hide @SystemApi LifetimeWriteInfo package android.car.storagemonitoring
+    field tats> CREATOR;
+    method boolean equals(Object other);
+    method String toString();
+class @hide @SystemApi CarStorageMonitoringManager package android.car.storagemonitoring
+    method @hide void onCarDisconnected();
+interface CarStorageMonitoringManager.IoStatsListener package android.car.storagemonitoring
+    method void onSnapshot(IoStats snapshot);
+class @hide @SystemApi UidIoRecord package android.car.storagemonitoring
+    method @hide UidIoRecord delta(IoStatsEntry other);
+    method @hide UidIoRecord delta(UidIoRecord other);
+class @hide @SystemApi WearEstimateChange package android.car.storagemonitoring
+    field Creator<WearEstimateChange> CREATOR;
+    method boolean equals(Object other);
+    method int hashCode();
+    method String toString();
+class @hide @SystemApi WearEstimate package android.car.storagemonitoring
+    field Creator<WearEstimate> CREATOR;
+    method boolean equals(Object other);
+    method int hashCode();
+    method String toString();
+class @hide CarManagerBase package android.car
+    field Car mCar;
+class @hide @SystemApi CarNavigationInstrumentCluster package android.car.navigation
+    field Creator<CarNavigationInstrumentCluster> CREATOR;
+    method String toString();
+class @hide @SystemApi CarNavigationStatusManager package android.car.navigation
+    method @hide void onCarDisconnected();
+class @hide @SystemApi CustomInputEvent package android.car.input
+    field Creator<CustomInputEvent> CREATOR;
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide @SystemApi CarInputHandlingService package android.car.input
+    method IBinder onBind(Intent intent);
+    method void onKeyEvent(KeyEvent keyEvent, int targetDisplay);
+    method void dump(FileDescriptor fd, PrintWriter writer, String[] args);
+class CarInputHandlingService.InputFilter package android.car.input
+    field int mKeyCode;
+    field int mTargetDisplay;
+    field Creator CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+class @hide @SystemApi RotaryEvent package android.car.input
+    field Creator<RotaryEvent> CREATOR;
+    method int getNumberOfClicks();
+    method long getUptimeMillisForClick(int clickIndex);
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide @SystemApi CarInputManager package android.car.input
+    method @hide void onCarDisconnected();
+interface CarInputManager.CarInputCaptureCallback package android.car.input
+    method void onKeyEvents(int targetDisplayType, List<KeyEvent> keyEvents);
+    method void onRotaryEvents(int targetDisplayType, List<RotaryEvent> events);
+    method void onCaptureStateChanged(int targetDisplayType, int[] activeInputTypes);
+    method void onCustomInputEvents(int targetDisplayType, List<CustomInputEvent> events);
+class CarUxRestrictionsManager package android.car.drivingstate
+    method @hide void onCarDisconnected();
+    method void registerListener(OnUxRestrictionsChangedListener listener);
+    method @hide void registerListener(OnUxRestrictionsChangedListener listener, int displayId);
+    method @hide boolean saveUxRestrictionsConfigurationForNextBoot(List<CarUxRestrictionsConfiguration> configs);
+    method CarUxRestrictions getCurrentCarUxRestrictions();
+    method @hide CarUxRestrictions getCurrentCarUxRestrictions(int displayId);
+    method @hide boolean saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration config);
+interface CarUxRestrictionsManager.OnUxRestrictionsChangedListener package android.car.drivingstate
+    method void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);
+class @hide @SystemApi CarDrivingStateManager package android.car.drivingstate
+    method @hide void onCarDisconnected();
+interface @hide @SystemApi CarDrivingStateManager.CarDrivingStateEventListener package android.car.drivingstate
+    method void onDrivingStateChanged(CarDrivingStateEvent event);
+class CarUxRestrictions package android.car.drivingstate
+    field Creator<CarUxRestrictions> CREATOR;
+    method String toString();
+class @hide @SystemApi CarDrivingStateEvent package android.car.drivingstate
+    field Creator<CarDrivingStateEvent> CREATOR;
+    method String toString();
+class @hide CarUxRestrictionsConfiguration package android.car.drivingstate
+    field Creator<CarUxRestrictionsConfiguration> CREATOR;
+    method CarUxRestrictions getUxRestrictions(int drivingState, float currentSpeed);
+    method CarUxRestrictions getUxRestrictions(int drivingState, float currentSpeed, String mode);
+    method String toString();
+    method int hashCode();
+    method boolean equals(Object obj);
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+class @hide CarUxRestrictionsConfiguration.Builder package android.car.drivingstate
+    method Builder setUxRestrictions(int drivingState, boolean requiresOptimization, int restrictions);
+    method Builder setUxRestrictions(int drivingState, SpeedRange speedRange, boolean requiresOptimization, int restrictions);
+    method Builder setUxRestrictions(int drivingState, DrivingStateRestrictions drivingStateRestrictions);
+class CarUxRestrictionsConfiguration.Builder.SpeedRange package android.car.drivingstate
+    method int compareTo(SpeedRange other);
+    method int hashCode();
+    method boolean equals(Object obj);
+    method String toString();
+class @hide CarUxRestrictionsConfiguration.DrivingStateRestrictions package android.car.drivingstate
+    method String toString();
+class @hide @SystemApi CarActivityManager package android.car.app
+    method @hide void onCarDisconnected();
+class @hide @SystemApi CarVendorExtensionManager package android.car.hardware
+    method @hide void onCarDisconnected();
+interface CarVendorExtensionManager.CarVendorExtensionCallback package android.car.hardware
+    method void onChangeEvent(CarPropertyValue value);
+    method void onErrorEvent(int propertyId, int zone);
+class CarPropertyConfig package android.car.hardware
+    field PropertyConfig> CREATOR;
+    method T getMinValue(int areaId);
+    method T getMaxValue(int areaId);
+    method T getMinValue();
+    method T getMaxValue();
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method @hide String toString();
+    method @hide @SystemApi Builder<T> newBuilder(Class<T> type, int propertyId, int areaType, int areaCapacity);
+    method @hide Builder<T> newBuilder(Class<T> type, int propertyId, int areaType);
+class @hide CarPropertyConfig.AreaConfig package android.car.hardware
+    field Creator<AreaConfig<Object>> CREATOR;
+    method T getMinValue();
+    method T getMaxValue();
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method String toString();
+class CarPropertyValue package android.car.hardware
+    field PropertyValue> CREATOR;
+    method @hide String toString();
+class @hide CarSensorConfig package android.car.hardware
+    field @hide Creator<CarSensorConfig> CREATOR;
+    method @hide int describeContents();
+    method @hide void writeToParcel(Parcel dest, int flags);
+    method @hide String toString();
+class CarSensorEvent package android.car.hardware
+    field long timestamp;
+    field Creator<CarSensorEvent> CREATOR;
+    method @hide String toString();
+class CarSensorEvent.EnvironmentData package android.car.hardware
+    field long timestamp;
+class @hide CarSensorEvent.IgnitionStateData package android.car.hardware
+    field long timestamp;
+    field int ignitionState;
+class @hide CarSensorEvent.NightData package android.car.hardware
+    field long timestamp;
+    field boolean isNightMode;
+class @hide CarSensorEvent.GearData package android.car.hardware
+    field long timestamp;
+    field int gear;
+class @hide CarSensorEvent.ParkingBrakeData package android.car.hardware
+    field long timestamp;
+    field boolean isEngaged;
+class @hide CarSensorEvent.FuelLevelData package android.car.hardware
+    field long timestamp;
+    field float level;
+class @hide CarSensorEvent.OdometerData package android.car.hardware
+    field long timestamp;
+    field float kms;
+class @hide CarSensorEvent.RpmData package android.car.hardware
+    field long timestamp;
+    field float rpm;
+class @hide CarSensorEvent.CarSpeedData package android.car.hardware
+    field long timestamp;
+    field float carSpeed;
+class @hide CarSensorEvent.CarWheelTickDistanceData package android.car.hardware
+    field long timestamp;
+    field long sensorResetCount;
+    field long frontLeftWheelDistanceMm;
+    field long frontRightWheelDistanceMm;
+    field long rearRightWheelDistanceMm;
+    field long rearLeftWheelDistanceMm;
+class @hide CarSensorEvent.CarAbsActiveData package android.car.hardware
+    field long timestamp;
+    field boolean absIsActive;
+class @hide CarSensorEvent.CarTractionControlActiveData package android.car.hardware
+    field long timestamp;
+    field boolean tractionControlIsActive;
+class @hide CarSensorEvent.CarFuelDoorOpenData package android.car.hardware
+    field long timestamp;
+    field boolean fuelDoorIsOpen;
+class @hide CarSensorEvent.CarEvBatteryLevelData package android.car.hardware
+    field long timestamp;
+    field float evBatteryLevel;
+class @hide CarSensorEvent.CarEvChargePortOpenData package android.car.hardware
+    field long timestamp;
+    field boolean evChargePortIsOpen;
+class @hide CarSensorEvent.CarEvChargePortConnectedData package android.car.hardware
+    field long timestamp;
+    field boolean evChargePortIsConnected;
+class @hide CarSensorEvent.CarEvBatteryChargeRateData package android.car.hardware
+    field long timestamp;
+    field float evChargeRate;
+class @hide CarSensorEvent.CarEngineOilLevelData package android.car.hardware
+    field long timestamp;
+    field int engineOilLevel;
+class CarSensorManager package android.car.hardware
+    method @hide void onCarDisconnected();
+    method boolean isSensorSupported(int sensorType);
+    method @hide boolean isSensorSupported(int[] sensorList, int sensorType);
+interface CarHvacManager.CarHvacEventCallback package android.car.hardware.hvac
+    method void onChangeEvent(CarPropertyValue value);
+    method void onErrorEvent(int propertyId, int zone);
+class @hide @SystemApi CarCabinManager package android.car.hardware.cabin
+    method @hide void onCarDisconnected();
+interface CarCabinManager.CarCabinEventCallback package android.car.hardware.cabin
+    method void onChangeEvent(CarPropertyValue value);
+    method void onErrorEvent(int propertyId, int zone);
+class @hide CarPropertyEvent package android.car.hardware.property
+    field Creator<CarPropertyEvent> CREATOR;
+    method int describeContents();
+    method void writeToParcel(Parcel dest, int flags);
+    method String toString();
+class CarPropertyManager package android.car.hardware.property
+    method @hide void onCarDisconnected();
+interface CarPropertyManager.CarPropertyEventCallback package android.car.hardware.property
+    method void onErrorEvent(int propId, int zone);
+    method void onErrorEvent(int propId, int areaId, int errorCode);
+class CarPowerManager package android.car.hardware.power
+    method @hide void onCarDisconnected();
+interface @hide @SystemApi CarPowerManager.CompletablePowerStateChangeFuture package android.car.hardware.power
+    method void complete();
+    method long getExpirationTime();
+interface @hide @SystemApi CarPowerManager.CarPowerStateListener package android.car.hardware.power
+    method void onStateChanged(int state);
+interface @hide @SystemApi CarPowerManager.CarPowerStateListenerWithCompletion package android.car.hardware.power
+    method void onStateChanged(int state, CompletablePowerStateChangeFuture future);
+interface CarPowerManager.CarPowerPolicyListener package android.car.hardware.power
+    method void onPolicyChanged(CarPowerPolicy policy);
+class CarPowerPolicy package android.car.hardware.power
+    field Creator<CarPowerPolicy> CREATOR;
+    method boolean isComponentEnabled(int component);
+class CarPowerPolicyFilter package android.car.hardware.power
+    field Creator<CarPowerPolicyFilter> CREATOR;
+class Car package android.car
+    field @hide int PLATFORM_VERSION_MINOR_INT = CarBuiltin.PLATFORM_VERSION_MINOR_INT;
+class @hide @SystemApi CarTelemetryManager package android.car.telemetry
+    method @hide void onCarDisconnected();
+interface @hide @SystemApi CarTelemetryManager.MetricsReportCallback package android.car.telemetry
+    method void onResult(String metricsConfigName, PersistableBundle report, byte[] telemetryError, int status);
+interface @hide @SystemApi CarTelemetryManager.ReportReadyListener package android.car.telemetry
+    method void onReady(String metricsConfigName);
+class @hide ClusterActivityState package android.car.cluster
+    method String toString();
+class @hide @SystemApi InstrumentClusterRenderingService package android.car.cluster.renderer
+    method void onKeyEvent(KeyEvent keyEvent);
+    method @hide void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions);
+    method @hide void setClusterActivityLaunchOptions(ActivityOptions activityOptions);
+    method @hide void setClusterActivityState(String category, Bundle state);
+    method @hide void setClusterActivityState(ClusterActivityState state);
+    method void dump(FileDescriptor fd, PrintWriter writer, String[] args);
+class @hide @SystemApi CarInstrumentClusterManager package android.car.cluster
+    method @hide void onCarDisconnected();
+class @hide ClusterHomeManager package android.car.cluster
+    method void onCarDisconnected();
+interface ClusterHomeManager.ClusterStateListener package android.car.cluster
+    method void onClusterStateChanged(ClusterState state, int changes);
+class @hide @SystemApi VmsLayer package android.car.vms
+    field Creator<VmsLayer> CREATOR;
+    method int getSubtype();
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide VmsOperationRecorder.Writer package android.car.vms
+    method boolean isEnabled();
+    method void write(String msg);
+class @hide @SystemApi VmsAvailableLayers package android.car.vms
+    field Creator<VmsAvailableLayers> CREATOR;
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide VmsSubscriptionHelper package android.car.vms
+    method void subscribe(VmsLayer layer);
+    method void subscribe(VmsLayer layer, int providerId);
+    method void unsubscribe(VmsLayer layer);
+    method void unsubscribe(VmsLayer layer, int providerId);
+class @hide @SystemApi VmsLayerDependency package android.car.vms
+    field Creator<VmsLayerDependency> CREATOR;
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide VmsRegistrationInfo package android.car.vms
+    field Creator<VmsRegistrationInfo> CREATOR;
+    method boolean equals(Object o);
+    method int hashCode();
+    method void writeToParcel(Parcel dest, int flags);
+    method int describeContents();
+class @hide @SystemApi VmsSubscriptionState package android.car.vms
+    field Creator<VmsSubscriptionState> CREATOR;
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide @SystemApi VmsLayersOffering package android.car.vms
+    field Creator<VmsLayersOffering> CREATOR;
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide @SystemApi VmsAssociatedLayer package android.car.vms
+    field Creator<VmsAssociatedLayer> CREATOR;
+    method String toString();
+    method boolean equals(Object o);
+    method int hashCode();
+class @hide @SystemApi VmsPublisherClientService package android.car.vms
+    method void onCreate();
+    method void onDestroy();
+class @hide @SystemApi VmsSubscriberManager package android.car.vms
+    method @hide void onCarDisconnected();
+class @hide VmsProviderInfo package android.car.vms
+    field Creator<VmsProviderInfo> CREATOR;
+    method boolean equals(Object o);
+    method int hashCode();
+    method void writeToParcel(Parcel dest, int flags);
+    method int describeContents();
+class @hide @SystemApi VmsClientManager package android.car.vms
+    method void registerVmsClientCallback(Executor executor, VmsClientCallback callback);
+    method @hide void registerVmsClientCallback(Executor executor, VmsClientCallback callback, boolean legacyClient);
+    method @hide void onCarDisconnected();
+class @hide AndroidFuture package android.car.util.concurrent
+    field Creator<AndroidFuture> CREATOR;
+    method boolean complete(T value);
+    method boolean completeExceptionally(Throwable ex);
+    method boolean cancel(boolean mayInterruptIfRunning);
+    method AndroidFuture<T> whenComplete(BiConsumer<? super T,? super Throwable> action);
+    method AndroidFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor);
+    method AndroidFuture<U> thenCompose(Function<? super T,? extends CompletionStage<U>> fn);
+    method AndroidFuture<U> thenComposeAsync(Function<? super T,? extends CompletionStage<U>> fn, Executor executor);
+    method AndroidFuture<U> thenApply(Function<? super T,? extends U> fn);
+    method AndroidFuture<U> thenApplyAsync(Function<? super T,? extends U> fn, Executor executor);
+    method AndroidFuture<V> thenCombine(CompletionStage<? extends U> other, BiFunction<? super T,? super U,? extends V> combineResults);
+    method void writeToParcel(Parcel dest, int flags);
+    method int describeContents();
+class @hide AndroidAsyncFuture package android.car.util.concurrent
+    method T get();
+    method T get(long timeout, TimeUnit unit);
+    method AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor);
+interface CarDiagnosticManager.OnDiagnosticEventListener package android.car.diagnostic
+    method void onDiagnosticEvent(CarDiagnosticEvent carDiagnosticEvent);
+class @hide @SystemApi CarDiagnosticEvent package android.car.diagnostic
+    field Creator<CarDiagnosticEvent> CREATOR;
+    method boolean equals(Object otherObject);
+    method int hashCode();
+    method String toString();
+class @hide CarPerformanceManager package android.car.os
+    method @hide void onCarDisconnected();
+class @hide CpuAvailabilityMonitoringConfig package android.car.os
+    field Creator<CpuAvailabilityMonitoringConfig> CREATOR;
+    method String toString();
+class @hide CpuAvailabilityInfo package android.car.os
+    field Creator<CpuAvailabilityInfo> CREATOR;
+    method String toString();
+class ResourceOveruseStats package android.car.watchdog
+    field Creator<ResourceOveruseStats> CREATOR;
+    method String toString();
+class @hide @SystemApi IoOveruseAlertThreshold package android.car.watchdog
+    field Creator<IoOveruseAlertThreshold> CREATOR;
+    method String toString();
+class IoOveruseStats package android.car.watchdog
+    field Creator<IoOveruseStats> CREATOR;
+    method String toString();
+class CarWatchdogManager package android.car.watchdog
+    method @hide void onCarDisconnected();
+class @hide @SystemApi CarWatchdogManager.CarWatchdogClientCallback package android.car.watchdog
+    method void onPrepareProcessTermination();
+interface CarWatchdogManager.ResourceOveruseListener package android.car.watchdog
+    method void onOveruse(ResourceOveruseStats resourceOveruseStats);
+class @hide @SystemApi IoOveruseConfiguration package android.car.watchdog
+    field Creator<IoOveruseConfiguration> CREATOR;
+    method String toString();
+class @hide @SystemApi ResourceOveruseConfiguration package android.car.watchdog
+    field Creator<ResourceOveruseConfiguration> CREATOR;
+    method String toString();
+class PerStateBytes package android.car.watchdog
+    field Creator<PerStateBytes> CREATOR;
+    method String toString();
+class @hide @SystemApi PackageKillableState package android.car.watchdog
+    field Creator<PackageKillableState> CREATOR;
+    method String toString();
+class CarAppFocusManager package android.car
+    method @hide void onCarDisconnected();
+interface CarAppFocusManager.OnAppFocusChangedListener package android.car
+    method void onAppFocusChanged(int appType, boolean active);
+interface CarAppFocusManager.OnAppFocusOwnershipCallback package android.car
+    method void onAppFocusOwnershipLost(int appType);
+    method void onAppFocusOwnershipGranted(int appType);
