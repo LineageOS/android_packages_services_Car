@@ -64,19 +64,27 @@ ifneq ($(ENABLE_CAMERA_SERVICE), true)
 PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
 endif
 
-# EVS service
+# ENABLE_EVS_SERVICE must be set as true from the product's makefile if it wants to support
+# the Extended View System service.
+ifeq ($(ENABLE_EVS_SERVICE), true)
 PRODUCT_PACKAGES += evsmanagerd
+
+# CUSTOMIZE_EVS_SERVICE_PARAMETER must be set as true from the product's makefile if it wants
+# to use IEvsEnumearor instances other than hw/1.
+ifneq ($(CUSTOMIZE_EVS_SERVICE_PARAMETER), true)
+PRODUCT_COPY_FILES += \
+    packages/services/Car/cpp/evs/manager/aidl/init.evs.rc:$(TARGET_COPY_OUT_SYSTEM)/etc/init/init.evs.rc
+endif
 
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
 # the device.mk with the corresponding selinux policies
-LOCAL_EVS_PROPERTIES ?= persist.automotive.evs.mode=0
-PRODUCT_PRODUCT_PROPERTIES += $(LOCAL_EVS_PROPERTIES)
 PRODUCT_PACKAGES += evs_app \
                     android.hardware.automotive.evs-default \
-                    android.frameworks.automotive.display@1.0-service
+                    cardisplayproxyd
 include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
-endif
+endif  # ENABLE_EVS_SAMPLE
+
 ifeq ($(ENABLE_CAREVSSERVICE_SAMPLE), true)
 PRODUCT_PACKAGES += CarEvsCameraPreviewApp
 endif
@@ -84,6 +92,8 @@ ifeq ($(ENABLE_REAR_VIEW_CAMERA_SAMPLE), true)
 PRODUCT_PACKAGES += SampleRearViewCamera
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/tests/SampleRearViewCamera/overlay
 endif
+
+endif  # ENABLE_EVS_SERVICE
 
 # Device running Android is a car
 PRODUCT_COPY_FILES += \
