@@ -74,7 +74,7 @@ LOCAL_EVS_PROPERTIES ?= persist.automotive.evs.mode=0
 PRODUCT_PRODUCT_PROPERTIES += $(LOCAL_EVS_PROPERTIES)
 PRODUCT_PACKAGES += evs_app \
                     android.hardware.automotive.evs-default \
-                    android.frameworks.automotive.display@1.0-service
+                    cardisplayproxyd
 include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 endif
 ifeq ($(ENABLE_CAREVSSERVICE_SAMPLE), true)
