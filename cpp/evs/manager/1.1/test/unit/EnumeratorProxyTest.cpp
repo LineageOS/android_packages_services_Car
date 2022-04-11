@@ -18,16 +18,23 @@
 #include "IEnumeratorManager.h"
 #include "MockEnumeratorManager.h"
 #include "MockEvsDisplay.h"
+#include "MockEvsEnumerator.h"
 #include "MockUltrasonicsArray.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
+// EnumeratorProxy is temporarily taking an Enumerator instance and converting
+// the interface piecemeal. When this is complete, the constructor will be
+// flipped back and these tests will be restored.
+#ifdef TEMPORARILY_DISABLE_SEE_B_206829268
 using ::android::sp;
 using ::android::automotive::evs::V1_1::implementation::EnumeratorProxy;
 using ::android::automotive::evs::V1_1::implementation::MockEvsDisplay_1_0;
+using ::android::automotive::evs::V1_1::implementation::MockEvsEnumerator;
 using ::android::automotive::evs::V1_1::implementation::NiceMockEnumeratorManager;
+using ::android::automotive::evs::V1_1::implementation::NiceMockEvsEnumerator;
 using ::android::automotive::evs::V1_1::implementation::NiceMockUltrasonicsArray;
 using ::android::hardware::hidl_string;
 using ::android::hardware::hidl_vec;
@@ -206,3 +213,4 @@ TEST(EnumeratorProxy, OpensUltrasonicsArrayList) {
     EnumeratorProxy enumeratorProxy{std::move(mockEnumeratorManager)};
     enumeratorProxy.openUltrasonicsArray("ultrasonics_id");
 }
+#endif  // TEMPORARILY_DISABLE_SEE_B_206829268

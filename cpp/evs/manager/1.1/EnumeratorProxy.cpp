@@ -30,31 +30,13 @@ using ::android::hardware::Void;
 using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
-template <typename T>
-hidl_vec<T> stlToHidlVec(const std::vector<T>& val) {
-    return {val};
-}
-
-// This should be generalized, however, function partial specialisations don't
-// exist. These conversion functions will be generalised and extracted in a
-// follow up CL.
-std::vector<std::string> hidlToStlVecOfStrings(const hidl_vec<hidl_string>& val) {
-    std::vector<std::string> ret;
-    ret.resize(val.size());
-    for (const hidl_string& hidlString : val) {
-        ret.push_back(std::string{hidlString});
-    }
-    return ret;
-}
-
-std::string hidlToStlString(const hidl_string& val) {
-    return static_cast<std::string>(val);
-}
-
 }  // namespace
 
 namespace android::automotive::evs::V1_1::implementation {
 
+// TODO(b/206829268): As EnumeratorProxy is introduced piece meal the proxied
+// methods will be added here (this is being done in order to introduce tests).
+#ifdef TEMPORARILY_DISABLE_SEE_B_206829268
 hardware::Return<void> EnumeratorProxy::getCameraList(getCameraList_cb hidlCallback) {
     hidlCallback(stlToHidlVec(mEnumeratorManager->getCameraList()));
     return Void();
@@ -149,5 +131,7 @@ hardware::Return<void> EnumeratorProxy::debug(
 
     return Void();
 }
+
+#endif  // TEMPORARILY_DISABLE_SEE_B_206829268
 
 }  // namespace android::automotive::evs::V1_1::implementation
