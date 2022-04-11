@@ -38,13 +38,16 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockWatchdogProcessService : public WatchdogProcessService {
+class MockWatchdogProcessService : public WatchdogProcessServiceInterface {
 public:
-    MockWatchdogProcessService() : WatchdogProcessService(nullptr) {}
+    MockWatchdogProcessService() {}
+    MOCK_METHOD(android::base::Result<void>, start, (), (override));
+    MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(android::base::Result<void>, dump, (int fd, const Vector<android::String16>&),
                 (override));
+    MOCK_METHOD(void, doHealthCheck, (int), (override));
     MOCK_METHOD(android::base::Result<void>, registerWatchdogServiceHelper,
-                (const android::sp<IWatchdogServiceHelper>&), (override));
+                (const android::sp<WatchdogServiceHelperInterface>&), (override));
 
     MOCK_METHOD(android::binder::Status, registerClient,
                 (const sp<ICarWatchdogClient>&, TimeoutLength), (override));
