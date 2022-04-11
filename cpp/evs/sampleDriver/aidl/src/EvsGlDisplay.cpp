@@ -29,15 +29,13 @@
 
 namespace {
 
+using ::aidl::android::frameworks::automotive::display::ICarDisplayProxy;
 using ::aidl::android::hardware::automotive::evs::BufferDesc;
 using ::aidl::android::hardware::automotive::evs::DisplayDesc;
 using ::aidl::android::hardware::automotive::evs::DisplayState;
 using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::aidl::android::hardware::graphics::common::BufferUsage;
 using ::aidl::android::hardware::graphics::common::PixelFormat;
-using ::android::frameworks::automotive::display::V1_0::HwDisplayConfig;
-using ::android::frameworks::automotive::display::V1_0::HwDisplayState;
-using ::android::frameworks::automotive::display::V1_0::IAutomotiveDisplayProxyService;
 using ::ndk::ScopedAStatus;
 
 constexpr unsigned int kTimeoutInSeconds = 1;
@@ -52,7 +50,7 @@ int generateFingerPrint(buffer_handle_t handle) {
 
 namespace aidl::android::hardware::automotive::evs::implementation {
 
-EvsGlDisplay::EvsGlDisplay(const ::android::sp<IAutomotiveDisplayProxyService>& pDisplayProxy,
+EvsGlDisplay::EvsGlDisplay(const std::shared_ptr<ICarDisplayProxy>& pDisplayProxy,
                            uint64_t displayId) :
       mDisplayId(displayId), mDisplayProxy(pDisplayProxy) {
     LOG(DEBUG) << "EvsGlDisplay instantiated";
@@ -237,30 +235,24 @@ void EvsGlDisplay::renderFrames() {
  * See the description of the DisplayDesc structure for details.
  */
 ScopedAStatus EvsGlDisplay::getDisplayInfo(DisplayDesc* _aidl_return) {
-    using ADisplayMode = ::android::ui::DisplayMode;
-    using ADisplayState = ::android::ui::DisplayState;
-
-    if (mDisplayProxy) {
-        mDisplayProxy->getDisplayInfo(mDisplayId,
-                                      [_aidl_return](const auto& hidlMode, const auto& hidlState) {
-                                          const ADisplayMode* displayMode =
-                                                  reinterpret_cast<const ADisplayMode*>(
-                                                          hidlMode.data());
-                                          const ADisplayState* displayState =
-                                                  reinterpret_cast<const ADisplayState*>(
-                                                          hidlState.data());
-                                          _aidl_return->width = displayMode->resolution.width;
-                                          _aidl_return->width = displayMode->resolution.height;
-                                          _aidl_return->orientation =
-                                                  static_cast<Rotation>(displayState->orientation);
-                                      });
-        _aidl_return->id = mInfo.id;
-        _aidl_return->vendorFlags = mInfo.vendorFlags;
-        return ScopedAStatus::ok();
-    } else {
-        return ScopedAStatus::fromServiceSpecificError(
+    if (!mDisplayProxy) {
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
                 static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
     }
+
+    ::aidl::android::frameworks::automotive::display::DisplayDesc proxyDisplay;
+    auto status = mDisplayProxy->getDisplayInfo(mDisplayId, &proxyDisplay);
+    if (!status.isOk()) {
+        return ::ndk::ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    _aidl_return->width = proxyDisplay.width;
+    _aidl_return->height = proxyDisplay.height;
+    _aidl_return->orientation = static_cast<Rotation>(proxyDisplay.orientation);
+    _aidl_return->id = mInfo.id;  // FIXME: what should be ID here?
+    _aidl_return->vendorFlags = mInfo.vendorFlags;
+    return ::ndk::ScopedAStatus::ok();
 }
 
 /**

@@ -24,7 +24,6 @@ cc_binary {
         "src/*.cpp"
     ],
     shared_libs: [
-        "android.frameworks.automotive.display@1.0",
         "android.hardware.graphics.bufferqueue@1.0",
         "android.hardware.graphics.bufferqueue@2.0",
         "android.hidl.token@1.0-utils",
@@ -44,6 +43,7 @@ cc_binary {
         "libyuv",
     ],
     static_libs: [
+        "android.frameworks.automotive.display-V1-ndk",
         "android.hardware.automotive.evs-V1-ndk",
         "android.hardware.common-V2-ndk",
         "android.hardware.graphics.common-V3-ndk",
