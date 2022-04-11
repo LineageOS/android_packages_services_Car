@@ -199,7 +199,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mSimulationWaitObject")
     private boolean mInSimulatedDeepSleepMode;
     @GuardedBy("mSimulationWaitObject")
-    private int mResumeDelayFromSimulatedSuspend = NO_WAKEUP_BY_TIMER;
+    private int mResumeDelayFromSimulatedSuspendSec = NO_WAKEUP_BY_TIMER;
 
     @GuardedBy("mLock")
     private CpmsState mCurrentState;
@@ -2070,7 +2070,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
-            mResumeDelayFromSimulatedSuspend = wakeupAfter;
+            mResumeDelayFromSimulatedSuspendSec = wakeupAfter;
         }
         synchronized (mLock) {
             mRebootAfterGarageMode = shouldReboot;
@@ -2354,12 +2354,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void simulateSleepByWaiting() {
         Slogf.i(TAG, "Starting to simulate Deep Sleep by waiting");
         synchronized (mSimulationWaitObject) {
-            if (mResumeDelayFromSimulatedSuspend >= 0) {
+            if (mResumeDelayFromSimulatedSuspendSec >= 0) {
                 Slogf.i(TAG, "Scheduling a wakeup after %d seconds",
-                        mResumeDelayFromSimulatedSuspend);
+                        mResumeDelayFromSimulatedSuspendSec);
                 Handler handler = new Handler(Looper.getMainLooper());
                 handler.postDelayed(() -> forceSimulatedResume(),
-                        mResumeDelayFromSimulatedSuspend * 1000);
+                        mResumeDelayFromSimulatedSuspendSec * 1000);
             }
             while (!mWakeFromSimulatedSleep) {
                 try {
