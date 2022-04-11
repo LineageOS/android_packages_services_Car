@@ -27,6 +27,8 @@ import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
 
+import java.io.FileDescriptor;
+import java.util.ArrayList;
 
 /**
  * VehicleStub represents an IVehicle service interface in either AIDL or legacy HIDL version. It
@@ -163,5 +165,18 @@ public abstract class VehicleStub {
      * @throws ServiceSpecificException if VHAL returns service specific error.
      */
     public abstract void set(HalPropValue propValue)
+            throws RemoteException, ServiceSpecificException;
+
+    /**
+     * Dump VHAL debug information.
+     *
+     * Additional arguments could also be provided through {@link args} to debug VHAL.
+     *
+     * @param fd The file descriptor to print output.
+     * @param args Optional additional arguments for the debug command. Can be empty.
+     * @throws RemoteException if the remote operation fails.
+     * @throws ServiceSpecificException if VHAL returns service specific error.
+     */
+    public abstract void dump(FileDescriptor fd, ArrayList<String> args)
             throws RemoteException, ServiceSpecificException;
 }
