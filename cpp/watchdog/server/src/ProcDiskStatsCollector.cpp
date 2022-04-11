@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "ProcDiskStats.h"
+#include "ProcDiskStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/parseint.h>
@@ -97,7 +97,7 @@ Result<DiskStats> parseDiskStatsLine(const std::string& line) {
     return diskStats;
 }
 
-Result<ProcDiskStats::PerPartitionDiskStats> readDiskStatsFile(const std::string& path) {
+Result<ProcDiskStatsCollector::PerPartitionDiskStats> readDiskStatsFile(const std::string& path) {
     std::string buffer;
     if (!ReadFileToString(path, &buffer)) {
         return Error() << "ReadFileToString failed";
@@ -106,7 +106,7 @@ Result<ProcDiskStats::PerPartitionDiskStats> readDiskStatsFile(const std::string
     if (lines.empty()) {
         return Error() << "File is empty";
     }
-    ProcDiskStats::PerPartitionDiskStats perPartitionDiskStats;
+    ProcDiskStatsCollector::PerPartitionDiskStats perPartitionDiskStats;
     for (const auto& line : lines) {
         if (line.empty()) {
             continue;
@@ -123,10 +123,10 @@ Result<ProcDiskStats::PerPartitionDiskStats> readDiskStatsFile(const std::string
     return perPartitionDiskStats;
 }
 
-ProcDiskStats::PerPartitionDiskStats diffPerPartitionDiskStats(
-        const ProcDiskStats::PerPartitionDiskStats& minuend,
-        const ProcDiskStats::PerPartitionDiskStats& subtrahend) {
-    ProcDiskStats::PerPartitionDiskStats diff;
+ProcDiskStatsCollector::PerPartitionDiskStats diffPerPartitionDiskStats(
+        const ProcDiskStatsCollector::PerPartitionDiskStats& minuend,
+        const ProcDiskStatsCollector::PerPartitionDiskStats& subtrahend) {
+    ProcDiskStatsCollector::PerPartitionDiskStats diff;
     for (const auto& minuendStats : minuend) {
         if (auto subtrahendStats = subtrahend.find(minuendStats);
             subtrahendStats != subtrahend.end()) {
@@ -141,7 +141,7 @@ ProcDiskStats::PerPartitionDiskStats diffPerPartitionDiskStats(
 }
 
 DiskStats aggregateSystemWideDiskStats(
-        const ProcDiskStats::PerPartitionDiskStats&& perPartitionDiskStats) {
+        const ProcDiskStatsCollector::PerPartitionDiskStats&& perPartitionDiskStats) {
     DiskStats systemWideStats;
     for (const auto& stats : perPartitionDiskStats) {
         systemWideStats += stats;
@@ -201,7 +201,7 @@ bool DiskStats::EqualByPartition::operator()(const DiskStats& lhs, const DiskSta
     return lhs.major == rhs.major && lhs.minor == rhs.minor && lhs.deviceName == rhs.deviceName;
 }
 
-Result<void> ProcDiskStats::collect() {
+Result<void> ProcDiskStatsCollector::collect() {
     if (!mEnabled) {
         return Error() << "Failed to access " << kPath;
     }
