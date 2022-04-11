@@ -30,73 +30,83 @@ import org.junit.runner.RunWith;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class VehiclePropertyIdsTest {
-    private static final List<String> MISSING_VHAL_IDS = new ArrayList<>();
+    // IDs that only exist in CarPropertyManager, not VHAL.
+    private static final List<String> MISSING_VHAL_IDS = List.of();
 
-    private static final List<Integer> MISSING_VHAL_ID_VALUES = new ArrayList<>();
-
-    private static final List<String> MISSING_VEHICLE_PROPERTY_IDS =
-            new ArrayList<>(
-                Arrays.asList(
+    // IDs that only exist in VHAL, not exposed by CarPropertyManager.
+    private static final List<String> MISSING_VEHICLE_PROPERTY_IDS = List.of(
                     "EXTERNAL_CAR_TIME",
                     "DISABLED_OPTIONAL_FEATURES",
                     "EVS_SERVICE_REQUEST",
                     "HW_CUSTOM_INPUT",
                     "HW_ROTARY_INPUT",
-                    "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION"));
-    private static final List<Integer> MISSING_VEHICLE_PROPERTY_ID_VALUES =
-            new ArrayList<>(
-                Arrays.asList(
-                    /*EXTERNAL_CAR_TIME=*/290457096,
-                    /*DISABLED_OPTIONAL_FEATURES=*/286265094,
-                    /*EVS_SERVICE_REQUEST=*/289476368,
-                    /*HW_CUSTOM_INPUT=*/289475120,
-                    /*HW_ROTARY_INPUT=*/289475104,
-                    /*SUPPORT_CUSTOMIZE_VENDOR_PERMISSION=*/287313669));
+                    "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION");
 
 
     @Test
     public void testMatchingVehiclePropertyNamesInVehicleHal() {
-        List<String> vehiclePropertyIdNames = getListOfConstantNames(VehiclePropertyIds.class);
-        List<String> vehiclePropertyNames = getListOfConstantNames(VehicleProperty.class);
-        assertThat(vehiclePropertyNames.size() + MISSING_VHAL_IDS.size()).isEqualTo(
-                vehiclePropertyIdNames.size() + MISSING_VEHICLE_PROPERTY_IDS.size());
-        for (String vehiclePropertyName: vehiclePropertyNames) {
-            if (MISSING_VHAL_IDS.contains(vehiclePropertyName)
-                    || MISSING_VEHICLE_PROPERTY_IDS.contains(vehiclePropertyName)) {
+        List<String> carServiceNames = getListOfConstantNames(VehiclePropertyIds.class);
+        List<String> vhalNames = getListOfConstantNames(VehicleProperty.class);
+        assertThat(vhalNames.size() + MISSING_VHAL_IDS.size()).isEqualTo(
+                carServiceNames.size() + MISSING_VEHICLE_PROPERTY_IDS.size());
+
+        List<String> expectedCarServiceNames = new ArrayList<>();
+        for (String vhalName : vhalNames) {
+            if (MISSING_VEHICLE_PROPERTY_IDS.contains(vhalName)) {
                 continue;
             }
-            if (vehiclePropertyName.equals("ANDROID_EPOCH_TIME")) {
+            if (vhalName.equals("ANDROID_EPOCH_TIME")) {
                 // This is renamed in AIDL VHAL.
-                assertThat(vehiclePropertyIdNames).contains("EPOCH_TIME");
+                expectedCarServiceNames.add("EPOCH_TIME");
                 continue;
             }
-            assertThat(vehiclePropertyIdNames).contains(vehiclePropertyName);
+            expectedCarServiceNames.add(vhalName);
         }
+
+        List<String> filteredCarServiceNames = carServiceNames.stream().filter(
+                name -> !MISSING_VHAL_IDS.contains(name)).collect(Collectors.toList());
+
+        assertThat(expectedCarServiceNames).containsExactlyElementsIn(filteredCarServiceNames);
     }
 
     @Test
     public void testMatchingVehiclePropertyValuesInVehicleHal() {
-        List<Integer> vehiclePropertyIds = getListOfConstantValues(VehiclePropertyIds.class);
-        List<Integer> vehicleProperties = getListOfConstantValues(VehicleProperty.class);
-        assertThat(vehicleProperties.size() + MISSING_VHAL_ID_VALUES.size()).isEqualTo(
-                vehiclePropertyIds.size() + MISSING_VEHICLE_PROPERTY_ID_VALUES.size());
-        for (int vehicleProperty: vehicleProperties) {
-            if (MISSING_VHAL_ID_VALUES.contains(vehicleProperty)
-                    || MISSING_VEHICLE_PROPERTY_ID_VALUES.contains(vehicleProperty)) {
+        List<String> carServiceNames = getListOfConstantNames(VehiclePropertyIds.class);
+        List<String> vhalNames = getListOfConstantNames(VehicleProperty.class);
+        assertThat(vhalNames.size() + MISSING_VHAL_IDS.size()).isEqualTo(
+                carServiceNames.size() + MISSING_VEHICLE_PROPERTY_IDS.size());
+
+        List<String> mismatchNames = new ArrayList<>();
+
+        for (String vhalName : vhalNames) {
+            if (MISSING_VEHICLE_PROPERTY_IDS.contains(vhalName)) {
                 continue;
             }
+            int vhalPropId = getValue(VehicleProperty.class, vhalName);
             // TODO(b/151168399): VEHICLE_SPEED_DISPLAY_UNITS mismatch between java and hal.
-            if (vehicleProperty == VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS) {
+            if (vhalPropId == VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS) {
                 continue;
             }
-            assertThat(vehiclePropertyIds).contains(vehicleProperty);
+
+            String carServiceName = vhalName;
+            if (carServiceName.equals("ANDROID_EPOCH_TIME")) {
+                // This is renamed in AIDL VHAL.
+                carServiceName = "EPOCH_TIME";
+            }
+            int carServicePropId = getValue(VehiclePropertyIds.class, carServiceName);
+
+            if (vhalPropId != carServicePropId) {
+                mismatchNames.add(vhalName);
+            }
         }
+
+        assertThat(mismatchNames).isEmpty();
     }
 
     @Test
@@ -307,28 +317,29 @@ public class VehiclePropertyIdsTest {
         }
     }
 
-    private static List<Integer> getListOfConstantValues(Class clazz) {
-        List<Integer> list = new ArrayList<Integer>();
-        for (Field field : clazz.getDeclaredFields()) {
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
-                try {
-                    list.add(field.getInt(null));
-                } catch (IllegalAccessException e) {
-                }
-            }
-        }
-        return list;
-    }
-
     private static List<String> getListOfConstantNames(Class clazz) {
         List<String> list = new ArrayList<String>();
-        for (Field field : clazz.getDeclaredFields()) {
+        for (Field field : clazz.getFields()) {
             int modifiers = field.getModifiers();
             if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)) {
                 list.add(field.getName());
             }
         }
         return list;
+    }
+
+    private static int getValue(Class clazz, String name) {
+        for (Field field : clazz.getFields()) {
+            int modifiers = field.getModifiers();
+            if (Modifier.isStatic(modifiers) && Modifier.isFinal(modifiers)
+                    && field.getName().equals(name)) {
+                try {
+                    return field.getInt(null);
+                } catch (IllegalAccessException e) {
+                    // ignore
+                }
+            }
+        }
+        return 0;
     }
 }
