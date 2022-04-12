@@ -229,7 +229,7 @@ sp<IoOveruseConfigs> sampleIoOveruseConfigs() {
 
 namespace internal {
 
-class IoOveruseConfigsPeer : public android::RefBase {
+class IoOveruseConfigsPeer final : public android::RefBase {
 public:
     IoOveruseConfigsPeer() {
         IoOveruseConfigs::sParseXmlFile =

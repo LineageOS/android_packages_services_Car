@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_PROCDISKSTATS_H_
-#define CPP_WATCHDOG_SERVER_SRC_PROCDISKSTATS_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_PROCDISKSTATSCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_SRC_PROCDISKSTATSCOLLECTOR_H_
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
@@ -74,7 +74,7 @@ struct DiskStats {
  * Contains methods that should be implemented by the /proc/diskstats reader or any mock reader
  * used in tests.
  */
-class IProcDiskStatsInterface : public android::RefBase {
+class ProcDiskStatsCollectorInterface : public android::RefBase {
 public:
     using PerPartitionDiskStats = ::std::unordered_set<DiskStats, DiskStats::HashByPartition,
                                                        DiskStats::EqualByPartition>;
@@ -97,11 +97,11 @@ public:
     virtual std::string filePath() const = 0;
 };
 
-class ProcDiskStats final : public IProcDiskStatsInterface {
+class ProcDiskStatsCollector final : public ProcDiskStatsCollectorInterface {
 public:
-    explicit ProcDiskStats(const std::string& path = kProcDiskStatsPath) : kPath(path) {}
+    explicit ProcDiskStatsCollector(const std::string& path = kProcDiskStatsPath) : kPath(path) {}
 
-    ~ProcDiskStats() {}
+    ~ProcDiskStatsCollector() {}
 
     void init() {
         Mutex::Autolock lock(mMutex);
@@ -155,4 +155,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCDISKSTATS_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCDISKSTATSCOLLECTOR_H_
