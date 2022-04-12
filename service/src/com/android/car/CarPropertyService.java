@@ -86,7 +86,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     // Helper class to keep track of listeners to this service.
-    private class Client implements IBinder.DeathRecipient {
+    private final class Client implements IBinder.DeathRecipient {
         private final ICarPropertyEventListener mListener;
         private final IBinder mListenerBinder;
         private final Object mLock = new Object();
@@ -424,7 +424,6 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     /**
-     *
      * @param propIds Array of property Ids
      * @return the list of properties' configs that the caller may access.
      */
@@ -484,6 +483,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     /**
      * Get property value for car service's internal usage.
+     *
      * @param prop property id
      * @param zone area id
      * @return null if property is not implemented or there is an exception in the vehicle.

@@ -80,7 +80,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private PropertyHalListener mListener;
     @GuardedBy("mLock")
-    private Set<Integer> mSubscribedHalPropIds;
+    private final Set<Integer> mSubscribedHalPropIds;
 
     private final Object mLock = new Object();
 
@@ -111,13 +111,11 @@ public class PropertyHalService extends HalServiceBase {
     public interface PropertyHalListener {
         /**
          * This event is sent whenever the property value is updated
-         * @param events
          */
         void onPropertyChange(List<CarPropertyEvent> events);
+
         /**
          * This event is sent when the set property call fails
-         * @param property
-         * @param area
          */
         void onPropertySetError(int property, int area,
                 @CarPropertyManager.CarSetPropertyErrorCode int errorCode);
@@ -136,7 +134,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Set the listener for the HAL service
-     * @param listener
      */
     public void setListener(PropertyHalListener listener) {
         synchronized (mLock) {
@@ -145,7 +142,6 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
-     *
      * @return SparseArray<CarPropertyConfig> List of configs available.
      */
     public SparseArray<CarPropertyConfig<?>> getPropertyList() {
@@ -167,8 +163,8 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Returns property or null if property is not ready yet.
+     *
      * @param mgrPropId property id in {@link VehiclePropertyIds}
-     * @param areaId area id
      * @throws IllegalArgumentException if argument is not valid.
      * @throws ServiceSpecificException if there is an exception in HAL.
      */
@@ -209,7 +205,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Returns sample rate for the property
-     * @param mgrPropId
      */
     public float getSampleRate(int mgrPropId) {
         int halPropId = managerToHalPropId(mgrPropId);
@@ -221,7 +216,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Get the read permission string for the property.
-     * @param mgrPropId
      */
     @Nullable
     public String getReadPermission(int mgrPropId) {
@@ -231,7 +225,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Get the write permission string for the property.
-     * @param mgrPropId
      */
     @Nullable
     public String getWritePermission(int mgrPropId) {
@@ -241,6 +234,7 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Get permissions for all properties in the vehicle.
+     *
      * @return a SparseArray. key: propertyId, value: Pair(readPermission, writePermission).
      */
     @NonNull
@@ -261,7 +255,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Return true if property is a display_units property
-     * @param mgrPropId
      */
     public boolean isDisplayUnitsProperty(int mgrPropId) {
         int halPropId = managerToHalPropId(mgrPropId);
@@ -270,7 +263,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Set the property value.
-     * @param prop
      *
      * @throws IllegalArgumentException if argument is invalid.
      * @throws ServiceSpecificException if there is an exception in HAL.
@@ -293,8 +285,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Subscribe to this property at the specified update rate.
-     * @param mgrPropId
-     * @param rate
      *
      * @throws IllegalArgumentException thrown if property is not supported by VHAL.
      */
@@ -322,7 +312,6 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Unsubscribe the property and turn off update events for it.
-     * @param mgrPropId
      */
     public void unsubscribeProperty(int mgrPropId) {
         if (mDbg) {
