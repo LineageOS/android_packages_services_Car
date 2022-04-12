@@ -74,7 +74,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Processe eventos de entrada."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Falha no CAN bus."</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O CAN bus não responde. Desligue e volte a ligar a caixa da unidade principal e reinicie o automóvel."</string>
-    <string name="activity_blocked_text" msgid="8088902789540147995">"Não pode utilizar esta funcionalidade enquanto conduz."</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Não pode usar esta funcionalidade enquanto conduz."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Para começar de novo com funcionalidades de aplicações seguras, selecione <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Anterior"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Fechar app"</string>
