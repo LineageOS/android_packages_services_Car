@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -64,6 +65,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -873,5 +875,25 @@ public class VehicleStubTest {
         aidlCallback.onPropertySetError(errors);
 
         verify(callback).onPropertySetError(expectErrors);
+    }
+
+    @Test
+    public void testDumpHidl() throws Exception {
+        ArrayList<String> options = new ArrayList<>();
+        FileDescriptor fd = mock(FileDescriptor.class);
+
+        mHidlVehicleStub.dump(fd, options);
+
+        verify(mHidlVehicle).debug(any(), eq(options));
+    }
+
+    @Test
+    public void testDumpAidl() throws Exception {
+        ArrayList<String> options = new ArrayList<>();
+        FileDescriptor fd = mock(FileDescriptor.class);
+
+        mAidlVehicleStub.dump(fd, options);
+
+        verify(mAidlBinder).dump(eq(fd), eq(new String[0]));
     }
 }

@@ -25,6 +25,7 @@ import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
 import android.hardware.automotive.vehicle.VehiclePropError;
+import android.os.NativeHandle;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemProperties;
@@ -36,6 +37,7 @@ import com.android.car.hal.HalPropValueBuilder;
 import com.android.car.hal.HidlHalPropConfig;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
 
@@ -212,6 +214,11 @@ final class HidlVehicleStub extends VehicleStub {
             throw new ServiceSpecificException(status, "failed to set value for property: "
                     + Integer.toString(hidlPropValue.prop));
         }
+    }
+
+    @Override
+    public void dump(FileDescriptor fd, ArrayList<String> args) throws RemoteException {
+        mHidlVehicle.debug(new NativeHandle(fd, /* own= */ false), args);
     }
 
     @Nullable

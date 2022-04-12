@@ -2078,6 +2078,8 @@ public final class VehiclePropertyIds {
      * <p>Indicates the maximum current draw threshold for charging set by the user. configArray[0]
      * contains the max current draw allowed by the vehicle in Amperes.
      *
+     * <p> {@code Float} property type
+     *
      * <p>Required Permissions:
      * <ul>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
