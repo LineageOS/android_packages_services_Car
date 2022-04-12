@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="activity_blocked_text" msgid="5991043857905412794">"Não pode utilizar esta funcionalidade enquanto conduz"</string>
+    <string name="activity_blocked_text" msgid="5991043857905412794">"Não pode usar esta funcionalidade enquanto conduz"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Para começar de novo com funcionalidades de aplicações seguras, selecione <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Anterior"</string>
     <string name="exit_button_close_application" msgid="5153716684207539041">"Fechar app"</string>
