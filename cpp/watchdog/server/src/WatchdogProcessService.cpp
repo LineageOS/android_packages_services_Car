@@ -142,9 +142,6 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
       mVhalService(nullptr) {
     mOnBinderDiedCallback =
             std::make_shared<IVhalClient::OnBinderDiedCallbackFunc>([this] { handleVhalDeath(); });
-    mMessageHandler = sp<MessageHandlerImpl>::make(this);
-    mBinderDeathRecipient = sp<BinderDeathRecipient>::make(this);
-    mPropertyChangeListener = std::make_shared<PropertyChangeListener>(this);
     for (const auto& timeout : kTimeouts) {
         mClients.insert(std::make_pair(timeout, std::vector<ClientInfo>()));
         mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
@@ -403,6 +400,10 @@ Result<void> WatchdogProcessService::start() {
     if (mServiceStarted) {
         return Error(INVALID_OPERATION) << "Cannot start process monitoring more than once";
     }
+    auto thiz = sp<WatchdogProcessService>::fromExisting(this);
+    mMessageHandler = sp<MessageHandlerImpl>::make(thiz);
+    mBinderDeathRecipient = sp<BinderDeathRecipient>::make(thiz);
+    mPropertyChangeListener = std::make_shared<PropertyChangeListener>(thiz);
     mServiceStarted = true;
     reportWatchdogAliveToVhal();
     return {};
@@ -410,6 +411,9 @@ Result<void> WatchdogProcessService::start() {
 
 void WatchdogProcessService::terminate() {
     Mutex::Autolock lock(mMutex);
+    if (!mServiceStarted) {
+        return;
+    }
     for (const auto& timeout : kTimeouts) {
         std::vector<ClientInfo>& clients = mClients[timeout];
         for (auto it = clients.begin(); it != clients.end();) {
@@ -626,7 +630,7 @@ void WatchdogProcessService::handleBinderDeath(const wp<IBinder>& who) {
         ALOGW("The monitor has died.");
         return;
     }
-    findClientAndProcessLocked(kTimeouts, binder,
+    findClientAndProcessLocked(kTimeouts, who.promote(),
                                [&](std::vector<ClientInfo>& clients,
                                    std::vector<ClientInfo>::const_iterator it) {
                                    ALOGW("Client(pid: %d) died", it->pid);

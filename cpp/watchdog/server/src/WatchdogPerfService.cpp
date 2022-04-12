@@ -215,7 +215,8 @@ Result<void> WatchdogPerfService::start() {
             mCurrCollectionEvent = EventType::BOOT_TIME_COLLECTION;
             mBoottimeCollection.lastUptime = mHandlerLooper->now();
             mHandlerLooper->setLooper(Looper::prepare(/*opts=*/0));
-            mHandlerLooper->sendMessage(this, EventType::BOOT_TIME_COLLECTION);
+            mHandlerLooper->sendMessage(sp<WatchdogPerfService>::fromExisting(this),
+                                        EventType::BOOT_TIME_COLLECTION);
         }
         if (set_sched_policy(0, SP_BACKGROUND) != 0) {
             ALOGW("Failed to set background scheduling priority to %s thread", kServiceName);
@@ -251,7 +252,7 @@ void WatchdogPerfService::terminate() {
              * Looper runs only after EventType::TNIT has completed so remove looper messages
              * and wake the looper only when the current collection has changed from INIT.
              */
-            mHandlerLooper->removeMessages(this);
+            mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
             mHandlerLooper->wake();
         }
         for (const auto& processor : mDataProcessors) {
@@ -290,8 +291,9 @@ Result<void> WatchdogPerfService::onBootFinished() {
         return {};
     }
     mBoottimeCollection.lastUptime = mHandlerLooper->now();
-    mHandlerLooper->removeMessages(this);
-    mHandlerLooper->sendMessage(this, SwitchMessage::END_BOOTTIME_COLLECTION);
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+    mHandlerLooper->removeMessages(thiz);
+    mHandlerLooper->sendMessage(thiz, SwitchMessage::END_BOOTTIME_COLLECTION);
     if (DEBUG) {
         ALOGD("Boot-time event finished");
     }
@@ -463,11 +465,12 @@ Result<void> WatchdogPerfService::startCustomCollection(
             .filterPackages = filterPackages,
     };
 
-    mHandlerLooper->removeMessages(this);
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+    mHandlerLooper->removeMessages(thiz);
     nsecs_t uptime = mHandlerLooper->now() + maxDuration.count();
-    mHandlerLooper->sendMessageAtTime(uptime, this, SwitchMessage::END_CUSTOM_COLLECTION);
+    mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_CUSTOM_COLLECTION);
     mCurrCollectionEvent = EventType::CUSTOM_COLLECTION;
-    mHandlerLooper->sendMessage(this, EventType::CUSTOM_COLLECTION);
+    mHandlerLooper->sendMessage(thiz, EventType::CUSTOM_COLLECTION);
     ALOGI("Starting %s performance data collection", toString(mCurrCollectionEvent));
     return {};
 }
@@ -478,8 +481,9 @@ Result<void> WatchdogPerfService::endCustomCollection(int fd) {
         return Error(INVALID_OPERATION) << "No custom collection is running";
     }
 
-    mHandlerLooper->removeMessages(this);
-    mHandlerLooper->sendMessage(this, SwitchMessage::END_CUSTOM_COLLECTION);
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+    mHandlerLooper->removeMessages(thiz);
+    mHandlerLooper->sendMessage(thiz, SwitchMessage::END_CUSTOM_COLLECTION);
 
     if (const auto result = dumpCollectorsStatusLocked(fd); !result.ok()) {
         return Error(FAILED_TRANSACTION) << result.error();
@@ -510,18 +514,19 @@ void WatchdogPerfService::handleMessage(const Message& message) {
     Result<void> result;
 
     auto switchToPeriodicLocked = [&](bool startNow) {
-        mHandlerLooper->removeMessages(this);
+        auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+        mHandlerLooper->removeMessages(thiz);
         mCurrCollectionEvent = EventType::PERIODIC_COLLECTION;
         mPeriodicCollection.lastUptime = mHandlerLooper->now();
         if (startNow) {
-            mHandlerLooper->sendMessage(this, EventType::PERIODIC_COLLECTION);
+            mHandlerLooper->sendMessage(thiz, EventType::PERIODIC_COLLECTION);
         } else {
             mPeriodicCollection.lastUptime += mPeriodicCollection.interval.count();
-            mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastUptime, this,
+            mHandlerLooper->sendMessageAtTime(mPeriodicCollection.lastUptime, thiz,
                                               EventType::PERIODIC_COLLECTION);
         }
         mPeriodicMonitor.lastUptime = mHandlerLooper->now() + mPeriodicMonitor.interval.count();
-        mHandlerLooper->sendMessageAtTime(mPeriodicMonitor.lastUptime, this,
+        mHandlerLooper->sendMessageAtTime(mPeriodicMonitor.lastUptime, thiz,
                                           EventType::PERIODIC_MONITOR);
         ALOGI("Switching to %s and %s", toString(mCurrCollectionEvent),
               toString(EventType::PERIODIC_MONITOR));
@@ -577,7 +582,7 @@ void WatchdogPerfService::handleMessage(const Message& message) {
          * executed on the collection thread. Thus it will result in a deadlock.
          */
         mCurrCollectionEvent = EventType::TERMINATED;
-        mHandlerLooper->removeMessages(this);
+        mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
         mHandlerLooper->wake();
     }
 }
@@ -611,7 +616,9 @@ Result<void> WatchdogPerfService::processCollectionEvent(
         return Error() << toString(metadata->eventType) << " collection failed: " << result.error();
     }
     metadata->lastUptime += metadata->interval.count();
-    mHandlerLooper->sendMessageAtTime(metadata->lastUptime, this, metadata->eventType);
+    mHandlerLooper->sendMessageAtTime(metadata->lastUptime,
+                                      sp<WatchdogPerfService>::fromExisting(this),
+                                      metadata->eventType);
     return {};
 }
 
@@ -691,6 +698,7 @@ Result<void> WatchdogPerfService::processMonitorEvent(
                        << toString(mCurrCollectionEvent);
     }
     bool requestedCollection = false;
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
     const auto requestCollection = [&]() mutable {
         if (requestedCollection) {
             return;
@@ -702,8 +710,8 @@ Result<void> WatchdogPerfService::processMonitorEvent(
             return;
         }
         currCollectionMetadata->lastUptime = uptime;
-        mHandlerLooper->removeMessages(this, currCollectionMetadata->eventType);
-        mHandlerLooper->sendMessage(this, currCollectionMetadata->eventType);
+        mHandlerLooper->removeMessages(thiz, currCollectionMetadata->eventType);
+        mHandlerLooper->sendMessage(thiz, currCollectionMetadata->eventType);
         requestedCollection = true;
     };
     for (const auto& processor : mDataProcessors) {
@@ -722,7 +730,7 @@ Result<void> WatchdogPerfService::processMonitorEvent(
          */
         metadata->lastUptime += metadata->interval.count();
     }
-    mHandlerLooper->sendMessageAtTime(metadata->lastUptime, this, metadata->eventType);
+    mHandlerLooper->sendMessageAtTime(metadata->lastUptime, thiz, metadata->eventType);
     return {};
 }
 
