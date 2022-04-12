@@ -49,7 +49,8 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
 
 }  // namespace
 
-Result<void> WatchdogServiceHelper::init(const sp<WatchdogProcessService>& watchdogProcessService) {
+Result<void> WatchdogServiceHelper::init(
+        const sp<WatchdogProcessServiceInterface>& watchdogProcessService) {
     if (watchdogProcessService == nullptr) {
         return Error() << "Must provide a non-null watchdog process service instance";
     }
