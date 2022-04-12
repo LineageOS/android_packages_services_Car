@@ -74,11 +74,11 @@ public final class PolicyReader {
     static final String POWER_POLICY_ID_NO_USER_INTERACTION = SYSTEM_POWER_POLICY_PREFIX
             + "no_user_interaction";
     // Preemptive system power policy used for preparing Suspend-to-RAM.
-    static final String POWER_POLICY_ID_SUSPEND_TO_RAM = SYSTEM_POWER_POLICY_PREFIX
-            + "suspend_to_ram";
+    static final String POWER_POLICY_ID_SUSPEND_PREP = SYSTEM_POWER_POLICY_PREFIX
+            + "suspend_prep";
     // Non-preemptive system power policy used for turning all components on.
     static final String POWER_POLICY_ID_ALL_ON = SYSTEM_POWER_POLICY_PREFIX + "all_on";
-    // Non-preemptive system power policy used to represent minimally on state.
+    // Non-preemptive system power policy used to represent minimal on state.
     static final String POWER_POLICY_ID_INITIAL_ON = SYSTEM_POWER_POLICY_PREFIX + "initial_on";
 
     static final int INVALID_POWER_STATE = -1;
@@ -124,13 +124,13 @@ public final class PolicyReader {
     private static final Set<Integer> SYSTEM_POLICY_CONFIGURABLE_COMPONENTS =
             new ArraySet<>(Arrays.asList(PowerComponent.BLUETOOTH, PowerComponent.NFC,
             PowerComponent.TRUSTED_DEVICE_DETECTION));
-    private static final int[] SUSPEND_TO_RAM_DISABLED_COMPONENTS = {
+    private static final int[] SUSPEND_PREP_DISABLED_COMPONENTS = {
             PowerComponent.AUDIO, PowerComponent.BLUETOOTH, PowerComponent.WIFI,
             PowerComponent.LOCATION, PowerComponent.MICROPHONE, PowerComponent.CPU
     };
     private static final CarPowerPolicy POWER_POLICY_ALL_ON;
     private static final CarPowerPolicy POWER_POLICY_INITIAL_ON;
-    private static final CarPowerPolicy POWER_POLICY_SUSPEND_TO_RAM;
+    private static final CarPowerPolicy POWER_POLICY_SUSPEND_PREP;
 
     static {
         int allCount = LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1;
@@ -148,8 +148,8 @@ public final class PolicyReader {
                 NO_COMPONENTS.clone());
         POWER_POLICY_INITIAL_ON = new CarPowerPolicy(POWER_POLICY_ID_INITIAL_ON,
                 INITIAL_ON_COMPONENTS.clone(), initialOnDisabledComponents);
-        POWER_POLICY_SUSPEND_TO_RAM = new CarPowerPolicy(POWER_POLICY_ID_SUSPEND_TO_RAM,
-                NO_COMPONENTS.clone(), SUSPEND_TO_RAM_DISABLED_COMPONENTS.clone());
+        POWER_POLICY_SUSPEND_PREP = new CarPowerPolicy(POWER_POLICY_ID_SUSPEND_PREP,
+                NO_COMPONENTS.clone(), SUSPEND_PREP_DISABLED_COMPONENTS.clone());
     }
 
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
@@ -316,7 +316,7 @@ public final class PolicyReader {
                 new CarPowerPolicy(POWER_POLICY_ID_NO_USER_INTERACTION,
                         NO_USER_INTERACTION_ENABLED_COMPONENTS.clone(),
                         NO_USER_INTERACTION_DISABLED_COMPONENTS.clone()));
-        mPreemptivePowerPolicies.put(POWER_POLICY_ID_SUSPEND_TO_RAM, POWER_POLICY_SUSPEND_TO_RAM);
+        mPreemptivePowerPolicies.put(POWER_POLICY_ID_SUSPEND_PREP, POWER_POLICY_SUSPEND_PREP);
     }
 
     private void readPowerPolicyConfiguration() {
