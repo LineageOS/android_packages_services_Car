@@ -72,7 +72,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     private static final int STATE_TRANSITION_MAX_WAIT_MS = 5 * STATE_POLLING_INTERVAL_MS;
     private static final int TEST_SHUTDOWN_TIMEOUT_MS = 100 * STATE_POLLING_INTERVAL_MS;
     private static final int POLICY_APPLICATION_TIMEOUT_MS = 10_000;
-    private static final String POWER_POLICY_S2R = "system_power_policy_suspend_to_ram";
+    private static final String POWER_POLICY_S2R = "system_power_policy_suspend_prep";
 
     private final PowerStatePropertyHandler mPowerStateHandler = new PowerStatePropertyHandler();
     private final MockDisplayInterface mMockDisplayInterface = new MockDisplayInterface();
