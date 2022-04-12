@@ -157,6 +157,7 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 
@@ -937,6 +938,7 @@ public final class CarUserManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }
