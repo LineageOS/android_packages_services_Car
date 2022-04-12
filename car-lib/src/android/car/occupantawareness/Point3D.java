@@ -19,6 +19,7 @@ package android.car.occupantawareness;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -31,12 +32,15 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
  */
 public final class Point3D implements Parcelable {
     /** The x-component of the point. */
+    @AddedInOrBefore(majorVersion = 33)
     public final double x;
 
     /** The y-component of the point. */
+    @AddedInOrBefore(majorVersion = 33)
     public final double y;
 
     /** The z-component of the point. */
+    @AddedInOrBefore(majorVersion = 33)
     public final double z;
 
     public Point3D(double valueX, double valueY, double valueZ) {
@@ -47,11 +51,13 @@ public final class Point3D implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeDouble(x);
         dest.writeDouble(y);
@@ -59,10 +65,12 @@ public final class Point3D implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return String.format("%f, %f, %f", x, y, z);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<Point3D> CREATOR =
             new Parcelable.Creator<Point3D>() {
                 public Point3D createFromParcel(Parcel in) {

@@ -108,6 +108,7 @@ public final class CarPowerPolicyFilter implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarPowerPolicyFilter> CREATOR
             = new Parcelable.Creator<CarPowerPolicyFilter>() {
         @Override

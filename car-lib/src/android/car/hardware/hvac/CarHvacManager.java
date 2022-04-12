@@ -268,6 +268,7 @@ public final class CarHvacManager extends CarManagerBase {
          * Called when a property is updated
          * @param value Property that has been updated.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onChangeEvent(CarPropertyValue value);
 
         /**
@@ -275,6 +276,7 @@ public final class CarHvacManager extends CarManagerBase {
          * @param propertyId
          * @param zone
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onErrorEvent(@PropertyId int propertyId, int zone);
     }
 

@@ -38,6 +38,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
 public final class CarEvsStatus implements Parcelable {
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarEvsStatus> CREATOR =
             new Parcelable.Creator<CarEvsStatus>() {
                 @NonNull
@@ -88,6 +89,7 @@ public final class CarEvsStatus implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarEvsStatus: mServiceType = " + mServiceType + " + mState + " + mState;
     }

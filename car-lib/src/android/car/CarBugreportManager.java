@@ -85,6 +85,7 @@ public final class CarBugreportManager extends CarManagerBase {
          *
          * @param progress - a number in [0.0, 100.0].
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onProgress(@FloatRange(from = 0f, to = 100f) float progress) {
         }
 
@@ -93,12 +94,14 @@ public final class CarBugreportManager extends CarManagerBase {
          *
          * @param errorCode the error code that defines failure reason.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onError(@CarBugreportErrorCode int errorCode) {
         }
 
         /**
          * Called when taking bugreport finishes successfully.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onFinished() {
         }
     }
@@ -180,6 +183,7 @@ public final class CarBugreportManager extends CarManagerBase {
      * @param callback the callback for reporting dump status.
      */
     @RequiresPermission(android.Manifest.permission.DUMP)
+    @AddedInOrBefore(majorVersion = 33)
     public void requestBugreport(
             @NonNull ParcelFileDescriptor output,
             @NonNull ParcelFileDescriptor extraOutput,
@@ -246,6 +250,7 @@ public final class CarBugreportManager extends CarManagerBase {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
     }
 }

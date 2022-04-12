@@ -9,13 +9,13 @@ class @hide @SystemApi VehicleAreaDoor package android.car
     field @AddedInOrBefore int DOOR_REAR = 0x20000000;
 class @hide CarTransactionException package android.car
 class @hide DriverMonitoringDetection package android.car.occupantawareness
-    field int confidenceLevel;
-    field boolean isLookingOnRoad;
-    field long gazeDurationMillis;
-    field Creator<DriverMonitoringDetection> CREATOR;
-    method int describeContents();
-    method String toString();
-    method void writeToParcel(Parcel dest, int flags);
+    field @AddedInOrBefore int confidenceLevel;
+    field @AddedInOrBefore boolean isLookingOnRoad;
+    field @AddedInOrBefore long gazeDurationMillis;
+    field @AddedInOrBefore Parcelable.Creator<DriverMonitoringDetection> CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
 class @hide OccupantAwarenessDetection package android.car.occupantawareness
     field @AddedInOrBefore int VEHICLE_OCCUPANT_NONE = 0;
     field @AddedInOrBefore int VEHICLE_OCCUPANT_DRIVER = 1 << 2;
@@ -34,23 +34,23 @@ class @hide OccupantAwarenessDetection package android.car.occupantawareness
     field @AddedInOrBefore int CONFIDENCE_LEVEL_LOW = 1;
     field @AddedInOrBefore int CONFIDENCE_LEVEL_HIGH = 2;
     field @AddedInOrBefore int CONFIDENCE_LEVEL_MAX = 3;
-    field int role;
-    field long timestampMillis;
-    field boolean isPresent;
-    field GazeDetection gazeDetection;
-    field DriverMonitoringDetection driverMonitoringDetection;
-    field Creator<OccupantAwarenessDetection> CREATOR;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    field @AddedInOrBefore int role;
+    field @AddedInOrBefore long timestampMillis;
+    field @AddedInOrBefore boolean isPresent;
+    field @AddedInOrBefore GazeDetection gazeDetection;
+    field @AddedInOrBefore DriverMonitoringDetection driverMonitoringDetection;
+    field @AddedInOrBefore Parcelable.Creator<OccupantAwarenessDetection> CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore String toString();
 class @hide Point3D package android.car.occupantawareness
-    field double x;
-    field double y;
-    field double z;
-    field Creator<Point3D> CREATOR;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    field @AddedInOrBefore double x;
+    field @AddedInOrBefore double y;
+    field @AddedInOrBefore double z;
+    field @AddedInOrBefore Parcelable.Creator<Point3D> CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore String toString();
 class @hide SystemStatusEvent package android.car.occupantawareness
     field @AddedInOrBefore int SYSTEM_STATUS_READY = 0;
     field @AddedInOrBefore int SYSTEM_STATUS_NOT_SUPPORTED = 1;
@@ -60,12 +60,12 @@ class @hide SystemStatusEvent package android.car.occupantawareness
     field @AddedInOrBefore int DETECTION_TYPE_PRESENCE = 1 << 0;
     field @AddedInOrBefore int DETECTION_TYPE_GAZE = 1 << 1;
     field @AddedInOrBefore int DETECTION_TYPE_DRIVER_MONITORING = 1 << 2;
-    field int systemStatus;
-    field int detectionType;
-    field Creator<SystemStatusEvent> CREATOR;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    field @AddedInOrBefore int systemStatus;
+    field @AddedInOrBefore int detectionType;
+    field @AddedInOrBefore Parcelable.Creator<SystemStatusEvent> CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore String toString();
 class @hide GazeDetection package android.car.occupantawareness
     field @AddedInOrBefore int VEHICLE_REGION_UNKNOWN = 0;
     field @AddedInOrBefore int VEHICLE_REGION_CENTER_INSTRUMENT_CLUSTER = 1;
@@ -76,25 +76,25 @@ class @hide GazeDetection package android.car.occupantawareness
     field @AddedInOrBefore int VEHICLE_REGION_LEFT_ROADWAY = 6;
     field @AddedInOrBefore int VEHICLE_REGION_RIGHT_ROADWAY = 7;
     field @AddedInOrBefore int VEHICLE_REGION_HEAD_UNIT_DISPLAY = 8;
-    field int confidenceLevel;
-    field Point3D leftEyePosition;
-    field Point3D rightEyePosition;
-    field Point3D headAngleUnitVector;
-    field Point3D gazeAngleUnitVector;
-    field int gazeTarget;
-    field long durationOnTargetMillis;
-    field Creator<GazeDetection> CREATOR;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    field @AddedInOrBefore int confidenceLevel;
+    field @AddedInOrBefore Point3D leftEyePosition;
+    field @AddedInOrBefore Point3D rightEyePosition;
+    field @AddedInOrBefore Point3D headAngleUnitVector;
+    field @AddedInOrBefore Point3D gazeAngleUnitVector;
+    field @AddedInOrBefore int gazeTarget;
+    field @AddedInOrBefore long durationOnTargetMillis;
+    field @AddedInOrBefore Parcelable.Creator<GazeDetection> CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore String toString();
 class @hide OccupantAwarenessManager package android.car.occupantawareness
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore int getCapabilityForRole(int role);
     method @AddedInOrBefore void registerChangeCallback(ChangeCallback callback);
     method @AddedInOrBefore void unregisterChangeCallback();
 class OccupantAwarenessManager.ChangeCallback package android.car.occupantawareness
     method @AddedInOrBefore void onSystemStateChanged(SystemStatusEvent systemStatus);
-    method void onDetectionEvent(OccupantAwarenessDetection event);
+    method @AddedInOrBefore void onDetectionEvent(OccupantAwarenessDetection event);
 class @hide VehicleOilLevel package android.car
     field @AddedInOrBefore int CRITICALLY_LOW = 0;
     field @AddedInOrBefore int LOW = 1;
@@ -121,37 +121,37 @@ class @hide @SystemApi ProjectionStatus package android.car.projection
     field @AddedInOrBefore int PROJECTION_TRANSPORT_NONE = 0;
     field @AddedInOrBefore int PROJECTION_TRANSPORT_USB = 1;
     field @AddedInOrBefore int PROJECTION_TRANSPORT_WIFI = 2;
-    field jectionStatus> CREATOR;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
+    field @AddedInOrBefore Creator<ProjectionStatus> CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int getState();
     method @AddedInOrBefore String getPackageName();
-    method Bundle getExtras();
+    method @AddedInOrBefore Bundle getExtras();
     method @AddedInOrBefore boolean isActive();
     method @AddedInOrBefore int getTransport();
     method @AddedInOrBefore List<MobileDevice> getConnectedMobileDevices();
-    method Builder builder(String packageName, int state);
-    method String toString();
+    method @AddedInOrBefore Builder builder(String packageName, int state);
+    method @AddedInOrBefore String toString();
 class ProjectionStatus.Builder package android.car.projection
     method @AddedInOrBefore Builder setProjectionTransport(int transport);
     method @AddedInOrBefore Builder addMobileDevice(MobileDevice mobileDevice);
-    method Builder setExtras(Bundle extras);
+    method @AddedInOrBefore Builder setExtras(Bundle extras);
     method @AddedInOrBefore ProjectionStatus build();
 class ProjectionStatus.MobileDevice package android.car.projection
-    field ileDevice> CREATOR;
-    method void writeToParcel(Parcel dest, int flags);
+    field @AddedInOrBefore Creator<MobileDevice> CREATOR;
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int getId();
     method @AddedInOrBefore String getName();
     method @AddedInOrBefore List<Integer> getAvailableTransports();
     method @AddedInOrBefore boolean isProjecting();
-    method Bundle getExtras();
-    method int describeContents();
-    method Builder builder(int id, String name);
-    method String toString();
+    method @AddedInOrBefore Bundle getExtras();
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore Builder builder(int id, String name);
+    method @AddedInOrBefore String toString();
 class ProjectionStatus.MobileDevice.Builder package android.car.projection
     method @AddedInOrBefore Builder addTransport(int transport);
     method @AddedInOrBefore Builder setProjecting(boolean projecting);
-    method Builder setExtras(Bundle extras);
+    method @AddedInOrBefore Builder setExtras(Bundle extras);
     method @AddedInOrBefore MobileDevice build();
 class @hide @SystemApi ProjectionOptions package android.car.projection
     field @AddedInOrBefore int UI_MODE_FULL_SCREEN = 0;
@@ -166,7 +166,7 @@ class @hide @SystemApi ProjectionOptions package android.car.projection
     method @AddedInOrBefore ComponentName getConsentActivity();
     method @AddedInOrBefore Bundle toBundle();
     method @hide @AddedInOrBefore Builder builder();
-    method @hide String toString();
+    method @hide @AddedInOrBefore String toString();
 class @hide ProjectionOptions.Builder package android.car.projection
     method @AddedInOrBefore Builder setProjectionActivityOptions(ActivityOptions activityOptions);
     method @AddedInOrBefore Builder setUiMode(int uiMode);
@@ -192,7 +192,7 @@ class @hide @SystemApi CarEvsManager package android.car.evs
     field @AddedInOrBefore int ERROR_NONE = 0;
     field @AddedInOrBefore int ERROR_UNAVAILABLE = -1;
     field @AddedInOrBefore int ERROR_BUSY = -2;
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore void setStatusListener(Executor executor, CarEvsStatusListener listener);
     method @AddedInOrBefore void clearStatusListener();
     method @AddedInOrBefore void returnFrameBuffer(CarEvsBufferDescriptor buffer);
@@ -204,22 +204,22 @@ class @hide @SystemApi CarEvsManager package android.car.evs
     method @AddedInOrBefore IBinder generateSessionToken();
     method @AddedInOrBefore boolean isSupported(int type);
 interface CarEvsManager.CarEvsStatusListener package android.car.evs
-    method void onStatusChanged(CarEvsStatus status);
+    method @AddedInOrBefore void onStatusChanged(CarEvsStatus status);
 interface CarEvsManager.CarEvsStreamCallback package android.car.evs
-    method void onStreamEvent(int event);
-    method void onNewFrame(CarEvsBufferDescriptor buffer);
+    method @AddedInOrBefore void onStreamEvent(int event);
+    method @AddedInOrBefore void onNewFrame(CarEvsBufferDescriptor buffer);
 class @hide @SystemApi CarEvsStatus package android.car.evs
-    field Creator<CarEvsStatus> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarEvsStatus> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore int getState();
     method @AddedInOrBefore int getServiceType();
 class @hide @SystemApi CarEvsBufferDescriptor package android.car.evs
-    field Creator<CarEvsBufferDescriptor> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarEvsBufferDescriptor> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore int getId();
     method @AddedInOrBefore HardwareBuffer getHardwareBuffer();
 class @hide @SystemApi CarMediaManager package android.car.media
@@ -230,14 +230,14 @@ class @hide @SystemApi CarMediaManager package android.car.media
     method @AddedInOrBefore void addMediaSourceListener(MediaSourceChangedListener callback, int mode);
     method @AddedInOrBefore void removeMediaSourceListener(MediaSourceChangedListener callback, int mode);
     method @AddedInOrBefore List<ComponentName> getLastMediaSources(int mode);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @AddedInOrBefore boolean isIndependentPlaybackConfig();
     method @hide @AddedInOrBefore void setIndependentPlaybackConfig(boolean independent);
 interface CarMediaManager.MediaSourceChangedListener package android.car.media
-    method void onMediaSourceChanged(ComponentName componentName);
+    method @AddedInOrBefore void onMediaSourceChanged(ComponentName componentName);
 class @hide @SystemApi CarAudioPatchHandle package android.car.media
-    field Creator<CarAudioPatchHandle> CREATOR;
-    method String toString();
+    field @AddedInOrBefore Parcelable.Creator<CarAudioPatchHandle> CREATOR;
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(Parcel out, int flags);
     method @AddedInOrBefore int describeContents();
     method @hide @AddedInOrBefore String getSourceAddress();
@@ -279,15 +279,15 @@ class CarAudioManager package android.car.media
     method @hide @AddedInOrBefore boolean clearZoneIdForUid(int uid);
     method @hide @SystemApi @AddedInOrBefore AudioDeviceInfo getOutputDeviceForUsage(int zoneId, int usage);
     method @hide @SystemApi @AddedInOrBefore List<AudioDeviceInfo> getInputDevicesForZoneId(int zoneId);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore void registerCarVolumeCallback(CarVolumeCallback callback);
     method @AddedInOrBefore void unregisterCarVolumeCallback(CarVolumeCallback callback);
     method @hide @SystemApi @AddedInOrBefore boolean isVolumeGroupMuted(int zoneId, int groupId);
     method @hide @SystemApi @AddedInOrBefore void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags);
 class CarAudioManager.CarVolumeCallback package android.car.media
-    method void onGroupVolumeChanged(int zoneId, int groupId, int flags);
-    method void onMasterMuteChanged(int zoneId, int flags);
-    method void onGroupMuteChanged(int zoneId, int groupId, int flags);
+    method @AddedInOrBefore void onGroupVolumeChanged(int zoneId, int groupId, int flags);
+    method @AddedInOrBefore void onMasterMuteChanged(int zoneId, int flags);
+    method @AddedInOrBefore void onGroupMuteChanged(int zoneId, int groupId, int flags);
 class CarMediaIntents package android.car.media
     field @AddedInOrBefore String ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
     field @AddedInOrBefore String EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
@@ -295,12 +295,12 @@ class CarMediaIntents package android.car.media
 class @hide @SystemApi CarAppBlockingPolicy package android.car.content.pm
     field @AddedInOrBefore AppBlockingPackageInfo[] whitelists;
     field @AddedInOrBefore AppBlockingPackageInfo[] blacklists;
-    field Creator<CarAppBlockingPolicy> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarAppBlockingPolicy> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method int hashCode();
-    method boolean equals(Object obj);
-    method String toString();
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore boolean equals(Object obj);
+    method @AddedInOrBefore String toString();
 class CarPackageManager package android.car.content.pm
     field @hide @SystemApi @AddedInOrBefore int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 0x1;
     field @hide @SystemApi @AddedInOrBefore int FLAG_SET_POLICY_ADD = 0x2;
@@ -313,7 +313,7 @@ class CarPackageManager package android.car.content.pm
     field @hide @AddedInOrBefore String DRIVING_SAFETY_REGION_ALL = "android.car.drivingsafetyregion.all";
     field @hide @AddedInOrBefore String DRIVING_SAFETY_ACTIVITY_METADATA_REGIONS = "android.car.drivingsafetyregions";
     field @hide @AddedInOrBefore int ERROR_CODE_NO_PACKAGE = -100;
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @SystemApi @AddedInOrBefore void setAppBlockingPolicy(String packageName, CarAppBlockingPolicy policy, int flags);
     method @hide @AddedInOrBefore void restartTask(int taskId);
     method @hide @SystemApi @AddedInOrBefore boolean isActivityBackedBySafeActivity(ComponentName activityName);
@@ -333,20 +333,20 @@ class @hide @SystemApi AppBlockingPackageInfo package android.car.content.pm
     field @AddedInOrBefore int maxRevisionCode;
     field @AddedInOrBefore Signature[] signatures;
     field @AddedInOrBefore String[] activities;
-    field Creator<AppBlockingPackageInfo> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<AppBlockingPackageInfo> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @hide @AddedInOrBefore void verify();
     method @hide @AddedInOrBefore boolean isActivityCovered(String className);
-    method int hashCode();
-    method boolean equals(Object obj);
-    method String toString();
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore boolean equals(Object obj);
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CarAppBlockingPolicyService package android.car.content.pm
     field @AddedInOrBefore String SERVICE_INTERFACE = "android.car.content.pm.CarAppBlockingPolicyService";
     method @AddedInOrBefore CarAppBlockingPolicy getAppBlockingPolicy();
-    method int onStartCommand(Intent intent, int flags, int startId);
+    method @AddedInOrBefore int onStartCommand(Intent intent, int flags, int startId);
     method @AddedInOrBefore IBinder onBind(Intent intent);
-    method boolean onUnbind(Intent intent);
+    method @AddedInOrBefore boolean onUnbind(Intent intent);
 class VehicleAreaSeat package android.car
     field @AddedInOrBefore int SEAT_UNKNOWN = 0;
     field @AddedInOrBefore int SEAT_ROW_1_LEFT = 0x0001;
@@ -387,20 +387,20 @@ class CarOccupantZoneManager package android.car
     method @hide @AddedInOrBefore boolean assignProfileUserToOccupantZone(OccupantZoneInfo occupantZone, int userId);
     method @AddedInOrBefore void registerOccupantZoneConfigChangeListener(OccupantZoneConfigChangeListener listener);
     method @AddedInOrBefore void unregisterOccupantZoneConfigChangeListener(OccupantZoneConfigChangeListener listener);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 class CarOccupantZoneManager.OccupantZoneInfo package android.car
     field @hide @AddedInOrBefore int INVALID_ZONE_ID = -1;
     field @AddedInOrBefore int zoneId;
     field @AddedInOrBefore int occupantType;
     field @AddedInOrBefore int seat;
-    field Creator<OccupantZoneInfo> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<OccupantZoneInfo> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method boolean equals(Object other);
-    method int hashCode();
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore String toString();
 interface CarOccupantZoneManager.OccupantZoneConfigChangeListener package android.car
-    method void onOccupantZoneConfigChanged(int changeFlags);
+    method @AddedInOrBefore void onOccupantZoneConfigChanged(int changeFlags);
 class @hide VehicleSeatOccupancyState package android.car
     field @AddedInOrBefore int UNKNOWN = 0;
     field @AddedInOrBefore int VACANT = 1;
@@ -438,12 +438,10 @@ class EvConnectorType package android.car
 class @hide @SystemApi CarUserManager package android.car.user
     field @hide @AddedInOrBefore String TAG = CarUserManager.class.getSimpleName();
     field @hide @SystemApi @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_STARTING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STARTING;
-    field @hide int USER_LIFECYCLE_EVENT_TYPE_POST_STARTING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_STARTING;
     field @hide @SystemApi @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
-    field @hide int USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_SWITCHING;
     field @hide @SystemApi @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
     field @hide @SystemApi @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
-    field @hide int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
+    field @hide @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
     field @hide @SystemApi @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_STOPPING = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
     field @hide @SystemApi @AddedInOrBefore int USER_LIFECYCLE_EVENT_TYPE_STOPPED = CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
     field @hide @AddedInOrBefore String BUNDLE_PARAM_ACTION = "action";
@@ -473,7 +471,7 @@ class @hide @SystemApi CarUserManager package android.car.user
     method @hide @AddedInOrBefore UserIdentificationAssociationResponse getUserIdentificationAssociation(int types);
     method @hide @AddedInOrBefore AsyncFuture<UserIdentificationAssociationResponse> setUserIdentificationAssociation(int[] types, int[] values);
     method @hide @AddedInOrBefore void setUserSwitchUiCallback(UserSwitchUiCallback callback);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @AddedInOrBefore String lifecycleEventTypeToString(int type);
     method @hide @AddedInOrBefore boolean isValidUser(int userId);
 class @hide @SystemApi CarUserManager.UserLifecycleEvent package android.car.user
@@ -482,9 +480,9 @@ class @hide @SystemApi CarUserManager.UserLifecycleEvent package android.car.use
     method @AddedInOrBefore UserHandle getUserHandle();
     method @hide @AddedInOrBefore int getPreviousUserId();
     method @AddedInOrBefore UserHandle getPreviousUserHandle();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
 interface @hide @SystemApi CarUserManager.UserLifecycleListener package android.car.user
     method @AddedInOrBefore void onEvent(UserLifecycleEvent event);
 interface @hide CarUserManager.UserSwitchUiCallback package android.car.user
@@ -498,38 +496,38 @@ class @hide ExperimentalCarUserManager package android.car.user
     method @hide @AddedInOrBefore List<Integer> getPassengers(int driverId);
     method @hide @AddedInOrBefore boolean startPassenger(int passengerId, int zoneId);
     method @hide @AddedInOrBefore boolean stopPassenger(int passengerId);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 class @hide UserStopResult package android.car.user
     field @AddedInOrBefore int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
     field @AddedInOrBefore int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
     field @AddedInOrBefore int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 1;
     field @AddedInOrBefore int STATUS_FAILURE_SYSTEM_USER = CommonResults.LAST_COMMON_STATUS + 2;
     field @AddedInOrBefore int STATUS_FAILURE_CURRENT_USER = CommonResults.LAST_COMMON_STATUS + 3;
-    field Creator<UserStopResult> CREATOR;
-    method boolean isSuccess(int status);
-    method boolean isSuccess();
+    field @AddedInOrBefore Parcelable.Creator<UserStopResult> CREATOR;
+    method @AddedInOrBefore boolean isSuccess(int status);
+    method @AddedInOrBefore boolean isSuccess();
     method @hide @AddedInOrBefore String statusToString(int value);
     method @AddedInOrBefore int getStatus();
-    method String toString();
-    method void writeToParcel(android.os.Parcel dest, int flags);
-    method int describeContents();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
 class @hide UserCreationResult package android.car.user
     field @hide @AddedInOrBefore int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
     field @hide @AddedInOrBefore int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
     field @hide @AddedInOrBefore int STATUS_HAL_FAILURE = CommonResults.STATUS_HAL_FAILURE;
     field @hide @AddedInOrBefore int STATUS_HAL_INTERNAL_FAILURE = CommonResults.STATUS_HAL_INTERNAL_FAILURE;
     field @AddedInOrBefore int STATUS_INVALID_REQUEST = CommonResults.STATUS_INVALID_REQUEST;
-    field Creator<UserCreationResult> CREATOR;
-    method boolean isSuccess();
-    method int describeContents();
+    field @AddedInOrBefore Parcelable.Creator<UserCreationResult> CREATOR;
+    method @AddedInOrBefore boolean isSuccess();
+    method @AddedInOrBefore int describeContents();
     method @hide @AddedInOrBefore String statusToString(int value);
     method @AddedInOrBefore int getStatus();
     method @AddedInOrBefore Integer getAndroidFailureStatus();
     method @AddedInOrBefore UserHandle getUser();
     method @AddedInOrBefore String getErrorMessage();
     method @hide @AddedInOrBefore String getInternalErrorMessage();
-    method String toString();
-    method void writeToParcel(android.os.Parcel dest, int flags);
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
 class @hide UserRemovalResult package android.car.user
     field @AddedInOrBefore int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
     field @AddedInOrBefore int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
@@ -538,13 +536,13 @@ class @hide UserRemovalResult package android.car.user
     field @AddedInOrBefore int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED = CommonResults.LAST_COMMON_STATUS + 2;
     field @AddedInOrBefore int STATUS_SUCCESSFUL_SET_EPHEMERAL = CommonResults.LAST_COMMON_STATUS + 3;
     field @AddedInOrBefore int STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL = CommonResults.LAST_COMMON_STATUS + 4;
-    field Creator<UserRemovalResult> CREATOR;
-    method boolean isSuccess();
+    field @AddedInOrBefore Parcelable.Creator<UserRemovalResult> CREATOR;
+    method @AddedInOrBefore boolean isSuccess();
     method @hide @AddedInOrBefore String statusToString(int value);
     method @AddedInOrBefore int getStatus();
-    method String toString();
-    method void writeToParcel(android.os.Parcel dest, int flags);
-    method int describeContents();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
 class CommonResults package android.car.user
     field @AddedInOrBefore int STATUS_SUCCESSFUL = 1;
     field @AddedInOrBefore int STATUS_ANDROID_FAILURE = 2;
@@ -556,43 +554,43 @@ class CommonResults package android.car.user
 interface @hide OperationResult package android.car.user
     method @AddedInOrBefore boolean isSuccess();
 class @hide @SystemApi UserLifecycleEventFilter package android.car.user
-    field Creator<UserLifecycleEventFilter> CREATOR;
-    method @hide int[] getEventTypes();
-    method @hide int[] getUserIds();
-    method boolean apply(UserLifecycleEvent event);
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    field @AddedInOrBefore Parcelable.Creator<UserLifecycleEventFilter> CREATOR;
+    method @hide @AddedInOrBefore int[] getEventTypes();
+    method @hide @AddedInOrBefore int[] getUserIds();
+    method @AddedInOrBefore boolean apply(UserLifecycleEvent event);
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide UserLifecycleEventFilter.Builder package android.car.user
-    method Builder addEventType(int eventType);
-    method Builder addUser(UserHandle userHandle);
-    method UserLifecycleEventFilter build();
+    method @AddedInOrBefore Builder addEventType(int eventType);
+    method @AddedInOrBefore Builder addUser(UserHandle userHandle);
+    method @AddedInOrBefore UserLifecycleEventFilter build();
 class @hide UserStartResult package android.car.user
     field @hide @AddedInOrBefore int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
     field @hide @AddedInOrBefore int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
     field @hide @AddedInOrBefore int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER = CommonResults.LAST_COMMON_STATUS + 1;
     field @hide @AddedInOrBefore int STATUS_USER_DOES_NOT_EXIST = CommonResults.LAST_COMMON_STATUS + 2;
-    field Creator<UserStartResult> CREATOR;
-    method boolean isSuccess();
+    field @AddedInOrBefore Parcelable.Creator<UserStartResult> CREATOR;
+    method @AddedInOrBefore boolean isSuccess();
     method @hide @AddedInOrBefore String statusToString(int value);
     method @AddedInOrBefore int getStatus();
-    method String toString();
-    method void writeToParcel(android.os.Parcel dest, int flags);
-    method int describeContents();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
 class @hide UserIdentificationAssociationResponse package android.car.user
-    field Creator<UserIdentificationAssociationResponse> CREATOR;
-    method UserIdentificationAssociationResponse forFailure();
-    method UserIdentificationAssociationResponse forFailure(String errorMessage);
-    method UserIdentificationAssociationResponse forSuccess(int[] values);
-    method UserIdentificationAssociationResponse forSuccess(int[] values, String errorMessage);
+    field @AddedInOrBefore Parcelable.Creator<UserIdentificationAssociationResponse> CREATOR;
+    method @AddedInOrBefore UserIdentificationAssociationResponse forFailure();
+    method @AddedInOrBefore UserIdentificationAssociationResponse forFailure(String errorMessage);
+    method @AddedInOrBefore UserIdentificationAssociationResponse forSuccess(int[] values);
+    method @AddedInOrBefore UserIdentificationAssociationResponse forSuccess(int[] values, String errorMessage);
     method @AddedInOrBefore boolean isSuccess();
     method @AddedInOrBefore String getErrorMessage();
     method @AddedInOrBefore int[] getValues();
-    method String toString();
-    method void writeToParcel(android.os.Parcel dest, int flags);
-    method int describeContents();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
 class @hide UserSwitchResult package android.car.user
     field @AddedInOrBefore int STATUS_SUCCESSFUL = CommonResults.STATUS_SUCCESSFUL;
     field @AddedInOrBefore int STATUS_ANDROID_FAILURE = CommonResults.STATUS_ANDROID_FAILURE;
@@ -605,14 +603,14 @@ class @hide UserSwitchResult package android.car.user
     field @AddedInOrBefore int STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST = CommonResults.LAST_COMMON_STATUS + 3;
     field @AddedInOrBefore int STATUS_NOT_SWITCHABLE = CommonResults.LAST_COMMON_STATUS + 4;
     field @AddedInOrBefore int STATUS_NOT_LOGGED_IN = CommonResults.LAST_COMMON_STATUS + 5;
-    field Creator<UserSwitchResult> CREATOR;
-    method boolean isSuccess();
-    method int describeContents();
+    field @AddedInOrBefore Parcelable.Creator<UserSwitchResult> CREATOR;
+    method @AddedInOrBefore boolean isSuccess();
+    method @AddedInOrBefore int describeContents();
     method @hide @AddedInOrBefore String statusToString(int value);
     method @AddedInOrBefore int getStatus();
     method @hide @AddedInOrBefore Integer getAndroidFailureStatus();
     method @AddedInOrBefore String getErrorMessage();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
 class @hide VehicleLightState package android.car
     field @AddedInOrBefore int OFF = 0;
@@ -632,7 +630,7 @@ class @hide VehicleHvacFanDirection package android.car
 class @hide CarLocationTestHelper package android.car.test
     method @hide @AddedInOrBefore boolean injectLocation(Location location, Context context);
 class @hide CarTestManager package android.car.test
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @AddedInOrBefore void stopCarService(IBinder token);
     method @hide @AddedInOrBefore void startCarService(IBinder token);
 class VehicleAreaType package android.car
@@ -643,18 +641,18 @@ class VehicleAreaType package android.car
     field @AddedInOrBefore int VEHICLE_AREA_TYPE_MIRROR = 5;
     field @AddedInOrBefore int VEHICLE_AREA_TYPE_WHEEL = 6;
 class @hide CarBugreportManager package android.car
-    method void requestBugreport(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput, CarBugreportManagerCallback callback);
+    method @AddedInOrBefore void requestBugreport(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput, CarBugreportManagerCallback callback);
     method @hide @AddedInOrBefore void requestBugreportForTesting(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput, CarBugreportManagerCallback callback);
     method @AddedInOrBefore void cancelBugreport();
-    method void onCarDisconnected();
+    method @AddedInOrBefore void onCarDisconnected();
 class CarBugreportManager.CarBugreportManagerCallback package android.car
     field @AddedInOrBefore int CAR_BUGREPORT_DUMPSTATE_FAILED = 1;
     field @AddedInOrBefore int CAR_BUGREPORT_IN_PROGRESS = 2;
     field @AddedInOrBefore int CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED = 3;
     field @AddedInOrBefore int CAR_BUGREPORT_SERVICE_NOT_AVAILABLE = 4;
-    method void onProgress(float progress);
-    method void onError(int errorCode);
-    method void onFinished();
+    method @AddedInOrBefore void onProgress(float progress);
+    method @AddedInOrBefore void onError(int errorCode);
+    method @AddedInOrBefore void onFinished();
 class CarInfoManager package android.car
     field @hide @AddedInOrBefore int BASIC_INFO_KEY_MANUFACTURER = 0x11100101;
     field @hide @AddedInOrBefore int BASIC_INFO_KEY_MODEL = 0x11100102;
@@ -712,10 +710,10 @@ class @hide @SystemApi AoapService package android.car
     field @hide @AddedInOrBefore String KEY_RESULT = "result";
     method @AddedInOrBefore int isDeviceSupported(UsbDevice device);
     method @AddedInOrBefore int canSwitchToAoap(UsbDevice device);
-    method void onCreate();
+    method @AddedInOrBefore void onCreate();
     method @AddedInOrBefore IBinder onBind(Intent intent);
-    method boolean onUnbind(Intent intent);
-    method void dump(FileDescriptor fd, PrintWriter writer, String[] args);
+    method @AddedInOrBefore boolean onUnbind(Intent intent);
+    method @AddedInOrBefore void dump(FileDescriptor fd, PrintWriter writer, String[] args);
 class @hide @SystemApi VehiclePropertyAccess package android.car
     field @AddedInOrBefore int NONE = 0x00;
     field @AddedInOrBefore int READ = 0x01;
@@ -753,7 +751,7 @@ class @hide @SystemApi CarProjectionManager package android.car
     method @AddedInOrBefore void removeKeyEventHandler(ProjectionKeyEventHandler eventHandler);
     method @AddedInOrBefore void registerProjectionRunner(Intent serviceIntent);
     method @AddedInOrBefore void unregisterProjectionRunner(Intent serviceIntent);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore void startProjectionAccessPoint(ProjectionAccessPointCallback callback);
     method @AddedInOrBefore List<Integer> getAvailableWifiChannels(int band);
     method @AddedInOrBefore void stopProjectionAccessPoint();
@@ -767,9 +765,9 @@ class @hide @SystemApi CarProjectionManager package android.car
 interface CarProjectionManager.CarProjectionListener package android.car
     method @AddedInOrBefore void onVoiceAssistantRequest(boolean fromLongPress);
 interface CarProjectionManager.ProjectionKeyEventHandler package android.car
-    method void onKeyEvent(int event);
+    method @AddedInOrBefore void onKeyEvent(int event);
 interface CarProjectionManager.ProjectionStatusListener package android.car
-    method void onProjectionStatusChanged(int state, String packageName, List<ProjectionStatus> details);
+    method @AddedInOrBefore void onProjectionStatusChanged(int state, String packageName, List<ProjectionStatus> details);
 class CarProjectionManager.ProjectionAccessPointCallback package android.car
     field @AddedInOrBefore int ERROR_NO_CHANNEL = 1;
     field @AddedInOrBefore int ERROR_GENERIC = 2;
@@ -786,7 +784,7 @@ class @hide StartUserInBackgroundResult package android.car.admin
     field @AddedInOrBefore int STATUS_FAILURE_GENERIC = 100;
     method @AddedInOrBefore int getStatus();
     method @AddedInOrBefore boolean isSuccess();
-    method String toString();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CarDevicePolicyManager package android.car.admin
     field @hide @AddedInOrBefore String TAG = CarDevicePolicyManager.class.getSimpleName();
     field @AddedInOrBefore int USER_TYPE_REGULAR = 0;
@@ -800,7 +798,7 @@ class @hide @SystemApi CarDevicePolicyManager package android.car.admin
     method @hide @AddedInOrBefore StopUserResult stopUser(UserHandle user);
     method @hide @AddedInOrBefore void setUserDisclaimerShown(UserHandle user);
     method @hide @AddedInOrBefore void setUserDisclaimerAcknowledged(UserHandle user);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 class @hide @SystemApi RemoveUserResult package android.car.admin
     field @AddedInOrBefore int STATUS_SUCCESS = 1;
     field @AddedInOrBefore int STATUS_SUCCESS_LAST_ADMIN_REMOVED = 2;
@@ -811,7 +809,7 @@ class @hide @SystemApi RemoveUserResult package android.car.admin
     field @AddedInOrBefore int STATUS_FAILURE_GENERIC = 100;
     method @AddedInOrBefore int getStatus();
     method @AddedInOrBefore boolean isSuccess();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @hide @AddedInOrBefore String statusToString(int status);
 class @hide StopUserResult package android.car.admin
     field @AddedInOrBefore int STATUS_SUCCESS = 1;
@@ -821,7 +819,7 @@ class @hide StopUserResult package android.car.admin
     field @AddedInOrBefore int STATUS_FAILURE_GENERIC = 100;
     method @AddedInOrBefore int getStatus();
     method @AddedInOrBefore boolean isSuccess();
-    method String toString();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CreateUserResult package android.car.admin
     field @AddedInOrBefore int STATUS_SUCCESS = 1;
     field @AddedInOrBefore int STATUS_FAILURE_INVALID_ARGUMENTS = 2;
@@ -830,60 +828,60 @@ class @hide @SystemApi CreateUserResult package android.car.admin
     method @AddedInOrBefore int getStatus();
     method @AddedInOrBefore boolean isSuccess();
     method @AddedInOrBefore UserHandle getUserHandle();
-    method String toString();
+    method @AddedInOrBefore String toString();
 class CarNotConnectedException package android.car
 class @hide @SystemApi IoStatsEntry package android.car.storagemonitoring
-    field Creator<IoStatsEntry> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<IoStatsEntry> CREATOR;
     field @AddedInOrBefore int uid;
     field @AddedInOrBefore long runtimeMillis;
     field @AddedInOrBefore IoStatsEntry.Metrics foreground;
     field @AddedInOrBefore IoStatsEntry.Metrics background;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method @hide void writeToJson(JsonWriter jsonWriter);
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @hide @AddedInOrBefore void writeToJson(JsonWriter jsonWriter);
     method @hide @AddedInOrBefore IoStatsEntry delta(IoStatsEntry other);
-    method boolean equals(Object other);
-    method int hashCode();
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore String toString();
     method @hide @AddedInOrBefore boolean representsSameMetrics(UidIoRecord record);
 class IoStatsEntry.Metrics package android.car.storagemonitoring
-    field Creator<IoStatsEntry.Metrics> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<IoStatsEntry.Metrics> CREATOR;
     field @AddedInOrBefore long bytesRead;
     field @AddedInOrBefore long bytesWritten;
     field @AddedInOrBefore long bytesReadFromStorage;
     field @AddedInOrBefore long bytesWrittenToStorage;
     field @AddedInOrBefore long fsyncCalls;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method @hide void writeToJson(JsonWriter jsonWriter);
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @hide @AddedInOrBefore void writeToJson(JsonWriter jsonWriter);
     method @hide @AddedInOrBefore Metrics delta(Metrics other);
-    method boolean equals(Object other);
-    method int hashCode();
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi IoStats package android.car.storagemonitoring
-    field tats> CREATOR;
+    field @AddedInOrBefore Creator<IoStats> CREATOR;
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @hide @AddedInOrBefore void writeToJson(JsonWriter jsonWriter);
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore long getTimestamp();
     method @AddedInOrBefore List<IoStatsEntry> getStats();
-    method int hashCode();
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore IoStatsEntry getUserIdStats(int uid);
     method @AddedInOrBefore IoStatsEntry.Metrics getForegroundTotals();
     method @AddedInOrBefore IoStatsEntry.Metrics getBackgroundTotals();
     method @AddedInOrBefore IoStatsEntry.Metrics getTotals();
-    method boolean equals(Object other);
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi LifetimeWriteInfo package android.car.storagemonitoring
-    field tats> CREATOR;
+    field @AddedInOrBefore Creator<IoStats> CREATOR;
     field @AddedInOrBefore String partition;
     field @AddedInOrBefore String fstype;
     field @AddedInOrBefore long writtenBytes;
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @hide @AddedInOrBefore void writeToJson(JsonWriter jsonWriter);
     method @AddedInOrBefore int describeContents();
-    method boolean equals(Object other);
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CarStorageMonitoringManager package android.car.storagemonitoring
     field @AddedInOrBefore String INTENT_EXCESSIVE_IO = "android.car.storagemonitoring.EXCESSIVE_IO";
     field @AddedInOrBefore int PRE_EOL_INFO_UNKNOWN = 0;
@@ -891,7 +889,7 @@ class @hide @SystemApi CarStorageMonitoringManager package android.car.storagemo
     field @AddedInOrBefore int PRE_EOL_INFO_WARNING = 2;
     field @AddedInOrBefore int PRE_EOL_INFO_URGENT = 3;
     field @AddedInOrBefore long SHUTDOWN_COST_INFO_MISSING = -1;
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore int getPreEolIndicatorStatus();
     method @AddedInOrBefore WearEstimate getWearEstimate();
     method @AddedInOrBefore List<WearEstimateChange> getWearEstimateHistory();
@@ -902,7 +900,7 @@ class @hide @SystemApi CarStorageMonitoringManager package android.car.storagemo
     method @AddedInOrBefore void registerListener(IoStatsListener listener);
     method @AddedInOrBefore void unregisterListener(IoStatsListener listener);
 interface CarStorageMonitoringManager.IoStatsListener package android.car.storagemonitoring
-    method void onSnapshot(IoStats snapshot);
+    method @AddedInOrBefore void onSnapshot(IoStats snapshot);
 class @hide @SystemApi UidIoRecord package android.car.storagemonitoring
     field @AddedInOrBefore int uid;
     field @AddedInOrBefore long foreground_rchar;
@@ -915,10 +913,10 @@ class @hide @SystemApi UidIoRecord package android.car.storagemonitoring
     field @AddedInOrBefore long background_read_bytes;
     field @AddedInOrBefore long background_write_bytes;
     field @AddedInOrBefore long background_fsync;
-    method @hide UidIoRecord delta(IoStatsEntry other);
-    method @hide UidIoRecord delta(UidIoRecord other);
+    method @hide @AddedInOrBefore UidIoRecord delta(IoStatsEntry other);
+    method @hide @AddedInOrBefore UidIoRecord delta(UidIoRecord other);
 class @hide @SystemApi WearEstimateChange package android.car.storagemonitoring
-    field Creator<WearEstimateChange> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<WearEstimateChange> CREATOR;
     field @AddedInOrBefore WearEstimate oldEstimate;
     field @AddedInOrBefore WearEstimate newEstimate;
     field @AddedInOrBefore long uptimeAtChange;
@@ -926,23 +924,23 @@ class @hide @SystemApi WearEstimateChange package android.car.storagemonitoring
     field @AddedInOrBefore boolean isAcceptableDegradation;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method boolean equals(Object other);
-    method int hashCode();
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi WearEstimate package android.car.storagemonitoring
     field @AddedInOrBefore int UNKNOWN = -1;
     field @hide @AddedInOrBefore WearEstimate UNKNOWN_ESTIMATE = new WearEstimate(UNKNOWN, UNKNOWN);
-    field Creator<WearEstimate> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<WearEstimate> CREATOR;
     field @AddedInOrBefore int typeA;
     field @AddedInOrBefore int typeB;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @hide @AddedInOrBefore void writeToJson(JsonWriter jsonWriter);
-    method boolean equals(Object other);
-    method int hashCode();
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object other);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore String toString();
 class @hide CarManagerBase package android.car
-    field Car mCar;
+    field @AddedInOrBefore Car mCar;
     method @AddedInOrBefore Context getContext();
     method @AddedInOrBefore Handler getEventHandler();
     method @AddedInOrBefore T handleRemoteExceptionFromCarService(RemoteException e, T returnValue);
@@ -964,7 +962,7 @@ class @hide @SystemApi VehicleAreaWindow package android.car
 class @hide @SystemApi CarNavigationInstrumentCluster package android.car.navigation
     field @AddedInOrBefore int CLUSTER_TYPE_CUSTOM_IMAGES_SUPPORTED = 1;
     field @AddedInOrBefore int CLUSTER_TYPE_IMAGE_CODES_ONLY = 2;
-    field Creator<CarNavigationInstrumentCluster> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarNavigationInstrumentCluster> CREATOR;
     method @AddedInOrBefore CarNavigationInstrumentCluster createCluster(int minIntervalMillis);
     method @AddedInOrBefore CarNavigationInstrumentCluster createCustomImageCluster(int minIntervalMillis, int imageWidth, int imageHeight, int imageColorDepthBits);
     method @AddedInOrBefore int getMinIntervalMillis();
@@ -976,11 +974,11 @@ class @hide @SystemApi CarNavigationInstrumentCluster package android.car.naviga
     method @AddedInOrBefore boolean supportsCustomImages();
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CarNavigationStatusManager package android.car.navigation
     method @AddedInOrBefore void sendEvent(int eventType, Bundle bundle);
     method @AddedInOrBefore void sendNavigationStateChange(Bundle bundle);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore CarNavigationInstrumentCluster getInstrumentClusterInfo();
 class @hide @SystemApi VehicleAreaMirror package android.car
     field @AddedInOrBefore int MIRROR_DRIVER_LEFT = 0x00000001;
@@ -997,38 +995,38 @@ class @hide @SystemApi CustomInputEvent package android.car.input
     field @AddedInOrBefore int INPUT_CODE_F8 = 1008;
     field @AddedInOrBefore int INPUT_CODE_F9 = 1009;
     field @AddedInOrBefore int INPUT_CODE_F10 = 1010;
-    field Creator<CustomInputEvent> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CustomInputEvent> CREATOR;
     method @AddedInOrBefore String inputCodeToString(int value);
     method @AddedInOrBefore int getInputCode();
     method @AddedInOrBefore int getTargetDisplayType();
     method @AddedInOrBefore int getRepeatCounter();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi CarInputHandlingService package android.car.input
     field @AddedInOrBefore String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
     field @AddedInOrBefore int INPUT_CALLBACK_BINDER_CODE = IBinder.FIRST_CALL_TRANSACTION;
-    method IBinder onBind(Intent intent);
-    method void onKeyEvent(KeyEvent keyEvent, int targetDisplay);
-    method void dump(FileDescriptor fd, PrintWriter writer, String[] args);
+    method @AddedInOrBefore IBinder onBind(Intent intent);
+    method @AddedInOrBefore void onKeyEvent(KeyEvent keyEvent, int targetDisplay);
+    method @AddedInOrBefore void dump(FileDescriptor fd, PrintWriter writer, String[] args);
 class CarInputHandlingService.InputFilter package android.car.input
-    field int mKeyCode;
-    field int mTargetDisplay;
-    field Creator CREATOR;
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
+    field @AddedInOrBefore int mKeyCode;
+    field @AddedInOrBefore int mTargetDisplay;
+    field @AddedInOrBefore Parcelable.Creator CREATOR;
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
 class @hide @SystemApi RotaryEvent package android.car.input
-    field Creator<RotaryEvent> CREATOR;
-    method int getNumberOfClicks();
-    method long getUptimeMillisForClick(int clickIndex);
-    method String toString();
+    field @AddedInOrBefore Parcelable.Creator<RotaryEvent> CREATOR;
+    method @AddedInOrBefore int getNumberOfClicks();
+    method @AddedInOrBefore long getUptimeMillisForClick(int clickIndex);
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore int getInputType();
     method @AddedInOrBefore boolean isClockwise();
     method @AddedInOrBefore long[] getUptimeMillisForClicks();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi CarInputManager package android.car.input
@@ -1048,12 +1046,12 @@ class @hide @SystemApi CarInputManager package android.car.input
     method @AddedInOrBefore int requestInputEventCapture(int targetDisplayType, int[] inputTypes, int requestFlags, Executor executor, CarInputCaptureCallback callback);
     method @AddedInOrBefore void releaseInputEventCapture(int targetDisplayType);
     method @AddedInOrBefore void injectKeyEvent(KeyEvent event, int targetDisplayType);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface CarInputManager.CarInputCaptureCallback package android.car.input
-    method void onKeyEvents(int targetDisplayType, List<KeyEvent> keyEvents);
-    method void onRotaryEvents(int targetDisplayType, List<RotaryEvent> events);
-    method void onCaptureStateChanged(int targetDisplayType, int[] activeInputTypes);
-    method void onCustomInputEvents(int targetDisplayType, List<CustomInputEvent> events);
+    method @AddedInOrBefore void onKeyEvents(int targetDisplayType, List<KeyEvent> keyEvents);
+    method @AddedInOrBefore void onRotaryEvents(int targetDisplayType, List<RotaryEvent> events);
+    method @AddedInOrBefore void onCaptureStateChanged(int targetDisplayType, int[] activeInputTypes);
+    method @AddedInOrBefore void onCustomInputEvents(int targetDisplayType, List<CustomInputEvent> events);
 class @hide VehicleLightSwitch package android.car
     field @AddedInOrBefore int OFF = 0;
     field @AddedInOrBefore int ON = 1;
@@ -1061,28 +1059,28 @@ class @hide VehicleLightSwitch package android.car
     field @AddedInOrBefore int AUTOMATIC = 0x100;
 class CarUxRestrictionsManager package android.car.drivingstate
     field @hide @AddedInOrBefore String UX_RESTRICTION_MODE_BASELINE = "baseline";
-    method @hide void onCarDisconnected();
-    method void registerListener(OnUxRestrictionsChangedListener listener);
-    method @hide void registerListener(OnUxRestrictionsChangedListener listener, int displayId);
+    method @hide @AddedInOrBefore void onCarDisconnected();
+    method @AddedInOrBefore void registerListener(OnUxRestrictionsChangedListener listener);
+    method @hide @AddedInOrBefore void registerListener(OnUxRestrictionsChangedListener listener, int displayId);
     method @AddedInOrBefore void unregisterListener();
-    method @hide boolean saveUxRestrictionsConfigurationForNextBoot(List<CarUxRestrictionsConfiguration> configs);
-    method CarUxRestrictions getCurrentCarUxRestrictions();
-    method @hide CarUxRestrictions getCurrentCarUxRestrictions(int displayId);
+    method @hide @AddedInOrBefore boolean saveUxRestrictionsConfigurationForNextBoot(List<CarUxRestrictionsConfiguration> configs);
+    method @AddedInOrBefore CarUxRestrictions getCurrentCarUxRestrictions();
+    method @hide @AddedInOrBefore CarUxRestrictions getCurrentCarUxRestrictions(int displayId);
     method @hide @AddedInOrBefore boolean setRestrictionMode(String mode);
     method @hide @AddedInOrBefore String getRestrictionMode();
-    method @hide boolean saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration config);
+    method @hide @AddedInOrBefore boolean saveUxRestrictionsConfigurationForNextBoot(CarUxRestrictionsConfiguration config);
     method @hide @AddedInOrBefore List<CarUxRestrictionsConfiguration> getStagedConfigs();
     method @hide @AddedInOrBefore List<CarUxRestrictionsConfiguration> getConfigs();
 interface CarUxRestrictionsManager.OnUxRestrictionsChangedListener package android.car.drivingstate
-    method void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);
+    method @AddedInOrBefore void onUxRestrictionsChanged(CarUxRestrictions restrictionInfo);
 class @hide @SystemApi CarDrivingStateManager package android.car.drivingstate
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @SystemApi @AddedInOrBefore void registerListener(CarDrivingStateEventListener listener);
     method @hide @SystemApi @AddedInOrBefore void unregisterListener();
     method @hide @SystemApi @AddedInOrBefore CarDrivingStateEvent getCurrentCarDrivingState();
     method @hide @AddedInOrBefore void injectDrivingState(int drivingState);
 interface @hide @SystemApi CarDrivingStateManager.CarDrivingStateEventListener package android.car.drivingstate
-    method void onDrivingStateChanged(CarDrivingStateEvent event);
+    method @AddedInOrBefore void onDrivingStateChanged(CarDrivingStateEvent event);
 class CarUxRestrictions package android.car.drivingstate
     field @AddedInOrBefore int UX_RESTRICTIONS_BASELINE = 0;
     field @AddedInOrBefore int UX_RESTRICTIONS_NO_DIALPAD = 1;
@@ -1095,7 +1093,7 @@ class CarUxRestrictions package android.car.drivingstate
     field @AddedInOrBefore int UX_RESTRICTIONS_NO_TEXT_MESSAGE = 0x1 << 7;
     field @AddedInOrBefore int UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION = 0x1 << 8;
     field @AddedInOrBefore int UX_RESTRICTIONS_FULLY_RESTRICTED = UX_RESTRICTIONS_NO_DIALPAD | UX_RESTRICTIONS_NO_FILTERING | UX_RESTRICTIONS_LIMIT_STRING_LENGTH | UX_RESTRICTIONS_NO_KEYBOARD | UX_RESTRICTIONS_NO_VIDEO | UX_RESTRICTIONS_LIMIT_CONTENT | UX_RESTRICTIONS_NO_SETUP | UX_RESTRICTIONS_NO_TEXT_MESSAGE | UX_RESTRICTIONS_NO_VOICE_TRANSCRIPTION;
-    field Creator<CarUxRestrictions> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarUxRestrictions> CREATOR;
     method @hide @AddedInOrBefore long getTimeStamp();
     method @AddedInOrBefore boolean isRequiresDistractionOptimization();
     method @AddedInOrBefore int getActiveRestrictions();
@@ -1104,7 +1102,7 @@ class CarUxRestrictions package android.car.drivingstate
     method @AddedInOrBefore int getMaxContentDepth();
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore boolean isSameRestrictions(CarUxRestrictions other);
 class CarUxRestrictions.Builder package android.car.drivingstate
     method @AddedInOrBefore Builder setMaxStringLength(int length);
@@ -1118,31 +1116,31 @@ class @hide @SystemApi CarDrivingStateEvent package android.car.drivingstate
     field @AddedInOrBefore int DRIVING_STATE_MOVING = 2;
     field @AddedInOrBefore long timeStamp;
     field @AddedInOrBefore int eventValue;
-    field Creator<CarDrivingStateEvent> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarDrivingStateEvent> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    method @AddedInOrBefore String toString();
 class @hide CarUxRestrictionsConfiguration package android.car.drivingstate
-    field Creator<CarUxRestrictionsConfiguration> CREATOR;
-    method CarUxRestrictions getUxRestrictions(int drivingState, float currentSpeed);
-    method CarUxRestrictions getUxRestrictions(int drivingState, float currentSpeed, String mode);
+    field @AddedInOrBefore Parcelable.Creator<CarUxRestrictionsConfiguration> CREATOR;
+    method @AddedInOrBefore CarUxRestrictions getUxRestrictions(int drivingState, float currentSpeed);
+    method @AddedInOrBefore CarUxRestrictions getUxRestrictions(int drivingState, float currentSpeed, String mode);
     method @AddedInOrBefore Integer getPhysicalPort();
     method @AddedInOrBefore void writeJson(JsonWriter writer);
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore CarUxRestrictionsConfiguration readJson(JsonReader reader, int schemaVersion);
-    method int hashCode();
-    method boolean equals(Object obj);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore boolean equals(Object obj);
     method @AddedInOrBefore boolean hasSameParameters(CarUxRestrictionsConfiguration other);
     method @AddedInOrBefore void dump(PrintWriter writer);
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
 class @hide CarUxRestrictionsConfiguration.Builder package android.car.drivingstate
     field @AddedInOrBefore Map<String,RestrictionModeContainer> mRestrictionModes = new ArrayMap<>();
     method @AddedInOrBefore int validatePort(int port);
     method @AddedInOrBefore Builder setPhysicalPort(int port);
-    method Builder setUxRestrictions(int drivingState, boolean requiresOptimization, int restrictions);
-    method Builder setUxRestrictions(int drivingState, SpeedRange speedRange, boolean requiresOptimization, int restrictions);
-    method Builder setUxRestrictions(int drivingState, DrivingStateRestrictions drivingStateRestrictions);
+    method @AddedInOrBefore Builder setUxRestrictions(int drivingState, boolean requiresOptimization, int restrictions);
+    method @AddedInOrBefore Builder setUxRestrictions(int drivingState, SpeedRange speedRange, boolean requiresOptimization, int restrictions);
+    method @AddedInOrBefore Builder setUxRestrictions(int drivingState, DrivingStateRestrictions drivingStateRestrictions);
     method @AddedInOrBefore Builder setMaxStringLength(int maxStringLength);
     method @AddedInOrBefore Builder setMaxCumulativeContentItems(int maxCumulativeContentItems);
     method @AddedInOrBefore Builder setMaxContentDepth(int maxContentDepth);
@@ -1150,23 +1148,23 @@ class @hide CarUxRestrictionsConfiguration.Builder package android.car.drivingst
 class CarUxRestrictionsConfiguration.Builder.SpeedRange package android.car.drivingstate
     field @AddedInOrBefore float MAX_SPEED = Float.POSITIVE_INFINITY;
     method @AddedInOrBefore boolean includes(float speed);
-    method int compareTo(SpeedRange other);
-    method int hashCode();
-    method boolean equals(Object obj);
-    method String toString();
+    method @AddedInOrBefore int compareTo(SpeedRange other);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore boolean equals(Object obj);
+    method @AddedInOrBefore String toString();
 class @hide CarUxRestrictionsConfiguration.DrivingStateRestrictions package android.car.drivingstate
     method @AddedInOrBefore DrivingStateRestrictions setDistractionOptimizationRequired(boolean distractionOptimizationRequired);
     method @AddedInOrBefore DrivingStateRestrictions setRestrictions(int restrictions);
     method @AddedInOrBefore DrivingStateRestrictions setMode(String mode);
     method @AddedInOrBefore DrivingStateRestrictions setSpeedRange(Builder.SpeedRange speedRange);
-    method String toString();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CarActivityManager package android.car.app
     field @AddedInOrBefore int RESULT_SUCCESS = 0;
     field @AddedInOrBefore int RESULT_FAILURE = -1;
     field @AddedInOrBefore int RESULT_INVALID_USER = -2;
     field @hide @AddedInOrBefore int ERROR_CODE_ACTIVITY_NOT_FOUND = -101;
     method @AddedInOrBefore int setPersistentActivity(ComponentName activity, int displayId, int featureId);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @AddedInOrBefore boolean registerTaskMonitor();
     method @hide @AddedInOrBefore void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo);
     method @hide @AddedInOrBefore void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo);
@@ -1181,10 +1179,10 @@ class @hide @SystemApi CarVendorExtensionManager package android.car.hardware
     method @AddedInOrBefore E getProperty(Class<E> propertyClass, int propId, int area);
     method @AddedInOrBefore void setGlobalProperty(Class<E> propertyClass, int propId, E value);
     method @AddedInOrBefore void setProperty(Class<E> propertyClass, int propId, int area, E value);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface CarVendorExtensionManager.CarVendorExtensionCallback package android.car.hardware
-    method void onChangeEvent(CarPropertyValue value);
-    method void onErrorEvent(int propertyId, int zone);
+    method @AddedInOrBefore void onChangeEvent(CarPropertyValue value);
+    method @AddedInOrBefore void onErrorEvent(int propertyId, int zone);
 class CarPropertyConfig package android.car.hardware
     field @AddedInOrBefore int VEHICLE_PROPERTY_ACCESS_NONE = 0;
     field @AddedInOrBefore int VEHICLE_PROPERTY_ACCESS_READ = 1;
@@ -1193,7 +1191,7 @@ class CarPropertyConfig package android.car.hardware
     field @AddedInOrBefore int VEHICLE_PROPERTY_CHANGE_MODE_STATIC = 0;
     field @AddedInOrBefore int VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE = 1;
     field @AddedInOrBefore int VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS = 2;
-    field PropertyConfig> CREATOR;
+    field @AddedInOrBefore Creator<CarPropertyConfig> CREATOR;
     method @AddedInOrBefore int getAccess();
     method @AddedInOrBefore int getAreaType();
     method @AddedInOrBefore int getChangeMode();
@@ -1208,22 +1206,22 @@ class CarPropertyConfig package android.car.hardware
     method @AddedInOrBefore int[] getAreaIds();
     method @hide @AddedInOrBefore int getFirstAndOnlyAreaId();
     method @hide @AddedInOrBefore boolean hasArea(int areaId);
-    method T getMinValue(int areaId);
-    method T getMaxValue(int areaId);
-    method T getMinValue();
-    method T getMaxValue();
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method @hide String toString();
-    method @hide @SystemApi Builder<T> newBuilder(Class<T> type, int propertyId, int areaType, int areaCapacity);
-    method @hide Builder<T> newBuilder(Class<T> type, int propertyId, int areaType);
+    method @AddedInOrBefore T getMinValue(int areaId);
+    method @AddedInOrBefore T getMaxValue(int areaId);
+    method @AddedInOrBefore T getMinValue();
+    method @AddedInOrBefore T getMaxValue();
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @hide @AddedInOrBefore String toString();
+    method @hide @SystemApi @AddedInOrBefore Builder<T> newBuilder(Class<T> type, int propertyId, int areaType, int areaCapacity);
+    method @hide @AddedInOrBefore Builder<T> newBuilder(Class<T> type, int propertyId, int areaType);
 class @hide CarPropertyConfig.AreaConfig package android.car.hardware
-    field Creator<AreaConfig<Object>> CREATOR;
-    method T getMinValue();
-    method T getMaxValue();
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
-    method String toString();
+    field @AddedInOrBefore Parcelable.Creator<AreaConfig<Object>> CREATOR;
+    method @AddedInOrBefore T getMinValue();
+    method @AddedInOrBefore T getMaxValue();
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi CarPropertyConfig.Builder package android.car.hardware
     method @AddedInOrBefore Builder<T> addAreas(int[] areaIds);
     method @AddedInOrBefore Builder<T> addArea(int areaId);
@@ -1246,7 +1244,7 @@ class CarPropertyValue package android.car.hardware
     field @AddedInOrBefore int STATUS_AVAILABLE = 0;
     field @AddedInOrBefore int STATUS_UNAVAILABLE = 1;
     field @AddedInOrBefore int STATUS_ERROR = 2;
-    field PropertyValue> CREATOR;
+    field @AddedInOrBefore Creator<CarPropertyValue> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int getPropertyId();
@@ -1254,20 +1252,20 @@ class CarPropertyValue package android.car.hardware
     method @AddedInOrBefore int getStatus();
     method @AddedInOrBefore long getTimestamp();
     method @AddedInOrBefore T getValue();
-    method @hide String toString();
+    method @hide @AddedInOrBefore String toString();
 class @hide CarSensorConfig package android.car.hardware
     field @hide @AddedInOrBefore String WHEEL_TICK_DISTANCE_SUPPORTED_WHEELS = "android.car.wheelTickDistanceSupportedWheels";
     field @hide @AddedInOrBefore String WHEEL_TICK_DISTANCE_FRONT_LEFT_UM_PER_TICK = "android.car.wheelTickDistanceFrontLeftUmPerTick";
     field @hide @AddedInOrBefore String WHEEL_TICK_DISTANCE_FRONT_RIGHT_UM_PER_TICK = "android.car.wheelTickDistanceFrontRightUmPerTick";
     field @hide @AddedInOrBefore String WHEEL_TICK_DISTANCE_REAR_RIGHT_UM_PER_TICK = "android.car.wheelTickDistanceRearRightUmPerTick";
     field @hide @AddedInOrBefore String WHEEL_TICK_DISTANCE_REAR_LEFT_UM_PER_TICK = "android.car.wheelTickDistanceRearLeftUmPerTick";
-    field @hide Creator<CarSensorConfig> CREATOR;
-    method @hide int describeContents();
-    method @hide void writeToParcel(Parcel dest, int flags);
+    field @hide @AddedInOrBefore Parcelable.Creator<CarSensorConfig> CREATOR;
+    method @hide @AddedInOrBefore int describeContents();
+    method @hide @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @hide @AddedInOrBefore Bundle getBundle();
     method @hide @AddedInOrBefore int getInt(String key);
     method @hide @AddedInOrBefore int getType();
-    method @hide String toString();
+    method @hide @AddedInOrBefore String toString();
 class CarSensorEvent package android.car.hardware
     field @AddedInOrBefore int GEAR_NEUTRAL = 0x0001;
     field @AddedInOrBefore int GEAR_FIRST = 0x0010;
@@ -1296,11 +1294,11 @@ class CarSensorEvent package android.car.hardware
     field @AddedInOrBefore int INDEX_WHEEL_DISTANCE_REAR_RIGHT = 3;
     field @AddedInOrBefore int INDEX_WHEEL_DISTANCE_REAR_LEFT = 4;
     field @AddedInOrBefore int sensorType;
-    field long timestamp;
+    field @AddedInOrBefore long timestamp;
     field @AddedInOrBefore float[] floatValues;
     field @AddedInOrBefore int[] intValues;
     field @AddedInOrBefore long[] longValues;
-    field Creator<CarSensorEvent> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarSensorEvent> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @hide @AddedInOrBefore EnvironmentData getEnvironmentData(EnvironmentData data);
@@ -1321,65 +1319,65 @@ class CarSensorEvent package android.car.hardware
     method @hide @AddedInOrBefore CarEvChargePortConnectedData getCarEvChargePortConnectedData(CarEvChargePortConnectedData data);
     method @hide @AddedInOrBefore CarEvBatteryChargeRateData getCarEvBatteryChargeRateData(CarEvBatteryChargeRateData data);
     method @hide @AddedInOrBefore CarEngineOilLevelData getCarEngineOilLevelData(CarEngineOilLevelData data);
-    method @hide String toString();
+    method @hide @AddedInOrBefore String toString();
 class CarSensorEvent.EnvironmentData package android.car.hardware
-    field long timestamp;
+    field @AddedInOrBefore long timestamp;
     field @AddedInOrBefore float temperature;
 class @hide CarSensorEvent.IgnitionStateData package android.car.hardware
-    field long timestamp;
-    field int ignitionState;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore int ignitionState;
 class @hide CarSensorEvent.NightData package android.car.hardware
-    field long timestamp;
-    field boolean isNightMode;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean isNightMode;
 class @hide CarSensorEvent.GearData package android.car.hardware
-    field long timestamp;
-    field int gear;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore int gear;
 class @hide CarSensorEvent.ParkingBrakeData package android.car.hardware
-    field long timestamp;
-    field boolean isEngaged;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean isEngaged;
 class @hide CarSensorEvent.FuelLevelData package android.car.hardware
-    field long timestamp;
-    field float level;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore float level;
 class @hide CarSensorEvent.OdometerData package android.car.hardware
-    field long timestamp;
-    field float kms;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore float kms;
 class @hide CarSensorEvent.RpmData package android.car.hardware
-    field long timestamp;
-    field float rpm;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore float rpm;
 class @hide CarSensorEvent.CarSpeedData package android.car.hardware
-    field long timestamp;
-    field float carSpeed;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore float carSpeed;
 class @hide CarSensorEvent.CarWheelTickDistanceData package android.car.hardware
-    field long timestamp;
-    field long sensorResetCount;
-    field long frontLeftWheelDistanceMm;
-    field long frontRightWheelDistanceMm;
-    field long rearRightWheelDistanceMm;
-    field long rearLeftWheelDistanceMm;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore long sensorResetCount;
+    field @AddedInOrBefore long frontLeftWheelDistanceMm;
+    field @AddedInOrBefore long frontRightWheelDistanceMm;
+    field @AddedInOrBefore long rearRightWheelDistanceMm;
+    field @AddedInOrBefore long rearLeftWheelDistanceMm;
 class @hide CarSensorEvent.CarAbsActiveData package android.car.hardware
-    field long timestamp;
-    field boolean absIsActive;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean absIsActive;
 class @hide CarSensorEvent.CarTractionControlActiveData package android.car.hardware
-    field long timestamp;
-    field boolean tractionControlIsActive;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean tractionControlIsActive;
 class @hide CarSensorEvent.CarFuelDoorOpenData package android.car.hardware
-    field long timestamp;
-    field boolean fuelDoorIsOpen;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean fuelDoorIsOpen;
 class @hide CarSensorEvent.CarEvBatteryLevelData package android.car.hardware
-    field long timestamp;
-    field float evBatteryLevel;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore float evBatteryLevel;
 class @hide CarSensorEvent.CarEvChargePortOpenData package android.car.hardware
-    field long timestamp;
-    field boolean evChargePortIsOpen;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean evChargePortIsOpen;
 class @hide CarSensorEvent.CarEvChargePortConnectedData package android.car.hardware
-    field long timestamp;
-    field boolean evChargePortIsConnected;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore boolean evChargePortIsConnected;
 class @hide CarSensorEvent.CarEvBatteryChargeRateData package android.car.hardware
-    field long timestamp;
-    field float evChargeRate;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore float evChargeRate;
 class @hide CarSensorEvent.CarEngineOilLevelData package android.car.hardware
-    field long timestamp;
-    field int engineOilLevel;
+    field @AddedInOrBefore long timestamp;
+    field @AddedInOrBefore int engineOilLevel;
 class CarSensorManager package android.car.hardware
     field @hide @AddedInOrBefore int SENSOR_TYPE_RESERVED1 = 1;
     field @AddedInOrBefore int SENSOR_TYPE_CAR_SPEED = 0x11600207;
@@ -1419,11 +1417,11 @@ class CarSensorManager package android.car.hardware
     field @AddedInOrBefore int SENSOR_RATE_UI = 5;
     field @AddedInOrBefore int SENSOR_RATE_FAST = 10;
     field @AddedInOrBefore int SENSOR_RATE_FASTEST = 100;
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore int[] getSupportedSensors();
     method @AddedInOrBefore List<CarPropertyConfig> getPropertyList();
-    method boolean isSensorSupported(int sensorType);
-    method @hide boolean isSensorSupported(int[] sensorList, int sensorType);
+    method @AddedInOrBefore boolean isSensorSupported(int sensorType);
+    method @hide @AddedInOrBefore boolean isSensorSupported(int[] sensorList, int sensorType);
     method @AddedInOrBefore boolean registerListener(OnSensorChangedListener listener, int sensorType, int rate);
     method @AddedInOrBefore void unregisterListener(OnSensorChangedListener listener);
     method @AddedInOrBefore void unregisterListener(OnSensorChangedListener listener, int sensorType);
@@ -1467,8 +1465,8 @@ class @hide @SystemApi CarHvacManager package android.car.hardware.hvac
     method @AddedInOrBefore void setIntProperty(int propertyId, int area, int val);
     method @hide @AddedInOrBefore void onCarDisconnected();
 interface CarHvacManager.CarHvacEventCallback package android.car.hardware.hvac
-    method void onChangeEvent(CarPropertyValue value);
-    method void onErrorEvent(int propertyId, int zone);
+    method @AddedInOrBefore void onChangeEvent(CarPropertyValue value);
+    method @AddedInOrBefore void onErrorEvent(int propertyId, int zone);
 class @hide @SystemApi CarCabinManager package android.car.hardware.cabin
     field @AddedInOrBefore int ID_DOOR_POS = 0x16400b00;
     field @AddedInOrBefore int ID_DOOR_MOVE = 0x16400b01;
@@ -1519,10 +1517,10 @@ class @hide @SystemApi CarCabinManager package android.car.hardware.cabin
     method @AddedInOrBefore void setBooleanProperty(int propertyId, int area, boolean val);
     method @AddedInOrBefore void setFloatProperty(int propertyId, int area, float val);
     method @AddedInOrBefore void setIntProperty(int propertyId, int area, int val);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface CarCabinManager.CarCabinEventCallback package android.car.hardware.cabin
-    method void onChangeEvent(CarPropertyValue value);
-    method void onErrorEvent(int propertyId, int zone);
+    method @AddedInOrBefore void onChangeEvent(CarPropertyValue value);
+    method @AddedInOrBefore void onErrorEvent(int propertyId, int zone);
 class PropertyAccessDeniedSecurityException package android.car.hardware.property
 class EvChargingConnectorType package android.car.hardware.property
     field @AddedInOrBefore int UNKNOWN = 0;
@@ -1598,14 +1596,14 @@ class CarInternalErrorException package android.car.hardware.property
 class @hide CarPropertyEvent package android.car.hardware.property
     field @AddedInOrBefore int PROPERTY_EVENT_PROPERTY_CHANGE = 0;
     field @AddedInOrBefore int PROPERTY_EVENT_ERROR = 1;
-    field Creator<CarPropertyEvent> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarPropertyEvent> CREATOR;
     method @AddedInOrBefore int getEventType();
     method @AddedInOrBefore CarPropertyValue<?> getCarPropertyValue();
-    method int describeContents();
-    method void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore CarPropertyEvent createErrorEventWithErrorCode(int propertyId, int areaId, int errorCode);
     method @AddedInOrBefore int getErrorCode();
-    method String toString();
+    method @AddedInOrBefore String toString();
 class CarPropertyManager package android.car.hardware.property
     field @AddedInOrBefore float SENSOR_RATE_ONCHANGE = 0f;
     field @AddedInOrBefore float SENSOR_RATE_NORMAL = 1f;
@@ -1637,11 +1635,11 @@ class CarPropertyManager package android.car.hardware.property
     method @AddedInOrBefore void setBooleanProperty(int prop, int areaId, boolean val);
     method @AddedInOrBefore void setFloatProperty(int prop, int areaId, float val);
     method @AddedInOrBefore void setIntProperty(int prop, int areaId, int val);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface CarPropertyManager.CarPropertyEventCallback package android.car.hardware.property
     method @AddedInOrBefore void onChangeEvent(CarPropertyValue value);
-    method void onErrorEvent(int propId, int zone);
-    method void onErrorEvent(int propId, int areaId, int errorCode);
+    method @AddedInOrBefore void onErrorEvent(int propId, int zone);
+    method @AddedInOrBefore void onErrorEvent(int propId, int areaId, int errorCode);
 class CarPowerManager package android.car.hardware.power
     field @hide @AddedInOrBefore String TAG = CarPowerManager.class.getSimpleName();
     field @hide @SystemApi @AddedInOrBefore int STATE_INVALID = 0;
@@ -1670,16 +1668,16 @@ class CarPowerManager package android.car.hardware.power
     method @AddedInOrBefore void addPowerPolicyListener(Executor executor, CarPowerPolicyFilter filter, CarPowerPolicyListener listener);
     method @AddedInOrBefore void removePowerPolicyListener(CarPowerPolicyListener listener);
     method @hide @AddedInOrBefore boolean isCompletionAllowed(int state);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface @hide @SystemApi CarPowerManager.CompletablePowerStateChangeFuture package android.car.hardware.power
-    method void complete();
-    method long getExpirationTime();
+    method @AddedInOrBefore void complete();
+    method @AddedInOrBefore long getExpirationTime();
 interface @hide @SystemApi CarPowerManager.CarPowerStateListener package android.car.hardware.power
-    method void onStateChanged(int state);
+    method @AddedInOrBefore void onStateChanged(int state);
 interface @hide @SystemApi CarPowerManager.CarPowerStateListenerWithCompletion package android.car.hardware.power
-    method void onStateChanged(int state, CompletablePowerStateChangeFuture future);
+    method @AddedInOrBefore void onStateChanged(int state, CompletablePowerStateChangeFuture future);
 interface CarPowerManager.CarPowerPolicyListener package android.car.hardware.power
-    method void onPolicyChanged(CarPowerPolicy policy);
+    method @AddedInOrBefore void onPolicyChanged(CarPowerPolicy policy);
 class @hide PowerComponentUtil package android.car.hardware.power
     field @AddedInOrBefore int COMPONENT_STATE_ENABLED = 1;
     field @AddedInOrBefore int COMPONENT_STATE_DISABLED = 2;
@@ -1692,15 +1690,15 @@ class @hide PowerComponentUtil package android.car.hardware.power
     method @AddedInOrBefore int toPowerComponent(String component, boolean prefix);
     method @AddedInOrBefore String powerComponentToString(int component);
 class CarPowerPolicy package android.car.hardware.power
-    field Creator<CarPowerPolicy> CREATOR;
-    method boolean isComponentEnabled(int component);
+    field @AddedInOrBefore Parcelable.Creator<CarPowerPolicy> CREATOR;
+    method @AddedInOrBefore boolean isComponentEnabled(int component);
     method @AddedInOrBefore String getPolicyId();
     method @AddedInOrBefore int[] getEnabledComponents();
     method @AddedInOrBefore int[] getDisabledComponents();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class CarPowerPolicyFilter package android.car.hardware.power
-    field Creator<CarPowerPolicyFilter> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarPowerPolicyFilter> CREATOR;
     method @AddedInOrBefore int[] getComponents();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
@@ -1714,7 +1712,7 @@ class @hide CarFeatures package android.car
 class Car package android.car
     field @AddedInOrBefore int API_VERSION_MAJOR_INT = 32;
     field @AddedInOrBefore int API_VERSION_MINOR_INT = 0;
-    field @hide int PLATFORM_VERSION_MINOR_INT = CarBuiltin.PLATFORM_VERSION_MINOR_INT;
+    field @hide @AddedInOrBefore int PLATFORM_VERSION_MINOR_INT = CarBuiltin.PLATFORM_VERSION_MINOR_INT;
     field @hide @AddedInOrBefore String CAR_SERVICE_BINDER_SERVICE_NAME = "car_service";
     field @AddedInOrBefore String META_DATA_DISTRACTION_OPTIMIZED = "distractionOptimized";
     field @AddedInOrBefore String META_DATA_REQUIRES_CAR_FEATURE = "requires-car-feature";
@@ -1880,7 +1878,7 @@ class @hide @SystemApi CarTelemetryManager package android.car.telemetry
     field @AddedInOrBefore int STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS = 2;
     field @AddedInOrBefore int STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR = 3;
     field @AddedInOrBefore int STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST = 4;
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @hide @SystemApi @AddedInOrBefore void addMetricsConfig(String metricsConfigName, byte[] metricsConfig, Executor executor, AddMetricsConfigCallback callback);
     method @hide @SystemApi @AddedInOrBefore void removeMetricsConfig(String metricsConfigName);
     method @hide @SystemApi @AddedInOrBefore void removeAllMetricsConfigs();
@@ -1891,9 +1889,9 @@ class @hide @SystemApi CarTelemetryManager package android.car.telemetry
 interface @hide @SystemApi CarTelemetryManager.AddMetricsConfigCallback package android.car.telemetry
     method @AddedInOrBefore void onAddMetricsConfigStatus(String metricsConfigName, int statusCode);
 interface @hide @SystemApi CarTelemetryManager.MetricsReportCallback package android.car.telemetry
-    method void onResult(String metricsConfigName, PersistableBundle report, byte[] telemetryError, int status);
+    method @AddedInOrBefore void onResult(String metricsConfigName, PersistableBundle report, byte[] telemetryError, int status);
 interface @hide @SystemApi CarTelemetryManager.ReportReadyListener package android.car.telemetry
-    method void onReady(String metricsConfigName);
+    method @AddedInOrBefore void onReady(String metricsConfigName);
 class @hide ClusterActivityState package android.car.cluster
     method @AddedInOrBefore boolean isVisible();
     method @AddedInOrBefore Rect getUnobscuredBounds();
@@ -1904,7 +1902,7 @@ class @hide ClusterActivityState package android.car.cluster
     method @AddedInOrBefore ClusterActivityState create(boolean visible, Rect unobscuredBounds);
     method @AddedInOrBefore ClusterActivityState fromBundle(Bundle bundle);
     method @AddedInOrBefore Bundle toBundle();
-    method String toString();
+    method @AddedInOrBefore String toString();
 class @hide @SystemApi NavigationRenderer package android.car.cluster.renderer
     method @AddedInOrBefore CarNavigationInstrumentCluster getNavigationProperties();
     method @AddedInOrBefore void onEvent(int eventType, Bundle bundle);
@@ -1920,18 +1918,18 @@ class @hide @SystemApi InstrumentClusterRenderingService package android.car.clu
     field @hide @AddedInOrBefore String EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER = "android.car.cluster.renderer.IInstrumentClusterHelper";
     method @AddedInOrBefore IBinder onBind(Intent intent);
     method @AddedInOrBefore NavigationRenderer getNavigationRenderer();
-    method void onKeyEvent(KeyEvent keyEvent);
+    method @AddedInOrBefore void onKeyEvent(KeyEvent keyEvent);
     method @AddedInOrBefore void onNavigationComponentLaunched();
     method @AddedInOrBefore void onNavigationComponentReleased();
     method @AddedInOrBefore boolean startFixedActivityModeForDisplayAndUser(Intent intent, ActivityOptions options, int userId);
     method @AddedInOrBefore void stopFixedActivityMode(int displayId);
     method @hide @AddedInOrBefore ComponentName getComponentFromPackage(String packageName);
     method @AddedInOrBefore boolean startNavigationActivity(ComponentName component);
-    method @hide void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions);
-    method @hide void setClusterActivityLaunchOptions(ActivityOptions activityOptions);
-    method @hide void setClusterActivityState(String category, Bundle state);
-    method @hide void setClusterActivityState(ClusterActivityState state);
-    method void dump(FileDescriptor fd, PrintWriter writer, String[] args);
+    method @hide @AddedInOrBefore void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions);
+    method @hide @AddedInOrBefore void setClusterActivityLaunchOptions(ActivityOptions activityOptions);
+    method @hide @AddedInOrBefore void setClusterActivityState(String category, Bundle state);
+    method @hide @AddedInOrBefore void setClusterActivityState(ClusterActivityState state);
+    method @AddedInOrBefore void dump(FileDescriptor fd, PrintWriter writer, String[] args);
     method @AddedInOrBefore Bitmap getBitmap(Uri uri);
     method @AddedInOrBefore Bitmap getBitmap(Uri uri, int width, int height);
     method @AddedInOrBefore Bitmap getBitmap(Uri uri, int width, int height, float offLanesAlpha);
@@ -1941,7 +1939,7 @@ class @hide @SystemApi CarInstrumentClusterManager package android.car.cluster
     method @hide @SystemApi @AddedInOrBefore void startActivity(Intent intent);
     method @hide @SystemApi @AddedInOrBefore void registerCallback(String category, Callback callback);
     method @hide @SystemApi @AddedInOrBefore void unregisterCallback(Callback callback);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface @hide @SystemApi CarInstrumentClusterManager.Callback package android.car.cluster
     method @AddedInOrBefore void onClusterActivityStateChanged(String category, Bundle clusterActivityState);
 class @hide ClusterHomeManager package android.car.cluster
@@ -1961,9 +1959,9 @@ class @hide ClusterHomeManager package android.car.cluster
     method @AddedInOrBefore ClusterState getClusterState();
     method @AddedInOrBefore boolean startFixedActivityModeAsUser(Intent intent, Bundle options, int userId);
     method @AddedInOrBefore void stopFixedActivityMode();
-    method void onCarDisconnected();
+    method @AddedInOrBefore void onCarDisconnected();
 interface ClusterHomeManager.ClusterStateListener package android.car.cluster
-    method void onClusterStateChanged(ClusterState state, int changes);
+    method @AddedInOrBefore void onClusterStateChanged(ClusterState state, int changes);
 interface ClusterHomeManager.ClusterNavigationStateListener package android.car.cluster
     method @AddedInOrBefore void onNavigationState(byte[] navigationState);
 class PortLocationType package android.car
@@ -1989,14 +1987,14 @@ class FuelType package android.car
     field @AddedInOrBefore int HYDROGEN = 11;
     field @AddedInOrBefore int OTHER = 12;
 class @hide @SystemApi VmsLayer package android.car.vms
-    field Creator<VmsLayer> CREATOR;
-    method int getSubtype();
+    field @AddedInOrBefore Parcelable.Creator<VmsLayer> CREATOR;
+    method @AddedInOrBefore int getSubtype();
     method @AddedInOrBefore int getType();
     method @AddedInOrBefore int getChannel();
     method @AddedInOrBefore int getVersion();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi VmsOperationRecorder package android.car.vms
@@ -2018,23 +2016,23 @@ class @hide @SystemApi VmsOperationRecorder package android.car.vms
     method @AddedInOrBefore void setPublisherLayersOffering(VmsLayersOffering layersOffering);
     method @AddedInOrBefore void setHalPublisherLayersOffering(VmsLayersOffering layersOffering);
 class @hide VmsOperationRecorder.Writer package android.car.vms
-    method boolean isEnabled();
-    method void write(String msg);
+    method @AddedInOrBefore boolean isEnabled();
+    method @AddedInOrBefore void write(String msg);
 class @hide @SystemApi VmsAvailableLayers package android.car.vms
-    field Creator<VmsAvailableLayers> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsAvailableLayers> CREATOR;
     method @AddedInOrBefore int getSequence();
     method @AddedInOrBefore int getSequenceNumber();
     method @AddedInOrBefore Set<VmsAssociatedLayer> getAssociatedLayers();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide VmsSubscriptionHelper package android.car.vms
-    method void subscribe(VmsLayer layer);
-    method void subscribe(VmsLayer layer, int providerId);
-    method void unsubscribe(VmsLayer layer);
-    method void unsubscribe(VmsLayer layer, int providerId);
+    method @AddedInOrBefore void subscribe(VmsLayer layer);
+    method @AddedInOrBefore void subscribe(VmsLayer layer, int providerId);
+    method @AddedInOrBefore void unsubscribe(VmsLayer layer);
+    method @AddedInOrBefore void unsubscribe(VmsLayer layer, int providerId);
     method @AddedInOrBefore Set<VmsAssociatedLayer> getSubscriptions();
 class @hide @SystemApi VmsClient package android.car.vms
     method @AddedInOrBefore byte[] getProviderDescription(int providerId);
@@ -2050,54 +2048,54 @@ class @hide @SystemApi VmsClient package android.car.vms
     method @hide @AddedInOrBefore void register();
     method @hide @AddedInOrBefore void unregister();
 class @hide @SystemApi VmsLayerDependency package android.car.vms
-    field Creator<VmsLayerDependency> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsLayerDependency> CREATOR;
     method @AddedInOrBefore VmsLayer getLayer();
     method @AddedInOrBefore Set<VmsLayer> getDependencies();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide VmsRegistrationInfo package android.car.vms
-    field Creator<VmsRegistrationInfo> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsRegistrationInfo> CREATOR;
     method @AddedInOrBefore VmsAvailableLayers getAvailableLayers();
     method @AddedInOrBefore VmsSubscriptionState getSubscriptionState();
-    method boolean equals(Object o);
-    method int hashCode();
-    method void writeToParcel(Parcel dest, int flags);
-    method int describeContents();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
 class @hide @SystemApi VmsSubscriptionState package android.car.vms
-    field Creator<VmsSubscriptionState> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsSubscriptionState> CREATOR;
     method @AddedInOrBefore int getSequenceNumber();
     method @AddedInOrBefore Set<VmsLayer> getLayers();
     method @AddedInOrBefore Set<VmsAssociatedLayer> getAssociatedLayers();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi VmsLayersOffering package android.car.vms
-    field Creator<VmsLayersOffering> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsLayersOffering> CREATOR;
     method @AddedInOrBefore Set<VmsLayerDependency> getDependencies();
     method @AddedInOrBefore int getPublisherId();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi VmsAssociatedLayer package android.car.vms
-    field Creator<VmsAssociatedLayer> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsAssociatedLayer> CREATOR;
     method @AddedInOrBefore Set<Integer> getPublisherIds();
     method @AddedInOrBefore VmsLayer getVmsLayer();
     method @AddedInOrBefore Set<Integer> getProviderIds();
-    method String toString();
-    method boolean equals(Object o);
-    method int hashCode();
+    method @AddedInOrBefore String toString();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi VmsPublisherClientService package android.car.vms
-    method void onCreate();
-    method void onDestroy();
+    method @AddedInOrBefore void onCreate();
+    method @AddedInOrBefore void onDestroy();
     method @AddedInOrBefore IBinder onBind(Intent intent);
     method @hide @AddedInOrBefore void onCarLifecycleChanged(Car car, boolean ready);
     method @AddedInOrBefore void onVmsPublisherServiceReady();
@@ -2118,22 +2116,22 @@ class @hide @SystemApi VmsSubscriberManager package android.car.vms
     method @AddedInOrBefore void unsubscribe(VmsLayer layer);
     method @AddedInOrBefore void unsubscribe(VmsLayer layer, int publisherId);
     method @AddedInOrBefore void stopMonitoring();
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface VmsSubscriberManager.VmsSubscriberClientCallback package android.car.vms
     method @AddedInOrBefore void onVmsMessageReceived(VmsLayer layer, byte[] payload);
     method @AddedInOrBefore void onLayersAvailabilityChanged(VmsAvailableLayers availableLayers);
 class @hide VmsProviderInfo package android.car.vms
-    field Creator<VmsProviderInfo> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<VmsProviderInfo> CREATOR;
     method @AddedInOrBefore byte[] getDescription();
-    method boolean equals(Object o);
-    method int hashCode();
-    method void writeToParcel(Parcel dest, int flags);
-    method int describeContents();
+    method @AddedInOrBefore boolean equals(Object o);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore int describeContents();
 class @hide @SystemApi VmsClientManager package android.car.vms
-    method void registerVmsClientCallback(Executor executor, VmsClientCallback callback);
-    method @hide void registerVmsClientCallback(Executor executor, VmsClientCallback callback, boolean legacyClient);
+    method @AddedInOrBefore void registerVmsClientCallback(Executor executor, VmsClientCallback callback);
+    method @hide @AddedInOrBefore void registerVmsClientCallback(Executor executor, VmsClientCallback callback, boolean legacyClient);
     method @AddedInOrBefore void unregisterVmsClientCallback(VmsClientCallback callback);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface VmsClientManager.VmsClientCallback package android.car.vms
     method @AddedInOrBefore void onClientConnected(VmsClient client);
     method @AddedInOrBefore void onLayerAvailabilityChanged(VmsAvailableLayers availableLayers);
@@ -2146,34 +2144,34 @@ class VehicleAreaWheel package android.car
     field @AddedInOrBefore int WHEEL_LEFT_REAR = 0x04;
     field @AddedInOrBefore int WHEEL_RIGHT_REAR = 0x08;
 class @hide AndroidFuture package android.car.util.concurrent
-    field Creator<AndroidFuture> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<AndroidFuture> CREATOR;
     method @AddedInOrBefore AndroidFuture<U> completedFuture(U value);
-    method boolean complete(T value);
-    method boolean completeExceptionally(Throwable ex);
-    method boolean cancel(boolean mayInterruptIfRunning);
+    method @AddedInOrBefore boolean complete(T value);
+    method @AddedInOrBefore boolean completeExceptionally(Throwable ex);
+    method @AddedInOrBefore boolean cancel(boolean mayInterruptIfRunning);
     method @AddedInOrBefore void onCompleted(T res, Throwable err);
-    method AndroidFuture<T> whenComplete(BiConsumer<? super T,? super Throwable> action);
-    method AndroidFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor);
+    method @AddedInOrBefore AndroidFuture<T> whenComplete(BiConsumer<? super T,? super Throwable> action);
+    method @AddedInOrBefore AndroidFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor);
     method @AddedInOrBefore void callListener(BiConsumer<? super TT,? super Throwable> listener, TT res, Throwable err);
     method @AddedInOrBefore AndroidFuture<T> orTimeout(long timeout, TimeUnit unit);
     method @AddedInOrBefore void triggerTimeout();
     method @AddedInOrBefore AndroidFuture<T> cancelTimeout();
     method @AddedInOrBefore AndroidFuture<T> setTimeoutHandler(Handler h);
-    method AndroidFuture<U> thenCompose(Function<? super T,? extends CompletionStage<U>> fn);
-    method AndroidFuture<U> thenComposeAsync(Function<? super T,? extends CompletionStage<U>> fn, Executor executor);
-    method AndroidFuture<U> thenApply(Function<? super T,? extends U> fn);
-    method AndroidFuture<U> thenApplyAsync(Function<? super T,? extends U> fn, Executor executor);
-    method AndroidFuture<V> thenCombine(CompletionStage<? extends U> other, BiFunction<? super T,? super U,? extends V> combineResults);
+    method @AddedInOrBefore AndroidFuture<U> thenCompose(Function<? super T,? extends CompletionStage<U>> fn);
+    method @AddedInOrBefore AndroidFuture<U> thenComposeAsync(Function<? super T,? extends CompletionStage<U>> fn, Executor executor);
+    method @AddedInOrBefore AndroidFuture<U> thenApply(Function<? super T,? extends U> fn);
+    method @AddedInOrBefore AndroidFuture<U> thenApplyAsync(Function<? super T,? extends U> fn, Executor executor);
+    method @AddedInOrBefore AndroidFuture<V> thenCombine(CompletionStage<? extends U> other, BiFunction<? super T,? super U,? extends V> combineResults);
     method @AddedInOrBefore AndroidFuture<T> thenCombine(CompletionStage<Void> other);
     method @AddedInOrBefore AndroidFuture<T> supply(Supplier<T> supplier);
     method @AddedInOrBefore AndroidFuture<T> supplyAsync(Supplier<T> supplier, Executor executor);
-    method void writeToParcel(Parcel dest, int flags);
+    method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore Throwable unwrapExecutionException(Throwable t);
-    method int describeContents();
+    method @AddedInOrBefore int describeContents();
 class @hide AndroidAsyncFuture package android.car.util.concurrent
-    method T get();
-    method T get(long timeout, TimeUnit unit);
-    method AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor);
+    method @AddedInOrBefore T get();
+    method @AddedInOrBefore T get(long timeout, TimeUnit unit);
+    method @AddedInOrBefore AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor);
 interface @hide AsyncFuture package android.car.util.concurrent
     method @AddedInOrBefore T get();
     method @AddedInOrBefore T get(long timeout, TimeUnit unit);
@@ -2195,7 +2193,7 @@ class @hide @SystemApi CarDiagnosticManager package android.car.diagnostic
     method @AddedInOrBefore boolean isClearFreezeFramesSupported();
     method @AddedInOrBefore boolean isSelectiveClearFreezeFramesSupported();
 interface CarDiagnosticManager.OnDiagnosticEventListener package android.car.diagnostic
-    method void onDiagnosticEvent(CarDiagnosticEvent carDiagnosticEvent);
+    method @AddedInOrBefore void onDiagnosticEvent(CarDiagnosticEvent carDiagnosticEvent);
 class @hide @SystemApi FloatSensorIndex package android.car.diagnostic
     field @AddedInOrBefore int CALCULATED_ENGINE_LOAD = 0;
     field @AddedInOrBefore int ENGINE_COOLANT_TEMPERATURE = 1;
@@ -2274,7 +2272,7 @@ class @hide @SystemApi CarDiagnosticEvent package android.car.diagnostic
     field @AddedInOrBefore int frameType;
     field @AddedInOrBefore long timestamp;
     field @AddedInOrBefore String dtc;
-    field Creator<CarDiagnosticEvent> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CarDiagnosticEvent> CREATOR;
     method @AddedInOrBefore int describeContents();
     method @AddedInOrBefore void writeToParcel(Parcel dest, int flags);
     method @AddedInOrBefore void writeToJson(JsonWriter jsonWriter);
@@ -2285,9 +2283,9 @@ class @hide @SystemApi CarDiagnosticEvent package android.car.diagnostic
     method @hide @AddedInOrBefore CarDiagnosticEvent checkLiveFrame();
     method @hide @AddedInOrBefore CarDiagnosticEvent checkFreezeFrame();
     method @hide @AddedInOrBefore boolean isEarlierThan(CarDiagnosticEvent otherEvent);
-    method boolean equals(Object otherObject);
-    method int hashCode();
-    method String toString();
+    method @AddedInOrBefore boolean equals(Object otherObject);
+    method @AddedInOrBefore int hashCode();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore int getSystemIntegerSensor(int sensor, int defaultValue);
     method @AddedInOrBefore float getSystemFloatSensor(int sensor, float defaultValue);
     method @AddedInOrBefore int getVendorIntegerSensor(int sensor, int defaultValue);
@@ -2662,7 +2660,7 @@ class VehicleUnit package android.car
     field @AddedInOrBefore int MILES_PER_HOUR = 0x90;
     field @AddedInOrBefore int KILOMETERS_PER_HOUR = 0x91;
 class @hide CarPerformanceManager package android.car.os
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
     method @AddedInOrBefore void addCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityMonitoringConfig config, CpuAvailabilityChangeListener listener);
     method @AddedInOrBefore void removeCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityChangeListener listener);
 interface CarPerformanceManager.CpuAvailabilityChangeListener package android.car.os
@@ -2675,7 +2673,7 @@ class @hide CpuAvailabilityMonitoringConfig package android.car.os
     field @AddedInOrBefore int MONITORING_TIMEOUT_NEVER = -1;
     field @AddedInOrBefore int TIMEOUT_ACTION_NOTIFICATION = 1;
     field @AddedInOrBefore int TIMEOUT_ACTION_REMOVE = 2;
-    field Creator<CpuAvailabilityMonitoringConfig> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CpuAvailabilityMonitoringConfig> CREATOR;
     method @hide @AddedInOrBefore String cpusetToString(int value);
     method @hide @AddedInOrBefore String ignorePercentToString(int value);
     method @hide @AddedInOrBefore String timeoutActionToString(int value);
@@ -2684,7 +2682,7 @@ class @hide CpuAvailabilityMonitoringConfig package android.car.os
     method @AddedInOrBefore int getUpperBoundPercent();
     method @AddedInOrBefore long getTimeoutInSeconds();
     method @AddedInOrBefore int getTimeoutAction();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class CpuAvailabilityMonitoringConfig.Builder package android.car.os
@@ -2695,11 +2693,11 @@ class CpuAvailabilityMonitoringConfig.Builder package android.car.os
     method @AddedInOrBefore Builder setTimeoutAction(int value);
     method @AddedInOrBefore CpuAvailabilityMonitoringConfig build();
 class @hide CpuAvailabilityInfo package android.car.os
-    field Creator<CpuAvailabilityInfo> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<CpuAvailabilityInfo> CREATOR;
     method @AddedInOrBefore int getCpuset();
     method @AddedInOrBefore int getAverageAvailabilityPercent();
     method @AddedInOrBefore boolean isTimeout();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide CpuAvailabilityInfo.Builder package android.car.os
@@ -2708,11 +2706,11 @@ class @hide CpuAvailabilityInfo.Builder package android.car.os
     method @AddedInOrBefore Builder setTimeout(boolean value);
     method @AddedInOrBefore CpuAvailabilityInfo build();
 class ResourceOveruseStats package android.car.watchdog
-    field Creator<ResourceOveruseStats> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<ResourceOveruseStats> CREATOR;
     method @AddedInOrBefore String getPackageName();
     method @AddedInOrBefore UserHandle getUserHandle();
     method @AddedInOrBefore IoOveruseStats getIoOveruseStats();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide ResourceOveruseStats.Builder package android.car.watchdog
@@ -2721,14 +2719,14 @@ class @hide ResourceOveruseStats.Builder package android.car.watchdog
     method @AddedInOrBefore Builder setIoOveruseStats(IoOveruseStats value);
     method @AddedInOrBefore ResourceOveruseStats build();
 class @hide @SystemApi IoOveruseAlertThreshold package android.car.watchdog
-    field Creator<IoOveruseAlertThreshold> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<IoOveruseAlertThreshold> CREATOR;
     method @AddedInOrBefore long getDurationInSeconds();
     method @AddedInOrBefore long getWrittenBytesPerSecond();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class IoOveruseStats package android.car.watchdog
-    field Creator<IoOveruseStats> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<IoOveruseStats> CREATOR;
     method @AddedInOrBefore long getStartTime();
     method @AddedInOrBefore long getDurationInSeconds();
     method @AddedInOrBefore long getTotalOveruses();
@@ -2736,7 +2734,7 @@ class IoOveruseStats package android.car.watchdog
     method @AddedInOrBefore long getTotalBytesWritten();
     method @AddedInOrBefore boolean isKillableOnOveruse();
     method @AddedInOrBefore PerStateBytes getRemainingWriteBytes();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide IoOveruseStats.Builder package android.car.watchdog
@@ -2777,19 +2775,19 @@ class CarWatchdogManager package android.car.watchdog
     method @hide @SystemApi @AddedInOrBefore List<PackageKillableState> getPackageKillableStatesAsUser(UserHandle userHandle);
     method @hide @SystemApi @AddedInOrBefore int setResourceOveruseConfigurations(List<ResourceOveruseConfiguration> configurations, int resourceOveruseFlag);
     method @hide @SystemApi @AddedInOrBefore List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(int resourceOveruseFlag);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 class @hide @SystemApi CarWatchdogManager.CarWatchdogClientCallback package android.car.watchdog
     method @AddedInOrBefore boolean onCheckHealthStatus(int sessionId, int timeout);
-    method void onPrepareProcessTermination();
+    method @AddedInOrBefore void onPrepareProcessTermination();
 interface CarWatchdogManager.ResourceOveruseListener package android.car.watchdog
-    method void onOveruse(ResourceOveruseStats resourceOveruseStats);
+    method @AddedInOrBefore void onOveruse(ResourceOveruseStats resourceOveruseStats);
 class @hide @SystemApi IoOveruseConfiguration package android.car.watchdog
-    field Creator<IoOveruseConfiguration> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<IoOveruseConfiguration> CREATOR;
     method @AddedInOrBefore PerStateBytes getComponentLevelThresholds();
     method @AddedInOrBefore Map<String,PerStateBytes> getPackageSpecificThresholds();
     method @AddedInOrBefore Map<String,PerStateBytes> getAppCategorySpecificThresholds();
     method @AddedInOrBefore List<IoOveruseAlertThreshold> getSystemWideThresholds();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class IoOveruseConfiguration.Builder package android.car.watchdog
@@ -2807,14 +2805,14 @@ class @hide @SystemApi ResourceOveruseConfiguration package android.car.watchdog
     field @AddedInOrBefore int COMPONENT_TYPE_THIRD_PARTY = 3;
     field @AddedInOrBefore String APPLICATION_CATEGORY_TYPE_MAPS = "android.car.watchdog.app.category.MAPS";
     field @AddedInOrBefore String APPLICATION_CATEGORY_TYPE_MEDIA = "android.car.watchdog.app.category.MEDIA";
-    field Creator<ResourceOveruseConfiguration> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<ResourceOveruseConfiguration> CREATOR;
     method @hide @AddedInOrBefore String componentTypeToString(int value);
     method @AddedInOrBefore int getComponentType();
     method @AddedInOrBefore List<String> getSafeToKillPackages();
     method @AddedInOrBefore List<String> getVendorPackagePrefixes();
     method @AddedInOrBefore Map<String,String> getPackagesToAppCategoryTypes();
     method @AddedInOrBefore IoOveruseConfiguration getIoOveruseConfiguration();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class ResourceOveruseConfiguration.Builder package android.car.watchdog
@@ -2828,23 +2826,23 @@ class ResourceOveruseConfiguration.Builder package android.car.watchdog
     method @AddedInOrBefore Builder setIoOveruseConfiguration(IoOveruseConfiguration value);
     method @AddedInOrBefore ResourceOveruseConfiguration build();
 class PerStateBytes package android.car.watchdog
-    field Creator<PerStateBytes> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<PerStateBytes> CREATOR;
     method @AddedInOrBefore long getForegroundModeBytes();
     method @AddedInOrBefore long getBackgroundModeBytes();
     method @AddedInOrBefore long getGarageModeBytes();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class @hide @SystemApi PackageKillableState package android.car.watchdog
     field @AddedInOrBefore int KILLABLE_STATE_YES = 1;
     field @AddedInOrBefore int KILLABLE_STATE_NO = 2;
     field @AddedInOrBefore int KILLABLE_STATE_NEVER = 3;
-    field Creator<PackageKillableState> CREATOR;
+    field @AddedInOrBefore Parcelable.Creator<PackageKillableState> CREATOR;
     method @hide @AddedInOrBefore String killableStateToString(int value);
     method @AddedInOrBefore String getPackageName();
     method @AddedInOrBefore int getUserId();
     method @AddedInOrBefore int getKillableState();
-    method String toString();
+    method @AddedInOrBefore String toString();
     method @AddedInOrBefore void writeToParcel(android.os.Parcel dest, int flags);
     method @AddedInOrBefore int describeContents();
 class CarAppFocusManager package android.car
@@ -2862,9 +2860,9 @@ class CarAppFocusManager package android.car
     method @AddedInOrBefore int requestAppFocus(int appType, OnAppFocusOwnershipCallback ownershipCallback);
     method @AddedInOrBefore void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback, int appType);
     method @AddedInOrBefore void abandonAppFocus(OnAppFocusOwnershipCallback ownershipCallback);
-    method @hide void onCarDisconnected();
+    method @hide @AddedInOrBefore void onCarDisconnected();
 interface CarAppFocusManager.OnAppFocusChangedListener package android.car
-    method void onAppFocusChanged(int appType, boolean active);
+    method @AddedInOrBefore void onAppFocusChanged(int appType, boolean active);
 interface CarAppFocusManager.OnAppFocusOwnershipCallback package android.car
-    method void onAppFocusOwnershipLost(int appType);
-    method void onAppFocusOwnershipGranted(int appType);
+    method @AddedInOrBefore void onAppFocusOwnershipLost(int appType);
+    method @AddedInOrBefore void onAppFocusOwnershipGranted(int appType);

@@ -76,6 +76,7 @@ public final class CarAppBlockingPolicy implements Parcelable {
         payloadParcel.recycle();
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarAppBlockingPolicy> CREATOR =
             new Parcelable.Creator<CarAppBlockingPolicy>() {
 
@@ -91,6 +92,7 @@ public final class CarAppBlockingPolicy implements Parcelable {
             };
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -100,6 +102,7 @@ public final class CarAppBlockingPolicy implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -121,6 +124,7 @@ public final class CarAppBlockingPolicy implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarAppBlockingPolicy [whitelists=" + Arrays.toString(whitelists) + ", blacklists="
                 + Arrays.toString(blacklists) + "]";

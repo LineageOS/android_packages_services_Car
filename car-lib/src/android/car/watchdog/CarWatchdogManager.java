@@ -154,6 +154,7 @@ public final class CarWatchdogManager extends CarManagerBase {
          * <p>The callback method is called at the Executor which is specified in {@link
          * CarWatchdogManager#registerClient}.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onPrepareProcessTermination() {}
     }
 
@@ -483,6 +484,7 @@ public final class CarWatchdogManager extends CarManagerBase {
          *                             value in each resource overuse stats before reading the
          *                             stats.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onOveruse(@NonNull ResourceOveruseStats resourceOveruseStats);
     }
 
@@ -769,6 +771,7 @@ public final class CarWatchdogManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }

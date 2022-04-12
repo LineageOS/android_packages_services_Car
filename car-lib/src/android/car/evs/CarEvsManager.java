@@ -241,6 +241,7 @@ public final class CarEvsManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mStatusLock) {
             mStatusListener = null;
@@ -264,6 +265,7 @@ public final class CarEvsManager extends CarManagerBase {
          * @param type A type of EVS service; e.g. the rearview.
          * @param state Updated service state; e.g. the service is started.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onStatusChanged(@NonNull CarEvsStatus status);
     }
 
@@ -390,6 +392,7 @@ public final class CarEvsManager extends CarManagerBase {
          *
          * @param event {@link #CarEvsStreamEvent}; e.g. a stream started
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onStreamEvent(@CarEvsStreamEvent int event) {}
 
         /**
@@ -397,6 +400,7 @@ public final class CarEvsManager extends CarManagerBase {
          *
          * @param buffer {@link android.car.evs.CarEvsBufferDescriptor} contains a EVS frame
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onNewFrame(@NonNull CarEvsBufferDescriptor buffer) {}
     }
 

@@ -177,6 +177,7 @@ public final class CarDiagnosticEvent implements Parcelable {
         jsonWriter.endObject();
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarDiagnosticEvent> CREATOR =
             new Parcelable.Creator<CarDiagnosticEvent>() {
                 public CarDiagnosticEvent createFromParcel(Parcel in) {
@@ -392,6 +393,7 @@ public final class CarDiagnosticEvent implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object otherObject) {
         if (this == otherObject) {
             return true;
@@ -446,6 +448,7 @@ public final class CarDiagnosticEvent implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         Integer[] intKeys = new Integer[mIntValues.size()];
         Integer[] floatKeys = new Integer[mFloatValues.size()];
@@ -473,6 +476,7 @@ public final class CarDiagnosticEvent implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return String.format(
                 "%s diagnostic frame {\n"
