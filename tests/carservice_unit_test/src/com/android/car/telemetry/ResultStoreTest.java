@@ -299,6 +299,17 @@ public class ResultStoreTest {
     }
 
     @Test
+    public void testRemovePublisherData_shouldDelete() throws Exception {
+        String publisherName = "publisher 1";
+        writeBundleToFile(mTestPublisherDataDir, publisherName, TEST_PUBLISHER_BUNDLE);
+        mResultStore = new ResultStore(mTestRootDir); // reload data
+
+        mResultStore.removePublisherData(publisherName);
+
+        assertThat(mResultStore.getPublisherData(publisherName, true)).isNull();
+    }
+
+    @Test
     public void testRemoveResult_whenInterimResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);

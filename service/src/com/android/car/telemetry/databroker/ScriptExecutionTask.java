@@ -28,6 +28,7 @@ import android.os.PersistableBundle;
  * The object can be accessed from any thread. See {@link DataSubscriber} for thread-safety.
  */
 public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
+    private final int mPublisherType;
     private final long mTimestampMillis;
     private final DataSubscriber mSubscriber;
     private final PersistableBundle mData;
@@ -37,11 +38,17 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
             @NonNull DataSubscriber subscriber,
             @NonNull PersistableBundle data,
             long elapsedRealtimeMillis,
-            boolean isLargeData) {
+            boolean isLargeData,
+            int publisherType) {
         mTimestampMillis = elapsedRealtimeMillis;
         mSubscriber = subscriber;
         mData = data;
         mIsLargeData = isLargeData;
+        mPublisherType = publisherType;
+    }
+
+    public int getPublisherType() {
+        return mPublisherType;
     }
 
     /** Returns the priority of the task. */

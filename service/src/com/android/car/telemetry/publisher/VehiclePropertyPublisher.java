@@ -79,9 +79,9 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
 
     public VehiclePropertyPublisher(
             @NonNull CarPropertyService carPropertyService,
-            @NonNull PublisherFailureListener failureListener,
+            @NonNull PublisherListener listener,
             @NonNull Handler handler) {
-        super(failureListener);
+        super(listener);
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         // Load car property list once, as the list doesn't change runtime.
