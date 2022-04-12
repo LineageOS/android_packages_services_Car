@@ -66,7 +66,7 @@ Status fromExceptionCode(int32_t exceptionCode, std::string message) {
 }  // namespace
 
 status_t WatchdogInternalHandler::dump(int fd, const Vector<String16>& args) {
-    return mBinderMediator->dump(fd, args);
+    return mWatchdogBinderMediator->dump(fd, args);
 }
 
 void WatchdogInternalHandler::checkAndRegisterIoOveruseMonitor() {

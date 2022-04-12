@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKPROCDISKSTATS_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKPROCDISKSTATS_H_
+#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKPROCSTATCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_TESTS_MOCKPROCSTATCOLLECTOR_H_
 
-#include "ProcDiskStats.h"
+#include "ProcStatCollector.h"
 
 #include <android-base/result.h>
 #include <gmock/gmock.h>
@@ -28,19 +28,19 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockProcDiskStats : public IProcDiskStatsInterface {
+class MockProcStatCollector : public ProcStatCollectorInterface {
 public:
-    MockProcDiskStats() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
+    MockProcStatCollector() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
     MOCK_METHOD(void, init, (), (override));
+    MOCK_METHOD(bool, enabled, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
-    MOCK_METHOD(PerPartitionDiskStats, latestPerPartitionDiskStats, (), (const, override));
-    MOCK_METHOD(DiskStats, deltaSystemWideDiskStats, (), (const, override));
-    MOCK_METHOD(bool, enabled, (), (const, override));
-    MOCK_METHOD(std::string, filePath, (), (const, override));
+    MOCK_METHOD(const ProcStatInfo, latestStats, (), (const, override));
+    MOCK_METHOD(const ProcStatInfo, deltaStats, (), (const, override));
+    MOCK_METHOD(std::string, filePath, (), (override));
 };
 
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKPROCDISKSTATS_H_
+#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKPROCSTATCOLLECTOR_H_

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ProcDiskStats.h"
+#include "ProcDiskStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/strings.h>
@@ -52,7 +52,8 @@ std::string getDiskStatsLine(const DiskStats& stats) {
     return buffer;
 }
 
-std::string getDiskStatsFile(const IProcDiskStatsInterface::PerPartitionDiskStats& allStats) {
+std::string getDiskStatsFile(
+        const ProcDiskStatsCollectorInterface::PerPartitionDiskStats& allStats) {
     std::string buffer;
     for (const auto& stats : allStats) {
         StringAppendF(&buffer, "%s", getDiskStatsLine(stats).c_str());
@@ -61,7 +62,7 @@ std::string getDiskStatsFile(const IProcDiskStatsInterface::PerPartitionDiskStat
 }
 
 DiskStats aggregateSystemWideDiskStats(
-        const IProcDiskStatsInterface::PerPartitionDiskStats& perPartitionDiskStats) {
+        const ProcDiskStatsCollectorInterface::PerPartitionDiskStats& perPartitionDiskStats) {
     DiskStats systemWideStats;
     for (const auto& stats : perPartitionDiskStats) {
         if (recordStatsForDevice(stats.deviceName)) {
@@ -84,8 +85,8 @@ bool isEquals(const DiskStats& lhs, const DiskStats& rhs) {
 
 }  // namespace
 
-TEST(ProcDiskStatsTest, TestValidStatsFile) {
-    IProcDiskStatsInterface::PerPartitionDiskStats latestDiskStats =
+TEST(ProcDiskStatsCollectorTest, TestValidStatsFile) {
+    ProcDiskStatsCollectorInterface::PerPartitionDiskStats latestDiskStats =
             {{252, 32, "vdc", 120000, 760, 2000, 17190, 15000, 305000, 560000, 190000, 186140,
               213482, 64709, 4505},
              {251, 0, "zram0", 21959, 0, 175672, 868, 113635, 0, 909080, 9320, 25940, 10188, 0, 0},
@@ -96,13 +97,13 @@ TEST(ProcDiskStatsTest, TestValidStatsFile) {
 
     DiskStats expectedDiskStats = aggregateSystemWideDiskStats(latestDiskStats);
 
-    ProcDiskStats procDiskStats(tf.path);
-    procDiskStats.init();
+    ProcDiskStatsCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procDiskStats.enabled()) << "Temporary file is inaccessible";
-    ASSERT_RESULT_OK(procDiskStats.collect());
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    ASSERT_RESULT_OK(collector.collect());
 
-    auto actualDiskStats = procDiskStats.deltaSystemWideDiskStats();
+    auto actualDiskStats = collector.deltaSystemWideDiskStats();
 
     ASSERT_TRUE(isEquals(expectedDiskStats, actualDiskStats))
             << "Expected 1st collection: '" << getDiskStatsLine(expectedDiskStats) << "'\nActual: '"
@@ -121,26 +122,26 @@ TEST(ProcDiskStatsTest, TestValidStatsFile) {
              15000, 1000000, 1000000, maxUint64 - 189200, 300000, 1100000,         100000,
              10000};
 
-    ASSERT_RESULT_OK(procDiskStats.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    actualDiskStats = procDiskStats.deltaSystemWideDiskStats();
+    actualDiskStats = collector.deltaSystemWideDiskStats();
 
     ASSERT_TRUE(isEquals(expectedDiskStats, actualDiskStats))
             << "Expected 2nd collection: '" << getDiskStatsLine(expectedDiskStats) << "'\nActual: '"
             << getDiskStatsLine(actualDiskStats) << "'";
 }
 
-TEST(ProcDiskStatsTest, TestErrorOnInvalidStatsFile) {
+TEST(ProcDiskStatsCollectorTest, TestErrorOnInvalidStatsFile) {
     constexpr char contents[] = "252 0 disk 1200 300 0 CORRUPTED DATA\n";
     TemporaryFile tf;
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    ProcDiskStats procDiskStats(tf.path);
-    procDiskStats.init();
+    ProcDiskStatsCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procDiskStats.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procDiskStats.collect().ok()) << "No error returned for invalid file";
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned for invalid file";
 }
 
 }  // namespace watchdog

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-#include "ProcStat.h"
+#include "ProcStatCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <gmock/gmock.h>
+
 #include <inttypes.h>
 
 #include <string>
@@ -47,7 +48,7 @@ std::string toString(const ProcStatInfo& info) {
 
 }  // namespace
 
-TEST(ProcStatTest, TestValidStatFile) {
+TEST(ProcStatCollectorTest, TestValidStatFile) {
     constexpr char firstSnapshot[] =
             "cpu  6200 5700 1700 3100 1100 5200 3900 0 0 0\n"
             "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
@@ -85,13 +86,13 @@ TEST(ProcStatTest, TestValidStatFile) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
 
-    ProcStat procStat(tf.path);
-    procStat.init();
+    ProcStatCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    ASSERT_RESULT_OK(procStat.collect());
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    ASSERT_RESULT_OK(collector.collect());
 
-    const auto& actualFirstDelta = procStat.deltaStats();
+    const auto& actualFirstDelta = collector.deltaStats();
     EXPECT_EQ(expectedFirstDelta, actualFirstDelta) << "First snapshot doesn't match.\nExpected:\n"
                                                     << toString(expectedFirstDelta) << "\nActual:\n"
                                                     << toString(actualFirstDelta);
@@ -127,16 +128,16 @@ TEST(ProcStatTest, TestValidStatFile) {
     expectedSecondDelta.ioBlockedProcessCount = 2;
 
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
-    ASSERT_RESULT_OK(procStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    const auto& actualSecondDelta = procStat.deltaStats();
+    const auto& actualSecondDelta = collector.deltaStats();
     EXPECT_EQ(expectedSecondDelta, actualSecondDelta)
             << "Second snapshot doesnt't match.\nExpected:\n"
             << toString(expectedSecondDelta) << "\nActual:\n"
             << toString(actualSecondDelta);
 }
 
-TEST(ProcStatTest, TestErrorOnCorruptedStatFile) {
+TEST(ProcStatCollectorTest, TestErrorOnCorruptedStatFile) {
     constexpr char contents[] =
             "cpu  6200 5700 1700 3100 CORRUPTED DATA\n"
             "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
@@ -155,14 +156,14 @@ TEST(ProcStatTest, TestErrorOnCorruptedStatFile) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    ProcStat procStat(tf.path);
-    procStat.init();
+    ProcStatCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect().ok()) << "No error returned for corrupted file";
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned for corrupted file";
 }
 
-TEST(ProcStatTest, TestErrorOnMissingCpuLine) {
+TEST(ProcStatCollectorTest, TestErrorOnMissingCpuLine) {
     constexpr char contents[] =
             "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
             "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
@@ -180,14 +181,14 @@ TEST(ProcStatTest, TestErrorOnMissingCpuLine) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    ProcStat procStat(tf.path);
-    procStat.init();
+    ProcStatCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing cpu line";
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned due to missing cpu line";
 }
 
-TEST(ProcStatTest, TestErrorOnMissingProcsRunningLine) {
+TEST(ProcStatCollectorTest, TestErrorOnMissingProcsRunningLine) {
     constexpr char contents[] =
             "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
             "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
@@ -205,14 +206,14 @@ TEST(ProcStatTest, TestErrorOnMissingProcsRunningLine) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    ProcStat procStat(tf.path);
-    procStat.init();
+    ProcStatCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing procs_running line";
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned due to missing procs_running line";
 }
 
-TEST(ProcStatTest, TestErrorOnMissingProcsBlockedLine) {
+TEST(ProcStatCollectorTest, TestErrorOnMissingProcsBlockedLine) {
     constexpr char contents[] =
             "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
             "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
@@ -230,14 +231,14 @@ TEST(ProcStatTest, TestErrorOnMissingProcsBlockedLine) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    ProcStat procStat(tf.path);
-    procStat.init();
+    ProcStatCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing procs_blocked line";
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned due to missing procs_blocked line";
 }
 
-TEST(ProcStatTest, TestErrorOnUnknownProcsLine) {
+TEST(ProcStatCollectorTest, TestErrorOnUnknownProcsLine) {
     constexpr char contents[] =
             "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
             "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
@@ -257,21 +258,21 @@ TEST(ProcStatTest, TestErrorOnUnknownProcsLine) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    ProcStat procStat(tf.path);
-    procStat.init();
+    ProcStatCollector collector(tf.path);
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to unknown procs line";
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned due to unknown procs line";
 }
 
-TEST(ProcStatTest, TestProcStatContentsFromDevice) {
-    ProcStat procStat;
-    procStat.init();
+TEST(ProcStatCollectorTest, TestProcStatContentsFromDevice) {
+    ProcStatCollector collector;
+    collector.init();
 
-    ASSERT_TRUE(procStat.enabled()) << kProcStatPath << " file is inaccessible";
-    ASSERT_RESULT_OK(procStat.collect());
+    ASSERT_TRUE(collector.enabled()) << kProcStatPath << " file is inaccessible";
+    ASSERT_RESULT_OK(collector.collect());
 
-    const auto& info = procStat.deltaStats();
+    const auto& info = collector.deltaStats();
     /* The below checks should pass because the /proc/stats file should have the CPU time spent
      * since bootup and there should be at least one running process.
      */

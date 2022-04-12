@@ -79,9 +79,9 @@ Result<void> addToServiceManager(const char* serviceName, sp<IBinder> service) {
 }  // namespace
 
 WatchdogBinderMediator::WatchdogBinderMediator(
-        const android::sp<WatchdogProcessService>& watchdogProcessService,
+        const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
         const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
-        const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper,
+        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
         const AddServiceFunction& addServiceHandler) :
       mWatchdogProcessService(watchdogProcessService),
       mWatchdogPerfService(watchdogPerfService),

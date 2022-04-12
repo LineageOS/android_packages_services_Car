@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_PROCSTAT_H_
-#define CPP_WATCHDOG_SERVER_SRC_PROCSTAT_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_PROCSTATCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_SRC_PROCSTATCOLLECTOR_H_
 
 #include <android-base/result.h>
 #include <utils/Mutex.h>
@@ -60,9 +60,7 @@ class ProcStatInfo {
 public:
     ProcStatInfo() : cpuStats({}), runnableProcessCount(0), ioBlockedProcessCount(0) {}
     ProcStatInfo(CpuStats stats, uint32_t runnableCnt, uint32_t ioBlockedCnt) :
-          cpuStats(stats),
-          runnableProcessCount(runnableCnt),
-          ioBlockedProcessCount(ioBlockedCnt) {}
+          cpuStats(stats), runnableProcessCount(runnableCnt), ioBlockedProcessCount(ioBlockedCnt) {}
     CpuStats cpuStats;
     uint32_t runnableProcessCount;
     uint32_t ioBlockedProcessCount;
@@ -87,15 +85,37 @@ public:
     }
 };
 
-// Collector/parser for `/proc/stat` file.
-class ProcStat : public RefBase {
+class ProcStatCollectorInterface : public RefBase {
 public:
-    explicit ProcStat(const std::string& path = kProcStatPath) : kPath(path), mLatestStats({}) {}
-
-    virtual ~ProcStat() {}
-
     // Initializes the collector.
-    virtual void init() {
+    virtual void init() = 0;
+
+    // Collects proc stat delta since the last collection.
+    virtual android::base::Result<void> collect() = 0;
+
+    /* Returns true when the proc stat file is accessible. Otherwise, returns false.
+     * Called by WatchdogPerfService and tests.
+     */
+    virtual bool enabled() = 0;
+
+    virtual std::string filePath() = 0;
+
+    // Returns the latest stats.
+    virtual const ProcStatInfo latestStats() const = 0;
+
+    // Returns the delta of stats from the latest collection.
+    virtual const ProcStatInfo deltaStats() const = 0;
+};
+
+// Collector/parser for `/proc/stat` file.
+class ProcStatCollector final : public ProcStatCollectorInterface {
+public:
+    explicit ProcStatCollector(const std::string& path = kProcStatPath) :
+          kPath(path), mLatestStats({}) {}
+
+    ~ProcStatCollector() {}
+
+    void init() {
         Mutex::Autolock lock(mMutex);
         // Note: Verify proc file access outside the constructor. Otherwise, the unittests of
         // dependent classes would call the constructor before mocking and get killed due to
@@ -103,27 +123,21 @@ public:
         mEnabled = access(kPath.c_str(), R_OK) == 0;
     }
 
-    // Collects proc stat delta since the last collection.
-    virtual android::base::Result<void> collect();
+    android::base::Result<void> collect();
 
-    /* Returns true when the proc stat file is accessible. Otherwise, returns false.
-     * Called by WatchdogPerfService and tests.
-     */
-    virtual bool enabled() {
+    bool enabled() {
         Mutex::Autolock lock(mMutex);
         return mEnabled;
     }
 
-    virtual std::string filePath() { return kProcStatPath; }
+    std::string filePath() { return kProcStatPath; }
 
-    // Returns the latest stats.
-    virtual const ProcStatInfo latestStats() const {
+    const ProcStatInfo latestStats() const {
         Mutex::Autolock lock(mMutex);
         return mLatestStats;
     }
 
-    // Returns the delta of stats from the latest collection.
-    virtual const ProcStatInfo deltaStats() const {
+    const ProcStatInfo deltaStats() const {
         Mutex::Autolock lock(mMutex);
         return mDeltaStats;
     }
@@ -152,4 +166,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCSTAT_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCSTATCOLLECTOR_H_
