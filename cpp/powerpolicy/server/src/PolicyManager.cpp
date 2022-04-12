@@ -118,12 +118,12 @@ const std::vector<PowerComponent> kInitialOnComponents = {PowerComponent::AUDIO,
                                                           PowerComponent::DISPLAY,
                                                           PowerComponent::CPU};
 const std::vector<PowerComponent> kNoComponents;
-const std::vector<PowerComponent> kSuspendToRamDisabledComponents = {PowerComponent::AUDIO,
-                                                                     PowerComponent::BLUETOOTH,
-                                                                     PowerComponent::WIFI,
-                                                                     PowerComponent::LOCATION,
-                                                                     PowerComponent::MICROPHONE,
-                                                                     PowerComponent::CPU};
+const std::vector<PowerComponent> kSuspendPrepDisabledComponents = {PowerComponent::AUDIO,
+                                                                    PowerComponent::BLUETOOTH,
+                                                                    PowerComponent::WIFI,
+                                                                    PowerComponent::LOCATION,
+                                                                    PowerComponent::MICROPHONE,
+                                                                    PowerComponent::CPU};
 const std::unordered_set<PowerComponent> kNoUserInteractionConfigurableComponents =
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};
 
@@ -625,9 +625,9 @@ void PolicyManager::initPreemptivePowerPolicy() {
                                      createPolicy(kSystemPolicyIdNoUserInteraction,
                                                   kNoUserInteractionEnabledComponents,
                                                   kNoUserInteractionDisabledComponents));
-    mPreemptivePowerPolicies.emplace(kSystemPolicyIdSuspendToRam,
-                                     createPolicy(kSystemPolicyIdSuspendToRam, kNoComponents,
-                                                  kSuspendToRamDisabledComponents));
+    mPreemptivePowerPolicies.emplace(kSystemPolicyIdSuspendPrep,
+                                     createPolicy(kSystemPolicyIdSuspendPrep, kNoComponents,
+                                                  kSuspendPrepDisabledComponents));
 }
 
 }  // namespace powerpolicy
