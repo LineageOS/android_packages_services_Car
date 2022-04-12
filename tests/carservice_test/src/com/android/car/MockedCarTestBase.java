@@ -714,5 +714,15 @@ public class MockedCarTestBase {
                 String[] disabledComponents) {
             // do nothing
         }
+
+        @Override
+        public String getInterfaceHash() {
+            return ICarPowerPolicySystemNotification.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarPowerPolicySystemNotification.VERSION;
+        }
     }
 }
