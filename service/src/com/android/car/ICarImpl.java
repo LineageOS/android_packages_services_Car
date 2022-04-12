@@ -52,6 +52,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
+import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemProperties;
@@ -966,5 +967,14 @@ public class ICarImpl extends ICar.Stub {
         public void setInitialUser(UserHandle user) {
             mCarUserService.setInitialUserFromSystemServer(user);
         }
+    }
+
+    /* package */ void dumpVhal(ParcelFileDescriptor fd, List<String> options)
+            throws RemoteException {
+        mHal.dumpVhal(fd, options);
+    }
+
+    /* package */ boolean hasAidlVhal() {
+        return mHal.isAidlVhal();
     }
 }

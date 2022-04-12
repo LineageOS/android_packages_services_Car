@@ -56,6 +56,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -323,7 +324,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     @Override
-    public void dump(FileDescriptor fd, ArrayList<String> args) throws RemoteException {
+    public void dump(FileDescriptor fd, List<String> args) throws RemoteException {
         mAidlVehicle.asBinder().dump(fd, args.toArray(new String[args.size()]));
     }
 
