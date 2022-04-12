@@ -46,7 +46,6 @@ android_app {
         "car-setup-wizard-lib",
         "setupcompat",
         "setupdesign",
-        "devicepolicyprotosnano",
         "ManagedProvisioningLib",
         "Slogf",
         "lottie"
