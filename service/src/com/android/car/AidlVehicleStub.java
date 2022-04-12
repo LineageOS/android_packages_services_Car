@@ -397,6 +397,16 @@ final class AidlVehicleStub extends VehicleStub {
         public void unsubscribe(int prop) throws RemoteException, ServiceSpecificException {
             mAidlVehicle.unsubscribe(this, new int[]{prop});
         }
+
+        @Override
+        public String getInterfaceHash() {
+            return IVehicleCallback.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return IVehicleCallback.VERSION;
+        }
     }
 
     private void onGetValues(GetValueResults responses) {
@@ -468,6 +478,16 @@ final class AidlVehicleStub extends VehicleStub {
         public void onPropertySetError(VehiclePropErrors errors) throws RemoteException {
             throw new UnsupportedOperationException(
                     "GetSetValuesCallback only support onGetValues or onSetValues");
+        }
+
+        @Override
+        public String getInterfaceHash() {
+            return IVehicleCallback.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return IVehicleCallback.VERSION;
         }
     }
 }
