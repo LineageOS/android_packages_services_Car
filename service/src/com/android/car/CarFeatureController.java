@@ -125,6 +125,10 @@ public final class CarFeatureController implements CarServiceBase {
     // Last line starts with this with number of features for extra confidence check.
     private static final String CONFIG_FILE_LAST_LINE_MARKER = ",,";
 
+    // This hash is generated using the featured enabled via config.xml file of resources. Whenever
+    // feature are updated in resource file, we should regenerate {@code FEATURE_CONFIG_FILE_NAME}.
+    private static final String CONFIG_FILE_HASH_MARKER = "Hash:";
+
     // Set once in constructor and not updated. Access it without lock so that it can be accessed
     // quickly.
     private final HashSet<String> mEnabledFeatures;
@@ -158,6 +162,7 @@ public final class CarFeatureController implements CarServiceBase {
             OPTIONAL_FEATURES.addAll(NON_USER_ONLY_FEATURES);
         }
         mContext = context;
+        Arrays.sort(defaultEnabledFeaturesFromConfig);
         mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeaturesFromConfig);
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
         Slogf.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
@@ -371,6 +376,7 @@ public final class CarFeatureController implements CarServiceBase {
         mEnabledFeatures.clear();
     }
 
+    // TODO(b/227645920): add unit test
     @GuardedBy("mLock")
     private boolean loadFromConfigFileLocked() {
         // done without lock, should be only called from constructor.
@@ -381,9 +387,10 @@ public final class CarFeatureController implements CarServiceBase {
             Slogf.i(TAG, "Feature config file not found, this could be 1st boot");
             return false;
         }
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(fis, StandardCharsets.UTF_8))) {
+        try (BufferedReader reader =
+                new BufferedReader(new InputStreamReader(fis, StandardCharsets.UTF_8))) {
             boolean lastLinePassed = false;
+            boolean hashChecked = false;
             while (true) {
                 String line = reader.readLine();
                 if (line == null) {
@@ -398,23 +405,40 @@ public final class CarFeatureController implements CarServiceBase {
                             "Config file has additional line after last line marker", line);
                     return false;
                 } else {
+                    if (line.startsWith(CONFIG_FILE_HASH_MARKER)) {
+                        int expectedHashValue = mDefaultEnabledFeaturesFromConfig.hashCode();
+                        int fileHashValue = Integer
+                                .parseInt(line.substring(CONFIG_FILE_HASH_MARKER.length()).strip());
+                        if (expectedHashValue != fileHashValue) {
+                            handleCorruptConfigFileLocked("Config hash doesn't match. Expected: "
+                                    + expectedHashValue, line);
+                            return false;
+                        }
+                        hashChecked = true;
+                        continue;
+                    }
+
+                    if (!hashChecked) {
+                        handleCorruptConfigFileLocked("Config file doesn't have hash value.", "");
+                        return false;
+                    }
+
                     if (line.startsWith(CONFIG_FILE_LAST_LINE_MARKER)) {
                         int numberOfFeatures;
                         try {
-                            numberOfFeatures = Integer.parseInt(line.substring(
-                                    CONFIG_FILE_LAST_LINE_MARKER.length()));
+                            numberOfFeatures = Integer.parseInt(
+                                    line.substring(CONFIG_FILE_LAST_LINE_MARKER.length()));
                         } catch (NumberFormatException e) {
                             handleCorruptConfigFileLocked(
-                                    "Config file has corrupt last line, not a number",
-                                    line);
+                                    "Config file has corrupt last line, not a number", line);
                             return false;
                         }
                         int actualNumberOfFeatures = mEnabledFeatures.size();
                         if (numberOfFeatures != actualNumberOfFeatures) {
                             handleCorruptConfigFileLocked(
                                     "Config file has wrong number of features, expected:"
-                                            + numberOfFeatures
-                                            + " actual:" + actualNumberOfFeatures, line);
+                                            + numberOfFeatures + " actual:"
+                                            + actualNumberOfFeatures, line);
                             return false;
                         }
                         lastLinePassed = true;
@@ -446,6 +470,9 @@ public final class CarFeatureController implements CarServiceBase {
             try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos,
                     StandardCharsets.UTF_8))) {
                 Slogf.i(TAG, "Updating features:" + features);
+                writer.write(CONFIG_FILE_HASH_MARKER
+                        + mDefaultEnabledFeaturesFromConfig.hashCode());
+                writer.newLine();
                 for (String feature : features) {
                     writer.write(feature);
                     writer.newLine();
