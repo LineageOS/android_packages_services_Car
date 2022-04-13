@@ -379,12 +379,12 @@ TEST_F(HidlVhalClientTest, testSubscribe) {
     std::vector<SubscribeOptions> hidlOptions = {
             {
                     .propId = TEST_PROP_ID,
-                    .flags = SubscribeFlags::UNDEFINED,
+                    .flags = SubscribeFlags::EVENTS_FROM_CAR,
                     .sampleRate = 1.0,
             },
             {
                     .propId = TEST_PROP_ID_2,
-                    .flags = SubscribeFlags::UNDEFINED,
+                    .flags = SubscribeFlags::EVENTS_FROM_CAR,
                     .sampleRate = 2.0,
             },
     };
