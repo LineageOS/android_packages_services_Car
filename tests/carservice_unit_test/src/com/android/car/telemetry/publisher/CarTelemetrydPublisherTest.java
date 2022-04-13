@@ -230,5 +230,15 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         void setApiFailure(RemoteException e) {
             mApiFailure = e;
         }
+
+        @Override
+        public String getInterfaceHash() {
+            return ICarTelemetryInternal.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarTelemetryInternal.VERSION;
+        }
     }
 }
