@@ -64,7 +64,6 @@ public final class BackupAndRestoreFragment extends Fragment {
         mRestoreButton.setOnClickListener((v) -> restore());
     }
 
-
     private void backup() {
         boolean isEnabled = mBackupManager.isBackupEnabled();
         Log.v(TAG, "backup is enabled: " + isEnabled);
@@ -75,8 +74,6 @@ public final class BackupAndRestoreFragment extends Fragment {
         Log.v(TAG, "All transports: " + Arrays.toString(allTransports));
         String currentTransport = mBackupManager.getCurrentTransport();
         Log.v(TAG, "Current Transport: " + currentTransport);
-        String selectedTransport = mBackupManager.selectBackupTransport(TRANSPORT_DIR_NAME);
-        Log.v(TAG, "Selected transport: " + selectedTransport);
 
         StringBuilder sb = new StringBuilder();
         Arrays.stream(allTransports).forEach(t -> sb.append('\n').append(t));

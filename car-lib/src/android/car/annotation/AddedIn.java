@@ -20,7 +20,7 @@ import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
 import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.ElementType.METHOD;
 import static java.lang.annotation.ElementType.TYPE;
-import static java.lang.annotation.RetentionPolicy.SOURCE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -33,7 +33,7 @@ import java.lang.annotation.Target;
  *
  * @hide
  */
-@Retention(SOURCE)
+@Retention(RUNTIME)
 @Target({ANNOTATION_TYPE, FIELD, TYPE, METHOD})
 public @interface AddedIn {
     int majorVersion();

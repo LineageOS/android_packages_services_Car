@@ -1076,7 +1076,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandleDeepSleep(boolean simulatedMode) {
-        int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_TO_RAM);
+        int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_PREP);
         if (status != PolicyOperationStatus.OK) {
             Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
         }
