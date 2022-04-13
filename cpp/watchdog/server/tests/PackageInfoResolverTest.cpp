@@ -65,7 +65,7 @@ std::string toString(const std::unordered_map<uid_t, PackageInfo>& mappings) {
 
 namespace internal {
 
-class PackageInfoResolverPeer {
+class PackageInfoResolverPeer final {
 public:
     PackageInfoResolverPeer() {
         PackageInfoResolver::getInstance();

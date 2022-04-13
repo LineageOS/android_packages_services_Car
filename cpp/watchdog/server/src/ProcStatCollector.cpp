@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "ProcStat.h"
+#include "ProcStatCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/parseint.h>
@@ -72,7 +72,7 @@ bool parseProcsCount(const std::string& data, uint32_t* out) {
 
 }  // namespace
 
-Result<void> ProcStat::collect() {
+Result<void> ProcStatCollector::collect() {
     if (!mEnabled) {
         return Error() << "Can not access " << kPath;
     }
@@ -90,7 +90,7 @@ Result<void> ProcStat::collect() {
     return {};
 }
 
-Result<ProcStatInfo> ProcStat::getProcStatLocked() const {
+Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
     std::string buffer;
     if (!ReadFileToString(kPath, &buffer)) {
         return Error() << "ReadFileToString failed for " << kPath;

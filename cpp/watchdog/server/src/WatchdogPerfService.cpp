@@ -144,7 +144,7 @@ std::string WatchdogPerfService::EventMetadata::toString() const {
     return buffer;
 }
 
-Result<void> WatchdogPerfService::registerDataProcessor(sp<IDataProcessorInterface> processor) {
+Result<void> WatchdogPerfService::registerDataProcessor(sp<DataProcessorInterface> processor) {
     if (processor == nullptr) {
         return Error() << "Must provide a valid data processor";
     }
@@ -199,8 +199,8 @@ Result<void> WatchdogPerfService::start() {
             return Error() << "No data processor is registered";
         }
         mUidStatsCollector->init();
-        mProcStat->init();
-        mProcDiskStats->init();
+        mProcStatCollector->init();
+        mProcDiskStatsCollector->init();
     }
 
     mCollectionThread = std::thread([&]() {
@@ -430,9 +430,9 @@ Result<void> WatchdogPerfService::dumpCollectorsStatusLocked(int fd) const {
                          fd)) {
         return Error() << "Failed to write UidStatsCollector status";
     }
-    if (!mProcStat->enabled() &&
+    if (!mProcStatCollector->enabled() &&
         !WriteStringToFd(StringPrintf("ProcStat collector failed to access the file %s",
-                                      mProcStat->filePath().c_str()),
+                                      mProcStatCollector->filePath().c_str()),
                          fd)) {
         return Error() << "Failed to write ProcStat collector status";
     }
@@ -616,7 +616,7 @@ Result<void> WatchdogPerfService::processCollectionEvent(
 }
 
 Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetadata* metadata) {
-    if (!mUidStatsCollector->enabled() && !mProcStat->enabled()) {
+    if (!mUidStatsCollector->enabled() && !mProcStatCollector->enabled()) {
         return Error() << "No collectors enabled";
     }
 
@@ -628,8 +628,8 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         }
     }
 
-    if (mProcStat->enabled()) {
-        if (const auto result = mProcStat->collect(); !result.ok()) {
+    if (mProcStatCollector->enabled()) {
+        if (const auto result = mProcStatCollector->collect(); !result.ok()) {
             return Error() << "Failed to collect proc stats: " << result.error();
         }
     }
@@ -638,15 +638,16 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
         Result<void> result;
         switch (mCurrCollectionEvent) {
             case EventType::BOOT_TIME_COLLECTION:
-                result = processor->onBoottimeCollection(now, mUidStatsCollector, mProcStat);
+                result = processor->onBoottimeCollection(now, mUidStatsCollector,
+                                                         mProcStatCollector);
                 break;
             case EventType::PERIODIC_COLLECTION:
                 result = processor->onPeriodicCollection(now, mSystemState, mUidStatsCollector,
-                                                         mProcStat);
+                                                         mProcStatCollector);
                 break;
             case EventType::CUSTOM_COLLECTION:
                 result = processor->onCustomCollection(now, mSystemState, metadata->filterPackages,
-                                                       mUidStatsCollector, mProcStat);
+                                                       mUidStatsCollector, mProcStatCollector);
                 break;
             default:
                 result = Error() << "Invalid collection event " << toString(mCurrCollectionEvent);
@@ -677,11 +678,11 @@ Result<void> WatchdogPerfService::processMonitorEvent(
                 << " seconds";
     }
     Mutex::Autolock lock(mMutex);
-    if (!mProcDiskStats->enabled()) {
+    if (!mProcDiskStatsCollector->enabled()) {
         return Error() << "Cannot access proc disk stats for monitoring";
     }
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    if (const auto result = mProcDiskStats->collect(); !result.ok()) {
+    if (const auto result = mProcDiskStatsCollector->collect(); !result.ok()) {
         return Error() << "Failed to collect disk stats: " << result.error();
     }
     auto* currCollectionMetadata = currCollectionMetadataLocked();
@@ -707,7 +708,7 @@ Result<void> WatchdogPerfService::processMonitorEvent(
     };
     for (const auto& processor : mDataProcessors) {
         if (const auto result =
-                    processor->onPeriodicMonitor(now, mProcDiskStats, requestCollection);
+                    processor->onPeriodicMonitor(now, mProcDiskStatsCollector, requestCollection);
             !result.ok()) {
             return Error() << processor->name() << " failed on " << toString(metadata->eventType)
                            << ": " << result.error();

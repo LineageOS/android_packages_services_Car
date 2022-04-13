@@ -136,11 +136,11 @@ std::vector<UidStats> sampleUidStats() {
 
 namespace internal {
 
-class UidStatsCollectorPeer : public RefBase {
+class UidStatsCollectorPeer final : public RefBase {
 public:
     explicit UidStatsCollectorPeer(sp<UidStatsCollector> collector) : mCollector(collector) {}
 
-    void setPackageInfoResolver(sp<IPackageInfoResolver> packageInfoResolver) {
+    void setPackageInfoResolver(sp<PackageInfoResolverInterface> packageInfoResolver) {
         mCollector->mPackageInfoResolver = packageInfoResolver;
     }
 
