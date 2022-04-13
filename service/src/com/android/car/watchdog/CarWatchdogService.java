@@ -20,6 +20,8 @@ import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
+import static android.content.Intent.ACTION_REBOOT;
+import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.ACTION_USER_REMOVED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
@@ -153,7 +155,26 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                         mWatchdogStorage.shrinkDatabase();
                     }
                     notifyGarageModeChange(garageMode);
-                    return;
+                    break;
+                case ACTION_REBOOT:
+                case ACTION_SHUTDOWN:
+                    // FLAG_RECEIVER_FOREGROUND is checked to ignore the intent from UserController
+                    // when a user is stopped.
+                    if ((intent.getFlags() & Intent.FLAG_RECEIVER_FOREGROUND) == 0) {
+                        break;
+                    }
+                    int powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
+                    try {
+                        mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
+                                powerCycle, /* arg2= */ 0);
+                        if (DEBUG) {
+                            Slogf.d(TAG, "Notified car watchdog daemon of power cycle(%d)",
+                                    powerCycle);
+                        }
+                    } catch (Exception e) {
+                        Slogf.w(TAG, e, "Notifying power cycle state change failed");
+                    }
+                    break;
                 case ACTION_USER_REMOVED: {
                     UserHandle userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
                     int userId = userHandle.getIdentifier();
@@ -169,13 +190,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                                 userId);
                     }
                     mWatchdogPerfHandler.deleteUser(userId);
-                    return;
+                    break;
                 }
                 case ACTION_PACKAGE_CHANGED: {
                     String packageName = intent.getData().getSchemeSpecificPart();
                     int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
                     if (userId == USER_NULL) {
-                        return;
+                        break;
                     }
                     try {
                         if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
@@ -188,6 +209,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                                 "Failed to verify enabled setting for user %d, package '%s'",
                                 userId, packageName);
                     }
+                    break;
                 }
             }
         }
@@ -708,6 +730,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         filter.addAction(ACTION_LAUNCH_APP_SETTINGS);
         filter.addAction(ACTION_RESOURCE_OVERUSE_DISABLE_APP);
         filter.addAction(ACTION_USER_REMOVED);
+        filter.addAction(ACTION_REBOOT);
+        filter.addAction(ACTION_SHUTDOWN);
 
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
                 Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, /* scheduler= */ null,
