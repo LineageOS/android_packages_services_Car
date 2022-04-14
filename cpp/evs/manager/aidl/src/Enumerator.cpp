@@ -64,8 +64,8 @@ constexpr int kOptionDumpCameraTypeIndex = 2;
 constexpr int kOptionDumpCameraCommandIndex = 3;
 constexpr int kOptionDumpCameraArgsStartIndex = 4;
 
-// Display ID -1 is reserved for the special purpose.
-constexpr int kExclusiveMainDisplayId = -1;
+// Display ID 255 is reserved for the special purpose.
+constexpr int kExclusiveMainDisplayId = 255;
 
 // Parameters for HAL connection
 constexpr int64_t kSleepTimeMilliseconds = 1000;
@@ -430,8 +430,12 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
     }
 
     if (mDisplayOwnedExclusively) {
-        LOG(ERROR) << "Display is owned exclusively by another client.";
-        return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_BUSY);
+        if (!mActiveDisplay.expired()) {
+            LOG(ERROR) << "Display is owned exclusively by another client.";
+            return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_BUSY);
+        } else  {
+            mDisplayOwnedExclusively = false;
+        }
     }
 
     if (id == kExclusiveMainDisplayId) {
