@@ -2078,7 +2078,13 @@ public final class VehiclePropertyIds {
      * <p>Indicates the maximum current draw threshold for charging set by the user. configArray[0]
      * contains the max current draw allowed by the vehicle in Amperes.
      *
-     * <p> {@code Float} property type
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
      *
      * <p>Required Permissions:
      * <ul>
