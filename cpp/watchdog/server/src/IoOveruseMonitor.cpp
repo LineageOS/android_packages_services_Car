@@ -159,7 +159,7 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime
 }
 
 IoOveruseMonitor::IoOveruseMonitor(
-        const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper) :
+        const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper) :
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
       mWatchdogServiceHelper(watchdogServiceHelper),
       mDidReadTodayPrevBootStats(false),
@@ -219,7 +219,7 @@ void IoOveruseMonitor::terminate() {
 Result<void> IoOveruseMonitor::onPeriodicCollection(
         time_t time, SystemState systemState,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-        [[maybe_unused]] const android::wp<ProcStat>& procStat) {
+        [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector) {
     android::sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
     if (uidStatsCollectorSp == nullptr) {
         return Error() << "Per-UID I/O stats collector must not be null";
@@ -366,15 +366,15 @@ Result<void> IoOveruseMonitor::onCustomCollection(
         time_t time, SystemState systemState,
         [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
         const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-        const android::wp<ProcStat>& procStat) {
+        const android::wp<ProcStatCollectorInterface>& procStatCollector) {
     // Nothing special for custom collection.
-    return onPeriodicCollection(time, systemState, uidStatsCollector, procStat);
+    return onPeriodicCollection(time, systemState, uidStatsCollector, procStatCollector);
 }
 
 Result<void> IoOveruseMonitor::onPeriodicMonitor(
-        time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
+        time_t time, const android::wp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector,
         const std::function<void()>& alertHandler) {
-    if (procDiskStats == nullptr) {
+    if (procDiskStatsCollector == nullptr) {
         return Error() << "Proc disk stats collector must not be null";
     }
 
@@ -388,7 +388,7 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
         mLastSystemWideIoMonitorTime = time;
         return {};
     }
-    const auto diskStats = procDiskStats.promote()->deltaSystemWideDiskStats();
+    const auto diskStats = procDiskStatsCollector.promote()->deltaSystemWideDiskStats();
     mSystemWideWrittenBytes.push_back(
             {.pollDurationInSecs = difftime(time, mLastSystemWideIoMonitorTime),
              .bytesInKib = diskStats.numKibWritten});

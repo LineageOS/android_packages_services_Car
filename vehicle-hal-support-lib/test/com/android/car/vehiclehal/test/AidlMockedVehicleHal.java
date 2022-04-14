@@ -341,6 +341,16 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
         // Do nothing.
     }
 
+    @Override
+    public String getInterfaceHash() {
+        return IVehicle.HASH;
+    }
+
+    @Override
+    public int getInterfaceVersion() {
+        return IVehicle.VERSION;
+    }
+
     public static class FailingPropertyHandler implements VehicleHalPropertyHandler {
         @Override
         public void onPropertySet(VehiclePropValue value) {

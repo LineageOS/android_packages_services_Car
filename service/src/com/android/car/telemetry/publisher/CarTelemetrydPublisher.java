@@ -69,6 +69,15 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
             // TODO(b/189142577): Create custom Handler and post message to improve performance
             mTelemetryHandler.post(() -> onCarDataListReceived(dataList));
         }
+        @Override
+        public String getInterfaceHash() {
+            return ICarDataListener.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarDataListener.VERSION;
+        }
     };
 
     CarTelemetrydPublisher(
