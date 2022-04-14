@@ -919,7 +919,7 @@ public class ICarImpl extends ICar.Stub {
         public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();
             EventLogHelper.writeCarServiceOnUserRemoved(user.getIdentifier());
-            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user.toString());
+            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user);
             mCarUserService.onUserRemoved(user);
         }
 
