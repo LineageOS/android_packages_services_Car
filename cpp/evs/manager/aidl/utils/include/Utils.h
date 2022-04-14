@@ -72,7 +72,13 @@ public:
 
     static ::ndk::ScopedAStatus buildScopedAStatusFromEvsResult(aidlevs::EvsResult result);
 
+    static ::ndk::ScopedAStatus buildScopedAStatusFromEvsResult(
+            ::android::hardware::Return<aidlevs::EvsResult>& result);
+
     static ::ndk::ScopedAStatus buildScopedAStatusFromEvsResult(hidlevs::V1_0::EvsResult result);
+
+    static ::ndk::ScopedAStatus buildScopedAStatusFromEvsResult(
+            ::android::hardware::Return<hidlevs::V1_0::EvsResult>& result);
 
     static aidlevs::CameraDesc makeFromHidl(const hidlevs::V1_0::CameraDesc& desc);
 
