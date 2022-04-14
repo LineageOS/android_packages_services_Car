@@ -16,6 +16,7 @@
 package com.android.car.bluetooth;
 
 import static com.android.car.bluetooth.FastPairAccountKeyStorage.AccountKey;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,6 +27,7 @@ import android.bluetooth.BluetoothGattServer;
 import android.bluetooth.BluetoothGattServerCallback;
 import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -38,6 +40,7 @@ import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.math.BigInteger;
@@ -88,7 +91,11 @@ public class FastPairGattServer {
     private static final String TAG = CarLog.tagFor(FastPairGattServer.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int MAX_KEY_COUNT = 10;
-    private static final int KEY_LIFESPAN = 10_000;
+    private static final int KEY_LIFESPAN_AWAIT_PAIRING = 10_000;
+    // Spec *does* say indefinitely but not having a timeout is risky. This matches the BT stack's
+    // internal pairing timeout
+    private static final int KEY_LIFESPAN_PAIRING = 35_000;
+    private static final int KEY_LIFESPAN_AWAIT_ACCOUNT_KEY = 10_000;
     private static final int INVALID = -1;
 
     private final boolean mAutomaticPasskeyConfirmation;
@@ -102,13 +109,11 @@ public class FastPairGattServer {
     private final BluetoothManager mBluetoothManager;
     private final BluetoothAdapter mBluetoothAdapter;
     private int mPairingPasskey = INVALID;
-    private int mFailureCount = 0;
-    private int mSuccessCount = 0;
+    private final DecryptionFailureCounter mFailureCounter = new DecryptionFailureCounter();
     private BluetoothGattService mFastPairService = new BluetoothGattService(
             FAST_PAIR_SERVICE_UUID.getUuid(), BluetoothGattService.SERVICE_TYPE_PRIMARY);
     private Callbacks mCallbacks;
     private SecretKeySpec mSharedSecretKey;
-    private byte[] mEncryptedResponse;
     private BluetoothDevice mLocalRpaDevice;
     private BluetoothDevice mRemotePairingDevice;
     private BluetoothDevice mRemoteGattDevice;
@@ -121,23 +126,53 @@ public class FastPairGattServer {
         void onPairingCompleted(boolean successful);
     }
 
-    /**
-     * Check if this service is started
-     */
-    public boolean isStarted() {
-        return (mBluetoothGattServer == null)
-                ? false
-                : mBluetoothGattServer.getService(FAST_PAIR_SERVICE_UUID.getUuid()) != null;
+    private class DecryptionFailureCounter {
+        public static final int FAILURE_LIMIT = 10;
+        private static final int FAILURE_RESET_TIMEOUT = 300_000; // 5 minutes
+
+        private int mCount = 0;
+
+        private Runnable mResetRunnable = new Runnable() {
+            @Override
+            public void run() {
+                Slogf.i(TAG, "Five minutes have expired. Reset failure count to 0");
+                reset();
+            }
+        };
+
+        public void increment() {
+            if (hasExceededLimit()) {
+                Slogf.w(TAG, "Failure count is already at the limit.");
+                return;
+            }
+
+            mCount++;
+            Slogf.i(TAG, "Failure count increased, failures=%d", mCount);
+            if (hasExceededLimit()) {
+                Slogf.w(TAG, "Failure count has reached 10, wait 5 minutes for more tries");
+                mHandler.postDelayed(mResetRunnable, FAILURE_RESET_TIMEOUT);
+            }
+        }
+
+        public void reset() {
+            Slogf.i(TAG, "Reset failure count");
+            mHandler.removeCallbacks(mResetRunnable);
+            mCount = 0;
+        }
+
+        public boolean hasExceededLimit() {
+            return mCount >= FAILURE_LIMIT;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(mCount);
+        }
     }
 
     /**
-     * Check if a client is connected to this GATT server
-     * @return true if connected;
+     * Notify this FastPairGattServer of a new RPA from the FastPairAdvertiser
      */
-    public boolean isConnected() {
-        return (mRemoteGattDevice != null);
-    }
-
     public void updateLocalRpa(BluetoothDevice device) {
         mLocalRpaDevice = device;
     }
@@ -145,9 +180,11 @@ public class FastPairGattServer {
     private Runnable mClearSharedSecretKey = new Runnable() {
         @Override
         public void run() {
-            mSharedSecretKey = null;
+            Slogf.w(TAG, "Shared secret key has expired. Clearing key material.");
+            clearSharedSecretKey();
         }
     };
+
     private final Handler mHandler = new Handler(
             CarServiceUtils.getHandlerThread(FastPairProvider.THREAD_NAME).getLooper());
     private BluetoothGattCharacteristic mModelIdCharacteristic;
@@ -167,12 +204,13 @@ public class FastPairGattServer {
             if (DBG) {
                 Slogf.d(TAG, "onConnectionStateChange %d Device: %s", newState, device);
             }
-            if (newState == 0) {
-                mPairingPasskey = -1;
-                mSharedSecretKey = null;
+            if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                mPairingPasskey = INVALID;
+                clearSharedSecretKey();
                 mRemoteGattDevice = null;
+                mRemotePairingDevice = null;
                 mCallbacks.onPairingCompleted(false);
-            } else if (newState > 0) {
+            } else if (newState == BluetoothProfile.STATE_CONNECTED) {
                 mRemoteGattDevice = device;
             }
         }
@@ -193,7 +231,6 @@ public class FastPairGattServer {
                     characteristic.getValue());
         }
 
-
         @Override
         public void onCharacteristicWriteRequest(BluetoothDevice device, int requestId,
                 BluetoothGattCharacteristic characteristic, boolean preparedWrite,
@@ -202,27 +239,25 @@ public class FastPairGattServer {
             super.onCharacteristicWriteRequest(device, requestId, characteristic, preparedWrite,
                     responseNeeded, offset, value);
             if (DBG) {
-                Slogf.d(TAG, "onWrite uuid() %s Length %d", characteristic.getUuid(), value.length);
+                Slogf.d(TAG, "onWrite, uuid=%s, length=%d", characteristic.getUuid(),
+                        (value != null ? value.length : -1));
             }
-            if (characteristic == mAccountKeyCharacteristic) {
-                if (DBG) {
-                    Slogf.d(TAG, "onWriteAccountKeyCharacteristic");
-                }
-                processAccountKey(value);
 
-                mBluetoothGattServer
-                        .sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset,
-                                characteristic.getValue());
-
-            } else if (characteristic == mKeyBasedPairingCharacteristic) {
+            if (characteristic == mKeyBasedPairingCharacteristic) {
                 if (DBG) {
-                    Slogf.d(TAG, "KeyBasedPairingCharacteristic");
+                    Slogf.d(TAG, "onWriteKeyBasedPairingCharacteristic");
                 }
-                processKeyBasedPairing(value);
-                mKeyBasedPairingCharacteristic.setValue(mEncryptedResponse);
-                mBluetoothGattServer
+                byte[] response = processKeyBasedPairing(value);
+                if (response == null) {
+                    Slogf.w(TAG, "Could not process key based pairing request. Ignoring.");
+                    mBluetoothGattServer
                         .sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset,
-                                mEncryptedResponse);
+                                null);
+                    return;
+                }
+                mKeyBasedPairingCharacteristic.setValue(response);
+                mBluetoothGattServer.sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS,
+                        offset, response);
                 mBluetoothGattServer
                         .notifyCharacteristicChanged(device, mDeviceNameCharacteristic, false);
                 mBluetoothGattServer
@@ -232,11 +267,17 @@ public class FastPairGattServer {
                 if (DBG) {
                     Slogf.d(TAG, "onWritePasskey %s", characteristic.getUuid());
                 }
-                mBluetoothGattServer
-                        .sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset,
-                                mEncryptedResponse);
                 processPairingKey(value);
+                mBluetoothGattServer
+                        .sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, null);
+            } else if (characteristic == mAccountKeyCharacteristic) {
+                if (DBG) {
+                    Slogf.d(TAG, "onWriteAccountKeyCharacteristic");
+                }
+                processAccountKey(value);
 
+                mBluetoothGattServer
+                        .sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset, null);
             } else {
                 Slogf.w(TAG, "onWriteOther %s", characteristic.getUuid());
             }
@@ -260,20 +301,66 @@ public class FastPairGattServer {
     BroadcastReceiver mPairingAttemptsReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
             if (DBG) {
-                Slogf.d(TAG, intent.getAction());
+                Slogf.d(TAG, action);
             }
-            if (BluetoothDevice.ACTION_PAIRING_REQUEST.equals(intent.getAction())) {
-                mRemotePairingDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                mPairingPasskey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, INVALID);
-                if (DBG) {
-                    Slogf.d(TAG, "DeviceAddress: %s  PairingCode: %s",
-                            mRemotePairingDevice, mPairingPasskey);
-                }
-                sendPairingResponse(mPairingPasskey);
-            } else if (BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED.equals(intent.getAction())) {
-                String name = intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME);
-                updateLocalName(name);
+
+            switch (action) {
+                case BluetoothDevice.ACTION_PAIRING_REQUEST:
+                    mRemotePairingDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    mPairingPasskey =
+                            intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, INVALID);
+                    if (DBG) {
+                        Slogf.d(TAG, "Pairing Request - device=%s,  pin_code=%s",
+                                mRemotePairingDevice, mPairingPasskey);
+                    }
+                    sendPairingResponse(mPairingPasskey);
+                    // TODO (243578517): Abort the broadcast when everything is valid and we support
+                    // automatic acceptance.
+                    break;
+
+                case BluetoothDevice.ACTION_BOND_STATE_CHANGED:
+                    BluetoothDevice device =
+                            intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                    int state = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, INVALID);
+                    int previousState =
+                            intent.getIntExtra(BluetoothDevice.EXTRA_PREVIOUS_BOND_STATE, INVALID);
+
+                    if (DBG) {
+                        Slogf.d(TAG, "Bond State Change - device=%s, old_state=%s, new_state=%s",
+                                device, previousState, state);
+                    }
+
+                    // If the bond state has changed for the device we're current fast pairing with
+                    // and it is now bonded, then pairing is complete. Reset the failure count to 0.
+                    // Await a potential account key.
+                    if (device != null && device.equals(mRemotePairingDevice)) {
+                        if (state == BluetoothDevice.BOND_BONDED) {
+                            if (DBG) {
+                                Slogf.d(TAG, "Pairing complete, device=%s", mRemotePairingDevice);
+                            }
+                            setSharedSecretKeyLifespan(KEY_LIFESPAN_AWAIT_ACCOUNT_KEY);
+                            mRemotePairingDevice = null;
+                            mFailureCounter.reset();
+                        } else if (state == BluetoothDevice.BOND_NONE) {
+                            if (DBG) {
+                                Slogf.d(TAG, "Pairing attempt failed, device=%s",
+                                        mRemotePairingDevice);
+                            }
+                            mRemotePairingDevice = null;
+                        }
+                    }
+                    break;
+
+                case BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED:
+                    String name = intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME);
+                    updateLocalName(name);
+                    break;
+
+                default:
+                    Slogf.w(TAG, "Unknown action. Skipped");
+                    break;
             }
         }
     };
@@ -303,287 +390,11 @@ public class FastPairGattServer {
         setup();
     }
 
-    void setSharedSecretKey(byte[] key) {
-        mSharedSecretKey = new SecretKeySpec(key, "AES");
-        mHandler.postDelayed(mClearSharedSecretKey, KEY_LIFESPAN);
-    }
-
-    /**
-     * Utilize the key set via setSharedSecretKey to attempt to encrypt the provided data
-     * @param decoded data to be encrypted
-     * @return encrypted data upon success; null otherwise
-     */
-    byte[] encrypt(byte[] decoded) {
-        try {
-            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-            cipher.init(Cipher.ENCRYPT_MODE, mSharedSecretKey);
-            mHandler.removeCallbacks(mClearSharedSecretKey);
-            mHandler.postDelayed(mClearSharedSecretKey, KEY_LIFESPAN);
-            return cipher.doFinal(decoded);
-
-        } catch (Exception e) {
-            Slogf.e(TAG, "Error encrypting: %s", e);
-        }
-        if (DBG) {
-            Slogf.w(TAG, "Encryption Failed, clear key");
-        }
-        mHandler.removeCallbacks(mClearSharedSecretKey);
-        mSharedSecretKey = null;
-        return null;
-    }
-    /**
-     * Utilize the key set via setSharedSecretKey to attempt to decrypt the provided data
-     * @param encoded data to be decrypted
-     * @return decrypted data upon success; null otherwise
-     */
-    byte[] decrypt(byte[] encoded) {
-        try {
-            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
-            cipher.init(Cipher.DECRYPT_MODE, mSharedSecretKey);
-            mHandler.removeCallbacks(mClearSharedSecretKey);
-            mHandler.postDelayed(mClearSharedSecretKey, KEY_LIFESPAN);
-            return cipher.doFinal(encoded);
-
-        } catch (Exception e) {
-            Slogf.e(TAG, "Error decrypting: %s", e);
-        }
-        mHandler.removeCallbacks(mClearSharedSecretKey);
-        mSharedSecretKey = null;
-        return null;
-    }
-
-    /**
-     * The final step of the Fast Pair procedure involves receiving an account key from the
-     * Fast Pair seeker, authenticating it, and then storing it for future use.
-     * @param accountKey
-     */
-    void processAccountKey(byte[] accountKey) {
-        byte[] decodedAccountKey = decrypt(accountKey);
-        if (decodedAccountKey != null && decodedAccountKey[0] == 0x04) {
-            AccountKey receivedKey = new AccountKey(decodedAccountKey);
-            if (DBG) {
-                Slogf.d(TAG, "Received Account Key, key=%s", receivedKey);
-            }
-            mFastPairAccountKeyStorage.add(receivedKey);
-            mSuccessCount++;
-        } else {
-            if (DBG) {
-                Slogf.d(TAG, "Received invalid Account Key");
-            }
-        }
-    }
-
-    /**
-     * New pairings based upon model ID requires the Fast Pair provider to authenticate to the
-     * seeker that it is in possession of the private key associated with the model ID advertised,
-     * this is accomplished via Eliptic-curve Diffie-Hellman
-     * @param localPrivateKey
-     * @param remotePublicKey
-     * @return
-     */
-    AccountKey calculateAntiSpoofing(byte[] localPrivateKey, byte[] remotePublicKey) {
-        try {
-            if (DBG) {
-                Slogf.d(TAG, "Calculating secret key from remotePublicKey");
-            }
-            // Initialize the EC key generator
-            KeyFactory keyFactory = KeyFactory.getInstance("EC");
-            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
-            ECParameterSpec ecParameterSpec = ((ECPublicKey) kpg.generateKeyPair().getPublic())
-                    .getParams();
-            // Use the private anti-spoofing key
-            ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(
-                    new BigInteger(1, localPrivateKey),
-                    ecParameterSpec);
-            // Calculate the public point utilizing the data received from the remote device
-            ECPoint publicPoint = new ECPoint(new BigInteger(1, Arrays.copyOf(remotePublicKey, 32)),
-                    new BigInteger(1, Arrays.copyOfRange(remotePublicKey, 32, 64)));
-            ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(publicPoint, ecParameterSpec);
-            PrivateKey privateKey = keyFactory.generatePrivate(ecPrivateKeySpec);
-            PublicKey publicKey = keyFactory.generatePublic(ecPublicKeySpec);
-
-            // Generate a shared secret
-            KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH");
-            keyAgreement.init(privateKey);
-            keyAgreement.doPhase(publicKey, true);
-            byte[] sharedSecret = keyAgreement.generateSecret();
-
-            // Use the first 16 bytes of a hash of the shared secret as the session key
-            final byte[] digest = MessageDigest.getInstance("SHA-256").digest(sharedSecret);
-
-            byte[] AESAntiSpoofingKey = Arrays.copyOf(digest, 16);
-            if (DBG) {
-                Slogf.d(TAG, "Key calculated");
-            }
-            return new AccountKey(AESAntiSpoofingKey);
-        } catch (Exception e) {
-            Slogf.w(TAG, "Error calculating anti-spoofing key: %s", e);
-            return null;
-        }
-    }
-
-    /**
-     * Determine if this pairing request is based on the anti-spoof keys associated with the model
-     * id or stored account keys.
-     * @param accountKey
-     * @return
-     */
-    boolean processKeyBasedPairing(byte[] pairingRequest) {
-        if (mFailureCount >= 10) return false;
-
-        List<SecretKeySpec> possibleKeys = new ArrayList<>();
-        if (pairingRequest.length == 80) {
-            // if the pairingRequest is 80 bytes long try the anit-spoof key
-            final byte[] remotePublicKey = Arrays.copyOfRange(pairingRequest, 16, 80);
-
-            possibleKeys
-                    .add(calculateAntiSpoofing(Base64.decode(mPrivateAntiSpoof, 0), remotePublicKey)
-                            .getKeySpec());
-        } else {
-            // otherwise the pairing request is the encrypted request, try all the stored account
-            // keys
-            List<AccountKey> storedAccountKeys = mFastPairAccountKeyStorage.getAllAccountKeys();
-            for (AccountKey key : storedAccountKeys) {
-                possibleKeys.add(new SecretKeySpec(key.toBytes(), "AES"));
-            }
-        }
-
-        byte[] encryptedRequest = Arrays.copyOfRange(pairingRequest, 0, 16);
-        if (DBG) {
-            Slogf.d(TAG, "Checking %d Keys", possibleKeys.size());
-        }
-        // check all the keys for a valid pairing request
-        for (SecretKeySpec key : possibleKeys) {
-            if (DBG) {
-                Slogf.d(TAG, "Checking possibleKey");
-            }
-            if (validatePairingRequest(encryptedRequest, key)) {
-                return true;
-            }
-        }
-        Slogf.w(TAG, "No Matching Key found");
-        mFailureCount++;
-        mSharedSecretKey = null;
-        return false;
-    }
-
-    /**
-     * Check if the pairing request is a valid request.
-     * A request is valid if its decrypted value is of type 0x00 or 0x10 and it contains either the
-     * seekers public or current BLE address
-     * @param encryptedRequest the request to decrypt and validate
-     * @param secretKeySpec the key to use while attempting to decrypt the request
-     * @return true if the key matches, false otherwise
-     */
-    boolean validatePairingRequest(byte[] encryptedRequest, SecretKeySpec secretKeySpec) {
-        // Decrypt the request
-        mSharedSecretKey = secretKeySpec;
-        byte[] decryptedRequest = decrypt(encryptedRequest);
-        if (decryptedRequest == null) {
-            return false;
-        }
-        if (DBG) {
-            Slogf.d(TAG, "Decrypted %s Flags %s", decryptedRequest[0], decryptedRequest[1]);
-        }
-        // Check that the request is either a Key-based Pairing Request or an Action Request
-        if (decryptedRequest[0] == 0 || decryptedRequest[0] == 0x10) {
-            String localAddress = mBluetoothAdapter.getAddress();
-            byte[] localAddressBytes = BluetoothUtils.getBytesFromAddress(localAddress);
-            // Extract the remote address bytes from the message
-            byte[] remoteAddressBytes = Arrays.copyOfRange(decryptedRequest, 2, 8);
-            BluetoothDevice localDevice = mBluetoothAdapter.getRemoteDevice(localAddress);
-            BluetoothDevice reportedDevice = mBluetoothAdapter.getRemoteDevice(remoteAddressBytes);
-            if (DBG) {
-                Slogf.d(TAG, "Local RPA = %s", mLocalRpaDevice);
-                Slogf.d(TAG, "Decrypted, LocalMacAddress: %s remoteAddress: %s",
-                        localAddress, reportedDevice);
-            }
-            if (mLocalRpaDevice == null) {
-                Slogf.w(TAG, "Cannot get own address; AdvertisingSet#getOwnAddress"
-                        + " is not supported in this platform version.");
-            }
-            // Test that the received device address matches this devices address
-            if (reportedDevice.equals(localDevice) || reportedDevice.equals(mLocalRpaDevice)) {
-                if (DBG) {
-                    Slogf.d(TAG, "SecretKey Validated");
-                }
-                // encrypt and respond to the seeker with the local public address
-                byte[] rawResponse = new byte[16];
-                new Random().nextBytes(rawResponse);
-                rawResponse[0] = 0x01;
-                System.arraycopy(localAddressBytes, 0, rawResponse, 1, 6);
-                mEncryptedResponse = encrypt(rawResponse);
-                return encryptedRequest != null;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Extract the 6 digit Bluetooth Simple Secure Passkey from the received message and confirm
-     * it matches the key received through the Bluetooth pairing procedure.
-     * If the passkeys match and automatic passkey confirmation is enabled, approve of the pairing.
-     * If the passkeys do not match reject the pairing.
-     * @param pairingKey
-     * @return true if the procedure completed, although pairing may not have been approved
-     */
-    boolean processPairingKey(byte[] pairingKey) {
-        byte[] decryptedRequest = decrypt(pairingKey);
-        if (decryptedRequest == null) {
-            return false;
-        }
-        int passkey = Byte.toUnsignedInt(decryptedRequest[1]) * 65536
-                + Byte.toUnsignedInt(decryptedRequest[2]) * 256
-                + Byte.toUnsignedInt(decryptedRequest[3]);
-
-        if (DBG) {
-            Slogf.d(TAG, "PairingKey , MessageType %s FastPair Passkey = %d Bluetooth Passkey = %d",
-                    decryptedRequest[0], passkey, mPairingPasskey);
-        }
-        // compare the Bluetooth received passkey with the Fast Pair received passkey
-        if (mPairingPasskey == passkey) {
-            if (mAutomaticPasskeyConfirmation) {
-                if (DBG) {
-                    Slogf.d(TAG, "Passkeys match, accepting");
-                }
-                mRemotePairingDevice.setPairingConfirmation(true);
-            }
-        } else if (mPairingPasskey != INVALID) {
-            Slogf.w(TAG, "Passkeys don't match, rejecting");
-            mRemotePairingDevice.setPairingConfirmation(false);
-        }
-        return true;
-    }
-
-    void sendPairingResponse(int passkey) {
-        if (!isConnected()) return;
-        if (DBG) {
-            Slogf.d(TAG, "sendPairingResponse %d", passkey);
-        }
-        // Send an encrypted response to the seeker with the Bluetooth passkey as required
-        byte[] decryptedResponse = new byte[16];
-        new Random().nextBytes(decryptedResponse);
-        ByteBuffer pairingPasskeyBytes = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(
-                passkey);
-        decryptedResponse[0] = 0x3;
-        decryptedResponse[1] = pairingPasskeyBytes.get(1);
-        decryptedResponse[2] = pairingPasskeyBytes.get(2);
-        decryptedResponse[3] = pairingPasskeyBytes.get(3);
-
-        mEncryptedResponse = encrypt(decryptedResponse);
-        if (mEncryptedResponse == null) {
-            return;
-        }
-        mPasskeyCharacteristic.setValue(mEncryptedResponse);
-        mBluetoothGattServer
-                .notifyCharacteristicChanged(mRemoteGattDevice, mPasskeyCharacteristic, false);
-    }
-
     /**
      * Initialize all of the GATT characteristics with appropriate default values and the required
      * configurations.
      */
-    void setup() {
+    private void setup() {
         mModelIdCharacteristic = new BluetoothGattCharacteristic(FAST_PAIR_MODEL_ID_UUID.getUuid(),
                 BluetoothGattCharacteristic.PROPERTY_READ,
                 BluetoothGattCharacteristic.PERMISSION_READ);
@@ -640,7 +451,12 @@ public class FastPairGattServer {
         }
     }
 
-    boolean start() {
+    /**
+     * Start the FastPairGattServer
+     *
+     * This makes the underlying service and characteristics available and registers us for events.
+     */
+    public boolean start() {
         if (isStarted()) {
             return false;
         }
@@ -650,6 +466,7 @@ public class FastPairGattServer {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
         filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         mContext.registerReceiver(mPairingAttemptsReceiver, filter);
 
@@ -666,10 +483,17 @@ public class FastPairGattServer {
         return true;
     }
 
-    void stop() {
+    /**
+     * Stop the FastPairGattServer
+     *
+     * This removes our underlying service and clears our state.
+     */
+    public boolean stop() {
         if (!isStarted()) {
-            return;
+            return true;
         }
+
+        clearSharedSecretKey();
 
         if (isConnected()) {
             mBluetoothGattServer.cancelConnection(mRemoteGattDevice);
@@ -680,15 +504,415 @@ public class FastPairGattServer {
         mSharedSecretKey = null;
         mBluetoothGattServer.removeService(mFastPairService);
         mContext.unregisterReceiver(mPairingAttemptsReceiver);
+        return true;
     }
 
+    /**
+     * Check if this service is started
+     */
+    public boolean isStarted() {
+        return (mBluetoothGattServer == null)
+                ? false
+                : mBluetoothGattServer.getService(FAST_PAIR_SERVICE_UUID.getUuid()) != null;
+    }
+
+    /**
+     * Check if a client is connected to this GATT server
+     * @return true if connected;
+     */
+    public boolean isConnected() {
+        if (DBG) {
+            Slogf.d(TAG, "isConnected() -> %s", (mRemoteGattDevice != null));
+        }
+        return (mRemoteGattDevice != null);
+    }
+
+    private void setSharedSecretKey(SecretKeySpec key, int lifespan) {
+        if (key == null) {
+            Slogf.w(TAG, "Cannot set a null shared secret.");
+            return;
+        }
+        Slogf.i(TAG, "Shared secret key set, key=%s lifespan=%d", key, lifespan);
+        mSharedSecretKey = key;
+        setSharedSecretKeyLifespan(lifespan);
+    }
+
+    private void setSharedSecretKeyLifespan(int lifespan) {
+        if (mSharedSecretKey == null) {
+            Slogf.w(TAG, "Ignoring lifespan on null key");
+            return;
+        }
+        if (DBG) {
+            Slogf.d(TAG, "Update key lifespan to %d", lifespan);
+        }
+        mHandler.removeCallbacks(mClearSharedSecretKey);
+        if (lifespan > 0) {
+            mHandler.postDelayed(mClearSharedSecretKey, lifespan);
+        }
+    }
+
+    private void clearSharedSecretKey() {
+        Slogf.i(TAG, "Shared secret key has been cleared");
+        mHandler.removeCallbacks(mClearSharedSecretKey);
+        mSharedSecretKey = null;
+    }
+
+    public boolean isFastPairSessionActive() {
+        return mSharedSecretKey != null;
+    }
+
+    /**
+     * Attempt to encrypt the provided data with the provided key
+     *
+     * @param data data to be encrypted
+     * @param secretKeySpec key to ecrypt the data with
+     * @return encrypted data upon success; null otherwise
+     */
+    private byte[] encrypt(byte[] data, SecretKeySpec secretKeySpec) {
+        if (secretKeySpec == null) {
+            Slogf.e(TAG, "Encryption failed: no key");
+            return null;
+        }
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec);
+            return cipher.doFinal(data);
+
+        } catch (Exception e) {
+            Slogf.e(TAG, "Encryption failed: %s", e);
+        }
+        return null;
+    }
+    /**
+     * Attempt to decrypt the provided data with the provided key
+     *
+     * @param encryptedData data to be decrypted
+     * @param secretKeySpec key to decrypt the data with
+     * @return decrypted data upon success; null otherwise
+     */
+    private byte[] decrypt(byte[] encryptedData, SecretKeySpec secretKeySpec) {
+        if (secretKeySpec == null) {
+            Slogf.e(TAG, "Decryption failed: no key");
+            return null;
+        }
+        try {
+            Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
+            cipher.init(Cipher.DECRYPT_MODE, secretKeySpec);
+            return cipher.doFinal(encryptedData);
+
+        } catch (Exception e) {
+            Slogf.e(TAG, "Decryption Failed: %s", e);
+        }
+        return null;
+    }
+
+    /**
+     * Determine if this pairing request is based on the anti-spoof keys associated with the model
+     * id or stored account keys.
+     *
+     * @param accountKey
+     * @return
+     */
+    private byte[] processKeyBasedPairing(byte[] pairingRequest) {
+        if (mFailureCounter.hasExceededLimit()) {
+            Slogf.w(TAG, "Failure count has exceeded 10. Ignoring Key-Based Pairing requests");
+            return null;
+        }
+
+        if (pairingRequest == null) {
+            Slogf.w(TAG, "Received a null pairing request");
+            mFailureCounter.increment();
+            clearSharedSecretKey();
+            return null;
+        }
+
+        List<SecretKeySpec> possibleKeys = new ArrayList<>();
+        if (pairingRequest.length == 80) {
+            if (DBG) {
+                Slogf.d(TAG, "Use Anti-spoofing key");
+            }
+            // if the pairingRequest is 80 bytes long try the anit-spoof key
+            final byte[] remotePublicKey = Arrays.copyOfRange(pairingRequest, 16, 80);
+
+            possibleKeys
+                    .add(calculateAntiSpoofing(Base64.decode(mPrivateAntiSpoof, 0), remotePublicKey)
+                            .getKeySpec());
+        } else if (pairingRequest.length == 16) {
+            if (DBG) {
+                Slogf.d(TAG, "Use stored account keys");
+            }
+            // otherwise the pairing request is the encrypted request, try all the stored account
+            // keys
+            List<AccountKey> storedAccountKeys = mFastPairAccountKeyStorage.getAllAccountKeys();
+            for (AccountKey key : storedAccountKeys) {
+                possibleKeys.add(new SecretKeySpec(key.toBytes(), "AES"));
+            }
+        } else {
+            Slogf.w(TAG, "Received key based pairing request of invalid length %d",
+                    pairingRequest.length);
+            mFailureCounter.increment();
+            clearSharedSecretKey();
+            return null;
+        }
+
+        byte[] encryptedRequest = Arrays.copyOfRange(pairingRequest, 0, 16);
+        if (DBG) {
+            Slogf.d(TAG, "Checking %d Keys", possibleKeys.size());
+        }
+        // check all the keys for a valid pairing request
+        for (SecretKeySpec key : possibleKeys) {
+            if (DBG) {
+                Slogf.d(TAG, "Checking possible key");
+            }
+            if (validateRequestAgainstKey(encryptedRequest, key)) {
+                // If the key was able to decrypt the request and the addresses match then set it as
+                // the shared secret and set a lifespan timeout
+                setSharedSecretKey(key, KEY_LIFESPAN_AWAIT_PAIRING);
+
+                // Use the key to craft encrypted response to the seeker with the local public
+                // address and salt. If encryption goes wrong, move on to the next key
+                String localAddress = mBluetoothAdapter.getAddress();
+                byte[] localAddressBytes = BluetoothUtils.getBytesFromAddress(localAddress);
+                byte[] rawResponse = new byte[16];
+                new Random().nextBytes(rawResponse);
+                rawResponse[0] = 0x01;
+                System.arraycopy(localAddressBytes, 0, rawResponse, 1, 6);
+                byte[] response = encrypt(rawResponse, key);
+                if (response == null) {
+                    clearSharedSecretKey();
+                    return null;
+                }
+                return response;
+            }
+        }
+        Slogf.w(TAG, "No matching key found");
+        mFailureCounter.increment();
+        clearSharedSecretKey();
+        return null;
+    }
+
+    /**
+     * New pairings based upon model ID requires the Fast Pair provider to authenticate to that the
+     * seeker it is in possession of the private key associated with the model ID advertised. This
+     * is accomplished via Eliptic-curve Diffie-Hellman
+     *
+     * @param localPrivateKey
+     * @param remotePublicKey
+     * @return
+     */
+    private AccountKey calculateAntiSpoofing(byte[] localPrivateKey, byte[] remotePublicKey) {
+        try {
+            if (DBG) {
+                Slogf.d(TAG, "Calculating secret key from remote public key");
+            }
+            // Initialize the EC key generator
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
+            ECParameterSpec ecParameterSpec = ((ECPublicKey) kpg.generateKeyPair().getPublic())
+                    .getParams();
+            // Use the private anti-spoofing key
+            ECPrivateKeySpec ecPrivateKeySpec = new ECPrivateKeySpec(
+                    new BigInteger(1, localPrivateKey),
+                    ecParameterSpec);
+            // Calculate the public point utilizing the data received from the remote device
+            ECPoint publicPoint = new ECPoint(new BigInteger(1, Arrays.copyOf(remotePublicKey, 32)),
+                    new BigInteger(1, Arrays.copyOfRange(remotePublicKey, 32, 64)));
+            ECPublicKeySpec ecPublicKeySpec = new ECPublicKeySpec(publicPoint, ecParameterSpec);
+            PrivateKey privateKey = keyFactory.generatePrivate(ecPrivateKeySpec);
+            PublicKey publicKey = keyFactory.generatePublic(ecPublicKeySpec);
+
+            // Generate a shared secret
+            KeyAgreement keyAgreement = KeyAgreement.getInstance("ECDH");
+            keyAgreement.init(privateKey);
+            keyAgreement.doPhase(publicKey, true);
+            byte[] sharedSecret = keyAgreement.generateSecret();
+
+            // Use the first 16 bytes of a hash of the shared secret as the session key
+            final byte[] digest = MessageDigest.getInstance("SHA-256").digest(sharedSecret);
+
+            byte[] AESAntiSpoofingKey = Arrays.copyOf(digest, 16);
+            if (DBG) {
+                Slogf.d(TAG, "Key calculated");
+            }
+            return new AccountKey(AESAntiSpoofingKey);
+        } catch (Exception e) {
+            Slogf.w(TAG, "Error calculating anti-spoofing key: %s", e);
+            return null;
+        }
+    }
+
+    /**
+     * Check if the given key can be used to decrypt the pairing request and prove the request is
+     * valid.
+     *
+     * A request is valid if its decrypted value is of type 0x00 or 0x10 and it contains either the
+     * seekers public or current BLE address. If a key successfully decrypts and validates a request
+     * then that is the key we should use as our shared secret key.
+     *
+     * @param encryptedRequest the request to decrypt and validate
+     * @param secretKeySpec the key to use while attempting to decrypt the request
+     * @return true if the key matches, false otherwise
+     */
+    private boolean validateRequestAgainstKey(byte[] encryptedRequest,
+            SecretKeySpec secretKeySpec) {
+        // Decrypt the request
+        byte[] decryptedRequest = decrypt(encryptedRequest, secretKeySpec);
+        if (decryptedRequest == null) {
+            return false;
+        }
+
+        if (DBG) {
+            StringBuilder sb = new StringBuilder();
+            for (byte b : decryptedRequest) {
+                sb.append(String.format("%02X ", b));
+            }
+            Slogf.d(TAG, "Decrypted Request=[ %s]", sb.toString());
+        }
+        // Check that the request is either a Key-based Pairing Request or an Action Request
+        if (decryptedRequest[0] == 0x00 || decryptedRequest[0] == 0x10) {
+            String localAddress = mBluetoothAdapter.getAddress();
+            byte[] localAddressBytes = BluetoothUtils.getBytesFromAddress(localAddress);
+            // Extract the remote address bytes from the message
+            byte[] remoteAddressBytes = Arrays.copyOfRange(decryptedRequest, 2, 8);
+            BluetoothDevice localDevice = mBluetoothAdapter.getRemoteDevice(localAddress);
+            BluetoothDevice reportedDevice = mBluetoothAdapter.getRemoteDevice(remoteAddressBytes);
+            if (DBG) {
+                Slogf.d(TAG, "rpa=%s, public=%s, reported=%s", mLocalRpaDevice, localAddress,
+                        reportedDevice);
+            }
+            if (mLocalRpaDevice == null) {
+                Slogf.w(TAG, "Cannot get own address");
+            }
+            // Test that the received device address matches this devices address
+            if (reportedDevice.equals(localDevice) || reportedDevice.equals(mLocalRpaDevice)) {
+                if (DBG) {
+                    Slogf.d(TAG, "SecretKey Validated");
+                }
+                return encryptedRequest != null;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Extract the 6 digit Bluetooth Simple Secure Passkey from the received message and confirm
+     * it matches the key received through the Bluetooth pairing procedure.
+     *
+     * If the passkeys match and automatic passkey confirmation is enabled, approve of the pairing.
+     * If the passkeys do not match reject the pairing and invalidate our key material.
+     *
+     * @param pairingKey
+     * @return true if the procedure completed, although pairing may not have been approved
+     */
+    private boolean processPairingKey(byte[] pairingKey) {
+        if (pairingKey == null || pairingKey.length != 16) {
+            clearSharedSecretKey();
+            return false;
+        }
+
+        byte[] decryptedRequest = decrypt(pairingKey, mSharedSecretKey);
+        if (decryptedRequest == null) {
+            clearSharedSecretKey();
+            return false;
+        }
+        int passkey = Byte.toUnsignedInt(decryptedRequest[1]) * 65536
+                + Byte.toUnsignedInt(decryptedRequest[2]) * 256
+                + Byte.toUnsignedInt(decryptedRequest[3]);
+
+        if (DBG) {
+            Slogf.d(TAG, "Received passkey request, type=%s, passkey=%d, our_passkey=%d",
+                    decryptedRequest[0], passkey, mPairingPasskey);
+        }
+        // compare the Bluetooth received passkey with the Fast Pair received passkey
+        if (mPairingPasskey == passkey) {
+            if (DBG) {
+                Slogf.d(TAG, "Passkeys match, auto_accept=%s", mAutomaticPasskeyConfirmation);
+            }
+            if (mAutomaticPasskeyConfirmation) {
+                mRemotePairingDevice.setPairingConfirmation(true);
+            }
+        } else if (mPairingPasskey != INVALID) {
+            Slogf.w(TAG, "Passkeys don't match, rejecting");
+            mRemotePairingDevice.setPairingConfirmation(false);
+            clearSharedSecretKey();
+        }
+        return true;
+    }
+
+    /**
+     * Send the seeker the pin code we received so they can validate it. Encrypt it with our shared
+     * secret.
+     *
+     * @param passkey the key-based pairing passkey, as described by the core BT specification
+     */
+    private void sendPairingResponse(int passkey) {
+        if (!isConnected()) return;
+        if (DBG) {
+            Slogf.d(TAG, "sendPairingResponse %d", passkey);
+        }
+
+        // Once pairing begins, we can hold on to the shared secret key until pairing
+        // completes
+        setSharedSecretKeyLifespan(KEY_LIFESPAN_PAIRING);
+
+        // Send an encrypted response to the seeker with the Bluetooth passkey as required
+        byte[] decryptedResponse = new byte[16];
+        new Random().nextBytes(decryptedResponse);
+        ByteBuffer pairingPasskeyBytes = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN).putInt(
+                passkey);
+        decryptedResponse[0] = 0x3;
+        decryptedResponse[1] = pairingPasskeyBytes.get(1);
+        decryptedResponse[2] = pairingPasskeyBytes.get(2);
+        decryptedResponse[3] = pairingPasskeyBytes.get(3);
+
+        byte[] response = encrypt(decryptedResponse, mSharedSecretKey);
+        if (response == null) {
+            clearSharedSecretKey();
+            return;
+        }
+        mPasskeyCharacteristic.setValue(response);
+        mBluetoothGattServer
+                .notifyCharacteristicChanged(mRemoteGattDevice, mPasskeyCharacteristic, false);
+    }
+
+    /**
+     * The final step of the Fast Pair procedure involves receiving an account key from the
+     * Fast Pair seeker, authenticating it, and then storing it for future use. Only one attempt
+     * at writing this key is allowed by the spec. Discard the shared secret after this one attempt.
+     *
+     * @param accountKey the account key, encrypted with our sharded secret
+     */
+    private void processAccountKey(byte[] accountKey) {
+        if (accountKey == null || accountKey.length != 16) {
+            clearSharedSecretKey();
+            return;
+        }
+
+        byte[] decodedAccountKey = decrypt(accountKey, mSharedSecretKey);
+        if (decodedAccountKey != null && decodedAccountKey[0] == 0x04) {
+            AccountKey receivedKey = new AccountKey(decodedAccountKey);
+            if (DBG) {
+                Slogf.d(TAG, "Received Account Key, key=%s", receivedKey);
+            }
+            mFastPairAccountKeyStorage.add(receivedKey);
+        } else {
+            if (DBG) {
+                Slogf.d(TAG, "Received invalid Account Key");
+            }
+        }
+
+        // Always clear the shared secret key following any attempt to write an account key
+        clearSharedSecretKey();
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.println("FastPairGattServer:");
         writer.increaseIndent();
         writer.println("Started                       : " + isStarted());
+        writer.println("Active                        : " + isFastPairSessionActive());
         writer.println("Currently connected to        : " + mRemoteGattDevice);
-        writer.println("Successful pairing attempts   : " + mSuccessCount);
-        writer.println("Unsuccessful pairing attempts : " + mFailureCount);
+        writer.println("Failsure counter              : " + mFailureCounter);
         writer.decreaseIndent();
     }
 }
