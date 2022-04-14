@@ -48,18 +48,6 @@ import java.util.List;
 @RunWith(MockitoJUnitRunner.class)
 public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
     @Test
-    public void onAudioFocusRequest_withNoCurrentFocusHolder_requestGranted() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
-        AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone(
-                /* isDelayedFocusEnabled= */ false);
-
-        requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfo);
-
-        verify(mMockAudioManager, never())
-                .dispatchAudioFocusChange(eq(audioFocusInfo), anyInt(), eq(mAudioPolicy));
-    }
-
-    @Test
     public void onAudioFocusRequest_forTwoDifferentZones_requestGranted() {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfoClient1 = generateMediaRequestForPrimaryZone(

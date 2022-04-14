@@ -47,7 +47,6 @@ public final class CarZonesAudioFocusRejectedTest extends CarZonesAudioFocusTest
             AudioClientInfo rejectedAudioClientInfo) {
         mAcceptedAudioClientInfo = acceptedAudioClientInfo;
         mRejectedAudioClientInfo = rejectedAudioClientInfo;
-
     }
 
     @Parameterized.Parameters
