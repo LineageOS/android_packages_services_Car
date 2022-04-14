@@ -158,6 +158,29 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
         assertThat(restrictions.getActiveRestrictions())
                 .isEqualTo(CarUxRestrictions.UX_RESTRICTIONS_BASELINE);
 
+        // Test Moving state and corresponding restrictions when driving in reverse.
+        Log.d(TAG, "Injecting gear reverse");
+        getAidlMockedVehicleHal().injectEvent(
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.GEAR_SELECTION)
+                        .addIntValues(VehicleGear.GEAR_REVERSE)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .build());
+
+        listener.reset();
+        Log.d(TAG, "Injecting speed -10");
+        getAidlMockedVehicleHal().injectEvent(
+                AidlVehiclePropValueBuilder.newBuilder(VehicleProperty.PERF_VEHICLE_SPEED)
+                        .addFloatValues(-10.0f)
+                        .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                        .build());
+        drivingEvent = listener.waitForDrivingStateChange();
+        assertNotNull(drivingEvent);
+        assertThat(drivingEvent.eventValue).isEqualTo(CarDrivingStateEvent.DRIVING_STATE_MOVING);
+        restrictions = listener.waitForUxRestrictionsChange();
+        assertNotNull(restrictions);
+        assertTrue(restrictions.isRequiresDistractionOptimization());
+        assertThat(restrictions.getActiveRestrictions()).isEqualTo(UX_RESTRICTIONS_MOVING);
+
         // Apply Parking brake.  Supported gears is not provided in this test and hence
         // Automatic transmission should be assumed and hence parking brake state should not
         // make a difference to the driving state.
