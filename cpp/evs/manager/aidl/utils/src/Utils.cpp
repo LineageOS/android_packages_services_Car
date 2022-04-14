@@ -38,6 +38,7 @@ using ::aidl::android::hardware::graphics::common::BufferUsage;
 using ::aidl::android::hardware::graphics::common::HardwareBuffer;
 using ::aidl::android::hardware::graphics::common::HardwareBufferDescription;
 using ::aidl::android::hardware::graphics::common::PixelFormat;
+using ::android::hardware::Return;
 using ::ndk::ScopedAStatus;
 
 using HIDLBufferUsage = ::android::hardware::graphics::common::V1_0::BufferUsage;
@@ -551,12 +552,30 @@ ScopedAStatus Utils::buildScopedAStatusFromEvsResult(EvsResult result) {
     }
 }
 
+ScopedAStatus Utils::buildScopedAStatusFromEvsResult(Return<EvsResult>& result) {
+    if (!result.isOk()) {
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    return Utils::buildScopedAStatusFromEvsResult(static_cast<EvsResult>(result));
+}
+
 ScopedAStatus Utils::buildScopedAStatusFromEvsResult(hidlevs::V1_0::EvsResult result) {
     if (result != hidlevs::V1_0::EvsResult::OK) {
         return ScopedAStatus::fromServiceSpecificError(static_cast<int>(makeFromHidl(result)));
     } else {
         return ScopedAStatus::ok();
     }
+}
+
+ScopedAStatus Utils::buildScopedAStatusFromEvsResult(Return<hidlevs::V1_0::EvsResult>& result) {
+    if (!result.isOk()) {
+        return ScopedAStatus::fromServiceSpecificError(
+                static_cast<int>(EvsResult::UNDERLYING_SERVICE_ERROR));
+    }
+
+    return Utils::buildScopedAStatusFromEvsResult(static_cast<hidlevs::V1_0::EvsResult>(result));
 }
 
 std::string Utils::toString(const EvsEventType& type) {
