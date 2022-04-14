@@ -22,6 +22,7 @@ import static android.os.IBinder.DeathRecipient;
 
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
@@ -31,6 +32,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -40,15 +42,20 @@ import static org.testng.Assert.expectThrows;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
+import android.hardware.automotive.audiocontrol.IAudioGainCallback;
 import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.MutingInfo;
+import android.hardware.automotive.audiocontrol.Reasons;
 import android.media.AudioManager;
 import android.os.IBinder;
+import android.os.RemoteException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.android.car.audio.CarAudioGainConfigInfo;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
@@ -85,11 +92,15 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     private static final String SECONDARY_CALL_ADDRESS = "secondary call";
     private static final String SECONDARY_NOTIFICATION_ADDRESS = "secondary notification";
 
+    private static final int AIDL_AUDIO_CONTROL_VERSION_1 = 1;
+
     @Mock
     IBinder mBinder;
 
     @Mock
     IAudioControl mAudioControl;
+
+    @Mock HalAudioGainCallback mHalAudioGainCallback;
 
     @Mock
     AudioControlDeathRecipient mDeathRecipient;
@@ -447,6 +458,181 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         assertWithMessage("Secondary Zone Device Addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList()
                 .containsExactly(SECONDARY_CALL_ADDRESS, SECONDARY_NOTIFICATION_ADDRESS);
+    }
+
+    @Test
+    public void supportsFeature_forAudioGainCallback_returnsTrue() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1 + 1);
+        assertThat(
+                        mAudioControlWrapperAidl.supportsFeature(
+                                AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
+                .isTrue();
+
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1 + 4);
+        assertThat(
+                        mAudioControlWrapperAidl.supportsFeature(
+                                AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
+                .isTrue();
+    }
+
+    @Test
+    public void supportsFeature_forAudioGainCallback_returnsFalse() throws Exception {
+        when(mAudioControl.getInterfaceVersion()).thenReturn(AIDL_AUDIO_CONTROL_VERSION_1);
+        assertThat(
+                        mAudioControlWrapperAidl.supportsFeature(
+                                AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
+                .isFalse();
+
+        when(mAudioControl.getInterfaceVersion()).thenReturn(0);
+        assertThat(
+                        mAudioControlWrapperAidl.supportsFeature(
+                                AUDIOCONTROL_FEATURE_AUDIO_GAIN_CALLBACK))
+                .isFalse();
+    }
+
+    @Test
+    public void registerAudioGainCallback_succeeds() throws Exception {
+        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        verify(mAudioControl).registerGainCallback(any());
+    }
+
+    @Test
+    public void registerAudioGainCallback_Throws() throws Exception {
+        doThrow(new RemoteException("D'OH!")).when(mAudioControl).registerGainCallback(any());
+
+        IllegalStateException thrown =
+                expectThrows(
+                        IllegalStateException.class,
+                        () ->
+                                mAudioControlWrapperAidl.registerAudioGainCallback(
+                                        mHalAudioGainCallback));
+
+        assertWithMessage("IllegalStateException thrown by registerAudioGainCallback")
+                .that(thrown)
+                .hasMessageThat()
+                .contains("IAudioControl#registerAudioGainCallback failed");
+    }
+
+    @Test
+    public void registerAudioGainCallback_nullcallback_Throws() {
+        NullPointerException thrown =
+                expectThrows(
+                        NullPointerException.class,
+                        () ->
+                                mAudioControlWrapperAidl.registerAudioGainCallback(
+                                        /* gainCallback= */ null));
+
+        assertWithMessage("NullPointerException thrown by registerAudioGainCallback")
+                .that(thrown)
+                .hasMessageThat()
+                .contains("Audio Gain Callback can not be null");
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_succeeds() throws Exception {
+        ArgumentCaptor<IAudioGainCallback.Stub> captor =
+                ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
+
+        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        verify(mAudioControl).registerGainCallback(captor.capture());
+
+        int[] halReasons = {Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING};
+        List<Integer> reasons = Arrays.stream(halReasons).boxed().collect(Collectors.toList());
+
+        AudioGainConfigInfo gainInfo1 = new AudioGainConfigInfo();
+        gainInfo1.zoneId = PRIMARY_ZONE_ID;
+        gainInfo1.devicePortAddress = PRIMARY_MUSIC_ADDRESS;
+        gainInfo1.volumeIndex = 666;
+        CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo1);
+        AudioGainConfigInfo gainInfo2 = new AudioGainConfigInfo();
+        gainInfo2.zoneId = SECONDARY_ZONE_ID;
+        gainInfo2.devicePortAddress = SECONDARY_NAVIGATION_ADDRESS;
+        gainInfo2.volumeIndex = 999;
+        CarAudioGainConfigInfo carGainInfo2 = new CarAudioGainConfigInfo(gainInfo2);
+
+        AudioGainConfigInfo[] gains = new AudioGainConfigInfo[] {gainInfo1, gainInfo2};
+
+        List<CarAudioGainConfigInfo> carGains = List.of(carGainInfo1, carGainInfo2);
+
+        captor.getValue().onAudioDeviceGainsChanged(halReasons, gains);
+
+        ArgumentCaptor<List<CarAudioGainConfigInfo>> captorGains =
+                ArgumentCaptor.forClass(List.class);
+        verify(mHalAudioGainCallback).onAudioDeviceGainsChanged(eq(reasons), captorGains.capture());
+
+        assertThat(captorGains.getValue()).containsExactlyElementsIn(carGains);
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_invalidReasons() throws Exception {
+        ArgumentCaptor<IAudioGainCallback.Stub> captor =
+                ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
+
+        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        verify(mAudioControl).registerGainCallback(captor.capture());
+
+        int[] halReasons = {-1, 1999, 666};
+        List<Integer> emptyReasons = new ArrayList<>();
+
+        AudioGainConfigInfo gainInfo1 = new AudioGainConfigInfo();
+        gainInfo1.zoneId = PRIMARY_ZONE_ID;
+        gainInfo1.devicePortAddress = PRIMARY_MUSIC_ADDRESS;
+        gainInfo1.volumeIndex = 666;
+        CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo1);
+        AudioGainConfigInfo gainInfo2 = new AudioGainConfigInfo();
+        gainInfo2.zoneId = SECONDARY_ZONE_ID;
+        gainInfo2.devicePortAddress = SECONDARY_NAVIGATION_ADDRESS;
+        gainInfo2.volumeIndex = 999;
+        CarAudioGainConfigInfo carGainInfo2 = new CarAudioGainConfigInfo(gainInfo2);
+
+        AudioGainConfigInfo[] gains = new AudioGainConfigInfo[] {gainInfo1, gainInfo2};
+
+        List<CarAudioGainConfigInfo> carGains = List.of(carGainInfo1, carGainInfo2);
+
+        captor.getValue().onAudioDeviceGainsChanged(halReasons, gains);
+
+        ArgumentCaptor<List<CarAudioGainConfigInfo>> captorGains =
+                ArgumentCaptor.forClass(List.class);
+        verify(mHalAudioGainCallback)
+                .onAudioDeviceGainsChanged(eq(emptyReasons), captorGains.capture());
+
+        assertThat(captorGains.getValue()).containsExactlyElementsIn(carGains);
+    }
+
+    @Test
+    public void onAudioDeviceGainsChanged_invalidReasonsAmongValidReasons() throws Exception {
+        ArgumentCaptor<IAudioGainCallback.Stub> captor =
+                ArgumentCaptor.forClass(IAudioGainCallback.Stub.class);
+
+        mAudioControlWrapperAidl.registerAudioGainCallback(mHalAudioGainCallback);
+        verify(mAudioControl).registerGainCallback(captor.capture());
+
+        int[] halReasons = {-1, Reasons.REMOTE_MUTE, 1999, 666, Reasons.NAV_DUCKING};
+        List<Integer> validReasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+
+        AudioGainConfigInfo gainInfo1 = new AudioGainConfigInfo();
+        gainInfo1.zoneId = PRIMARY_ZONE_ID;
+        gainInfo1.devicePortAddress = PRIMARY_MUSIC_ADDRESS;
+        gainInfo1.volumeIndex = 666;
+        CarAudioGainConfigInfo carGainInfo1 = new CarAudioGainConfigInfo(gainInfo1);
+        AudioGainConfigInfo gainInfo2 = new AudioGainConfigInfo();
+        gainInfo2.zoneId = SECONDARY_ZONE_ID;
+        gainInfo2.devicePortAddress = SECONDARY_NAVIGATION_ADDRESS;
+        gainInfo2.volumeIndex = 999;
+        CarAudioGainConfigInfo carGainInfo2 = new CarAudioGainConfigInfo(gainInfo2);
+
+        AudioGainConfigInfo[] gains = new AudioGainConfigInfo[] {gainInfo1, gainInfo2};
+
+        List<CarAudioGainConfigInfo> carGains = List.of(carGainInfo1, carGainInfo2);
+
+        captor.getValue().onAudioDeviceGainsChanged(halReasons, gains);
+
+        ArgumentCaptor<List<CarAudioGainConfigInfo>> captorGains =
+                ArgumentCaptor.forClass(List.class);
+        verify(mHalAudioGainCallback)
+                .onAudioDeviceGainsChanged(eq(validReasons), captorGains.capture());
+
+        assertThat(captorGains.getValue()).containsExactlyElementsIn(carGains);
     }
 
     private MutingInfo verifyOnDevicesToMuteChangeCalled(int audioZoneId) throws Exception {
