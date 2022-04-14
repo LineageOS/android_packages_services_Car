@@ -1878,6 +1878,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$TurnScreenOnSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$InteractAcrossProfilesSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2301,6 +2310,24 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$BluetoothBroadcastActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$BluetoothFindBroadcastsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.panel.SettingsPanelActivity"
             android:enabled="false"
             android:exported="false"
@@ -2437,6 +2464,15 @@
 
         <activity
             android:name="com.android.settings.Settings$OneHandedSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported, android:enabled">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settingslib.qrcode.QrCodeScanModeActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
