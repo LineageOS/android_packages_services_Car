@@ -357,7 +357,8 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
                 LOG(ERROR) << "Failed to construct direct renderer.  Skipping state change.";
                 return false;
             }
-        } else if (mCameraList[desiredState].size() > 1 || desiredState == PARKING) {
+        } else if (mCameraList[desiredState].size() > 1 ||
+                   (mCameraList[desiredState].size() > 0 && desiredState == PARKING)) {
             //TODO(b/140668179): RenderTopView needs to be updated to use new
             //                   ConfigManager.
             mDesiredRenderer = std::make_unique<RenderTopView>(mEvs,
