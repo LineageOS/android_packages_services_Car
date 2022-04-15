@@ -33,13 +33,19 @@ aidl_interface {
             min_sdk_version: "31",
             apex_available: [
                 "//apex_available:platform",
-                "com.android.car.framework"
+                "com.android.car.framework",
             ],
             enabled: true,
         },
     },
+
     // Run "m android.automotive.telemetry.internal-update-api" to update the
     // "aidl_api/.../current/" dir whenever the aidl files are changed.
     // This field is automatically updated during version freeze.
-    versions: [],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: [],
+        },
+    ],
 }
