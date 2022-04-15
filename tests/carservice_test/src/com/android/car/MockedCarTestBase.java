@@ -504,7 +504,12 @@ public class MockedCarTestBase {
         car.connect();
         synchronized (waitForConnection) {
             if (!car.isConnected()) {
-                waitForConnection.wait(DEFAULT_WAIT_TIMEOUT_MS);
+                long nowMs = System.currentTimeMillis();
+                long deadlineMs = nowMs + DEFAULT_WAIT_TIMEOUT_MS;
+                while (!car.isConnected() && nowMs < deadlineMs) {
+                    waitForConnection.wait(deadlineMs - nowMs);
+                    nowMs = System.currentTimeMillis();
+                }
             }
         }
 
