@@ -92,7 +92,7 @@ public final class WearEstimateChange implements Parcelable {
         this.oldEstimate = requireNonNull(oldEstimate);
         this.newEstimate = requireNonNull(newEstimate);
         this.uptimeAtChange = uptimeAtChange;
-        this.dateAtChange = requireNonNull(dateAtChange);
+        this.dateAtChange = Instant.ofEpochSecond(requireNonNull(dateAtChange).getEpochSecond());
         this.isAcceptableDegradation = isAcceptableDegradation;
     }
 

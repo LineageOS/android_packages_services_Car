@@ -48,15 +48,17 @@ public class WearEstimateRecord {
         mOldWearEstimate = Objects.requireNonNull(oldWearEstimate);
         mNewWearEstimate = Objects.requireNonNull(newWearEstimate);
         mTotalCarServiceUptime = totalCarServiceUptime;
-        mUnixTimestamp = Objects.requireNonNull(unixTimestamp);
+        long unixEpochSeconds = Objects.requireNonNull(unixTimestamp).getEpochSecond();
+        mUnixTimestamp = Instant.ofEpochSecond(unixEpochSeconds);
     }
 
     WearEstimateRecord(@NonNull JSONObject json) throws JSONException {
         mOldWearEstimate = new WearEstimate(json.getJSONObject("oldWearEstimate"));
         mNewWearEstimate = new WearEstimate(json.getJSONObject("newWearEstimate"));
         mTotalCarServiceUptime = json.getLong("totalCarServiceUptime");
-        mUnixTimestamp = Instant.ofEpochMilli(json.getLong("unixTimestamp"));
-
+        long unixEpochSeconds = Instant.ofEpochMilli(json.getLong("unixTimestamp"))
+                .getEpochSecond();
+        mUnixTimestamp = Instant.ofEpochSecond(unixEpochSeconds);
     }
 
     void writeToJson(@NonNull JsonWriter jsonWriter) throws IOException {
