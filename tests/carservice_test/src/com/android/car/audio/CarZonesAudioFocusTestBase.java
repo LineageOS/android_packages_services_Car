@@ -51,6 +51,7 @@ abstract class CarZonesAudioFocusTestBase {
     protected static final String INVALID_CLIENT_ID = "invalid-client-id";
     protected static final String INVALID_CLIENT_ID_2 = "invalid-client2-id";
     protected static final String MEDIA_CLIENT_ID = "media-client-id";
+    protected static final String MEDIA_CLIENT_ID_2 = "media-client2-id";
     protected static final String NAVIGATION_CLIENT_ID = "nav-client-id";
     protected static final String VOICE_COMMAND_CLIENT_ID = "voice-cmd-client-id";
     protected static final String CALL_RING_CLIENT_ID = "call-ring-client-id";
@@ -62,6 +63,7 @@ abstract class CarZonesAudioFocusTestBase {
     protected static final String SAFETY_CLIENT_ID = "safety-client-id";
     protected static final String VEHICLE_STATUS_CLIENT_ID = "vehicle-status-client-id";
     protected static final String ANNOUNCEMENT_CLIENT_ID = "announcement-client-id";
+    protected static final String ANNOUNCEMENT_CLIENT_ID_2 = "announcement-client2-id";
 
     protected static final int PRIMARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE;
     protected static final int SECONDARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
@@ -80,14 +82,17 @@ abstract class CarZonesAudioFocusTestBase {
     protected static final int EMERGENCY_CLIENT_UID = 1000905;
     protected static final int SAFETY_CLIENT_UID = 1001005;
     protected static final int VEHICLE_STATUS_CLIENT_UID = 1001105;
-    protected static final int ANNOUNCEMENT_CLIENT_UID = 1001205;
+    protected static final int ANNOUNCEMENT_CLIENT_UID_1 = 1001205;
+    protected static final int ANNOUNCEMENT_CLIENT_UID_2 = 1001207;
 
     protected static final AudioClientInfo INVALID_SOUND_INFO_1 = new AudioClientInfo(
             USAGE_VIRTUAL_SOURCE, INVALID_CLIENT_UID_1, INVALID_CLIENT_ID);
     protected static final AudioClientInfo INVALID_SOUND_INFO_2 = new AudioClientInfo(
             USAGE_VIRTUAL_SOURCE, INVALID_CLIENT_UID_2, INVALID_CLIENT_ID_2);
-    protected static final AudioClientInfo MEDIA_INFO = new AudioClientInfo(
+    protected static final AudioClientInfo MEDIA_INFO_1 = new AudioClientInfo(
             USAGE_MEDIA, MEDIA_CLIENT_UID_1, MEDIA_CLIENT_ID);
+    protected static final AudioClientInfo MEDIA_INFO_2 = new AudioClientInfo(
+            USAGE_MEDIA, MEDIA_CLIENT_UID_2, MEDIA_CLIENT_ID_2);
     protected static final AudioClientInfo NAVIGATION_INFO = new AudioClientInfo(
             USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, NAVIGATION_CLIENT_UID, NAVIGATION_CLIENT_ID);
     protected static final AudioClientInfo VOICE_COMMAND_INFO = new AudioClientInfo(
@@ -108,8 +113,10 @@ abstract class CarZonesAudioFocusTestBase {
             USAGE_SAFETY, SAFETY_CLIENT_UID, SAFETY_CLIENT_ID);
     protected static final AudioClientInfo VEHICLE_STATUS_INFO = new AudioClientInfo(
             USAGE_VEHICLE_STATUS, VEHICLE_STATUS_CLIENT_UID, VEHICLE_STATUS_CLIENT_ID);
-    protected static final AudioClientInfo ANNOUNCEMENT_INFO = new AudioClientInfo(
-            USAGE_ANNOUNCEMENT, ANNOUNCEMENT_CLIENT_UID, ANNOUNCEMENT_CLIENT_ID);
+    protected static final AudioClientInfo ANNOUNCEMENT_INFO_1 = new AudioClientInfo(
+            USAGE_ANNOUNCEMENT, ANNOUNCEMENT_CLIENT_UID_1, ANNOUNCEMENT_CLIENT_ID);
+    protected static final AudioClientInfo ANNOUNCEMENT_INFO_2 = new AudioClientInfo(
+            USAGE_ANNOUNCEMENT, ANNOUNCEMENT_CLIENT_UID_2, ANNOUNCEMENT_CLIENT_ID_2);
 
     @Mock
     protected AudioManager mMockAudioManager;
