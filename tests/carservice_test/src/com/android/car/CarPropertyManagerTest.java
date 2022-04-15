@@ -875,7 +875,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
     }
 
-    private class PropertyHandler implements VehicleHalPropertyHandler {
+    private static class PropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
 
         @Override

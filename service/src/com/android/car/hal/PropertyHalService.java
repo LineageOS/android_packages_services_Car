@@ -45,7 +45,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -64,14 +63,11 @@ public class PropertyHalService extends HalServiceBase {
             new SparseArray<>();
     @GuardedBy("mLock")
     private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
-    // Only contains propId if the property Id is different in HAL and manager
-    private static final Map<Integer, Integer> PROPERTY_ID_HAL_TO_MANAGER = Map.of(
-            VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS,
-            VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS);
-    // Only contains propId if the property Id is different in HAL and manager
-    private static final Map<Integer, Integer> PROPERTY_ID_MANAGER_TO_HAL = Map.of(
-            VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS,
-            VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+    // Only contains property ID if value is different for the CarPropertyManager and the HAL.
+    private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
+            BidirectionalSparseIntArray.create(
+                    new int[]{VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS,
+                            VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS});
     private static final String TAG = CarLog.tagFor(PropertyHalService.class);
     private final VehicleHal mVehicleHal;
     private final PropertyHalServiceIds mPropIds;
@@ -88,14 +84,14 @@ public class PropertyHalService extends HalServiceBase {
      * Converts manager property ID to Vehicle HAL property ID.
      */
     private static int managerToHalPropId(int mgrPropId) {
-        return PROPERTY_ID_MANAGER_TO_HAL.getOrDefault(mgrPropId, mgrPropId);
+        return MGR_PROP_ID_TO_HAL_PROP_ID.getValue(mgrPropId, mgrPropId);
     }
 
     /**
      * Converts Vehicle HAL property ID to manager property ID.
      */
     private static int halToManagerPropId(int halPropId) {
-        return PROPERTY_ID_HAL_TO_MANAGER.getOrDefault(halPropId, halPropId);
+        return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
     }
 
     // Checks if the property exists in this VHAL before calling methods in IVehicle.
