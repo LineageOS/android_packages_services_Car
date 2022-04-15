@@ -229,7 +229,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
                     synchronized (mLock) {
                         // Handle only the latest event
-                        Slogf.e(TAG_EVS, "Handling GearSelection");
+                        Slogf.i(TAG_EVS, "Handling GearSelection event");
                         handlePropertyEventLocked(events.get(events.size() - 1));
                     }
                 }
@@ -431,6 +431,15 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         // Requested to connect to the Extended View System service
                         if (!mHalWrapper.connectToHalServiceIfNecessary()) {
                             return ERROR_UNAVAILABLE;
+                        }
+
+                        if (mStateEngine.checkCurrentStateRequiresSystemActivity() ||
+                                (mLastEvsHalEvent != null &&
+                                 mLastEvsHalEvent.isRequestingToStartActivity())) {
+                            // Request to launch the viewer because we lost the Extended View System
+                            // service while a client was actively streaming a video.
+                            mHandler.postDelayed(mActivityRequestTimeoutRunnable,
+                                                 STREAM_START_REQUEST_TIMEOUT_MS);
                         }
                     }
                     break;
@@ -1273,7 +1282,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         long timestamp = value.getTimestamp();
-        if (timestamp <= mLastEvsHalEvent.getTimestamp()) {
+        if (timestamp != 0 && timestamp <= mLastEvsHalEvent.getTimestamp()) {
             if (DBG) {
                 Slogf.d(TAG_EVS,
                         "Ignoring GEAR_SELECTION change happened past, timestamp = " + timestamp +
