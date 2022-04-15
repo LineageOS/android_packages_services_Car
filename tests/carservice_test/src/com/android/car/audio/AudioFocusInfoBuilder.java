@@ -32,6 +32,7 @@ public final class AudioFocusInfoBuilder {
     private int mLossReceived = AudioManager.AUDIOFOCUS_NONE;
     private int mSdk = Build.VERSION.SDK_INT;
     private boolean mDelayedFocusRequestEnabled;
+    private boolean mPausesOnDuckRequestEnabled;
 
     public AudioFocusInfoBuilder setUsage(int usage) {
         mUsage = usage;
@@ -78,17 +79,34 @@ public final class AudioFocusInfoBuilder {
         return this;
     }
 
+    public AudioFocusInfoBuilder setPausesOnDuckRequestEnable(boolean pausesOnDuckRequestEnabled) {
+        mPausesOnDuckRequestEnabled = pausesOnDuckRequestEnabled;
+        return this;
+    }
+
+
     public AudioFocusInfo createAudioFocusInfo() {
-        AudioAttributes.Builder builder = new AudioAttributes.Builder().setUsage(mUsage);
+        AudioAttributes.Builder builder = new AudioAttributes.Builder();
+        if (AudioAttributes.isSystemUsage(mUsage)) {
+            builder.setSystemUsage(mUsage);
+        } else {
+            builder.setUsage(mUsage);
+        }
+
         int flags = 0;
         if (mBundle != null) {
             builder = builder.addBundle(mBundle);
         }
+
         if (mDelayedFocusRequestEnabled) {
-            flags = flags | AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
+            flags |= AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
         }
-        AudioAttributes audioAttributes = builder.build();
-        return new AudioFocusInfo(audioAttributes, mClientUid, mClientId,
+
+        if (mPausesOnDuckRequestEnabled) {
+            flags |= AudioManager.AUDIOFOCUS_FLAG_PAUSES_ON_DUCKABLE_LOSS;
+        }
+
+        return new AudioFocusInfo(builder.build(), mClientUid, mClientId,
                 mPackageName, mGainRequest, mLossReceived, flags, mSdk);
     }
 }

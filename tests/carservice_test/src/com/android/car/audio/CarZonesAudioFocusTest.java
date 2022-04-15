@@ -46,7 +46,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
+public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
     @Test
     public void onAudioFocusRequest_withNoCurrentFocusHolder_requestGranted() {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
