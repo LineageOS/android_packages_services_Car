@@ -40,6 +40,7 @@ import android.provider.Settings;
 import android.util.Pair;
 
 import com.android.car.CarLog;
+import com.android.car.R;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
@@ -133,7 +134,8 @@ final class InitialUserSetter {
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
             @NonNull Consumer<UserHandle> listener, @NonNull UserHandleHelper userHandleHelper) {
-        this(context, carUserService, listener, userHandleHelper, /* newGuestName= */ null);
+        this(context, carUserService, listener, userHandleHelper,
+                context.getString(R.string.default_guest_name));
     }
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
