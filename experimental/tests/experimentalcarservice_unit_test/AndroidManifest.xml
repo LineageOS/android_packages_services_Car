@@ -19,8 +19,10 @@
           android:sharedUserId="com.google.android.car.uid.kitchensink"
           package="com.android.experimentalcar.experimentalcarservice_unittest">
 
+    <!-- NOTE: ideally it should instrument com.android.experimentalcar instead of itself,
+               but that package is only installed in the system user -->
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
-                     android:targetPackage="com.android.experimentalcar"
+                     android:targetPackage="com.android.experimentalcar.experimentalcarservice_unittest"
                      android:label="Unit Tests for Experimental Car APIs"/>
 
     <application android:label="ExperimentalCarServiceUnitTest"
