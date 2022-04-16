@@ -43,6 +43,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.car.builtin.media.AudioManagerHelper;
+import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
+import android.car.media.CarAudioPatchHandle;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -53,6 +55,7 @@ import android.media.AudioDeviceInfo;
 import android.media.AudioGain;
 import android.media.AudioManager;
 import android.os.IBinder;
+import android.os.SystemProperties;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -93,6 +96,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int PRIMARY_ZONE_VOLUME_GROUP_COUNT = 4;
     private static final Object SECONDARY_ZONE_VOLUME_GROUP_COUNT = 1;
 
+    private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
+            "ro.android.car.audio.enableaudiopatch";
+
     private CarAudioService mCarAudioService;
     @Mock
     private Context mMockContext;
@@ -121,6 +127,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private TemporaryFile mTemporaryAudioConfigurationFile;
     private Context mContext;
     private AudioControlWrapperAidl mAudioControlWrapperAidl;
+    private AudioDeviceInfo mTunerDevice;
+    private AudioDeviceInfo mMediaOutputDevice;
 
     public CarAudioServiceUnitTest() {
         super(CarAudioService.TAG);
@@ -132,7 +140,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .spyStatic(AudioManagerHelper.class)
                 .spyStatic(AudioControlWrapperAidl.class)
                 .spyStatic(CarLocalServices.class)
-                .spyStatic(AudioControlFactory.class);
+                .spyStatic(AudioControlFactory.class)
+                .spyStatic(SystemProperties.class);
     }
 
     @Before
@@ -176,6 +185,8 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                         .setAudioDeviceGain(any(), any(), anyInt(), anyBoolean()));
         doReturn(mMockOccupantZoneService)
                 .when(() ->  CarLocalServices.getService(CarOccupantZoneService.class));
+        doReturn(true)
+                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
 
         setupAudioManager();
 
@@ -275,6 +286,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void createAudioPatch_onMediaOutputDevice_failsForConfigurationMissing() {
         mCarAudioService.init();
 
+        doReturn(false)
+                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
+
         IllegalStateException thrown = assertThrows(IllegalStateException.class,
                 () -> mCarAudioService
                         .createAudioPatch(PRIMARY_ZONE_FM_TUNER_ADDRESS,
@@ -299,25 +313,89 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(thrown).hasMessageThat().contains(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
     }
 
+    @Test
+    public void createAudioPatch_onMediaOutputDevice_succeeds() {
+        mCarAudioService.init();
+
+        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_GRANTED);
+        doReturn(false)
+                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, true));
+        doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
+                .when(() -> AudioManagerHelper
+                        .createAudioPatch(mTunerDevice, mMediaOutputDevice, DEFAULT_GAIN));
+
+        CarAudioPatchHandle audioPatch = mCarAudioService
+                .createAudioPatch(PRIMARY_ZONE_FM_TUNER_ADDRESS, USAGE_MEDIA, DEFAULT_GAIN);
+
+        assertWithMessage("Audio Patch Sink Address")
+                .that(audioPatch.getSinkAddress()).isEqualTo(MEDIA_TEST_DEVICE);
+        assertWithMessage("Audio Patch Source Address")
+                .that(audioPatch.getSourceAddress()).isEqualTo(PRIMARY_ZONE_FM_TUNER_ADDRESS);
+        assertWithMessage("Audio Patch Handle")
+                .that(audioPatch.getHandleId()).isEqualTo(0);
+    }
+
+    @Test
+    public void releaseAudioPatch_failsForConfigurationMissing() {
+        mCarAudioService.init();
+
+        doReturn(false)
+                .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, false));
+        CarAudioPatchHandle carAudioPatchHandle =
+                new CarAudioPatchHandle(0, PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE);
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mCarAudioService.releaseAudioPatch(carAudioPatchHandle));
+
+        assertWithMessage("Release FM and Media Audio Patch Exception")
+                .that(thrown).hasMessageThat().contains("Audio Patch APIs not enabled");
+    }
+
+    @Test
+    public void releaseAudioPatch_failsForMissingPermission() {
+        mCarAudioService.init();
+
+        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_DENIED);
+        CarAudioPatchHandle carAudioPatchHandle =
+                new CarAudioPatchHandle(0, PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE);
+
+        SecurityException thrown = assertThrows(SecurityException.class,
+                () -> mCarAudioService.releaseAudioPatch(carAudioPatchHandle));
+
+        assertWithMessage("FM and Media Audio Patch Permission Exception")
+                .that(thrown).hasMessageThat().contains(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+    }
+
+    @Test
+    public void releaseAudioPatch_failsForNullPatch() {
+        mCarAudioService.init();
+
+        assertThrows(NullPointerException.class,
+                () -> mCarAudioService.releaseAudioPatch(null));
+    }
+
+
     private AudioDeviceInfo[] generateInputDeviceInfos() {
+        mTunerDevice = new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_FM_TUNER_ADDRESS)
+                .setType(TYPE_FM_TUNER)
+                .setIsSource(true)
+                .build();
         return new AudioDeviceInfo[]{
                 new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_MICROPHONE_ADDRESS)
                         .setType(TYPE_BUILTIN_MIC)
                         .setIsSource(true)
                         .build(),
-                new AudioDeviceInfoBuilder().setAddressName(PRIMARY_ZONE_FM_TUNER_ADDRESS)
-                        .setType(TYPE_FM_TUNER)
-                        .setIsSource(true)
-                        .build(),
+                mTunerDevice
         };
     }
 
     private AudioDeviceInfo[] generateOutputDeviceInfos() {
+        mMediaOutputDevice = new AudioDeviceInfoBuilder()
+                .setAudioGains(new AudioGain[] {new GainBuilder().build()})
+                .setAddressName(MEDIA_TEST_DEVICE)
+                .build();
         return new AudioDeviceInfo[] {
-                new AudioDeviceInfoBuilder()
-                        .setAudioGains(new AudioGain[] {new GainBuilder().build()})
-                        .setAddressName(MEDIA_TEST_DEVICE)
-                        .build(),
+                mMediaOutputDevice,
                 new AudioDeviceInfoBuilder()
                         .setAudioGains(new AudioGain[] {new GainBuilder().build()})
                         .setAddressName(NAVIGATION_TEST_DEVICE)
