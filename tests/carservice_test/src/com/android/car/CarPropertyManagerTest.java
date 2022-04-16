@@ -157,21 +157,21 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final java.util.Collection<Integer> VENDOR_PERMISSION_CONFIG =
             Collections.unmodifiableList(
                     Arrays.asList(PROP_WITH_READ_ONLY_PERMISSION,
-                    VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_1,
-                    VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
-                    PROP_WITH_WRITE_ONLY_PERMISSION,
-                    VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
-                    VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_1));
+                            VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_1,
+                            VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
+                            PROP_WITH_WRITE_ONLY_PERMISSION,
+                            VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
+                            VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_1));
 
 
     // Use FAKE_PROPERTY_ID to test api return null or throw exception.
     private static final int FAKE_PROPERTY_ID = 0x111;
 
     private static final int DRIVER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_LEFT
-                                                    | VehicleAreaSeat.ROW_2_LEFT;
+            | VehicleAreaSeat.ROW_2_LEFT;
     private static final int PASSENGER_SIDE_AREA_ID = VehicleAreaSeat.ROW_1_RIGHT
-                                                    | VehicleAreaSeat.ROW_2_CENTER
-                                                    | VehicleAreaSeat.ROW_2_RIGHT;
+            | VehicleAreaSeat.ROW_2_CENTER
+            | VehicleAreaSeat.ROW_2_RIGHT;
     private static final float INIT_TEMP_VALUE = 16f;
     private static final float CHANGED_TEMP_VALUE = 20f;
     private static final int CALLBACK_SHORT_TIMEOUT_MS = 350; // ms
@@ -184,11 +184,12 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             VehiclePropertyIds.CREATE_USER,
             VehiclePropertyIds.REMOVE_USER,
             VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION
-            );
+    );
 
     private CarPropertyManager mManager;
 
-    @Rule public TestName mTestName = new TestName();
+    @Rule
+    public TestName mTestName = new TestName();
 
     @Override
     public void setUp() throws Exception {
@@ -245,7 +246,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case PROP_WITH_WRITE_ONLY_PERMISSION:
                     break;
                 default:
-                    Assert.fail("Unexpected CarPropertyConfig: " + cfg.toString());
+                    Assert.fail("Unexpected CarPropertyConfig: " + cfg);
             }
         }
     }
@@ -489,25 +490,26 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         callback1.assertOnErrorEventNotCalled();
         callback2.assertOnErrorEventCalled();
     }
+
     @Test
     public void testSetterExceptionsInQ() {
         Truth.assertThat(getContext().getApplicationInfo().targetSdkVersion)
                 .isEqualTo(Build.VERSION_CODES.Q);
 
         assertThrows(IllegalStateException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(IllegalStateException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(IllegalStateException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(IllegalArgumentException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INVALID_ARG,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INVALID_ARG,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(RuntimeException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
     }
 
@@ -517,19 +519,19 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 .isGreaterThan(Build.VERSION_CODES.Q);
 
         assertThrows(PropertyAccessDeniedSecurityException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(PropertyNotAvailableAndRetryException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(PropertyNotAvailableException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(CarInternalErrorException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
         assertThrows(IllegalArgumentException.class,
-                ()->mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INVALID_ARG,
+                () -> mManager.setProperty(Integer.class, PROP_CAUSE_STATUS_CODE_INVALID_ARG,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL, 1));
     }
 
@@ -539,36 +541,36 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 .isEqualTo(Build.VERSION_CODES.Q);
 
         assertThrows(IllegalStateException.class,
-                ()->mManager.getProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
         assertThrows(IllegalStateException.class,
-                ()->mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
+                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
 
         assertThrows(IllegalArgumentException.class,
-                ()->mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
         assertThrows(IllegalArgumentException.class,
-                ()->mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG,
+                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
 
         assertThrows(IllegalStateException.class,
-                ()->mManager.getProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
         assertThrows(IllegalStateException.class,
-                ()->mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
-                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
-
-        assertThrows(IllegalStateException.class,
-                ()->mManager.getProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
-                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
-        assertThrows(IllegalStateException.class,
-                ()->mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
 
         assertThrows(IllegalStateException.class,
-                ()->mManager.getProperty(NULL_VALUE_PROP,
-                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+                () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+        assertThrows(IllegalStateException.class,
+                () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+
+        assertThrows(IllegalStateException.class,
+                () -> mManager.getProperty(NULL_VALUE_PROP,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
 
         Truth.assertThat(mManager.getProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)).isNull();
@@ -615,8 +617,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
 
         assertThrows(PropertyNotAvailableException.class,
-                ()->mManager.getProperty(NULL_VALUE_PROP,
-                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+                () -> mManager.getProperty(NULL_VALUE_PROP,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
     }
 
     @Test
@@ -716,7 +718,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         propWithString.value.stringValue = "1234";
         props.add(propWithString);
 
-        for (VehiclePropValue prop: props) {
+        for (VehiclePropValue prop : props) {
             // inject passenger event before driver event
             getAidlMockedVehicleHal().injectEvent(prop);
             assertThat(callback.getEventCounter()).isEqualTo(0);
@@ -860,9 +862,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE, handler);
 
         addAidlProperty(CUSTOM_SEAT_INT_PROP_1, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
-                                                        .addAreaConfig(PASSENGER_SIDE_AREA_ID);
+                .addAreaConfig(PASSENGER_SIDE_AREA_ID);
         addAidlProperty(CUSTOM_SEAT_INT_PROP_2, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
-                                                        .addAreaConfig(PASSENGER_SIDE_AREA_ID);
+                .addAreaConfig(PASSENGER_SIDE_AREA_ID);
 
         addAidlProperty(NULL_VALUE_PROP, handler);
 
@@ -873,8 +875,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
     }
 
-    private class PropertyHandler implements VehicleHalPropertyHandler {
+    private static class PropertyHandler implements VehicleHalPropertyHandler {
         HashMap<Integer, VehiclePropValue> mMap = new HashMap<>();
+
         @Override
         public synchronized void onPropertySet(VehiclePropValue value) {
             // Simulate HalClient.set() behavior.
@@ -967,6 +970,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         private int mErrorCode;
         private final CountDownLatch mEventsCountDownLatch = new CountDownLatch(1);
         private final CountDownLatch mRegisterCountDownLatch = new CountDownLatch(2);
+
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             Log.d(CALLBACK_TAG, "onChangeEvent: " + value);
@@ -1013,10 +1017,12 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     private class TestSequenceCallback implements CarPropertyManager.CarPropertyEventCallback {
 
-        private ConcurrentHashMap<Integer, CarPropertyValue> mRecorder = new ConcurrentHashMap<>();
-        private int mCounter = 0;
+        private final ConcurrentHashMap<Integer, CarPropertyValue> mRecorder =
+                new ConcurrentHashMap<>();
+        private int mCounter;
         private final CountDownLatch mEventsCountDownLatch;
         private final CountDownLatch mRegisterCountDownLatch = new CountDownLatch(2);
+
         @Override
         public void onChangeEvent(CarPropertyValue value) {
             Log.e(TAG, "onChanged get a event " + value);

@@ -36,7 +36,6 @@ import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.builtin.util.Slogf;
-import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -154,16 +153,11 @@ public class ICarImpl extends ICar.Stub {
 
     private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
 
-    private TimingsTraceLog mBootTiming;
-
     private final Object mLock = new Object();
 
     /** Test only service. Populate it only when necessary. */
     @GuardedBy("mLock")
     private CarTestService mCarTestService;
-
-    @GuardedBy("mLock")
-    private ICarServiceHelper mICarServiceHelper;
 
     private final String mVehicleInterfaceName;
 
@@ -498,9 +492,6 @@ public class ICarImpl extends ICar.Stub {
         try {
             EventLogHelper.writeCarServiceSetCarServiceHelper(Binder.getCallingPid());
             assertCallingFromSystemProcess();
-            synchronized (mLock) {
-                mICarServiceHelper = carServiceHelper;
-            }
             // TODO(b/173030628) create a proxy wrapping access to CarServiceHelper instead
             mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
             mCarUserService.setCarServiceHelper(carServiceHelper);
@@ -919,7 +910,7 @@ public class ICarImpl extends ICar.Stub {
         public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();
             EventLogHelper.writeCarServiceOnUserRemoved(user.getIdentifier());
-            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user.toString());
+            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user);
             mCarUserService.onUserRemoved(user);
         }
 
