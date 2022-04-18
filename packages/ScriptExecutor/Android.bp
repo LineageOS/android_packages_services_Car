@@ -69,7 +69,7 @@ android_app {
 
     sdk_version: "module_current",
 
-    min_sdk_version: "30",
+    min_sdk_version: "33",
 
     privileged: false,
 
