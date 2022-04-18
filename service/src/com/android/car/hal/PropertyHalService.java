@@ -361,7 +361,7 @@ public class PropertyHalService extends HalServiceBase {
     public void takeProperties(Collection<HalPropConfig> halPropConfigs) {
         for (HalPropConfig halPropConfig : halPropConfigs) {
             int halPropId = halPropConfig.getPropId();
-            if (mPropIds.isSupportedProperty(halPropId)) {
+            if (isSupportedProperty(halPropId)) {
                 synchronized (mLock) {
                     mHalPropIdToPropConfig.put(halPropId, halPropConfig);
                 }
