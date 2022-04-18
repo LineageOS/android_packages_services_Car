@@ -42,23 +42,27 @@ AidlDisplay::~AidlDisplay() {
  * Gets basic display information from a hardware display object and returns.
  */
 ScopedAStatus AidlDisplay::getDisplayInfo(DisplayDesc* _aidl_return) {
-    mHidlDisplay->getDisplayInfo([&_aidl_return](const hidlevs::V1_0::DisplayDesc& info) {
+    mHidlDisplay->getDisplayInfo([_aidl_return](const hidlevs::V1_0::DisplayDesc& info) {
         _aidl_return->id = info.displayId;
         _aidl_return->vendorFlags = info.vendorFlags;
     });
 
     auto halV1_1 = hidlevs::V1_1::IEvsDisplay::castFrom(mHidlDisplay).withDefault(nullptr);
     if (!halV1_1) {
-        halV1_1->getDisplayInfo_1_1([&_aidl_return](const auto& hidlMode, const auto& hidlState) {
-            const ::android::ui::DisplayMode* pMode =
-                    reinterpret_cast<const ::android::ui::DisplayMode*>(hidlMode.data());
-            const ::android::ui::DisplayState* pState =
-                    reinterpret_cast<const ::android::ui::DisplayState*>(hidlState.data());
-            _aidl_return->width = pMode->resolution.getWidth();
-            _aidl_return->height = pMode->resolution.getHeight();
-            _aidl_return->orientation = static_cast<Rotation>(pState->orientation);
-        });
+        // Additional display information is not available if the system runs
+        // HIDL EVS v1.0 implementation.
+        return ScopedAStatus::ok();
     }
+
+    halV1_1->getDisplayInfo_1_1([_aidl_return](const auto& hidlMode, const auto& hidlState) {
+        const ::android::ui::DisplayMode* pMode =
+                reinterpret_cast<const ::android::ui::DisplayMode*>(hidlMode.data());
+        const ::android::ui::DisplayState* pState =
+                reinterpret_cast<const ::android::ui::DisplayState*>(hidlState.data());
+        _aidl_return->width = pMode->resolution.getWidth();
+        _aidl_return->height = pMode->resolution.getHeight();
+        _aidl_return->orientation = static_cast<Rotation>(pState->orientation);
+    });
     return ScopedAStatus::ok();
 }
 

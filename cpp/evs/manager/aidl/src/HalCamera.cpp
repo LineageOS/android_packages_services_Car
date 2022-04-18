@@ -252,6 +252,8 @@ void HalCamera::clientStreamEnding(const VirtualCamera* client) {
 }
 
 ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
+    std::lock_guard<std::mutex> lock(mFrameMutex);
+
     // Find this frame in our list of outstanding frames
     unsigned i;
     for (i = 0; i < mFrames.size(); i++) {
@@ -268,6 +270,8 @@ ScopedAStatus HalCamera::doneWithFrame(BufferDesc buffer) {
     // Are there still clients using this buffer?
     mFrames[i].refCount--;
     if (mFrames[i].refCount > 0) {
+        LOG(DEBUG) << "Buffer " << buffer.bufferId << " is still being used by "
+                   << mFrames[i].refCount << " other client(s).";
         return ScopedAStatus::ok();
     }
 
@@ -453,8 +457,8 @@ ScopedAStatus HalCamera::setParameter(const std::shared_ptr<VirtualCamera>& virt
         /* Notify a parameter change */
         EvsEventDesc event;
         event.aType = EvsEventType::PARAMETER_CHANGED;
-        event.payload[0] = static_cast<uint32_t>(id);
-        event.payload[1] = static_cast<uint32_t>(effectiveValues[0]);
+        event.payload.push_back(static_cast<int32_t>(id));
+        event.payload.push_back(effectiveValues[0]);
         if (!notify(event).isOk()) {
             LOG(WARNING) << "Fail to deliver a parameter change notification";
         }
