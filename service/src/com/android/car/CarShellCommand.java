@@ -2137,7 +2137,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         int resumeDelay = CarPowerManagementService.NO_WAKEUP_BY_TIMER;
         int index = 1;
         while (index < args.length) {
-            switch (args[index]) {
+            String curArg = args[index];
+            switch (curArg) {
                 case PARAM_SIMULATE:
                     if (modeSet) {
                         writer.printf("Invalid command syntax.\nUsage: %s\n",
@@ -2175,7 +2176,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                                 getSuspendCommandUsage(command));
                         return;
                     }
-                    resumeDelay = Integer.parseInt(args[index]);
+                    resumeDelay = Integer.parseInt(curArg);
                     break;
                 default:
                     writer.printf("Invalid command syntax.\nUsage: %s\n",
