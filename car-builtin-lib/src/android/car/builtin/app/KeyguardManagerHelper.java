@@ -17,6 +17,7 @@
 package android.car.builtin.app;
 
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.util.Slogf;
 import android.os.RemoteException;
 import android.view.WindowManagerGlobal;
@@ -38,6 +39,7 @@ public final class KeyguardManagerHelper {
      *
      * @return {@code true} if keyguard is locked.
      */
+    @AddedIn(majorVersion = 33)
     public static boolean isKeyguardLocked() {
         boolean locked = true;
         try {

@@ -25,6 +25,7 @@ import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -47,7 +48,6 @@ import com.android.internal.util.Preconditions;
 import java.util.ArrayList;
 import java.util.Objects;
 
-
 /**
  * Helper for Audio related operations.
  *
@@ -56,6 +56,7 @@ import java.util.Objects;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class AudioManagerHelper {
 
+    @AddedIn(majorVersion = 33)
     public static final int UNDEFINED_STREAM_TYPE = -1;
     private static final String TAG = "AudioServiceHelper";
 
@@ -71,6 +72,7 @@ public final class AudioManagerHelper {
      * @param isOutput is the device an output device
      * @return true if the gain was successfully set
      */
+    @AddedIn(majorVersion = 33)
     public static boolean setAudioDeviceGain(@NonNull AudioManager audioManager,
             @NonNull String address, int gainInMillibels, boolean isOutput) {
         Preconditions.checkNotNull(audioManager,
@@ -153,6 +155,7 @@ public final class AudioManagerHelper {
      * @param deviceInfo
      * @return
      */
+    @AddedIn(majorVersion = 33)
     public static AudioGainInfo getAudioGainInfo(@NonNull AudioDeviceInfo deviceInfo) {
         Objects.requireNonNull(deviceInfo);
         return new AudioGainInfo(getAudioGain(deviceInfo.getPort()));
@@ -165,6 +168,7 @@ public final class AudioManagerHelper {
      * @param gainInMillibels gain to apply to the source device
      * @return The audio patch information that was created
      */
+    @AddedIn(majorVersion = 33)
     public static AudioPatchInfo createAudioPatch(@NonNull AudioDeviceInfo sourceDevice,
             @NonNull AudioDeviceInfo sinkDevice, int gainInMillibels) {
         Preconditions.checkNotNull(sourceDevice,
@@ -232,6 +236,7 @@ public final class AudioManagerHelper {
      * @param info patch information to release
      * @return returns true if the patch was successfully removed
      */
+    @AddedIn(majorVersion = 33)
     public static boolean releaseAudioPatch(@NonNull AudioManager audioManager,
             @NonNull AudioPatchInfo info) {
         Preconditions.checkNotNull(audioManager,
@@ -265,6 +270,7 @@ public final class AudioManagerHelper {
      *
      * <p>See {@link android.media.AudioAttributes.usageToString}.
      */
+    @AddedIn(majorVersion = 33)
     public static String usageToString(@AttributeUsage int usage) {
         return AudioAttributes.usageToString(usage);
     }
@@ -275,6 +281,7 @@ public final class AudioManagerHelper {
      *
      * <p>See {@link android.media.AudioAttributes.usageToXsdString}.
      */
+    @AddedIn(majorVersion = 33)
     public static String usageToXsdString(@AttributeUsage int usage) {
         return AudioAttributes.usageToXsdString(usage);
     }
@@ -285,6 +292,7 @@ public final class AudioManagerHelper {
      *
      * <p>See {@link android.media.AudioAttributes.xsdStringToUsage}.
      */
+    @AddedIn(majorVersion = 33)
     public static int xsdStringToUsage(String usage) {
         return AudioAttributes.xsdStringToUsage(usage);
     }
@@ -293,6 +301,7 @@ public final class AudioManagerHelper {
      * Returns {@link android.media.AudioAttributes.AttributeUsage} for
      * {@link android.media.AudioAttributes.AttributeUsage.USAGE_VIRTUAL_SOURCE}.
      */
+    @AddedIn(majorVersion = 33)
     public static int getUsageVirtualSource() {
         return USAGE_VIRTUAL_SOURCE;
     }
@@ -302,6 +311,7 @@ public final class AudioManagerHelper {
      *
      * <p>See {@link android.media.AudioManager#adjustToString(int)}
      */
+    @AddedIn(majorVersion = 33)
     public static String adjustToString(int adjustment) {
         return AudioManager.adjustToString(adjustment);
     }
@@ -311,6 +321,7 @@ public final class AudioManagerHelper {
      *
      * <p>See {@link android.media.AudioManager#setMasterMute(boolean, int)}.
      */
+    @AddedIn(majorVersion = 33)
     public static void setMasterMute(@NonNull AudioManager audioManager, boolean mute, int flags) {
         Objects.requireNonNull(audioManager, "AudioManager must not be null.");
         audioManager.setMasterMute(mute, flags);
@@ -321,6 +332,7 @@ public final class AudioManagerHelper {
      *
      * <p>See {@link android.media.AudioManager#isMasterMute()}.
      */
+    @AddedIn(majorVersion = 33)
     public static boolean isMasterMute(@NonNull AudioManager audioManager) {
         Objects.requireNonNull(audioManager, "AudioManager must not be null.");
         return audioManager.isMasterMute();
@@ -329,6 +341,7 @@ public final class AudioManagerHelper {
     /**
      * Registers volume and mute receiver
      */
+    @AddedIn(majorVersion = 33)
     public static void registerVolumeAndMuteReceiver(Context context,
             VolumeAndMuteReceiver audioAndMuteHelper) {
         Objects.requireNonNull(context, "Context can not be null.");
@@ -344,6 +357,7 @@ public final class AudioManagerHelper {
     /**
      * Unregisters volume and mute receiver
      */
+    @AddedIn(majorVersion = 33)
     public static void unregisterVolumeAndMuteReceiver(Context context,
             VolumeAndMuteReceiver audioAndMuteHelper) {
         Objects.requireNonNull(context, "Context can not be null.");
@@ -355,6 +369,7 @@ public final class AudioManagerHelper {
     /**
      * Checks if the client id is equal to the telephony's focus client id.
      */
+    @AddedIn(majorVersion = 33)
     public static boolean isCallFocusRequestClientId(String clientId) {
         return AudioSystem.IN_VOICE_COMM_FOCUS_ID.equals(clientId);
     }
@@ -378,18 +393,22 @@ public final class AudioManagerHelper {
             mStepValue = gain.stepValue();
         }
 
+        @AddedIn(majorVersion = 33)
         public int getMinGain() {
             return mMinGain;
         }
 
+        @AddedIn(majorVersion = 33)
         public int getMaxGain() {
             return mMaxGain;
         }
 
+        @AddedIn(majorVersion = 33)
         public int getDefaultGain() {
             return mDefaultGain;
         }
 
+        @AddedIn(majorVersion = 33)
         public int getStepValue() {
             return mStepValue;
         }
@@ -415,19 +434,23 @@ public final class AudioManagerHelper {
             mHandleId = handleId;
         }
 
+        @AddedIn(majorVersion = 33)
         public int getHandleId() {
             return mHandleId;
         }
 
+        @AddedIn(majorVersion = 33)
         public String getSourceAddress() {
             return mSourceAddress;
         }
 
+        @AddedIn(majorVersion = 33)
         public String getSinkAddress() {
             return mSinkAddress;
         }
 
         @Override
+        @AddedIn(majorVersion = 33)
         public String toString() {
             StringBuilder builder = new StringBuilder();
             builder.append("Source{ ");
@@ -475,11 +498,13 @@ public final class AudioManagerHelper {
          * Called on volume changes
          * @param streamType type of stream for the volume change
          */
+        @AddedIn(majorVersion = 33)
         public abstract void onVolumeChanged(int streamType);
 
         /**
          * Called on mute changes
          */
+        @AddedIn(majorVersion = 33)
         public abstract void onMuteChanged();
     }
 }

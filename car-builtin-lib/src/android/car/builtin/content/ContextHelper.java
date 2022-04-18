@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,6 +40,7 @@ public final class ContextHelper {
     }
 
     /** Returns display id relevant for the context */
+    @AddedIn(majorVersion = 33)
     public static int getDisplayId(@NonNull Context context) {
         return context.getDisplayId();
     }
@@ -47,6 +49,7 @@ public final class ContextHelper {
      * Same as {@code context.startActivityAsUser(intent, options, user)}.
      */
     @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
+    @AddedIn(majorVersion = 33)
     public static void startActivityAsUser(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options, @NonNull UserHandle user) {
         Objects.requireNonNull(context, "context");

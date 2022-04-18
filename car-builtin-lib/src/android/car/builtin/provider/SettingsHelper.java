@@ -17,6 +17,7 @@
 package android.car.builtin.provider;
 
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 
 /**
  * Helper for hidden {@link android.provider.Settings} APIs.
@@ -30,6 +31,7 @@ public final class SettingsHelper {
     /**
      * Value of {@link android.provider.Settings.System#SYSTEM_LOCALES}.
      */
+    @AddedIn(majorVersion = 33)
     public static final String SYSTEM_LOCALES = "system_locales";
 
     private SettingsHelper() {

@@ -19,6 +19,7 @@ package android.car.builtin.os;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.os.IBinder;
 import android.os.ServiceManager;
 
@@ -36,23 +37,27 @@ public final class ServiceManagerHelper {
 
     /** Check {@link ServiceManager#getService(String)} */
     @Nullable
+    @AddedIn(majorVersion = 33)
     public static IBinder getService(@NonNull String name) {
         return ServiceManager.getService(name);
     }
 
     /** Check {@link ServiceManager#checkService(String)} */
     @Nullable
+    @AddedIn(majorVersion = 33)
     public static IBinder checkService(@NonNull String name) {
         return ServiceManager.checkService(name);
     }
 
     /** Check {@link ServiceManager#waitForDeclaredService(String)} */
     @Nullable
+    @AddedIn(majorVersion = 33)
     public static IBinder waitForDeclaredService(@NonNull String name) {
         return ServiceManager.waitForDeclaredService(name);
     }
 
     /** Check {@link ServiceManager#addService(String, IBinder)} */
+    @AddedIn(majorVersion = 33)
     public static void addService(@NonNull String name, @NonNull IBinder service) {
         ServiceManager.addService(name, service);
     }

@@ -17,6 +17,7 @@
 package android.car.builtin.app;
 
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.content.Context;
 import android.os.RemoteException;
@@ -32,6 +33,7 @@ import com.android.internal.app.IVoiceInteractionManagerService;
 public final class VoiceInteractionHelper {
 
     /** Checks if ${link VoiceInteractionManagerService} is available. */
+    @AddedIn(majorVersion = 33)
     public static boolean isAvailable() {
         return getService() != null;
     }
@@ -41,6 +43,7 @@ public final class VoiceInteractionHelper {
      *
      * @param enabled Whether to enable or disable voice interaction.
      */
+    @AddedIn(majorVersion = 33)
     public static void setEnabled(boolean enabled) throws RemoteException {
         IVoiceInteractionManagerService service = getService();
         if (service == null) {

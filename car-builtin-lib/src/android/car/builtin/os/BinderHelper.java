@@ -19,6 +19,7 @@ package android.car.builtin.os;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
@@ -47,6 +48,7 @@ import java.io.PrintWriter;
 public final class BinderHelper {
 
     /** Dumps given {@link RemoteCallbackList} for debugging. */
+    @AddedIn(majorVersion = 33)
     public static void dumpRemoteCallbackList(@NonNull RemoteCallbackList<?> list,
             @NonNull PrintWriter pw) {
         list.dump(pw, /* prefix= */ "");
@@ -70,6 +72,7 @@ public final class BinderHelper {
          *
          * @return linux error code for the binder call. {@code 0} means ok.
          */
+        @AddedIn(majorVersion = 33)
         int onShellCommand(@NonNull FileDescriptor in, @NonNull FileDescriptor out,
                 @NonNull FileDescriptor err, @NonNull String[] args);
     }
@@ -92,6 +95,7 @@ public final class BinderHelper {
      *
      * @throws RemoteException for binder call failure
      */
+    @AddedIn(majorVersion = 33)
     public static boolean onTransactForCmd(int code, @NonNull Parcel data,
             @Nullable Parcel reply, int flags, @NonNull ShellCommandListener cmdListener)
             throws RemoteException {
