@@ -33,8 +33,7 @@ java_sdk_library {
     },
 
     sdk_version: "module_current",
-    // TODO(b/202884646) Change into T sdk version
-    min_sdk_version: "current",
+    min_sdk_version: "33",
     apex_available: [
         "com.android.car.framework"
     ],

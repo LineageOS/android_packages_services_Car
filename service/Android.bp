@@ -102,6 +102,9 @@ java_defaults {
             enabled: false,
         },
     },
+
+    sdk_version: "module_current",
+    platform_apis: false,
 }
 
 java_defaults {
@@ -113,10 +116,7 @@ java_defaults {
 
     defaults: [ "carservice-updatable-min-java-defaults" ],
 
-    sdk_version: "module_current",
-    // TODO(b/202884646) Change into T sdk version
-    min_sdk_version: "current",
-    platform_apis: false,
+    min_sdk_version: "33",
 }
 
 // Non-module build
@@ -189,7 +189,7 @@ java_library {
 android_library {
     name: "car-service-test-static-lib",
 
-    defaults: ["carservice-updatable-java-defaults"],
+    defaults: ["carservice-updatable-min-java-defaults"],
 
     manifest: "EmptyAndroidManifest.xml"
 }

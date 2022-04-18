@@ -45,4 +45,6 @@ android_test {
     platform_apis: true,
 
     certificate: "platform",
+
+    min_sdk_version: "33",
 }
