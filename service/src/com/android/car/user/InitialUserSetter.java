@@ -41,6 +41,7 @@ import android.util.Slog;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
+import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
@@ -130,7 +131,7 @@ final class InitialUserSetter {
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
             @NonNull Consumer<UserInfo> listener) {
-        this(context, carUserService, listener, /* newGuestName= */ null);
+        this(context, carUserService, listener, context.getString(R.string.default_guest_name));
     }
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
