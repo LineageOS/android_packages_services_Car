@@ -82,7 +82,7 @@
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ler dados de diagnóstico"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Ler dados de diagnóstico do carro."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"limpar dados de diagnóstico"</string>
-    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Limpar dados de diagnóstico do carro."</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Remover dados de diagnóstico do carro."</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"Editor de VMS"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Publicar mensagens de VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Inscrição em VMS"</string>
