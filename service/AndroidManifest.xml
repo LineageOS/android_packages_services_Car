@@ -19,6 +19,8 @@
      package="com.android.car.updatable"
      coreApp="true">
 
+    <uses-sdk android:minSdkVersion="33"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
      cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
      the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
