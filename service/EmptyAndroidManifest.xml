@@ -20,6 +20,7 @@
           package="com.android.car.updatable"
           coreApp="true">
     <!-- Empty manifest to build test library. Do not add anything. -->
+
     <application android:label="@string/app_title"
                  android:directBootAware="true"
                  android:allowBackup="false" />

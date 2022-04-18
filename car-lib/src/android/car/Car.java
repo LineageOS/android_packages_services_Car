@@ -110,9 +110,8 @@ public final class Car {
      *  should check both this and {@link android.os.Build.VERSION#SDK_INT} before using
      *  an API added in a specific car API version.
      */
-    // TODO(b/214103007): Update this before T release.
     @AddedInOrBefore(majorVersion = 33)
-    public static final int API_VERSION_MAJOR_INT = 32;
+    public static final int API_VERSION_MAJOR_INT = 33;
 
     /**
      * Represents a minor version change for the same {@link #API_VERSION_MAJOR_INT}.
