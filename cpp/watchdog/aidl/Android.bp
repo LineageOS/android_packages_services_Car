@@ -29,7 +29,7 @@ aidl_interface {
             min_sdk_version: "31",
             apex_available: [
                 "//apex_available:platform",
-                "com.android.car.framework"
+                "com.android.car.framework",
             ],
             enabled: true,
         },
@@ -52,7 +52,7 @@ aidl_interface {
             min_sdk_version: "31",
             apex_available: [
                 "//apex_available:platform",
-                "com.android.car.framework"
+                "com.android.car.framework",
             ],
             enabled: true,
         },
@@ -60,4 +60,11 @@ aidl_interface {
     imports: [
         "android.automotive.watchdog-V3",
     ],
+    versions_with_info: [
+        {
+            version: "1",
+            imports: ["android.automotive.watchdog-V3"],
+        },
+    ],
+
 }
