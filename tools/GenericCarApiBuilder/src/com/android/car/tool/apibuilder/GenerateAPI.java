@@ -57,6 +57,13 @@ public final class GenerateAPI {
             String carLibPath = rootDir + CAR_API_PATH;
             List<File> allJavaFiles = getAllFiles(new File(carLibPath));
 
+            if  (args.length > 0 &&  args[0].equalsIgnoreCase("--classes-only")) {
+                for (int i = 0; i < allJavaFiles.size(); i++) {
+                    printAllClasses(allJavaFiles.get(i));
+                }
+                return;
+            }
+
             List<String> allAPIs = new ArrayList<>();
             for (int i = 0; i < allJavaFiles.size(); i++) {
                 allAPIs.addAll(parseJavaFile(allJavaFiles.get(i), /* onlyUnannotated= */ false));
@@ -74,8 +81,17 @@ public final class GenerateAPI {
             }
 
             // write all un-annotated APIs.
-            file = Paths.get(toolPath + UN_ANNOTATED_API_LIST);
-            Files.write(file, allAPIs, StandardCharsets.UTF_8);
+            if (allAPIs.size() > 0) {
+                if (args.length > 0 && args[0].equalsIgnoreCase("--write-un-annotated-to-file")) {
+                    file = Paths.get(toolPath + UN_ANNOTATED_API_LIST);
+                    Files.write(file, allAPIs, StandardCharsets.UTF_8);
+                } else {
+                    System.out.println("*********Un-annotated APIs************");
+                    for (int i = 0; i < allAPIs.size(); i++) {
+                        System.out.println(allAPIs.get(i));
+                    }
+                }
+            }
         } catch (Exception e) {
             throw e;
         }
@@ -97,6 +113,24 @@ public final class GenerateAPI {
             }
         }
         return allFiles;
+    }
+
+    private static void printAllClasses(File file) throws Exception {
+        CompilationUnit cu = StaticJavaParser.parse(file);
+        String packageName = cu.getPackageDeclaration().get().getNameAsString();
+
+        new VoidVisitorAdapter<Object>() {
+            @Override
+            public void visit(ClassOrInterfaceDeclaration classOrInterfaceDeclaration, Object arg) {
+                if (classOrInterfaceDeclaration.isPrivate()) {
+                    return;
+                }
+
+                String className = classOrInterfaceDeclaration.getFullyQualifiedName().get()
+                        .substring(packageName.length() + 1);
+                System.out.println("\"" + packageName + "." + className.replace(".", "$") + "\",");
+            }
+        }.visit(cu, null);
     }
 
     private static List<String> parseJavaFile(File file, boolean onlyUnannotated) throws Exception {
@@ -162,7 +196,6 @@ public final class GenerateAPI {
                     // special case
                     if (fieldName.equalsIgnoreCase("CREATOR")) {
                         fieldInitialized = false;
-                        fieldType = fieldType.substring("Parcelable.".length());
                     }
 
                     boolean isSystem = false;

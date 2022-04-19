@@ -84,6 +84,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * Factory method for failed UserIdentificationAssociationResponse requests.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static UserIdentificationAssociationResponse forFailure() {
         return forFailure(/* errorMessage= */ null);
     }
@@ -92,6 +93,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * Factory method for failed UserIdentificationAssociationResponse requests.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static UserIdentificationAssociationResponse forFailure(@Nullable String errorMessage) {
         return new UserIdentificationAssociationResponse(/* success= */ false,
                 errorMessage, /* values= */ null);
@@ -101,6 +103,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * Factory method for successful UserIdentificationAssociationResponse requests.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static UserIdentificationAssociationResponse forSuccess(
             @UserIdentificationAssociationValue int[] values) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
@@ -112,6 +115,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
      * Factory method for successful UserIdentificationAssociationResponse requests.
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static UserIdentificationAssociationResponse forSuccess(
             @UserIdentificationAssociationValue int[] values, @Nullable String errorMessage) {
         Preconditions.checkArgument(!ArrayUtils.isEmpty(values), "must have at least one value");
@@ -177,6 +181,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -190,6 +195,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -206,6 +212,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -228,6 +235,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<UserIdentificationAssociationResponse> CREATOR
             = new Parcelable.Creator<UserIdentificationAssociationResponse>() {
         @Override

@@ -709,6 +709,7 @@ public final class CarAudioManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         if (mService != null && !mCarVolumeCallbacks.isEmpty()) {
             unregisterVolumeCallback();
@@ -929,6 +930,7 @@ public final class CarAudioManager extends CarManagerBase {
          * @param groupId Id of the volume group that volume is changed
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onGroupVolumeChanged(int zoneId, int groupId, int flags) {}
 
         /**
@@ -943,6 +945,7 @@ public final class CarAudioManager extends CarManagerBase {
          * @param zoneId Id of the audio zone that global mute state change happens
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onMasterMuteChanged(int zoneId, int flags) {}
 
         /**
@@ -958,6 +961,7 @@ public final class CarAudioManager extends CarManagerBase {
          * @param groupId Id of the volume group that volume is changed
          * @param flags see {@link android.media.AudioManager} for flag definitions
          */
+        @AddedInOrBefore(majorVersion = 33)
         public void onGroupMuteChanged(int zoneId, int groupId, int flags) {}
     }
 }

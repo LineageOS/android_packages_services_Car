@@ -128,6 +128,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     private final String mInternalErrorMessage;
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return mStatus == STATUS_SUCCESSFUL;
     }
@@ -146,6 +147,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     // NOTE: codegen generates this method, but without @ExcludeFromCodeCoverageGeneratedReport
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
@@ -309,6 +311,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -324,6 +327,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -380,6 +384,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<UserCreationResult> CREATOR
             = new Parcelable.Creator<UserCreationResult>() {
         @Override

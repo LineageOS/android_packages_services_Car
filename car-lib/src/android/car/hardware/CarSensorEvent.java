@@ -154,6 +154,7 @@ public class CarSensorEvent implements Parcelable {
      * When this data was received from car. It is elapsed real-time of data reception from car in
      * nanoseconds since system boot.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public long timestamp;
     /**
      * array holding float type of sensor data. If the sensor has single value, only floatValues[0]
@@ -203,6 +204,7 @@ public class CarSensorEvent implements Parcelable {
         dest.writeLongArray(longValues);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarSensorEvent> CREATOR =
             new Parcelable.Creator<CarSensorEvent>() {
         public CarSensorEvent createFromParcel(Parcel in) {
@@ -246,6 +248,7 @@ public class CarSensorEvent implements Parcelable {
      * Environment data with timestamp and temperature.
      */
     public static class EnvironmentData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
         /** If unsupported by the car, this value is NaN. */
         @AddedInOrBefore(majorVersion = 33)
@@ -277,7 +280,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide*/
     public static class IgnitionStateData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public int ignitionState;
 
         /** @hide */
@@ -306,7 +311,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class NightData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean isNightMode;
 
         /** @hide */
@@ -335,7 +342,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class GearData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public int gear;
 
         /** @hide */
@@ -364,7 +373,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class ParkingBrakeData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean isEngaged;
 
         /** @hide */
@@ -393,8 +404,10 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class FuelLevelData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
         /** Fuel level in milliliters.  Negative values indicate this property is unsupported. */
+        @AddedInOrBefore(majorVersion = 33)
         public float level;
 
         /** @hide */
@@ -431,7 +444,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class OdometerData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public float kms;
 
         /** @hide */
@@ -460,7 +475,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class RpmData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public float rpm;
 
         /** @hide */
@@ -489,7 +506,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarSpeedData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public float carSpeed;
 
         /** @hide */
@@ -518,11 +537,17 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarWheelTickDistanceData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public long sensorResetCount;
+        @AddedInOrBefore(majorVersion = 33)
         public long frontLeftWheelDistanceMm;
+        @AddedInOrBefore(majorVersion = 33)
         public long frontRightWheelDistanceMm;
+        @AddedInOrBefore(majorVersion = 33)
         public long rearRightWheelDistanceMm;
+        @AddedInOrBefore(majorVersion = 33)
         public long rearLeftWheelDistanceMm;
 
         /** @hide */
@@ -555,7 +580,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarAbsActiveData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean absIsActive;
 
         /** @hide */
@@ -584,7 +611,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarTractionControlActiveData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean tractionControlIsActive;
 
         /** @hide */
@@ -615,7 +644,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarFuelDoorOpenData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean fuelDoorIsOpen;
 
         /** @hide */
@@ -645,8 +676,10 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarEvBatteryLevelData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
         /** Battery Level in Watt-hours */
+        @AddedInOrBefore(majorVersion = 33)
         public float evBatteryLevel;
 
         /** @hide */
@@ -684,7 +717,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarEvChargePortOpenData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean evChargePortIsOpen;
 
         /** @hide */
@@ -714,7 +749,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarEvChargePortConnectedData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public boolean evChargePortIsConnected;
 
         /** @hide */
@@ -745,9 +782,11 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarEvBatteryChargeRateData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
         /** EV battery charging rate in mW.
          * Positive values indicates battery being charged.  Negative values indicate discharge */
+        @AddedInOrBefore(majorVersion = 33)
         public float evChargeRate;
 
         /** @hide */
@@ -778,7 +817,9 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     public static class CarEngineOilLevelData {
+        @AddedInOrBefore(majorVersion = 33)
         public long timestamp;
+        @AddedInOrBefore(majorVersion = 33)
         public int engineOilLevel;
 
         /** @hide */
@@ -807,6 +848,7 @@ public class CarSensorEvent implements Parcelable {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getName() + "[");

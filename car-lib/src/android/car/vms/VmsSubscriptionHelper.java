@@ -63,6 +63,7 @@ public final class VmsSubscriptionHelper {
     /**
      * Adds a subscription to a layer.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void subscribe(@NonNull VmsLayer layer) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -76,6 +77,7 @@ public final class VmsSubscriptionHelper {
     /**
      * Adds a subscription to a specific provider of a layer.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void subscribe(@NonNull VmsLayer layer, int providerId) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -92,6 +94,7 @@ public final class VmsSubscriptionHelper {
     /**
      * Removes a subscription to a layer.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void unsubscribe(@NonNull VmsLayer layer) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {
@@ -105,6 +108,7 @@ public final class VmsSubscriptionHelper {
     /**
      * Removes a subscription to the specific provider of a layer.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public void unsubscribe(@NonNull VmsLayer layer, int providerId) {
         Objects.requireNonNull(layer, "layer cannot be null");
         synchronized (mLock) {

@@ -190,6 +190,7 @@ public final class CarTelemetryManager extends CarManagerBase {
          *     error.
          * @param status of the metrics report. See {@link MetricsReportStatus}.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onResult(
                 @NonNull String metricsConfigName,
                 @Nullable PersistableBundle report,
@@ -213,6 +214,7 @@ public final class CarTelemetryManager extends CarManagerBase {
          *
          * @param metricsConfigName name of the MetricsConfig whose report is ready.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onReady(@NonNull String metricsConfigName);
     }
 
@@ -239,6 +241,7 @@ public final class CarTelemetryManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {}
 
     /**
