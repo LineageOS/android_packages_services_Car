@@ -157,6 +157,7 @@ public final class RemoveUserResult {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "RemoveUserResult[" + statusToString(mStatus) + "]";
     }

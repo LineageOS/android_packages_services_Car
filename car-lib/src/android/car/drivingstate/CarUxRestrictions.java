@@ -362,6 +362,7 @@ public final class CarUxRestrictions implements Parcelable {
         dest.writeInt(mMaxContentDepth);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarUxRestrictions> CREATOR =
             new Parcelable.Creator<CarUxRestrictions>() {
         @Override
@@ -403,6 +404,7 @@ public final class CarUxRestrictions implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "DO: " + mRequiresDistractionOptimization + " UxR: " + mActiveRestrictions
                 + " time: " + mTimeStamp;

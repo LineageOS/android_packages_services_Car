@@ -139,6 +139,7 @@ public final class CarActivityManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         mTaskMonitorToken = null;
     }

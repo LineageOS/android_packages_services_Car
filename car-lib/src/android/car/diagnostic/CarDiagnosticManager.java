@@ -112,6 +112,7 @@ public final class CarDiagnosticManager extends CarManagerBase {
          *
          * @param carDiagnosticEvent
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onDiagnosticEvent(CarDiagnosticEvent carDiagnosticEvent);
     }
 

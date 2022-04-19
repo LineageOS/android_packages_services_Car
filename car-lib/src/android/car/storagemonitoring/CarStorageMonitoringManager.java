@@ -60,6 +60,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
         /**
          * Invoked when a new periodic snapshot delta of I/O activities is calculated.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onSnapshot(IoStats snapshot);
     }
 
@@ -114,6 +115,7 @@ public final class CarStorageMonitoringManager extends CarManagerBase {
      * @hide
      */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         mListeners.clear();
         mListenerToService = null;

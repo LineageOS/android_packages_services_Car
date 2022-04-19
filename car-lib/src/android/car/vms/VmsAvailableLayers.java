@@ -133,6 +133,7 @@ public final class VmsAvailableLayers implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -144,6 +145,7 @@ public final class VmsAvailableLayers implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(@android.annotation.Nullable Object o) {
         // You can override field equality logic by defining either of the methods like:
         // boolean fieldNameEquals(VmsAvailableLayers other) { ... }
@@ -160,6 +162,7 @@ public final class VmsAvailableLayers implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         // You can override field hashCode logic by defining methods like:
         // int fieldNameHashCode() { ... }
@@ -202,6 +205,7 @@ public final class VmsAvailableLayers implements Parcelable {
         onConstructed();
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<VmsAvailableLayers> CREATOR
             = new Parcelable.Creator<VmsAvailableLayers>() {
         @Override

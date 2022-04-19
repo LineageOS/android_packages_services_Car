@@ -61,6 +61,7 @@ public final class CarDrivingStateManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public synchronized void onCarDisconnected() {
         mListenerToService = null;
         mDrvStateEventListener = null;
@@ -77,6 +78,7 @@ public final class CarDrivingStateManager extends CarManagerBase {
          * Called when the car's driving state changes.
          * @param event Car's driving state.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onDrivingStateChanged(CarDrivingStateEvent event);
     }
 

@@ -54,6 +54,7 @@ public final class CarAppFocusManager extends CarManagerBase {
          * @param appType appType where the focus change has happened.
          * @param active {@code true} if there is an active owner for the focus.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onAppFocusChanged(@AppFocusType int appType, boolean active);
     }
 
@@ -68,6 +69,7 @@ public final class CarAppFocusManager extends CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onAppFocusOwnershipLost(@AppFocusType int appType);
 
         /**
@@ -77,6 +79,7 @@ public final class CarAppFocusManager extends CarManagerBase {
          * upon getting this for {@link CarAppFocusManager#APP_FOCUS_TYPE_NAVIGATION}.
          * @param appType
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onAppFocusOwnershipGranted(@AppFocusType int appType);
     }
 
@@ -361,6 +364,7 @@ public final class CarAppFocusManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }

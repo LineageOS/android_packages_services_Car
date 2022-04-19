@@ -98,6 +98,7 @@ public final class CarDrivingStateEvent implements Parcelable {
         dest.writeLong(timeStamp);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarDrivingStateEvent> CREATOR =
             new Parcelable.Creator<CarDrivingStateEvent>() {
 
@@ -123,6 +124,7 @@ public final class CarDrivingStateEvent implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return eventValue + " " + timeStamp;
     }

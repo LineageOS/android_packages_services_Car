@@ -324,6 +324,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return Min value in given areaId. Null if not have min value in given area.
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public T getMinValue(int areaId) {
         AreaConfig<T> area = mSupportedAreas.get(areaId);
         return area == null ? null : area.getMinValue();
@@ -335,6 +336,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return Max value in given areaId. Null if not have max value in given area.
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public T getMaxValue(int areaId) {
         AreaConfig<T> area = mSupportedAreas.get(areaId);
         return area == null ? null : area.getMaxValue();
@@ -345,6 +347,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return Min value in areaId 0. Null if not have min value.
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public T getMinValue() {
         AreaConfig<T> area = mSupportedAreas.get(0);
         return area == null ? null : area.getMinValue();
@@ -355,6 +358,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return Max value in areaId 0. Null if not have max value.
      */
     @Nullable
+    @AddedInOrBefore(majorVersion = 33)
     public T getMaxValue() {
         AreaConfig<T> area = mSupportedAreas.get(0);
         return area == null ? null : area.getMaxValue();
@@ -362,11 +366,13 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mAccess);
         dest.writeInt(mAreaType);
@@ -416,6 +422,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         }
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Creator<CarPropertyConfig> CREATOR = new Creator<CarPropertyConfig>() {
         @Override
         public CarPropertyConfig createFromParcel(Parcel in) {
@@ -430,6 +437,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyConfig{"
                 + "mPropertyId=" + mPropertyId
@@ -459,6 +467,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
             mMaxValue = maxValue;
         }
 
+        @AddedInOrBefore(majorVersion = 33)
         public static final Parcelable.Creator<AreaConfig<Object>> CREATOR =
                 getCreator(Object.class);
 
@@ -482,26 +491,31 @@ public final class CarPropertyConfig<T> implements Parcelable {
             mMaxValue = (T) in.readValue(getClass().getClassLoader());
         }
 
+        @AddedInOrBefore(majorVersion = 33)
         @Nullable public T getMinValue() {
             return mMinValue;
         }
 
+        @AddedInOrBefore(majorVersion = 33)
         @Nullable public T getMaxValue() {
             return mMaxValue;
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public int describeContents() {
             return 0;
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeValue(mMinValue);
             dest.writeValue(mMaxValue);
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             return "CarAreaConfig{"
                     + "mMinValue=" + mMinValue
@@ -517,6 +531,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @hide
      */
     @SystemApi
+    @AddedInOrBefore(majorVersion = 33)
     public static <T> Builder<T> newBuilder(Class<T> type, int propertyId, int areaType,
                                             int areaCapacity) {
         return new Builder<>(areaCapacity, areaType, propertyId, type);
@@ -529,6 +544,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
      * @return Builder<T>
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static <T> Builder<T> newBuilder(Class<T> type, int propertyId, int areaType) {
         return new Builder<>(0, areaType, propertyId, type);
     }

@@ -40,6 +40,7 @@ import java.util.Objects;
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
 public final class CarEvsBufferDescriptor implements Parcelable {
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarEvsBufferDescriptor> CREATOR =
             new Parcelable.Creator<CarEvsBufferDescriptor>() {
                 @NonNull
@@ -95,6 +96,7 @@ public final class CarEvsBufferDescriptor implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarEvsBufferDescriptor: id = " + mId + ", buffer = " + mHardwareBuffer;
     }

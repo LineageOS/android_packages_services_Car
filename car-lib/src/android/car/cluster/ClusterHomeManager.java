@@ -84,6 +84,7 @@ public class ClusterHomeManager extends CarManagerBase {
          * @param state newly updated {@link ClusterState}
          * @param changes the flag indicates which fields are updated
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onClusterStateChanged(ClusterState state, @Config int changes);
     }
 
@@ -386,6 +387,7 @@ public class ClusterHomeManager extends CarManagerBase {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         mStateListeners.clear();
         mNavigationStateListeners.clear();
