@@ -108,6 +108,7 @@ public final class VmsClientManager extends CarManagerBase {
      * @param callback Callback to register for new client
      */
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
+    @AddedInOrBefore(majorVersion = 33)
     public void registerVmsClientCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull VmsClientCallback callback) {
@@ -118,6 +119,7 @@ public final class VmsClientManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(anyOf = {Car.PERMISSION_VMS_PUBLISHER, Car.PERMISSION_VMS_SUBSCRIBER})
+    @AddedInOrBefore(majorVersion = 33)
     void registerVmsClientCallback(
             @NonNull @CallbackExecutor Executor executor,
             @NonNull VmsClientCallback callback,
@@ -191,6 +193,7 @@ public final class VmsClientManager extends CarManagerBase {
      * @hide
      */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         synchronized (mLock) {
             Log.w(TAG, "Car disconnected with " + mClients.size() + " active clients");

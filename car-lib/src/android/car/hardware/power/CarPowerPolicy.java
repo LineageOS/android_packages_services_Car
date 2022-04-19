@@ -52,6 +52,7 @@ public final class CarPowerPolicy implements Parcelable {
      * Returns {@code true} if the given component is enabled in the power policy. Otherwise,
      * {@code false}.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isComponentEnabled(int component) {
         for (int i = 0; i < mEnabledComponents.length; i++) {
             if (component == mEnabledComponents[i]) {
@@ -179,6 +180,7 @@ public final class CarPowerPolicy implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarPowerPolicy> CREATOR
             = new Parcelable.Creator<CarPowerPolicy>() {
         @Override

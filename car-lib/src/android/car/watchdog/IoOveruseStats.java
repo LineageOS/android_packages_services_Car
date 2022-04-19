@@ -184,6 +184,7 @@ public final class IoOveruseStats implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -253,6 +254,7 @@ public final class IoOveruseStats implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<IoOveruseStats> CREATOR
             = new Parcelable.Creator<IoOveruseStats>() {
         @Override

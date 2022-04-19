@@ -84,6 +84,7 @@ public final class CarNavigationStatusManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
     }
 

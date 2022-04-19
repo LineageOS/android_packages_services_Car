@@ -86,11 +86,13 @@ public final class UserStopResult implements Parcelable, OperationResult {
      * @param status to check
      * @return true for a success status
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static boolean isSuccess(@Status int status) {
         return status == STATUS_SUCCESSFUL;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isSuccess() {
         return isSuccess(mStatus);
     }
@@ -193,6 +195,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -204,6 +207,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -214,6 +218,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -246,6 +251,7 @@ public final class UserStopResult implements Parcelable, OperationResult {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<UserStopResult> CREATOR
             = new Parcelable.Creator<UserStopResult>() {
         @Override

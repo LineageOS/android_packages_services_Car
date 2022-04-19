@@ -147,6 +147,7 @@ public final class CreateUserResult {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         StringBuilder string = new StringBuilder("CreateUserResult[")
                 .append(statusToString(mStatus));

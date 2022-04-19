@@ -78,6 +78,7 @@ public final class UidIoRecord {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public UidIoRecord delta(IoStatsEntry other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");
@@ -97,6 +98,7 @@ public final class UidIoRecord {
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public UidIoRecord delta(UidIoRecord other) {
         if (uid != other.uid) {
             throw new IllegalArgumentException("cannot calculate delta between different user IDs");

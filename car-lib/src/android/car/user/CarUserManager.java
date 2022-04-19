@@ -1120,6 +1120,7 @@ public final class CarUserManager extends CarManagerBase {
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             StringBuilder builder = new StringBuilder("Event[type=")
                     .append(lifecycleEventTypeToString(mEventType));
@@ -1135,6 +1136,7 @@ public final class CarUserManager extends CarManagerBase {
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public boolean equals(@Nullable Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
@@ -1145,6 +1147,7 @@ public final class CarUserManager extends CarManagerBase {
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public int hashCode() {
             int hash = 23;
             hash = 17 * hash + mEventType;
