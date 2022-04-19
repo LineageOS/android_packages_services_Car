@@ -30,7 +30,7 @@ import android.hardware.automotive.vehicle.EvsServiceState;
 import android.hardware.automotive.vehicle.EvsServiceType;
 import android.hardware.automotive.vehicle.VehicleProperty;
 
-import com.android.car.vehiclehal.test.AidlVehiclePropConfigBuilder;
+import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;

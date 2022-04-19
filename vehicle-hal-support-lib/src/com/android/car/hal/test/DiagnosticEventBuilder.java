@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
 import android.hardware.automotive.vehicle.DiagnosticFloatSensorIndex;
 import android.hardware.automotive.vehicle.DiagnosticIntegerSensorIndex;
@@ -50,9 +50,10 @@ public class DiagnosticEventBuilder {
         }
 
         private int checkIndex(int index) {
-            if (index < 0 || index >= mSize)
-                throw new IndexOutOfBoundsException(
-                        String.format("Index: %d, Size: %d", index, mSize));
+            if (index < 0 || index >= mSize) {
+                throw new IndexOutOfBoundsException(String.format(
+                        "Index: %d, Size: %d", index, mSize));
+            }
             return index;
         }
 

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
 import android.annotation.CheckResult;
 import android.hardware.automotive.vehicle.RawPropValues;

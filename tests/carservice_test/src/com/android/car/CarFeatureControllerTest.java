@@ -27,7 +27,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
