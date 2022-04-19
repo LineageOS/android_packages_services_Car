@@ -36,7 +36,7 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.Test;

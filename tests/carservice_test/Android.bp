@@ -55,8 +55,8 @@ android_test {
         // testng imported to use assertThrows, we can remove it once it's ported to JUnit's.
         "testng",
         "truth-prebuilt",
-        "vehicle-hal-support-lib-for-test",
         "compatibility-device-util-axt",
+        "vehicle-hal-support-lib",
     ],
 
     libs: [

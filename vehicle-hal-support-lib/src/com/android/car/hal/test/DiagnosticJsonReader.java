@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
 import static android.hardware.automotive.vehicle.VehicleProperty.OBD2_FREEZE_FRAME;
 import static android.hardware.automotive.vehicle.VehicleProperty.OBD2_LIVE_FRAME;

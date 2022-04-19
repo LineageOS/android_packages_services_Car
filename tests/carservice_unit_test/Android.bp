@@ -64,6 +64,7 @@ android_test {
         "testng",
         "truth-prebuilt",
         "WindowManager-Shell",  // for CarActivityServiceTaskMonitorUnitTest
+        "vehicle-hal-support-lib",
     ],
 
     test_suites: ["general-tests"],
