@@ -39,7 +39,6 @@ java_defaults {
         ":cartelemetryservice-proto-srcs",
         ":com.android.car.procfsinspector-client-src",
         ":statslog-Car-java-gen",
-        ":vehicle-hal-support-lib-src",
         ":iscriptexecutor_aidl",
         "proto/**/*.proto",
         "src/**/*.java",
