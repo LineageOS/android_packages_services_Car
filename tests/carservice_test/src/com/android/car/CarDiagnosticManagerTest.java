@@ -46,11 +46,11 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
-import com.android.car.vehiclehal.DiagnosticEventBuilder;
-import com.android.car.vehiclehal.DiagnosticJson;
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal.ErrorCodeHandler;
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.hal.test.AidlMockedVehicleHal.ErrorCodeHandler;
+import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
+import com.android.car.hal.test.DiagnosticEventBuilder;
+import com.android.car.hal.test.DiagnosticJson;
 
 import org.junit.Rule;
 import org.junit.Test;

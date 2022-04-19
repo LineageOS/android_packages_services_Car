@@ -47,9 +47,9 @@ import android.util.SparseArray;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import com.android.car.hal.test.AidlMockedVehicleHal;
+import com.android.car.hal.test.AidlVehiclePropConfigBuilder;
 import com.android.car.internal.LargeParcelable;
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal;
-import com.android.car.vehiclehal.test.AidlVehiclePropConfigBuilder;
 import com.android.internal.annotations.GuardedBy;
 
 import org.junit.Assert;

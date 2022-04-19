@@ -17,25 +17,12 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-// Used for car service module build
-filegroup {
-    name: "vehicle-hal-support-lib-src",
-    srcs: [
-        "src/**/*.java",
-    ],
-    visibility: [
-        "//packages/services/Car/service",
-    ],
-}
-
-java_library {
-
+// A helper library for tests that deals with vehicle HAL. Should only be used
+// in unit tests or integration tests.
+java_test_helper_library {
     name: "vehicle-hal-support-lib",
 
-    srcs: [":vehicle-hal-support-lib-src"],
-
-    sdk_version: "module_current",
-    min_sdk_version: "31",
+    srcs: ["src/**/*.java"],
 
     static_libs: [
         "android.hidl.base-V1.0-java",
@@ -46,25 +33,4 @@ java_library {
     libs: [
         "framework-annotations-lib",
     ]
-
-}
-
-java_library {
-
-    name: "vehicle-hal-support-lib-for-test",
-
-    srcs: ["test/**/*.java"],
-
-    sdk_version: "module_current",
-
-    static_libs: [
-        "vehicle-hal-support-lib",
-        "junit",
-        "truth-prebuilt",
-    ],
-
-    libs: [
-        "framework-annotations-lib",
-    ]
-
 }

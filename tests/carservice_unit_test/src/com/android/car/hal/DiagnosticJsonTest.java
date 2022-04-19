@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
-import static com.android.car.vehiclehal.DiagnosticJsonReader.FRAME_TYPE_LIVE;
-import static com.android.car.vehiclehal.DiagnosticJsonTestUtils.ANY_TIMESTAMP_VALUE;
-import static com.android.car.vehiclehal.DiagnosticJsonTestUtils.buildEmptyVehiclePropertyValue;
+import static com.android.car.hal.test.DiagnosticJsonReader.FRAME_TYPE_LIVE;
+import static com.android.car.hal.test.DiagnosticJsonTestUtils.ANY_TIMESTAMP_VALUE;
+import static com.android.car.hal.test.DiagnosticJsonTestUtils.buildEmptyVehiclePropertyValue;
 
 import static com.google.common.truth.Truth.assertThat;
 

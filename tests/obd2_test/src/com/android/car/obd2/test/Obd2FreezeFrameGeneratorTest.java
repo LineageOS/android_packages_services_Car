@@ -27,9 +27,9 @@ import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.android.car.hal.test.DiagnosticJsonReader;
 import com.android.car.obd2.Obd2Connection;
 import com.android.car.obd2.Obd2FreezeFrameGenerator;
-import com.android.car.vehiclehal.DiagnosticJsonReader;
 
 import org.junit.Test;
 
