@@ -14,11 +14,12 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
+
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:width="@dimen/car_checkbox_size"
         android:height="@dimen/car_checkbox_size"
-        android:drawable="@*android:drawable/btn_check_material_anim"/>
+        android:drawable="@drawable/car_checkbox_material_anim"/>
     <item
         android:width="@dimen/car_checkbox_focus_ring_size"
         android:height="@dimen/car_checkbox_focus_ring_size"
