@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal.test;
+package com.android.car.hal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -47,7 +47,6 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;

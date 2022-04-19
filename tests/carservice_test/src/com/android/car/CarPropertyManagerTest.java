@@ -49,7 +49,7 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
+import com.android.car.hal.test.AidlMockedVehicleHal.VehicleHalPropertyHandler;
 
 import com.google.common.truth.Truth;
 

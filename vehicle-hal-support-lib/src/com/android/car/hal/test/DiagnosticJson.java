@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.util.JsonReader;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.vehiclehal.Utils.SparseArrayIterator;
+import com.android.car.hal.test.Utils.SparseArrayIterator;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -96,8 +96,11 @@ public class DiagnosticJson {
                 jsonReader.beginObject();
                 while (jsonReader.hasNext()) {
                     String name = jsonReader.nextName();
-                    if (name.equals("id")) id = jsonReader.nextInt();
-                    else if (name.equals("value")) value = jsonReader.nextInt();
+                    if (name.equals("id")) {
+                        id = jsonReader.nextInt();
+                    } else if (name.equals("value")) {
+                        value = jsonReader.nextInt();
+                    }
                 }
                 jsonReader.endObject();
                 mIntValues.put(id, value);
@@ -111,8 +114,11 @@ public class DiagnosticJson {
                 jsonReader.beginObject();
                 while (jsonReader.hasNext()) {
                     String name = jsonReader.nextName();
-                    if (name.equals("id")) id = jsonReader.nextInt();
-                    else if (name.equals("value")) value = (float) jsonReader.nextDouble();
+                    if (name.equals("id")) {
+                        id = jsonReader.nextInt();
+                    } else if (name.equals("value")) {
+                        value = (float) jsonReader.nextDouble();
+                    }
                 }
                 jsonReader.endObject();
                 mFloatValues.put(id, value);

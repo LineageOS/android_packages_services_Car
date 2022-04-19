@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal;
+package com.android.car.hal.test;
 
 import android.util.SparseArray;
+
 import java.util.Iterator;
 
 class Utils {

@@ -51,7 +51,6 @@ android_app {
         "car-ui-lib",
         "car-qc-lib",
         "android.hidl.base-V1.0-java",
-        "vehicle-hal-support-lib-for-test",
         "com.android.car.keventreader-client",
         "guava",
         "android.car.cluster.navigation",
