@@ -105,7 +105,9 @@ public final class SystemStatusEvent implements Parcelable {
             })
     public @interface DetectionTypeFlags {}
 
+    @AddedInOrBefore(majorVersion = 33)
     public final @SystemStatus int systemStatus;
+    @AddedInOrBefore(majorVersion = 33)
     public final @DetectionTypeFlags int detectionType;
 
     public SystemStatusEvent(@SystemStatus int status, @DetectionTypeFlags int type) {
@@ -120,17 +122,20 @@ public final class SystemStatusEvent implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(systemStatus);
         dest.writeInt(detectionType);
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "SystemStatusEvent{"
                 + "systemStatus="
@@ -140,6 +145,7 @@ public final class SystemStatusEvent implements Parcelable {
                 + "}";
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<SystemStatusEvent> CREATOR =
             new Parcelable.Creator<SystemStatusEvent>() {
                 public SystemStatusEvent createFromParcel(Parcel in) {

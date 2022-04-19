@@ -102,6 +102,7 @@ public final class CpuAvailabilityInfo implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -152,6 +153,7 @@ public final class CpuAvailabilityInfo implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @android.annotation.NonNull Parcelable.Creator<CpuAvailabilityInfo> CREATOR
             = new Parcelable.Creator<CpuAvailabilityInfo>() {
         @Override

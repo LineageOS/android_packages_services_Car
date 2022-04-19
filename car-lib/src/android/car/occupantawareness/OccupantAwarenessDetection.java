@@ -167,23 +167,28 @@ public final class OccupantAwarenessDetection implements Parcelable {
     public @interface ConfidenceLevel {}
 
     /** The {@link VehicleOccupantRole} of the face associated with this event. */
+    @AddedInOrBefore(majorVersion = 33)
     public final @VehicleOccupantRole int role;
 
     /** Timestamp when the underlying detection data was detected, in milliseconds since boot. */
+    @AddedInOrBefore(majorVersion = 33)
     public final long timestampMillis;
 
     /** Indicates whether any person was detected for the given role. */
+    @AddedInOrBefore(majorVersion = 33)
     public final boolean isPresent;
 
     /**
      * {@link GazeDetection} data for the requested role, or {@code null} if no person was found.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable GazeDetection gazeDetection;
 
     /**
      * {@link DriverMonitoringDetection} data for the driver, or {@code null} if the role was
      * non-driver or if the detection could not be computed.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public final @Nullable DriverMonitoringDetection driverMonitoringDetection;
 
     public OccupantAwarenessDetection(
@@ -201,11 +206,13 @@ public final class OccupantAwarenessDetection implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(role);
         dest.writeLong(timestampMillis);
@@ -215,6 +222,7 @@ public final class OccupantAwarenessDetection implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "OccupantAwarenessDetection{"
                 + "role="  + role
@@ -228,6 +236,7 @@ public final class OccupantAwarenessDetection implements Parcelable {
                 + "}";
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<OccupantAwarenessDetection> CREATOR =
             new Parcelable.Creator<OccupantAwarenessDetection>() {
                 public OccupantAwarenessDetection createFromParcel(Parcel in) {

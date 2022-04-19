@@ -163,6 +163,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Creator<CarPropertyValue> CREATOR = new Creator<CarPropertyValue>() {
         @Override
         public CarPropertyValue createFromParcel(Parcel in) {
@@ -261,6 +262,7 @@ public final class CarPropertyValue<T> implements Parcelable {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyValue{"
                 + "mPropertyId=0x" + toHexString(mPropertyId)

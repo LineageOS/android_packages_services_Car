@@ -75,6 +75,7 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param keyEvents the key events to process
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onKeyEvents(@DisplayTypeEnum int targetDisplayType,
                 @NonNull List<KeyEvent> keyEvents) {}
 
@@ -84,6 +85,7 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param events the rotary events to process
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onRotaryEvents(@DisplayTypeEnum int targetDisplayType,
                 @NonNull List<RotaryEvent> events) {}
 
@@ -95,6 +97,7 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param activeInputTypes the input types to watch
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onCaptureStateChanged(@DisplayTypeEnum int targetDisplayType,
                 @NonNull @InputTypeEnum int[] activeInputTypes) {}
 
@@ -104,6 +107,7 @@ public final class CarInputManager extends CarManagerBase {
          * @param targetDisplayType the display type associated with the events passed as parameter
          * @param events the custom input events to process
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onCustomInputEvents(@DisplayTypeEnum int targetDisplayType,
                 @NonNull List<CustomInputEvent> events) {}
     }
@@ -375,6 +379,7 @@ public final class CarInputManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     protected void onCarDisconnected() {
         synchronized (mLock) {
             mCarInputCaptureCallbacks.clear();

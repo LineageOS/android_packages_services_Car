@@ -38,6 +38,7 @@ public abstract class CarManagerBase {
 
     private static final boolean DEBUG = Log.isLoggable(TAG_CAR, Log.DEBUG);
 
+    @AddedInOrBefore(majorVersion = 33)
     protected final Car mCar;
 
     public CarManagerBase(Car car) {

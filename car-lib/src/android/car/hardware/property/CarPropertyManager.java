@@ -85,6 +85,7 @@ public class CarPropertyManager extends CarManagerBase {
          *
          * @see CarPropertyEventCallback#onErrorEvent(int, int, int)
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onErrorEvent(int propId, int zone);
 
         /**
@@ -100,6 +101,7 @@ public class CarPropertyManager extends CarManagerBase {
          * @param areaId AreaId which is detected an error.
          * @param errorCode Error code is raised in the car.
          */
+        @AddedInOrBefore(majorVersion = 33)
         default void onErrorEvent(int propId, int areaId, @CarSetPropertyErrorCode int errorCode) {
             if (DBG) {
                 Log.d(TAG, "onErrorEvent propertyId: 0x" + toHexString(propId) + " areaId:0x"
@@ -1036,6 +1038,7 @@ public class CarPropertyManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mActivePropertyListener) {
             mActivePropertyListener.clear();

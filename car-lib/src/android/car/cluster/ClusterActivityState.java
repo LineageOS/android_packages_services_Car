@@ -145,6 +145,7 @@ public class ClusterActivityState {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return this.getClass().getSimpleName() + " {"
                 + "visible: " + mVisible + ", "

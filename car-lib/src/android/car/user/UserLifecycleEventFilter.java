@@ -63,12 +63,14 @@ public final class UserLifecycleEventFilter implements Parcelable {
     //         the @VisibleForTesting annotation.
     /** @hide */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable int[] getEventTypes() {
         return mEventTypes;
     }
 
     /** @hide */
     @VisibleForTesting
+    @AddedInOrBefore(majorVersion = 33)
     public @Nullable int[] getUserIds() {
         return mUserIds;
     }
@@ -79,6 +81,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
      * @param event user lifecycle event to check.
      * @return {@code true} if the event passes this filter.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean apply(@NonNull UserLifecycleEvent event) {
         Objects.requireNonNull(event, "event cannot be null");
 
@@ -116,6 +119,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEBUGGING_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         StringBuilder builder = new StringBuilder("UserLifecycleEventFilter{eventTypes=");
         if (mEventTypes == null) {
@@ -157,6 +161,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
         private final ArraySet<Integer> mUserIds = new ArraySet<>();
 
         /** Adds an event type that this filter passes. */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder addEventType(@CommonConstants.UserLifecycleEventType int eventType) {
             mEventTypes.add(eventType);
             return this;
@@ -171,6 +176,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
          *                   current user at the time of the filter creation.
          * @throws IllegalArgumentException if the specified userHandle is not supported.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder addUser(@NonNull UserHandle userHandle) {
             int userId = userHandle.getIdentifier();
             if (userId < 0 && userId != USER_CURRENT) {
@@ -181,6 +187,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
         }
 
         /** Builds and returns a {@link UserLifecycleEventFilter}. */
+        @AddedInOrBefore(majorVersion = 33)
         public UserLifecycleEventFilter build() {
             if (mEventTypes.isEmpty() && mUserIds.isEmpty()) {
                 throw new IllegalStateException("Cannot build an empty filter.");
@@ -221,6 +228,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(@Nullable Object o) {
         // You can override field equality logic by defining either of the methods like:
         // boolean fieldNameEquals(UserLifecycleEventFilter other) { ... }
@@ -238,6 +246,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         // You can override field hashCode logic by defining methods like:
         // int fieldNameHashCode() { ... }
@@ -286,6 +295,7 @@ public final class UserLifecycleEventFilter implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<UserLifecycleEventFilter> CREATOR
             = new Parcelable.Creator<UserLifecycleEventFilter>() {
         @Override

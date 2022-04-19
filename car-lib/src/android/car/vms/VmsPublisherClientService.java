@@ -70,6 +70,7 @@ public abstract class VmsPublisherClientService extends Service {
     private @Nullable VmsClient mClient;
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCreate() {
         if (DBG) Log.d(TAG, "Connecting to Car service");
         synchronized (mLock) {
@@ -79,6 +80,7 @@ public abstract class VmsPublisherClientService extends Service {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onDestroy() {
         if (DBG) Log.d(TAG, "Disconnecting from Car service");
         synchronized (mLock) {

@@ -87,6 +87,7 @@ public abstract class CarInputHandlingService extends Service {
 
     @Override
     @CallSuper
+    @AddedInOrBefore(majorVersion = 33)
     public IBinder onBind(Intent intent) {
         if (DBG) {
             Log.d(TAG, "onBind, intent: " + intent);
@@ -124,9 +125,11 @@ public abstract class CarInputHandlingService extends Service {
      * Called when key event has been received.
      */
     @MainThread
+    @AddedInOrBefore(majorVersion = 33)
     protected abstract void onKeyEvent(KeyEvent keyEvent, int targetDisplay);
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.println("**" + getClass().getSimpleName() + "**");
         writer.println("input binder: " + mInputBinder);
@@ -176,7 +179,9 @@ public abstract class CarInputHandlingService extends Service {
      * Filter for input events that are handled by custom service.
      */
     public static final class InputFilter implements Parcelable {
+        @AddedInOrBefore(majorVersion = 33)
         public final int mKeyCode;
+        @AddedInOrBefore(majorVersion = 33)
         public final int mTargetDisplay;
 
         public InputFilter(int keyCode, int targetDisplay) {
@@ -191,16 +196,19 @@ public abstract class CarInputHandlingService extends Service {
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public int describeContents() {
             return 0;
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeInt(mKeyCode);
             dest.writeInt(mTargetDisplay);
         }
 
+        @AddedInOrBefore(majorVersion = 33)
         public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
             public InputFilter createFromParcel(Parcel in) {
                 return new InputFilter(in);

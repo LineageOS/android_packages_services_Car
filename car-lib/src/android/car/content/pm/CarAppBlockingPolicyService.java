@@ -53,6 +53,7 @@ public abstract class CarAppBlockingPolicyService extends Service {
     protected abstract CarAppBlockingPolicy getAppBlockingPolicy();
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public int onStartCommand(Intent intent, int flags, int startId) {
         return START_STICKY;
     }
@@ -65,6 +66,7 @@ public abstract class CarAppBlockingPolicyService extends Service {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean onUnbind(Intent intent) {
         Log.i(TAG, "onUnbind");
         stopSelf();
