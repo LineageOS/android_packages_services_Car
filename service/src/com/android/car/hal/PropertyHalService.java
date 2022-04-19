@@ -284,7 +284,7 @@ public class PropertyHalService extends HalServiceBase {
         }
         HalPropConfig propConfig;
         synchronized (mLock) {
-            propConfig = mHalPropIdToPropConfig.get(prop.getPropertyId());
+            propConfig = mHalPropIdToPropConfig.get(halPropId);
         }
         HalPropValue halPropValue = mPropValueBuilder.build(prop, halPropId, propConfig);
         // CarPropertyManager catches and rethrows exception, no need to handle here.
