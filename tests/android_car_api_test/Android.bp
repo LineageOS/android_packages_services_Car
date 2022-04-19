@@ -31,6 +31,8 @@ android_test {
     // for system|privileged permission.
     certificate: "platform",
 
+    min_sdk_version: "33",
+
     // When built explicitly put it in the data partition
 
     optimize: {
