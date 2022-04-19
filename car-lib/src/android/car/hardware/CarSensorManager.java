@@ -348,6 +348,7 @@ public final class CarSensorManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mListenerMap) {
             mListenerMap.clear();
@@ -386,6 +387,7 @@ public final class CarSensorManager extends CarManagerBase {
      * @param sensorType
      * @return true if the sensor is supported.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public boolean isSensorSupported(@SensorType int sensorType) {
         int[] sensors = getSupportedSensors();
         for (int sensorSupported: sensors) {
@@ -403,6 +405,7 @@ public final class CarSensorManager extends CarManagerBase {
      * @return true if sensor is supported.
      * @hide
      */
+    @AddedInOrBefore(majorVersion = 33)
     public static boolean isSensorSupported(int[] sensorList, @SensorType int sensorType) {
         for (int sensorSupported: sensorList) {
             if (sensorType == sensorSupported) {

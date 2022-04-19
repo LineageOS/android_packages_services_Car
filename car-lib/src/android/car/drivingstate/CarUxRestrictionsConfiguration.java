@@ -117,6 +117,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      *                     See values in {@link CarDrivingStateEvent.CarDrivingState}.
      * @param currentSpeed Current speed in meter per second.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public CarUxRestrictions getUxRestrictions(
             @CarDrivingState int drivingState, float currentSpeed) {
         return getUxRestrictions(drivingState, currentSpeed, UX_RESTRICTION_MODE_BASELINE);
@@ -133,6 +134,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      * @param currentSpeed Current speed in meter per second.
      * @param mode         Current UX Restriction mode.
      */
+    @AddedInOrBefore(majorVersion = 33)
     public CarUxRestrictions getUxRestrictions(@CarDrivingState int drivingState,
             float currentSpeed, @NonNull String mode) {
         Objects.requireNonNull(mode, "mode must not be null");
@@ -305,6 +307,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         CharArrayWriter charWriter = new CharArrayWriter();
         JsonWriter writer = new JsonWriter(charWriter);
@@ -524,12 +527,14 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         return Objects.hash(mPhysicalPort, mMaxStringLength, mMaxCumulativeContentItems,
                 mMaxContentDepth, mRestrictionModes);
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -621,6 +626,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             DRIVING_STATE_MOVING,
     };
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarUxRestrictionsConfiguration> CREATOR =
             new Parcelable.Creator<CarUxRestrictionsConfiguration>() {
 
@@ -637,6 +643,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
@@ -664,6 +671,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mRestrictionModes.size());
         for (Map.Entry<String, RestrictionModeContainer> entry : mRestrictionModes.entrySet()) {
@@ -738,6 +746,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         /**
          * Sets ux restrictions for driving state.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setUxRestrictions(@CarDrivingState int drivingState,
                 boolean requiresOptimization,
                 @CarUxRestrictions.CarUxRestrictionsInfo int restrictions) {
@@ -762,6 +771,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
          * @deprecated Use {@link #setUxRestrictions(int, DrivingStateRestrictions)} instead.
          */
         @Deprecated
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setUxRestrictions(@CarDrivingState int drivingState,
                 @NonNull SpeedRange speedRange, boolean requiresOptimization,
                 @CarUxRestrictions.CarUxRestrictionsInfo int restrictions) {
@@ -779,6 +789,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
          * @param drivingStateRestrictions Restrictions to set.
          * @return This builder object for method chaining.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public Builder setUxRestrictions(
                 int drivingState, DrivingStateRestrictions drivingStateRestrictions) {
             SpeedRange speedRange = drivingStateRestrictions.mSpeedRange;
@@ -1013,6 +1024,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             @Override
+            @AddedInOrBefore(majorVersion = 33)
             public int compareTo(SpeedRange other) {
                 // First compare min speed; then max speed.
                 int minSpeedComparison = Float.compare(mMinSpeed, other.mMinSpeed);
@@ -1024,11 +1036,13 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             @Override
+            @AddedInOrBefore(majorVersion = 33)
             public int hashCode() {
                 return Objects.hash(mMinSpeed, mMaxSpeed);
             }
 
             @Override
+            @AddedInOrBefore(majorVersion = 33)
             public boolean equals(Object obj) {
                 if (this == obj) {
                     return true;
@@ -1042,6 +1056,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             }
 
             @Override
+            @AddedInOrBefore(majorVersion = 33)
             public String toString() {
                 return new StringBuilder()
                         .append("[min: ").append(mMinSpeed)
@@ -1110,6 +1125,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             return new StringBuilder()
                     .append("Mode: ").append(mMode)

@@ -137,6 +137,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
         dest.writeStringArray(activities);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<AppBlockingPackageInfo> CREATOR =
             new Parcelable.Creator<AppBlockingPackageInfo>() {
 
@@ -178,6 +179,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         final int prime = 31;
         int result = 1;
@@ -191,6 +193,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -228,6 +231,7 @@ public final class AppBlockingPackageInfo implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "AppBlockingPackageInfo [packageName=" + packageName + ", flags=" + flags
                 + ", minRevisionCode=" + minRevisionCode + ", maxRevisionCode=" + maxRevisionCode

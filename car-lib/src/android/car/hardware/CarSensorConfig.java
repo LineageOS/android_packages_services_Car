@@ -65,18 +65,21 @@ public class CarSensorConfig implements Parcelable {
     /** @hide */
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mType);
         dest.writeBundle(mConfig);
     }
 
     /** @hide */
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarSensorConfig> CREATOR =
             new Parcelable.Creator<CarSensorConfig>() {
 
@@ -129,6 +132,7 @@ public class CarSensorConfig implements Parcelable {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getClass().getName() + "[");

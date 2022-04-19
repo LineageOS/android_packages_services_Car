@@ -313,11 +313,13 @@ public final class VmsOperationRecorder {
         private static final String TAG = "VMS.RECORD.EVENT";
         private static final int LEVEL = Log.DEBUG;
 
+        @AddedInOrBefore(majorVersion = 33)
         public boolean isEnabled() {
             return Log.isLoggable(TAG, LEVEL);
         }
 
         /** Logs the message passed as parameter. */
+        @AddedInOrBefore(majorVersion = 33)
         public void write(String msg) {
             Log.println(LEVEL, TAG, msg);
         }
