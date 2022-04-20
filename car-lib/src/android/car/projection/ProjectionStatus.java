@@ -104,6 +104,7 @@ public final class ProjectionStatus implements Parcelable {
     private final Bundle mExtras;
 
     /** Creator for this class. Required to have in parcelable implementations. */
+    @AddedInOrBefore(majorVersion = 33)
     public static final Creator<ProjectionStatus> CREATOR = new Creator<ProjectionStatus>() {
         @Override
         public ProjectionStatus createFromParcel(Parcel source) {
@@ -135,11 +136,13 @@ public final class ProjectionStatus implements Parcelable {
     /** Parcelable implementation */
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mPackageName);
         dest.writeInt(mState);
@@ -163,6 +166,7 @@ public final class ProjectionStatus implements Parcelable {
     }
 
     /** Returns extra information provided by projection receiver app */
+    @AddedInOrBefore(majorVersion = 33)
     public @NonNull Bundle getExtras() {
         return mExtras == null ? new Bundle() : new Bundle(mExtras);
     }
@@ -195,6 +199,7 @@ public final class ProjectionStatus implements Parcelable {
      * @param state current projection state, must be one of the {@code PROJECTION_STATE_*}
      */
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static Builder builder(String packageName, @ProjectionState int state) {
         return new Builder(packageName, state);
     }
@@ -250,6 +255,7 @@ public final class ProjectionStatus implements Parcelable {
          * app to the projection status listeners
          * @return this builder
          */
+        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Builder setExtras(Bundle extras) {
             mExtras = extras;
             return this;
@@ -269,6 +275,7 @@ public final class ProjectionStatus implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "ProjectionStatus{"
                 + "mPackageName='" + mPackageName + '\''
@@ -288,6 +295,7 @@ public final class ProjectionStatus implements Parcelable {
         private final Bundle mExtras;
 
         /** Creator for this class. Required to have in parcelable implementations. */
+        @AddedInOrBefore(majorVersion = 33)
         public static final Creator<MobileDevice> CREATOR = new Creator<MobileDevice>() {
             @Override
             public MobileDevice createFromParcel(Parcel source) {
@@ -317,6 +325,7 @@ public final class ProjectionStatus implements Parcelable {
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public void writeToParcel(Parcel dest, int flags) {
             dest.writeInt(mId);
             dest.writeString(mName);
@@ -355,12 +364,14 @@ public final class ProjectionStatus implements Parcelable {
         }
 
         /** Returns extra information for mobile device */
+        @AddedInOrBefore(majorVersion = 33)
         public @NonNull Bundle getExtras() {
             return mExtras == null ? new Bundle() : new Bundle(mExtras);
         }
 
         /** Parcelable implementation */
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public int describeContents() {
             return 0;
         }
@@ -372,11 +383,13 @@ public final class ProjectionStatus implements Parcelable {
          * @param name name of the connected device
          * @return the instance of {@link Builder}
          */
+        @AddedInOrBefore(majorVersion = 33)
         public static @NonNull Builder builder(int id, String name) {
             return new Builder(id, name);
         }
 
         @Override
+        @AddedInOrBefore(majorVersion = 33)
         public String toString() {
             return "MobileDevice{"
                     + "mId=" + mId
@@ -437,6 +450,7 @@ public final class ProjectionStatus implements Parcelable {
              * @param extras provides an arbitrary extra information about this mobile device
              * @return this builder
              */
+            @AddedInOrBefore(majorVersion = 33)
             public @NonNull Builder setExtras(Bundle extras) {
                 mExtras = extras;
                 return this;

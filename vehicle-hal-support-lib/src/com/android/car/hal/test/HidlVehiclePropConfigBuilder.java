@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal.test;
+package com.android.car.hal.test;
 
 import android.annotation.CheckResult;
 import android.hardware.automotive.vehicle.V2_0.VehicleAreaConfig;
@@ -27,16 +27,16 @@ import java.util.Collection;
 /**
  * A builder class for {@link android.hardware.automotive.vehicle.V2_0.VehiclePropConfig}
  */
-public class VehiclePropConfigBuilder {
+public class HidlVehiclePropConfigBuilder {
 
     private final VehiclePropConfig mConfig;
 
     @CheckResult
-    public static VehiclePropConfigBuilder newBuilder(int propId) {
-        return new VehiclePropConfigBuilder(propId);
+    public static HidlVehiclePropConfigBuilder newBuilder(int propId) {
+        return new HidlVehiclePropConfigBuilder(propId);
     }
 
-    private VehiclePropConfigBuilder(int propId) {
+    private HidlVehiclePropConfigBuilder(int propId) {
         mConfig = new VehiclePropConfig();
         mConfig.prop = propId;
         mConfig.access = VehiclePropertyAccess.READ_WRITE;
@@ -69,33 +69,33 @@ public class VehiclePropConfigBuilder {
     }
 
     @CheckResult
-    public VehiclePropConfigBuilder setAccess(int access) {
+    public HidlVehiclePropConfigBuilder setAccess(int access) {
         mConfig.access = access;
         return this;
     }
 
     @CheckResult
-    public VehiclePropConfigBuilder setChangeMode(int changeMode) {
+    public HidlVehiclePropConfigBuilder setChangeMode(int changeMode) {
         mConfig.changeMode = changeMode;
         return this;
     }
 
     @CheckResult
-    public VehiclePropConfigBuilder setConfigString(String configString) {
+    public HidlVehiclePropConfigBuilder setConfigString(String configString) {
         mConfig.configString = configString;
         return this;
     }
 
 
     @CheckResult
-    public VehiclePropConfigBuilder setConfigArray(Collection<Integer> configArray) {
+    public HidlVehiclePropConfigBuilder setConfigArray(Collection<Integer> configArray) {
         mConfig.configArray.clear();
         mConfig.configArray.addAll(configArray);
         return this;
     }
 
     @CheckResult
-    public  VehiclePropConfigBuilder addAreaConfig(int areaId) {
+    public HidlVehiclePropConfigBuilder addAreaConfig(int areaId) {
         VehicleAreaConfig area = new VehicleAreaConfig();
         area.areaId = areaId;
         mConfig.areaConfigs.add(area);
@@ -103,7 +103,7 @@ public class VehiclePropConfigBuilder {
     }
 
     @CheckResult
-    public VehiclePropConfigBuilder addAreaConfig(int areaId, int minValue, int maxValue) {
+    public HidlVehiclePropConfigBuilder addAreaConfig(int areaId, int minValue, int maxValue) {
         VehicleAreaConfig area = new VehicleAreaConfig();
         area.areaId = areaId;
         area.minInt32Value = minValue;
@@ -113,7 +113,7 @@ public class VehiclePropConfigBuilder {
     }
 
     @CheckResult
-    public VehiclePropConfigBuilder addAreaConfig(int areaId, float minValue, float maxValue) {
+    public HidlVehiclePropConfigBuilder addAreaConfig(int areaId, float minValue, float maxValue) {
         VehicleAreaConfig area = new VehicleAreaConfig();
         area.areaId = areaId;
         area.minFloatValue = minValue;

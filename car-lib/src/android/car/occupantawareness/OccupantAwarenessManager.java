@@ -74,6 +74,7 @@ public class OccupantAwarenessManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mLock) {
             mChangeCallback = null;
@@ -123,6 +124,7 @@ public class OccupantAwarenessManager extends CarManagerBase {
          *
          * @param event The new detection state as a {@link OccupantAwarenessDetection}.
          */
+        @AddedInOrBefore(majorVersion = 33)
         public abstract void onDetectionEvent(@NonNull OccupantAwarenessDetection event);
     }
 

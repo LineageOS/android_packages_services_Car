@@ -193,9 +193,8 @@ public class PropertyHalService extends HalServiceBase {
         try {
             return getProperty(mgrPropId, areaId);
         } catch (Exception e) {
-            Slogf.w(TAG, "get property value failed for property id: 0x "
-                    + toHexString(mgrPropId) + " area id: 0x" + toHexString(areaId)
-                    + " exception: " + e);
+            Slogf.w(TAG, e, "getProperty() failed for property id: %s area id: 0x%s",
+                    VehiclePropertyIds.toString(mgrPropId), toHexString(areaId));
             return null;
         }
     }
@@ -288,7 +287,8 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void subscribeProperty(int mgrPropId, float rate) throws IllegalArgumentException {
         if (mDbg) {
-            Slogf.d(TAG, "subscribeProperty propId=0x" + toHexString(mgrPropId) + ", rate=" + rate);
+            Slogf.d(TAG, "subscribeProperty propId: %s, rate=%f",
+                    VehiclePropertyIds.toString(mgrPropId), rate);
         }
         int halPropId = managerToHalPropId(mgrPropId);
         if (!isPropertySupportedInVehicle(halPropId)) {
@@ -313,7 +313,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void unsubscribeProperty(int mgrPropId) {
         if (mDbg) {
-            Slogf.d(TAG, "unsubscribeProperty propId=0x" + toHexString(mgrPropId));
+            Slogf.d(TAG, "unsubscribeProperty propId=%s", VehiclePropertyIds.toString(mgrPropId));
         }
         int halPropId = managerToHalPropId(mgrPropId);
         if (!isPropertySupportedInVehicle(halPropId)) {
@@ -372,13 +372,13 @@ public class PropertyHalService extends HalServiceBase {
                     mHalPropIdToPropConfig.put(halPropId, halPropConfig);
                 }
                 if (mDbg) {
-                    Slogf.d(TAG, "takeSupportedProperties: " + toHexString(halPropId));
+                    Slogf.d(TAG, "takeSupportedProperties: %s",
+                            VehiclePropertyIds.toString(halToManagerPropId(halPropId)));
                 }
             }
         }
         if (mDbg) {
-            Slogf.d(TAG, "takeSupportedProperties() took " + halPropConfigs.size()
-                    + " properties");
+            Slogf.d(TAG, "takeSupportedProperties() took %d properties", halPropConfigs.size());
         }
         // If vehicle hal support to select permission for vendor properties.
         HalPropConfig customizePermission;
@@ -404,14 +404,15 @@ public class PropertyHalService extends HalServiceBase {
                 }
                 int halPropId = halPropValue.getPropId();
                 if (!isPropertySupportedInVehicle(halPropId)) {
-                    Slogf.w(TAG, "Property is not supported: 0x" + toHexString(halPropId));
+                    Slogf.w(TAG, "onHalEvents - received HalPropValue for unsupported property: %s",
+                            VehiclePropertyIds.toString(halToManagerPropId(halPropId)));
                     continue;
                 }
                 // Check payload if it is a userdebug build.
                 if (BuildHelper.isDebuggableBuild() && !mPropIds.checkPayload(halPropValue)) {
                     Slogf.w(TAG,
-                            "Drop event for property: " + halPropValue + " because it is failed "
-                                    + "in payload checking.");
+                            "Drop event for property: %s because it is failed "
+                                    + "in payload checking.", halPropValue);
                     continue;
                 }
                 int mgrPropId = halToManagerPropId(halPropId);

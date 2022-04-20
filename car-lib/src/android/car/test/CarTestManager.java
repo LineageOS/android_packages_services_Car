@@ -49,6 +49,7 @@ public final class CarTestManager extends CarManagerBase {
      * @hide
      */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // test will fail. nothing to do.
     }

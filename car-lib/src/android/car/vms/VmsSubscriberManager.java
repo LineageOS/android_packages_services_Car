@@ -245,6 +245,7 @@ public final class VmsSubscriberManager extends CarManagerBase {
      * @hide
      */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {}
 
     private void setSubscriptions(Set<VmsAssociatedLayer> subscriptions) {

@@ -168,6 +168,7 @@ public abstract class AoapService extends Service {
     private boolean mBound;
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCreate() {
         super.onCreate();
         mMessenger = new Messenger(new IncomingHandler(this));
@@ -184,6 +185,7 @@ public abstract class AoapService extends Service {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public boolean onUnbind(Intent intent) {
         mBound = false;
         return super.onUnbind(intent);
@@ -191,6 +193,7 @@ public abstract class AoapService extends Service {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    @AddedInOrBefore(majorVersion = 33)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         writer.write("Bound: " + mBound);
     }

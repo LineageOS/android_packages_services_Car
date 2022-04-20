@@ -96,9 +96,11 @@ public final class CarVendorExtensionManager extends CarManagerBase {
      */
     public interface CarVendorExtensionCallback {
         /** Called when a property is updated */
+        @AddedInOrBefore(majorVersion = 33)
         void onChangeEvent(CarPropertyValue value);
 
         /** Called when an error is detected with a property */
+        @AddedInOrBefore(majorVersion = 33)
         void onErrorEvent(int propertyId, int zone);
     }
 
@@ -214,6 +216,7 @@ public final class CarVendorExtensionManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         synchronized (mLock) {
             mCallbacks.clear();

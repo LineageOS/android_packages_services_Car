@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.vehiclehal.test;
+package com.android.car.hal.test;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertNotNull;

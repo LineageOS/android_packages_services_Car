@@ -103,6 +103,7 @@ public final class CarProjectionManager extends CarManagerBase {
          *
          * @param event The projection key event that occurred.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onKeyEvent(@KeyEventNum int event);
     }
     /**
@@ -254,6 +255,7 @@ public final class CarProjectionManager extends CarManagerBase {
          * @param details - contains detailed information about all currently registered projection
          *                  receivers.
          */
+        @AddedInOrBefore(majorVersion = 33)
         void onProjectionStatusChanged(@ProjectionState int state, @Nullable String packageName,
                 @NonNull List<ProjectionStatus> details);
     }
@@ -533,6 +535,7 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /** @hide */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
         // nothing to do
     }

@@ -52,8 +52,8 @@ import com.android.car.CarLocalServices;
 import com.android.car.ICarImpl;
 import com.android.car.MockedCarTestBase;
 import com.android.car.am.FixedActivityService;
-import com.android.car.vehiclehal.AidlVehiclePropValueBuilder;
-import com.android.car.vehiclehal.test.AidlMockedVehicleHal;
+import com.android.car.hal.test.AidlMockedVehicleHal;
+import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Rule;

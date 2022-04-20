@@ -16,6 +16,7 @@
 package android.car.util.concurrent;
 
 import android.annotation.NonNull;
+import android.car.annotation.AddedInOrBefore;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -37,17 +38,20 @@ public final class AndroidAsyncFuture<T> implements AsyncFuture<T> {
         mFuture = future;
     }
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public T get() throws InterruptedException, ExecutionException {
         return mFuture.get();
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public T get(long timeout, TimeUnit unit)
             throws InterruptedException, ExecutionException, TimeoutException {
         return mFuture.get(timeout, unit);
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T, ? super Throwable> action,
             Executor executor) {
         mFuture.whenCompleteAsync(action, executor);

@@ -64,17 +64,20 @@ public class CarPropertyEvent implements Parcelable {
 
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(mEventType);
         dest.writeInt(mErrorCode);
         dest.writeParcelable(mCarPropertyValue, flags);
     }
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarPropertyEvent> CREATOR =
             new Parcelable.Creator<CarPropertyEvent>() {
 
@@ -137,6 +140,7 @@ public class CarPropertyEvent implements Parcelable {
     }
 
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarPropertyEvent{"
                 + "mEventType=" + mEventType

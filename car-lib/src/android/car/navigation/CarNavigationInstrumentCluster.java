@@ -64,6 +64,7 @@ public final class CarNavigationInstrumentCluster implements Parcelable {
 
     private final Bundle mExtra;
 
+    @AddedInOrBefore(majorVersion = 33)
     public static final Parcelable.Creator<CarNavigationInstrumentCluster> CREATOR =
                 new Parcelable.Creator<CarNavigationInstrumentCluster>() {
             public CarNavigationInstrumentCluster createFromParcel(Parcel in) {
@@ -199,6 +200,7 @@ public final class CarNavigationInstrumentCluster implements Parcelable {
 
     /** Converts to string for debug purpose */
     @Override
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return CarNavigationInstrumentCluster.class.getSimpleName() + "{ "
                 + "minIntervalMillis: " + mMinIntervalMillis + ", "
