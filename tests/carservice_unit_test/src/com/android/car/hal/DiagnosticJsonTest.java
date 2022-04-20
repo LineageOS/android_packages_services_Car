@@ -38,9 +38,14 @@ public final class DiagnosticJsonTest {
     private static final int SOME_VEHICLE_PROPERTY = VehicleProperty.HVAC_POWER_ON;
 
     private static final String ANY_TYPE = FRAME_TYPE_LIVE;
+    public static final float SOME_FLOAT_VALUE = 2f;
+    public static final int SOME_FLOAT_ID = 2;
+    public static final int SOME_INT_ID = 1;
+    public static final int SOME_INT_VALUE = 1;
+    public static final String SOME_STRING_VALUE = "someStringValue";
 
     @Test
-    public void testBuild_passingBuilder() throws IOException {
+    public void testBuild_passingBuilderWithEmptyVehicleProperty() throws IOException {
         DiagnosticJson diagnosticJson = buildEmptyDiagnosticJson();
         DiagnosticEventBuilder eventBuilder = new DiagnosticEventBuilder(SOME_VEHICLE_PROPERTY);
 
@@ -55,10 +60,48 @@ public final class DiagnosticJsonTest {
         StringWriter stringWriter = new StringWriter(1024);
         JsonWriter jsonWriter = new JsonWriter(stringWriter);
         jsonWriter.beginObject()
-                .name("type")
-                .value(ANY_TYPE)  // Arbitrarily setting to live property type
-                .name("timestamp")
-                .value(ANY_TIMESTAMP_VALUE).endObject();
+                .name("type").value(ANY_TYPE)
+                .name("timestamp").value(ANY_TIMESTAMP_VALUE).endObject();
+        JsonReader reader = new JsonReader(new StringReader(stringWriter.toString()));
+        DiagnosticJson diagnosticJson = DiagnosticJson.build(reader);
+        return diagnosticJson;
+    }
+
+    @Test
+    public void testBuild_passingBuilderWithFullVehicleProperty() throws IOException {
+        DiagnosticJson diagnosticJson = buildFullDiagnosticJson();
+        DiagnosticEventBuilder eventBuilder = new DiagnosticEventBuilder(SOME_VEHICLE_PROPERTY);
+
+        VehiclePropValue actual = diagnosticJson.build(eventBuilder);
+
+        assertThat(actual.value.stringValue).isEqualTo(SOME_STRING_VALUE);
+        assertThat(actual.value.int32Values[SOME_INT_ID]).isEqualTo(SOME_INT_VALUE);
+        assertThat(actual.value.floatValues[SOME_FLOAT_ID]).isEqualTo(SOME_FLOAT_VALUE);
+    }
+
+    private DiagnosticJson buildFullDiagnosticJson() throws IOException {
+        StringWriter stringWriter = new StringWriter(1024);
+        JsonWriter jsonWriter = new JsonWriter(stringWriter);
+        jsonWriter.beginObject()
+                .name("type").value(ANY_TYPE)  // Arbitrarily setting to live property type
+                .name("timestamp").value(ANY_TIMESTAMP_VALUE)
+                .name("intValues")
+                .beginArray()
+                .beginObject()
+                .name("id").value(SOME_INT_ID)
+                .name("value").value(SOME_INT_VALUE)
+                .endObject()
+                .endArray()
+                .name("floatValues")
+                .beginArray()
+                .beginObject()
+                .name("id").value(SOME_FLOAT_ID)
+                .name("value").value(SOME_FLOAT_VALUE)
+                .endObject()
+                .endArray()
+                .name("stringValue").value(SOME_STRING_VALUE)
+                .endObject();
+
         JsonReader reader = new JsonReader(new StringReader(stringWriter.toString()));
         DiagnosticJson diagnosticJson = DiagnosticJson.build(reader);
         return diagnosticJson;
