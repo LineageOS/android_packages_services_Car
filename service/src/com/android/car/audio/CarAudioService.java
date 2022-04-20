@@ -1530,6 +1530,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    @VisibleForTesting
+    void requestAudioFocusForTest(AudioFocusInfo audioFocusInfo, int audioFocusResult) {
+        mFocusHandler.onAudioFocusRequest(audioFocusInfo, audioFocusResult);
+    }
+
     private class CarAudioOccupantConfigChangeListener implements OccupantZoneConfigChangeListener {
         @Override
         public void onOccupantZoneConfigChanged(int flags) {
