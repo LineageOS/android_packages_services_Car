@@ -306,9 +306,6 @@
     <install-in-user-type package="com.android.cellbroadcastreceiver">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="com.android.networkstack.permissionconfig">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.storagemanager">
         <install-in user-type="FULL" />
     </install-in-user-type>
