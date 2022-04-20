@@ -706,6 +706,15 @@ package android.car.hardware.property {
     method public default void onErrorEvent(int, int, int);
   }
 
+  public final class EvChargeState {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_CHARGING = 1; // 0x1
+    field public static final int STATE_ERROR = 4; // 0x4
+    field public static final int STATE_FULLY_CHARGED = 2; // 0x2
+    field public static final int STATE_NOT_CHARGING = 3; // 0x3
+    field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
   public final class EvChargingConnectorType {
     method @NonNull public static String toString(int);
     field public static final int GBT_AC = 10; // 0xa
