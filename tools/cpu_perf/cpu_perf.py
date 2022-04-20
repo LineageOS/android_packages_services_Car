@@ -30,6 +30,14 @@ from config import parse_ints as parse_ints
 from perfetto_cpu_analysis import run_analysis as run_analysis
 
 ADB_CMD = "adb"
+CPU_FREQ_GOVERNOR = [
+    "conservative",
+    "ondemand",
+    "performance",
+    "powersave",
+    "schedutil",
+    "userspace",
+]
 
 def init_arguments():
   parser = argparse.ArgumentParser(description='Analyze CPU perf.')
@@ -46,7 +54,7 @@ def init_arguments():
                            ' Default is to wait forever until user press any key')
   parser.add_argument('-l', '--perfetto_tool_location', dest='perfetto_tool_location',
                       action='store', default='./external/perfetto/tools',
-                      help='Location of perfotto/tool directory.' +\
+                      help='Location of perfetto/tool directory.' +\
                            ' Default is ./external/perfetto/tools.')
   parser.add_argument('-o', '--perfetto_output', dest='perfetto_output', action='store',
                       help='Output trace file for perfetto. If this is not specified' +\
@@ -58,6 +66,9 @@ def init_arguments():
                       action='store_true',
                       default=False,
                       help='change CPU settings permanently and do not restore original setting')
+  parser.add_argument('-g', '--governor', dest='governor', action='store',
+                      choices=CPU_FREQ_GOVERNOR,
+                      help='CPU governor to apply, overrides the CPU Settings')
   return parser.parse_args()
 
 def run_adb_cmd(cmd):
@@ -187,7 +198,8 @@ def update_policies(settings, deviceSettings = None):
       print("Cannot set policy {}".format(k))
 
 def apply_cpu_settings(settings, deviceSettings = None):
-  print("Apply settings:{}".format(settings))
+  print("Applying CPU Settings:\n" + 30 * "-")
+  print(str(settings))
   offlines = get_cores_to_offline(settings, deviceSettings)
   print("Cores going offline:{}".format(offlines))
 
@@ -209,11 +221,14 @@ def main():
 
   # parse config
   cpuConfig = parse_config(args.config_file)
-  print("*Config:\n" + str(cpuConfig))
+  if args.governor is not None:
+    for k in cpuConfig.configs:
+      cpuConfig.configs[k].governor = args.governor
+  print("CONFIG:\n" + 30 * "-" + "\n" + str(cpuConfig))
 
   # read CPU settings
   deviceSettings = read_device_cpu_settings();
-  print("*Current device CPU settings:\n" + str(deviceSettings))
+  print("Current device CPU settings:\n" + 30 * "-" + "\n"  + str(deviceSettings))
 
   # change CPU setting
   newCpuSettings = cpuConfig.configs.get(args.cpusettings)
@@ -223,7 +238,7 @@ def main():
 
   # wait
   if args.waittime is None:
-    wait_for_user_input("Presse enter to start capturing perfetto trace")
+    wait_for_user_input("Press enter to start capturing perfetto trace")
   else:
     print ("Wait {} secs before capturing perfetto trace".format(args.waittime))
     sleep(int(args.waittime))
