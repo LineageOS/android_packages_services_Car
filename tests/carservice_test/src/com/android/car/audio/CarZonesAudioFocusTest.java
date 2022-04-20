@@ -38,6 +38,7 @@ import android.media.AudioFocusInfo;
 import android.os.Bundle;
 import android.util.SparseArray;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -47,6 +48,12 @@ import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
+    @Before
+    public void setUp() {
+        mCarAudioZones = generateAudioZones();
+        when(mCarAudioService.getZoneIdForUid(MEDIA_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
+    }
+
     @Test
     public void onAudioFocusRequest_forTwoDifferentZones_requestGranted() {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
@@ -85,13 +92,9 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoClient2);
 
-        carZonesAudioFocus.onAudioFocusAbandon(audioFocusInfoClient2);
-
+        abandonFocusAndAssertIfAbandonNotGranted(carZonesAudioFocus, audioFocusInfoClient2);
         verify(mMockAudioManager, never())
                 .dispatchAudioFocusChange(eq(audioFocusInfoClient1), anyInt(), eq(mAudioPolicy));
-
-        verify(mMockAudioManager, never())
-                .dispatchAudioFocusChange(eq(audioFocusInfoClient2), anyInt(), eq(mAudioPolicy));
     }
 
     @Test
@@ -120,11 +123,12 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoMediaClient);
 
-        when(mCarAudioService.getZoneIdForUid(NAVIGATION_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(NAVIGATION_CLIENT_UID_1))
+                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoNavClient =
                 new AudioFocusInfoBuilder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setClientId(NAVIGATION_CLIENT_ID).setGainRequest(AUDIOFOCUS_GAIN)
-                        .setClientUid(NAVIGATION_CLIENT_UID).createAudioFocusInfo();
+                        .setClientUid(NAVIGATION_CLIENT_UID_1).createAudioFocusInfo();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoNavClient);
 
@@ -144,17 +148,17 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         setUpRejectNavigationOnCallValue(true);
         carZonesAudioFocus.updateUserForZoneId(PRIMARY_ZONE_ID, TEST_USER_ID);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoCallClient);
 
-        when(mCarAudioService.getZoneIdForUid(NAVIGATION_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(NAVIGATION_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoNavClient =
                 new AudioFocusInfoBuilder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setGainRequest(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                         .setClientId(NAVIGATION_CLIENT_ID)
-                        .setClientUid(NAVIGATION_CLIENT_UID).createAudioFocusInfo();
+                        .setClientUid(NAVIGATION_CLIENT_UID_1).createAudioFocusInfo();
 
         carZonesAudioFocus
                 .onAudioFocusRequest(audioFocusInfoNavClient, AUDIOFOCUS_REQUEST_GRANTED);
@@ -169,17 +173,17 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         setUpRejectNavigationOnCallValue(false);
         carZonesAudioFocus.updateUserForZoneId(PRIMARY_ZONE_ID, TEST_USER_ID);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoCallClient);
 
-        when(mCarAudioService.getZoneIdForUid(NAVIGATION_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(NAVIGATION_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoNavClient =
                 new AudioFocusInfoBuilder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setGainRequest(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                         .setClientId(NAVIGATION_CLIENT_ID)
-                        .setClientUid(NAVIGATION_CLIENT_UID).createAudioFocusInfo();
+                        .setClientUid(NAVIGATION_CLIENT_UID_1).createAudioFocusInfo();
 
 
         carZonesAudioFocus
@@ -193,7 +197,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusMediaClient = generateMediaRequestForPrimaryZone(
                 /* isDelayedFocusEnabled= */ true);
 
@@ -209,7 +213,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoCallClient);
@@ -229,7 +233,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         carZonesAudioFocus
@@ -253,7 +257,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         carZonesAudioFocus
@@ -276,7 +280,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         carZonesAudioFocus
@@ -300,7 +304,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         carZonesAudioFocus
@@ -328,7 +332,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
-        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo audioFocusInfoCallClient = generateCallRequestForPrimaryZone();
 
         carZonesAudioFocus
@@ -343,7 +347,7 @@ public final class CarZonesAudioFocusTest extends CarZonesAudioFocusTestBase {
         AudioFocusInfo audioFocusInfoNavClient =
                 new AudioFocusInfoBuilder().setUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
                         .setClientId(MEDIA_CLIENT_ID).setGainRequest(AUDIOFOCUS_GAIN)
-                        .setClientUid(NAVIGATION_CLIENT_UID).createAudioFocusInfo();
+                        .setClientUid(NAVIGATION_CLIENT_UID_1).createAudioFocusInfo();
         carZonesAudioFocus
                 .onAudioFocusRequest(audioFocusInfoNavClient, AUDIOFOCUS_REQUEST_GRANTED);
 
