@@ -101,6 +101,13 @@ public class PropertyHalService extends HalServiceBase {
         }
     }
 
+    private void assertPropertySupported(int halPropId) {
+        if (!isPropertySupportedInVehicle(halPropId)) {
+            throw new IllegalArgumentException("Vehicle property not supported: "
+                    + VehiclePropertyIds.toString(halToManagerPropId(halPropId)));
+        }
+    }
+
     /**
      * PropertyHalListener used to send events to CarPropertyService
      */
@@ -169,9 +176,7 @@ public class PropertyHalService extends HalServiceBase {
     public CarPropertyValue getProperty(int mgrPropId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         int halPropId = managerToHalPropId(mgrPropId);
-        if (!isPropertySupportedInVehicle(halPropId)) {
-            throw new IllegalArgumentException("Invalid property Id : 0x" + toHexString(mgrPropId));
-        }
+        assertPropertySupported(halPropId);
 
         // CarPropertyManager catches and rethrows exception, no need to handle here.
         HalPropValue halPropValue = mVehicleHal.get(halPropId, areaId);
@@ -204,9 +209,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public float getSampleRate(int mgrPropId) {
         int halPropId = managerToHalPropId(mgrPropId);
-        if (!isPropertySupportedInVehicle(halPropId)) {
-            throw new IllegalArgumentException("Invalid property Id : 0x" + toHexString(mgrPropId));
-        }
+        assertPropertySupported(halPropId);
         return mVehicleHal.getSampleRate(halPropId);
     }
 
@@ -266,10 +269,7 @@ public class PropertyHalService extends HalServiceBase {
     public void setProperty(CarPropertyValue carPropertyValue)
             throws IllegalArgumentException, ServiceSpecificException {
         int halPropId = managerToHalPropId(carPropertyValue.getPropertyId());
-        if (!isPropertySupportedInVehicle(halPropId)) {
-            throw new IllegalArgumentException("Invalid property Id : 0x"
-                    + toHexString(carPropertyValue.getPropertyId()));
-        }
+        assertPropertySupported(halPropId);
         HalPropConfig halPropConfig;
         synchronized (mLock) {
             halPropConfig = mHalPropIdToPropConfig.get(halPropId);
@@ -291,10 +291,7 @@ public class PropertyHalService extends HalServiceBase {
                     VehiclePropertyIds.toString(mgrPropId), rate);
         }
         int halPropId = managerToHalPropId(mgrPropId);
-        if (!isPropertySupportedInVehicle(halPropId)) {
-            throw new IllegalArgumentException("Invalid property Id : 0x"
-                    + toHexString(mgrPropId));
-        }
+        assertPropertySupported(halPropId);
         synchronized (mLock) {
             HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
             if (rate > halPropConfig.getMaxSampleRate()) {
@@ -316,10 +313,7 @@ public class PropertyHalService extends HalServiceBase {
             Slogf.d(TAG, "unsubscribeProperty propId=%s", VehiclePropertyIds.toString(mgrPropId));
         }
         int halPropId = managerToHalPropId(mgrPropId);
-        if (!isPropertySupportedInVehicle(halPropId)) {
-            throw new IllegalArgumentException("Invalid property Id : 0x"
-                    + toHexString(mgrPropId));
-        }
+        assertPropertySupported(halPropId);
         synchronized (mLock) {
             if (mSubscribedHalPropIds.contains(halPropId)) {
                 mSubscribedHalPropIds.remove(halPropId);
@@ -367,7 +361,7 @@ public class PropertyHalService extends HalServiceBase {
     public void takeProperties(Collection<HalPropConfig> halPropConfigs) {
         for (HalPropConfig halPropConfig : halPropConfigs) {
             int halPropId = halPropConfig.getPropId();
-            if (mPropIds.isSupportedProperty(halPropId)) {
+            if (isSupportedProperty(halPropId)) {
                 synchronized (mLock) {
                     mHalPropIdToPropConfig.put(halPropId, halPropConfig);
                 }
