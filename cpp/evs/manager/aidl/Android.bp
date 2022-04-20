@@ -96,6 +96,7 @@ cc_library {
         "libbase",
         "libbinder_ndk",
         "libcamera_metadata",
+        "libcutils",
         "libhidlbase",
     ],
     static_libs: [
@@ -103,7 +104,6 @@ cc_library {
         "android.hardware.common-V2-ndk",
         "android.hardware.graphics.common-V3-ndk",
         "libaidlcommonsupport",
-        "libcutils",
     ],
     header_libs: [
         "libarect_headers",
