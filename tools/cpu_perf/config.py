@@ -30,28 +30,33 @@ class CpuSettings:
 
   def __str__(self):
     strs = []
-    strs.append("CpuSettings:[")
-    strs.append("\nallcores:")
+    strs.append("CpuSettings:{")
+    add_line_with_indentation(strs, 4)
+    strs.append("allcores:")
     strs.append(str(self.allcores))
-    strs.append("\nonlines:")
+    add_line_with_indentation(strs, 4)
+    strs.append("onlines:")
     strs.append(str(self.onlines))
-    strs.append("\ngovernor:")
+    add_line_with_indentation(strs, 4)
+    strs.append("governor:")
     strs.append(str(self.governor))
-    strs.append("\ngovernors:[")
+    add_line_with_indentation(strs, 4)
+    strs.append("governors:[")
     for k in self.governors:
-      strs.append('\n')
+      add_line_with_indentation(strs, 8)
       strs.append(str(k))
       strs.append('=')
       strs.append(str(self.governors[k]))
     strs.append("]")
-    strs.append("\ncpusets:[")
+    add_line_with_indentation(strs, 4)
+    strs.append("cpusets:[")
     for k in self.cpusets:
-      strs.append('\n')
+      add_line_with_indentation(strs, 8)
       strs.append(str(k))
       strs.append('=')
       strs.append(str(self.cpusets[k]))
     strs.append("]")
-    strs.append("]\n")
+    strs.append("}\n")
     return ''.join(strs)
 
 class CpuConfig:
@@ -63,12 +68,14 @@ class CpuConfig:
   def __str__(self):
     strs = []
     strs.append("CpuConfig:[")
-    strs.append("\nallcores:")
+    add_line_with_indentation(strs, 2)
+    strs.append("allcores:")
     strs.append(str(self.allcores))
-    strs.append("\ncoreMaxFreqKHz:")
+    add_line_with_indentation(strs, 2)
+    strs.append("coreMaxFreqKHz:")
     strs.append(str(self.coreMaxFreqKHz))
     for k in self.configs:
-      strs.append('\n')
+      add_line_with_indentation(strs, 2)
       strs.append(str(k))
       strs.append(':')
       strs.append(str(self.configs[k]))
@@ -155,3 +162,6 @@ def parse_config(configFile):
 
 def get_script_dir():
   return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+def add_line_with_indentation(strs, spaces):
+  strs.append("\n" + spaces * " ")
