@@ -334,8 +334,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 }
 
                 int previousState = mState;
-                Slogf.d(TAG_EVS, "Transition requested: " + toString(previousState)
-                        + " -> " + toString(destination));
+                Slogf.i(TAG_EVS, "Transition requested: %s -> %s", stateToString(previousState),
+                        stateToString(destination));
 
                 switch (destination) {
                     case SERVICE_STATE_UNAVAILABLE:
@@ -364,8 +364,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             }
 
             if (result == ERROR_NONE) {
+                Slogf.i(TAG_EVS, "Transition completed: %s", stateToString(destination));
                 // Broadcasts current state
                 broadcastStateTransition(serviceType, newState);
+            } else {
+                Slogf.e(TAG_EVS, "Transition failed: error = %d", result);
             }
 
             return result;
@@ -613,7 +616,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return ERROR_NONE;
         }
 
-        private String toString(@CarEvsServiceState int state) {
+        private String stateToString(@CarEvsServiceState int state) {
             switch (state) {
                 case SERVICE_STATE_UNAVAILABLE:
                     return "UNAVAILABLE";
@@ -630,7 +633,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         public String toString() {
             synchronized (mLock) {
-                return toString(mState);
+                return stateToString(mState);
             }
         }
     }
