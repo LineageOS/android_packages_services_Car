@@ -57,7 +57,7 @@ import java.util.Set;
  */
 public class CarPropertyService extends ICarProperty.Stub
         implements CarServiceBase, PropertyHalService.PropertyHalListener {
-    private static final boolean DBG = true;
+    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(CarPropertyService.class);
     private final Context mContext;
     private final PropertyHalService mHal;
@@ -357,36 +357,35 @@ public class CarPropertyService extends ICarProperty.Stub
         if ((client == null) || (propertyClients == null)) {
             Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not previously "
                     + "registered.");
-        } else {
-            if (propertyClients.remove(client)) {
-                int propLeft = client.removeProperty(propId);
-                if (propLeft == 0) {
-                    mClientMap.remove(listenerBinder);
-                }
-                clearSetOperationRecorderLocked(propId, client);
-
-            } else {
-                Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
-                        + "propId=0x" + toHexString(propId));
-            }
-
-            if (propertyClients.isEmpty()) {
-                // Last listener for this property unsubscribed.  Clean up
-                mPropIdClientMap.remove(propId);
-                mSetOperationClientMap.remove(propId);
-            } else {
-                // Other listeners are still subscribed.  Calculate the new rate
-                for (int i = 0; i < propertyClients.size(); i++) {
-                    Client c = propertyClients.get(i);
-                    float rate = c.getRate(propId);
-                    updateMaxRate = Math.max(rate, updateMaxRate);
-                }
-            }
+            return;
         }
-        if (Float.compare(updateMaxRate, 0f) == 0) {
-            // Unsubscribe property if we did not find any other client register to this property
+        if (propertyClients.remove(client)) {
+            int propLeft = client.removeProperty(propId);
+            if (propLeft == 0) {
+                mClientMap.remove(listenerBinder);
+            }
+            clearSetOperationRecorderLocked(propId, client);
+
+        } else {
+            Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
+                    + "propId=0x" + toHexString(propId));
+            return;
+        }
+
+        if (propertyClients.isEmpty()) {
+            // Last listener for this property unsubscribed.  Clean up
+            mPropIdClientMap.remove(propId);
+            mSetOperationClientMap.remove(propId);
             mHal.unsubscribeProperty(propId);
-        } else if (Float.compare(updateMaxRate, mHal.getSampleRate(propId)) != 0) {
+            return;
+        }
+        // Other listeners are still subscribed.  Calculate the new rate
+        for (int i = 0; i < propertyClients.size(); i++) {
+            Client c = propertyClients.get(i);
+            float rate = c.getRate(propId);
+            updateMaxRate = Math.max(rate, updateMaxRate);
+        }
+        if (Float.compare(updateMaxRate, mHal.getSampleRate(propId)) != 0) {
             try {
                 // Only reset the sample rate if needed
                 mHal.subscribeProperty(propId, updateMaxRate);
