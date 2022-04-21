@@ -99,7 +99,7 @@ GetpwuidFunction PackageInfoResolver::sGetpwuidHandler = &getpwuid;
 
 sp<PackageInfoResolverInterface> PackageInfoResolver::getInstance() {
     if (sInstance == nullptr) {
-        sInstance = new PackageInfoResolver();
+        sInstance = sp<PackageInfoResolver>::make();
     }
     return sInstance;
 }
