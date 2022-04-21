@@ -433,7 +433,7 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
         if (!mActiveDisplay.expired()) {
             LOG(ERROR) << "Display is owned exclusively by another client.";
             return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_BUSY);
-        } else  {
+        } else {
             mDisplayOwnedExclusively = false;
         }
     }
@@ -442,6 +442,7 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
         // The client requests to open the primary display exclusively.
         id = mInternalDisplayPort;
         mDisplayOwnedExclusively = true;
+        LOG(DEBUG) << "EvsDisplay is now owned exclusively by process " << AIBinder_getCallingPid();
     } else if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) == mDisplayPorts.end()) {
         LOG(ERROR) << "No display is available on the port " << id;
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
@@ -453,8 +454,9 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
     // create/destroy order and provides a cleaner restart sequence if the previous owner
     // is non-responsive for some reason.
     // Request exclusive access to the EVS display
-    auto status = mHwEnumerator->openDisplay(id, displayObj);
-    if (!status.isOk() || !displayObj) {
+    std::shared_ptr<IEvsDisplay> displayHandle;
+    if (auto status = mHwEnumerator->openDisplay(id, &displayHandle);
+        !status.isOk() || !displayHandle) {
         LOG(ERROR) << "EVS Display unavailable";
         return status;
     }
@@ -462,7 +464,8 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
     // Remember (via weak pointer) who we think the most recently opened display is so that
     // we can proxy state requests from other callers to it.
     std::shared_ptr<IEvsDisplay> pHalDisplay =
-            ::ndk::SharedRefBase::make<HalDisplay>(*displayObj, id);
+            ::ndk::SharedRefBase::make<HalDisplay>(displayHandle, id);
+    *displayObj = pHalDisplay;
     mActiveDisplay = pHalDisplay;
 
     return ScopedAStatus::ok();
