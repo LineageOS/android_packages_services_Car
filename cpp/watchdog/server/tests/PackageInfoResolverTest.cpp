@@ -29,6 +29,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::sp;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::PackageInfo;
@@ -70,7 +71,7 @@ public:
     PackageInfoResolverPeer() {
         PackageInfoResolver::getInstance();
         mPackageInfoResolver = PackageInfoResolver::sInstance;
-        mockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+        mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
         mPackageInfoResolver->initWatchdogServiceHelper(mockWatchdogServiceHelper);
     }
 
