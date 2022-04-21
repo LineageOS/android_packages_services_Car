@@ -36,6 +36,7 @@ import android.car.test.util.UserTestingHelper;
 import android.car.test.util.Visitor;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.PermissionResult;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.Binder;
@@ -84,7 +85,7 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks a call to {@link ActivityManager#switchUser(UserHandle)}.
      */
-    public static void mockAmSwitchUser(@NonNull ActivityManager am, @NonNull UserHandle user,
+    public static void mockAmSwitchUser(ActivityManager am, UserHandle user,
             boolean result) {
         when(am.switchUser(user)).thenReturn(result);
     }
@@ -177,7 +178,7 @@ public final class AndroidMockitoHelper {
 
     @NonNull
     private static NewUserRequest isNewUserRequest(@Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags) {
+            String userType, @UserInfoFlag int flags) {
         return argThat(new NewUserRequestMatcher(name, userType, flags));
     }
 
@@ -199,7 +200,7 @@ public final class AndroidMockitoHelper {
      * {@code flags}.
      */
     @NonNull
-    public static UserInfo mockUmGetUserInfo(@NonNull UserManager um, @UserIdInt int userId,
+    public static UserInfo mockUmGetUserInfo(UserManager um, @UserIdInt int userId,
             @UserInfoFlag int flags) {
         Objects.requireNonNull(um);
         UserInfo user = new UserTestingHelper.UserInfoBuilder(userId).setFlags(flags).build();
@@ -211,7 +212,7 @@ public final class AndroidMockitoHelper {
      * Mocks {@code UserManager.getUserInfo(userId)} to return the given {@link UserInfo}.
      */
     @NonNull
-    public static void mockUmGetUserInfo(@NonNull UserManager um, @NonNull UserInfo user) {
+    public static void mockUmGetUserInfo(UserManager um, UserInfo user) {
         when(um.getUserInfo(user.id)).thenReturn(user);
     }
 
@@ -219,7 +220,7 @@ public final class AndroidMockitoHelper {
      * Mocks {@code UserManager#getUserInfo(userId)} when the {@code userId} is the system user's.
      */
     @NonNull
-    public static void mockUmGetSystemUser(@NonNull UserManager um) {
+    public static void mockUmGetSystemUser(UserManager um) {
         UserInfo user = new UserTestingHelper.UserInfoBuilder(UserHandle.USER_SYSTEM)
                 .setFlags(UserInfo.FLAG_SYSTEM).build();
         when(um.getUserInfo(UserHandle.USER_SYSTEM)).thenReturn(user);
@@ -228,7 +229,7 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks {@code UserManager#getAliveUsers()} to return the given users.
      */
-    public static void mockUmGetAliveUsers(@NonNull UserManager um, @NonNull UserInfo... users) {
+    public static void mockUmGetAliveUsers(UserManager um, UserInfo... users) {
         Objects.requireNonNull(um);
         when(um.getAliveUsers()).thenReturn(UserTestingHelper.toList(users));
     }
@@ -236,8 +237,8 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks {@code UserManager#getAliveUsers()} to return the simple users with the given ids.
      */
-    public static void mockUmGetAliveUsers(@NonNull UserManager um,
-            @NonNull @UserIdInt int... userIds) {
+    public static void mockUmGetAliveUsers(UserManager um,
+            @UserIdInt int... userIds) {
         mockUmGetUserHandles(um, true, userIds);
         List<UserInfo> users = UserTestingHelper.newUsers(userIds);
         when(um.getAliveUsers()).thenReturn(users);
@@ -247,8 +248,8 @@ public final class AndroidMockitoHelper {
      * Mocks {@code UserManager#getUsers(excludePartial, excludeDying, excludeDying)} to return the
      * given users.
      */
-    public static void mockUmGetUsers(@NonNull UserManager um, boolean excludePartial,
-            boolean excludeDying, boolean excludePreCreated, @NonNull List<UserInfo> users) {
+    public static void mockUmGetUsers(UserManager um, boolean excludePartial,
+            boolean excludeDying, boolean excludePreCreated, List<UserInfo> users) {
         Objects.requireNonNull(um);
         when(um.getUsers(excludePartial, excludeDying, excludePreCreated)).thenReturn(users);
     }
@@ -257,8 +258,8 @@ public final class AndroidMockitoHelper {
      * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the
      * given users.
      */
-    public static void mockUmGetUserHandles(@NonNull UserManager um, boolean excludeDying,
-            @NonNull UserHandle... users) {
+    public static void mockUmGetUserHandles(UserManager um, boolean excludeDying,
+            UserHandle... users) {
         Objects.requireNonNull(users);
         mockUmGetUserHandles(um, excludeDying, UserTestingHelper.toList(users));
     }
@@ -270,8 +271,8 @@ public final class AndroidMockitoHelper {
      * excludePartial which is required in UserHalHelper. In the next CL, UserHalHelper would be
      * updated so that current user is always available in the usersInfo.
      */
-    public static void mockUmGetUserHandles(@NonNull UserManager um, boolean excludeDying,
-            @NonNull List<UserHandle> users) {
+    public static void mockUmGetUserHandles(UserManager um, boolean excludeDying,
+            List<UserHandle> users) {
         Objects.requireNonNull(um);
         Objects.requireNonNull(users);
         when(um.getUserHandles(excludeDying)).thenReturn(users);
@@ -289,26 +290,26 @@ public final class AndroidMockitoHelper {
      * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the
      * given users.
      */
-    public static void mockUmGetUserHandles(@NonNull UserManager um, boolean excludeDying,
-            @NonNull int... userIds) {
+    public static void mockUmGetUserHandles(UserManager um, boolean excludeDying,
+            int... userIds) {
         mockUmGetUserHandles(um, excludeDying, UserTestingHelper.newUserHandles(userIds));
     }
 
     /**
      * Mocks a call to {@code UserManager#getUsers()}, which includes dying users.
      */
-    public static void mockUmGetAllUsers(@NonNull UserManager um, @NonNull UserInfo... userInfos) {
+    public static void mockUmGetAllUsers(UserManager um, UserInfo... userInfos) {
         when(um.getUsers()).thenReturn(UserTestingHelper.toList(userInfos));
     }
 
-    public static void mockUmGetAllUsers(@NonNull UserManager um, @NonNull UserHandle... users) {
+    public static void mockUmGetAllUsers(UserManager um, UserHandle... users) {
         mockUmGetUserHandles(um, false, users);
     }
 
     /**
      * Mocks a call to {@code UserManager#isUserRunning(userId)}.
      */
-    public static void mockUmIsUserRunning(@NonNull UserManager um, @UserIdInt int userId,
+    public static void mockUmIsUserRunning(UserManager um, @UserIdInt int userId,
             boolean isRunning) {
         when(um.isUserRunning(userId)).thenReturn(isRunning);
         when(um.isUserRunning(UserHandle.of(userId))).thenReturn(isRunning);
@@ -318,8 +319,8 @@ public final class AndroidMockitoHelper {
      * Mocks a successful call to {@code UserManager#removeUserWhenPossible(UserHandle, boolean)},
      * and notifies {@code listener} when it's called.
      */
-    public static void mockUmRemoveUserWhenPossible(@NonNull UserManager um,
-            @NonNull UserInfo user, boolean overrideDevicePolicy, @RemoveResult int result,
+    public static void mockUmRemoveUserWhenPossible(UserManager um,
+            UserInfo user, boolean overrideDevicePolicy, @RemoveResult int result,
             @Nullable Visitor<UserInfo> listener) {
         when(um.removeUserWhenPossible(user.getUserHandle(), overrideDevicePolicy))
                 .thenAnswer((inv) -> {
@@ -336,8 +337,8 @@ public final class AndroidMockitoHelper {
      * Mocks a successful call to {@code UserManager#removeUserWhenPossible(UserHandle, boolean)},
      * and notifies {@code listener} when it's called.
      */
-    public static void mockUmRemoveUserWhenPossible(@NonNull UserManager um,
-            @NonNull UserHandle user, boolean overrideDevicePolicy, @RemoveResult int result,
+    public static void mockUmRemoveUserWhenPossible(UserManager um,
+            UserHandle user, boolean overrideDevicePolicy, @RemoveResult int result,
             @Nullable Visitor<UserHandle> listener) {
         when(um.removeUserWhenPossible(user, overrideDevicePolicy)).thenAnswer((inv) -> {
             if (listener != null) {
@@ -352,8 +353,8 @@ public final class AndroidMockitoHelper {
      * Mocks a call to {@code UserManager#hasUserRestrictionForUser(String, UserHandle)} that
      * returns {@code value}.
      */
-    public static void mockUmHasUserRestrictionForUser(@NonNull UserManager um,
-            @NonNull UserHandle user, @NonNull String restrictionKey, boolean value) {
+    public static void mockUmHasUserRestrictionForUser(UserManager um,
+            UserHandle user, String restrictionKey, boolean value) {
         when(um.hasUserRestrictionForUser(restrictionKey, user)).thenReturn(value);
     }
 
@@ -361,7 +362,7 @@ public final class AndroidMockitoHelper {
      * Mocks a call to {@code UserManager#getUserSwitchability(int)} that
      * returns {@code result}.
      */
-    public static void mockUmGetUserSwitchability(@NonNull UserManager um,
+    public static void mockUmGetUserSwitchability(UserManager um,
             @UserSwitchabilityResult int result) {
         when(um.getUserSwitchability()).thenReturn(result);
     }
@@ -376,7 +377,7 @@ public final class AndroidMockitoHelper {
      * @param name interface name of the service
      * @param binder result of such call
      */
-    public static void mockSmGetService(@NonNull String name, @NonNull IBinder binder) {
+    public static void mockSmGetService(String name, IBinder binder) {
         doReturn(binder).when(() -> ServiceManager.getService(name));
     }
 
@@ -391,8 +392,8 @@ public final class AndroidMockitoHelper {
      * @param binder mocked return of ServiceManager.getService
      * @param service binder implementation
      */
-    public static <T extends IInterface> void mockQueryService(@NonNull String name,
-            @NonNull IBinder binder, @NonNull T service) {
+    public static <T extends IInterface> void mockQueryService(String name,
+            IBinder binder, T service) {
         doReturn(binder).when(() -> ServiceManager.getService(name));
         doReturn(binder).when(() -> ServiceManager.checkService(name));
         when(binder.queryLocalInterface(anyString())).thenReturn(service);
@@ -414,12 +415,20 @@ public final class AndroidMockitoHelper {
     /**
      * Mocks a call to {@link Context#getSystemService(Class)}.
      */
-    public static <T> void mockContextGetService(@NonNull Context context,
-            @NonNull Class<T> serviceClass, @NonNull T service) {
+    public static <T> void mockContextGetService(Context context,
+            Class<T> serviceClass, T service) {
         when(context.getSystemService(serviceClass)).thenReturn(service);
         if (serviceClass.equals(PackageManager.class)) {
             when(context.getPackageManager()).thenReturn(PackageManager.class.cast(service));
         }
+    }
+
+    /**
+     * Mocks a call to {@link Context#checkCallingOrSelfPermission(String)}
+     */
+    public static void mockContextCheckCallingOrSelfPermission(Context context,
+            String permission, @PermissionResult int permissionResults) {
+        when(context.checkCallingOrSelfPermission(permission)).thenReturn(permissionResults);
     }
 
     // TODO(b/192307581): add unit tests
