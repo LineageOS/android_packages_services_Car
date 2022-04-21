@@ -190,8 +190,6 @@ public:
           mProcDiskStatsCollector(android::sp<ProcDiskStatsCollector>::make()),
           mDataProcessors({}) {}
 
-    ~WatchdogPerfService() { terminate(); }
-
     android::base::Result<void> registerDataProcessor(
             android::sp<DataProcessorInterface> processor) override;
 
