@@ -19,8 +19,6 @@ package com.android.car.audio;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -28,6 +26,7 @@ import static org.mockito.Mockito.when;
 import android.media.AudioFocusInfo;
 import android.media.AudioManager;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,84 +55,93 @@ public final class CarZonesAudioFocusExclusiveTest extends CarZonesAudioFocusTes
     public static Collection provideParams() {
         return Arrays.asList(
                 new Object[][]{
-                        {INVALID_SOUND_INFO_1, EMERGENCY_INFO},
-                        {INVALID_SOUND_INFO_1, SAFETY_INFO},
+                        {INVALID_SOUND_INFO_1, EMERGENCY_INFO_1},
+                        {INVALID_SOUND_INFO_1, SAFETY_INFO_1},
 
                         {MEDIA_INFO_1, MEDIA_INFO_2},
-                        {MEDIA_INFO_1, VOICE_COMMAND_INFO},
-                        {MEDIA_INFO_1, CALL_RING_INFO},
-                        {MEDIA_INFO_1, CALL_INFO},
-                        {MEDIA_INFO_1, ALARM_INFO},
-                        {MEDIA_INFO_1, EMERGENCY_INFO},
+                        {MEDIA_INFO_1, VOICE_COMMAND_INFO_1},
+                        {MEDIA_INFO_1, CALL_RING_INFO_1},
+                        {MEDIA_INFO_1, CALL_INFO_1},
+                        {MEDIA_INFO_1, ALARM_INFO_1},
+                        {MEDIA_INFO_1, EMERGENCY_INFO_1},
                         {MEDIA_INFO_1, ANNOUNCEMENT_INFO_1},
 
-                        {NAVIGATION_INFO, VOICE_COMMAND_INFO},
-                        {NAVIGATION_INFO, CALL_INFO},
-                        {NAVIGATION_INFO, EMERGENCY_INFO},
+                        {NAVIGATION_INFO_1, VOICE_COMMAND_INFO_1},
+                        {NAVIGATION_INFO_1, CALL_INFO_1},
+                        {NAVIGATION_INFO_1, EMERGENCY_INFO_1},
 
-                        {VOICE_COMMAND_INFO, CALL_RING_INFO},
-                        {VOICE_COMMAND_INFO, CALL_INFO},
-                        {VOICE_COMMAND_INFO, EMERGENCY_INFO},
+                        {VOICE_COMMAND_INFO_1, CALL_RING_INFO_1},
+                        {VOICE_COMMAND_INFO_1, CALL_INFO_1},
+                        {VOICE_COMMAND_INFO_1, EMERGENCY_INFO_1},
 
-                        {CALL_RING_INFO, EMERGENCY_INFO},
+                        {CALL_RING_INFO_1, EMERGENCY_INFO_1},
 
-                        {ALARM_INFO, VOICE_COMMAND_INFO},
-                        {ALARM_INFO, CALL_RING_INFO},
-                        {ALARM_INFO, CALL_INFO},
-                        {ALARM_INFO, EMERGENCY_INFO},
+                        {ALARM_INFO_1, VOICE_COMMAND_INFO_1},
+                        {ALARM_INFO_1, CALL_RING_INFO_1},
+                        {ALARM_INFO_1, CALL_INFO_1},
+                        {ALARM_INFO_1, EMERGENCY_INFO_1},
 
-                        {NOTIFICATION_INFO, VOICE_COMMAND_INFO},
-                        {NOTIFICATION_INFO, CALL_RING_INFO},
-                        {NOTIFICATION_INFO, CALL_INFO},
-                        {NOTIFICATION_INFO, EMERGENCY_INFO},
+                        {NOTIFICATION_INFO_1, VOICE_COMMAND_INFO_1},
+                        {NOTIFICATION_INFO_1, CALL_RING_INFO_1},
+                        {NOTIFICATION_INFO_1, CALL_INFO_1},
+                        {NOTIFICATION_INFO_1, EMERGENCY_INFO_1},
 
-                        {SYSTEM_SOUND_INFO, VOICE_COMMAND_INFO},
-                        {SYSTEM_SOUND_INFO, CALL_RING_INFO},
-                        {SYSTEM_SOUND_INFO, CALL_INFO},
-                        {SYSTEM_SOUND_INFO, EMERGENCY_INFO},
+                        {SYSTEM_SOUND_INFO_1, VOICE_COMMAND_INFO_1},
+                        {SYSTEM_SOUND_INFO_1, CALL_RING_INFO_1},
+                        {SYSTEM_SOUND_INFO_1, CALL_INFO_1},
+                        {SYSTEM_SOUND_INFO_1, EMERGENCY_INFO_1},
 
-                        {VEHICLE_STATUS_INFO, EMERGENCY_INFO},
+                        {VEHICLE_STATUS_INFO_1, EMERGENCY_INFO_1},
 
                         {ANNOUNCEMENT_INFO_1, MEDIA_INFO_1},
-                        {ANNOUNCEMENT_INFO_1, VOICE_COMMAND_INFO},
-                        {ANNOUNCEMENT_INFO_1, CALL_RING_INFO},
-                        {ANNOUNCEMENT_INFO_1, CALL_INFO},
-                        {ANNOUNCEMENT_INFO_1, ALARM_INFO},
-                        {ANNOUNCEMENT_INFO_1, EMERGENCY_INFO},
+                        {ANNOUNCEMENT_INFO_1, VOICE_COMMAND_INFO_1},
+                        {ANNOUNCEMENT_INFO_1, CALL_RING_INFO_1},
+                        {ANNOUNCEMENT_INFO_1, CALL_INFO_1},
+                        {ANNOUNCEMENT_INFO_1, ALARM_INFO_1},
+                        {ANNOUNCEMENT_INFO_1, EMERGENCY_INFO_1},
                         {ANNOUNCEMENT_INFO_1, ANNOUNCEMENT_INFO_2}
                 });
     }
 
+    @Before
+    public void setUp() {
+        mCarAudioZones = generateAudioZones();
+        when(mCarAudioService.getZoneIdForUid(mExcludedAudioClientInfo.getClientUid()))
+                .thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(mAcceptedAudioClientInfo.getClientUid()))
+                .thenReturn(PRIMARY_ZONE_ID);
+    }
+
     @Test
-    public void exclusiveInteractionsForFocusGainNoPause_RequestGrantedAndFocusLossSent() {
+    public void exclusiveInteractionsForFocusGainNoPause_requestGrantedAndFocusLossSent() {
         testExclusiveNonTransientInteractions(/* pauseForDucking= */ false);
     }
 
     @Test
-    public void exclusiveInteractionsForFocusGainPause_RequestGrantedAndFocusLossSent() {
+    public void exclusiveInteractionsForFocusGainPause_requestGrantedAndFocusLossSent() {
         testExclusiveNonTransientInteractions(/* pauseForDucking= */ true);
     }
 
     @Test
-    public void exclusiveInteractionsTransientNoPause_RequestGrantedAndFocusLossSent() {
+    public void exclusiveInteractionsTransientNoPause_requestGrantedAndFocusLossSent() {
         testExclusiveTransientInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
                 /* pauseForDucking= */ false);
     }
 
     @Test
-    public void exclusiveInteractionsTransientPause_RequestGrantedAndFocusLossSent() {
+    public void exclusiveInteractionsTransientPause_requestGrantedAndFocusLossSent() {
         testExclusiveTransientInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT,
                 /* pauseForDucking= */ true);
     }
 
     @Test
-    public void exclusiveInteractionsTransientMayDuckNoPause_RequestGrantedAndFocusLossSent() {
+    public void exclusiveInteractionsTransientMayDuckNoPause_requestGrantedAndFocusLossSent() {
         testExclusiveTransientInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
                 /* pauseForDucking= */ false);
     }
 
     @Test
-    public void exclusiveInteractionsTransientMayDuckPause_RequestGrantedAndFocusLossSent() {
+    public void exclusiveInteractionsTransientMayDuckPause_requestGrantedAndFocusLossSent() {
         testExclusiveTransientInteractions(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK,
                 /* pauseForDucking= */ true);
     }
@@ -141,8 +149,6 @@ public final class CarZonesAudioFocusExclusiveTest extends CarZonesAudioFocusTes
     private void testExclusiveNonTransientInteractions(boolean pauseForDucking) {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
 
-        when(mCarAudioService.getZoneIdForUid(mExcludedAudioClientInfo.getClientUid()))
-                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo excludedAudioFocusInfo =
                 new AudioFocusInfoBuilder().setUsage(mExcludedAudioClientInfo.getUsage())
                         .setGainRequest(AUDIOFOCUS_GAIN)
@@ -150,8 +156,6 @@ public final class CarZonesAudioFocusExclusiveTest extends CarZonesAudioFocusTes
                         .setClientUid(mExcludedAudioClientInfo.getClientUid())
                         .setPausesOnDuckRequestEnable(pauseForDucking).createAudioFocusInfo();
 
-        when(mCarAudioService.getZoneIdForUid(mAcceptedAudioClientInfo.getClientUid()))
-                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo acceptedAudioFocusInfo =
                 new AudioFocusInfoBuilder().setUsage(mAcceptedAudioClientInfo.getUsage())
                         .setGainRequest(AUDIOFOCUS_GAIN)
@@ -168,17 +172,15 @@ public final class CarZonesAudioFocusExclusiveTest extends CarZonesAudioFocusTes
 
         when(mMockAudioManager.dispatchAudioFocusChange(excludedAudioFocusInfo,
                 AUDIOFOCUS_GAIN, mAudioPolicy)).thenReturn(AUDIOFOCUS_REQUEST_GRANTED);
-        carZonesAudioFocus.onAudioFocusAbandon(acceptedAudioFocusInfo);
 
-        verify(mMockAudioManager, never()).dispatchAudioFocusChange(eq(acceptedAudioFocusInfo),
-                anyInt(), eq(mAudioPolicy));
+        abandonFocusAndAssertIfAbandonNotGranted(carZonesAudioFocus, acceptedAudioFocusInfo);
+        verify(mMockAudioManager, never()).dispatchAudioFocusChange(excludedAudioFocusInfo,
+                AUDIOFOCUS_GAIN, mAudioPolicy);
     }
 
     private void testExclusiveTransientInteractions(int gainType, boolean pauseForDucking) {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
 
-        when(mCarAudioService.getZoneIdForUid(mExcludedAudioClientInfo.getClientUid()))
-                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo excludedAudioFocusInfo =
                 new AudioFocusInfoBuilder().setUsage(mExcludedAudioClientInfo.getUsage())
                         .setGainRequest(gainType)
@@ -186,8 +188,6 @@ public final class CarZonesAudioFocusExclusiveTest extends CarZonesAudioFocusTes
                         .setClientUid(mExcludedAudioClientInfo.getClientUid())
                         .setPausesOnDuckRequestEnable(pauseForDucking).createAudioFocusInfo();
 
-        when(mCarAudioService.getZoneIdForUid(mAcceptedAudioClientInfo.getClientUid()))
-                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo acceptedAudioFocusInfo =
                 new AudioFocusInfoBuilder().setUsage(mAcceptedAudioClientInfo.getUsage())
                         .setGainRequest(gainType)
@@ -204,10 +204,8 @@ public final class CarZonesAudioFocusExclusiveTest extends CarZonesAudioFocusTes
 
         when(mMockAudioManager.dispatchAudioFocusChange(excludedAudioFocusInfo,
                 AUDIOFOCUS_GAIN, mAudioPolicy)).thenReturn(AUDIOFOCUS_REQUEST_GRANTED);
-        carZonesAudioFocus.onAudioFocusAbandon(acceptedAudioFocusInfo);
 
-        verify(mMockAudioManager, never()).dispatchAudioFocusChange(eq(acceptedAudioFocusInfo),
-                anyInt(), eq(mAudioPolicy));
+        abandonFocusAndAssertIfAbandonNotGranted(carZonesAudioFocus, acceptedAudioFocusInfo);
         verify(mMockAudioManager).dispatchAudioFocusChange(excludedAudioFocusInfo,
                 AUDIOFOCUS_GAIN, mAudioPolicy);
     }

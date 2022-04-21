@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import android.media.AudioFocusInfo;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,70 +56,77 @@ public final class CarZonesAudioFocusRejectedTest extends CarZonesAudioFocusTest
                 new Object[][] {
                         {INVALID_SOUND_INFO_1, INVALID_SOUND_INFO_2},
                         {INVALID_SOUND_INFO_1, MEDIA_INFO_1},
-                        {INVALID_SOUND_INFO_1, NAVIGATION_INFO},
-                        {INVALID_SOUND_INFO_1, VOICE_COMMAND_INFO},
-                        {INVALID_SOUND_INFO_1, CALL_RING_INFO},
-                        {INVALID_SOUND_INFO_1, CALL_INFO},
-                        {INVALID_SOUND_INFO_1, ALARM_INFO},
-                        {INVALID_SOUND_INFO_1, NOTIFICATION_INFO},
-                        {INVALID_SOUND_INFO_1, SYSTEM_SOUND_INFO},
-                        {INVALID_SOUND_INFO_1, VEHICLE_STATUS_INFO},
+                        {INVALID_SOUND_INFO_1, NAVIGATION_INFO_1},
+                        {INVALID_SOUND_INFO_1, VOICE_COMMAND_INFO_1},
+                        {INVALID_SOUND_INFO_1, CALL_RING_INFO_1},
+                        {INVALID_SOUND_INFO_1, CALL_INFO_1},
+                        {INVALID_SOUND_INFO_1, ALARM_INFO_1},
+                        {INVALID_SOUND_INFO_1, NOTIFICATION_INFO_1},
+                        {INVALID_SOUND_INFO_1, SYSTEM_SOUND_INFO_1},
+                        {INVALID_SOUND_INFO_1, VEHICLE_STATUS_INFO_1},
                         {INVALID_SOUND_INFO_1, ANNOUNCEMENT_INFO_1},
 
                         {MEDIA_INFO_1, INVALID_SOUND_INFO_1},
 
-                        {NAVIGATION_INFO, INVALID_SOUND_INFO_1},
+                        {NAVIGATION_INFO_1, INVALID_SOUND_INFO_1},
 
-                        {VOICE_COMMAND_INFO, INVALID_SOUND_INFO_1},
-                        {VOICE_COMMAND_INFO, NAVIGATION_INFO},
-                        {VOICE_COMMAND_INFO, NOTIFICATION_INFO},
-                        {VOICE_COMMAND_INFO, SYSTEM_SOUND_INFO},
-                        {VOICE_COMMAND_INFO, ANNOUNCEMENT_INFO_1},
+                        {VOICE_COMMAND_INFO_1, INVALID_SOUND_INFO_1},
+                        {VOICE_COMMAND_INFO_1, NAVIGATION_INFO_1},
+                        {VOICE_COMMAND_INFO_1, NOTIFICATION_INFO_1},
+                        {VOICE_COMMAND_INFO_1, SYSTEM_SOUND_INFO_1},
+                        {VOICE_COMMAND_INFO_1, ANNOUNCEMENT_INFO_1},
 
-                        {CALL_RING_INFO, INVALID_SOUND_INFO_1},
-                        {CALL_RING_INFO, MEDIA_INFO_1},
-                        {CALL_RING_INFO, ALARM_INFO},
-                        {CALL_RING_INFO, NOTIFICATION_INFO},
-                        {CALL_RING_INFO, ANNOUNCEMENT_INFO_1},
+                        {CALL_RING_INFO_1, INVALID_SOUND_INFO_1},
+                        {CALL_RING_INFO_1, MEDIA_INFO_1},
+                        {CALL_RING_INFO_1, ALARM_INFO_1},
+                        {CALL_RING_INFO_1, NOTIFICATION_INFO_1},
+                        {CALL_RING_INFO_1, ANNOUNCEMENT_INFO_1},
 
-                        {CALL_INFO, INVALID_SOUND_INFO_1},
-                        {CALL_INFO, MEDIA_INFO_1},
-                        {CALL_INFO, VOICE_COMMAND_INFO},
-                        {CALL_INFO, SYSTEM_SOUND_INFO},
-                        {CALL_INFO, ANNOUNCEMENT_INFO_1},
+                        {CALL_INFO_1, INVALID_SOUND_INFO_1},
+                        {CALL_INFO_1, MEDIA_INFO_1},
+                        {CALL_INFO_1, VOICE_COMMAND_INFO_1},
+                        {CALL_INFO_1, SYSTEM_SOUND_INFO_1},
+                        {CALL_INFO_1, ANNOUNCEMENT_INFO_1},
 
-                        {ALARM_INFO, INVALID_SOUND_INFO_1},
-                        {ALARM_INFO, ANNOUNCEMENT_INFO_1},
+                        {ALARM_INFO_1, INVALID_SOUND_INFO_1},
+                        {ALARM_INFO_1, ANNOUNCEMENT_INFO_1},
 
-                        {NOTIFICATION_INFO, INVALID_SOUND_INFO_1},
+                        {NOTIFICATION_INFO_1, INVALID_SOUND_INFO_1},
 
-                        {SYSTEM_SOUND_INFO, INVALID_SOUND_INFO_1},
+                        {SYSTEM_SOUND_INFO_1, INVALID_SOUND_INFO_1},
 
-                        {EMERGENCY_INFO, INVALID_SOUND_INFO_1},
-                        {EMERGENCY_INFO, MEDIA_INFO_1},
-                        {EMERGENCY_INFO, NAVIGATION_INFO},
-                        {EMERGENCY_INFO, VOICE_COMMAND_INFO},
-                        {EMERGENCY_INFO, CALL_RING_INFO},
-                        {EMERGENCY_INFO, ALARM_INFO},
-                        {EMERGENCY_INFO, NOTIFICATION_INFO},
-                        {EMERGENCY_INFO, SYSTEM_SOUND_INFO},
-                        {EMERGENCY_INFO, VEHICLE_STATUS_INFO},
-                        {EMERGENCY_INFO, ANNOUNCEMENT_INFO_1},
+                        {EMERGENCY_INFO_1, INVALID_SOUND_INFO_1},
+                        {EMERGENCY_INFO_1, MEDIA_INFO_1},
+                        {EMERGENCY_INFO_1, NAVIGATION_INFO_1},
+                        {EMERGENCY_INFO_1, VOICE_COMMAND_INFO_1},
+                        {EMERGENCY_INFO_1, CALL_RING_INFO_1},
+                        {EMERGENCY_INFO_1, ALARM_INFO_1},
+                        {EMERGENCY_INFO_1, NOTIFICATION_INFO_1},
+                        {EMERGENCY_INFO_1, SYSTEM_SOUND_INFO_1},
+                        {EMERGENCY_INFO_1, VEHICLE_STATUS_INFO_1},
+                        {EMERGENCY_INFO_1, ANNOUNCEMENT_INFO_1},
 
-                        {SAFETY_INFO, INVALID_SOUND_INFO_1},
+                        {SAFETY_INFO_1, INVALID_SOUND_INFO_1},
 
-                        {VEHICLE_STATUS_INFO, INVALID_SOUND_INFO_1},
+                        {VEHICLE_STATUS_INFO_1, INVALID_SOUND_INFO_1},
 
                         {ANNOUNCEMENT_INFO_1, INVALID_SOUND_INFO_1}
                 });
+    }
+
+    @Before
+    public void setUp() {
+        mCarAudioZones = generateAudioZones();
+        when(mCarAudioService.getZoneIdForUid(mAcceptedAudioClientInfo.getClientUid()))
+                .thenReturn(PRIMARY_ZONE_ID);
+        when(mCarAudioService.getZoneIdForUid(mRejectedAudioClientInfo.getClientUid()))
+                .thenReturn(PRIMARY_ZONE_ID);
     }
 
     @Test
     public void rejectedInteractionsFocusTest() {
         CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
 
-        when(mCarAudioService.getZoneIdForUid(mAcceptedAudioClientInfo.getClientUid()))
-                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo acceptedFocusInfo =
                 new AudioFocusInfoBuilder().setUsage(mAcceptedAudioClientInfo.getUsage())
                         .setGainRequest(AUDIOFOCUS_GAIN)
@@ -126,8 +134,6 @@ public final class CarZonesAudioFocusRejectedTest extends CarZonesAudioFocusTest
                         .setClientUid(mAcceptedAudioClientInfo.getClientUid())
                         .createAudioFocusInfo();
 
-        when(mCarAudioService.getZoneIdForUid(mRejectedAudioClientInfo.getClientUid()))
-                .thenReturn(PRIMARY_ZONE_ID);
         AudioFocusInfo rejectedFocusInfo =
                 new AudioFocusInfoBuilder().setUsage(mRejectedAudioClientInfo.getUsage())
                         .setGainRequest(AUDIOFOCUS_GAIN)

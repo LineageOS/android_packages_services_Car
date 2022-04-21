@@ -33,6 +33,9 @@ import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,7 +47,6 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.util.SparseArray;
 
-import org.junit.Before;
 import org.mockito.Mock;
 
 abstract class CarZonesAudioFocusTestBase {
@@ -53,15 +55,25 @@ abstract class CarZonesAudioFocusTestBase {
     protected static final String MEDIA_CLIENT_ID = "media-client-id";
     protected static final String MEDIA_CLIENT_ID_2 = "media-client2-id";
     protected static final String NAVIGATION_CLIENT_ID = "nav-client-id";
+    protected static final String NAVIGATION_CLIENT_ID_2 = "nav-client2-id";
     protected static final String VOICE_COMMAND_CLIENT_ID = "voice-cmd-client-id";
+    protected static final String VOICE_COMMAND_CLIENT_ID_2 = "voice-cmd-client2-id";
     protected static final String CALL_RING_CLIENT_ID = "call-ring-client-id";
+    protected static final String CALL_RING_CLIENT_ID_2 = "call-ring-client2-id";
     protected static final String CALL_CLIENT_ID = "call-client-id";
+    protected static final String CALL_CLIENT_ID_2 = "call-client2-id";
     protected static final String ALARM_CLIENT_ID = "alarm-client-id";
+    protected static final String ALARM_CLIENT_ID_2 = "alarm-client2-id";
     protected static final String NOTIFICATION_CLIENT_ID = "notification-client-id";
+    protected static final String NOTIFICATION_CLIENT_ID_2 = "notification-client2-id";
     protected static final String SYSTEM_SOUND_CLIENT_ID = "sys-sound-client-id";
+    protected static final String SYSTEM_SOUND_CLIENT_ID_2 = "sys-sound-client2-id";
     protected static final String EMERGENCY_CLIENT_ID = "emergency-client-id";
+    protected static final String EMERGENCY_CLIENT_ID_2 = "emergency-client2-id";
     protected static final String SAFETY_CLIENT_ID = "safety-client-id";
+    protected static final String SAFETY_CLIENT_ID_2 = "safety-client2-id";
     protected static final String VEHICLE_STATUS_CLIENT_ID = "vehicle-status-client-id";
+    protected static final String VEHICLE_STATUS_CLIENT_ID_2 = "vehicle-status-client2-id";
     protected static final String ANNOUNCEMENT_CLIENT_ID = "announcement-client-id";
     protected static final String ANNOUNCEMENT_CLIENT_ID_2 = "announcement-client2-id";
 
@@ -72,16 +84,26 @@ abstract class CarZonesAudioFocusTestBase {
     protected static final int INVALID_CLIENT_UID_2 = 1000007;
     protected static final int MEDIA_CLIENT_UID_1 = 1086753;
     protected static final int MEDIA_CLIENT_UID_2 = 1000009;
-    protected static final int NAVIGATION_CLIENT_UID = 1010101;
-    protected static final int VOICE_COMMAND_CLIENT_UID = 1000305;
-    protected static final int CALL_RING_CLIENT_UID = 1000405;
-    protected static final int CALL_CLIENT_UID = 1086753;
-    protected static final int ALARM_CLIENT_UID = 1000605;
-    protected static final int NOTIFICATION_CLIENT_UID = 1000705;
-    protected static final int SYSTEM_SOUND_CLIENT_UID = 1000805;
-    protected static final int EMERGENCY_CLIENT_UID = 1000905;
-    protected static final int SAFETY_CLIENT_UID = 1001005;
-    protected static final int VEHICLE_STATUS_CLIENT_UID = 1001105;
+    protected static final int NAVIGATION_CLIENT_UID_1 = 1010101;
+    protected static final int NAVIGATION_CLIENT_UID_2 = 1000207;
+    protected static final int VOICE_COMMAND_CLIENT_UID_1 = 1000305;
+    protected static final int VOICE_COMMAND_CLIENT_UID_2 = 1000307;
+    protected static final int CALL_RING_CLIENT_UID_1 = 1000405;
+    protected static final int CALL_RING_CLIENT_UID_2 = 1000407;
+    protected static final int CALL_CLIENT_UID_1 = 1086753;
+    protected static final int CALL_CLIENT_UID_2 = 1000507;
+    protected static final int ALARM_CLIENT_UID_1 = 1000605;
+    protected static final int ALARM_CLIENT_UID_2 = 1000607;
+    protected static final int NOTIFICATION_CLIENT_UID_1 = 1000705;
+    protected static final int NOTIFICATION_CLIENT_UID_2 = 1000707;
+    protected static final int SYSTEM_SOUND_CLIENT_UID_1 = 1000805;
+    protected static final int SYSTEM_SOUND_CLIENT_UID_2 = 1000807;
+    protected static final int EMERGENCY_CLIENT_UID_1 = 1000905;
+    protected static final int EMERGENCY_CLIENT_UID_2 = 1000907;
+    protected static final int SAFETY_CLIENT_UID_1 = 1001005;
+    protected static final int SAFETY_CLIENT_UID_2 = 1001007;
+    protected static final int VEHICLE_STATUS_CLIENT_UID_1 = 1001105;
+    protected static final int VEHICLE_STATUS_CLIENT_UID_2 = 1001107;
     protected static final int ANNOUNCEMENT_CLIENT_UID_1 = 1001205;
     protected static final int ANNOUNCEMENT_CLIENT_UID_2 = 1001207;
 
@@ -93,26 +115,46 @@ abstract class CarZonesAudioFocusTestBase {
             USAGE_MEDIA, MEDIA_CLIENT_UID_1, MEDIA_CLIENT_ID);
     protected static final AudioClientInfo MEDIA_INFO_2 = new AudioClientInfo(
             USAGE_MEDIA, MEDIA_CLIENT_UID_2, MEDIA_CLIENT_ID_2);
-    protected static final AudioClientInfo NAVIGATION_INFO = new AudioClientInfo(
-            USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, NAVIGATION_CLIENT_UID, NAVIGATION_CLIENT_ID);
-    protected static final AudioClientInfo VOICE_COMMAND_INFO = new AudioClientInfo(
-            USAGE_ASSISTANCE_ACCESSIBILITY, VOICE_COMMAND_CLIENT_UID, VOICE_COMMAND_CLIENT_ID);
-    protected static final AudioClientInfo CALL_RING_INFO = new AudioClientInfo(
-            USAGE_NOTIFICATION_RINGTONE, CALL_RING_CLIENT_UID, CALL_RING_CLIENT_ID);
-    protected static final AudioClientInfo CALL_INFO = new AudioClientInfo(
-            USAGE_VOICE_COMMUNICATION, CALL_CLIENT_UID, CALL_CLIENT_ID);
-    protected static final AudioClientInfo ALARM_INFO = new AudioClientInfo(
-            USAGE_ALARM, ALARM_CLIENT_UID, ALARM_CLIENT_ID);
-    protected static final AudioClientInfo NOTIFICATION_INFO = new AudioClientInfo(
-            USAGE_NOTIFICATION, NOTIFICATION_CLIENT_UID, NOTIFICATION_CLIENT_ID);
-    protected static final AudioClientInfo SYSTEM_SOUND_INFO = new AudioClientInfo(
-            USAGE_ASSISTANCE_SONIFICATION, SYSTEM_SOUND_CLIENT_UID, SYSTEM_SOUND_CLIENT_ID);
-    protected static final AudioClientInfo EMERGENCY_INFO = new AudioClientInfo(
-            USAGE_EMERGENCY, EMERGENCY_CLIENT_UID, EMERGENCY_CLIENT_ID);
-    protected static final AudioClientInfo SAFETY_INFO = new AudioClientInfo(
-            USAGE_SAFETY, SAFETY_CLIENT_UID, SAFETY_CLIENT_ID);
-    protected static final AudioClientInfo VEHICLE_STATUS_INFO = new AudioClientInfo(
-            USAGE_VEHICLE_STATUS, VEHICLE_STATUS_CLIENT_UID, VEHICLE_STATUS_CLIENT_ID);
+    protected static final AudioClientInfo NAVIGATION_INFO_1 = new AudioClientInfo(
+            USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, NAVIGATION_CLIENT_UID_1, NAVIGATION_CLIENT_ID);
+    protected static final AudioClientInfo NAVIGATION_INFO_2 = new AudioClientInfo(
+            USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, NAVIGATION_CLIENT_UID_2, NAVIGATION_CLIENT_ID_2);
+    protected static final AudioClientInfo VOICE_COMMAND_INFO_1 = new AudioClientInfo(
+            USAGE_ASSISTANCE_ACCESSIBILITY, VOICE_COMMAND_CLIENT_UID_1, VOICE_COMMAND_CLIENT_ID);
+    protected static final AudioClientInfo VOICE_COMMAND_INFO_2 = new AudioClientInfo(
+            USAGE_ASSISTANCE_ACCESSIBILITY, VOICE_COMMAND_CLIENT_UID_2, VOICE_COMMAND_CLIENT_ID_2);
+    protected static final AudioClientInfo CALL_RING_INFO_1 = new AudioClientInfo(
+            USAGE_NOTIFICATION_RINGTONE, CALL_RING_CLIENT_UID_1, CALL_RING_CLIENT_ID);
+    protected static final AudioClientInfo CALL_RING_INFO_2 = new AudioClientInfo(
+            USAGE_NOTIFICATION_RINGTONE, CALL_RING_CLIENT_UID_2, CALL_RING_CLIENT_ID_2);
+    protected static final AudioClientInfo CALL_INFO_1 = new AudioClientInfo(
+            USAGE_VOICE_COMMUNICATION, CALL_CLIENT_UID_1, CALL_CLIENT_ID);
+    protected static final AudioClientInfo CALL_INFO_2 = new AudioClientInfo(
+            USAGE_VOICE_COMMUNICATION, CALL_CLIENT_UID_2, CALL_CLIENT_ID_2);
+    protected static final AudioClientInfo ALARM_INFO_1 = new AudioClientInfo(
+            USAGE_ALARM, ALARM_CLIENT_UID_1, ALARM_CLIENT_ID);
+    protected static final AudioClientInfo ALARM_INFO_2 = new AudioClientInfo(
+            USAGE_ALARM, ALARM_CLIENT_UID_2, ALARM_CLIENT_ID_2);
+    protected static final AudioClientInfo NOTIFICATION_INFO_1 = new AudioClientInfo(
+            USAGE_NOTIFICATION, NOTIFICATION_CLIENT_UID_1, NOTIFICATION_CLIENT_ID);
+    protected static final AudioClientInfo NOTIFICATION_INFO_2 = new AudioClientInfo(
+            USAGE_NOTIFICATION, NOTIFICATION_CLIENT_UID_2, NOTIFICATION_CLIENT_ID_2);
+    protected static final AudioClientInfo SYSTEM_SOUND_INFO_1 = new AudioClientInfo(
+            USAGE_ASSISTANCE_SONIFICATION, SYSTEM_SOUND_CLIENT_UID_1, SYSTEM_SOUND_CLIENT_ID);
+    protected static final AudioClientInfo SYSTEM_SOUND_INFO_2 = new AudioClientInfo(
+            USAGE_ASSISTANCE_SONIFICATION, SYSTEM_SOUND_CLIENT_UID_2, SYSTEM_SOUND_CLIENT_ID_2);
+    protected static final AudioClientInfo EMERGENCY_INFO_1 = new AudioClientInfo(
+            USAGE_EMERGENCY, EMERGENCY_CLIENT_UID_1, EMERGENCY_CLIENT_ID);
+    protected static final AudioClientInfo EMERGENCY_INFO_2 = new AudioClientInfo(
+            USAGE_EMERGENCY, EMERGENCY_CLIENT_UID_2, EMERGENCY_CLIENT_ID_2);
+    protected static final AudioClientInfo SAFETY_INFO_1 = new AudioClientInfo(
+            USAGE_SAFETY, SAFETY_CLIENT_UID_1, SAFETY_CLIENT_ID);
+    protected static final AudioClientInfo SAFETY_INFO_2 = new AudioClientInfo(
+            USAGE_SAFETY, SAFETY_CLIENT_UID_2, SAFETY_CLIENT_ID_2);
+    protected static final AudioClientInfo VEHICLE_STATUS_INFO_1 = new AudioClientInfo(
+            USAGE_VEHICLE_STATUS, VEHICLE_STATUS_CLIENT_UID_1, VEHICLE_STATUS_CLIENT_ID);
+    protected static final AudioClientInfo VEHICLE_STATUS_INFO_2 = new AudioClientInfo(
+            USAGE_VEHICLE_STATUS, VEHICLE_STATUS_CLIENT_UID_2, VEHICLE_STATUS_CLIENT_ID_2);
     protected static final AudioClientInfo ANNOUNCEMENT_INFO_1 = new AudioClientInfo(
             USAGE_ANNOUNCEMENT, ANNOUNCEMENT_CLIENT_UID_1, ANNOUNCEMENT_CLIENT_ID);
     protected static final AudioClientInfo ANNOUNCEMENT_INFO_2 = new AudioClientInfo(
@@ -133,19 +175,13 @@ abstract class CarZonesAudioFocusTestBase {
     @Mock
     private PackageManager mMockPackageManager;
 
-    private SparseArray<CarAudioZone> mCarAudioZones;
-
-    @Before
-    public void setUp() {
-        mCarAudioZones = generateAudioZones();
-        when(mCarAudioService.getZoneIdForUid(MEDIA_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
-    }
+    protected SparseArray<CarAudioZone> mCarAudioZones;
 
     protected AudioFocusInfo generateCallRequestForPrimaryZone() {
         return new AudioFocusInfoBuilder().setUsage(USAGE_VOICE_COMMUNICATION)
                 .setGainRequest(AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                 .setClientId(CALL_CLIENT_ID)
-                .setClientUid(CALL_CLIENT_UID).createAudioFocusInfo();
+                .setClientUid(CALL_CLIENT_UID_1).createAudioFocusInfo();
     }
 
     protected AudioFocusInfo generateMediaRequestForPrimaryZone(boolean isDelayedFocusEnabled) {
@@ -169,7 +205,14 @@ abstract class CarZonesAudioFocusTestBase {
                 .setFocusRequestResult(audioFocusClient, expectedAudioFocusResults, mAudioPolicy);
     }
 
-    private SparseArray<CarAudioZone> generateAudioZones() {
+    protected void abandonFocusAndAssertIfAbandonNotGranted(CarZonesAudioFocus carZonesAudioFocus,
+            AudioFocusInfo audioFocusClient) {
+        carZonesAudioFocus.onAudioFocusAbandon(audioFocusClient);
+        verify(mMockAudioManager, never()).dispatchAudioFocusChange(eq(audioFocusClient),
+                anyInt(), eq(mAudioPolicy));
+    }
+
+    protected SparseArray<CarAudioZone> generateAudioZones() {
         SparseArray<CarAudioZone> zones = new SparseArray<>(2);
         zones.put(PRIMARY_ZONE_ID, new CarAudioZone(PRIMARY_ZONE_ID, "Primary zone"));
         zones.put(SECONDARY_ZONE_ID, new CarAudioZone(SECONDARY_ZONE_ID, "Secondary zone"));
