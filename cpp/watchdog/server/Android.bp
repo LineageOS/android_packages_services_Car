@@ -25,6 +25,7 @@ cc_defaults {
         "-Wno-unused-variable",
         "-Wunused-parameter",
         "-Wno-error=deprecated",
+        "-DANDROID_UTILS_REF_BASE_DISABLE_IMPLICIT_CONSTRUCTION",
     ],
     include_dirs: [
         "system/libbase/include",

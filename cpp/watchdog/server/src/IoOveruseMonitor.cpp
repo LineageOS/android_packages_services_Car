@@ -169,8 +169,7 @@ IoOveruseMonitor::IoOveruseMonitor(
       mUserPackageDailyIoUsageById({}),
       mIoOveruseWarnPercentage(0),
       mLastUserPackageIoMonitorTime(0),
-      mOveruseListenersByUid({}),
-      mBinderDeathRecipient(sp<BinderDeathRecipient>::make(this)) {}
+      mOveruseListenersByUid({}) {}
 
 Result<void> IoOveruseMonitor::init() {
     std::unique_lock writeLock(mRwMutex);
@@ -185,6 +184,8 @@ Result<void> IoOveruseMonitor::init() {
                        << kDefaultPeriodicMonitorBufferSize << ". Received "
                        << mPeriodicMonitorBufferSize;
     }
+    mBinderDeathRecipient =
+            sp<BinderDeathRecipient>::make(sp<IoOveruseMonitor>::fromExisting(this));
     mIoOveruseWarnPercentage = static_cast<double>(
             sysprop::ioOveruseWarnPercentage().value_or(kDefaultIoOveruseWarnPercentage));
     mIoOveruseConfigs = sp<IoOveruseConfigs>::make();
@@ -516,6 +517,10 @@ Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseLis
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
     std::unique_lock writeLock(mRwMutex);
+    if (!isInitializedLocked()) {
+        // mBinderDeathRecipient is initialized inside init.
+        return Error(Status::EX_ILLEGAL_STATE) << "Service is not initialized";
+    }
     auto binder = BnResourceOveruseListener::asBinder(listener);
     if (findListenerAndProcessLocked(binder, nullptr)) {
         ALOGW("Failed to register the I/O overuse listener (pid: %d, uid: %d) as it is already "
@@ -537,6 +542,10 @@ Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseLis
 Result<void> IoOveruseMonitor::removeIoOveruseListener(
         const sp<IResourceOveruseListener>& listener) {
     std::unique_lock writeLock(mRwMutex);
+    if (!isInitializedLocked()) {
+        // mBinderDeathRecipient is initialized inside init.
+        return Error(Status::EX_ILLEGAL_STATE) << "Service is not initialized";
+    }
     const auto processor = [&](ListenersByUidMap& listeners, ListenersByUidMap::const_iterator it) {
         auto binder = BnResourceOveruseListener::asBinder(it->second);
         binder->unlinkToDeath(mBinderDeathRecipient);
@@ -643,8 +652,7 @@ void IoOveruseMonitor::removeStatsForUser(userid_t userId) {
 
 void IoOveruseMonitor::handleBinderDeath(const wp<IBinder>& who) {
     std::unique_lock writeLock(mRwMutex);
-    IBinder* binder = who.unsafe_get();
-    findListenerAndProcessLocked(binder,
+    findListenerAndProcessLocked(who.promote(),
                                  [&](ListenersByUidMap& listeners,
                                      ListenersByUidMap::const_iterator it) {
                                      ALOGW("Resource overuse notification handler died for uid(%d)",
