@@ -88,8 +88,7 @@ private:
 // CarWatchdogService except the registration APIs.
 class WatchdogServiceHelper final : public WatchdogServiceHelperInterface {
 public:
-    WatchdogServiceHelper() : mService(nullptr), mWatchdogProcessService(nullptr) {}
-    ~WatchdogServiceHelper();
+    WatchdogServiceHelper() : mWatchdogProcessService(nullptr), mService(nullptr) {}
 
     android::binder::Status registerService(
             const android::sp<
@@ -125,10 +124,11 @@ protected:
 private:
     void unregisterServiceLocked();
 
+    android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
+
     mutable std::shared_mutex mRWMutex;
     android::sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem> mService
             GUARDED_BY(mRWMutex);
-    android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
 
     friend class ServiceManager;
 
