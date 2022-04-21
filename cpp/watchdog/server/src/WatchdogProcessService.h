@@ -265,6 +265,7 @@ private:
     bool findClientAndProcessLocked(const std::vector<TimeoutLength> timeouts,
                                     const android::sp<android::IBinder> binder,
                                     const Processor& processor);
+    std::chrono::nanoseconds getTimeoutDurationNs(const TimeoutLength& timeout);
 
 private:
     android::sp<Looper> mHandlerLooper;
@@ -277,6 +278,7 @@ private:
     int32_t mLastSessionId;
     bool mServiceStarted;
     std::chrono::milliseconds mVhalHealthCheckWindowMs;
+    std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mOnBinderDiedCallback;
 

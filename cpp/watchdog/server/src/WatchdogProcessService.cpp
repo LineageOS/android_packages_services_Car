@@ -97,20 +97,12 @@ const int32_t MSG_VHAL_HEALTH_CHECK = MSG_VHAL_WATCHDOG_ALIVE + 1;
 constexpr int32_t kDefaultVhalCheckIntervalSec = 3;
 constexpr std::chrono::milliseconds kHealthCheckDelayMs = 1s;
 
+constexpr int32_t kMissingIntPropertyValue = -1;
+
 constexpr const char kPropertyVhalCheckInterval[] = "ro.carwatchdog.vhal_healthcheck.interval";
+constexpr const char kPropertyClientCheckInterval[] = "ro.carwatchdog.client_healthcheck.interval";
 constexpr const char kServiceName[] = "WatchdogProcessService";
 constexpr const char kVhalInterfaceName[] = "android.hardware.automotive.vehicle@2.0::IVehicle";
-
-std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
-    switch (timeout) {
-        case TimeoutLength::TIMEOUT_CRITICAL:
-            return 3s;  // 3s and no buffer time.
-        case TimeoutLength::TIMEOUT_MODERATE:
-            return 6s;  // 5s + 1s as buffer time.
-        case TimeoutLength::TIMEOUT_NORMAL:
-            return 12s;  // 10s + 2s as buffer time.
-    }
-}
 
 std::string toPidString(const std::vector<ProcessIdentifier>& processIdentifiers) {
     size_t size = processIdentifiers.size();
@@ -149,11 +141,25 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
         mClients.insert(std::make_pair(timeout, std::vector<ClientInfo>()));
         mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
     }
+
     int32_t vhalHealthCheckIntervalSec =
             GetIntProperty(kPropertyVhalCheckInterval, kDefaultVhalCheckIntervalSec);
     vhalHealthCheckIntervalSec = std::max(vhalHealthCheckIntervalSec, kDefaultVhalCheckIntervalSec);
     mVhalHealthCheckWindowMs = std::chrono::seconds(vhalHealthCheckIntervalSec);
+
+    int32_t clientHealthCheckIntervalSec =
+            GetIntProperty(kPropertyClientCheckInterval, kMissingIntPropertyValue);
+    // Overridden timeout value must be greater than or equal to the maximum possible timeout value.
+    // Otherwise, clients will be pinged more frequently than the guaranteed timeout duration.
+    if (clientHealthCheckIntervalSec != kMissingIntPropertyValue) {
+        int32_t normalSec = std::chrono::duration_cast<std::chrono::seconds>(
+                                    getTimeoutDurationNs(TimeoutLength::TIMEOUT_NORMAL))
+                                    .count();
+        mOverriddenClientHealthCheckWindowNs = std::optional<std::chrono::seconds>{
+                std::max(clientHealthCheckIntervalSec, normalSec)};
+    }
 }
+
 Result<void> WatchdogProcessService::registerWatchdogServiceHelper(
         const sp<WatchdogServiceHelperInterface>& helper) {
     if (helper == nullptr) {
@@ -394,7 +400,7 @@ void WatchdogProcessService::doHealthCheck(int what) {
     // Though the size of pingedClients is a more specific measure, clientsToCheck is used as a
     // conservative approach.
     if (clientsToCheck.size() > 0) {
-        auto durationNs = timeoutToDurationNs(timeout);
+        auto durationNs = getTimeoutDurationNs(timeout);
         mHandlerLooper->sendMessageDelayed(durationNs.count(), mMessageHandler, Message(what));
     }
 }
@@ -541,7 +547,7 @@ Result<void> WatchdogProcessService::startHealthCheckingLocked(TimeoutLength tim
     PingedClientMap& clients = mPingedClients[timeout];
     clients.clear();
     int what = static_cast<int>(timeout);
-    auto durationNs = timeoutToDurationNs(timeout);
+    auto durationNs = getTimeoutDurationNs(timeout);
     mHandlerLooper->sendMessageDelayed(durationNs.count(), mMessageHandler, Message(what));
     return {};
 }
@@ -659,7 +665,7 @@ void WatchdogProcessService::reportWatchdogAliveToVhal() {
               ret.error().message().c_str());
     }
     // Update VHAL with the interval of TIMEOUT_CRITICAL(3s).
-    auto durationNs = timeoutToDurationNs(TimeoutLength::TIMEOUT_CRITICAL);
+    auto durationNs = getTimeoutDurationNs(TimeoutLength::TIMEOUT_CRITICAL);
     mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_WATCHDOG_ALIVE);
     mHandlerLooper->sendMessageDelayed(durationNs.count(), mMessageHandler,
                                        Message(MSG_VHAL_WATCHDOG_ALIVE));
@@ -866,6 +872,23 @@ void WatchdogProcessService::terminateVhal() {
         return;
     }
     dumpAndKillAllProcesses(processIdentifiers, false);
+}
+
+std::chrono::nanoseconds WatchdogProcessService::getTimeoutDurationNs(
+        const TimeoutLength& timeout) {
+    // When a default timeout has been overridden by the |kPropertyClientCheckInterval| read-only
+    // property override the timeout value for all timeout lengths.
+    if (mOverriddenClientHealthCheckWindowNs.has_value()) {
+        return mOverriddenClientHealthCheckWindowNs.value();
+    }
+    switch (timeout) {
+        case TimeoutLength::TIMEOUT_CRITICAL:
+            return 3s;  // 3s and no buffer time.
+        case TimeoutLength::TIMEOUT_MODERATE:
+            return 6s;  // 5s + 1s as buffer time.
+        case TimeoutLength::TIMEOUT_NORMAL:
+            return 12s;  // 10s + 2s as buffer time.
+    }
 }
 
 std::string WatchdogProcessService::ClientInfo::toString() const {

@@ -172,7 +172,7 @@ TEST_F(WatchdogProcessServiceTest, TestUnregisterClient) {
     Status status = mWatchdogProcessService->unregisterClient(client);
     ASSERT_TRUE(status.isOk()) << status;
     ASSERT_FALSE(mWatchdogProcessService->unregisterClient(client).isOk())
-            << "Unregistering an unregistered client shoud return an error";
+            << "Unregistering an unregistered client should return an error";
 }
 
 TEST_F(WatchdogProcessServiceTest, TestErrorOnRegisterClientWithDeadBinder) {
