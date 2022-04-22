@@ -846,8 +846,8 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private boolean runCommand(@Nullable File currentDirectory, String... command) {
         Process p = null;
-        BufferedReader is;
-        StringBuffer out = new StringBuffer();
+        BufferedReader is = null;
+        StringBuilder out = new StringBuilder();
         boolean success = false;
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
@@ -864,12 +864,18 @@ public class CarTelemetryTestFragment extends Fragment {
                 out.append(System.lineSeparator());
             }
             p.waitFor();
-            is.close();
         } catch (Exception e) {
             showOutput(e.toString());
         } finally {
             if (p != null) {
                 p.destroy();
+            }
+            if (is != null) {
+                try {
+                    is.close();
+                } catch (IOException e) {
+                    // ignore
+                }
             }
         }
         if (p != null) {

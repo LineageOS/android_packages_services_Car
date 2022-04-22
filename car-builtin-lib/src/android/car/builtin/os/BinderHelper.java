@@ -156,9 +156,10 @@ public final class BinderHelper {
 
     private static void sendFailureToCaller(FileDescriptor errFd, ResultReceiver receiver,
             String msg) {
-        PrintWriter pw = new FastPrintWriter(new FileOutputStream(errFd));
-        pw.println(msg);
-        pw.flush();
+        try (PrintWriter pw = new FastPrintWriter(new FileOutputStream(errFd))) {
+            pw.println(msg);
+            pw.flush();
+        }
         receiver.send(/* resultCode= */ -1, /* resultData= */ null);
     }
 }
