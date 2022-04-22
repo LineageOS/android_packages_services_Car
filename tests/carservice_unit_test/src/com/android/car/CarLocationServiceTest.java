@@ -486,9 +486,9 @@ public class CarLocationServiceTest {
     }
 
     private void writeCacheFile(String json) throws IOException {
-        FileOutputStream fos = new FileOutputStream(getLocationCacheFile());
-        fos.write(json.getBytes());
-        fos.close();
+        try (FileOutputStream fos = new FileOutputStream(getLocationCacheFile())) {
+            fos.write(json.getBytes());
+        }
     }
 
     private String readCacheFile() throws IOException {
