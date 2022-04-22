@@ -1089,14 +1089,16 @@ public class VmsHalServiceTest {
         when(mVehicleHal.get(metricsPropertyId)).thenReturn(metricsProperty);
 
         try (TemporaryFile dumpsysFile = new TemporaryFile("VmsHalServiceTest")) {
-            FileOutputStream outputStream = new FileOutputStream(dumpsysFile.getFile());
-            mHalService.dumpMetrics(outputStream.getFD());
+            try (FileOutputStream outputStream = new FileOutputStream(dumpsysFile.getFile())) {
+                mHalService.dumpMetrics(outputStream.getFD());
+                verify(mVehicleHal).get(metricsPropertyId);
+            }
 
-            verify(mVehicleHal).get(metricsPropertyId);
-            FileInputStream inputStream = new FileInputStream(dumpsysFile.getFile());
-            byte[] dumpsysOutput = new byte[PAYLOAD.length];
-            assertEquals(PAYLOAD.length, inputStream.read(dumpsysOutput));
-            assertArrayEquals(PAYLOAD, dumpsysOutput);
+            try (FileInputStream inputStream = new FileInputStream(dumpsysFile.getFile())) {
+                byte[] dumpsysOutput = new byte[PAYLOAD.length];
+                assertEquals(PAYLOAD.length, inputStream.read(dumpsysOutput));
+                assertArrayEquals(PAYLOAD, dumpsysOutput);
+            }
         }
     }
 
