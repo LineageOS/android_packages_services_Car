@@ -1443,13 +1443,13 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     fileDescriptors[0].getFileDescriptor(), WINDOW_DUMP_ARGUMENTS);
             fileDescriptors[0].close();
             StringBuilder outputBuilder = new StringBuilder();
-            BufferedReader reader = new BufferedReader(
-                    new FileReader(fileDescriptors[1].getFileDescriptor()));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                outputBuilder.append(line).append("\n");
+            try (BufferedReader reader = new BufferedReader(
+                    new FileReader(fileDescriptors[1].getFileDescriptor()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    outputBuilder.append(line).append("\n");
+                }
             }
-            reader.close();
             fileDescriptors[1].close();
             return outputBuilder.toString();
         } catch (IOException | RemoteException e) {

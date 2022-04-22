@@ -194,22 +194,24 @@ public class CarBugreportManagerTest extends CarApiTestBase {
     }
 
     private static void assertContainsValidBugreport(File file) throws IOException {
-        ZipFile zipFile = new ZipFile(file);
-        for (ZipEntry entry : Collections.list(zipFile.entries())) {
-            if (entry.isDirectory()) {
-                continue;
+        try (ZipFile zipFile = new ZipFile(file)) {
+            for (ZipEntry entry : Collections.list(zipFile.entries())) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                // Find "bugreport-TIMESTAMP.txt" file.
+                if (!entry.getName().startsWith("bugreport-") || !entry.getName().endsWith(
+                        ".txt")) {
+                    continue;
+                }
+                try (InputStream entryStream = zipFile.getInputStream(entry)) {
+                    String data = streamToText(entryStream, /* maxSizeBytes= */ 1024);
+                    assertThat(data).contains("== dumpstate: ");
+                    assertThat(data).contains("dry_run=1");
+                    assertThat(data).contains("Build fingerprint: ");
+                }
+                return;
             }
-            // Find "bugreport-TIMESTAMP.txt" file.
-            if (!entry.getName().startsWith("bugreport-") || !entry.getName().endsWith(".txt")) {
-                continue;
-            }
-            try (InputStream entryStream = zipFile.getInputStream(entry)) {
-                String data = streamToText(entryStream, /* maxSizeBytes= */ 1024);
-                assertThat(data).contains("== dumpstate: ");
-                assertThat(data).contains("dry_run=1");
-                assertThat(data).contains("Build fingerprint: ");
-            }
-            return;
         }
         fail("bugreport-TIMESTAMP.txt not found in the final zip file.");
     }
