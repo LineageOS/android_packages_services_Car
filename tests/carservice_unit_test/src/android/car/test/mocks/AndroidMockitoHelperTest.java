@@ -16,8 +16,10 @@
 
 package android.car.test.mocks;
 
+import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUserHandle;
+import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
@@ -30,6 +32,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockUmHasUserRestricti
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsHeadlessSystemUserMode;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmRemoveUserWhenPossible;
+import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
@@ -253,5 +256,16 @@ public final class AndroidMockitoHelperTest {
         mockContextGetService(context, PackageManager.class, packageManager);
 
         assertThat(context.getPackageManager()).isEqualTo(packageManager);
+    }
+
+    @Test
+    public void mockContextCheckCallingOrSelfPermission_returnsPermissionDenied() {
+        Context context = mock(Context.class);
+
+        mockContextCheckCallingOrSelfPermission(context, PERMISSION_CAR_CONTROL_AUDIO_SETTINGS,
+                PERMISSION_DENIED);
+
+        assertThat(context.checkCallingOrSelfPermission(PERMISSION_CAR_CONTROL_AUDIO_SETTINGS))
+                .isEqualTo(PERMISSION_DENIED);
     }
 }
