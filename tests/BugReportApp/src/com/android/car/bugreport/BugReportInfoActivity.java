@@ -285,11 +285,12 @@ public class BugReportInfoActivity extends Activity {
                  ZipOutputStream zipOutStream =
                          new ZipOutputStream(new BufferedOutputStream(outputStream))) {
                 // Extract bugreport zip file to the final zip file in USB drive.
-                ZipInputStream zipInStream = new ZipInputStream(bugReportInput);
-                ZipEntry entry;
-                while ((entry = zipInStream.getNextEntry()) != null) {
-                    ZipUtils.writeInputStreamToZipStream(
-                            entry.getName(), zipInStream, zipOutStream);
+                try (ZipInputStream zipInStream = new ZipInputStream(bugReportInput)) {
+                    ZipEntry entry;
+                    while ((entry = zipInStream.getNextEntry()) != null) {
+                        ZipUtils.writeInputStreamToZipStream(
+                                entry.getName(), zipInStream, zipOutStream);
+                    }
                 }
                 // Add audio file to the final zip file.
                 if (!Strings.isNullOrEmpty(mBugReport.getAudioFileName())) {
