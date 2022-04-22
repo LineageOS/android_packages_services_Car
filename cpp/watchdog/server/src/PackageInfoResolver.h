@@ -82,11 +82,22 @@ private:
  */
 class PackageInfoResolver final : public PackageInfoResolverInterface {
 public:
+    ~PackageInfoResolver() {
+        std::unique_lock writeLock(mRWMutex);
+        mWatchdogServiceHelper.clear();
+        mUidToPackageInfoMapping.clear();
+    }
+
     /*
      * Initializes the PackageInfoResolver's singleton instance only on the first call. Main thread
      * should make the first call as this method doesn't offer multi-threading protection.
      */
     static sp<PackageInfoResolverInterface> getInstance();
+
+    android::base::Result<void> initWatchdogServiceHelper(
+            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
+
+    static void terminate();
 
     /*
      * Resolves the given |uids| and returns a mapping of uids to package names. If the mapping
@@ -101,18 +112,6 @@ public:
      */
     std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>
     getPackageInfosForUids(const std::vector<uid_t>& uids);
-
-    ~PackageInfoResolver() {
-        std::unique_lock writeLock(mRWMutex);
-        mWatchdogServiceHelper.clear();
-        mUidToPackageInfoMapping.clear();
-    }
-
-protected:
-    static void terminate();
-
-    android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper);
 
     virtual void setPackageConfigurations(
             const std::unordered_set<std::string>& vendorPackagePrefixes,
@@ -149,9 +148,7 @@ private:
                        android::automotive::watchdog::internal::ApplicationCategoryType>
             mPackagesToAppCategories GUARDED_BY(mRWMutex);
 
-    friend class ServiceManager;
-    friend class IoOveruseMonitor;
-    friend class IoOveruseConfigs;
+    friend class android::sp<PackageInfoResolver>;
 
     // For unit tests.
     static std::function<struct passwd*(uid_t)> sGetpwuidHandler;

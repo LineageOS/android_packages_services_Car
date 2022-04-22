@@ -218,7 +218,7 @@ ResourceOveruseConfiguration sampleUpdateThirdPartyConfig() {
 }
 
 sp<IoOveruseConfigs> sampleIoOveruseConfigs() {
-    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+    sp<IoOveruseConfigs> ioOveruseConfigs = sp<IoOveruseConfigs>::make();
     EXPECT_RESULT_OK(
             ioOveruseConfigs->update({sampleUpdateSystemConfig(), sampleUpdateVendorConfig(),
                                       sampleUpdateThirdPartyConfig()}));
@@ -921,7 +921,7 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSharedSystemPackages) {
     auto sampleSystemConfig = sampleUpdateSystemConfig();
     sampleSystemConfig.safeToKillPackages.push_back("sharedUidSystemPackageC");
     sampleSystemConfig.safeToKillPackages.push_back("shared:systemSharedPackageD");
-    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+    sp<IoOveruseConfigs> ioOveruseConfigs = sp<IoOveruseConfigs>::make();
 
     EXPECT_RESULT_OK(ioOveruseConfigs->update({sampleSystemConfig}));
 
@@ -964,7 +964,7 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSharedVendorPackages) {
     auto sampleSystemConfig = sampleUpdateSystemConfig();
     sampleSystemConfig.safeToKillPackages.push_back("sharedUidSystemPackageC");
 
-    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+    sp<IoOveruseConfigs> ioOveruseConfigs = sp<IoOveruseConfigs>::make();
 
     EXPECT_RESULT_OK(ioOveruseConfigs->update({sampleSystemConfig, sampleVendorConfig}));
 
@@ -1045,7 +1045,7 @@ TEST_F(IoOveruseConfigsTest, TestVendorPackagePrefixesWithSharedPackages) {
     ioConfig.packageSpecificThresholds.push_back(
             toPerStateIoOveruseThreshold("shared:vndrSharedPkgH", VENDOR_PACKAGE_A_THRESHOLDS));
 
-    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+    sp<IoOveruseConfigs> ioOveruseConfigs = sp<IoOveruseConfigs>::make();
 
     EXPECT_RESULT_OK(ioOveruseConfigs->update({sampleVendorConfig}));
 
