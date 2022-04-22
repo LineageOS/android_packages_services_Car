@@ -19,6 +19,7 @@ package com.android.car.audio;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static android.media.AudioAttributes.USAGE_MEDIA;
@@ -189,7 +190,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                     + mTemporaryAudioConfigurationWithoutZoneMappingFile.getPath());
         }
 
-        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_GRANTED);
+        mockGrantCarControlAudioSettingsPermission();
 
         setupAudioControlHAL();
         setupService();
@@ -345,7 +346,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void createAudioPatch_onMediaOutputDevice_failsForMissingPermission() {
         mCarAudioService.init();
 
-        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_DENIED);
+        mockDenyCarControlAudioSettingsPermission();
 
         SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarAudioService
@@ -360,7 +361,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void createAudioPatch_onMediaOutputDevice_succeeds() {
         mCarAudioService.init();
 
-        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_GRANTED);
+        mockGrantCarControlAudioSettingsPermission();
         doReturn(false)
                 .when(() -> SystemProperties.getBoolean(PROPERTY_RO_ENABLE_AUDIO_PATCH, true));
         doReturn(new AudioPatchInfo(PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE, 0))
@@ -398,7 +399,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void releaseAudioPatch_failsForMissingPermission() {
         mCarAudioService.init();
 
-        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_DENIED);
+        mockDenyCarControlAudioSettingsPermission();
         CarAudioPatchHandle carAudioPatchHandle =
                 new CarAudioPatchHandle(0, PRIMARY_ZONE_FM_TUNER_ADDRESS, MEDIA_TEST_DEVICE);
 
@@ -421,7 +422,7 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     public void setZoneIdForUid_withoutRoutingPermission_fails() {
         mCarAudioService.init();
 
-        when(mMockContext.checkCallingOrSelfPermission(anyString())).thenReturn(PERMISSION_DENIED);
+        mockDenyCarControlAudioSettingsPermission();
 
         SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarAudioService.setZoneIdForUid(OUT_OF_RANGE_ZONE, MEDIA_APP_UID));
@@ -538,6 +539,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     @Test
+    public void getZoneIdForUid_withoutMappedUid_succeeds() throws Exception {
+        when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
+                .thenReturn(SUCCESS);
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+        noZoneMappingAudioService.init();
+
+        int zoneId = noZoneMappingAudioService
+                .getZoneIdForUid(MEDIA_APP_UID);
+
+        assertWithMessage("Get Zone for Non Mapped UID")
+                .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
     public void getZoneIdForUid_succeeds() throws Exception {
         when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
                 .thenReturn(SUCCESS);
@@ -574,6 +590,107 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
 
         assertWithMessage("Get Zone for UID Zone Id")
                 .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
+    }
+
+    @Test
+    public void clearZoneIdForUid_withoutRoutingPermission_fails() {
+        mCarAudioService.init();
+
+        mockDenyCarControlAudioSettingsPermission();
+
+        SecurityException thrown = assertThrows(SecurityException.class,
+                () -> mCarAudioService.clearZoneIdForUid(MEDIA_APP_UID));
+
+        assertWithMessage("Clear Zone for UID Permission Exception")
+                .that(thrown).hasMessageThat()
+                .contains(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
+    }
+
+    @Test
+    public void clearZoneIdForUid_withoutDynamicRouting_fails() {
+        when(mMockResources.getBoolean(audioUseDynamicRouting))
+                .thenReturn(/* useDynamicRouting= */ false);
+        CarAudioService nonDynamicAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationFile.getFile().getAbsolutePath());
+        nonDynamicAudioService.init();
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> nonDynamicAudioService.clearZoneIdForUid(MEDIA_APP_UID));
+
+        assertWithMessage("Clear Zone for UID Dynamic Configuration Exception")
+                .that(thrown).hasMessageThat()
+                .contains("Dynamic routing is required");
+    }
+
+    @Test
+    public void clearZoneIdForUid_withZoneAudioMapping_fails() {
+        mCarAudioService.init();
+
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
+                () -> mCarAudioService.clearZoneIdForUid(MEDIA_APP_UID));
+
+        assertWithMessage("Clear Zone for UID Audio Zone Mapping Exception")
+                .that(thrown).hasMessageThat()
+                .contains("UID based routing is not supported while using occupant zone mapping");
+    }
+
+    @Test
+    public void clearZoneIdForUid_forNonMappedUid_succeeds() throws Exception {
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+        noZoneMappingAudioService.init();
+
+        boolean status = noZoneMappingAudioService
+                .clearZoneIdForUid(MEDIA_APP_UID);
+
+        assertWithMessage("Clear Zone for UID Audio Zone without Mapping")
+                .that(status).isTrue();
+    }
+
+    @Test
+    public void clearZoneIdForUid_forMappedUid_succeeds() throws Exception {
+        when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
+                .thenReturn(SUCCESS);
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+        noZoneMappingAudioService.init();
+
+        noZoneMappingAudioService
+                .setZoneIdForUid(SECONDARY_ZONE_ID, MEDIA_APP_UID);
+
+        boolean status = noZoneMappingAudioService.clearZoneIdForUid(MEDIA_APP_UID);
+
+        assertWithMessage("Clear Zone for UID Audio Zone with Mapping")
+                .that(status).isTrue();
+    }
+
+    @Test
+    public void getZoneIdForUid_afterClearedUidMapping_returnsDefaultZone() throws Exception {
+        when(mMockAudioService.setUidDeviceAffinity(any(), anyInt(), any(), any()))
+                .thenReturn(SUCCESS);
+        CarAudioService noZoneMappingAudioService = new CarAudioService(mMockContext,
+                mTemporaryAudioConfigurationWithoutZoneMappingFile.getFile().getAbsolutePath());
+        noZoneMappingAudioService.init();
+
+        noZoneMappingAudioService
+                .setZoneIdForUid(SECONDARY_ZONE_ID, MEDIA_APP_UID);
+
+        noZoneMappingAudioService.clearZoneIdForUid(MEDIA_APP_UID);
+
+        int zoneId = noZoneMappingAudioService.getZoneIdForUid(MEDIA_APP_UID);
+
+        assertWithMessage("Get Zone for UID Audio Zone with Cleared Mapping")
+                .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
+    }
+
+    private void mockGrantCarControlAudioSettingsPermission() {
+        mockContextCheckCallingOrSelfPermission(mMockContext,
+                PERMISSION_CAR_CONTROL_AUDIO_SETTINGS, PERMISSION_GRANTED);
+    }
+
+    private void mockDenyCarControlAudioSettingsPermission() {
+        mockContextCheckCallingOrSelfPermission(mMockContext,
+                PERMISSION_CAR_CONTROL_AUDIO_SETTINGS, PERMISSION_DENIED);
     }
 
     private AudioDeviceInfo[] generateInputDeviceInfos() {
