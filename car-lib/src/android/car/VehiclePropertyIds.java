@@ -2119,11 +2119,23 @@ public final class VehiclePropertyIds {
     /**
      * Charging state of the car.
      *
-     * <p>Returns the current charging state of the car.
+     * <p>Returns the current charging state of the car. See
+     * {@link android.car.hardware.property.EvChargeState} for possible values for
+     * {@code EV_CHARGE_STATE}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p>Required Permissions:
      * <ul>
+     *  <li>
      *  <li>Dangerous permission {@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
      * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
