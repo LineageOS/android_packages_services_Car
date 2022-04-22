@@ -79,31 +79,32 @@ public class UfsWearInformationProvider implements WearInformationProvider {
         Optional<Integer> eol = Optional.empty();
 
         for(String lifetimeInfo : lifetimeData) {
-            Scanner scanner = new Scanner(lifetimeInfo);
-            if (null == scanner.findInLine(infoPattern)) {
-                continue;
-            }
-            MatchResult match = scanner.match();
-            if (match.groupCount() != 2) {
-                continue;
-            }
-            String name = match.group(1);
-            String value = "0x" + match.group(2);
-            try {
-                switch (name) {
-                    case "bPreEOLInfo":
-                        eol = Optional.of(Integer.decode(value));
-                        break;
-                    case "bDeviceLifeTimeEstA":
-                        lifetimeA = Optional.of(Integer.decode(value));
-                        break;
-                    case "bDeviceLifeTimeEstB":
-                        lifetimeB = Optional.of(Integer.decode(value));
-                        break;
+            try (Scanner scanner = new Scanner(lifetimeInfo)) {
+                if (null == scanner.findInLine(infoPattern)) {
+                    continue;
                 }
-            } catch (NumberFormatException e) {
-                Slogf.w(CarLog.TAG_STORAGE,  "trying to decode key " + name + " value " + value
-                        + " didn't parse properly", e);
+                MatchResult match = scanner.match();
+                if (match.groupCount() != 2) {
+                    continue;
+                }
+                String name = match.group(1);
+                String value = "0x" + match.group(2);
+                try {
+                    switch (name) {
+                        case "bPreEOLInfo":
+                            eol = Optional.of(Integer.decode(value));
+                            break;
+                        case "bDeviceLifeTimeEstA":
+                            lifetimeA = Optional.of(Integer.decode(value));
+                            break;
+                        case "bDeviceLifeTimeEstB":
+                            lifetimeB = Optional.of(Integer.decode(value));
+                            break;
+                    }
+                } catch (NumberFormatException e) {
+                    Slogf.w(CarLog.TAG_STORAGE, "trying to decode key " + name + " value " + value
+                            + " didn't parse properly", e);
+                }
             }
         }
 

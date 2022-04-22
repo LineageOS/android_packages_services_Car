@@ -58,10 +58,8 @@ public class EMmcWearInformationProvider implements WearInformationProvider {
             return null;
         }
 
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(f));
+        try (BufferedReader reader = new BufferedReader(new FileReader(f))) {
             String data = reader.readLine();
-            reader.close();
             return data;
         } catch (IOException e) {
             Slogf.w(CarLog.TAG_STORAGE,  f + " cannot be read from", e);
