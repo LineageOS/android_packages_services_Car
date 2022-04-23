@@ -54,6 +54,8 @@ import static com.android.car.watchdog.TimeSource.ZONE_OFFSET;
 import static com.android.car.watchdog.WatchdogPerfHandler.INTENT_EXTRA_NOTIFICATION_ID;
 import static com.android.car.watchdog.WatchdogPerfHandler.PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR;
 import static com.android.car.watchdog.WatchdogPerfHandler.USER_PACKAGE_SEPARATOR;
+import static com.android.car.watchdog.WatchdogProcessHandler.MISSING_INT_PROPERTY_VALUE;
+import static com.android.car.watchdog.WatchdogProcessHandler.PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
@@ -139,6 +141,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -289,7 +292,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             .spyStatic(CarStatsLog.class)
             .spyStatic(CarServiceUtils.class)
             .spyStatic(BuiltinPackageDependency.class)
-            .spyStatic(Utils.class);
+            .spyStatic(Utils.class)
+            .spyStatic(SystemProperties.class);
     }
 
     /**
@@ -326,6 +330,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(mMockNotificationHelper)
                 .when(() -> BuiltinPackageDependency.createNotificationHelper(
                         mMockBuiltinPackageContext));
+        doReturn(MISSING_INT_PROPERTY_VALUE).when(
+                () -> SystemProperties.getInt(PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL,
+                        MISSING_INT_PROPERTY_VALUE));
 
         when(mMockCarUxRestrictionsManagerService.getCurrentUxRestrictions())
                 .thenReturn(new CarUxRestrictions.Builder(/* reqOpt= */ false,
