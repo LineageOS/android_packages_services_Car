@@ -75,14 +75,14 @@ public class IoUtils {
     public static void writeBundle(@NonNull File dest, @NonNull PersistableBundle bundle)
             throws IOException {
         AtomicFile atomicFile = new AtomicFile(dest);
-        FileOutputStream fos = null;
-        try {
-            fos = atomicFile.startWrite();
-            bundle.writeToStream(fos);
-            atomicFile.finishWrite(fos);
-        } catch (IOException e) {
-            atomicFile.failWrite(fos);
-            throw e;
+        try (FileOutputStream fos = atomicFile.startWrite()) {
+            try {
+                bundle.writeToStream(fos);
+                atomicFile.finishWrite(fos);
+            } catch (IOException e) {
+                atomicFile.failWrite(fos);
+                throw e;
+            }
         }
     }
 
@@ -110,14 +110,14 @@ public class IoUtils {
     public static void writeProto(
             @NonNull File dest, @NonNull MessageLite proto) throws IOException {
         AtomicFile atomicFile = new AtomicFile(dest);
-        FileOutputStream fos = null;
-        try {
-            fos = atomicFile.startWrite();
-            fos.write(proto.toByteArray());
-            atomicFile.finishWrite(fos);
-        } catch (IOException e) {
-            atomicFile.failWrite(fos);
-            throw e;
+        try (FileOutputStream fos = atomicFile.startWrite()) {
+            try {
+                fos.write(proto.toByteArray());
+                atomicFile.finishWrite(fos);
+            } catch (IOException e) {
+                atomicFile.failWrite(fos);
+                throw e;
+            }
         }
     }
 

@@ -35,6 +35,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.os.SystemProperties;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -49,6 +50,10 @@ import java.util.List;
  * Handles clients' health status checking and reporting the statuses to the watchdog daemon.
  */
 public final class WatchdogProcessHandler {
+    static final String PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL =
+            "ro.carwatchdog.client_healthcheck.interval";
+    static final int MISSING_INT_PROPERTY_VALUE = -1;
+
     private static final int[] ALL_TIMEOUTS =
             { TIMEOUT_CRITICAL, TIMEOUT_MODERATE, TIMEOUT_NORMAL };
 
@@ -85,6 +90,8 @@ public final class WatchdogProcessHandler {
     @GuardedBy("mLock")
     private final SparseBooleanArray mStoppedUser = new SparseBooleanArray();
 
+    private long mOverriddenClientHealthCheckWindowMs = MISSING_INT_PROPERTY_VALUE;
+
     public WatchdogProcessHandler(ICarWatchdogServiceForSystem serviceImpl,
             CarWatchdogDaemonHelper daemonHelper) {
         mWatchdogServiceForSystem = serviceImpl;
@@ -99,6 +106,15 @@ public final class WatchdogProcessHandler {
                 mPingedClientMap.put(timeout, new SparseArray<ClientInfo>());
                 mClientCheckInProgress.put(timeout, false);
             }
+        }
+        // Overridden timeout value must be greater than  or equal to the maximum possible timeout
+        // value. Otherwise, clients will be pinged more frequently than the guaranteed timeout
+        // duration.
+        int clientHealthCheckWindowSec = SystemProperties.getInt(
+                PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL, MISSING_INT_PROPERTY_VALUE);
+        if (clientHealthCheckWindowSec != MISSING_INT_PROPERTY_VALUE) {
+            mOverriddenClientHealthCheckWindowMs = Math.max(clientHealthCheckWindowSec * 1000L,
+                    getTimeoutDurationMs(TIMEOUT_NORMAL));
         }
         if (CarWatchdogService.DEBUG) {
             Slogf.d(CarWatchdogService.TAG, "WatchdogProcessHandler is initialized");
@@ -332,7 +348,7 @@ public final class WatchdogProcessHandler {
         }
         sendPingToClients(timeout);
         mMainHandler.postDelayed(
-                () -> analyzeClientResponse(timeout), timeoutToDurationMs(timeout));
+                () -> analyzeClientResponse(timeout), getTimeoutDurationMs(timeout));
     }
 
     private int getNewSessionId() {
@@ -412,7 +428,10 @@ public final class WatchdogProcessHandler {
         }
     }
 
-    private long timeoutToDurationMs(int timeout) {
+    private long getTimeoutDurationMs(int timeout) {
+        if (mOverriddenClientHealthCheckWindowMs != MISSING_INT_PROPERTY_VALUE) {
+            return mOverriddenClientHealthCheckWindowMs;
+        }
         switch (timeout) {
             case TIMEOUT_CRITICAL:
                 return 3000L;
