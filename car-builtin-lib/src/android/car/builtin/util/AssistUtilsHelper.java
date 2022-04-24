@@ -196,6 +196,12 @@ public final class AssistUtilsHelper {
         public void onSetUiHints(Bundle args) throws RemoteException {
             Slogf.d(TAG, "onSetUiHints() not used");
         }
+
+        @Override
+        public void onVoiceSessionWindowVisibilityChanged(boolean visible)
+                throws RemoteException {
+            Slogf.d(TAG, "onVoiceSessionWindowVisibilityChanged() not used");
+        }
     }
 
     private AssistUtilsHelper() {
