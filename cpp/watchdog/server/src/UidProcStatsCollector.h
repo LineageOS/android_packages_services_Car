@@ -25,6 +25,7 @@
 
 #include <inttypes.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include <string>
 #include <unordered_map>
@@ -43,10 +44,18 @@ constexpr const char kStatFileFormat[] = "/%" PRIu32 "/stat";
 constexpr const char kTaskDirFormat[] = "/%" PRIu32 "/task";
 constexpr const char kStatusFileFormat[] = "/%" PRIu32 "/status";
 
+// Per-pid/tid stats.
+struct PidStat {
+    std::string comm = "";
+    std::string state = "";
+    int64_t startTimeMillis = 0;
+    uint64_t majorFaults = 0;
+};
+
 // Per-process stats.
 struct ProcessStats {
     std::string comm = "";
-    uint64_t startTime = 0;  // Useful when identifying PID reuse
+    int64_t startTimeMillis = 0;  // Useful when identifying PID reuse
     uint64_t totalMajorFaults = 0;
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
@@ -83,7 +92,10 @@ public:
 class UidProcStatsCollector final : public UidProcStatsCollectorInterface {
 public:
     explicit UidProcStatsCollector(const std::string& path = kProcDirPath) :
-          mPath(path), mLatestStats({}) {}
+          kMillisPerJiffies(1000 / sysconf(_SC_CLK_TCK)),
+          mPath(path),
+          mLatestStats({}),
+          mDeltaStats({}) {}
 
     ~UidProcStatsCollector() {}
 
@@ -108,6 +120,8 @@ public:
 
     const std::string dirPath() const { return mPath; }
 
+    static android::base::Result<PidStat> readStatFileForPid(pid_t pid);
+
 private:
     android::base::Result<std::unordered_map<uid_t, UidProcStats>> readUidProcStatsLocked() const;
 
@@ -116,6 +130,9 @@ private:
     // 2. Aggregated per-process status at |mPath| + |kStatusFileFormat|
     // 3. Tid stat file at |mPath| + |kTaskDirFormat| + |kStatFileFormat|
     android::base::Result<std::tuple<uid_t, ProcessStats>> readProcessStatsLocked(pid_t pid) const;
+
+    // Number of milliseconds per clock cycle.
+    int32_t kMillisPerJiffies;
 
     // Proc directory path. Default value is |kProcDirPath|.
     // Updated by tests to point to a different location when needed.

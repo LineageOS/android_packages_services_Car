@@ -142,15 +142,19 @@ private:
     };
 
     struct ClientInfo {
-        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId) :
+        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId,
+                   uint64_t startTimeMillis) :
               pid(pid),
               userId(userId),
+              startTimeMillis(startTimeMillis),
               type(ClientType::Regular),
               client(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
-                   const android::sp<android::IBinder>& binder, pid_t pid, userid_t userId) :
+                   const android::sp<android::IBinder>& binder, pid_t pid, userid_t userId,
+                   uint64_t startTimeMillis) :
               pid(pid),
               userId(userId),
+              startTimeMillis(startTimeMillis),
               type(ClientType::Service),
               watchdogServiceHelper(helper),
               watchdogServiceBinder(binder) {}
@@ -170,6 +174,7 @@ private:
 
         pid_t pid;
         userid_t userId;
+        int64_t startTimeMillis;
         int sessionId;
 
     private:
@@ -281,6 +286,7 @@ private:
     std::optional<std::chrono::nanoseconds> mOverriddenClientHealthCheckWindowNs;
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mOnBinderDiedCallback;
+    std::function<int64_t(pid_t)> mGetStartTimeForPidFunc;
 
     android::Mutex mMutex;
     std::unordered_map<TimeoutLength, std::vector<ClientInfo>> mClients GUARDED_BY(mMutex);
