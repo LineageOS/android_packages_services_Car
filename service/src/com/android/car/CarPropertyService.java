@@ -477,7 +477,13 @@ public class CarPropertyService extends ICarProperty.Stub
                 return null;
             }
         }
-        CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(prop));
+         // Checks if android has permission to read property.
+        String permission = mHal.getReadPermission(prop);
+        if (permission == null) {
+            throw new SecurityException("Platform does not have permission to read value for "
+                    + "property Id: 0x" + Integer.toHexString(prop));
+        }
+        CarServiceUtils.assertPermission(mContext, permission);
         return mHal.getProperty(prop, zone);
     }
 
