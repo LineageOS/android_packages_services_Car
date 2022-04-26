@@ -132,6 +132,14 @@ public final class HalPropConfigTest {
     }
 
     @Test
+    public void testToVehiclePropConfig_forAidlConfig() {
+        VehiclePropConfig aidlConfig = getTestAidlPropConfig();
+        AidlHalPropConfig halPropConfig = new AidlHalPropConfig(aidlConfig);
+
+        assertThat((VehiclePropConfig) halPropConfig.toVehiclePropConfig()).isEqualTo(aidlConfig);
+    }
+
+    @Test
     public void testHidlHalPropConfigWithNoArea() {
         android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlConfig =
                 getTestHidlPropConfig();
@@ -166,5 +174,15 @@ public final class HalPropConfigTest {
         assertThat(halAreaConfig.getMaxInt64Value()).isEqualTo(MAX_INT64_VALUE);
         assertThat(halAreaConfig.getMinFloatValue()).isEqualTo(MIN_FLOAT_VALUE);
         assertThat(halAreaConfig.getMaxFloatValue()).isEqualTo(MAX_FLOAT_VALUE);
+    }
+
+    @Test
+    public void testToVehiclePropConfig_forHidlConfig() {
+        android.hardware.automotive.vehicle.V2_0.VehiclePropConfig hidlConfig =
+                getTestHidlPropConfig();
+        HidlHalPropConfig halPropConfig = new HidlHalPropConfig(hidlConfig);
+
+        assertThat((android.hardware.automotive.vehicle.V2_0.VehiclePropConfig)
+                halPropConfig.toVehiclePropConfig()).isEqualTo(hidlConfig);
     }
 }
