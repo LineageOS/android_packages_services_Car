@@ -200,10 +200,10 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
         mProps.put(VehicleProperty.SEAT_MEMORY_SELECT, new Pair<>(
-                Car.PERMISSION_CONTROL_CAR_SEATS,
+                null,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
         mProps.put(VehicleProperty.SEAT_MEMORY_SET, new Pair<>(
-                Car.PERMISSION_CONTROL_CAR_SEATS,
+                null,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
         mProps.put(VehicleProperty.SEAT_BELT_BUCKLED, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
@@ -554,7 +554,7 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
         mProps.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
-                Car.PERMISSION_CAR_EPOCH_TIME,
+                null,
                 Car.PERMISSION_CAR_EPOCH_TIME));
         mProps.put(VehicleProperty.STORAGE_ENCRYPTION_BINDING_SEED, new Pair<>(
                 Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED,
