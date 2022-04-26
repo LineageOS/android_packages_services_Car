@@ -129,12 +129,6 @@ Enumerator::Enumerator(std::unique_ptr<ServiceFactory> serviceFactory,
                     // The first element must be the internal display
                     mInternalDisplayPort = mDisplayPorts.front();
                 }
-
-                // The first element is the internal display
-                mInternalDisplayPort = mDisplayPorts.front();
-                if (mDisplayPorts.size() < 1) {
-                    LOG(WARNING) << "No display is available to EVS service.";
-                }
             });
 
     removeIfPresent(&mDisplayPorts, kExclusiveMainDisplayId, []() {
