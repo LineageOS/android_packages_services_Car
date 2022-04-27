@@ -16,7 +16,6 @@
 
 package com.google.android.car.kitchensink.bluetooth;
 
-import android.Manifest;
 import android.annotation.Nullable;
 import android.app.Activity;
 import android.content.pm.PackageManager;
@@ -24,17 +23,17 @@ import android.content.pm.PackageManager;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.fragment.app.Fragment;
 
-public final class BluetoothConnectionPermissionChecker {
-    private BluetoothConnectionPermissionChecker() {
+public final class BluetoothPermissionChecker {
+    private BluetoothPermissionChecker() {
     }
 
-    static boolean isPermissionGranted(Activity mActivity) {
-        return mActivity.checkSelfPermission(Manifest.permission.BLUETOOTH_CONNECT)
+    static boolean isPermissionGranted(Activity mActivity, String permission) {
+        return mActivity.checkSelfPermission(permission)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
-    static void requestPermission(Fragment fragment, @Nullable Runnable isGrantedRunnable,
-            @Nullable Runnable isNotGrantedRunnable) {
+    static void requestPermission(String permission, Fragment fragment,
+            @Nullable Runnable isGrantedRunnable, @Nullable Runnable isNotGrantedRunnable) {
         fragment.registerForActivityResult(new ActivityResultContracts.RequestPermission(),
                 isGranted -> {
                     if (isGranted) {
@@ -46,6 +45,24 @@ public final class BluetoothConnectionPermissionChecker {
                             isNotGrantedRunnable.run();
                         }
                     }
-                }).launch(Manifest.permission.BLUETOOTH_CONNECT);
+                }).launch(permission);
+    }
+
+    static void requestMultiplePermissions(String[] permissions, Fragment fragment,
+            @Nullable Runnable isGrantedRunnable, @Nullable Runnable isNotGrantedRunnable) {
+        fragment.registerForActivityResult(
+                new ActivityResultContracts.RequestMultiplePermissions(),
+                isGrantedMap -> {
+                    // I.e., true if *all* permissions in the map have been granted
+                    if (!isGrantedMap.containsValue(false)) {
+                        if (isGrantedRunnable != null) {
+                            isGrantedRunnable.run();
+                        }
+                    } else {
+                        if (isNotGrantedRunnable != null) {
+                            isNotGrantedRunnable.run();
+                        }
+                    }
+                }).launch(permissions);
     }
 }
