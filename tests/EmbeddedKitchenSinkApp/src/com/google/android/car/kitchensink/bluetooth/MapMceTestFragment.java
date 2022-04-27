@@ -145,8 +145,10 @@ public class MapMceTestFragment extends Fragment {
         View v = inflater.inflate(R.layout.sms_received, container, false);
         mActivity = (KitchenSinkActivity) getHost();
 
-        if (!BluetoothConnectionPermissionChecker.isPermissionGranted(mActivity)) {
-            BluetoothConnectionPermissionChecker.requestPermission(this,
+        if (!BluetoothPermissionChecker.isPermissionGranted(mActivity,
+                Manifest.permission.BLUETOOTH_CONNECT)) {
+            BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
+                    this,
                     this::registerMapServiceListenerAndNotificationReceiver,
                     () -> {
                     Toast.makeText(getContext(),
@@ -246,7 +248,8 @@ public class MapMceTestFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        if (BluetoothConnectionPermissionChecker.isPermissionGranted(mActivity)) {
+        if (BluetoothPermissionChecker.isPermissionGranted(mActivity,
+                Manifest.permission.BLUETOOTH_CONNECT)) {
             registerMapServiceListenerAndNotificationReceiver();
         }
     }
