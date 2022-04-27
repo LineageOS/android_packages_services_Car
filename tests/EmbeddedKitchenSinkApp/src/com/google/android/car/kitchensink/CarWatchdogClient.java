@@ -136,7 +136,10 @@ public final class CarWatchdogClient {
         int clientHealthcheckIntervalSecs = SystemProperties.getInt(
                 PROPERTY_RO_CLIENT_HEALTHCHECK_INTERVAL, MISSING_INT_PROPERTY_VALUE);
         if (clientHealthcheckIntervalSecs != MISSING_INT_PROPERTY_VALUE) {
-            mOverriddenClientHealthCheckWindowMs = Math.max(clientHealthcheckIntervalSecs * 1000L,
+            // Client must be inactive for at least twice the duration of the client health check
+            // window.
+            mOverriddenClientHealthCheckWindowMs = clientHealthcheckIntervalSecs * 2005L;
+            mOverriddenClientHealthCheckWindowMs = Math.max(mOverriddenClientHealthCheckWindowMs,
                     getTimeForInactiveMain(CarWatchdogManager.TIMEOUT_NORMAL));
         }
     }
