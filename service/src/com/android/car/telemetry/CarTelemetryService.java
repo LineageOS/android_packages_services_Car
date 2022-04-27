@@ -139,6 +139,20 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mResultStore.putErrorResult(metricsConfigName, error);
             onReportReady(metricsConfigName);
         }
+
+        @Override
+        public void onMetricsReport(
+                @NonNull String metricsConfigName,
+                @NonNull PersistableBundle report,
+                @Nullable PersistableBundle state) {
+            // TODO(b/229134432): ResultStore should be able to store multiple reports
+            mResultStore.putFinalResult(metricsConfigName, report);
+            if (state != null) {
+                mResultStore.putInterimResult(metricsConfigName, state);
+            }
+            onReportReady(metricsConfigName);
+            mDataBroker.scheduleNextTask();
+        }
     };
 
     // accessed and updated on the main thread
