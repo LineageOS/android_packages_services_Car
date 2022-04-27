@@ -27,6 +27,7 @@ from perfetto.trace_processor import TraceProcessor
 
 from config import get_script_dir as get_script_dir
 from config import parse_config as parse_config
+from config import add_line_with_indentation
 
 # Get total idle time and active time from each core
 QUERY_SCHED_CORE_SUM = """SELECT
@@ -48,7 +49,7 @@ class CoreLoad:
     self.coreId = coreId
     self.totalCycles = totalCycles
 
-class ProcessInfo:
+class CPUExecutionInfo:
   def __init__(self, name):
     self.name = name
     self.perCoreLoads = {} # key: core, value :CoreLoad
@@ -66,20 +67,62 @@ class ProcessInfo:
     sum = 0
     for c in self.perCoreLoads:
       l = self.perCoreLoads[c]
-      sum = sum + l.totalCycles
+      sum += l.totalCycles
     return sum
 
-  def print(self, totalCpuCycles, perCoreTotalCycles):
+class ThreadInfo(CPUExecutionInfo):
+  def print(self, totalCpuCycles, perCoreTotalCycles, loadPercentile):
+    indentation = 2
     msgs = []
-    msgs.append(("{}: total: {:.3f}%".format(self.name, float(self.getTotalCycles()) /\
-                                            totalCpuCycles * 100.0)))
-    msgs.append(50 * "-")
+    totalCpuLoad = float(self.getTotalCycles()) / totalCpuCycles * 100.0
+    activeCpuLoad = totalCpuLoad / loadPercentile * 100.0
+    add_line_with_indentation(msgs,
+                              ("{}: total: {:.3f}% active: {:.3f}%"\
+                               .format(self.name, totalCpuLoad, activeCpuLoad)), indentation)
+    add_line_with_indentation(msgs, 50 * "-", indentation)
     for c in sorted(self.perCoreLoads):
       l = self.perCoreLoads[c]
-      msgs.append("{:<10} {:<15}".format("Core {}".format(c),\
-                                          "{:.3f}%".format(float(l.totalCycles) /\
-                                                        perCoreTotalCycles[c] * 100.0)))
-    print('\n'.join(msgs) + '\n')
+      coreLoad = float(l.totalCycles) / perCoreTotalCycles[c] * 100.0
+      add_line_with_indentation(msgs,
+                                "{:<10} {:<15}".format("Core {}".format(c),
+                                                       "{:.3f}%".format(coreLoad)),
+                                indentation)
+
+    print("".join(msgs))
+
+class ProcessInfo(CPUExecutionInfo):
+  def __init__(self, name):
+    super().__init__(name)
+    self.threads = [] # ThreadInfo
+
+  def get_filtered_threads(self, threadNames):
+    threads = list(filter(
+        lambda t: max(map(lambda filterName: t.name.find(filterName), threadNames)) > -1,
+        self.threads))
+
+    return threads
+
+  def print(self, totalCpuCycles, perCoreTotalCycles, loadPercentile, showThreads=False):
+    msgs = []
+    totalCpuLoad = float(self.getTotalCycles()) / totalCpuCycles * 100.0
+    activeCpuLoad = totalCpuLoad / loadPercentile * 100.0
+    msgs.append("{}: total: {:.3f}% active: {:.3f}%"\
+                .format(self.name, totalCpuLoad, activeCpuLoad))
+    msgs.append("\n" + 50 * "-")
+    for c in sorted(self.perCoreLoads):
+      l = self.perCoreLoads[c]
+      coreLoad = float(l.totalCycles) / perCoreTotalCycles[c] * 100.0
+      msgs.append("\n{:<10} {:<15}".format("Core {}".format(c), "{:.3f}%".format(coreLoad)))
+
+    print(''.join(msgs))
+
+    if showThreads:
+      self.threads.sort(reverse = True, key = lambda p : p.getTotalCycles())
+      for t in self.threads:
+        t.print(totalCpuCycles, perCoreTotalCycles, loadPercentile)
+
+    print('\n')
+
 
 class TotalCoreLoad:
   def __init__(self, coreId, activeTime, idleTime):
@@ -114,7 +157,15 @@ class SystemLoad:
     for c in sorted(coreLoads):
       self.totalLoads.append(coreLoads[c])
 
-  def print(self, cpuConfig, numTopN, filterProcesses):
+  def get_filtered_processes(self, process_names):
+      processPerName = {}
+      for name in process_names:
+        processes = list(filter(lambda p: p.name.find(name) > -1, self.processes))
+        if len(processes) > 0:
+          processPerName[name] = processes
+      return processPerName
+
+  def print(self, cpuConfig, numTopN, filterProcesses, filterThreads):
     print("\nTime based CPU load\n" + 30 * "=")
     loadXClkSum = 0.0
     maxCapacity = 0.0
@@ -140,19 +191,32 @@ class SystemLoad:
           format(loadPercentile, loadPercentile * maxCpuGHz / 100.0, maxCpuGHz))
 
     self.processes.sort(reverse = True, key = lambda p : p.getTotalCycles())
-    print("\nFiltered processes\n" + 30 * "=")
+    if filterThreads is not None:
+      print("\nFiltered threads\n" + 30 * "=")
+      processPerName = self.get_filtered_processes(filterThreads.keys())
+      if len(processPerName) == 0:
+        print("No process found matching filters.")
+      for name in processPerName:
+        for p in processPerName[name]:
+          threads = p.get_filtered_threads(filterThreads[name])
+          print("\n{}\n".format(p.name) + 30 * "-")
+          for t in threads:
+            t.print(totalCpuCycles, perCoreCpuCycles, loadPercentile)
+
+
     if filterProcesses is not None:
-      processes = list(filter(
-          lambda p: max(map(lambda filterName: p.name.find(filterName), filterProcesses)) > -1,
-          self.processes))
-      if len(processes) == 0:
-        print("No process found with filters.")
+      print("\nFiltered processes\n" + 30 * "=")
+      processPerName = self.get_filtered_processes(filterProcesses)
+      if len(processPerName) == 0:
+        print("No process found matching filters.")
+      processes = sum(processPerName.values(), []) # flattens 2-D list
+      processes.sort(reverse = True, key = lambda p : p.getTotalCycles())
       for p in processes:
-        p.print(totalCpuCycles, perCoreCpuCycles)
+        p.print(totalCpuCycles, perCoreCpuCycles, loadPercentile, showThreads=True)
 
     print("\nTop processes\n" + 30 * "=")
     for p in self.processes[:numTopN]:
-      p.print(totalCpuCycles, perCoreCpuCycles)
+      p.print(totalCpuCycles, perCoreCpuCycles, loadPercentile)
 
 def init_arguments():
   parser = argparse.ArgumentParser(description='Analyze CPU perf.')
@@ -165,13 +229,29 @@ def init_arguments():
   parser.add_argument('-n', '--number_of_top_processes', dest='number_of_top_processes',
                       action='store', type=int, default=5,
                       help='Number of processes to show in performance report')
-  parser.add_argument('-p', '--process-name', dest='process_name', action='append',
+  parser.add_argument('-p', '--process-name', dest='process_names', action='append',
                       help='Name of process to filter')
+  parser.add_argument('-t', '--thread-name', dest='thread_names', action='append',
+                      help='Name of thread to filter. Format: <process-name>:<thread-name>')
   parser.add_argument('trace_file', action='store', nargs=1,
                       help='Perfetto trace file to analyze')
   return parser.parse_args()
 
-def run_analysis(traceFile, cpuConfig, cpuSettings, numTopN=5, filterProcesses=None):
+def get_core_load(coreData, cpuConfig):
+  cpuFreqKHz = cpuConfig.coreMaxFreqKHz[coreData.id]
+  if coreData.metrics.HasField('avg_freq_khz'):
+    cpuFreqKHz = coreData.metrics.avg_freq_khz
+  cpuCycles = cpuFreqKHz * coreData.metrics.runtime_ns / 1000000 # unit should be Hz * s
+  return CoreLoad(coreData.id, cpuCycles)
+
+def run_analysis(
+    traceFile,
+    cpuConfig,
+    cpuSettings,
+    numTopN=5,
+    filterProcesses=None,
+    filterThreads=None
+):
   tp = TraceProcessor(file_path=traceFile)
 
   systemLoad = SystemLoad()
@@ -183,15 +263,17 @@ def run_analysis(traceFile, cpuConfig, cpuSettings, numTopN=5, filterProcesses=N
   for p in cpu_metrics.process_info:
     info = ProcessInfo(p.name)
     for c in p.core:
-      cpuFreqKHz = cpuConfig.coreMaxFreqKHz[c.id]
-      if c.metrics.HasField('avg_freq_khz'):
-        cpuFreqKHz = c.metrics.avg_freq_khz
-      cpuCycles = cpuFreqKHz * c.metrics.runtime_ns / 1000000 # unit should be Hz * s
-      l = CoreLoad(c.id, cpuCycles)
+      l = get_core_load(c, cpuConfig)
       info.addCoreLoad(l)
+    for t in p.threads:
+      thread_info = ThreadInfo(t.name)
+      for tc in t.core:
+        tl = get_core_load(tc, cpuConfig)
+        thread_info.addCoreLoad(tl)
+      info.threads.append(thread_info)
     systemLoad.processes.append(info)
 
-  systemLoad.print(cpuConfig, numTopN, filterProcesses)
+  systemLoad.print(cpuConfig, numTopN, filterProcesses, filterThreads)
 
 def main():
   args = init_arguments()
@@ -203,7 +285,27 @@ def main():
     print("Cannot find cpusettings {}".format(args.cpusettings))
     return
 
-  run_analysis(args.trace_file[0], cpuConfig, cpuSettings, args.number_of_top_processes, args.process_name)
+  threadsPerProcess = None
+  if args.thread_names is not None:
+    threadsPerProcess = {}
+    for threadName in args.thread_names:
+      names = threadName.split(':')
+      if len(names) != 2:
+        print(" Skipping {}: invalid format".format(threadName))
+        continue
+      process, thread = names
+      if process not in threadsPerProcess:
+        threadsPerProcess[process] = []
+      threadsPerProcess[process].append(thread)
+    if len(threadsPerProcess) == 0:
+      threadsPerProcess = None
+
+  run_analysis(args.trace_file[0],
+               cpuConfig,
+               cpuSettings,
+               args.number_of_top_processes,
+               args.process_names,
+               threadsPerProcess)
 
 if __name__ == '__main__':
   main()
