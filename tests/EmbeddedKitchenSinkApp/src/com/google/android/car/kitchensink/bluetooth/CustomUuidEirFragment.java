@@ -16,6 +16,7 @@
 
 package com.google.android.car.kitchensink.bluetooth;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothServerSocket;
@@ -37,6 +38,7 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 import java.math.BigInteger;
@@ -111,6 +113,29 @@ public class CustomUuidEirFragment extends Fragment {
         mAdvertisingToggle = (Switch) v.findViewById(R.id.advertising_toggle);
         mBtAdapterToggle = (Switch) v.findViewById(R.id.bt_adapter_toggle);
 
+        if (!BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)
+                || !BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_SCAN)) {
+            BluetoothPermissionChecker.requestMultiplePermissions(
+                    new String[]{Manifest.permission.BLUETOOTH_CONNECT,
+                            Manifest.permission.BLUETOOTH_SCAN},
+                    this,
+                    () -> {
+                        mAdvertisingToggle.setEnabled(true);
+                        mBtAdapterToggle.setEnabled(true);
+                    },
+                    () -> {
+                        mAdvertisingToggle.setEnabled(false);
+                        mBtAdapterToggle.setEnabled(false);
+                        Toast.makeText(getContext(),
+                                "UUID test cannot run without Bluetooth permissions. "
+                                        + "(You can change permissions in Settings.)",
+                                Toast.LENGTH_SHORT).show();
+                    }
+            );
+        }
+
         mResetUuidDefaults = (Button) v.findViewById(R.id.reset_uuid_defaults);
 
         mUuidEditTexts = Arrays.asList(
@@ -158,8 +183,38 @@ public class CustomUuidEirFragment extends Fragment {
                 }
             });
         }
+        // Disable each UUID's {@link Switch} if Adapter or Advertising toggles are not enabled,
+        // which indicates Bluetooth permissions have not been granted.
+        if (!mAdvertisingToggle.isEnabled() || !mBtAdapterToggle.isEnabled()) {
+            while (switchIter.hasNext()) {
+                toggle = switchIter.next();
+                toggle.setEnabled(false);
+            }
+        }
 
         setUuidsToDefault();
+
+        BluetoothManager bluetoothManager =
+                Objects.requireNonNull(getContext().getSystemService(BluetoothManager.class));
+        mAdapter = Objects.requireNonNull(bluetoothManager.getAdapter());
+
+        // We don't know if "OFF" is {@link BluetoothAdapter#SCAN_MODE_NONE}
+        // or {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE}. If the current scan mode is
+        // {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE_DISCOVERABLE}, then we'll set "OFF" to
+        // {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE}.
+        if (BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_SCAN)) {
+            mScanModeNotDiscoverable = mAdapter.getScanMode();
+            Log.d(TAG, "Original scan mode was: " + mScanModeNotDiscoverable + ", "
+                    + scanModeToText(mScanModeNotDiscoverable));
+        }
+        if (mScanModeNotDiscoverable == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+            mScanModeNotDiscoverable = BluetoothAdapter.SCAN_MODE_CONNECTABLE;
+        }
+
+        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        getContext().registerReceiver(mReceiver, filter);
 
         return v;
     }
@@ -167,22 +222,6 @@ public class CustomUuidEirFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        BluetoothManager bluetoothManager =
-                Objects.requireNonNull(getContext().getSystemService(BluetoothManager.class));
-        mAdapter = Objects.requireNonNull(bluetoothManager.getAdapter());
-        IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-        filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-        getContext().registerReceiver(mReceiver, filter);
-        // We don't know if "OFF" is {@link BluetoothAdapter#SCAN_MODE_NONE}
-        // or {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE}. If the current scan mode is
-        // {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE_DISCOVERABLE}, then we'll set "OFF" to
-        // {@link BluetoothAdapter#SCAN_MODE_CONNECTABLE}.
-        mScanModeNotDiscoverable = mAdapter.getScanMode();
-        Log.d(TAG, "Original scan mode was: " + mScanModeNotDiscoverable + ", "
-                + scanModeToText(mScanModeNotDiscoverable));
-        if (mScanModeNotDiscoverable == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-            mScanModeNotDiscoverable = BluetoothAdapter.SCAN_MODE_CONNECTABLE;
-        }
     }
 
     @Override
@@ -198,6 +237,18 @@ public class CustomUuidEirFragment extends Fragment {
 
     @Override
     public void onResume() {
+        if (BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)) {
+            mBtAdapterToggle.setEnabled(true);
+        } else {
+            mBtAdapterToggle.setEnabled(false);
+        }
+        if (BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_SCAN)) {
+            mAdvertisingToggle.setEnabled(true);
+        } else {
+            mAdvertisingToggle.setEnabled(false);
+        }
         super.onResume();
         refreshUi();
     }
@@ -297,9 +348,13 @@ public class CustomUuidEirFragment extends Fragment {
     }
 
     private void refreshUi() {
-        mBtAdapterToggle.setChecked(mAdapter.isEnabled());
-        mAdvertisingToggle.setChecked(mAdapter.getScanMode()
-                == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+        if (mBtAdapterToggle.isEnabled()) {
+            mBtAdapterToggle.setChecked(mAdapter.isEnabled());
+        }
+        if (mAdvertisingToggle.isEnabled()) {
+            mAdvertisingToggle.setChecked(mAdapter.getScanMode()
+                    == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+        }
     }
 
     private void turnOffUuidSwitches() {
