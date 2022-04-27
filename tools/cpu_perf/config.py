@@ -31,28 +31,21 @@ class CpuSettings:
   def __str__(self):
     strs = []
     strs.append("CpuSettings:{")
-    add_line_with_indentation(strs, 4)
-    strs.append("allcores:")
+    add_line_with_indentation(strs, "allcores:", 4)
     strs.append(str(self.allcores))
-    add_line_with_indentation(strs, 4)
-    strs.append("onlines:")
+    add_line_with_indentation(strs, "onlines:", 4)
     strs.append(str(self.onlines))
-    add_line_with_indentation(strs, 4)
-    strs.append("governor:")
+    add_line_with_indentation(strs, "governor:", 4)
     strs.append(str(self.governor))
-    add_line_with_indentation(strs, 4)
-    strs.append("governors:[")
+    add_line_with_indentation(strs, "governors:[", 4)
     for k in self.governors:
-      add_line_with_indentation(strs, 8)
-      strs.append(str(k))
+      add_line_with_indentation(strs, str(k), 8)
       strs.append('=')
       strs.append(str(self.governors[k]))
     strs.append("]")
-    add_line_with_indentation(strs, 4)
-    strs.append("cpusets:[")
+    add_line_with_indentation(strs, "cpusets:[", 4)
     for k in self.cpusets:
-      add_line_with_indentation(strs, 8)
-      strs.append(str(k))
+      add_line_with_indentation(strs, str(k), 8)
       strs.append('=')
       strs.append(str(self.cpusets[k]))
     strs.append("]")
@@ -68,15 +61,12 @@ class CpuConfig:
   def __str__(self):
     strs = []
     strs.append("CpuConfig:[")
-    add_line_with_indentation(strs, 2)
-    strs.append("allcores:")
+    add_line_with_indentation(strs, "allcores:", 2)
     strs.append(str(self.allcores))
-    add_line_with_indentation(strs, 2)
-    strs.append("coreMaxFreqKHz:")
+    add_line_with_indentation(strs, "coreMaxFreqKHz:", 2)
     strs.append(str(self.coreMaxFreqKHz))
     for k in self.configs:
-      add_line_with_indentation(strs, 2)
-      strs.append(str(k))
+      add_line_with_indentation(strs, str(k), 2)
       strs.append(':')
       strs.append(str(self.configs[k]))
     strs.append("]")
@@ -163,5 +153,5 @@ def parse_config(configFile):
 def get_script_dir():
   return os.path.dirname(os.path.realpath(sys.argv[0]))
 
-def add_line_with_indentation(strs, spaces):
-  strs.append("\n" + spaces * " ")
+def add_line_with_indentation(strs, msg="", spaces=1):
+  strs.append("\n" + spaces * " " + msg)
