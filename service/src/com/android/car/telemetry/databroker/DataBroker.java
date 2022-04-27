@@ -17,6 +17,7 @@
 package com.android.car.telemetry.databroker;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.telemetry.TelemetryProto;
 import android.os.PersistableBundle;
 
@@ -58,6 +59,19 @@ public interface DataBroker {
         void onReportFinished(
                 @NonNull String metricsConfigName,
                 @NonNull TelemetryProto.TelemetryError error);
+
+        /**
+         * Called when a MetricsConfig produces a metrics report without ending its lifecycle.
+         *
+         * @param metricsConfigName that uniquely identifies the config whose script produced a
+         *                          report.
+         * @param report the metrics report.
+         * @param state optional state to persist for the next script execution.
+         */
+        void onMetricsReport(
+                @NonNull String metricsConfigName,
+                @NonNull PersistableBundle report,
+                @Nullable PersistableBundle state);
     }
 
     /**
