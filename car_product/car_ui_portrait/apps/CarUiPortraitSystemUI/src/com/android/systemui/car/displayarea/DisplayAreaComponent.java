@@ -22,6 +22,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
@@ -61,6 +62,7 @@ public class DisplayAreaComponent extends CoreStartable {
 
     @Override
     public void start() {
+        logIfDebuggable("start:");
         if (CarDisplayAreaUtils.isCustomDisplayPolicyDefined(mContext)) {
             // Register the DA's
             mCarDisplayAreaController.register();
@@ -80,6 +82,7 @@ public class DisplayAreaComponent extends CoreStartable {
                                 && mCurrentUser != UserHandle.USER_SYSTEM) {
                             int res = Settings.Secure.getIntForUser(mContext.getContentResolver(),
                                     KEY_SETUP_WIZARD_IN_PROGRESS, mCurrentUser);
+                            logIfDebuggable("SUW in progress: " + (res == 1));
                             // res == 1 -> SUW in progress
                             if (res == 1 && !mIsDefaultTdaFullScreen) {
                                 if (!mCarDisplayAreaController.isForegroundDaVisible()) {
@@ -113,6 +116,7 @@ public class DisplayAreaComponent extends CoreStartable {
                 public void onReceive(Context context, Intent intent) {
                     mCurrentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE,
                             UserHandle.USER_ALL);
+                    logIfDebuggable("ACTION_USER_SWITCHED received current user: " + mCurrentUser);
                     handler.post(runnable);
                 }
             }, filter, null, null);
@@ -127,5 +131,11 @@ public class DisplayAreaComponent extends CoreStartable {
      */
     public enum FOREGROUND_DA_STATE {
         CONTROL_BAR, DEFAULT, FULL
+    }
+
+    private static void logIfDebuggable(String message) {
+        if (Build.IS_DEBUGGABLE) {
+            Log.d(TAG, message);
+        }
     }
 }
