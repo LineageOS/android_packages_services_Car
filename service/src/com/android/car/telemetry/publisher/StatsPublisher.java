@@ -166,11 +166,11 @@ public class StatsPublisher extends AbstractPublisher {
     private final PersistableBundle mSavedStatsConfigs;
 
     StatsPublisher(
-            @NonNull PublisherFailureListener failureListener,
+            @NonNull PublisherListener listener,
             @NonNull StatsManagerProxy statsManager,
             @NonNull File publisherDirectory,
             @NonNull Handler telemetryHandler) {
-        super(failureListener);
+        super(listener);
         mStatsManager = statsManager;
         mTelemetryHandler = telemetryHandler;
         mSavedStatsConfigsFile = new File(publisherDirectory, SAVED_STATS_CONFIGS_FILE);

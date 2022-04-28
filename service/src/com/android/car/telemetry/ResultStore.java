@@ -305,6 +305,14 @@ public class ResultStore {
     }
 
     /**
+     * Deletes associated publisher data.
+     */
+    public void removePublisherData(@NonNull String publisherName) {
+        mPublisherCache.remove(publisherName);
+        IoUtils.deleteSilently(mPublisherDataDirectory, publisherName);
+    }
+
+    /**
      * Deletes script result associated with the given config name. If result does not exist, this
      * method does not do anything.
      */

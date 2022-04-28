@@ -72,6 +72,7 @@ import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.audio.CarAudioPolicyVolumeCallback.AudioPolicyVolumeCallbackInternal;
 import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperV1;
@@ -608,10 +609,27 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         CarAudioDynamicRouting.setupAudioDynamicRouting(builder, mCarAudioZones);
 
+        AudioPolicyVolumeCallbackInternal volumeCallbackInternal =
+                new AudioPolicyVolumeCallbackInternal() {
+            @Override
+            public void onMuteChange(boolean mute, int zoneId, int groupId, int flags) {
+                if (mUseCarVolumeGroupMuting) {
+                    setVolumeGroupMute(PRIMARY_AUDIO_ZONE, groupId, mute, flags);
+                    return;
+                }
+                setMasterMute(mute, flags);
+            }
+
+            @Override
+            public void onGroupVolumeChange(int zoneId, int groupId, int volumeValue, int flags) {
+                setGroupVolume(zoneId, groupId, volumeValue, flags);
+            }
+        };
+
         // Attach the {@link AudioPolicyVolumeCallback}
         CarAudioPolicyVolumeCallback
-                .addVolumeCallbackToPolicy(builder, this, mAudioManager,
-                        mUseCarVolumeGroupMuting);
+                .addVolumeCallbackToPolicy(builder, volumeCallbackInternal, mAudioManager,
+                        new CarVolumeInfoWrapper(this), mUseCarVolumeGroupMuting);
 
 
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
