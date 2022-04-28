@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.UserIdInt;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
@@ -22,6 +24,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 
 import java.util.Arrays;
@@ -30,6 +33,7 @@ import java.util.List;
 /**
  * Base implementation of {@link ICarServiceHelper.Stub} providing no-ops methods.
  */
+@ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
 abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
 
     private static final String TAG = AbstractICarServiceHelperStub.class.getSimpleName();
