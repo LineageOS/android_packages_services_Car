@@ -427,17 +427,18 @@ public class CarTelemetryTestFragment extends Fragment {
                     .append("        iterations = 0\n")
                     .append("    end\n")
                     .append("    state['iterations'] = iterations + 1\n")
+                    .append("    report = {}\n")
                     .append("    local ts_key = 'timestamp_' .. iterations\n")
-                    .append("    state[ts_key] = published_data['timestamp']\n")
+                    .append("    report[ts_key] = published_data['timestamp']\n")
                     .append("    local meminfo = published_data['meminfo']\n")
                     .append("    local available_memory = string.match(meminfo, "
                             + "'.*MemAvailable:%s*(%d+).*')\n")
                     .append("    local mem_key = 'available_memory_' .. iterations\n")
-                    .append("    state[mem_key] = available_memory\n")
+                    .append("    report[mem_key] = available_memory\n")
                     .append("    if iterations >= 2 then \n")
-                    .append("        on_script_finished(state)\n")
+                    .append("        on_script_finished(report)\n")
                     .append("    else \n")
-                    .append("        on_success(state)\n")
+                    .append("        on_metrics_report(report, state)\n")
                     .append("    end\n")
                     .append("end\n")
                     .toString();
@@ -768,6 +769,8 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onSendWifiNetstatsConfigBtnClick(View view) {
+        showOutput("If the config is added successfully, it will produce a report on the top "
+                + "3 wifi network traffic consumers after 1 driving sessions.");
         mCarTelemetryManager.addMetricsConfig(
                 WIFI_TOP_CONSUMERS_CONFIG_NAME,
                 METRICS_CONFIG_WIFI_TOP_CONSUMERS
@@ -959,6 +962,9 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onSendMemoryConfigBtnClick(View view) {
+        showOutput("If the MetricsConfig is added successfully, it will produce 3 metrics "
+                + "reports on available memory. The reports are produced 3 seconds apart. "
+                + "After 3 reports, the MetricsConfig's lifecycle is considered finished.");
         mCarTelemetryManager.addMetricsConfig(
                 MEMORY_CONFIG_NAME,
                 METRICS_CONFIG_MEMORY_V1.toByteArray(),
