@@ -45,6 +45,7 @@ import static org.mockito.Mockito.when;
 
 import android.app.StatsManager;
 import android.car.telemetry.TelemetryProto;
+import android.content.Context;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PersistableBundle;
@@ -261,13 +262,15 @@ public class StatsPublisherTest {
     private ResultStore mResultStore;
     private StatsPublisher mPublisher;  // subject
 
+    @Mock private Context mMockContext;
     @Mock private StatsManagerProxy mStatsManager;
 
     @Captor private ArgumentCaptor<PersistableBundle> mBundleCaptor;
 
     @Before
     public void setUp() throws Exception {
-        mResultStore = new ResultStore(Files.createTempDirectory("telemetry_test").toFile());
+        mResultStore = new ResultStore(
+                mMockContext, Files.createTempDirectory("telemetry_test").toFile());
         mPublisher = createRestartedPublisher();
         when(mStatsManager.getStatsMetadata()).thenReturn(CONFIG_STATS_REPORT.toByteArray());
     }

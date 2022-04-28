@@ -43,6 +43,7 @@ import android.car.telemetry.TelemetryProto.TelemetryError;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
@@ -58,6 +59,8 @@ import com.android.car.OnShutdownReboot;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.telemetry.MetricsReportProto.MetricsReportContainer;
+import com.android.car.telemetry.MetricsReportProto.MetricsReportList;
 import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerImpl;
 import com.android.car.telemetry.databroker.ScriptExecutionTask;
@@ -65,11 +68,16 @@ import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
+import com.android.car.telemetry.util.IoUtils;
+import com.android.car.telemetry.util.MetricsReportProtoUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.io.DataOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
@@ -118,7 +126,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         public void onReportFinished(@NonNull String metricsConfigName) {
             cleanupMetricsConfig(metricsConfigName); // schedules next script execution task
             if (mResultStore.getErrorResult(metricsConfigName, false) != null
-                    || mResultStore.getFinalResult(metricsConfigName, false) != null) {
+                    || mResultStore.getMetricsReports(metricsConfigName, false) != null) {
                 onReportReady(metricsConfigName);
             }
         }
@@ -127,7 +135,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         public void onReportFinished(
                 @NonNull String metricsConfigName, @NonNull PersistableBundle report) {
             cleanupMetricsConfig(metricsConfigName); // schedules next script execution task
-            mResultStore.putFinalResult(metricsConfigName, report);
+            mResultStore.putMetricsReport(metricsConfigName, report, /* finished = */ true);
             onReportReady(metricsConfigName);
         }
 
@@ -144,8 +152,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 @NonNull String metricsConfigName,
                 @NonNull PersistableBundle report,
                 @Nullable PersistableBundle state) {
-            // TODO(b/229134432): ResultStore should be able to store multiple reports
-            mResultStore.putFinalResult(metricsConfigName, report);
+            mResultStore.putMetricsReport(metricsConfigName, report, /* finished = */ false);
             if (state != null) {
                 mResultStore.putInterimResult(metricsConfigName, state);
             }
@@ -222,7 +229,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // initialize all necessary components
             mUidMapper.init();
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
-            mResultStore = new ResultStore(rootDirectory);
+            mResultStore = new ResultStore(mContext, rootDirectory);
             if (mSessionController == null) {
                 mSessionController = new SessionController(mContext, mTelemetryHandler);
             }
@@ -280,14 +287,19 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             }
             writer.println();
         }
-        // Print info on stored final results. Configs are inactive after producing final result.
-        ArrayMap<String, PersistableBundle> finalResults = mResultStore.getAllFinalResults();
+        // Print info on stored final results.
+        ArrayMap<String, MetricsReportList> finalResults = mResultStore.getAllMetricsReports();
         writer.println("Final Results");
         writer.println();
         for (int i = 0; i < finalResults.size(); i++) {
-            writer.println("    Config name: " + finalResults.keyAt(i));
-            writer.println("    Bundle keys: "
-                    + Arrays.toString(finalResults.valueAt(i).keySet().toArray()));
+            writer.println("\tConfig name: " + finalResults.keyAt(i));
+            MetricsReportList reportList = finalResults.valueAt(i);
+            writer.println("\tTotal number of metrics reports: " + reportList.getReportCount());
+            for (int j = 0; j < reportList.getReportCount(); j++) {
+                writer.println("\tBundle keys for report " + j + ":");
+                PersistableBundle report = MetricsReportProtoUtils.getBundle(reportList, j);
+                writer.println("\t\t" + Arrays.toString(report.keySet().toArray()));
+            }
             writer.println();
         }
         // Print info on stored errors. Configs are inactive after producing errors.
@@ -295,13 +307,13 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         writer.println("Errors");
         writer.println();
         for (int i = 0; i < errors.size(); i++) {
-            writer.println("    Config name: " + errors.keyAt(i));
+            writer.println("\tConfig name: " + errors.keyAt(i));
             TelemetryProto.TelemetryError error = errors.valueAt(i);
-            writer.println("    Error");
-            writer.println("        Type: " + error.getErrorType());
-            writer.println("        Message: " + error.getMessage());
+            writer.println("\tError");
+            writer.println("\t\tType: " + error.getErrorType());
+            writer.println("\t\tMessage: " + error.getMessage());
             if (error.hasStackTrace() && !error.getStackTrace().isEmpty()) {
-                writer.println("        Stack trace: " + error.getStackTrace());
+                writer.println("\t\tStack trace: " + error.getStackTrace());
             }
             writer.println();
         }
@@ -430,22 +442,21 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                         "Getting report for metrics config " + metricsConfigName);
             }
             mTelemetryThreadTraceLog.traceBegin("getFinishedReport");
-            PersistableBundle report;
+            MetricsReportList reportList;
             TelemetryProto.TelemetryError error;
-            if ((report = mResultStore.getFinalResult(metricsConfigName, true)) != null) {
-                sendResult(listener, metricsConfigName, /* report = */ report, /* error = */ null,
-                        /* status = */ STATUS_GET_METRICS_CONFIG_FINISHED);
+            if ((reportList = mResultStore.getMetricsReports(metricsConfigName, true)) != null) {
+                streamReports(listener, metricsConfigName, reportList);
             } else if (mResultStore.getInterimResult(metricsConfigName) != null) {
-                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */null,
+                sendResult(listener, metricsConfigName, /* reportFd = */ null, /* error = */null,
                         /* status = */ STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS);
             } else if ((error = mResultStore.getErrorResult(metricsConfigName, true)) != null) {
-                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */ error,
+                sendResult(listener, metricsConfigName, /* reportFd = */ null, /* error = */ error,
                         /* status = */ STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR);
             } else if (mMetricsConfigStore.containsConfig(metricsConfigName)) {
-                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */ null,
+                sendResult(listener, metricsConfigName, /* reportFd = */ null, /* error = */ null,
                         /* status = */ STATUS_GET_METRICS_CONFIG_PENDING);
             } else {
-                sendResult(listener, metricsConfigName, /* report = */ null, /* error = */ null,
+                sendResult(listener, metricsConfigName, /* reportFd = */ null, /* error = */ null,
                         /* status = */ STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST);
             }
             mTelemetryThreadTraceLog.traceEnd();
@@ -464,18 +475,19 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Slogf.d(CarLog.TAG_TELEMETRY, "Getting all reports");
             }
             mTelemetryThreadTraceLog.traceBegin("getAllFinishedReports");
-            ArrayMap<String, PersistableBundle> reports = mResultStore.getAllFinalResults();
-            for (int i = 0; i < reports.size(); i++) {
-                mResultStore.removeResult(reports.keyAt(i));
-                sendResult(listener, reports.keyAt(i), reports.valueAt(i),
-                        /* error = */ null, STATUS_GET_METRICS_CONFIG_FINISHED);
-            }
-            ArrayMap<String, TelemetryProto.TelemetryError> errors =
-                    mResultStore.getAllErrorResults();
-            for (int i = 0; i < errors.size(); i++) {
-                mResultStore.removeResult(errors.keyAt(i));
-                sendResult(listener, errors.keyAt(i), /* report = */ null,
-                        errors.valueAt(i), STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR);
+            Set<String> finishedReports = mResultStore.getFinishedMetricsConfigNames();
+            // TODO(b/236843813): Optimize sending multiple reports
+            for (String configName : finishedReports) {
+                MetricsReportList reportList =
+                        mResultStore.getMetricsReports(configName, true);
+                if (reportList != null) {
+                    streamReports(listener, configName, reportList);
+                    continue;
+                }
+                TelemetryProto.TelemetryError telemetryError =
+                        mResultStore.getErrorResult(configName, true);
+                sendResult(listener, configName, /* reportFd = */ null, telemetryError,
+                        STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR);
             }
             mTelemetryThreadTraceLog.traceEnd();
         });
@@ -536,6 +548,48 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 .collect(toList());
     }
 
+    /**
+     * Streams the reports in the reportList to the client using a pipe to prevent exceeding
+     * binder memory limit.
+     */
+    private void streamReports(
+            @NonNull ICarTelemetryReportListener listener,
+            @NonNull String metricsConfigName,
+            @NonNull MetricsReportList reportList) {
+        if (reportList.getReportCount() == 0) {
+            sendResult(listener, metricsConfigName, null, null, STATUS_GET_METRICS_CONFIG_PENDING);
+            return;
+        }
+        // if the last report is produced via 'on_script_finished', the config is finished
+        int getReportStatus =
+                reportList.getReport(reportList.getReportCount() - 1).getIsLastReport()
+                        ? STATUS_GET_METRICS_CONFIG_FINISHED
+                        : STATUS_GET_METRICS_CONFIG_PENDING;
+        ParcelFileDescriptor[] fds = null;
+        try {
+            fds = ParcelFileDescriptor.createPipe();
+        } catch (IOException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to create pipe to stream reports", e);
+            return;
+        }
+        // send the file descriptor to the client so it can start reading
+        sendResult(listener, metricsConfigName, fds[0], /* error = */ null, getReportStatus);
+        try (DataOutputStream dataOutputStream = new DataOutputStream(
+                new ParcelFileDescriptor.AutoCloseOutputStream(fds[1]))) {
+            for (MetricsReportContainer reportContainer : reportList.getReportList()) {
+                ByteString reportBytes = reportContainer.getReportBytes();
+                // write the report size in bytes to the pipe, so the read end of the pipe
+                // knows how many bytes to read for this report
+                dataOutputStream.writeInt(reportBytes.size());
+                dataOutputStream.write(reportBytes.toByteArray());
+            }
+        } catch (IOException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write reports to pipe", e);
+        }
+        // close the read end of the pipe, write end of the pipe should be auto-closed
+        IoUtils.closeQuietly(fds[0]);
+    }
+
     @Nullable
     private byte[] getBytes(@Nullable TelemetryProto.TelemetryError error) {
         if (error == null) {
@@ -547,11 +601,11 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private void sendResult(
             @NonNull ICarTelemetryReportListener listener,
             @NonNull String metricsConfigName,
-            @Nullable PersistableBundle report,
+            @Nullable ParcelFileDescriptor reportFd,
             @Nullable TelemetryProto.TelemetryError error,
             @CarTelemetryManager.MetricsReportStatus int status) {
         try {
-            listener.onResult(metricsConfigName, report, getBytes(error), status);
+            listener.onResult(metricsConfigName, reportFd, getBytes(error), status);
         } catch (RemoteException e) {
             Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportListener", e);
         }
@@ -619,6 +673,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     private void cleanupMetricsConfig(String metricsConfigName) {
         mMetricsConfigStore.removeMetricsConfig(metricsConfigName);
+        mResultStore.removeInterimResult(metricsConfigName);
         mDataBroker.removeMetricsConfig(metricsConfigName);
         mDataBroker.scheduleNextTask();
     }
