@@ -399,6 +399,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     /** Registers the DA organizer. */
     public void register() {
+        logIfDebuggable("register organizer and set default bounds");
         // add CarFullscreenTaskListener to control the foreground DA when the task appears.
         mCarFullscreenTaskListener.registerOnTaskChangeListener(
                 new CarFullscreenTaskListener.OnTaskChangeListener() {
