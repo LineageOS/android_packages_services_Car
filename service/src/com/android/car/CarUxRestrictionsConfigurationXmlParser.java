@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
 import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
@@ -199,9 +200,12 @@ public final class CarUxRestrictionsConfigurationXmlParser {
             return false;
         }
         // read port
-        int portValue = parser.getAttributeIntValue(XML_NAMESPACE, XML_PHYSICAL_PORT, 0);
-        int port = CarUxRestrictionsConfiguration.Builder.validatePort(portValue);
-        getCurrentBuilder().setPhysicalPort(port);
+        int portValue = parser.getAttributeIntValue(XML_NAMESPACE, XML_PHYSICAL_PORT,
+                INVALID_PORT);
+        if (portValue != INVALID_PORT) {
+            int port = CarUxRestrictionsConfiguration.Builder.validatePort(portValue);
+            getCurrentBuilder().setPhysicalPort(port);
+        }
 
         if (!traverseToTag(parser, XML_DRIVING_STATE)) {
             Slogf.e(TAG, "No <" + XML_DRIVING_STATE + "> tag in XML");
