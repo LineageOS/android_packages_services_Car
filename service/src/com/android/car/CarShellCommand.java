@@ -147,6 +147,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -2681,22 +2683,24 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("\tremove-all");
         writer.println("\t  Removes all metrics configs.");
         writer.println("\tping-script-executor [published data filepath] [state filepath]");
+        writer.println("\t  Runs a Lua script from stdin.");
+        writer.println("\tlist");
+        writer.println("\t  Lists the active config metrics.");
+        writer.println("\tget-result <name>");
+        writer.println("\t  Blocks until a metrics report is available and returns it.");
+        writer.println("\t  If there are multiple reports, the CLI is guaranteed to receive "
+                + "at least one report. There is no guarantee that it will be able to get "
+                + "all of them.");
         writer.println("\nEXAMPLES:");
+        writer.println("\t$ adb shell cmd car_service telemetry add name < config1.protobin");
+        writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
+        writer.println("\n\t$ adb shell cmd car_service telemetry get-result name");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "< example_script.lua");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "/data/local/tmp/published_data < example_script.lua");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "/data/local/tmp/bundle /data/local/tmp/bundle2 < example_script.lua");
-        writer.println("\t  Removes all metrics configs.");
-        writer.println("\tlist");
-        writer.println("\t  Lists the config metrics in the service.");
-        writer.println("\tget-result <name>");
-        writer.println("\t  Gets if available or waits for the results for the metrics config.");
-        writer.println("\nEXAMPLES:");
-        writer.println("\t$ adb shell cmd car_service telemetry add name < config1.protobin");
-        writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
-        writer.println("\n\t$ adb shell cmd car_service telemetry get-result name");
     }
 
     private void handleTelemetryCommands(String[] args, IndentingPrintWriter writer) {
@@ -2824,13 +2828,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
                             } else if (telemetryError != null) {
                                 parseTelemetryError(telemetryError, writer);
                             }
+                            // the latch counts after receiving 1 report even if there are
+                            // multiple reports
                             latch.countDown();
                         };
                 carTelemetryManager.clearReportReadyListener();
-                carTelemetryManager.setReportReadyListener(Runnable::run, metricsConfigName -> {
+                Executor executor = Executors.newSingleThreadExecutor();
+                carTelemetryManager.setReportReadyListener(executor, metricsConfigName -> {
                     if (metricsConfigName.equals(configName)) {
                         carTelemetryManager.getFinishedReport(
-                                metricsConfigName, Runnable::run, callback);
+                                metricsConfigName, executor, callback);
                     }
                 });
                 try {
