@@ -241,8 +241,6 @@ CarPowerPolicyServer::CarPowerPolicyServer() :
     mMessageHandler = new MessageHandlerImpl(this);
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onBinderDied));
-    AIBinder_DeathRecipient_setOnUnlinked(mDeathRecipient.get(),
-                                          &CarPowerPolicyServer::onBinderUnlinked);
     mPropertyChangeListener = std::make_unique<PropertyChangeListener>(this);
     mLinkUnlinkImpl = std::make_unique<AIBinderLinkUnlinkImpl>();
 }
@@ -332,8 +330,7 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT, errorCause);
     }
     if (mOnBinderDiedContexts.find(clientId) != mOnBinderDiedContexts.end()) {
-        mLinkUnlinkImpl->unlinkToDeath(clientId, mDeathRecipient.get(),
-                                       static_cast<void*>(mOnBinderDiedContexts[clientId].get()));
+        mOnBinderDiedContexts.erase(clientId);
     }
     mPolicyChangeCallbacks.erase(it);
     if (DEBUG) {
@@ -512,12 +509,6 @@ void CarPowerPolicyServer::onBinderDied(void* cookie) {
     context->server->handleBinderDeath(context->clientId);
 }
 
-void CarPowerPolicyServer::onBinderUnlinked(void* cookie) {
-    // Delete the context associated with this cookie.
-    OnBinderDiedContext* context = reinterpret_cast<OnBinderDiedContext*>(cookie);
-    context->server->handleBinderUnlinked(context->clientId);
-}
-
 void CarPowerPolicyServer::handleBinderDeath(const AIBinder* clientId) {
     Mutex::Autolock lock(mMutex);
     auto it = lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, clientId);
@@ -525,11 +516,6 @@ void CarPowerPolicyServer::handleBinderDeath(const AIBinder* clientId) {
         ALOGW("Power policy callback(pid: %d) died", it->pid);
         mPolicyChangeCallbacks.erase(it);
     }
-}
-
-void CarPowerPolicyServer::handleBinderUnlinked(const AIBinder* clientId) {
-    Mutex::Autolock lock(mMutex);
-    // This should delete context.
     mOnBinderDiedContexts.erase(clientId);
 }
 
