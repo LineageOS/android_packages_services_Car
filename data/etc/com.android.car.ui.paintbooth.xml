@@ -25,5 +25,7 @@
         <permission name="android.permission.MANAGE_USERS"/>
         <!-- For getting list of RROs for current user-->
         <permission name="android.permission.INTERACT_ACROSS_USERS"/>
+        <!-- For ThemePlayground -->
+        <permission name="android.permission.MODIFY_DAY_NIGHT_MODE"/>
     </privapp-permissions>
 </permissions>
