@@ -218,6 +218,7 @@ public final class UserHalService extends HalServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void onPropertySetError(ArrayList<VehiclePropError> errors) {
         if (DBG) {
             for (VehiclePropError error : errors) {
@@ -1183,6 +1184,7 @@ public final class UserHalService extends HalServiceBase {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private static void dumpSystemProperty(PrintWriter writer, String indent, String name,
             Optional<?> prop) {
         String value = prop.isPresent() ? prop.get().toString() : "<NOT SET>";
