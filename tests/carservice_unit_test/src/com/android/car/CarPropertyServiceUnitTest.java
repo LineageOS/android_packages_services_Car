@@ -18,6 +18,8 @@ package com.android.car;
 
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
@@ -33,10 +35,13 @@ import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
+import android.os.RemoteException;
+import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.hal.PropertyHalService;
@@ -46,6 +51,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarPropertyServiceUnitTest {
@@ -195,5 +204,69 @@ public final class CarPropertyServiceUnitTest {
         mService.unregisterListener(HVAC_TEMP, mMockHandler1);
 
         verify(mHalService).unsubscribeProperty(HVAC_TEMP);
+    }
+
+    private static class EventListener extends ICarPropertyEventListener.Stub{
+        private final CarPropertyService mService;
+        private List<CarPropertyEvent> mEvents;
+        private Exception mException;
+
+        EventListener(CarPropertyService service) {
+            mService = service;
+        }
+
+        @Override
+        public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+            CountDownLatch latch = new CountDownLatch(1);
+            new Thread(() -> {
+                // Call a function in CarPropertyService to make sure there is no dead lock. This
+                // call doesn't actually do anything. We must use a new thread here because
+                // the same thread can obtain the same lock again even if there is a dead lock.
+                mService.getReadPermission(0);
+                latch.countDown();
+            }, "onEventThread").start();
+            try {
+                if (!latch.await(5, TimeUnit.SECONDS)) {
+                    mException = new Exception("timeout waiting for getReadPermission, dead lock?");
+                    return;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                mException = new Exception("waiting for onEvent thread interrupted");
+                return;
+            }
+            mEvents = events;
+        }
+
+        List<CarPropertyEvent> getEvents() throws Exception {
+            if (mException != null) {
+                throw mException;
+            }
+            return mEvents;
+        }
+    }
+
+    @Test
+    public void testOnEventCallback_MustNotHaveDeadLock() throws Exception {
+        // This test checks that CarPropertyService must not hold any lock while calling
+        // ICarPropertyListener's onEvent callback, otherwise it might cause dead lock if
+        // the callback calls another function in CarPropertyService that requires the same lock.
+
+        // We don't care about the result for getReadPermission so just return an empty map.
+        when(mHalService.getPermissionsForAllProperties()).thenReturn(
+                new SparseArray<Pair<String, String>>());
+        mService.init();
+
+        // Initially HVAC_TEMP is not subscribed, so should return -1.
+        when(mHalService.getSampleRate(HVAC_TEMP)).thenReturn(-1f);
+        CarPropertyValue<Float> value = new CarPropertyValue<Float>(HVAC_TEMP, 0, 1.0f);
+        when(mHalService.getPropertySafe(HVAC_TEMP, 0)).thenReturn(value);
+        EventListener listener = new EventListener(mService);
+
+        mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, listener);
+        List<CarPropertyEvent> events = List.of(new CarPropertyEvent(0, value));
+        mService.onPropertyChange(events);
+
+        assertThat(listener.getEvents()).isEqualTo(events);
     }
 }
