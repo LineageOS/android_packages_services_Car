@@ -179,6 +179,8 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
     }
 
     private void initButtons() {
+        mIncreaseButton.setClickable(true);
+        mDecreaseButton.setClickable(true);
         setHoldToRepeatButton(mIncreaseButton, () -> incrementTemperature(true));
         setHoldToRepeatButton(mDecreaseButton, () -> incrementTemperature(false));
     }
@@ -233,6 +235,7 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
         Runnable repeatClickRunnable = new Runnable() {
             @Override
             public void run() {
+                button.performClick();
                 r.run();
                 mContext.getMainThreadHandler().postDelayed(this, BUTTON_REPEAT_INTERVAL_MS);
             }
@@ -242,7 +245,7 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
             int action = event.getAction();
             switch (action) {
                 case MotionEvent.ACTION_DOWN:
-                    // Handle click action here since click listener is suppressed.
+                    // Handle click action here since click listener is not used.
                     repeatClickRunnable.run();
                     break;
                 case MotionEvent.ACTION_UP:
@@ -250,7 +253,7 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
                     mContext.getMainThreadHandler().removeCallbacks(repeatClickRunnable);
             }
 
-            // Return true so on click listener is not called superfluously.
+            // Return false to maintain touch ripple.
             return false;
         });
     }

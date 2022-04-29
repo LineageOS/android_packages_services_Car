@@ -16,6 +16,7 @@
 
 package com.google.android.car.kitchensink.bluetooth;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothDevicePicker;
@@ -114,9 +115,10 @@ public class BluetoothHeadsetFragment extends Fragment {
     }
 
     private void checkPermissions() {
-        if (!BluetoothConnectionPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost())) {
-            BluetoothConnectionPermissionChecker.requestPermission(this,
+        if (!BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)) {
+            BluetoothPermissionChecker.requestPermission(Manifest.permission.BLUETOOTH_CONNECT,
+                    this,
                     this::setDevicePickerButtonClickable,
                     () -> {
                         setDevicePickerButtonUnclickable();
@@ -278,8 +280,8 @@ public class BluetoothHeadsetFragment extends Fragment {
         mBluetoothAdapter.getProfileProxy(
             getContext(), new ProfileServiceListener(), BluetoothProfile.HEADSET_CLIENT);
 
-        if (BluetoothConnectionPermissionChecker.isPermissionGranted(
-                (KitchenSinkActivity) getHost())) {
+        if (BluetoothPermissionChecker.isPermissionGranted(
+                (KitchenSinkActivity) getHost(), Manifest.permission.BLUETOOTH_CONNECT)) {
             setDevicePickerButtonClickable();
         } else {
             setDevicePickerButtonUnclickable();

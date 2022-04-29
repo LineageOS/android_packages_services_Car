@@ -24,6 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -333,6 +334,23 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
         waitForTelemetryThreadToFinish();
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
         verify(mMockDataBrokerListener).onReportFinished(eq(NAME_FOO), eq(mData));
+    }
+
+    @Test
+    public void testScheduleNextTask_whenScriptProducesReport_shouldStoreFinalResult()
+            throws Exception {
+        mData.putBoolean("script produces report", true);
+        mData.putDouble("value of pi", 3.14159265359);
+        mDataBroker.getTaskQueue().add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+        waitForTelemetryThreadToFinish();
+        mFakeScriptExecutor.notifyMetricsReport(mData); // posts to telemetry handler
+
+        waitForTelemetryThreadToFinish();
+        assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
+        verify(mMockDataBrokerListener).onMetricsReport(
+                eq(mHighPriorityTask.getMetricsConfig().getName()), eq(mData), isNull());
     }
 
     @Test
@@ -707,6 +725,15 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
         public void notifyScriptError(int errorType, String errorMessage) {
             try {
                 mListener.onError(errorType, errorMessage, null);
+            } catch (RemoteException e) {
+                // nothing to do
+            }
+        }
+
+        /** Mocks script finished without completing its lifecycle. */
+        public void notifyMetricsReport(PersistableBundle bundle) {
+            try {
+                mListener.onMetricsReport(bundle, null);
             } catch (RemoteException e) {
                 // nothing to do
             }
