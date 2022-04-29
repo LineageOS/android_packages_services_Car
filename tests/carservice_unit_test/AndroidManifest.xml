@@ -34,10 +34,10 @@
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$BlockingActivity"
                   android:taskAffinity="com.android.car.carservice_unittest.block"/>
 
-        <activity android:name="com.android.car.CarActivityServiceTaskMonitorUnitTest$ActivityA"/>
-        <activity android:name="com.android.car.CarActivityServiceTaskMonitorUnitTest$ActivityB"/>
-        <activity android:name="com.android.car.CarActivityServiceTaskMonitorUnitTest$ActivityC"/>
-        <activity android:name="com.android.car.CarActivityServiceTaskMonitorUnitTest$BlockingActivity"
+        <activity android:name="com.android.car.am.CarActivityServiceTaskMonitorUnitTest$ActivityA"/>
+        <activity android:name="com.android.car.am.CarActivityServiceTaskMonitorUnitTest$ActivityB"/>
+        <activity android:name="com.android.car.am.CarActivityServiceTaskMonitorUnitTest$ActivityC"/>
+        <activity android:name="com.android.car.am.CarActivityServiceTaskMonitorUnitTest$BlockingActivity"
             android:taskAffinity="com.android.car.carservice_unittest.block"/>
 
         <activity android:name="com.android.car.admin.ui.CarAdminUiTestActivity"/>
