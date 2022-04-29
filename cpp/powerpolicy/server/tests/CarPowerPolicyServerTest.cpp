@@ -93,8 +93,6 @@ public:
 
     void onBinderDied(void* cookie) { mServer->onBinderDied(cookie); }
 
-    void onBinderUnlinked(void* cookie) { mServer->onBinderUnlinked(cookie); }
-
     std::vector<CallbackInfo> getPolicyChangeCallbacks() {
         return mServer->getPolicyChangeCallbacks();
     }
@@ -207,8 +205,6 @@ TEST_F(CarPowerPolicyServerTest, TestOnBinderDied) {
     server->onBinderDied(cookie);
 
     ASSERT_TRUE(server->getPolicyChangeCallbacks().empty());
-
-    server->onBinderUnlinked(cookie);
 
     ASSERT_EQ(server->countOnBinderDiedContexts(), static_cast<size_t>(0));
 }
