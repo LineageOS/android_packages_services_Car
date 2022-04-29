@@ -19,10 +19,16 @@ import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentat
 
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FULLSCREEN;
 
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -35,7 +41,6 @@ import android.car.test.util.DisplayUtils.VirtualDisplaySession;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.SystemClock;
@@ -43,10 +48,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceControl;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.am.CarActivityService;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
@@ -57,6 +60,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -64,18 +71,23 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 @MediumTest
 public class CarActivityServiceTaskMonitorUnitTest {
     private static final String TAG = CarActivityServiceTaskMonitorUnitTest.class.getSimpleName();
 
     private static final long ACTIVITY_TIMEOUT_MS = 5000;
+    private static final long NO_ACTIVITY_TIMEOUT_MS = 1000;
     private static final long DEFAULT_TIMEOUT_MS = 10_000;
     private static final int SLEEP_MS = 50;
     private static CopyOnWriteArrayList<Activity> sTestActivities = new CopyOnWriteArrayList<>();
 
     private CarActivityService mService;
-    private final IBinder mToken = new Binder();
+    @Mock
+    private IBinder mToken;
+    @Captor
+    ArgumentCaptor<IBinder.DeathRecipient> mDeathRecipientCaptor;
+
     private ShellTaskOrganizer mTaskOrganizer;
     private FullscreenTaskListener mFullscreenTaskListener;
 
@@ -152,6 +164,33 @@ public class CarActivityServiceTaskMonitorUnitTest {
         mService.registerActivityLaunchListener(listenerB);
         startActivity(activityB);
         listenerB.assertTopTaskActivityLaunched();
+    }
+
+    @Test
+    public void testDeathRecipientIsSet() throws Exception {
+        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        mService.registerActivityLaunchListener(listenerA);
+
+        verify(mToken).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
+    }
+
+    @Test
+    public void testBinderDied_cleansUpDeathRecipient() throws Exception {
+        ComponentName activityA = toComponentName(getTestContext(), ActivityA.class);
+        FilteredLaunchListener listenerA = new FilteredLaunchListener(activityA);
+        mService.registerActivityLaunchListener(listenerA);
+
+        verify(mToken).linkToDeath(mDeathRecipientCaptor.capture(), anyInt());
+        mDeathRecipientCaptor.getValue().binderDied();
+
+        // Checks if binderDied() will clean-up the death recipient.
+        verify(mToken).unlinkToDeath(eq(mDeathRecipientCaptor.getValue()), anyInt());
+
+        startActivity(activityA);
+        // Starting a Activity shouldn't trigger the listener since the token is invalid.
+        assertWithMessage("Shouldn't trigger the ActivityLaunched listener")
+                .that(listenerA.waitForTopTaskActivityLaunched(NO_ACTIVITY_TIMEOUT_MS)).isFalse();
     }
 
     @Test
@@ -364,7 +403,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
          * {@link com.android.car.am.CarActivityService.ActivityLaunchListener}
          * that filters based on the component name or does not filter if component name is null.
          */
-        FilteredLaunchListener(@NonNull ComponentName desiredComponent) {
+        private FilteredLaunchListener(@NonNull ComponentName desiredComponent) {
             mDesiredComponent = desiredComponent;
         }
 
@@ -387,8 +426,12 @@ public class CarActivityServiceTaskMonitorUnitTest {
             mActivityLaunched.countDown();
         }
 
-        void assertTopTaskActivityLaunched() throws InterruptedException {
-            assertTrue(mActivityLaunched.await(DEFAULT_TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        private void assertTopTaskActivityLaunched() throws InterruptedException {
+            assertThat(waitForTopTaskActivityLaunched(DEFAULT_TIMEOUT_MS)).isTrue();
+        }
+
+        private boolean waitForTopTaskActivityLaunched(long timeoutMs) throws InterruptedException {
+            return mActivityLaunched.await(timeoutMs, TimeUnit.MILLISECONDS);
         }
     }
 }
