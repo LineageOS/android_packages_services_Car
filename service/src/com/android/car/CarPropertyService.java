@@ -593,7 +593,6 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void onPropertyChange(List<CarPropertyEvent> events) {
         Map<Client, List<CarPropertyEvent>> eventsToDispatch = new ArrayMap<>();
-
         synchronized (mLock) {
             for (int i = 0; i < events.size(); i++) {
                 CarPropertyEvent event = events.get(i);
@@ -616,16 +615,22 @@ public class CarPropertyService extends ICarProperty.Stub
                     p.add(event);
                 }
             }
+        }
 
-            // Parse the dispatch list to send events
-            for (Client client : eventsToDispatch.keySet()) {
-                try {
-                    client.onEvent(eventsToDispatch.get(client));
-                } catch (RemoteException ex) {
-                    // If we cannot send a record, its likely the connection snapped. Let binder
-                    // death handle the situation.
-                    Slogf.e(TAG, "onEvent calling failed",  ex);
-                }
+        // Parse the dispatch list to send events. We must call the callback outside the
+        // scoped lock since the callback might call some function in CarPropertyService
+        // which might cause dead-lock.
+        // In rare cases, if this specific client is unregistered after the lock but before
+        // the callback, we would call callback on an unregistered client which should be ok because
+        // 'onEvent' is an async oneway callback that might be delivered after unregistration
+        // anyway.
+        for (Client client : eventsToDispatch.keySet()) {
+            try {
+                client.onEvent(eventsToDispatch.get(client));
+            } catch (RemoteException ex) {
+                // If we cannot send a record, its likely the connection snapped. Let binder
+                // death handle the situation.
+                Slogf.e(TAG, "onEvent calling failed: " + ex);
             }
         }
     }
