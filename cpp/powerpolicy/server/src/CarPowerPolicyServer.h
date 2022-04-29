@@ -155,7 +155,6 @@ public:
 
     void connectToVhalHelper();
     void handleBinderDeath(const AIBinder* client);
-    void handleBinderUnlinked(const AIBinder* clientId);
     void handleVhalDeath();
 
     // Implements ICarPowerPolicySystemNotification.aidl.
@@ -232,7 +231,6 @@ private:
     android::base::Result<void> init(const sp<android::Looper>& looper);
 
     static void onBinderDied(void* cookie);
-    static void onBinderUnlinked(void* cookie);
     static std::string callbackToString(const CallbackInfo& callback);
 
     // For test-only.
