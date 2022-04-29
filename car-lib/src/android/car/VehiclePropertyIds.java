@@ -2101,8 +2101,25 @@ public final class VehiclePropertyIds {
     /**
      * EV charge percent limit.
      *
-     * <p>Indicates the maximum charge percent threshold set by the user. Returns a float value from
-     * 0 to 100. configArray contains the valid charge percent limit values.
+     * <p>Indicates the maximum charge percent threshold set by the user. Returns a float value
+     * from 0 to 100.
+     *
+     * <p>configArray is optional. If it is populated, it represents the valid charge percent limit
+     * values for the vehicle. Here is an example configArray:
+     * <ul>
+     *  <li>configArray[0] = 20
+     *  <li>configArray[1] = 40
+     *  <li>configArray[2] = 60
+     *  <li>configArray[3] = 80
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Float} property type
+     * </ul>
      *
      * <p>Required Permissions:
      * <ul>
