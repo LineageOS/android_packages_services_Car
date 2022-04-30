@@ -179,7 +179,13 @@ Return<hidlevs::V1_0::EvsResult> HidlCamera::doneWithFrame_1_1(
 
 Return<hidlevs::V1_0::EvsResult> HidlCamera::setMaster() {
     if (auto status = mAidlCamera->setPrimaryClient(); !status.isOk()) {
-        return Utils::makeToHidl(static_cast<EvsResult>(status.getServiceSpecificError()));
+        EvsResult err = static_cast<EvsResult>(status.getServiceSpecificError());
+        if (err == EvsResult::PERMISSION_DENIED) {
+            // HIDL EvsManager implementations return EvsResult::OWNERSHIP_LOST
+            // if the primary client exists already.
+            err = EvsResult::OWNERSHIP_LOST;
+        }
+        return Utils::makeToHidl(err);
     }
 
     return hidlevs::V1_0::EvsResult::OK;
@@ -239,8 +245,13 @@ Return<void> HidlCamera::setIntParameter(hidlevs::V1_1::CameraParam id, int32_t 
     std::vector<int32_t> aidlValues;
     auto status = mAidlCamera->setIntParameter(Utils::makeFromHidl(id), value, &aidlValues);
     if (!status.isOk()) {
-        _hidl_cb(Utils::makeToHidl(static_cast<EvsResult>(status.getServiceSpecificError())),
-                 {value});
+        EvsResult err = static_cast<EvsResult>(status.getServiceSpecificError());
+        if (err == EvsResult::PERMISSION_DENIED) {
+            // HIDL EvsManager implementations return EvsResult::INVALID_ARG if
+            // the client is not permitted to change parameters.
+            err = EvsResult::INVALID_ARG;
+        }
+        _hidl_cb(Utils::makeToHidl(err), {value});
         return {};
     }
 
