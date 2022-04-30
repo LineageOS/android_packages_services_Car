@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.builtin.content.pm.PackageManagerHelper.PROPERTY_CAR_SERVICE_PACKAGE_NAME;
+
 import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
 import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_TAG;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
@@ -25,6 +27,7 @@ import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT
 import android.annotation.MainThread;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
@@ -39,6 +42,8 @@ import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
 import android.content.Context;
+import android.content.om.OverlayInfo;
+import android.content.om.OverlayManager;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
@@ -50,6 +55,7 @@ import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 
@@ -699,6 +705,7 @@ public class ICarImpl extends ICar.Stub {
             dumpVersions(writer);
             dumpAllServices(writer);
             dumpAllHals(writer);
+            dumpRROs(writer);
         } else if ("--list".equals(args[0])) {
             dumpListOfServices(writer);
             return;
@@ -741,6 +748,38 @@ public class ICarImpl extends ICar.Stub {
             showDumpHelp(writer);
         } else {
             execShellCmd(args, writer);
+        }
+    }
+
+    private void dumpRROs(IndentingPrintWriter writer) {
+        writer.println("*Dump Car Service RROs*");
+
+        String packageName = SystemProperties.get(
+                PROPERTY_CAR_SERVICE_PACKAGE_NAME, /*def= */null);
+        if (packageName == null) {
+            writer.println("Car Service updatable package name is null.");
+            return;
+        }
+
+        OverlayManager manager = mContext.getSystemService(OverlayManager.class);
+
+        List<OverlayInfo> installedOverlaysForSystem = manager.getOverlayInfosForTarget(packageName,
+                UserHandle.SYSTEM);
+        writer.println("RROs for System User");
+        for (int i = 0; i < installedOverlaysForSystem.size(); i++) {
+            OverlayInfo overlayInfo = installedOverlaysForSystem.get(i);
+            writer.printf("Overlay: %s, Enabled: %b \n", overlayInfo.getPackageName(),
+                    overlayInfo.isEnabled());
+        }
+
+        int currentUser = ActivityManager.getCurrentUser();
+        writer.printf("RROs for Current User: %d\n", currentUser);
+        List<OverlayInfo> installedOverlaysForCurrentUser = manager.getOverlayInfosForTarget(
+                packageName, UserHandle.of(currentUser));
+        for (int i = 0; i < installedOverlaysForCurrentUser.size(); i++) {
+            OverlayInfo overlayInfo = installedOverlaysForCurrentUser.get(i);
+            writer.printf("Overlay: %s, Enabled: %b \n", overlayInfo.getPackageName(),
+                    overlayInfo.isEnabled());
         }
     }
 
