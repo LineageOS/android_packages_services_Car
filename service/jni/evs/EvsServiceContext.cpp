@@ -201,7 +201,7 @@ bool EvsServiceContext::openCamera(const char* id) {
     }
 
     if (isCameraOpened()) {
-        if (!strcmp(id, mCameraIdInUse)) {
+        if (mCameraIdInUse == id) {
             LOG(DEBUG) << "Camera " << id << " is has opened already.";
             return true;
         } else {
