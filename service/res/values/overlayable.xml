@@ -15,10 +15,10 @@
      These can be overridden by OEM's by using an RRO overlay app.
      See CarServiceOverlay*.apk for sample overlay apps.
      For Static RROs: Based on the target, define priority in this range
-     Android               1 - 999
-     SOC vendor            1000-1999
-     Supplier              2000- 9999
-     Car OEM               10000 -19999
+     Android                  1 - 999
+     SOC vendor            1000 - 1999
+     Supplier              2000 - 4999
+     Car OEM               5000 - 7999
      For Dynamic RROs: Use ro.android.car.carservice.overlay.packages system property to define
      dynamic RROs. Currently it is recommended to use only one dynamic RRO for CarService
      resource overlay.
