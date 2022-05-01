@@ -535,7 +535,15 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     }
 
     @Test
-    public void testAddTaskToQueue_shouldReturnCorrectCount() {
+    public void testAddTaskToQueue_shouldReturnCorrectCount() throws Exception {
+        // since addTaskToQueue() calls scheduleNextTask(), script executor will be invoked,
+        // which polls a task from the queue,
+        assertThat(mDataBroker.addTaskToQueue(mHighPriorityTask)).isEqualTo(1);
+        // this will poll the task that was just added, which means stats publisher count will be
+        // decremented to 0
+        // as long as the test does not make ScriptExecutor return, no other task will be polled
+        // because a script is currently running.
+        waitForTelemetryThreadToFinish();
         // StatsPublisher publishes once
         mDataBroker.addTaskToQueue(mHighPriorityTask);
         // MemoryPublisher publishes 3 times
