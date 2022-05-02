@@ -83,6 +83,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.io.File;
 import java.lang.ref.WeakReference;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -803,12 +804,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 int[] uids, List<String> vendorPackagePrefixes) {
             if (ArrayUtils.isEmpty(uids)) {
                 Slogf.w(TAG, "UID list is empty");
-                return null;
+                return Collections.emptyList();
             }
             CarWatchdogService service = mService.get();
             if (service == null) {
                 Slogf.w(TAG, "CarWatchdogService is not available");
-                return null;
+                return Collections.emptyList();
             }
             return service.mPackageInfoHandler.getPackageInfosForUids(uids, vendorPackagePrefixes);
         }
@@ -846,7 +847,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             CarWatchdogService service = mService.get();
             if (service == null) {
                 Slogf.w(TAG, "CarWatchdogService is not available");
-                return null;
+                return Collections.emptyList();
             }
             return service.mWatchdogPerfHandler.getTodayIoUsageStats();
         }
