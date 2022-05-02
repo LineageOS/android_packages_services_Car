@@ -64,7 +64,7 @@ public:
     // Returns the current Silent Mode.
     bool isSilentMode();
     // Stops monitoring the change on /sys/power/pm_silentmode_hw_state.
-    void stopMonitoringSilentModeHwState(bool shouldWaitThread);
+    void stopMonitoringSilentModeHwState();
     // Dumps the internal state.
     android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
@@ -82,7 +82,6 @@ private:
     std::string mSilentModeHwStateFilename;
     std::string mKernelSilentModeFilename;
     ISilentModeChangeHandler* mSilentModeChangeHandler;
-    std::thread mSilentModeMonitoringThread;
     std::atomic_bool mIsMonitoring = false;
     android::sp<android::automotive::SysfsMonitor> mSysfsMonitor;
     android::base::unique_fd mFdSilentModeHwState;

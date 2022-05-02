@@ -90,7 +90,7 @@ void SilentModeHandler::init() {
 }
 
 void SilentModeHandler::release() {
-    stopMonitoringSilentModeHwState(/*shouldWaitThread=*/false);
+    stopMonitoringSilentModeHwState();
 }
 
 bool SilentModeHandler::isSilentMode() {
@@ -98,18 +98,15 @@ bool SilentModeHandler::isSilentMode() {
     return mSilentModeByHwState;
 }
 
-void SilentModeHandler::stopMonitoringSilentModeHwState(bool shouldWaitThread) {
+void SilentModeHandler::stopMonitoringSilentModeHwState() {
     if (mIsMonitoring) {
-        mIsMonitoring = false;
         if (auto ret = mSysfsMonitor->unregisterFd(mFdSilentModeHwState.get()); !ret.ok()) {
             ALOGW("Unregistering %s from SysfsMonitor failed", mSilentModeHwStateFilename.c_str());
-        }
-        if (shouldWaitThread && mSilentModeMonitoringThread.joinable()) {
-            mSilentModeMonitoringThread.join();
         }
     }
     mFdSilentModeHwState.reset();
     mSysfsMonitor->release();
+    mIsMonitoring = false;
 }
 
 Result<void> SilentModeHandler::dump(int fd, const Vector<String16>& /*args*/) {
@@ -161,14 +158,12 @@ void SilentModeHandler::startMonitoringSilentModeHwState() {
         ALOGW("Failed to register %s to SysfsMonitor: %s", filename, ret.error().message().c_str());
         return;
     }
+    if (mSysfsMonitor->observe(); !ret.ok()) {
+        ALOGI("Failed to observe %s", filename);
+        return;
+    }
     mIsMonitoring = true;
-    mSilentModeMonitoringThread = std::thread([this, filename]() {
-        if (auto ret = mSysfsMonitor->observe(); !ret.ok()) {
-            ALOGI("Failed to observe %s", filename);
-            return;
-        }
-        ALOGI("Monitoring %s ended", mSilentModeHwStateFilename.c_str());
-    });
+
     // Read the current silent mode HW state.
     handleSilentModeHwStateChange();
 }

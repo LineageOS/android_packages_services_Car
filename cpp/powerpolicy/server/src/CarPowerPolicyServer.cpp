@@ -319,6 +319,12 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
     Mutex::Autolock lock(mMutex);
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
+    if (callback == nullptr) {
+        std::string errorMsg = "Cannot unregister a null callback";
+        ALOGW("%s", errorMsg.c_str());
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                  errorMsg.c_str());
+    }
     AIBinder* clientId = callback->asBinder().get();
     auto it = lookupPowerPolicyChangeCallback(mPolicyChangeCallbacks, clientId);
     if (it == mPolicyChangeCallbacks.end()) {
@@ -349,7 +355,7 @@ ScopedAStatus CarPowerPolicyServer::notifyCarServiceReady(PolicyState* policySta
     if (!status.isOk()) {
         return status;
     }
-    mSilentModeHandler.stopMonitoringSilentModeHwState(/*shouldWaitThread=*/false);
+    mSilentModeHandler.stopMonitoringSilentModeHwState();
     Mutex::Autolock lock(mMutex);
     policyState->policyId =
             isPowerPolicyAppliedLocked() ? mCurrentPowerPolicyMeta.powerPolicy->policyId : "";
