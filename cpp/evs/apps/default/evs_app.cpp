@@ -166,6 +166,11 @@ int main(int argc, char** argv)
             }
         } else if (strcmp(argv[i], "--gear") == 0) {
             // Gear signal to simulate
+            if (i + 1 >= argc) {
+                LOG(INFO) << "Gear signal is not set.  "
+                          << "Reverse signal will be used.";
+                continue;
+            }
             i += 1; // increase an index to next argument
             if (strcasecmp(argv[i], "Park") == 0) {
                 mockGearSignal = static_cast<int32_t>(VehicleGear::GEAR_PARK);
