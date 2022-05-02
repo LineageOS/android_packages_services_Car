@@ -382,4 +382,12 @@
     <install-in-user-type package="com.android.adservices.api">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- Remove camera apps when ENABLE_CAMERA_SERVICE is false. -->
+    <install-in-user-type package="com.android.car.hidecameraapps">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <!-- Android Camera2 package is included when ENABLE_CAMERA_SERVICE is true -->
+    <install-in-user-type package="com.android.camera2">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
