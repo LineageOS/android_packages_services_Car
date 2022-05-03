@@ -778,6 +778,7 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
+    @Nullable
     private Object[] convertToObjectArray(int[] input) {
         if (input == null) return null;
         Object[] output = new Object[input.length];

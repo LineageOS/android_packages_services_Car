@@ -781,7 +781,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         blockTopActivitiesIfNecessary();
     }
 
-    private AppBlockingPackageInfoWrapper[] verifyList(AppBlockingPackageInfo[] list) {
+    @Nullable
+    private AppBlockingPackageInfoWrapper[] verifyList(@Nullable AppBlockingPackageInfo[] list) {
         if (list == null) {
             return null;
         }

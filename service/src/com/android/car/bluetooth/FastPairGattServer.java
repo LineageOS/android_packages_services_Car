@@ -17,6 +17,7 @@ package com.android.car.bluetooth;
 
 import static com.android.car.bluetooth.FastPairUtils.AccountKey;
 
+import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
@@ -317,11 +318,13 @@ class FastPairGattServer {
         mSharedSecretKey = null;
         return null;
     }
+
     /**
      * Utilize the key set via setSharedSecretKey to attempt to decrypt the provided data
      * @param encoded data to be decrypted
      * @return decrypted data upon success; null otherwise
      */
+    @Nullable
     byte[] decrypt(byte[] encoded) {
         try {
             Cipher cipher = Cipher.getInstance("AES/ECB/NoPadding");
