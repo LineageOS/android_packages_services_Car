@@ -62,6 +62,7 @@ PRODUCT_PACKAGES += \
 # Android Camera service.
 ifneq ($(ENABLE_CAMERA_SERVICE), true)
 PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
+PRODUCT_PACKAGES += HideCameraApps
 endif
 
 # ENABLE_EVS_SERVICE must be set as true from the product's makefile if it wants to support
