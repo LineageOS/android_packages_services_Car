@@ -66,6 +66,7 @@ import com.android.car.systeminterface.SystemInterface;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -89,6 +90,7 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
+@Ignore("229982370")
 public class CarUxRestrictionsManagerServiceTest {
 
     private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";

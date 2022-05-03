@@ -330,6 +330,10 @@ ScopedAStatus CarPowerPolicyServer::unregisterPowerPolicyChangeCallback(
         return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT, errorCause);
     }
     if (mOnBinderDiedContexts.find(clientId) != mOnBinderDiedContexts.end()) {
+        // We don't set a callback for unlinkToDeath but need to call unlinkToDeath to clean up the
+        // registered death recipient.
+        mLinkUnlinkImpl->unlinkToDeath(clientId, mDeathRecipient.get(),
+                                       static_cast<void*>(mOnBinderDiedContexts[clientId].get()));
         mOnBinderDiedContexts.erase(clientId);
     }
     mPolicyChangeCallbacks.erase(it);
