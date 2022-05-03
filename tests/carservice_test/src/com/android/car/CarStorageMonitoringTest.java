@@ -644,8 +644,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     @Test
     public void testIntentOnExcessiveWrite() throws Exception {
-        final Duration intentDeliveryDeadline = Duration.ofSeconds(5);
-
         UidIoRecord record = new UidIoRecord(0,
             0,
             5120,
@@ -668,8 +666,6 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
 
     @Test
     public void testIntentOnExcessiveFsync() throws Exception {
-        final Duration intentDeliveryDeadline = Duration.ofSeconds(5);
-
         UidIoRecord record = new UidIoRecord(0,
             0,
             0,

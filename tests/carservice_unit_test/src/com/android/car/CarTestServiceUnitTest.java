@@ -91,7 +91,7 @@ public final class CarTestServiceUnitTest {
         doAnswer(invocation -> {
             ParcelFileDescriptor fd = (ParcelFileDescriptor) invocation.getArgument(0);
             // Duplicate the fd and never close it.
-            ParcelFileDescriptor fdDup = fd.dup();
+            fd.dup();
             return null;
         }).when(mCarImpl).dumpVhal(any(), any());
 

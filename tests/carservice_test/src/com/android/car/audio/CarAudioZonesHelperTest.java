@@ -168,7 +168,6 @@ public class CarAudioZonesHelperTest {
         SparseArray<CarAudioZone> zones = cazh.loadAudioZones();
 
 
-        List<Integer> zoneIds = getListOfZoneIds(zones);
         assertThat(zones.size()).isEqualTo(2);
         assertThat(zones.contains(PRIMARY_AUDIO_ZONE)).isTrue();
         assertThat(zones.contains(SECONDARY_ZONE_ID)).isTrue();

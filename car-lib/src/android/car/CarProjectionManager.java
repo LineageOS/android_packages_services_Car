@@ -336,7 +336,6 @@ public final class CarProjectionManager extends CarManagerBase {
     @SuppressWarnings("deprecation")
     private static Set<Integer> translateVoiceSearchFilter(int voiceSearchFilter) {
         Set<Integer> rv = new ArraySet<>(Integer.bitCount(voiceSearchFilter));
-        int i = 0;
         if ((voiceSearchFilter & PROJECTION_VOICE_SEARCH) != 0) {
             rv.add(KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP);
         }

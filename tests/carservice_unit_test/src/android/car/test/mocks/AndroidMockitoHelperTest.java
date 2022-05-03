@@ -173,8 +173,6 @@ public final class AndroidMockitoHelperTest {
 
     @Test
     public void testMockUmHasUserRestrictionForUser() {
-        VisitorImpl<UserInfo> visitor = new VisitorImpl<>();
-
         mockUmHasUserRestrictionForUser(mMockedUserManager, mTestUserHandle, "no_Homers_club",
                 /* value= */ true);
 

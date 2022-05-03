@@ -500,12 +500,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int user4Guest = 104;
         int user5 = 105;
 
-        UserHandle user1Handle = expectRegularUserExists(mMockedUserHandleHelper, user1);
-        UserHandle user2Handle = expectRegularUserExists(mMockedUserHandleHelper, user2);
-        UserHandle user3Handle = expectRegularUserExists(mMockedUserHandleHelper, user3);
-        UserHandle user4GuestHandle = expectGuestUserExists(mMockedUserHandleHelper, user4Guest,
-                /* isEphemeral= */ true);
-        UserHandle user5Handle = expectRegularUserExists(mMockedUserHandleHelper, user5);
+        expectRegularUserExists(mMockedUserHandleHelper, user1);
+        expectRegularUserExists(mMockedUserHandleHelper, user2);
+        expectRegularUserExists(mMockedUserHandleHelper, user3);
+        expectGuestUserExists(mMockedUserHandleHelper, user4Guest, /* isEphemeral= */ true);
+        expectRegularUserExists(mMockedUserHandleHelper, user5);
 
         mockGetCurrentUser(user1);
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
@@ -540,10 +539,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         int user1 = 101;
         int user2 = 102;
         int user3 = 103;
-
-        UserHandle user1Handle = UserHandle.of(user1);
-        UserHandle user2Handle = UserHandle.of(user2);
-        UserHandle user3Handle = UserHandle.of(user3);
 
         mockGetCurrentUser(user1);
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
@@ -1742,7 +1737,6 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     public void testCreateUser_halNotSupported_success() throws Exception {
         mockUserHalSupported(false);
         mockExistingUsersAndCurrentUser(mAdminUser);
-        int userId = mRegularUserId;
         mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
                 UserManagerHelper.FLAG_EPHEMERAL, mRegularUser);
 
@@ -2018,7 +2012,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     @Test
     public void testStartUserInBackground_fail() throws Exception {
         int userId = 101;
-        UserHandle user = expectRegularUserExists(mMockedUserHandleHelper, userId);
+        expectRegularUserExists(mMockedUserHandleHelper, userId);
         mockCurrentUser(mRegularUser);
         mockAmStartUserInBackground(userId, false);
 
