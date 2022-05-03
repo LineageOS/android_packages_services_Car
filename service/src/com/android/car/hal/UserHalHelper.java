@@ -16,6 +16,7 @@
 package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toIntArray;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.PRIVATE_CONSTRUCTOR;
 import static com.android.internal.util.Preconditions.checkArgument;
 
 import android.annotation.UserIdInt;
@@ -45,6 +46,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.android.car.hal.HalCallback.HalCallbackStatus;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.VisibleForTesting;
@@ -732,6 +734,7 @@ public final class UserHalHelper {
                 "not enough int32Values (minimum is %d) on %s", minSize, prop);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = PRIVATE_CONSTRUCTOR)
     private UserHalHelper() {
         throw new UnsupportedOperationException("contains only static methods");
     }
