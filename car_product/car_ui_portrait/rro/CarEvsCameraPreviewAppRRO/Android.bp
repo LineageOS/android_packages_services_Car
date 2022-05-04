@@ -25,6 +25,6 @@ android_app {
     ],
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
-        "androidx-constraintlayout_constraintlayout-core",
+        "androidx-constraintlayout_constraintlayout-solver",
     ],
 }
