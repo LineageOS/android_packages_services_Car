@@ -148,7 +148,6 @@ PRODUCT_PACKAGES += \
     CarMediaApp \
     CarMessengerApp \
     CarHTMLViewer \
-    CarHvacApp \
     CarMapsPlaceholder \
     CarLatinIME \
     CarSettings \
