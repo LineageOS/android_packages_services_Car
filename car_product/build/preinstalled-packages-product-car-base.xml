@@ -390,4 +390,11 @@
     <install-in-user-type package="com.android.camera2">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- Required by RotaryService -->
+    <install-in-user-type package="com.android.car.rotaryime">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
+    <install-in-user-type package="com.android.car.rotaryplayground">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
