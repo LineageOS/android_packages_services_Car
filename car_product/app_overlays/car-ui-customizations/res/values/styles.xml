@@ -63,6 +63,12 @@
         <item name="android:paddingEnd">@dimen/car_ui_padding_4</item>
     </style>
 
+    <style name="Widget.CarUi.SwitchPreference"/>
+
+    <style name="Widget.CarUi.SwitchPreference.Switch">
+        <item name="android:track">@drawable/car_ui_switch_track</item>
+    </style>
+
     <style name="Widget.CarUi.SeekbarPreference"/>
 
     <!-- Style applied to the seekbar widget within the seekbar preference -->
@@ -132,7 +138,5 @@
         <item name="android:height">0.01dp</item>
         <item name="android:background">@android:color/transparent</item>
     </style>
-
-
 
 </resources>
