@@ -153,6 +153,8 @@ PRODUCT_PACKAGES += \
     CarLatinIME \
     CarSettings \
     CarUsbHandler \
+    RotaryIME \
+    RotaryPlayground \
     android.car.builtin \
     car-frameworks-service \
     com.android.car.procfsinspector \
