@@ -741,7 +741,6 @@ public abstract class InstrumentClusterRenderingService extends Service {
                         .openFileDescriptor(filteredUid, "r")) {
                     if (fileDesc != null) {
                         bitmap = BitmapFactory.decodeFileDescriptor(fileDesc.getFileDescriptor());
-                        return bitmap;
                     } else {
                         Slogf.e(TAG, "Failed to create pipe for uri string: %s", uri);
                     }
