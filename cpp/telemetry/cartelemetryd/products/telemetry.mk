@@ -12,11 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# cartelemetryd service
-PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
-
 # Selinux public policies for cartelemetry
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/public
 
+# Enable Automotive Telemetry Services (cartelemetryd) only on specific devices, see b/186879271.
+# Cuttlefish (cf_*) targets are used for testing.
+ifneq ($(filter $(TARGET_PRODUCT), cf_x86_auto cf_x86_64_auto cf_arm64_auto seahawk gcar_emu_x86),)
+
+# cartelemetryd service
+PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
+
 # Selinux private policies for cartelemetry
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/private
+
+endif
