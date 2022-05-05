@@ -146,16 +146,16 @@ public class CarBluetoothServiceTest {
 
     /**
      * Preconditions:
-     * - Policy flag is true
+     * - Device connection policy flag is true
      *
      * Action:
      * - Initialize service
      *
      * Outcome:
-     * - Default policy should be created
+     * - Default device connection policy should be created
      */
     @Test
-    public void testResourceFlagTrue_doCreateDefaultPolicy() {
+    public void testConnectionResourceFlagTrue_doCreateDefaultConnectionPolicy() {
         when(mMockResources.getBoolean(
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(true);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
@@ -166,21 +166,61 @@ public class CarBluetoothServiceTest {
 
     /**
      * Preconditions:
-     * - Policy flag is false
+     * - Device connection policy flag is false
      *
      * Action:
      * - Initialize service
      *
      * Outcome:
-     * - Default policy should not be created
+     * - Default device connection policy should not be created
      */
     @Test
-    public void testResourceFlagFalse_doNotCreateDefaultPolicy() {
+    public void testConnectionResourceFlagFalse_doNotCreateDefaultConnectionPolicy() {
         when(mMockResources.getBoolean(
                 R.bool.useDefaultBluetoothConnectionPolicy)).thenReturn(false);
         mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
         mCarBluetoothService.init();
         mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
         Assert.assertFalse(mCarBluetoothService.isUsingDefaultConnectionPolicy());
+    }
+
+    /**
+     * Preconditions:
+     * - Power policy flag is true
+     *
+     * Action:
+     * - Initialize service
+     *
+     * Outcome:
+     * - Default power policy should be created
+     */
+    @Test
+    public void testPowerResourceFlagTrue_doCreateDefaultPowerPolicy() {
+        when(mMockResources.getBoolean(
+                R.bool.useDefaultBluetoothPowerPolicy)).thenReturn(true);
+        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
+        mCarBluetoothService.init();
+        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
+        Assert.assertTrue(mCarBluetoothService.isUsingDefaultPowerPolicy());
+    }
+
+    /**
+     * Preconditions:
+     * - Power policy flag is false
+     *
+     * Action:
+     * - Initialize service
+     *
+     * Outcome:
+     * - Default power policy should not be created
+     */
+    @Test
+    public void testPowerResourceFlagFalse_doNotCreateDefaultPowerPolicy() {
+        when(mMockResources.getBoolean(
+                R.bool.useDefaultBluetoothPowerPolicy)).thenReturn(false);
+        mCarBluetoothService = new CarBluetoothService(mMockContext, mMockUserSwitchService);
+        mCarBluetoothService.init();
+        mUserSwitchCallback.onServiceConnected(mMockPerUserCarService);
+        Assert.assertFalse(mCarBluetoothService.isUsingDefaultPowerPolicy());
     }
 }
