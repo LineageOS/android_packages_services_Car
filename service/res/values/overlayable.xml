@@ -36,6 +36,7 @@
           <item type="integer" name="audioVolumeKeyEventTimeoutMs"/>
           <item type="bool" name="displayOffMuteLockAllAudio"/>
           <item type="bool" name="useDefaultBluetoothConnectionPolicy"/>
+          <item type="bool" name="useDefaultBluetoothPowerPolicy"/>
           <item type="string" name="instrumentClusterRendererService" translatable="false"/>
           <item type="string" name="config_clusterHomeActivity" translatable="false"/>
           <item type="string" name="rotaryService" translatable="false"/>
