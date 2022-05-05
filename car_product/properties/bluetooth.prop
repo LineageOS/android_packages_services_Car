@@ -1,3 +1,12 @@
+# The default Bluetooth Class of Device
+# Service Field: 0x26 -> 38
+#     - Bit 17: Networking
+#     - Bit 18: Rendering
+#     - Bit 21: Audio
+# Major Class: 0x04 -> 4 (Audio / Video)
+# Minor Class: 0x08 -> 8 (Car Audio)
+bluetooth.device.class_of_device=38,4,8
+
 # The Bluetooth profiles that cars expect to have enabled. All other profiles
 # are disabled by default.
 bluetooth.profile.a2dp.sink.enabled=true
