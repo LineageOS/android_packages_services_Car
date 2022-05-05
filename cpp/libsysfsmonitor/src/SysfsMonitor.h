@@ -23,6 +23,7 @@
 
 #include <functional>
 #include <string>
+#include <thread>  // NOLINT(build/c++11)
 #include <unordered_set>
 
 namespace android {
@@ -51,6 +52,8 @@ private:
     android::base::unique_fd mEpollFd;
     std::unordered_set<int32_t> mMonitoringFds;
     CallbackFunc mCallback;
+    std::thread mMonitoringThread;
+    int mPipefd[2];
 };
 
 }  // namespace automotive
