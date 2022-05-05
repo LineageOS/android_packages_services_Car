@@ -77,6 +77,8 @@ public class CarBluetoothService implements CarServiceBase {
     // invalid. This lock protects all our internal objects.
     private final Object mPerUserLock = new Object();
 
+    // Default Bluetooth power policy, per user, enabled with an overlay
+    private final boolean mUseDefaultPowerPolicy;
     @GuardedBy("mPerUserLock")
     private BluetoothPowerPolicy mBluetoothPowerPolicy;
 
@@ -89,7 +91,7 @@ public class CarBluetoothService implements CarServiceBase {
     private BluetoothProfileInhibitManager mInhibitManager;
 
     // Default Bluetooth device connection policy, per user, enabled with an overlay
-    private final boolean mUseDefaultPolicy;
+    private final boolean mUseDefaultConnectionPolicy;
     @GuardedBy("mPerUserLock")
     private BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy;
 
@@ -156,8 +158,10 @@ public class CarBluetoothService implements CarServiceBase {
         mUserId = UserManagerHelper.USER_NULL;
         mContext = context;
         mUserServiceHelper = userSwitchService;
-        mUseDefaultPolicy = mContext.getResources().getBoolean(
+        mUseDefaultConnectionPolicy = mContext.getResources().getBoolean(
                 R.bool.useDefaultBluetoothConnectionPolicy);
+        mUseDefaultPowerPolicy = mContext.getResources().getBoolean(
+                R.bool.useDefaultBluetoothPowerPolicy);
     }
 
     /**
@@ -203,12 +207,16 @@ public class CarBluetoothService implements CarServiceBase {
         createBluetoothUserServiceLocked();
         createBluetoothDeviceManagerLocked();
         createBluetoothProfileInhibitManagerLocked();
-        createBluetoothPowerPolicyLocked();
+        // Determine if we need to begin the default power policy
+        mBluetoothPowerPolicy = null;
+        if (mUseDefaultPowerPolicy) {
+            createBluetoothPowerPolicyLocked();
+        }
         createBluetoothConnectionRetryManagerLocked();
 
-        // Determine if we need to begin the default policy
+        // Determine if we need to begin the default device connection policy
         mBluetoothDeviceConnectionPolicy = null;
-        if (mUseDefaultPolicy) {
+        if (mUseDefaultConnectionPolicy) {
             createBluetoothDeviceConnectionPolicyLocked();
         }
         if (DBG) {
@@ -468,7 +476,7 @@ public class CarBluetoothService implements CarServiceBase {
         }
     }
 
-     /**
+    /**
      * Determine if we are using the default device connection policy or not
      *
      * @return true if the default policy is active, false otherwise
@@ -476,6 +484,17 @@ public class CarBluetoothService implements CarServiceBase {
     public boolean isUsingDefaultConnectionPolicy() {
         synchronized (mPerUserLock) {
             return mBluetoothDeviceConnectionPolicy != null;
+        }
+    }
+
+    /**
+     * Determine if we are using the default power policy or not
+     *
+     * @return true if the default policy is active, false otherwise
+     */
+    public boolean isUsingDefaultPowerPolicy() {
+        synchronized (mPerUserLock) {
+            return mBluetoothPowerPolicy != null;
         }
     }
 
@@ -626,13 +645,23 @@ public class CarBluetoothService implements CarServiceBase {
         synchronized (mPerUserLock) {
             writer.printf("User ID: %d\n", mUserId);
             writer.printf("User Proxies: %s\n", mCarBluetoothUserService != null ? "Yes" : "No");
-            writer.printf("Using default policy? %s\n", mUseDefaultPolicy ? "Yes" : "No");
+            writer.printf("Using default connection policy? %s\n",
+                    mUseDefaultConnectionPolicy ? "Yes" : "No");
+            writer.printf("Using default power policy? %s\n",
+                    mUseDefaultPowerPolicy ? "Yes" : "No");
 
             // Device Connection Policy
             if (mBluetoothDeviceConnectionPolicy != null) {
                 mBluetoothDeviceConnectionPolicy.dump(writer);
             } else {
                 writer.printf("BluetoothDeviceConnectionPolicy: null\n");
+            }
+
+            // Power Policy
+            if (mBluetoothPowerPolicy != null) {
+                mBluetoothPowerPolicy.dump(writer);
+            } else {
+                writer.printf("BluetoothPowerPolicy: null\n");
             }
 
             // Device Manager status
