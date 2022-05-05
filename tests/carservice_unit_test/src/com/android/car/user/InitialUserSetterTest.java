@@ -728,6 +728,23 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    public void testDefaultBehavior_nonFirstBoot_ok_targetIsCurrentUserWhichIsEphemeral()
+            throws Exception {
+        mockGetAliveUsers(CURRENT_USER_ID);
+        expectEphemeralUserExists(mMockedUserHandleHelper, CURRENT_USER_ID);
+        UserHandle newUser = expectAdminUserExists(mMockedUserHandleHelper, USER_ID);
+        expectCreateFullUser(USER_ID, OWNER_NAME, UserManagerHelper.FLAG_ADMIN, newUser);
+        expectSwitchUser(USER_ID);
+
+        mSetter.set(new Builder(InitialUserSetter.TYPE_DEFAULT_BEHAVIOR).build());
+
+        verifyUserSwitched(USER_ID);
+        verifyFallbackDefaultBehaviorNeverCalled();
+        verifySystemUserUnlocked();
+        assertInitialUserSet(newUser);
+    }
+
+    @Test
     public void testDefaultBehavior_nonFirstBoot_fail_switchFail() throws Exception {
         expectHasInitialUser(USER_ID);
         expectSwitchUserFails(USER_ID);
@@ -974,6 +991,16 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
+    public void testHasInitialUser_hasOnlyEphemeralUser() {
+        mockIsHeadlessSystemUserMode(true);
+        mockGetAliveUsers(USER_SYSTEM, 10);
+        expectEphemeralUserExists(mMockedUserHandleHelper, 10);
+
+        // TODO(b/231473748): should call hasInitialUser() instead
+        assertThat(mSetter.hasValidInitialUser()).isFalse();
+    }
+
+    @Test
     public void testHasInitialUser_hasOnlyWorkProfile() {
         mockIsHeadlessSystemUserMode(true);
 
@@ -1081,6 +1108,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private UserHandle expectHasInitialUser(@UserIdInt int userId, boolean isGuest,
             boolean supportsOverrideUserIdProperty) {
         doReturn(true).when(mSetter).hasInitialUser();
+        doReturn(true).when(mSetter).hasValidInitialUser();
         doReturn(userId).when(mSetter).getInitialUser(supportsOverrideUserIdProperty);
         return isGuest
                 ? expectGuestUserExists(mMockedUserHandleHelper, userId, /* isEphemeral= */ true)
