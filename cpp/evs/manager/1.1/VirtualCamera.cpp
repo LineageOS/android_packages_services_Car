@@ -65,10 +65,20 @@ void VirtualCamera::shutdown() {
         LOG(WARNING) << "Virtual camera being shutdown while stream is running";
 
         // Tell the frame delivery pipeline we don't want any more frames
-        mStreamState = STOPPING;
+        {
+            std::unique_lock<std::mutex> lock(mFrameDeliveryMutex);
+            mStreamState = STOPPING;
+        }
 
         // Awakes the capture thread; this thread will terminate.
         mFramesReadySignal.notify_all();
+
+        // Join a capture thread
+        if (mCaptureThread.joinable()) {
+            mCaptureThread.join();
+        }
+
+        std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
 
         // Returns buffers held by this client
         for (auto&& [key, hwCamera] : mHalCamera) {
@@ -99,11 +109,6 @@ void VirtualCamera::shutdown() {
             pHwCamera->disownVirtualCamera(this);
         }
 
-        // Join a capture thread
-        if (mCaptureThread.joinable()) {
-            mCaptureThread.join();
-        }
-
         mFramesHeld.clear();
 
         // Drop our reference to our associated hardware camera
@@ -128,9 +133,23 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
         // A stopped stream gets no frames
         LOG(ERROR) << "A stopped stream should not get any frames";
         return false;
-    } else if (mFramesHeld[bufDesc.deviceId].size() >= mFramesAllowed) {
+    }
+
+    bool dropFrame;
+    int framesHeld;
+    // Part of dropframe logic here to limit the scope of the mutex lock
+    {
+        std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
+        framesHeld = mFramesHeld[bufDesc.deviceId].size();
+        dropFrame = framesHeld >= mFramesAllowed;
+        if (!dropFrame) {
+            // Keep a record of this frame so we can clean up if we have to in case of client death
+            mFramesHeld[bufDesc.deviceId].emplace_back(bufDesc);
+        }
+    }
+    if (dropFrame) {
         // Indicate that we declined to send the frame to the client because they're at quota
-        LOG(INFO) << "Skipping new frame as we hold " << mFramesHeld[bufDesc.deviceId].size()
+        LOG(INFO) << "Skipping new frame as we hold " << framesHeld
                   << " of " << mFramesAllowed;
 
         if (mStream_1_1 != nullptr) {
@@ -153,9 +172,6 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
 
         return false;
     } else {
-        // Keep a record of this frame so we can clean up if we have to in case of client death
-        mFramesHeld[bufDesc.deviceId].emplace_back(bufDesc);
-
         // v1.0 client uses an old frame-delivery mechanism.
         if (mStream_1_1 == nullptr) {
             // Forward a frame to v1.0 client
@@ -304,7 +320,10 @@ Return<EvsResult> VirtualCamera::startVideoStream(
     }
 
     // Validate our held frame count is starting out at zero as we expect
-    assert(mFramesHeld.size() == 0);
+    {
+        std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
+        assert(mFramesHeld.size() == 0);
+    }
 
     // Record the user's callback for use when we have a frame ready
     mStream = stream;
@@ -389,6 +408,7 @@ Return<EvsResult> VirtualCamera::startVideoStream(
                     break;
                 } else if (mStreamState == RUNNING) {
                     // Fetch frames and forward to the client
+                    std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
                     if (mFramesHeld.size() > 0 && mStream_1_1 != nullptr) {
                         // Pass this buffer through to our client
                         hardware::hidl_vec<BufferDesc_1_1> frames;
@@ -432,6 +452,8 @@ Return<EvsResult> VirtualCamera::startVideoStream(
 }
 
 Return<void> VirtualCamera::doneWithFrame(const BufferDesc_1_0& buffer) {
+    std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
+
     if (buffer.memHandle == nullptr) {
         LOG(ERROR) << "Ignoring doneWithFrame called with invalid handle";
     } else if (mFramesHeld.size() > 1) {
@@ -609,6 +631,7 @@ Return<void> VirtualCamera::getPhysicalCameraInfo(const hidl_string& deviceId,
 
 Return<EvsResult> VirtualCamera::doneWithFrame_1_1(
         const hardware::hidl_vec<BufferDesc_1_1>& buffers) {
+    std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
     for (auto&& buffer : buffers) {
         if (buffer.buffer.nativeHandle == nullptr) {
             LOG(WARNING) << "Ignoring doneWithFrame called with invalid handle";
@@ -905,6 +928,7 @@ std::string VirtualCamera::toString(const char* indent) const {
 
     std::string next_indent(indent);
     next_indent += "\t";
+    std::lock_guard<std::recursive_mutex> lock(mFramesHeldMutex);
     for (auto&& [id, queue] : mFramesHeld) {
         StringAppendF(&buffer, "%s%s: %d\n", next_indent.c_str(), id.c_str(),
                       static_cast<int>(queue.size()));
