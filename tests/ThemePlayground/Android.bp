@@ -31,7 +31,7 @@ android_app {
         "androidx.transition_transition",
         "androidx.legacy_legacy-support-v4",
         "androidx-constraintlayout_constraintlayout",
-        "androidx-constraintlayout_constraintlayout-core",
+        "androidx-constraintlayout_constraintlayout-solver",
         "car-apps-common",
         "car-ui-lib",
     ],

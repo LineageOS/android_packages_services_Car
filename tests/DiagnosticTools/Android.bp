@@ -44,7 +44,7 @@ android_test {
         "com.google.android.material_material",
         "androidx-constraintlayout_constraintlayout",
         "androidx.appcompat_appcompat",
-        "androidx-constraintlayout_constraintlayout-core",
+        "androidx-constraintlayout_constraintlayout-solver",
     ],
 
     libs: ["android.car-system-stubs"],

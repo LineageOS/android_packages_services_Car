@@ -16,8 +16,12 @@
 
 package com.android.car.hal;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * AidlHalPropConfig is a HalPropConfig with an AIDL backend.
@@ -118,6 +122,7 @@ public final class AidlHalPropConfig extends HalPropConfig {
      * Get the string representation for debugging.
      */
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public String toString() {
         return mConfig.toString();
     }
