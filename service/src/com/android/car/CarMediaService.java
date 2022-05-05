@@ -86,7 +86,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 /**
  * CarMediaService manages the currently active media source for car apps. This is different from
@@ -621,8 +620,12 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         String key = getMediaSourceKey(mode);
         String serialized = mSharedPrefs.getString(key, "");
-        return getComponentNameList(serialized).stream()
-                .map(name -> ComponentName.unflattenFromString(name)).collect(Collectors.toList());
+        List<String> componentNames = getComponentNameList(serialized);
+        ArrayList<ComponentName> results = new ArrayList<>(componentNames.size());
+        for (int i = 0; i < componentNames.size(); i++) {
+            results.add(ComponentName.unflattenFromString(componentNames.get(i)));
+        }
+        return results;
     }
 
     /** See {@link CarMediaManager#isIndependentPlaybackConfig}. */
@@ -1080,7 +1083,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     private String serializeComponentNameList(Deque<String> componentNames) {
-        return componentNames.stream().collect(Collectors.joining(COMPONENT_NAME_SEPARATOR));
+        return String.join(COMPONENT_NAME_SEPARATOR, componentNames);
     }
 
     private List<String> getComponentNameList(@NonNull String serialized) {
