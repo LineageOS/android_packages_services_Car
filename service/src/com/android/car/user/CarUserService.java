@@ -986,8 +986,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Integer androidFailureStatus = null;
 
             synchronized (mLockUser) {
-                if (halCallbackStatus != HalCallback.STATUS_OK) {
-                    Slogf.w(TAG, "invalid callback status (%s) for response %s",
+                if (halCallbackStatus != HalCallback.STATUS_OK || resp == null) {
+                    Slogf.w(TAG, "invalid callback status (%s) or null response (%s)",
                             Integer.toString(halCallbackStatus), resp);
                     sendUserSwitchResult(receiver, isLogout, resultStatus);
                     mUserIdForUserSwitchInProcess = USER_NULL;
@@ -1397,21 +1397,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         try {
             mHal.createUser(request, timeoutMs, (status, resp) -> {
+                String errorMessage = resp != null ? resp.errorMessage : null;
                 int resultStatus = UserCreationResult.STATUS_HAL_INTERNAL_FAILURE;
                 if (DBG) {
                     Slogf.d(TAG, "createUserResponse: status=%s, resp=%s",
                             UserHalHelper.halCallbackStatusToString(status), resp);
                 }
                 UserHandle user = null; // user returned in the result
-                if (status != HalCallback.STATUS_OK) {
-                    Slogf.w(TAG, "invalid callback status (%s) for response %s",
+                if (status != HalCallback.STATUS_OK || resp == null) {
+                    Slogf.w(TAG, "invalid callback status (%s) or null response (%s)",
                             UserHalHelper.halCallbackStatusToString(status), resp);
                     EventLogHelper.writeCarUserServiceCreateUserResp(status, resultStatus,
-                            resp.errorMessage);
+                            errorMessage);
                     removeCreatedUser(newUser, "HAL call failed with "
                             + UserHalHelper.halCallbackStatusToString(status));
                     sendUserCreationResult(receiver, resultStatus, /* androidFailureStatus= */ null,
-                            user, /* errorMessage= */ null,  /* internalErrorMessage= */ null);
+                            user, errorMessage,  /* internalErrorMessage= */ null);
                     return;
                 }
 
@@ -1429,13 +1430,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         Slogf.wtf(TAG, "Received invalid user switch status from HAL: %s", resp);
                 }
                 EventLogHelper.writeCarUserServiceCreateUserResp(status, resultStatus,
-                        resp.errorMessage);
+                        errorMessage);
                 if (user == null) {
                     removeCreatedUser(newUser, "HAL returned "
                             + UserCreationResult.statusToString(resultStatus));
                 }
                 sendUserCreationResult(receiver, resultStatus, /* androidFailureStatus= */ null,
-                        user, resp.errorMessage, /* internalErrorMessage= */ null);
+                        user, errorMessage, /* internalErrorMessage= */ null);
             });
         } catch (Exception e) {
             Slogf.w(TAG, e, "mHal.createUser(%s) failed", request);
@@ -1558,7 +1559,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 associations.toArray(new UserIdentificationSetAssociation[associations.size()]);
 
         mHal.setUserAssociation(timeoutMs, request, (status, resp) -> {
-            if (status != HalCallback.STATUS_OK) {
+            if (status != HalCallback.STATUS_OK || resp == null) {
                 Slogf.w(TAG, "setUserIdentificationAssociation(): invalid callback status (%s) for "
                         + "response %s", UserHalHelper.halCallbackStatusToString(status), resp);
                 if (resp == null || TextUtils.isEmpty(resp.errorMessage)) {
