@@ -396,6 +396,7 @@
     <string name="wtf_occurred_config" translatable="false">wtf_occurred:</string>
     <string name="wifi_netstats_config" translatable="false">wifi_netstats:</string>
     <string name="stats_and_connectivity_config" translatable="false">stats and connectivity:</string>
+    <string name="memory_config" translatable="false">memory:</string>
     <string name="add_metrics_config" translatable="false">Add MetricsConfig</string>
     <string name="remove_metrics_config" translatable="false">Remove MetricsConfig</string>
     <string name="download_data" translatable="false">Download Data</string>

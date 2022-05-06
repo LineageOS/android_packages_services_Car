@@ -55,8 +55,8 @@ interface IScriptExecutorListener {
 
   /**
    * Any changes to the following ERROR_TYPE_* constants must be also reflected in the following files:
-   * p/s/C/package/ScriptExecutor/src/ScriptExecutorListener.h
-   * p/s/C/service/src/com/android/car/telemetry/proto/telemetry.proto
+   * p/s/C/packages/ScriptExecutor/src/ScriptExecutorListener.h
+   * p/s/C/car-lib/src/android/car/telemetry/telemetry.proto
    */
 
   /**
@@ -80,5 +80,10 @@ interface IScriptExecutorListener {
    * inputs outside of expected range.
    */
   const int ERROR_TYPE_LUA_SCRIPT_ERROR = 3;
+
+  /**
+   * Used to log errors due to publisher failure.
+   */
+  const int ERROR_TYPE_PUBLISHER_FAILED = 4;
 }
 
