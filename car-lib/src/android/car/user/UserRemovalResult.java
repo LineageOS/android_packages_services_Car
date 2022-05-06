@@ -140,6 +140,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
     /** @hide */
     @DataClass.Generated.Member
     @AddedInOrBefore(majorVersion = 33)
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public static String statusToString(@Status int value) {
         switch (value) {
             case STATUS_SUCCESSFUL:

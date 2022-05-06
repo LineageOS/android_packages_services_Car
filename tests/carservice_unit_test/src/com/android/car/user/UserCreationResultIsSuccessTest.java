@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.android.car.user;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.car.user.UserSwitchResult;
+import android.car.user.UserCreationResult;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +28,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class UserSwitchResultTest {
+public final class UserCreationResultIsSuccessTest {
 
     private final int mStatus;
     private final boolean mExpectedIsSuccess;
 
-    public UserSwitchResultTest(int status, boolean expectedIsSuccess) {
+    public UserCreationResultIsSuccessTest(int status, boolean expectedIsSuccess) {
         mStatus = status;
         mExpectedIsSuccess = expectedIsSuccess;
     }
@@ -41,25 +41,19 @@ public final class UserSwitchResultTest {
     @Parameterized.Parameters
     public static Collection<?> statusToIsSuccessMapping() {
         return Arrays.asList(new Object[][]{
-            { UserSwitchResult.STATUS_SUCCESSFUL, true },
-            { UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND, true },
-            { UserSwitchResult.STATUS_ANDROID_FAILURE, false},
-            { UserSwitchResult.STATUS_HAL_FAILURE, false},
-            { UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, false},
-            { UserSwitchResult.STATUS_INVALID_REQUEST, false},
-            { UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE, false},
-            { UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO, false},
-            { UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST, false},
-            { UserSwitchResult.STATUS_NOT_SWITCHABLE, false},
-            { UserSwitchResult.STATUS_NOT_LOGGED_IN, false}
+            { UserCreationResult.STATUS_SUCCESSFUL, true},
+            { UserCreationResult.STATUS_ANDROID_FAILURE, false},
+            { UserCreationResult.STATUS_HAL_FAILURE, false},
+            { UserCreationResult.STATUS_HAL_INTERNAL_FAILURE, false},
+            { UserCreationResult.STATUS_INVALID_REQUEST, false}
         });
     }
 
     @Test
     public void testIsSuccess() {
-        UserSwitchResult result = new UserSwitchResult(mStatus, /* errorMessage= */ null);
+        UserCreationResult result = new UserCreationResult(mStatus);
 
-        assertWithMessage("result(%s).isSuccess()", UserSwitchResult.statusToString(mStatus))
+        assertWithMessage("result(%s).isSuccess()", UserCreationResult.statusToString(mStatus))
                 .that(result.isSuccess()).isEqualTo(mExpectedIsSuccess);
     }
 }

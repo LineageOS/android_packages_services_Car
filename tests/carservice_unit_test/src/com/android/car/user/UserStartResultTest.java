@@ -18,7 +18,7 @@ package com.android.car.user;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.car.user.UserSwitchResult;
+import android.car.user.UserStartResult;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +28,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class UserSwitchResultTest {
+public final class UserStartResultTest {
 
     private final int mStatus;
     private final boolean mExpectedIsSuccess;
 
-    public UserSwitchResultTest(int status, boolean expectedIsSuccess) {
+    public UserStartResultTest(int status, boolean expectedIsSuccess) {
         mStatus = status;
         mExpectedIsSuccess = expectedIsSuccess;
     }
@@ -41,25 +41,18 @@ public final class UserSwitchResultTest {
     @Parameterized.Parameters
     public static Collection<?> statusToIsSuccessMapping() {
         return Arrays.asList(new Object[][]{
-            { UserSwitchResult.STATUS_SUCCESSFUL, true },
-            { UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND, true },
-            { UserSwitchResult.STATUS_ANDROID_FAILURE, false},
-            { UserSwitchResult.STATUS_HAL_FAILURE, false},
-            { UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, false},
-            { UserSwitchResult.STATUS_INVALID_REQUEST, false},
-            { UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE, false},
-            { UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO, false},
-            { UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST, false},
-            { UserSwitchResult.STATUS_NOT_SWITCHABLE, false},
-            { UserSwitchResult.STATUS_NOT_LOGGED_IN, false}
+            { UserStartResult.STATUS_SUCCESSFUL, true },
+            { UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER, true},
+            { UserStartResult.STATUS_ANDROID_FAILURE, false},
+            { UserStartResult.STATUS_USER_DOES_NOT_EXIST, false}
         });
     }
 
     @Test
     public void testIsSuccess() {
-        UserSwitchResult result = new UserSwitchResult(mStatus, /* errorMessage= */ null);
+        UserStartResult result = new UserStartResult(mStatus);
 
-        assertWithMessage("result(%s).isSuccess()", UserSwitchResult.statusToString(mStatus))
+        assertWithMessage("result(%s).isSuccess()", UserStartResult.statusToString(mStatus))
                 .that(result.isSuccess()).isEqualTo(mExpectedIsSuccess);
     }
 }
