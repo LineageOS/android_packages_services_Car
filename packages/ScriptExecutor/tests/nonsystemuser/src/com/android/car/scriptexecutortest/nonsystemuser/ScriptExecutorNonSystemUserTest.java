@@ -77,6 +77,13 @@ public final class ScriptExecutorNonSystemUserTest {
             mResponseLatch.countDown();
         }
 
+        @Override
+        public void onMetricsReport(PersistableBundle report, PersistableBundle stateToPersist) {
+            mFinalResult = report;
+            mInterimResult = stateToPersist;
+            mResponseLatch.countDown();
+        }
+
         private boolean awaitResponse(int waitTimeSec) throws InterruptedException {
             return mResponseLatch.await(waitTimeSec, TimeUnit.SECONDS);
         }

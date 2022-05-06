@@ -59,7 +59,8 @@ public class PublisherFactory {
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
     private StatsPublisher mStatsPublisher;
     private ConnectivityPublisher mConnectivityPublisher;
-    private AbstractPublisher.PublisherFailureListener mFailureListener;
+    private MemoryPublisher mMemoryPublisher;
+    private AbstractPublisher.PublisherListener mPublisherListener;
     // To enable publishers to subscribe to session updates if needed.
     private final SessionController mSessionController;
     // To enable publishers to store pulled data in the event of suspend-to-RAM or shutdown.
@@ -85,20 +86,20 @@ public class PublisherFactory {
     /** Returns the publisher by given type. This method is thread-safe. */
     @NonNull
     public AbstractPublisher getPublisher(@NonNull TelemetryProto.Publisher.PublisherCase type) {
-        Preconditions.checkState(mFailureListener != null, "PublisherFactory is not initialized");
+        Preconditions.checkState(mPublisherListener != null, "PublisherFactory is not initialized");
         // No need to optimize locks, as this method is infrequently called.
         synchronized (mLock) {
             switch (type.getNumber()) {
                 case TelemetryProto.Publisher.VEHICLE_PROPERTY_FIELD_NUMBER:
                     if (mVehiclePropertyPublisher == null) {
                         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
-                                mCarPropertyService, mFailureListener, mTelemetryHandler);
+                                mCarPropertyService, mPublisherListener, mTelemetryHandler);
                     }
                     return mVehiclePropertyPublisher;
                 case TelemetryProto.Publisher.CARTELEMETRYD_FIELD_NUMBER:
                     if (mCarTelemetrydPublisher == null) {
                         mCarTelemetrydPublisher = new CarTelemetrydPublisher(
-                                mFailureListener, mTelemetryHandler);
+                                mPublisherListener, mTelemetryHandler);
                     }
                     return mCarTelemetrydPublisher;
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
@@ -107,7 +108,7 @@ public class PublisherFactory {
                         Preconditions.checkState(stats != null, "StatsManager not found");
                         StatsManagerProxy statsManager = new StatsManagerImpl(stats);
                         mStatsPublisher = new StatsPublisher(
-                                mFailureListener, statsManager, mPublisherDirectory,
+                                mPublisherListener, statsManager, mPublisherDirectory,
                                 mTelemetryHandler);
                     }
                     return mStatsPublisher;
@@ -118,12 +119,18 @@ public class PublisherFactory {
                                         mContext.getSystemService(NetworkStatsManager.class));
                         mConnectivityPublisher =
                                 new ConnectivityPublisher(
-                                        mFailureListener,
+                                        mPublisherListener,
                                         new NetworkStatsManagerProxy(networkStatsManager),
                                         mTelemetryHandler, mResultStore, mSessionController,
                                         mUidMapper);
                     }
                     return mConnectivityPublisher;
+                case TelemetryProto.Publisher.MEMORY_FIELD_NUMBER:
+                    if (mMemoryPublisher == null) {
+                        mMemoryPublisher = new MemoryPublisher(
+                                mPublisherListener, mTelemetryHandler, mResultStore);
+                    }
+                    return mMemoryPublisher;
                 default:
                     throw new IllegalArgumentException(
                             "Publisher type " + type + " is not supported");
@@ -144,17 +151,20 @@ public class PublisherFactory {
         if (mStatsPublisher != null) {
             mStatsPublisher.removeAllDataSubscribers();
         }
+        if (mMemoryPublisher != null) {
+            mMemoryPublisher.removeAllDataSubscribers();
+        }
     }
 
     /**
-     * Initializes the factory and sets the publisher failure listener for all the publishers.
+     * Initializes the factory and sets the publisher listener for all the publishers.
      * This is expected to be called before {@link #getPublisher} method. This is not the best
      * approach, but it suits for this case.
      */
-    public void initialize(@NonNull AbstractPublisher.PublisherFailureListener listener) {
+    public void initialize(@NonNull AbstractPublisher.PublisherListener listener) {
         Preconditions.checkState(
-                mFailureListener == null, "PublisherFactory is already initialized");
-        mFailureListener = listener;
+                mPublisherListener == null, "PublisherFactory is already initialized");
+        mPublisherListener = listener;
         for (TelemetryProto.Publisher.PublisherCase publisher : sForceInitPublishers) {
             getPublisher(publisher);
         }

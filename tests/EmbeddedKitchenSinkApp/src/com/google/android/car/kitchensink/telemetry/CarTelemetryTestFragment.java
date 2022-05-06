@@ -418,6 +418,52 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final String STATS_AND_CONNECTIVITY_CONFIG_NAME =
             METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.getName();
 
+    /** MemoryPublisher section. */
+    private static final String LUA_SCRIPT_ON_MEMORY =
+            new StringBuilder()
+                    .append("function onMemory(published_data, state)\n")
+                    .append("    local iterations = state['iterations']\n")
+                    .append("    if iterations == nil then\n")
+                    .append("        iterations = 0\n")
+                    .append("    end\n")
+                    .append("    state['iterations'] = iterations + 1\n")
+                    .append("    report = {}\n")
+                    .append("    local ts_key = 'timestamp_' .. iterations\n")
+                    .append("    report[ts_key] = published_data['timestamp']\n")
+                    .append("    local meminfo = published_data['meminfo']\n")
+                    .append("    local available_memory = string.match(meminfo, "
+                            + "'.*MemAvailable:%s*(%d+).*')\n")
+                    .append("    local mem_key = 'available_memory_' .. iterations\n")
+                    .append("    report[mem_key] = available_memory\n")
+                    .append("    if iterations >= 2 then \n")
+                    .append("        on_script_finished(report)\n")
+                    .append("    else \n")
+                    .append("        on_metrics_report(report, state)\n")
+                    .append("    end\n")
+                    .append("end\n")
+                    .toString();
+    private static final TelemetryProto.Publisher MEMORY_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setMemory(
+                            TelemetryProto.MemoryPublisher.newBuilder()
+                                    .setReadIntervalSec(3)
+                                    .setMaxPendingTasks(10)
+                                    .build())
+                    .build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_MEMORY_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("memory_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_MEMORY)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onMemory")
+                                    .setPublisher(MEMORY_PUBLISHER)
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
+                    .build();
+    private static final String MEMORY_CONFIG_NAME =
+            METRICS_CONFIG_MEMORY_V1.getName();
+
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
     private boolean mReceiveReportNotification = false;
@@ -538,6 +584,13 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveDrivingSessionsConfigBtnClick);
         view.findViewById(R.id.get_driving_sessions_report)
                 .setOnClickListener(this::onGetDrivingSessionsReportBtnClick);
+        /** MemoryPublisher section */
+        view.findViewById(R.id.send_memory_config)
+                .setOnClickListener(this::onSendMemoryConfigBtnClick);
+        view.findViewById(R.id.remove_memory_config)
+                .setOnClickListener(this::onRemoveMemoryConfigBtnClick);
+        view.findViewById(R.id.get_memory_report)
+                .setOnClickListener(this::onGetMemoryReportBtnClick);
         /** Print mem info button */
         view.findViewById(R.id.print_mem_info_btn).setOnClickListener(this::onPrintMemInfoBtnClick);
         return view;
@@ -716,6 +769,8 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onSendWifiNetstatsConfigBtnClick(View view) {
+        showOutput("If the config is added successfully, it will produce a report on the top "
+                + "3 wifi network traffic consumers after 1 driving sessions.");
         mCarTelemetryManager.addMetricsConfig(
                 WIFI_TOP_CONSUMERS_CONFIG_NAME,
                 METRICS_CONFIG_WIFI_TOP_CONSUMERS
@@ -904,6 +959,26 @@ public class CarTelemetryTestFragment extends Fragment {
     private void onGetDrivingSessionsReportBtnClick(View view) {
         mCarTelemetryManager.getFinishedReport(
                 WIFI_STATS_DRIVING_SESSIONS_CONFIG_NAME, mExecutor, mListener);
+    }
+
+    private void onSendMemoryConfigBtnClick(View view) {
+        showOutput("If the MetricsConfig is added successfully, it will produce 3 metrics "
+                + "reports on available memory. The reports are produced 3 seconds apart. "
+                + "After 3 reports, the MetricsConfig's lifecycle is considered finished.");
+        mCarTelemetryManager.addMetricsConfig(
+                MEMORY_CONFIG_NAME,
+                METRICS_CONFIG_MEMORY_V1.toByteArray(),
+                mExecutor,
+                mAddMetricsConfigCallback);
+    }
+
+    private void onRemoveMemoryConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig for memory...");
+        mCarTelemetryManager.removeMetricsConfig(MEMORY_CONFIG_NAME);
+    }
+
+    private void onGetMemoryReportBtnClick(View view) {
+        mCarTelemetryManager.getFinishedReport(MEMORY_CONFIG_NAME, mExecutor, mListener);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */
