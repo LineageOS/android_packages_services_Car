@@ -71,6 +71,8 @@ public:
 
     void onError(const ErrorType errorType, const char* message, const char* stackTrace);
 
+    void onMetricsReport(jobject reportBundle, jobject stateBundle);
+
     JNIEnv* getCurrentJNIEnv();
 
 private:
