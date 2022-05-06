@@ -246,6 +246,21 @@ public class CarBugreportManagerServiceTest {
                 "Caller current_app_name does not have the right signature");
     }
 
+    @Test
+    public void testCancelBugreport_failsIfNotSignedWithPlatformKeys() {
+        mService = new CarBugreportManagerService(mMockContext);
+        mService.init();
+        when(mMockPackageManager.checkSignatures(anyInt(), anyInt()))
+                .thenReturn(PackageManager.SIGNATURE_NO_MATCH);
+        when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
+
+        SecurityException expected =
+                expectThrows(SecurityException.class, () -> mService.cancelBugreport());
+
+        assertThat(expected).hasMessageThat().contains(
+                "Caller current_app_name does not have the right signature");
+    }
+
     private void mockDesignatedBugReportApp() {
         when(mMockPackageManager.checkSignatures(anyInt(), anyInt()))
                 .thenReturn(PackageManager.SIGNATURE_MATCH);
