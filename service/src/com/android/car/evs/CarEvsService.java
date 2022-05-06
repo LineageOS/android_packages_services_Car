@@ -78,6 +78,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.evs.EvsHalWrapper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
@@ -377,6 +378,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         public @CarEvsServiceState int getState() {
             synchronized (mLock) {
                 return mState;
+            }
+        }
+
+        @VisibleForTesting
+        void setState(@CarEvsServiceState int  newState) {
+            synchronized (mLock) {
+                mState = newState;
             }
         }
 
@@ -807,7 +815,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         mDisplayManager.registerDisplayListener(mDisplayListener, mHandler);
     }
 
-    private static EvsHalWrapper createHalWrapper(Context builtinContext,
+    static EvsHalWrapper createHalWrapper(Context builtinContext,
             EvsHalWrapper.HalEventCallback callback) {
         try {
             Class helperClass = builtinContext.getClassLoader().loadClass(
@@ -1195,6 +1203,42 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return mCameraIdOverride;
         } else {
             return mContext.getString(R.string.config_evsRearviewCameraId);
+        }
+    }
+
+    /**
+     * Manually sets a stream callback.
+     */
+    @VisibleForTesting
+    void setStreamCallback(@Nullable ICarEvsStreamCallback callback) {
+        synchronized (mLock) {
+            mStreamCallback = callback;
+        }
+    }
+
+    /**
+     * Manually sets a current service state.
+     */
+    @VisibleForTesting
+    void setServiceState(@CarEvsServiceState int newState) {
+        mStateEngine.setState(newState);
+    }
+
+    /**
+     * Manually chooses to use a gear selection property or not.
+     */
+    @VisibleForTesting
+    void setToUseGearSelection(boolean useGearSelection) {
+        mUseGearSelection = useGearSelection;
+    }
+
+    /**
+     * Manually sets the last EVS HAL event.
+     */
+    @VisibleForTesting
+    void setLastEvsHalEvent(long timestamp, @CarEvsServiceType int type, boolean on) {
+        synchronized (mLock) {
+            mLastEvsHalEvent = new EvsHalEvent(timestamp, type, on);
         }
     }
 
