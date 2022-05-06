@@ -34,6 +34,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.power.PolicyReader.POWER_STATE_ON;
 import static com.android.car.power.PolicyReader.POWER_STATE_WAIT_FOR_VHAL;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
@@ -2888,6 +2889,21 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     public void onError(int errorType, String msg, String stack) {
                         writer.println("Script error: " + errorType + ": " + msg);
                         writer.println("Stack: " + stack);
+                        writer.flush();
+                        resultLatch.countDown();
+                    }
+
+                    @Override
+                    public void onMetricsReport(
+                            @NonNull PersistableBundle report,
+                            @Nullable PersistableBundle stateToPersist) {
+                        writer.println("Script produced a report without finishing");
+                        report.size(); // unparcel()'s
+                        writer.println("report: " + report);
+                        if (stateToPersist != null) {
+                            stateToPersist.size(); // unparcel()'s
+                            writer.println("state to persist: " + stateToPersist);
+                        }
                         writer.flush();
                         resultLatch.countDown();
                     }
