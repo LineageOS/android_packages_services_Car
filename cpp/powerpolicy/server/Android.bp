@@ -102,3 +102,28 @@ cc_binary {
     init_rc: ["carpowerpolicyd.rc"],
     vintf_fragments: ["carpowerpolicyd.xml"],
 }
+
+cc_fuzz {
+    name: "android.frameworks.automotive.powerpolicy.CarPowerPolicyServer.fuzzer",
+    defaults: [
+        "carpowerpolicyserver_defaults",
+    ],
+    static_libs: [
+        "libbase",
+        "libbinder_random_parcel",
+        "libcutils",
+        "liblog",
+        "lib_carpowerpolicyserver",
+    ],
+    shared_libs: [
+        "libbinder_ndk",
+        "libbinder",
+        "libutils",
+    ],
+    srcs: ["src/fuzzer.cpp"],
+    fuzz_config: {
+        cc: [
+            "keithmok@google.com",
+        ],
+    },
+}

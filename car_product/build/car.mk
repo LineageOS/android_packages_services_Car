@@ -148,11 +148,12 @@ PRODUCT_PACKAGES += \
     CarMediaApp \
     CarMessengerApp \
     CarHTMLViewer \
-    CarHvacApp \
     CarMapsPlaceholder \
     CarLatinIME \
     CarSettings \
     CarUsbHandler \
+    RotaryIME \
+    RotaryPlayground \
     android.car.builtin \
     car-frameworks-service \
     com.android.car.procfsinspector \

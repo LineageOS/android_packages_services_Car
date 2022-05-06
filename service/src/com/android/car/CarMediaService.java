@@ -519,6 +519,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     @GuardedBy("mLock")
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpCurrentMediaComponentLocked(IndentingPrintWriter writer, String name,
             @CarMediaManager.MediaSourceMode int mode) {
         ComponentName componentName = mPrimaryMediaComponents[mode];
@@ -527,6 +528,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 : componentName.flattenToString());
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpLastMediaSources(IndentingPrintWriter writer, String name,
             @CarMediaManager.MediaSourceMode int mode) {
         writer.printf("%s media source history:\n", name);
@@ -544,6 +546,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         writer.decreaseIndent();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpSharedPrefs(IndentingPrintWriter writer) {
         Map<String, ?> allPrefs = mSharedPrefs.getAll();
         long lastUpdate = mSharedPrefs.getLong(LAST_UPDATE_KEY, -1);
