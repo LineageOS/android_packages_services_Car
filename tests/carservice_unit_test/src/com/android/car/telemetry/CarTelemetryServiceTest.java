@@ -473,6 +473,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         // run startMetricsCollection()
         mRunnableCaptor.getValue().run();
 
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
         verify(mMockDataBroker).addMetricsConfig(eq(METRICS_CONFIG_NAME), eq(METRICS_CONFIG_V1));
         verify(mMockSessionController).initSession();
     }
