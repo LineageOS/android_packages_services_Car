@@ -267,6 +267,20 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testIsIndependentPlaybackConfig_true() {
+        mCarMediaService.setIndependentPlaybackConfig(true);
+
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isTrue();
+    }
+
+    @Test
+    public void testIsIndependentPlaybackConfig_false() {
+        mCarMediaService.setIndependentPlaybackConfig(false);
+
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isFalse();
+    }
+
+    @Test
     public void testDefaultMediaSource() {
         initMediaService(MEDIA_CLASS);
 
