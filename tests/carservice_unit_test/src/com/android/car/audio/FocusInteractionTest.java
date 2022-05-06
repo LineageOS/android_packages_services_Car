@@ -17,7 +17,7 @@
 package com.android.car.audio;
 
 import static com.android.car.audio.CarAudioContext.AudioContext;
-import static com.android.car.audio.ContentObserverFactory.ContentObserverWrapper;
+import static com.android.car.audio.ContentObserverFactory.ContentChangeCallback;
 import static com.android.car.audio.FocusInteraction.AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI;
 import static com.android.car.audio.FocusInteraction.INTERACTION_CONCURRENT;
 import static com.android.car.audio.FocusInteraction.INTERACTION_EXCLUSIVE;
@@ -79,7 +79,7 @@ public class FocusInteractionTest {
         when(mMockCarAudioSettings.getContentResolverForUser(TEST_USER_ID))
                 .thenReturn(mMockContentResolver);
         doAnswer(invocation -> {
-            ContentObserverWrapper wrapper = (ContentObserverWrapper) invocation.getArguments()[0];
+            ContentChangeCallback wrapper = (ContentChangeCallback) invocation.getArguments()[0];
             mContentObserver = new ContentObserver(mMockHandler) {
                 @Override
                 public void onChange(boolean selfChange, Uri uri) {

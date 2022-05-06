@@ -28,11 +28,11 @@ final class ContentObserverFactory {
     private final Uri mUri;
 
     ContentObserverFactory(Uri uri) {
-        mUri = uri;
+        mUri = Objects.requireNonNull(uri, "Uri cannot be null");
     }
 
-    ContentObserver createObserver(ContentObserverWrapper wrapper) {
-        Objects.requireNonNull(wrapper, "Content Observer Wrapper cannot be null");
+    ContentObserver createObserver(ContentChangeCallback wrapper) {
+        Objects.requireNonNull(wrapper, "Content Change Callback cannot be null");
 
         return new ContentObserver(new Handler(Looper.getMainLooper())) {
             @Override
@@ -44,7 +44,7 @@ final class ContentObserverFactory {
         };
     }
 
-    interface ContentObserverWrapper {
+    interface ContentChangeCallback {
         void onChange();
     }
 }
