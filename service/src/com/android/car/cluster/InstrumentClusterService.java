@@ -19,6 +19,7 @@ import static android.car.builtin.app.ActivityManagerHelper.createActivityOption
 import static android.car.cluster.renderer.InstrumentClusterRenderingService.EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER;
 import static android.car.settings.CarSettings.Global.DISABLE_INSTRUMENTATION_SERVICE;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.SystemApi;
@@ -362,6 +363,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     /**
      * @deprecated {@link android.car.cluster.CarInstrumentClusterManager} is now deprecated.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     @Deprecated
     public IInstrumentClusterManagerService.Stub getManagerService() {
         return mClusterManagerService;
