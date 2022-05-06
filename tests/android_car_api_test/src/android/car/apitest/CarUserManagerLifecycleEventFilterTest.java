@@ -137,9 +137,11 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
         // Switch back to the initial user
         switchUser(initialUserId);
 
-        // Wait to receive events.
+        // Wait for all listeners to receive all expected events.
         waitUntil("Listeners have not received all expected events", EVENTS_TIMEOUT_MS,
-                () -> mListeners[4].listener.getAllReceivedEvents().size() == 2);
+                () -> (mListeners[0].listener.getAllReceivedEvents().size() == 3
+                        && mListeners[1].listener.getAllReceivedEvents().size() == 3
+                        && mListeners[4].listener.getAllReceivedEvents().size() == 2));
 
         // unregister listeners.
         for (Listener listener : mListeners) {
