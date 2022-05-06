@@ -241,8 +241,9 @@
     <string name="radio_na" translatable="false">N/A</string>
 
     <!-- sensors test -->
-    <string name="location_title" translatable="false">Location/Orientation:</string>
-    <string name="sensor_title" translatable="false">Car Sensor Data:</string>
+    <string name="location_title" translatable="false">Location Data:</string>
+    <string name="sensor_title" translatable="false">Sensor Data:</string>
+    <string name="car_sensor_title" translatable="false">Car Sensor Data:</string>
     <string name="sensor_na" translatable="false">N/A</string>
 
     <string name="sensor_environment" translatable="false">Environment[%1$s]: temperature=%2$s</string>
