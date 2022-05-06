@@ -157,6 +157,7 @@ public class ConnectivityPublisherTest {
     private final FakeDataSubscriber mDataSubscriberCell =
             new FakeDataSubscriber(METRICS_CONFIG, SUBSCRIBER_CELL_OEM_NONE);
 
+    private final FakePublisherListener mFakePublisherListener = new FakePublisherListener();
     private final FakeNetworkStatsManager mFakeManager = new FakeNetworkStatsManager();
 
     private ConnectivityPublisher mPublisher; // subject
@@ -176,7 +177,7 @@ public class ConnectivityPublisherTest {
         when(mMockUidMapper.getPackagesForUid(anyInt())).thenReturn(List.of("pkg1"));
         mPublisher =
                 new ConnectivityPublisher(
-                        this::onPublisherFailure, mFakeManager, mFakeHandler.getMockHandler(),
+                        mFakePublisherListener, mFakeManager, mFakeHandler.getMockHandler(),
                         mResultStore, mMockSessionController, mMockUidMapper);
         verify(mMockSessionController).registerCallback(
                 mSessionControllerCallbackArgumentCaptor.capture());
@@ -488,12 +489,6 @@ public class ConnectivityPublisherTest {
         assertThat(result.getLongArray("txBytes")).asList().containsExactly(1000L);
     }
 
-    private void onPublisherFailure(
-            AbstractPublisher publisher,
-            List<TelemetryProto.MetricsConfig> affectedConfigs,
-            Throwable error) {
-    }
-
     private static class FakeDataSubscriber extends DataSubscriber {
         private final ArrayList<PushedData> mPushedData = new ArrayList<>();
 
@@ -503,8 +498,9 @@ public class ConnectivityPublisherTest {
         }
 
         @Override
-        public void push(PersistableBundle data, boolean isLargeData) {
+        public int push(PersistableBundle data, boolean isLargeData) {
             mPushedData.add(new PushedData(data, isLargeData));
+            return mPushedData.size();
         }
 
         /** Returns the pushed data by the given index. */
