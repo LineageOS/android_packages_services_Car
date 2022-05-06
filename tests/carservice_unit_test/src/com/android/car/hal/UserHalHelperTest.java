@@ -41,6 +41,7 @@ import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserEx
 import static com.android.car.user.MockedUserHandleBuilder.expectGuestUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectSystemUserExists;
+import static com.android.car.user.MockedUserHandleBuilder.expectUserExistsButGettersFail;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -1343,6 +1344,30 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(usersInfo.existingUsers[0].userId).isEqualTo(100);
         assertThat(usersInfo.existingUsers[0].flags).isEqualTo(UserInfo.USER_FLAG_ADMIN);
         assertThat(usersInfo.existingUsers[1].userId).isEqualTo(200);
+        assertThat(usersInfo.existingUsers[1].flags).isEqualTo(0);
+    }
+
+    @Test
+    public void testNewUsersInfo_flagConversionFails() {
+        UserHandle user100 = expectAdminUserExists(mUserHandleHelper, 100);
+        UserHandle user200 = expectUserExistsButGettersFail(mUserHandleHelper, 200);
+        UserHandle user300 = expectRegularUserExists(mUserHandleHelper, 300);
+
+        mockGetAllUsers(user100, user200, user300);
+        mockAmGetCurrentUser(300); // just to make sure it's not used
+
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, mUserHandleHelper);
+
+        assertThat(usersInfo).isNotNull();
+        assertThat(usersInfo.currentUser.userId).isEqualTo(300);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(0);
+
+        assertThat(usersInfo.numberUsers).isEqualTo(2);
+        assertThat(usersInfo.existingUsers.length).isEqualTo(2);
+
+        assertThat(usersInfo.existingUsers[0].userId).isEqualTo(100);
+        assertThat(usersInfo.existingUsers[0].flags).isEqualTo(UserInfo.USER_FLAG_ADMIN);
+        assertThat(usersInfo.existingUsers[1].userId).isEqualTo(300);
         assertThat(usersInfo.existingUsers[1].flags).isEqualTo(0);
     }
 

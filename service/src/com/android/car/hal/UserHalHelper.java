@@ -594,21 +594,26 @@ public final class UserHalHelper {
         UsersInfo usersInfo = emptyUsersInfo();
         usersInfo.currentUser.userId = userId;
         UserHandle currentUser = null;
-        usersInfo.numberUsers = users.size();
-
-        ArrayList<UserInfo> halUsers = new ArrayList<>();
-        for (int i = 0; i < usersInfo.numberUsers; i++) {
+        int allUsersSize = users.size();
+        ArrayList<UserInfo> halUsers = new ArrayList<>(allUsersSize);
+        for (int i = 0; i < allUsersSize; i++) {
             UserHandle user = users.get(i);
-            if (user.getIdentifier() == usersInfo.currentUser.userId) {
-                currentUser = user;
+            try {
+                if (user.getIdentifier() == usersInfo.currentUser.userId) {
+                    currentUser = user;
+                }
+                UserInfo halUser = new UserInfo();
+                halUser.userId = user.getIdentifier();
+                halUser.flags = convertFlags(userHandleHelper, user);
+                halUsers.add(halUser);
+            } catch (Exception e) {
+                // Most likely the user was removed
+                Log.w(TAG, "newUsersInfo(): ignoring user " + user + " due to exception", e);
             }
-            UserInfo halUser = new UserInfo();
-            halUser.userId = user.getIdentifier();
-            halUser.flags = convertFlags(userHandleHelper, user);
-            halUsers.add(halUser);
         }
-
-        usersInfo.existingUsers = halUsers.toArray(new UserInfo[halUsers.size()]);
+        int existingUsersSize = halUsers.size();
+        usersInfo.numberUsers = existingUsersSize;
+        usersInfo.existingUsers = halUsers.toArray(new UserInfo[existingUsersSize]);
 
         if (currentUser != null) {
             usersInfo.currentUser.flags = convertFlags(userHandleHelper, currentUser);
