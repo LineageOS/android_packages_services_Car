@@ -54,11 +54,6 @@ public final class MockedUserHandleBuilder {
         return this;
     }
 
-    private MockedUserHandleBuilder setProfile() {
-        when(mUserHandleHelper.isProfileUser(mUser)).thenReturn(true);
-        return this;
-    }
-
     private MockedUserHandleBuilder setManagedProfile() {
         when(mUserHandleHelper.isManagedProfile(mUser)).thenReturn(true);
         return this;
@@ -74,6 +69,16 @@ public final class MockedUserHandleBuilder {
         return this;
     }
 
+    private MockedUserHandleBuilder expectGettersFail() {
+        RuntimeException exception = new RuntimeException("D'OH!");
+        when(mUserHandleHelper.isAdminUser(mUser)).thenThrow(exception);
+        when(mUserHandleHelper.isEnabledUser(mUser)).thenThrow(exception);
+        when(mUserHandleHelper.isProfileUser(mUser)).thenThrow(exception);
+        when(mUserHandleHelper.isPreCreatedUser(mUser)).thenThrow(exception);
+        when(mUserHandleHelper.isInitializedUser(mUser)).thenThrow(exception);
+        return this;
+    }
+
     private UserHandle build() {
         return mUser;
     }
@@ -81,6 +86,11 @@ public final class MockedUserHandleBuilder {
     public static UserHandle expectRegularUserExists(@NonNull UserHandleHelper userHandleHelper,
             @UserIdInt int userId) {
         return new MockedUserHandleBuilder(userHandleHelper, userId).build();
+    }
+
+    public static UserHandle expectUserExistsButGettersFail(
+            @NonNull UserHandleHelper userHandleHelper, @UserIdInt int userId) {
+        return new MockedUserHandleBuilder(userHandleHelper, userId).expectGettersFail().build();
     }
 
     public static UserHandle expectSystemUserExists(@NonNull UserHandleHelper userHandleHelper,
