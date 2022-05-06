@@ -613,6 +613,20 @@ public class DataBrokerImpl implements DataBroker {
         });
     }
 
+    private void onMetricsReport(
+            @NonNull PersistableBundle report, @Nullable PersistableBundle stateToPersist) {
+        if (DEBUG) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "A script produced a report without finishing.");
+        }
+        mTelemetryHandler.post(() -> {
+            String configName = endScriptExecution();
+            if (configName == null) {
+                return;
+            }
+            mDataBrokerListener.onMetricsReport(configName, report, stateToPersist);
+        });
+    }
+
     /** Listens for script execution status. Methods are called on the binder thread. */
     private static final class ScriptExecutorListener extends IScriptExecutorListener.Stub {
         private final WeakReference<DataBrokerImpl> mWeakDataBroker;
@@ -646,6 +660,16 @@ public class DataBrokerImpl implements DataBroker {
                 return;
             }
             dataBroker.onScriptError(errorType, message, stackTrace);
+        }
+
+        @Override
+        public void onMetricsReport(
+                @NonNull PersistableBundle report, @Nullable PersistableBundle stateToPersist) {
+            DataBrokerImpl dataBroker = mWeakDataBroker.get();
+            if (dataBroker == null) {
+                return;
+            }
+            dataBroker.onMetricsReport(report, stateToPersist);
         }
     }
 

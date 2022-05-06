@@ -54,6 +54,18 @@ interface IScriptExecutorListener {
   void onError(int errorType, String message, @nullable String stackTrace);
 
   /**
+   * Called by ScriptExecutor when a function completes successfully and produces a
+   * metrics report. The script is not "finished" yet.
+   * It can also provide optional state that the script wants CarTelemetryService to persist.
+   *
+   * @param report metrics report that will be uploaded.
+   * @param stateToPersist key-value pairs to persist
+   */
+  void onMetricsReport(
+          in PersistableBundle report,
+          in @nullable PersistableBundle stateToPersist);
+
+  /**
    * Any changes to the following ERROR_TYPE_* constants must be also reflected in the following files:
    * p/s/C/packages/ScriptExecutor/src/ScriptExecutorListener.h
    * p/s/C/car-lib/src/android/car/telemetry/telemetry.proto
