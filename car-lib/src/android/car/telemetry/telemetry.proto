@@ -103,9 +103,7 @@ message StatsPublisher {
 }
 
 // Publisher for connectivity stats.
-// It pulls connectivity metrics every 1 minute (configurable via android
-// properties).
-// TODO(b/197905656): pull netstats when driving session changes.
+// It pulls connectivity metrics when driving session changes.
 message ConnectivityPublisher {
   // Transports are from android.net.NetworkCapabilities.
   enum Transport {
@@ -129,6 +127,26 @@ message ConnectivityPublisher {
   optional OemType oem_type = 2;
 }
 
+// Publisher for device-wide memory statistics.
+// It pulls data from /proc/meminfo every N seconds, where N is the read_interval_sec.
+message MemoryPublisher {
+  // Required.
+  // The number of seconds in between each memory snapshot.
+  // The smallest acceptable read interval is 1, which means one snapshot per second.
+  optional int32 read_interval_sec = 1;
+
+  // Optional.
+  // The maximum number of memory snapshots to collect before terminating the MetricsConfig.
+  // If unspecified, data will be collected until Lua script marks the MetricsConfig as finished
+  // or MetricsConfig is removed.
+  optional int32 max_snapshots = 2;
+
+  // Required.
+  // The maximum number of pending script execution tasks that the MemoryPublisher can produce
+  // before the publisher is throttled (rate-limited).
+  optional int32 max_pending_tasks = 3;
+}
+
 // Specifies data publisher and its parameters.
 message Publisher {
   oneof publisher {
@@ -136,6 +154,7 @@ message Publisher {
     CarTelemetrydPublisher cartelemetryd = 2;
     StatsPublisher stats = 3;
     ConnectivityPublisher connectivity = 4;
+    MemoryPublisher memory = 5;
   }
 }
 
@@ -160,7 +179,7 @@ message Subscriber {
 // A message that encapsulates an error that's produced when collecting metrics.
 // Any changes here should also be reflected on
 // p/s/C/service/src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl
-// p/s/C/package/ScriptExecutor/src/ScriptExecutorListener.h
+// p/s/C/packages/ScriptExecutor/src/ScriptExecutorListener.h
 message TelemetryError {
   enum ErrorType {
     // Not used.
@@ -176,6 +195,9 @@ message TelemetryError {
     // Used to log errors by a script itself, for instance, when a script received inputs outside
     // of expected range.
     LUA_SCRIPT_ERROR = 3;
+
+    // Used to log errors that occur due publisher failures.
+    PUBLISHER_FAILED = 4;
   }
 
   // Required.

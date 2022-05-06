@@ -87,12 +87,12 @@ public class ConnectivityPublisher extends AbstractPublisher {
     private NetworkStatsManagerProxy mNetworkStatsManager;
 
     ConnectivityPublisher(
-            @NonNull PublisherFailureListener failureListener,
+            @NonNull PublisherListener listener,
             @NonNull NetworkStatsManagerProxy networkStatsManager,
             @NonNull Handler telemetryHandler,
             @NonNull ResultStore resultStore,
             @NonNull SessionController sessionController, @NonNull UidPackageMapper uidMapper) {
-        super(failureListener);
+        super(listener);
         mNetworkStatsManager = networkStatsManager;
         mTelemetryHandler = telemetryHandler;
         mResultStore = resultStore;

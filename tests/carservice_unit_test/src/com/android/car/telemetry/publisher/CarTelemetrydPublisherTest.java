@@ -49,8 +49,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.List;
-
 @RunWith(MockitoJUnitRunner.class)
 public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase {
     private static final String SERVICE_NAME = ICarTelemetryInternal.DESCRIPTOR + "/default";
@@ -63,15 +61,12 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.IMMEDIATE);
+    private final FakePublisherListener mFakePublisherListener = new FakePublisherListener();
 
     @Mock private IBinder mMockBinder;
     @Mock private DataSubscriber mMockDataSubscriber;
 
     @Captor private ArgumentCaptor<IBinder.DeathRecipient> mLinkToDeathCallbackCaptor;
-
-    // These 2 variables are set in onPublisherFailure() callback.
-    @Nullable private Throwable mPublisherFailure;
-    @Nullable private List<TelemetryProto.MetricsConfig> mFailedConfigs;
 
     private FakeCarTelemetryInternal mFakeCarTelemetryInternal;
     private CarTelemetrydPublisher mPublisher;
@@ -83,7 +78,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
     @Before
     public void setUp() throws Exception {
         mPublisher = new CarTelemetrydPublisher(
-                this::onPublisherFailure, mFakeHandlerWrapper.getMockHandler());
+                mFakePublisherListener, mFakeHandlerWrapper.getMockHandler());
         mFakeCarTelemetryInternal = new FakeCarTelemetryInternal(mMockBinder);
         when(mMockDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
         when(mMockBinder.queryLocalInterface(any())).thenReturn(mFakeCarTelemetryInternal);
@@ -173,9 +168,9 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         mLinkToDeathCallbackCaptor.getValue().binderDied();
 
         assertThat(mFakeCarTelemetryInternal.mSetListenerCallCount).isEqualTo(1);
-        assertThat(mPublisherFailure).hasMessageThat()
+        assertThat(mFakePublisherListener.mPublisherFailure).hasMessageThat()
                 .contains("ICarTelemetryInternal binder died");
-        assertThat(mFailedConfigs).hasSize(1);  // got all the failed configs
+        assertThat(mFakePublisherListener.mFailedConfigs).hasSize(1);  // got all the failed configs
     }
 
     @Test
@@ -184,15 +179,9 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
         mPublisher.addDataSubscriber(mMockDataSubscriber);
 
-        assertThat(mPublisherFailure).hasMessageThat()
+        assertThat(mFakePublisherListener.mPublisherFailure).hasMessageThat()
                 .contains("Cannot set CarData listener");
-        assertThat(mFailedConfigs).hasSize(1);
-    }
-
-    private void onPublisherFailure(AbstractPublisher publisher,
-            List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error) {
-        mPublisherFailure = error;
-        mFailedConfigs = affectedConfigs;
+        assertThat(mFakePublisherListener.mFailedConfigs).hasSize(1);
     }
 
     private static class FakeCarTelemetryInternal implements ICarTelemetryInternal {
