@@ -81,8 +81,8 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     };
 
     CarTelemetrydPublisher(
-            @NonNull PublisherFailureListener failureListener, @NonNull Handler telemetryHandler) {
-        super(failureListener);
+            @NonNull PublisherListener listener, @NonNull Handler telemetryHandler) {
+        super(listener);
         this.mTelemetryHandler = telemetryHandler;
     }
 
