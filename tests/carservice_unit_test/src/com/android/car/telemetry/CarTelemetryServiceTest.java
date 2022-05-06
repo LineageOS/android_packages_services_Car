@@ -400,6 +400,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
 
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
         assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isNotNull();
+        verify(mMockDataBroker).scheduleNextTask();
     }
 
     @Test
@@ -412,6 +413,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
         verify(mMockReportReadyListener, never()).onReady(any());
+        verify(mMockDataBroker).scheduleNextTask();
     }
 
     @Test
@@ -425,6 +427,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
         assertThat(mResultStore.getFinalResult(METRICS_CONFIG_NAME, false)).isNotNull();
         verify(mMockReportReadyListener).onReady(eq(METRICS_CONFIG_NAME));
+        verify(mMockDataBroker).scheduleNextTask();
     }
 
     @Test
@@ -439,6 +442,24 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
         assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNotNull();
         verify(mMockReportReadyListener).onReady(eq(METRICS_CONFIG_NAME));
+        verify(mMockDataBroker).scheduleNextTask();
+    }
+
+    @Test
+    public void testOnMetricsReport_savesReportAndConfigStillActive() throws Exception {
+        mService.setReportReadyListener(mMockReportReadyListener);
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+        PersistableBundle bundle = new PersistableBundle();
+
+        mDataBrokerListener.onMetricsReport(METRICS_CONFIG_NAME, bundle, bundle);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs())
+                .containsExactly(METRICS_CONFIG_V1);
+        assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isEqualTo(bundle);
+        assertThat(mResultStore.getFinalResult(METRICS_CONFIG_NAME, false)).isEqualTo(bundle);
+        verify(mMockReportReadyListener).onReady(eq(METRICS_CONFIG_NAME));
+        verify(mMockDataBroker).scheduleNextTask();
     }
 
     @Test
