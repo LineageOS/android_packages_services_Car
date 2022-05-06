@@ -42,22 +42,6 @@ namespace {
 
 const size_t kMaxBinderThreadCount = 16;
 
-void sigHandler(int sig) {
-    IPCThreadState::self()->stopProcess();
-    ServiceManager::terminateServices();
-    ALOGW("car watchdog server terminated on receiving signal %d.", sig);
-    exit(1);
-}
-
-void registerSigHandler() {
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = sigHandler;
-    sigaction(SIGQUIT, &sa, nullptr);
-    sigaction(SIGTERM, &sa, nullptr);
-}
-
 }  // namespace
 
 int main(int /*argc*/, char** /*argv*/) {
@@ -71,8 +55,6 @@ int main(int /*argc*/, char** /*argv*/) {
         ServiceManager::terminateServices();
         exit(result.error().code());
     }
-
-    registerSigHandler();
 
     // Wait for the service manager before starting binder mediator.
     while (android::base::GetProperty("init.svc.servicemanager", "") != "running") {
