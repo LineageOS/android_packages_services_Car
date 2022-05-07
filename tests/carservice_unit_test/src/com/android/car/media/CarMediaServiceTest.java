@@ -119,6 +119,8 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
         when(mContext.getSharedPreferences(anyString(), anyInt()))
                 .thenReturn(mMockSharedPreferences);
+        when(mMockSharedPreferences.getString(anyString(), anyString())).thenReturn(
+                MEDIA_COMPONENT.flattenToString() + "," + MEDIA_COMPONENT2.flattenToString());
         when(mMockSharedPreferences.edit()).thenReturn(mMockSharedPreferencesEditor);
         when(mMockSharedPreferencesEditor.putInt(anyString(), anyInt()))
                 .thenReturn(mMockSharedPreferencesEditor);
@@ -264,6 +266,28 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         mCarMediaService.setMediaSource(MEDIA_COMPONENT, MEDIA_SOURCE_MODE_PLAYBACK);
 
         verify(listener, never()).onMediaSourceChanged(MEDIA_COMPONENT);
+    }
+
+    @Test
+    public void testGetLastMediaSources() {
+        initMediaService();
+
+        assertThat(mCarMediaService.getLastMediaSources(MEDIA_SOURCE_MODE_PLAYBACK))
+                .containsExactly(MEDIA_COMPONENT, MEDIA_COMPONENT2);
+    }
+
+    @Test
+    public void testIsIndependentPlaybackConfig_true() {
+        mCarMediaService.setIndependentPlaybackConfig(true);
+
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isTrue();
+    }
+
+    @Test
+    public void testIsIndependentPlaybackConfig_false() {
+        mCarMediaService.setIndependentPlaybackConfig(false);
+
+        assertThat(mCarMediaService.isIndependentPlaybackConfig()).isFalse();
     }
 
     @Test
