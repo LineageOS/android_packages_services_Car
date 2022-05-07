@@ -179,6 +179,7 @@ public final class UserCreationResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public static String statusToString(@Status int value) {
         switch (value) {

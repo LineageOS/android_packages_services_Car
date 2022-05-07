@@ -111,6 +111,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
 
     /** @hide */
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public static String statusToString(@Status int value) {
         switch (value) {
@@ -187,6 +188,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
