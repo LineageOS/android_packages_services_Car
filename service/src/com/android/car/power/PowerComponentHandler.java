@@ -433,6 +433,11 @@ public final class PowerComponentHandler {
         }
 
         @Override
+        public boolean isUserControllable() {
+            return true;
+        }
+
+        @Override
         public boolean isEnabled() {
             return mBluetoothAdapter.isEnabled();
         }
@@ -493,12 +498,6 @@ public final class PowerComponentHandler {
                     Slogf.w(TAG, "Unknown component(%d)", component);
                     return null;
             }
-        }
-    }
-
-    static class PowerComponentException extends Exception {
-        PowerComponentException(String message) {
-            super(message);
         }
     }
 }
