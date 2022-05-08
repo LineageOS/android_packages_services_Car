@@ -15,10 +15,6 @@
  */
 package com.android.car.user;
 
-import static android.car.user.UserCreationResult.STATUS_ANDROID_FAILURE;
-import static android.car.user.UserCreationResult.STATUS_HAL_FAILURE;
-import static android.car.user.UserCreationResult.STATUS_HAL_INTERNAL_FAILURE;
-import static android.car.user.UserCreationResult.STATUS_INVALID_REQUEST;
 import static android.car.user.UserCreationResult.STATUS_SUCCESSFUL;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -31,15 +27,6 @@ import android.os.UserHandle;
 import org.junit.Test;
 
 public final class UserCreationResultTest {
-
-    @Test
-    public void testIsSuccess() {
-        assertThat(new UserCreationResult(STATUS_SUCCESSFUL).isSuccess()).isTrue();
-        assertThat(new UserCreationResult(STATUS_HAL_FAILURE).isSuccess()).isFalse();
-        assertThat(new UserCreationResult(STATUS_HAL_INTERNAL_FAILURE).isSuccess()).isFalse();
-        assertThat(new UserCreationResult(STATUS_INVALID_REQUEST).isSuccess()).isFalse();
-        assertThat(new UserCreationResult(STATUS_ANDROID_FAILURE).isSuccess()).isFalse();
-    }
 
     @Test
     public void testConstructor_invalidStatus() {

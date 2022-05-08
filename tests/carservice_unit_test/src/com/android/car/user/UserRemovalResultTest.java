@@ -18,7 +18,7 @@ package com.android.car.user;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.car.user.UserSwitchResult;
+import android.car.user.UserRemovalResult;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,12 +28,12 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class UserSwitchResultTest {
+public final class UserRemovalResultTest {
 
     private final int mStatus;
     private final boolean mExpectedIsSuccess;
 
-    public UserSwitchResultTest(int status, boolean expectedIsSuccess) {
+    public UserRemovalResultTest(int status, boolean expectedIsSuccess) {
         mStatus = status;
         mExpectedIsSuccess = expectedIsSuccess;
     }
@@ -41,25 +41,21 @@ public final class UserSwitchResultTest {
     @Parameterized.Parameters
     public static Collection<?> statusToIsSuccessMapping() {
         return Arrays.asList(new Object[][]{
-            { UserSwitchResult.STATUS_SUCCESSFUL, true },
-            { UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND, true },
-            { UserSwitchResult.STATUS_ANDROID_FAILURE, false},
-            { UserSwitchResult.STATUS_HAL_FAILURE, false},
-            { UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, false},
-            { UserSwitchResult.STATUS_INVALID_REQUEST, false},
-            { UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE, false},
-            { UserSwitchResult.STATUS_TARGET_USER_ALREADY_BEING_SWITCHED_TO, false},
-            { UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST, false},
-            { UserSwitchResult.STATUS_NOT_SWITCHABLE, false},
-            { UserSwitchResult.STATUS_NOT_LOGGED_IN, false}
+            { UserRemovalResult.STATUS_SUCCESSFUL, true},
+            { UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL, true},
+            { UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED, true},
+            { UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL, true},
+            { UserRemovalResult.STATUS_ANDROID_FAILURE, false},
+            { UserRemovalResult.STATUS_INVALID_REQUEST, false},
+            { UserRemovalResult.STATUS_USER_DOES_NOT_EXIST, false}
         });
     }
 
     @Test
     public void testIsSuccess() {
-        UserSwitchResult result = new UserSwitchResult(mStatus, /* errorMessage= */ null);
+        UserRemovalResult result = new UserRemovalResult(mStatus);
 
-        assertWithMessage("result(%s).isSuccess()", UserSwitchResult.statusToString(mStatus))
+        assertWithMessage("result(%s).isSuccess()", UserRemovalResult.statusToString(mStatus))
                 .that(result.isSuccess()).isEqualTo(mExpectedIsSuccess);
     }
 }

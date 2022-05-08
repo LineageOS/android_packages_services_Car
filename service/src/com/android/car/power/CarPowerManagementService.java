@@ -465,17 +465,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void doHandlePowerStateChange() {
         CpmsState state;
         synchronized (mLock) {
-            state = mPendingPowerStates.peekFirst();
-            mPendingPowerStates.clear();
+            state = mPendingPowerStates.pollFirst();
             if (state == null) {
-                Slogf.e(TAG, "Null power state was requested");
+                Slogf.w(TAG, "No more power state to process");
                 return;
             }
             Slogf.i(TAG, "doHandlePowerStateChange: newState=%s", state.name());
             if (!needPowerStateChangeLocked(state)) {
+                // We may need to process the pending power state request.
+                if (!mPendingPowerStates.isEmpty()) {
+                    Slogf.i(TAG, "There is a pending power state change request. requesting the "
+                            + "processing...");
+                    mHandler.handlePowerStateChange();
+                }
                 return;
             }
             // now real power change happens. Whatever was queued before should be all cancelled.
+            mPendingPowerStates.clear();
             cancelWaitingForCompletion();
             mCurrentState = state;
         }
