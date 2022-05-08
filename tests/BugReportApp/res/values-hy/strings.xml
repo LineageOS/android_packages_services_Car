@@ -19,7 +19,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="2596316479611335185">"Հաղորդում վրիպակի մասին"</string>
     <string name="bugreport_info_quit" msgid="5590138890181142473">"Փակել"</string>
-    <string name="bugreport_info_start" msgid="667324824650830832">"Գործարկել վրիպակի մասին զեկույցը"</string>
+    <string name="bugreport_info_start" msgid="667324824650830832">"Գործարկել վրիպակի մասին հաղորդումը"</string>
     <string name="bugreport_info_status" msgid="7211044508792815451">"Կարգավիճակը՝"</string>
     <string name="bugreport_info_expires_soon_notice" msgid="927139313070992675">"Վրիպակի մասին այս հաղորդման ժամկետը շուտով կլրանա"</string>
     <string name="bugreport_dialog_submit" msgid="2789636252713280633">"Ուղարկել"</string>
@@ -44,7 +44,7 @@
     <string name="toast_status_failed" msgid="6365384202315043395">"Վրիպակի զեկույցի հետ կապված սխալ առաջացավ"</string>
     <string name="toast_status_screencap_failed" msgid="2187083897594745149">"Չհաջողվեց ստեղծել սքրինշոթ"</string>
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"Գրանցման կարգավիճակի սխալ"</string>
-    <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Վրիպակի մասին զեկույցը բեռնվում է"</string>
-    <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"Վրիպակի մասին զեկույցը բեռնվել է"</string>
-    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Վրիպակի մասին զեկույցի կարգավիճակի ալիք"</string>
+    <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"Վրիպակի մասին հաղորդումը բեռնվում է"</string>
+    <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"Վրիպակի մասին հաղորդումը բեռնվել է"</string>
+    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"Վրիպակի մասին հաղորդման կարգավիճակի ալիք"</string>
 </resources>
