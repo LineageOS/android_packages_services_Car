@@ -124,56 +124,140 @@ public final class OccupantAwarenessUtilsTest {
         assertThat(event.detectionType).isEqualTo(SystemStatusEvent.DETECTION_TYPE_NONE);
     }
 
-    // TODO(b/219798907) enhance the implementation according to Unit Test Best Practice
     @Test
-    public void test_convertToConfidenceScore() {
+    public void testConvertToConfidenceScore_returnsConfidenceLevelMax() {
         assertThat(OccupantAwarenessUtils.convertToConfidenceScore(
                 android.hardware.automotive.occupant_awareness.ConfidenceLevel.MAX))
                 .isEqualTo(OccupantAwarenessDetection.CONFIDENCE_LEVEL_MAX);
+    }
 
+    @Test
+    public void testConvertToConfidenceScore_returnsConfidenceLevelHigh() {
         assertThat(OccupantAwarenessUtils.convertToConfidenceScore(
                 android.hardware.automotive.occupant_awareness.ConfidenceLevel.HIGH))
                 .isEqualTo(OccupantAwarenessDetection.CONFIDENCE_LEVEL_HIGH);
+    }
 
+    @Test
+    public void testConvertToConfidenceScore_returnsConfidenceLevelLow() {
         assertThat(OccupantAwarenessUtils.convertToConfidenceScore(
                 android.hardware.automotive.occupant_awareness.ConfidenceLevel.LOW))
                 .isEqualTo(OccupantAwarenessDetection.CONFIDENCE_LEVEL_LOW);
+    }
 
+    @Test
+    public void testConvertToConfidenceScore_returnsDefaultConfidenceLevel() {
         assertThat(OccupantAwarenessUtils.convertToConfidenceScore(
                 android.hardware.automotive.occupant_awareness.ConfidenceLevel.NONE))
                 .isEqualTo(OccupantAwarenessDetection.CONFIDENCE_LEVEL_NONE);
     }
 
-    // TODO(b/219798907) enhance the implementation according to Unit Test Best Practice
     @Test
-    public void test_convertToPoint3D() {
-        assertThat(OccupantAwarenessUtils.convertToPoint3D(null)).isNull();
-        assertThat(OccupantAwarenessUtils.convertToPoint3D(new double[0])).isNull();
-        assertThat(OccupantAwarenessUtils.convertToPoint3D(new double[2])).isNull();
+    public void testConvertToPoint3D() {
         assertThat(OccupantAwarenessUtils.convertToPoint3D(new double[] {1, 2, 3})).isNotNull();
     }
 
-    // TODO(b/219798907) enhance the implementation according to Unit Test Best Practice
     @Test
-    public void test_convertToRole() {
+    public void testConvertToPoint3D_returnsNullWithNullVector() {
+        assertThat(OccupantAwarenessUtils.convertToPoint3D(null)).isNull();
+    }
+
+    @Test
+    public void testConvertToPoint3D_returnsNullWithEmptyVector() {
+        assertThat(OccupantAwarenessUtils.convertToPoint3D(new double[0])).isNull();
+    }
+
+    @Test
+    public void testConvertToPoint3D_returnsNullWithUnderflowVector() {
+        assertThat(OccupantAwarenessUtils.convertToPoint3D(new double[] {1, 2})).isNull();
+    }
+
+    @Test
+    public void testConvertToPoint3D_returnsNullWithOverflowVector() {
+        assertThat(OccupantAwarenessUtils.convertToPoint3D(new double[] {1, 2, 3, 4})).isNull();
+    }
+
+    @Test
+    public void testConvertTimestamp() {
+        long someInputTimestamp = 10_000;
+        assertThat(OccupantAwarenessUtils.convertTimestamp(someInputTimestamp))
+                .isEqualTo(someInputTimestamp);
+    }
+
+    @Test
+    public void testConvertToRole_returnsNoneWithRoleInvalid() {
         assertThat(OccupantAwarenessUtils.convertToRole(
                 android.hardware.automotive.occupant_awareness.Role.INVALID))
                 .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_NONE);
+    }
 
+    @Test
+    public void testConvertToRole_returnsNoneWithRoleUnknown() {
         assertThat(OccupantAwarenessUtils.convertToRole(
                 android.hardware.automotive.occupant_awareness.Role.UNKNOWN))
                 .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_NONE);
+    }
 
-        assertThat(OccupantAwarenessUtils.convertToRole(
-                android.hardware.automotive.occupant_awareness.Role.DRIVER
-                | android.hardware.automotive.occupant_awareness.Role.FRONT_PASSENGER
-                | android.hardware.automotive.occupant_awareness.Role.ROW_2_PASSENGER_CENTER))
-                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_DRIVER
-                | OccupantAwarenessDetection.VEHICLE_OCCUPANT_FRONT_PASSENGER
-                | OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_2_PASSENGER_CENTER);
-
+    @Test
+    public void testConvertToRole_returnsAllOccupants() {
         assertThat(OccupantAwarenessUtils.convertToRole(
                 android.hardware.automotive.occupant_awareness.Role.ALL_OCCUPANTS))
                 .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ALL_OCCUPANTS);
+    }
+
+    @Test
+    public void testConvertToRole_returnsDriver() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.DRIVER))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_DRIVER);
+    }
+
+    @Test
+    public void testConvertToRole_returnsFrontPassenger() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.FRONT_PASSENGER))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_FRONT_PASSENGER);
+    }
+
+    @Test
+    public void testConvertToRole_returnsRow2PassengerLeft() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.ROW_2_PASSENGER_LEFT))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_2_PASSENGER_LEFT);
+    }
+
+    @Test
+    public void testConvertToRole_returnsRow2PassengerCenter() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.ROW_2_PASSENGER_CENTER))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_2_PASSENGER_CENTER);
+    }
+
+    @Test
+    public void testConvertToRole_returnsRow2PassengerRight() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.ROW_2_PASSENGER_RIGHT))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_2_PASSENGER_RIGHT);
+    }
+
+    @Test
+    public void testConvertToRole_returnsRow3PassengerLeft() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.ROW_3_PASSENGER_LEFT))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_3_PASSENGER_LEFT);
+    }
+
+    @Test
+    public void testConvertToRole_returnsRow3PassengerCenter() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.ROW_3_PASSENGER_CENTER))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_3_PASSENGER_CENTER);
+    }
+
+    @Test
+    public void testConvertToRole_returnsRow3PassengerRight() {
+        assertThat(OccupantAwarenessUtils.convertToRole(
+                android.hardware.automotive.occupant_awareness.Role.ROW_3_PASSENGER_RIGHT))
+                .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_3_PASSENGER_RIGHT);
     }
 }
