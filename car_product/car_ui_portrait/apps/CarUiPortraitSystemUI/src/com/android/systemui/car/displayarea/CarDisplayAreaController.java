@@ -466,8 +466,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     /** Registers the DA organizer. */
     public void register() {
         logIfDebuggable("register organizer and set default bounds");
-        // add CarFullscreenTaskListener to control the foreground DA when the task appears.
-        mCarFullscreenTaskListener.registerOnTaskChangeListener(mOnTaskChangeListener);
 
         ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor,
                 mApplicationContext);
@@ -534,6 +532,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
         ActivityTaskManager.getInstance().registerTaskStackListener(
                 mOnActivityRestartAttemptListener);
+        // add CarFullscreenTaskListener to control the foreground DA when the task appears.
+        mCarFullscreenTaskListener.registerOnTaskChangeListener(mOnTaskChangeListener);
     }
 
     @Override
