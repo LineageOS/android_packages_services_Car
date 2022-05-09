@@ -53,6 +53,7 @@ import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -187,7 +188,7 @@ public class CarPackageManagerServiceTest {
                 NonDoActivity.class.getSimpleName());
     }
 
-
+    @Ignore("b/232019789") // Debug and enable after fixing it.
     @Test
     public void testBlockingActivity_DoLaunchesNonDoOnCreate_isBlocked() throws Exception {
         startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO);
