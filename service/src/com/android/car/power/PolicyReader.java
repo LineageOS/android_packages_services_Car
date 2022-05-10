@@ -22,6 +22,7 @@ import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT
 import static android.car.hardware.power.PowerComponentUtil.powerComponentToString;
 import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import static org.xmlpull.v1.XmlPullParser.END_DOCUMENT;
@@ -677,12 +678,14 @@ public final class PolicyReader {
         return SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private String toString(CarPowerPolicy policy) {
         return policy.getPolicyId() + "(enabledComponents: "
                 + componentsToString(policy.getEnabledComponents()) + " | disabledComponents: "
                 + componentsToString(policy.getDisabledComponents()) + ")";
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private String componentsToString(int[] components) {
         StringBuffer buffer = new StringBuffer();
         for (int i = 0; i < components.length; i++) {
