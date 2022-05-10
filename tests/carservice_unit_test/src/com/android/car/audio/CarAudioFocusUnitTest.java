@@ -80,13 +80,15 @@ public class CarAudioFocusUnitTest {
     private AudioPolicy mAudioPolicy;
     @Mock
     private CarAudioSettings mCarAudioSettings;
+    @Mock
+    private ContentObserverFactory mMockContentObserverFactory;
 
     private FocusInteraction mFocusInteraction;
 
 
     @Before
     public void setUp() {
-        mFocusInteraction = new FocusInteraction(mCarAudioSettings);
+        mFocusInteraction = new FocusInteraction(mCarAudioSettings, mMockContentObserverFactory);
     }
 
     @Test

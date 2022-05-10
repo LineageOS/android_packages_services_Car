@@ -21,15 +21,12 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 
 import com.android.car.CarLog;
@@ -288,13 +285,19 @@ final class FocusInteraction {
 
     private final CarAudioSettings mCarAudioFocusSettings;
 
+    private final ContentObserverFactory mContentObserverFactory;
+
     private int mUserId;
 
     /**
      * Constructs a focus interaction instance.
      */
-    FocusInteraction(@NonNull CarAudioSettings carAudioSettings) {
-        mCarAudioFocusSettings = Objects.requireNonNull(carAudioSettings);
+    FocusInteraction(CarAudioSettings carAudioSettings,
+            ContentObserverFactory contentObserverFactory) {
+        mCarAudioFocusSettings = Objects.requireNonNull(carAudioSettings,
+                "Car Audio Settings can not be null.");
+        mContentObserverFactory = Objects.requireNonNull(contentObserverFactory,
+                "Content Observer Factory can not be null.");
         mInteractionMatrix = cloneInteractionMatrix(sInteractionMatrix);
     }
 
@@ -310,6 +313,13 @@ final class FocusInteraction {
         mInteractionMatrix[CarAudioContext.CALL][CarAudioContext.NAVIGATION] =
                 navigationRejectedWithCall ? INTERACTION_REJECT :
                 sInteractionMatrix[CarAudioContext.CALL][CarAudioContext.NAVIGATION];
+    }
+
+    public boolean isRejectNavigationOnCallEnabled() {
+        synchronized (mLock) {
+            return mInteractionMatrix[CarAudioContext.CALL][CarAudioContext.NAVIGATION]
+                    == INTERACTION_REJECT;
+        }
     }
 
     /**
@@ -372,25 +382,19 @@ final class FocusInteraction {
      */
     void setUserIdForSettings(@UserIdInt int userId) {
         synchronized (mLock) {
-            mUserId = userId;
             if (mContentObserver != null) {
-                mCarAudioFocusSettings.getContentResolverForUser(userId)
+                mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                         .unregisterContentObserver(mContentObserver);
                 mContentObserver = null;
             }
+            mUserId = userId;
             if (mUserId == UserManagerHelper.USER_NULL) {
                 setRejectNavigationOnCallLocked(false);
                 return;
             }
-            mContentObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
-                @Override
-                public void onChange(boolean selfChange, Uri uri) {
-                    if (uri.equals(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI)) {
-                        navigationOnCallSettingChanged();
-                    }
-                }
-            };
-            mCarAudioFocusSettings.getContentResolverForUser(userId)
+            mContentObserver = mContentObserverFactory.createObserver(
+                    () -> navigationOnCallSettingChanged());
+            mCarAudioFocusSettings.getContentResolverForUser(mUserId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
                             /* notifyForDescendants= */false, mContentObserver);
             setRejectNavigationOnCallLocked(isRejectNavigationOnCallEnabledInSettings(mUserId));
