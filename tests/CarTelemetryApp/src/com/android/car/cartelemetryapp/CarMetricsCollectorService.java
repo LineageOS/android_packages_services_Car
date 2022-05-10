@@ -44,12 +44,21 @@ public class CarMetricsCollectorService extends Service {
     private Car mCar;
     private CarTelemetryManager mCarTelemetryManager;
     private Set<String> mActiveConfigs = new HashSet<>();
+    private Car.CarServiceLifecycleListener mCarLifecycleListener = (car, ready) -> {
+        if (ready) {
+            mCarTelemetryManager =
+                    (CarTelemetryManager) car.getCarManager(Car.CAR_TELEMETRY_SERVICE);
+        }
+    };
 
     @Override
     public void onCreate() {
         super.onCreate();
-        mCar = Car.createCar(this);
-        mCarTelemetryManager = (CarTelemetryManager) mCar.getCarManager(Car.CAR_TELEMETRY_SERVICE);
+        mCar = Car.createCar(
+                getApplicationContext(),
+                /* handler= */ null,
+                Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
+                mCarLifecycleListener);
         addAllConfigsFromAssets();
     }
 
