@@ -231,9 +231,8 @@ final class SilentModeHandler {
                 boolean newSilentMode;
                 boolean oldSilentMode;
                 synchronized (mLock) {
-                    // FileObserver can report events even after stopWatching is called. To ignore
-                    // such events, check the current internal state.
-                    if (mForcedMode) {
+                    // FileObserver can report events even after stopWatching is called.
+                    if (mForcedMode || mFileObserver == null) {
                         return;
                     }
                     oldSilentMode = mSilentModeByHwState;
