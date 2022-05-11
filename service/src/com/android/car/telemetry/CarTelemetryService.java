@@ -343,6 +343,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
             return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
         }
+        if (metricsConfig.getName().length() == 0) {
+            Slogf.e(CarLog.TAG_TELEMETRY, "MetricsConfig name cannot be an empty string");
+            return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
+        }
         if (!metricsConfig.getName().equals(metricsConfigName)) {
             Slogf.e(CarLog.TAG_TELEMETRY, "Argument config name " + metricsConfigName
                     + " doesn't match name in MetricsConfig (" + metricsConfig.getName() + ").");

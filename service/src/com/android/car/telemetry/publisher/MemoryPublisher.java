@@ -119,8 +119,8 @@ public class MemoryPublisher extends AbstractPublisher {
         // if the subscriber is new, i.e. it is added from CarTelemetryManager#addMetricsConifg(),
         // then the protobuf max_snapshots field is the number of snapshots left
         int numSnapshotsLeft = subscriber.getPublisherParam().getMemory().getMaxSnapshots();
-        // if client does not specify max_snapshots, the publisher will publisher until
-        // the MetricsConfig's lifecycle ends or when the MetricsConfig is removed
+        // if client does not specify max_snapshots, the publisher will publish until the
+        // MetricsConfig's lifecycle ends via Lua callback or when the MetricsConfig is removed
         boolean collectIndefinitely = numSnapshotsLeft <= 0;
         // if the subscriber is not new, i.e. it is loaded from disk, then the number of snapshots
         // left is whatever value from last time, which is stored in the publisher state
@@ -156,11 +156,18 @@ public class MemoryPublisher extends AbstractPublisher {
     private void resetPublisher() {
         mTelemetryHandler.removeCallbacks(mReadMeminfoRunnable);
         mSubscriber = null;
+        mPublisherState = null;
         mResultStore.removePublisherData(MemoryPublisher.class.getSimpleName());
     }
 
     private void readMemInfo() {
         if (mSubscriber == null) {
+            return;
+        }
+        if (mSubscriber.isDone()) {
+            // terminate the MetricsConfig
+            onConfigFinished(mSubscriber.mMetricsConfig);
+            resetPublisher();
             return;
         }
         mTraceLog.traceBegin("Reading /proc/meminfo and publishing");
@@ -184,13 +191,6 @@ public class MemoryPublisher extends AbstractPublisher {
         }
         // publish data, enqueue data for script execution
         int numPendingTasks = mSubscriber.push(data);
-        if (mSubscriber.isDone()) {
-            // terminate the MetricsConfig
-            onConfigFinished(mSubscriber.mMetricsConfig);
-            resetPublisher();
-            mTraceLog.traceEnd();
-            return;
-        }
 
         // update publisher state
         if (mPublisherState == null) {
