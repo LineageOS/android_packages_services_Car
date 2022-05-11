@@ -579,16 +579,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             updateCarUserNoticeServiceIfNecessary();
         }
 
-        boolean isPreemptive;
-        synchronized (mLock) {
-            isPreemptive = mPolicyReader.isPreemptivePowerPolicy(mCurrentPowerPolicyId);
-        }
-        if (!mSilentModeHandler.isSilentMode() && isPreemptive) {
+        if (!mSilentModeHandler.isSilentMode()) {
             cancelPreemptivePowerPolicy();
-        } else {
-            applyDefaultPowerPolicyForState(VehicleApPowerStateReport.ON,
-                    PolicyReader.POWER_POLICY_ID_ALL_ON);
         }
+        applyDefaultPowerPolicyForState(VehicleApPowerStateReport.ON,
+                PolicyReader.POWER_POLICY_ID_ALL_ON);
 
         sendPowerManagerEvent(CarPowerManager.STATE_ON, INVALID_TIMEOUT);
 
@@ -1583,10 +1578,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             policyId = mPendingPowerPolicyId;
             mPendingPowerPolicyId = null;
         }
-        int status = applyPowerPolicy(policyId, /* upToDaemon= */ true, /* force= */ true);
-        if (status != PolicyOperationStatus.OK) {
-            Slogf.w(TAG, "Failed to cancel system power policy: %s",
-                    PolicyOperationStatus.errorCodeToString(status));
+        if (policyId != null) { // Pending policy exist
+            int status = applyPowerPolicy(policyId, /* upToDaemon= */ true, /* force= */ true);
+            if (status != PolicyOperationStatus.OK) {
+                Slogf.w(TAG, "Failed to cancel system power policy: %s",
+                        PolicyOperationStatus.errorCodeToString(status));
+            }
+        } else {
+            Slogf.w(TAG, "cancelPreemptivePowerPolicy(), no pending power policy");
         }
     }
 
