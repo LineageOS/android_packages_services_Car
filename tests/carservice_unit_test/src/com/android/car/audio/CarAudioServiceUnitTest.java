@@ -17,6 +17,7 @@
 package com.android.car.audio;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
+import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.media.CarAudioManager.INVALID_AUDIO_ZONE;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
@@ -110,6 +111,9 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private static final int OUT_OF_RANGE_ZONE = SECONDARY_ZONE_ID + 1;
     private static final int PRIMARY_ZONE_VOLUME_GROUP_COUNT = 4;
     private static final int SECONDARY_ZONE_VOLUME_GROUP_COUNT = 1;
+    private static final int TEST_PRIMARY_GROUP = 0;
+    private static final int TEST_PRIMARY_GROUP_INDEX = 0;
+    private static final int TEST_FLAGS = 0;
 
     private static final String PROPERTY_RO_ENABLE_AUDIO_PATCH =
             "ro.android.car.audio.enableaudiopatch";
@@ -683,6 +687,21 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
                 .that(zoneId).isEqualTo(PRIMARY_AUDIO_ZONE);
     }
 
+    @Test
+    public void setGroupVolume_withoutPermission_fails() {
+        mCarAudioService.init();
+
+        mockDenyCarControlAudioVolumePermission();
+
+        SecurityException thrown = assertThrows(SecurityException.class,
+                () -> mCarAudioService.setGroupVolume(PRIMARY_AUDIO_ZONE, TEST_PRIMARY_GROUP,
+                        TEST_PRIMARY_GROUP_INDEX, TEST_FLAGS));
+
+        assertWithMessage("Set Volume Group Permission Exception")
+                .that(thrown).hasMessageThat()
+                .contains(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+    }
+
     private void mockGrantCarControlAudioSettingsPermission() {
         mockContextCheckCallingOrSelfPermission(mMockContext,
                 PERMISSION_CAR_CONTROL_AUDIO_SETTINGS, PERMISSION_GRANTED);
@@ -691,6 +710,11 @@ public final class CarAudioServiceUnitTest extends AbstractExtendedMockitoTestCa
     private void mockDenyCarControlAudioSettingsPermission() {
         mockContextCheckCallingOrSelfPermission(mMockContext,
                 PERMISSION_CAR_CONTROL_AUDIO_SETTINGS, PERMISSION_DENIED);
+    }
+
+    private void mockDenyCarControlAudioVolumePermission() {
+        mockContextCheckCallingOrSelfPermission(mMockContext,
+                PERMISSION_CAR_CONTROL_AUDIO_VOLUME, PERMISSION_DENIED);
     }
 
     private AudioDeviceInfo[] generateInputDeviceInfos() {

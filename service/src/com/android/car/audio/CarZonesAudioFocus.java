@@ -16,6 +16,7 @@
 
 package com.android.car.audio;
 
+import static com.android.car.audio.FocusInteraction.AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -73,9 +74,10 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
             Slogf.d(TAG, "Adding new zone %d", audioZoneId);
-            CarAudioFocus zoneFocusListener =
-                    new CarAudioFocus(audioManager, packageManager,
-                            new FocusInteraction(carAudioSettings));
+
+            CarAudioFocus zoneFocusListener = new CarAudioFocus(audioManager,
+                    packageManager, new FocusInteraction(carAudioSettings,
+                    new ContentObserverFactory(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI)));
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
         return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);

@@ -32,8 +32,11 @@ import static android.car.hardware.power.PowerComponent.TRUSTED_DEVICE_DETECTION
 import static android.car.hardware.power.PowerComponent.VISUAL_INTERACTION;
 import static android.car.hardware.power.PowerComponent.VOICE_INTERACTION;
 import static android.car.hardware.power.PowerComponent.WIFI;
+import static android.car.hardware.power.PowerComponentUtil.INVALID_POWER_COMPONENT;
 
 import static com.android.car.test.power.CarPowerPolicyUtil.assertPolicyIdentical;
+
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.hardware.power.CarPowerPolicy;
 import android.content.Context;
@@ -84,12 +87,12 @@ public final class PowerComponentHandlerUnitTest {
 
     @Test
     public void testApplyPowerPolicy_oneTime() throws Exception {
-        CarPowerPolicy policy = new CarPowerPolicy("test_policy1", new int[]{WIFI},
-                new int[]{AUDIO});
-        CarPowerPolicy expected = new CarPowerPolicy("test_policy1", new int[]{WIFI},
-                new int[]{AUDIO, BLUETOOTH, CELLULAR, CPU, DISPLAY, ETHERNET, INPUT, LOCATION,
-                        MEDIA, MICROPHONE, NFC, PROJECTION, TRUSTED_DEVICE_DETECTION,
-                        VISUAL_INTERACTION, VOICE_INTERACTION});
+        CarPowerPolicy policy = new CarPowerPolicy("test_policy1", new int[]{WIFI, BLUETOOTH,
+                DISPLAY, VOICE_INTERACTION}, new int[]{AUDIO});
+        CarPowerPolicy expected = new CarPowerPolicy("test_policy1", new int[]{WIFI, BLUETOOTH,
+                DISPLAY, VOICE_INTERACTION}, new int[]{AUDIO, CELLULAR, CPU, ETHERNET, INPUT,
+                    LOCATION, MEDIA, MICROPHONE, NFC, PROJECTION, TRUSTED_DEVICE_DETECTION,
+                        VISUAL_INTERACTION});
 
         mHandler.applyPowerPolicy(policy);
 
@@ -113,5 +116,27 @@ public final class PowerComponentHandlerUnitTest {
         }
 
         assertPolicyIdentical(expected, mHandler.getAccumulatedPolicy());
+    }
+
+    @Test
+    public void testPowerComponentMediator() {
+        PowerComponentHandler.PowerComponentMediator mediator =
+                new PowerComponentMediatorDefault();
+
+        assertWithMessage("Default value for isComponentAvailable()")
+                .that(mediator.isComponentAvailable()).isFalse();
+        assertWithMessage("Default value for isEnabled()").that(mediator.isEnabled()).isFalse();
+
+        mediator.setEnabled(true);
+
+        // Default setEnabled() does nothing.
+        assertWithMessage("Value after setEnabled(true)").that(mediator.isEnabled()).isFalse();
+    }
+
+    private static final class PowerComponentMediatorDefault extends
+            PowerComponentHandler.PowerComponentMediator {
+        PowerComponentMediatorDefault() {
+            super(INVALID_POWER_COMPONENT);
+        }
     }
 }
