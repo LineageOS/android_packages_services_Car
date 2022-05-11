@@ -105,6 +105,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final int CURRENT_USER_ID = 42;
     private static final int CURRENT_GUEST_ID = 108; // must be different than CURRENT_USER_ID;
     private static final int NEW_GUEST_ID = 666;
+    public static final String SYSTEM_POWER_POLICY_ALL_ON = "system_power_policy_all_on";
+    public static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
+            "system_power_policy_no_user_interaction";
 
     private final MockDisplayInterface mDisplayInterface = new MockDisplayInterface();
     private final MockSystemStateInterface mSystemStateInterface = new MockSystemStateInterface();
@@ -727,6 +730,50 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         CarPowerPolicyFilter[] filters = CarPowerPolicyFilter.CREATOR.newArray(1);
         assertThat(filters.length).isEqualTo(1);
+    }
+
+
+    @Test
+    public void testPowerPolicyAfterShutdownCancel() throws Exception {
+        grantPowerPolicyPermission();
+        mPowerHal.setCurrentPowerState(
+                new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                        VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(
+                new PowerState(VehicleApPowerStateReq.CANCEL_SHUTDOWN, /* param= */ 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_CANCELLED);
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_WAIT_FOR_VHAL, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, /* param= */ 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_ON);
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
+                .isEqualTo(SYSTEM_POWER_POLICY_ALL_ON);
+    }
+
+    @Test
+    public void testPowerPolicyOnSilentBoot() throws Exception {
+        grantPowerPolicyPermission();
+        mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_SILENT);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, /* param= */ 0));
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_ON);
+
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
+                .isEqualTo(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+
+        mService.setSilentMode(SilentModeHandler.SILENT_MODE_FORCED_NON_SILENT);
+
+        assertThat(mService.getCurrentPowerPolicy().getPolicyId())
+                .isEqualTo(SYSTEM_POWER_POLICY_ALL_ON);
     }
 
     private void suspendAndResume() throws Exception {
