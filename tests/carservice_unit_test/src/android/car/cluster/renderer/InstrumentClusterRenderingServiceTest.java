@@ -158,7 +158,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
 
     @Test
     public void setNavigationContextOwner_launchesNavigationComponent() throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         String packageName = "com.test";
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
@@ -184,7 +184,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     @Test
     public void setNavigationContextOwner_navigationComponentAlreadyLaunched_doesNothing()
             throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
@@ -202,7 +202,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
 
     @Test
     public void setNavigationContextOwner_noPackages_doesNothing() throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
@@ -218,7 +218,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
 
     @Test
     public void setNavigationContextOwner_clusterPermissionMissing_doesNothing() throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         String packageName = "com.test";
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
@@ -240,7 +240,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     @Test
     public void setNavigationContextOwner_failureWhenStartingNavigationActivity()
             throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
@@ -258,7 +258,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     @Test
     public void setNavigationContextOwner_activityNotFoundWhenStartingNavigationActivity()
             throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
@@ -275,7 +275,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
 
     @Test
     public void updateActivityState_notVisible_releasesNavigationComponent() throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         ClusterActivityState clusterActivityState = ClusterActivityState
@@ -350,7 +350,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
         Bundle activityOptionsBundle = new Bundle();
         activityOptionsBundle.putString(KEY_PACKAGE_NAME, "temp.pkg");
         ActivityOptions activityOptions = ActivityOptions.fromBundle(activityOptionsBundle);
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
 
         bindService(createBindIntentWithClusterHelper());
         boolean succeeded = mService.startFixedActivityModeForDisplayAndUser(intent,
@@ -379,7 +379,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
         Bundle activityOptionsBundle = new Bundle();
         activityOptionsBundle.putString(KEY_PACKAGE_NAME, "temp.pkg");
         ActivityOptions activityOptions = ActivityOptions.fromBundle(activityOptionsBundle);
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
 
         boolean succeeded = mService.startFixedActivityModeForDisplayAndUser(new Intent(),
                 activityOptions,
@@ -408,7 +408,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
         Bundle activityOptionsBundle = new Bundle();
         activityOptionsBundle.putString(KEY_PACKAGE_NAME, "temp.pkg");
         ActivityOptions activityOptions = ActivityOptions.fromBundle(activityOptionsBundle);
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
 
         boolean succeeded = mService.startFixedActivityModeForDisplayAndUser(new Intent(),
                 activityOptions,
@@ -420,7 +420,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     @ExpectWtf
     @Test
     public void startFixedActivityMode_clusterHelperAbsent() throws Exception {
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(new Intent().putExtras(new Bundle()));
 
         mService.onBind(new Intent().putExtras(new Bundle()));
@@ -495,7 +495,7 @@ public final class InstrumentClusterRenderingServiceTest extends AbstractExtende
     public void getBitmap_unknownAuthority() throws Exception {
         // Arrange
         String packageName = "com.test";
-        int userId = 10;
+        int userId = ActivityManager.getCurrentUser();
         bindService(createBindIntentWithClusterHelper());
         mService.setClusterActivityLaunchOptions(ActivityOptions.makeBasic());
         mService.setClusterActivityState(ClusterActivityState
