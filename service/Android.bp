@@ -103,7 +103,6 @@ java_defaults {
     },
 
     sdk_version: "module_current",
-    platform_apis: false,
 }
 
 java_defaults {
