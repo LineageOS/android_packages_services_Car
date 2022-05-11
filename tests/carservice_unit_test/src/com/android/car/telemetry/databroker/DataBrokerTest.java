@@ -80,7 +80,7 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
 
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
-    private static final int PRIORITY_HIGH = 1;
+    private static final int PRIORITY_HIGH = 0;
     private static final int PRIORITY_LOW = 100;
     private static final long TIMEOUT_MS = 15_000L;
     private static final CarPropertyConfig<Integer> PROP_CONFIG =
@@ -537,8 +537,8 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     @Test
     public void testAddTaskToQueue_shouldReturnCorrectCount() throws Exception {
         // since addTaskToQueue() calls scheduleNextTask(), script executor will be invoked,
-        // which polls a task from the queue,
-        assertThat(mDataBroker.addTaskToQueue(mHighPriorityTask)).isEqualTo(1);
+        // which polls a task from the queue
+        mDataBroker.addTaskToQueue(mHighPriorityTask);
         // this will poll the task that was just added, which means stats publisher count will be
         // decremented to 0
         // as long as the test does not make ScriptExecutor return, no other task will be polled
@@ -583,6 +583,17 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
 
     @Test
     public void testAddMetricsConfig_whenInvalidConfig_shouldThrowException() {
+        // priority cannot be negative
+        TelemetryProto.Subscriber badSub = SUBSCRIBER_FOO.toBuilder().setPriority(-1).build();
+        TelemetryProto.MetricsConfig badConfig = METRICS_CONFIG_FOO.toBuilder()
+                .clearSubscribers().addSubscribers(badSub).build();
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mDataBroker.addMetricsConfig(badConfig.getName(), badConfig));
+    }
+
+    @Test
+    public void testAddMetricsConfig_whenPublisherThrowsException_shouldRelayException() {
         doThrow(new IllegalArgumentException()).when(mAbstractPublisher).addDataSubscriber(any());
 
         assertThrows(IllegalArgumentException.class,
