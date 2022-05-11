@@ -19,6 +19,7 @@
 
 #include "WatchdogProcessService.h"
 
+#include "UidProcStatsCollector.h"
 #include "WatchdogServiceHelper.h"
 
 #include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
@@ -124,6 +125,14 @@ bool isSystemShuttingDown() {
     return sysPowerCtl == "reboot" || sysPowerCtl == "shutdown";
 }
 
+int64_t getStartTimeForPid(pid_t pid) {
+    auto pidStat = UidProcStatsCollector::readStatFileForPid(pid);
+    if (!pidStat.ok()) {
+        return elapsedRealtime();
+    }
+    return pidStat->startTimeMillis;
+}
+
 }  // namespace
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
@@ -155,6 +164,8 @@ WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) 
         mOverriddenClientHealthCheckWindowNs = std::optional<std::chrono::seconds>{
                 std::max(clientHealthCheckIntervalSec, normalSec)};
     }
+
+    mGetStartTimeForPidFunc = &getStartTimeForPid;
 }
 
 Result<void> WatchdogProcessService::registerWatchdogServiceHelper(
@@ -171,7 +182,8 @@ Status WatchdogProcessService::registerClient(const sp<ICarWatchdogClient>& clie
                                               TimeoutLength timeout) {
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
-    ClientInfo clientInfo(client, callingPid, callingUid);
+
+    ClientInfo clientInfo(client, callingPid, callingUid, mGetStartTimeForPidFunc(callingPid));
 
     Mutex::Autolock lock(mMutex);
     return registerClientLocked(clientInfo, timeout);
@@ -194,7 +206,8 @@ Status WatchdogProcessService::registerCarWatchdogService(const sp<IBinder>& bin
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE,
                                          "Watchdog service helper instance is null");
     }
-    ClientInfo clientInfo(mWatchdogServiceHelper, binder, callingPid, callingUid);
+    ClientInfo clientInfo(mWatchdogServiceHelper, binder, callingPid, callingUid,
+                          mGetStartTimeForPidFunc(callingPid));
     return registerClientLocked(clientInfo, TimeoutLength::TIMEOUT_CRITICAL);
 }
 
@@ -565,12 +578,14 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
         for (PingedClientMap::const_iterator it = clients.cbegin(); it != clients.cend(); it++) {
             pid_t pid = -1;
             userid_t userId = -1;
+            uint64_t startTimeMillis = 0;
             std::vector<TimeoutLength> timeouts = {timeout};
             findClientAndProcessLocked(timeouts, it->second,
                                        [&](std::vector<ClientInfo>& cachedClients,
                                            std::vector<ClientInfo>::const_iterator
                                                    cachedClientsIt) {
                                            pid = cachedClientsIt->pid;
+                                           startTimeMillis = cachedClientsIt->startTimeMillis;
                                            userId = cachedClientsIt->userId;
                                            cachedClients.erase(cachedClientsIt);
                                        });
@@ -578,9 +593,7 @@ Result<void> WatchdogProcessService::dumpAndKillClientsIfNotResponding(TimeoutLe
                 clientsToNotify.emplace_back(&it->second);
                 ProcessIdentifier processIdentifier;
                 processIdentifier.pid = pid;
-                // TODO(b/213939034): Read pid start time and populate
-                //  processIdentifier.startTimeMillis
-                processIdentifier.startTimeMillis = elapsedRealtime();
+                processIdentifier.startTimeMillis = startTimeMillis;
                 processIdentifiers.push_back(processIdentifier);
             }
         }
@@ -859,9 +872,7 @@ void WatchdogProcessService::terminateVhal() {
             if (info.interfaceName == kVhalInterfaceName) {
                 ProcessIdentifier processIdentifier;
                 processIdentifier.pid = info.pid;
-                // TODO(b/213939034): Read pid start time and populate
-                //  processIdentifier.startTimeMillis
-                processIdentifier.startTimeMillis = elapsedRealtime();
+                processIdentifier.startTimeMillis = mGetStartTimeForPidFunc(info.pid);
                 processIdentifiers.push_back(processIdentifier);
                 break;
             }
