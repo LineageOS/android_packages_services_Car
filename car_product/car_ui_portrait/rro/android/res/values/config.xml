@@ -19,6 +19,9 @@
     <!-- IME should not hide nav bar -->
     <bool name="config_hideNavBarForKeyboard">false</bool>
 
+    <!-- Uses customized system bar controls -->
+    <bool name="config_remoteInsetsControllerControlsSystemBars">true</bool>
+
     <!-- Device supports Sustained Performance Mode-->
     <bool name="config_sustainedPerformanceModeSupported">false</bool>
 
