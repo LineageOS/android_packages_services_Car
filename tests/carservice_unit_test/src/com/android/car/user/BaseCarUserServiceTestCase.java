@@ -567,6 +567,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             @HalCallbackStatus int callbackStatus, int responseStatus) {
         CreateUserResponse response = new CreateUserResponse();
         response.status = responseStatus;
+        return mockHalCreateUser(callbackStatus, response);
+    }
+
+    @NonNull
+    protected ArgumentCaptor<CreateUserRequest> mockHalCreateUser(
+            @HalCallbackStatus int callbackStatus, CreateUserResponse response) {
         ArgumentCaptor<CreateUserRequest> captor = ArgumentCaptor.forClass(CreateUserRequest.class);
         doAnswer((invocation) -> {
             Log.d(TAG, "Answering " + invocation + " with " + response);

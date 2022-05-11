@@ -50,6 +50,7 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.expectThrows;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
@@ -1024,6 +1025,19 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testSwitchUser_nullHalResponse() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        mockHalSwitch(mAdminUserId, mGuestUser, /* response= */ null);
+
+        switchUser(mGuestUserId, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResultWithError(getUserSwitchResult(mGuestUserId),
+                UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE, /* expectedErrorMessage= */ null);
+        verifyNoUserSwitch();
+        verifyNoLogoutUser();
+    }
+
+    @Test
     public void testSwitchUser_error_badCallbackStatus() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
         mSwitchUserResponse.status = SwitchUserStatus.SUCCESS;
@@ -1672,6 +1686,27 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
         UserCreationResult result = getUserCreationResult();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_FAILURE);
+        assertThat(result.getAndroidFailureStatus()).isNull();
+        assertThat(result.getUser()).isNull();
+        assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getInternalErrorMessage()).isNull();
+
+        verifyUserRemoved(newUser.getIdentifier());
+        assertNoHalUserRemoval();
+    }
+
+    @Test
+    public void testCreateUser_halTimeout() throws Exception {
+        UserHandle newUser = UserHandle.of(42);
+        mockUmCreateUser(mMockedUserManager, "dude", "TypeONegative", 108, newUser);
+        mockHalCreateUser(HalCallback.STATUS_HAL_SET_TIMEOUT, /* response= */ null);
+        mockRemoveUser(newUser);
+
+        createUser("dude", "TypeONegative", 108, mAsyncCallTimeoutMs, mUserCreationFuture,
+                NO_CALLER_RESTRICTIONS);
+
+        UserCreationResult result = getUserCreationResult();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         assertThat(result.getAndroidFailureStatus()).isNull();
         assertThat(result.getUser()).isNull();
         assertThat(result.getErrorMessage()).isNull();
@@ -2502,7 +2537,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     private void assertUserSwitchResultWithError(UserSwitchResult result, int expectedStatus,
-            String expectedErrorMessage) {
+            @Nullable String expectedErrorMessage) {
         assertUserSwitchResult(result.getStatus(), expectedStatus);
         assertWithMessage("error message on %s", result).that(result.getErrorMessage())
                 .isEqualTo(expectedErrorMessage);
