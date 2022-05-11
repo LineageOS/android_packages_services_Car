@@ -28,7 +28,7 @@ namespace watchdog {
 MATCHER_P(ProcessStatsEq, expected, "") {
     const auto& actual = arg;
     return ::testing::Value(actual.comm, ::testing::Eq(expected.comm)) &&
-            ::testing::Value(actual.startTime, ::testing::Eq(expected.startTime)) &&
+            ::testing::Value(actual.startTimeMillis, ::testing::Eq(expected.startTimeMillis)) &&
             ::testing::Value(actual.totalMajorFaults, ::testing::Eq(expected.totalMajorFaults)) &&
             ::testing::Value(actual.totalTasksCount, ::testing::Eq(expected.totalTasksCount)) &&
             ::testing::Value(actual.ioBlockedTasksCount,
