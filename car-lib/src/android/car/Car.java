@@ -121,7 +121,7 @@ public final class Car {
      * update.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public static final int API_VERSION_MINOR_INT = 0;
+    public static final int API_VERSION_MINOR_INT = 1;
 
     /**
      * Represents a minor version change of car platform for the same
