@@ -104,7 +104,6 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     @Mock private CarEvsStatusListener mMockCarEvsStatusListener;
     @Mock private CarEvsStreamCallback mMockCarEvsStreamCallback;
     @Mock private IBinder mMockBinder;
-    @Mock private ICarEvsService mMockCarEvsService;
     @Mock private ICarEvsService.Stub mMockICarEvsService;
 
     @Captor private ArgumentCaptor<ICarEvsStatusListener> mCarEvsStatusListenerCaptor;
@@ -247,7 +246,7 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
     @Test
     public void testStopVideoStream() throws Exception {
         mManager.stopVideoStream();
-        verify(mMockCarEvsService, never()).stopVideoStream(any());
+        verify(mMockICarEvsService, never()).stopVideoStream(any());
 
         assertThat(mManager.startVideoStream(/* type= */ CarEvsManager.SERVICE_TYPE_REARVIEW,
                                              /* token= */ null,
