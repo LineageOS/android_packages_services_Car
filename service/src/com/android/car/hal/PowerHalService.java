@@ -31,6 +31,7 @@ import android.hardware.automotive.vehicle.VehicleApPowerStateReqIndex;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.ServiceSpecificException;
+import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -41,9 +42,8 @@ import com.android.internal.util.Preconditions;
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -243,10 +243,11 @@ public class PowerHalService extends HalServiceBase {
     }
 
     @GuardedBy("mLock")
-    private final HashMap<Integer, HalPropConfig> mProperties = new HashMap<>();
+    private final SparseArray<HalPropConfig> mProperties = new SparseArray<>();
     private final VehicleHal mHal;
+    @Nullable
     @GuardedBy("mLock")
-    private LinkedList<HalPropValue> mQueuedEvents;
+    private ArrayList<HalPropValue> mQueuedEvents;
     @GuardedBy("mLock")
     private PowerEventListener mListener;
     @GuardedBy("mLock")
@@ -260,10 +261,10 @@ public class PowerHalService extends HalServiceBase {
      * Sets the event listener to receive Vehicle's power events.
      */
     public void setListener(PowerEventListener listener) {
-        LinkedList<HalPropValue> eventsToDispatch = null;
+        ArrayList<HalPropValue> eventsToDispatch = null;
         synchronized (mLock) {
             mListener = listener;
-            if (mQueuedEvents != null && mQueuedEvents.size() > 0) {
+            if (mQueuedEvents != null && !mQueuedEvents.isEmpty()) {
                 eventsToDispatch = mQueuedEvents;
             }
             mQueuedEvents = null;
@@ -454,7 +455,8 @@ public class PowerHalService extends HalServiceBase {
     @Override
     public void init() {
         synchronized (mLock) {
-            for (HalPropConfig config : mProperties.values()) {
+            for (int i = 0; i < mProperties.size(); i++) {
+                HalPropConfig config = mProperties.valueAt(i);
                 if (VehicleHal.isPropertySubscribable(config)) {
                     mHal.subscribeProperty(this, config.getPropId());
                 }
@@ -503,7 +505,7 @@ public class PowerHalService extends HalServiceBase {
         synchronized (mLock) {
             if (mListener == null) {
                 if (mQueuedEvents == null) {
-                    mQueuedEvents = new LinkedList<>();
+                    mQueuedEvents = new ArrayList<>(values.size());
                 }
                 mQueuedEvents.addAll(values);
                 return;
@@ -514,7 +516,8 @@ public class PowerHalService extends HalServiceBase {
     }
 
     private void dispatchEvents(List<HalPropValue> values, PowerEventListener listener) {
-        for (HalPropValue v : values) {
+        for (int i = 0; i < values.size(); i++) {
+            HalPropValue v = values.get(i);
             switch (v.getPropId()) {
                 case AP_POWER_STATE_REPORT:
                     // Ignore this property event. It was generated inside of CarService.
