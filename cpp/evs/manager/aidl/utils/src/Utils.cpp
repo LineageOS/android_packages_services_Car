@@ -370,6 +370,7 @@ DisplayDesc Utils::makeFromHidl(const hidlevs::V1_0::DisplayDesc& hidlDesc) {
 
 Stream Utils::makeFromHidl(const HIDLStream& config) {
     Stream aidlStreamConfig = {
+            .id = config.id,
             .streamType = makeFromHidl(config.streamType),
             .width = static_cast<int32_t>(config.width),
             .height = static_cast<int32_t>(config.height),
