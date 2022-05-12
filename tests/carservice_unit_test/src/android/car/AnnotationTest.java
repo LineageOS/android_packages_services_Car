@@ -287,17 +287,62 @@ public final class AnnotationTest {
             "android.car.CarAppFocusManager$OnAppFocusOwnershipCallback"
             };
 
+    private static final String[] CAR_BUILT_IN_API_CLASSES = new String[] {
+            "android.car.builtin.media.AudioManagerHelper",
+            "android.car.builtin.content.pm.PackageManagerHelper",
+            "android.car.builtin.content.ContextHelper",
+            "android.car.builtin.job.JobSchedulerHelper",
+            "android.car.builtin.view.DisplayHelper",
+            "android.car.builtin.view.KeyEventHelper",
+            "android.car.builtin.window.DisplayAreaOrganizerHelper",
+            "android.car.builtin.widget.LockPatternHelper",
+            "android.car.builtin.bluetooth.BluetoothHeadsetClientHelper",
+            "android.car.builtin.input.InputManagerHelper",
+            "android.car.builtin.app.VoiceInteractionHelper",
+            "android.car.builtin.app.TaskInfoHelper",
+            "android.car.builtin.app.ActivityManagerHelper",
+            "android.car.builtin.app.KeyguardManagerHelper",
+            "android.car.builtin.PermissionHelper",
+            "android.car.builtin.util.AtomicFileHelper",
+            "android.car.builtin.util.EventLogHelper",
+            "android.car.builtin.util.Slogf",
+            "android.car.builtin.util.AssistUtilsHelper",
+            "android.car.builtin.util.TimeUtils",
+            "android.car.builtin.util.TimingsTraceLog",
+            "android.car.builtin.util.ValidationHelper",
+            "android.car.builtin.power.PowerManagerHelper",
+            "android.car.builtin.os.BinderHelper",
+            "android.car.builtin.os.ServiceManagerHelper",
+            "android.car.builtin.os.SystemPropertiesHelper",
+            "android.car.builtin.os.ParcelHelper",
+            "android.car.builtin.os.BuildHelper",
+            "android.car.builtin.os.UserManagerHelper",
+            "android.car.builtin.os.SharedMemoryHelper",
+            "android.car.builtin.os.TraceHelper",
+            "android.car.builtin.provider.SettingsHelper",
+            "android.car.builtin.CarBuiltin"
+            };
+
     @Test
-    public void testClassAddedInAnnotation() throws Exception {
+    public void testCarAPIAddedInAnnotation() throws Exception {
+        checkForAnnotation(CAR_API_CLASSES, AddedIn.class, AddedInOrBefore.class);
+    }
+
+    @Test
+    public void testCarBuiltInAPIAddedInAnnotation() throws Exception {
+        checkForAnnotation(CAR_BUILT_IN_API_CLASSES, android.car.builtin.annotation.AddedIn.class);
+    }
+
+    private void checkForAnnotation(String[] classes, Class... annotationClasses) throws Exception {
         List<String> errorsNoAnnotation = new ArrayList<>();
         List<String> errorsExtraAnnotation = new ArrayList<>();
 
-        for (int i = 0; i < CAR_API_CLASSES.length; i++) {
-            String className = CAR_API_CLASSES[i];
+        for (int i = 0; i < classes.length; i++) {
+            String className = classes[i];
             Field[] fields = Class.forName(className).getDeclaredFields();
             for (int j = 0; j < fields.length; j++) {
                 Field field = fields[j];
-                boolean isAnnotated = containsAddedInAnnotation(field);
+                boolean isAnnotated = containsAddedInAnnotation(field, annotationClasses);
                 boolean isPrivate = Modifier.isPrivate(field.getModifiers());
 
                 if (isPrivate && isAnnotated) {
@@ -316,7 +361,7 @@ public final class AnnotationTest {
                 // These are some internal methods
                 if (method.getName().contains("$")) continue;
 
-                boolean isAnnotated = containsAddedInAnnotation(method);
+                boolean isAnnotated = containsAddedInAnnotation(method, annotationClasses);
                 boolean isPrivate = Modifier.isPrivate(method.getModifiers());
 
                 if (isPrivate && isAnnotated) {
@@ -348,13 +393,23 @@ public final class AnnotationTest {
                 .that(errorsExtraAnnotation.size() + errorsNoAnnotation.size()).isEqualTo(0);
     }
 
-    private boolean containsAddedInAnnotation(Field field) {
-        return field.getAnnotation(AddedInOrBefore.class) != null
-                || field.getAnnotation(AddedIn.class) != null;
+    @SuppressWarnings("unchecked")
+    private boolean containsAddedInAnnotation(Field field, Class... annotationClasses) {
+        for (int i = 0; i < annotationClasses.length; i++) {
+            if (field.getAnnotation(annotationClasses[i]) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    private boolean containsAddedInAnnotation(Method method) {
-        return method.getAnnotation(AddedInOrBefore.class) != null
-                || method.getAnnotation(AddedIn.class) != null;
+    @SuppressWarnings("unchecked")
+    private boolean containsAddedInAnnotation(Method method, Class... annotationClasses) {
+        for (int i = 0; i < annotationClasses.length; i++) {
+            if (method.getAnnotation(annotationClasses[i]) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 }

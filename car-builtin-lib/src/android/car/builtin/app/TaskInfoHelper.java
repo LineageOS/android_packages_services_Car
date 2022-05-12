@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.TaskInfo;
+import android.car.builtin.annotation.AddedIn;
 
 /**
  * Provides the access to the hidden fields of {@code android.app.TaskInfo}.
@@ -29,21 +30,25 @@ import android.app.TaskInfo;
 public class TaskInfoHelper {
 
     /** Gets the id of the display this task is associated with. */
+    @AddedIn(majorVersion = 33)
     public static int getDisplayId(@NonNull TaskInfo task) {
         return task.displayId;
     }
 
     /** Gets the id of the user the task was running as if this is a leaf task. */
+    @AddedIn(majorVersion = 33)
     public static int getUserId(@NonNull TaskInfo task) {
         return task.userId;
     }
 
     /** Returns whether the task is actually visible or not */
+    @AddedIn(majorVersion = 33)
     public static boolean isVisible(@NonNull TaskInfo task) {
         return task.isVisible && task.isRunning && !task.isSleeping;
     }
 
     /** Returns the string representation of the task */
+    @AddedIn(majorVersion = 33)
     public static String toString(@Nullable TaskInfo task) {
         if (task == null) {
             return "null";
