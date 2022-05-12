@@ -44,7 +44,8 @@
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="@id/guideline25"
         app:layout_constraintTop_toBottomOf="@id/enableDisableTitle"
-        android:backgroundTint="@color/green_button_background" />
+        android:backgroundTint="@color/green_button_background"
+        android:enabled="false" /> <!-- TODO(b/225226520): enable connectButton when its function has been defined -->
     <Button
         android:id="@+id/enableButton"
         android:layout_width="0dp"
@@ -55,7 +56,9 @@
         app:layout_constraintEnd_toStartOf="@id/guideline25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interfaceNameInput2"
-        android:backgroundTint="@color/green_button_background" />
+        android:backgroundTint="@color/green_button_background"
+        android:enabled="false" /> <!-- TODO(b/225226520): enable enableButton -->
+
     <Button
         android:id="@+id/disableButton"
         android:layout_width="0dp"
@@ -66,12 +69,15 @@
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="@id/guideline25"
         app:layout_constraintTop_toBottomOf="@id/interfaceNameInput2"
-        android:backgroundTint="@color/red_button_background"/>
+        android:backgroundTint="@color/red_button_background"
+        android:enabled="false" /> <!-- TODO(b/225226520): enable disableButton-->
+
     <EditText
         android:id="@+id/allowedPackageNamesInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/InputText"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,6 +87,7 @@
         android:id="@+id/ipConfigurationInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
@@ -91,6 +98,7 @@
         android:id="@+id/interfaceNameInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
@@ -100,6 +108,7 @@
         android:id="@+id/networkCapabilitiesInput"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline50"
@@ -110,6 +119,7 @@
         android:id="@+id/interfaceNameInput2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:textAppearance="@style/InputText"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
@@ -120,6 +130,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_size"
+        android:textAppearance="@style/InputText"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/guideline50"
         app:layout_constraintTop_toBottomOf="@id/currentEthernetNetworksTitle">
@@ -127,6 +138,7 @@
             android:id="@+id/currentEthernetNetworksOutput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textAppearance="@style/InputText"
             android:background="@color/scrolling_text_field_background" />
     </ScrollView>
 
