@@ -18,6 +18,9 @@
     <style name="BodyText" parent="TextAppearance.AppCompat.Body2">
         <item name="android:textColor">@android:color/black</item>
     </style>
+    <style name="InputText" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
     <style name="SectionHeaderText" parent="TextAppearance.AppCompat.Subhead">
         <item name="android:textColor">@android:color/black</item>
     </style>
