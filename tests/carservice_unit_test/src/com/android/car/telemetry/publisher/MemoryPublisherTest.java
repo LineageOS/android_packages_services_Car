@@ -184,6 +184,7 @@ public class MemoryPublisherTest {
 
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(1);
         mFakeHandlerWrapper.dispatchQueuedMessages(); // This is the second snapshot
+        mFakeHandlerWrapper.dispatchQueuedMessages(); // Remove subscriber, does not publish data
 
         // verify the MetricsConfig is removed
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(0);
@@ -248,10 +249,12 @@ public class MemoryPublisherTest {
 
         // since there is 1 snapshot left, this is the last read and the subscriber will be removed
         mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mFakeHandlerWrapper.dispatchQueuedMessages();
 
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(0);
         verify(mMockResultStore).removePublisherData(eq(MemoryPublisher.class.getSimpleName()));
+        assertThat(mFakePublisherListener.mFinishedConfig).isEqualTo(METRICS_CONFIG);
     }
 
     @Test
