@@ -196,6 +196,19 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     }
 
     @Test
+    public void testAddMetricsConfig_invalidMetricsConfigName_shouldFail() {
+        TelemetryProto.MetricsConfig noNameConfig =
+                TelemetryProto.MetricsConfig.getDefaultInstance();
+
+        mService.addMetricsConfig(noNameConfig.getName(), noNameConfig.toByteArray(),
+                mMockAddMetricsConfigCallback);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_PARSE_FAILED), isNull());
+    }
+
+    @Test
     public void testAddMetricsConfig_olderMetricsConfig_shouldFail() {
         mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V2.toByteArray(),
                 mMockAddMetricsConfigCallback);
