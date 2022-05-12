@@ -60,6 +60,10 @@ std::string toString(const std::unordered_map<uid_t, UidProcStats>& uidProcStats
     return buffer;
 }
 
+int64_t jiffyHzToMillis(int32_t jiffyHz) {
+    return (jiffyHz * 1000) / sysconf(_SC_CLK_TCK);
+}
+
 }  // namespace
 
 TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
@@ -69,7 +73,7 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 19\n"},
             {1000, "1000 (system_server) D 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 13400\n"},
     };
 
@@ -79,7 +83,7 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 19\n"},
             {453, "453 (init) D 0 0 0 0 0 0 0 0 20 0 0 0 0 0 0 0 2 0 275\n"},
             {1000, "1000 (system_server) D 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 2 0 13400\n"},
             {1100, "1100 (system_server) D 1 0 0 0 0 0 0 0 350 0 0 0 0 0 0 0 2 0 13900\n"},
@@ -90,12 +94,14 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
               UidProcStats{.totalMajorFaults = 220,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 1,
-                           .processStatsByPid = {{1, {"init", 0, 220, 2, 1}}}}},
+                           .processStatsByPid = {{1, {"init", jiffyHzToMillis(19), 220, 2, 1}}}}},
              {10001234,
               UidProcStats{.totalMajorFaults = 600,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 2,
-                           .processStatsByPid = {{1000, {"system_server", 13'400, 600, 2, 2}}}}}};
+                           .processStatsByPid = {
+                                   {1000,
+                                    {"system_server", jiffyHzToMillis(13'400), 600, 2, 2}}}}}};
 
     TemporaryDir firstSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
@@ -119,12 +125,12 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
     };
 
     perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 920 0 0 0 0 0 0 0 2 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 920 0 0 0 0 0 0 0 2 0 19\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 1550 0 0 0 0 0 0 0 2 0 13400\n"},
     };
 
     perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 19\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 320 0 0 0 0 0 0 0 2 0 275\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 13400\n"},
             // TID 1100 hits +400 major page faults before terminating. This is counted against
@@ -136,12 +142,13 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
                  {.totalMajorFaults = 700,
                   .totalTasksCount = 2,
                   .ioBlockedTasksCount = 0,
-                  .processStatsByPid = {{1, {"init", 0, 700, 2, 0}}}}},
+                  .processStatsByPid = {{1, {"init", jiffyHzToMillis(19), 700, 2, 0}}}}},
                 {10001234,
                  {.totalMajorFaults = 950,
                   .totalTasksCount = 2,
                   .ioBlockedTasksCount = 0,
-                  .processStatsByPid = {{1000, {"system_server", 13'400, 950, 2, 0}}}}}};
+                  .processStatsByPid = {
+                          {1000, {"system_server", jiffyHzToMillis(13'400), 950, 2, 0}}}}}};
 
     TemporaryDir secondSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
@@ -170,7 +177,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
     };
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 1 0 19\n"},
             // Process 100 terminated.
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 1 0 1000\n"},
             {2000, "2000 (logd) R 1 0 0 0 0 0 0 0 1200 0 0 0 0 0 0 0 1 0 4567\n"},
@@ -185,7 +192,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
             // Process 2000 terminated.
             {3000, "3000 (disk I/O) R 1 0 0 0 0 0 0 0 2400 0 0 0 0 0 0 0 2 0 67890\n"},
             // TID 3300 terminated.
@@ -196,13 +203,14 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
               UidProcStats{.totalMajorFaults = 220,
                            .totalTasksCount = 1,
                            .ioBlockedTasksCount = 0,
-                           .processStatsByPid = {{1, {"init", 0, 220, 1, 0}}}}},
+                           .processStatsByPid = {{1, {"init", jiffyHzToMillis(19), 220, 1, 0}}}}},
              {10001234,
               UidProcStats{.totalMajorFaults = 11500,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 0,
-                           .processStatsByPid = {{2000, {"logd", 4567, 1200, 1, 0}},
-                                                 {3000, {"disk I/O", 67890, 10'300, 1, 0}}}}}};
+                           .processStatsByPid =
+                                   {{2000, {"logd", jiffyHzToMillis(4567), 1200, 1, 0}},
+                                    {3000, {"disk I/O", jiffyHzToMillis(67890), 10'300, 1, 0}}}}}};
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
@@ -230,7 +238,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 1200 0 0 0 0 0 0 0 4 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 1200 0 0 0 0 0 0 0 4 0 19\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 1 0 1000\n"},
             {2345, "2345 (logd) R 1 0 0 0 0 0 0 0 54354 0 0 0 0 0 0 0 1 0 456\n"},
     };
@@ -242,7 +250,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 4 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 4 0 19\n"},
             {367, "367 (init) S 0 0 0 0 0 0 0 0 400 0 0 0 0 0 0 0 4 0 100\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 100 0 0 0 0 0 0 0 4 0 275\n"},
             {589, "589 (init) D 0 0 0 0 0 0 0 0 500 0 0 0 0 0 0 0 4 0 600\n"},
@@ -255,13 +263,14 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
               UidProcStats{.totalMajorFaults = 1200,
                            .totalTasksCount = 4,
                            .ioBlockedTasksCount = 1,
-                           .processStatsByPid = {{1, {"init", 0, 1200, 4, 1}}}}},
+                           .processStatsByPid = {{1, {"init", jiffyHzToMillis(19), 1200, 4, 1}}}}},
              {10001234,
               UidProcStats{.totalMajorFaults = 54'604,
                            .totalTasksCount = 2,
                            .ioBlockedTasksCount = 0,
-                           .processStatsByPid = {{1000, {"system_server", 1000, 250, 1, 0}},
-                                                 {2345, {"logd", 456, 54'354, 1, 0}}}}}};
+                           .processStatsByPid =
+                                   {{1000, {"system_server", jiffyHzToMillis(1000), 250, 1, 0}},
+                                    {2345, {"logd", jiffyHzToMillis(456), 54'354, 1, 0}}}}}};
 
     TemporaryDir firstSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
@@ -289,7 +298,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
     };
 
     perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 1800 0 0 0 0 0 0 0 2 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 1800 0 0 0 0 0 0 0 2 0 19\n"},
             {367, "367 (system_server) R 1 0 0 0 0 0 0 0 100 0 0 0 0 0 0 0 2 0 3450\n"},
             {1000, "1000 (logd) R 1 0 0 0 0 0 0 0 2000 0 0 0 0 0 0 0 2 0 4650\n"},
     };
@@ -301,7 +310,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
     };
 
     perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 500 0 0 0 0 0 0 0 2 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 500 0 0 0 0 0 0 0 2 0 19\n"},
             {589, "589 (init) S 0 0 0 0 0 0 0 0 300 0 0 0 0 0 0 0 2 0 2345\n"},
             {367, "367 (system_server) R 1 0 0 0 0 0 0 0 50 0 0 0 0 0 0 0 2 0 3450\n"},
             {2000, "2000 (system_server) R 1 0 0 0 0 0 0 0 50 0 0 0 0 0 0 0 2 0 3670\n"},
@@ -313,13 +322,15 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
                  UidProcStats{.totalMajorFaults = 600,
                               .totalTasksCount = 2,
                               .ioBlockedTasksCount = 0,
-                              .processStatsByPid = {{1, {"init", 0, 600, 2, 0}}}}},
+                              .processStatsByPid = {{1,
+                                                     {"init", jiffyHzToMillis(19), 600, 2, 0}}}}},
                 {10001234,
                  UidProcStats{.totalMajorFaults = 2100,
                               .totalTasksCount = 4,
                               .ioBlockedTasksCount = 1,
-                              .processStatsByPid = {{367, {"system_server", 3450, 100, 2, 0}},
-                                                    {1000, {"logd", 4650, 2000, 2, 1}}}}}};
+                              .processStatsByPid =
+                                      {{367, {"system_server", jiffyHzToMillis(3450), 100, 2, 0}},
+                                       {1000, {"logd", jiffyHzToMillis(4650), 2000, 2, 1}}}}}};
 
     TemporaryDir secondSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
@@ -353,7 +364,7 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatFile) {
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
 
     TemporaryDir procDir;
@@ -374,7 +385,7 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
@@ -382,7 +393,7 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
 
     TemporaryDir procDir;
@@ -433,7 +444,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
     };
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
@@ -441,7 +452,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 19\n"},
     };
 
     std::unordered_map<uid_t, UidProcStats> expected = {
@@ -449,8 +460,9 @@ TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
              UidProcStats{.totalMajorFaults = 200,
                           .totalTasksCount = 1,
                           .ioBlockedTasksCount = 0,
-                          .processStatsByPid = {
-                                  {1, {"random process name with space", 0, 200, 1, 0}}}}}};
+                          .processStatsByPid = {{1,
+                                                 {"random process name with space",
+                                                  jiffyHzToMillis(19), 200, 1, 0}}}}}};
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
