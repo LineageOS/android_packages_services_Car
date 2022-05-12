@@ -18,6 +18,7 @@ package android.car.builtin.os;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.os.ParcelFileDescriptor;
 import android.os.SharedMemory;
 
@@ -36,6 +37,7 @@ public final class SharedMemoryHelper {
 
     /** Returns the backing file for the shared memory wrapped in {@code ParcelFileDescriptor}*/
     @NonNull
+    @AddedIn(majorVersion = 33)
     public static ParcelFileDescriptor createParcelFileDescriptor(
             @NonNull SharedMemory memory) throws IOException {
         // Must duplicate the file descriptor because it is currently owned by memory, and we also
