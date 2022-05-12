@@ -307,6 +307,9 @@ public class DataBrokerImpl implements DataBroker {
         List<DataSubscriber> dataSubscribers = new ArrayList<>(
                 metricsConfig.getSubscribersList().size());
         for (TelemetryProto.Subscriber subscriber : metricsConfig.getSubscribersList()) {
+            if (subscriber.getPriority() < 0) {
+                throw new IllegalArgumentException("Subscribers must have non-negative priority");
+            }
             // protobuf publisher to a concrete Publisher
             AbstractPublisher publisher = mPublisherFactory.getPublisher(
                     subscriber.getPublisher().getPublisherCase());
@@ -407,6 +410,9 @@ public class DataBrokerImpl implements DataBroker {
     @Override
     public void setTaskExecutionPriority(int priority) {
         if (mDisabled) {
+            return;
+        }
+        if (priority == mPriority) {
             return;
         }
         mPriority = priority;
