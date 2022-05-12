@@ -193,8 +193,10 @@ ScopedAStatus AidlEnumerator::getDisplayIdList(std::vector<uint8_t>* _aidl_retur
 
 ScopedAStatus AidlEnumerator::registerStatusCallback(
         [[maybe_unused]] const std::shared_ptr<IEvsEnumeratorStatusCallback>& callback) {
-    // TODO(b/195672428): Implement this method
-    return ScopedAStatus::ok();
+    // This method always returns NOT_SUPPORTED because this class wraps around
+    // HIDL EVS HAL implementations, which do not support this callback
+    // interface.
+    return Utils::buildScopedAStatusFromEvsResult(EvsResult::NOT_SUPPORTED);
 }
 
 ScopedAStatus AidlEnumerator::getUltrasonicsArrayList(
