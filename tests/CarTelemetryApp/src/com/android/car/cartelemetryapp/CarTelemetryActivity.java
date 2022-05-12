@@ -148,11 +148,10 @@ public class CarTelemetryActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         if (mConnection != null) {
             unbindService(mConnection);
         }
-        writeAppData();
+        super.onDestroy();
     }
 
     private void onServiceBound() {
@@ -212,7 +211,8 @@ public class CarTelemetryActivity extends Activity {
         for (ConfigData config : mConfigList) {
             configMap.put(config.getName(), config);
         }
-        try (FileOutputStream fos = this.openFileOutput(APP_DATA_FILENAME, Context.MODE_PRIVATE);
+        try (FileOutputStream fos =
+                this.openFileOutput(APP_DATA_FILENAME, Context.MODE_PRIVATE);
                 ObjectOutputStream oos = new ObjectOutputStream(fos)) {
             oos.writeObject(configMap);
         } catch (IOException e) {
@@ -284,6 +284,7 @@ public class CarTelemetryActivity extends Activity {
             mLogs.addFirst(sb.toString());
             // Display log
             mLogView.setText(String.join("\n", mLogs));
+            writeAppData();
         }
     }
 
@@ -299,7 +300,10 @@ public class CarTelemetryActivity extends Activity {
             } else {
                 mService.removeMetricsConfig(config.getName());
                 config.selected = false;
-                getMainExecutor().execute(() -> mAdapter.notifyItemChanged(index));
+                getMainExecutor().execute(() -> {
+                    mAdapter.notifyItemChanged(index);
+                    writeAppData();
+                });
             }
         }
 
@@ -318,11 +322,14 @@ public class CarTelemetryActivity extends Activity {
         public void onClearButtonClicked(ConfigData config) {
             int index = mConfigNameIndex.get(config.getName());
             config.clearHistory();
-            getMainExecutor().execute(() -> mAdapter.notifyItemChanged(index));
+            getMainExecutor().execute(() -> {
+                mAdapter.notifyItemChanged(index);
+                writeAppData();
+            });
         }
     }
 
-    private static class AddConfigCallback implements AddMetricsConfigCallback {
+    private class AddConfigCallback implements AddMetricsConfigCallback {
         private ConfigData mConfig;
         private ConfigListAdaptor mAdaptor;
         private int mIndex;
@@ -343,7 +350,10 @@ public class CarTelemetryActivity extends Activity {
             } else {
                 mConfig.selected = false;
             }
-            mExecutor.execute(() -> mAdaptor.notifyItemChanged(mIndex));
+            mExecutor.execute(() -> {
+                mAdaptor.notifyItemChanged(mIndex);
+                writeAppData();
+            });
         }
     }
 }
