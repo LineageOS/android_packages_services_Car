@@ -184,8 +184,8 @@ public class CarPackageManagerServiceTest {
 
         // To exit ABA will close nonDoActivity.
         assertBlockingActivityNotFound();
-        assertThat(mDevice.getCurrentActivityName()).isNotEqualTo(
-                NonDoActivity.class.getSimpleName());
+        assertThat(mDevice.wait(Until.findObject(By.text(NonDoActivity.class.getSimpleName())),
+                UI_TIMEOUT_MS)).isNull();
     }
 
     @Ignore("b/232019789") // Debug and enable after fixing it.
@@ -198,7 +198,8 @@ public class CarPackageManagerServiceTest {
 
         // To exit ABA will show the root task, DoActivity.
         assertBlockingActivityNotFound();
-        assertThat(mDevice.getCurrentActivityName()).isEqualTo(DoActivity.class.getSimpleName());
+        assertThat(mDevice.wait(Until.findObject(By.text(DoActivity.class.getSimpleName())),
+                UI_TIMEOUT_MS)).isNotNull();
     }
 
     @Test
