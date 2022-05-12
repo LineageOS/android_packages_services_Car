@@ -40,7 +40,7 @@ android_test {
 
     libs: [
         "android.car",
-        "android.car.builtin",
+        "android.car.builtin.impl",
         "android.car.watchdoglib",
         "android.test.runner",
         "android.test.base",

@@ -17,6 +17,7 @@
 package android.car.builtin.util;
 
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 
 import java.io.PrintWriter;
 
@@ -28,11 +29,13 @@ import java.io.PrintWriter;
 public class TimeUtils {
 
     /** Check {@code android.util.TimeUtils.dumpTime}. */
+    @AddedIn(majorVersion = 33)
     public static void dumpTime(PrintWriter pw, long time) {
         android.util.TimeUtils.dumpTime(pw, time);
     }
 
     /** Check {@code android.util.TimeUtils.formatDuration}. */
+    @AddedIn(majorVersion = 33)
     public static void formatDuration(long duration, PrintWriter pw) {
         android.util.TimeUtils.formatDuration(duration, pw);
     }
