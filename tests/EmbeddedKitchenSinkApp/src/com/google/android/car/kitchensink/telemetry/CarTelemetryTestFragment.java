@@ -435,11 +435,7 @@ public class CarTelemetryTestFragment extends Fragment {
                             + "'.*MemAvailable:%s*(%d+).*')\n")
                     .append("    local mem_key = 'available_memory_' .. iterations\n")
                     .append("    report[mem_key] = available_memory\n")
-                    .append("    if iterations >= 2 then \n")
-                    .append("        on_script_finished(report)\n")
-                    .append("    else \n")
-                    .append("        on_metrics_report(report, state)\n")
-                    .append("    end\n")
+                    .append("    on_metrics_report(report, state)\n")
                     .append("end\n")
                     .toString();
     private static final TelemetryProto.Publisher MEMORY_PUBLISHER =
@@ -447,6 +443,7 @@ public class CarTelemetryTestFragment extends Fragment {
                     .setMemory(
                             TelemetryProto.MemoryPublisher.newBuilder()
                                     .setReadIntervalSec(3)
+                                    .setMaxSnapshots(3)
                                     .setMaxPendingTasks(10)
                                     .build())
                     .build();
@@ -557,7 +554,7 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveWtfOccurredConfigBtnClick);
         view.findViewById(R.id.get_on_wtf_occurred_report)
                 .setOnClickListener(this::onGetWtfOccurredReportBtnClick);
-        /** ConnectivityPublisher wifi_netstats section */
+        /** ConnectivityPublisher wifi_netstats top consumers section */
         view.findViewById(R.id.send_on_wifi_netstats_config)
                 .setOnClickListener(this::onSendWifiNetstatsConfigBtnClick);
         view.findViewById(R.id.remove_on_wifi_netstats_config)
@@ -784,7 +781,7 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onRemoveWifiNetstatsConfigBtnClick(View view) {
-        showOutput("Removing MetricsConfig that listens for wifi netstats...");
+        showOutput("Removing MetricsConfig on wifi netstats top consumers...");
         mCarTelemetryManager.removeMetricsConfig(WIFI_TOP_CONSUMERS_CONFIG_NAME);
     }
 
@@ -800,7 +797,7 @@ public class CarTelemetryTestFragment extends Fragment {
                         + "$ adb shell cmd car_service suspend\n"
                         + "and, after 1 minute pause:\n"
                         + "$ adb shell cmd car_service resume\n"
-                        + "Repeat this 3 times and then attempt to pull the report.");
+                        + "Repeat this 3 times and then pull the report after 10 minutes.");
         TelemetryProto.MetricsConfig config =
                 METRICS_CONFIG_STATS_AND_CONNECTIVITY_V1.toBuilder().setScript(luaScript).build();
         mCarTelemetryManager.addMetricsConfig(
@@ -952,7 +949,7 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onRemoveDrivingSessionsConfigBtnClick(View view) {
-        showOutput("Removing MetricsConfig that listens for stats data & connectivity data...");
+        showOutput("Removing MetricsConfig that listens for driving sessions...");
         mCarTelemetryManager.removeMetricsConfig(WIFI_STATS_DRIVING_SESSIONS_CONFIG_NAME);
     }
 
@@ -1050,7 +1047,8 @@ public class CarTelemetryTestFragment extends Fragment {
                 @CarTelemetryManager.MetricsReportStatus int status) {
             if (report != null) {
                 report.size(); // unparcel()'s
-                showOutput("Result for " + metricsConfigName + ": " + report);
+                showOutput(metricsConfigName + " has status: "
+                        + statusCodeToString(status) + ". Printing report: \n\t" + report);
             } else if (telemetryError != null) {
                 parseError(metricsConfigName, telemetryError);
             } else {
