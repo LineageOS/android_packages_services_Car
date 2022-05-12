@@ -58,7 +58,8 @@ import com.google.android.car.kitchensink.cluster.InstrumentClusterFragment;
 import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
-import com.google.android.car.kitchensink.displayinfo.DisplayInfoFragment;
+import com.google.android.car.kitchensink.display.DisplayInfoFragment;
+import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.insets.WindowInsetsFullScreenFragment;
@@ -215,6 +216,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("users", UserFragment.class),
             new FragmentMenuEntry("user restrictions", UserRestrictionsFragment.class),
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
+            new FragmentMenuEntry("virtual display", VirtualDisplayFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("watchdog", CarWatchdogTestFragment.class),
             new FragmentMenuEntry("web links", WebLinksTestFragment.class),
@@ -266,8 +268,8 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     /* Open any tab directly:
      * adb shell am force-stop com.google.android.car.kitchensink
-     * adb shell am start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
-     *     --es "select" "connectivity"
+     * adb shell am 'start -n com.google.android.car.kitchensink/.KitchenSinkActivity \
+     *     --es select "connectivity"'
      *
      * Test car watchdog:
      * adb shell am force-stop com.google.android.car.kitchensink
@@ -294,6 +296,7 @@ public class KitchenSinkActivity extends FragmentActivity {
         }
         String select = extras.getString("select");
         if (select != null) {
+            Log.d(TAG, "Trying to launch entry '" + select + "'");
             mMenuEntries.stream().filter(me -> select.equals(me.getText()))
                     .findAny().ifPresent(me -> me.onClick());
         }
