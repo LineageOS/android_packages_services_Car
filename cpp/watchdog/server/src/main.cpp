@@ -75,11 +75,7 @@ int main(int /*argc*/, char** /*argv*/) {
     registerSigHandler();
 
     // Wait for the service manager before starting binder mediator.
-    while (android::base::GetProperty("init.svc.servicemanager", "") != "running") {
-        // Poll frequent enough so the CarWatchdogDaemonHelper can connect to the daemon during
-        // system boot up.
-        std::this_thread::sleep_for(250ms);
-    }
+    android::base::WaitForProperty("init.svc.servicemanager", "running");
 
     // Set up the binder
     sp<ProcessState> ps(ProcessState::self());

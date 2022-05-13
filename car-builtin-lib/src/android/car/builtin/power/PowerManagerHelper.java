@@ -17,6 +17,7 @@
 package android.car.builtin.power;
 
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.content.Context;
 import android.os.PowerManager;
 
@@ -39,6 +40,7 @@ public final class PowerManagerHelper {
      * @param context Context to use.
      * @return The maximum value that can be set by the user.
      */
+    @AddedIn(majorVersion = 33)
     public static int getMaximumScreenBrightnessSetting(Context context) {
         return context.getSystemService(PowerManager.class).getMaximumScreenBrightnessSetting();
     }
@@ -50,6 +52,7 @@ public final class PowerManagerHelper {
      * @param context Context to use.
      * @return The minimum value that can be set by the user.
      */
+    @AddedIn(majorVersion = 33)
     public static int getMinimumScreenBrightnessSetting(Context context) {
         return context.getSystemService(PowerManager.class).getMinimumScreenBrightnessSetting();
     }
@@ -63,6 +66,7 @@ public final class PowerManagerHelper {
      * @param upTime The time when the request was issued, in the
      * {@link SystemClock#uptimeMillis()} time base.
      */
+    @AddedIn(majorVersion = 33)
     public static void setDisplayState(Context context, boolean on, long upTime) {
         PowerManager powerManager = context.getSystemService(PowerManager.class);
         if (on) {
@@ -74,6 +78,7 @@ public final class PowerManagerHelper {
     }
 
     /** Turns off the device. */
+    @AddedIn(majorVersion = 33)
     public static void shutdown(Context context, boolean confirm, String reason, boolean wait) {
         context.getSystemService(PowerManager.class).shutdown(confirm, reason, wait);
     }

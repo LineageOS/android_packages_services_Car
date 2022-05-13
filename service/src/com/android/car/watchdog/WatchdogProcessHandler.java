@@ -457,7 +457,11 @@ public final class WatchdogProcessHandler {
                 int timeout) {
             this.client = client;
             this.pid = pid;
-            // TODO(b/213939034): Read pid start time and populate this field.
+            // CarService doesn't have sepolicy access to read per-pid proc files, so it cannot
+            // fetch the pid's actual start time. When a client process registers with
+            // the CarService, it is safe to assume the process is still alive. So, populate
+            // elapsed real time and the consumer (CarServiceHelperService) of this data should
+            // verify that the actual start time is less than the reported start time.
             this.startTimeMillis = SystemClock.elapsedRealtime();
             this.userId = userId;
             this.timeout = timeout;

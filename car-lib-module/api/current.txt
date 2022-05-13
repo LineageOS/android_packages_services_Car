@@ -19,7 +19,7 @@ package android.car {
     method public boolean isConnecting();
     method public boolean isFeatureEnabled(@NonNull String);
     field public static final int API_VERSION_MAJOR_INT = 33; // 0x21
-    field public static final int API_VERSION_MINOR_INT = 0; // 0x0
+    field public static final int API_VERSION_MINOR_INT = 1; // 0x1
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
@@ -54,6 +54,7 @@ package android.car {
     field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
     field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
     field public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
+    field public static final int PLATFORM_VERSION_MINOR_INT;
     field public static final String POWER_SERVICE = "power";
     field public static final String PROPERTY_SERVICE = "property";
     field @Deprecated public static final String SENSOR_SERVICE = "sensor";

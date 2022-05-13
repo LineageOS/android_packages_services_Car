@@ -19,6 +19,7 @@ package android.car.builtin.util;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
 import android.os.Trace;
 import android.util.Log;
 import android.util.Slog;
@@ -59,76 +60,91 @@ public final class Slogf {
     }
 
     /** Same as {@link Log#isLoggable(String, int)}, but also checks for {@code CAR_TEST_TAG}. */
+    @AddedIn(majorVersion = 33)
     public static boolean isLoggable(@NonNull String tag, int level) {
         return Log.isLoggable(tag, level) || Log.isLoggable(CAR_TEST_TAG, Log.VERBOSE);
     }
 
     /** Same as {@link Slog#v(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int v(@NonNull String tag, @NonNull String msg) {
         return Slog.v(tag, msg);
     }
 
     /** Same as {@link Slog#v(String, String, Throwable)}. */
+    @AddedIn(majorVersion = 33)
     public static int v(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.v(tag, msg, tr);
     }
 
     /** Same as {@link Slog#d(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int d(@NonNull String tag, @NonNull String msg) {
         return Slog.d(tag, msg);
     }
 
     /** Same as {@link Slog#d(String, String, Throwable)}. */
+    @AddedIn(majorVersion = 33)
     public static int d(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.d(tag, msg, tr);
     }
 
     /** Same as {@link Slog#i(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int i(@NonNull String tag, @NonNull String msg) {
         return Slog.i(tag, msg);
     }
 
     /** Same as {@link Slog#i(String, String, Throwable)}. */
+    @AddedIn(majorVersion = 33)
     public static int i(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.i(tag, msg, tr);
     }
 
     /** Same as {@link Slog#w(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int w(@NonNull String tag, @NonNull String msg) {
         return Slog.w(tag, msg);
     }
 
     /** Same as {@link Slog#w(String, String, Throwable)}. */
+    @AddedIn(majorVersion = 33)
     public static int w(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.w(tag, msg, tr);
     }
 
     /** Same as {@link Slog#w(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int w(@NonNull String tag, @NonNull Throwable tr) {
         return Slog.w(tag, tr);
     }
 
     /** Same as {@link Slog#e(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int e(@NonNull String tag, @NonNull String msg) {
         return Slog.e(tag, msg);
     }
 
     /** Same as {@link Slog#e(String, String, Throwable)}. */
+    @AddedIn(majorVersion = 33)
     public static int e(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.e(tag, msg, tr);
     }
 
     /** Same as {@link Slog#wtf(String, String)}. */
+    @AddedIn(majorVersion = 33)
     public static int wtf(@NonNull String tag, @NonNull String msg) {
         return Slog.wtf(tag, msg);
     }
 
     /** Same as {@link Slog#wtf(String, Throwable). */
+    @AddedIn(majorVersion = 33)
     public static int wtf(@NonNull String tag, @NonNull Throwable tr) {
         return Slog.wtf(tag, tr);
     }
 
     /** Same as {@link Slog#wtf(String, String, Throwable)}. */
+    @AddedIn(majorVersion = 33)
     public static int wtf(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.wtf(tag, msg, tr);
     }
@@ -142,6 +158,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void v(@NonNull String tag, @NonNull String format, @Nullable Object... args) {
         if (!isLoggable(tag, Log.VERBOSE)) return;
 
@@ -157,6 +174,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void d(@NonNull String tag, @NonNull String format, @Nullable Object... args) {
         if (!isLoggable(tag, Log.DEBUG)) return;
 
@@ -172,6 +190,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void i(@NonNull String tag, @NonNull String format, @Nullable Object... args) {
         if (!isLoggable(tag, Log.INFO)) return;
 
@@ -187,6 +206,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void w(@NonNull String tag, @NonNull String format, @Nullable Object... args) {
         if (!isLoggable(tag, Log.WARN)) return;
 
@@ -202,6 +222,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void w(@NonNull String tag, @NonNull Exception exception, @NonNull String format,
             @Nullable Object... args) {
         if (!isLoggable(tag, Log.WARN)) return;
@@ -218,6 +239,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void e(@NonNull String tag, @NonNull String format, @Nullable Object... args) {
         if (!isLoggable(tag, Log.ERROR)) return;
 
@@ -233,6 +255,7 @@ public final class Slogf {
      * calling this method in a critical path, make sure to explicitly do the check before calling
      * it.
      */
+    @AddedIn(majorVersion = 33)
     public static void e(@NonNull String tag, @NonNull Exception exception, @NonNull String format,
             @Nullable Object... args) {
         if (!isLoggable(tag, Log.ERROR)) return;
@@ -243,6 +266,7 @@ public final class Slogf {
     /**
      * Logs a {@code wtf} message.
      */
+    @AddedIn(majorVersion = 33)
     public static void wtf(@NonNull String tag, @NonNull String format, @Nullable Object... args) {
         wtf(tag, getMessage(format, args));
     }
@@ -250,6 +274,7 @@ public final class Slogf {
     /**
      * Logs a {@code wtf} message with an exception.
      */
+    @AddedIn(majorVersion = 33)
     public static void wtf(@NonNull String tag, @NonNull Exception exception,
             @NonNull String format, @Nullable Object... args) {
         wtf(tag, getMessage(format, args), exception);
