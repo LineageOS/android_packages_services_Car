@@ -28,6 +28,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -53,6 +54,8 @@ import com.android.car.multidisplay.R;
 import com.google.android.material.circularreveal.cardview.CircularRevealCardView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -63,6 +66,8 @@ import java.util.Set;
  */
 public class LauncherActivity extends FragmentActivity implements AppPickedCallback,
         PopupMenu.OnMenuItemClickListener {
+
+    private static final String TAG = LauncherActivity.class.getSimpleName();
 
     private Spinner mDisplaySpinner;
     private ArrayAdapter<DisplayItem> mDisplayAdapter;
@@ -98,13 +103,9 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         });
 
         mFab = findViewById(R.id.FloatingActionButton);
-        mFab.setOnClickListener((View v) -> {
-            showAppDrawer(true);
-        });
+        mFab.setOnClickListener((v) -> showAppDrawer(true));
 
-        mScrimView.setOnClickListener((View v) -> {
-            showAppDrawer(false);
-        });
+        mScrimView.setOnClickListener((v) -> showAppDrawer(false));
 
         mDisplaySpinner = findViewById(R.id.spinner);
         mDisplaySpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -123,39 +124,32 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         mDisplayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         mDisplaySpinner.setAdapter(mDisplayAdapter);
 
-        final ViewModelProvider viewModelProvider = new ViewModelProvider(getViewModelStore(),
+        ViewModelProvider viewModelProvider = new ViewModelProvider(getViewModelStore(),
                 new AndroidViewModelFactory((Application) getApplicationContext()));
 
         mPinnedAppListAdapter = new AppListAdapter(this);
-        final GridView pinnedAppGridView = findViewById(R.id.pinned_app_grid);
+        GridView pinnedAppGridView = findViewById(R.id.pinned_app_grid);
         pinnedAppGridView.setAdapter(mPinnedAppListAdapter);
-        pinnedAppGridView.setOnItemClickListener((adapterView, view, position, id) -> {
-            final AppEntry entry = mPinnedAppListAdapter.getItem(position);
-            launch(entry.getLaunchIntent());
-        });
-        final PinnedAppListViewModel pinnedAppListViewModel =
+        pinnedAppGridView.setOnItemClickListener(
+                (a, v, position, i) -> launch(mPinnedAppListAdapter.getItem(position)));
+        PinnedAppListViewModel pinnedAppListViewModel =
                 viewModelProvider.get(PinnedAppListViewModel.class);
-        pinnedAppListViewModel.getPinnedAppList().observe(this, data -> {
-            mPinnedAppListAdapter.setData(data);
-        });
+        pinnedAppListViewModel.getPinnedAppList().observe(this,
+                data -> mPinnedAppListAdapter.setData(data));
 
         mAppListAdapter = new AppListAdapter(this);
-        final GridView appGridView = findViewById(R.id.app_grid);
+        GridView appGridView = findViewById(R.id.app_grid);
         appGridView.setAdapter(mAppListAdapter);
-        appGridView.setOnItemClickListener((adapterView, view, position, id) -> {
-            final AppEntry entry = mAppListAdapter.getItem(position);
-            launch(entry.getLaunchIntent());
-        });
-        final AppListViewModel appListViewModel = viewModelProvider.get(AppListViewModel.class);
-        appListViewModel.getAppList().observe(this, data -> {
-            mAppListAdapter.setData(data);
-        });
+        appGridView.setOnItemClickListener(
+                (a, v, position, id) -> launch(mAppListAdapter.getItem(position)));
+        AppListViewModel appListViewModel = viewModelProvider.get(AppListViewModel.class);
+        appListViewModel.getAppList().observe(this, data -> mAppListAdapter.setData(data));
 
         findViewById(R.id.RefreshButton).setOnClickListener(this::refreshDisplayPicker);
         mNewInstanceCheckBox = findViewById(R.id.NewInstanceCheckBox);
 
         ImageButton optionsButton = findViewById(R.id.OptionsButton);
-        optionsButton.setOnClickListener((View v) -> {
+        optionsButton.setOnClickListener((v) -> {
             PopupMenu popup = new PopupMenu(this, v);
             popup.setOnMenuItemClickListener(this);
             MenuInflater inflater = popup.getMenuInflater();
@@ -200,7 +194,7 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
 
         if (Intent.ACTION_MAIN.equals(intent.getAction())) {
             // Hide keyboard.
-            final View v = getWindow().peekDecorView();
+            View v = getWindow().peekDecorView();
             if (v != null && v.getWindowToken() != null) {
                 getSystemService(InputMethodManager.class).hideSoftInputFromWindow(
                         v.getWindowToken(), 0);
@@ -211,19 +205,29 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         showAppDrawer(false);
     }
 
+    private void launch(AppEntry entry) {
+        Intent intent = entry.getLaunchIntent();
+        Log.i(TAG, "Launching " + entry + " for user " + getUserId() + " using " + intent);
+
+        launch(intent);
+    }
+
     void launch(Intent launchIntent) {
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         if (mNewInstanceCheckBox.isChecked()) {
             launchIntent.addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
         }
-        final ActivityOptions options = ActivityOptions.makeBasic();
+        ActivityOptions options = ActivityOptions.makeBasic();
         if (mSelectedDisplayId != Display.INVALID_DISPLAY) {
+            Log.v(TAG, "launch(): setting display to " + mSelectedDisplayId);
             options.setLaunchDisplayId(mSelectedDisplayId);
         }
         try {
+            Log.v(TAG, "calling startActivity() for " + launchIntent);
             startActivity(launchIntent, options.toBundle());
         } catch (Exception e) {
-            final AlertDialog.Builder builder =
+            Log.e(TAG, "start activity failed", e);
+            AlertDialog.Builder builder =
                     new AlertDialog.Builder(this, android.R.style.Theme_Material_Dialog_Alert);
             builder.setTitle(R.string.couldnt_launch)
                     .setMessage(e.getLocalizedMessage())
@@ -237,17 +241,19 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
     }
 
     private void refreshDisplayPicker(View view) {
-        final int currentDisplayId = view.getDisplay().getDisplayId();
-        final DisplayManager dm = getSystemService(DisplayManager.class);
+        int currentDisplayId = view.getDisplay().getDisplayId();
+        Log.d(TAG, "refreshing " + view + " from display " + currentDisplayId);
+
+        DisplayManager dm = getSystemService(DisplayManager.class);
         mDisplayAdapter.setNotifyOnChange(false);
         mDisplayAdapter.clear();
         mDisplayAdapter.add(new DisplayItem(Display.INVALID_DISPLAY, "Do not specify display"));
 
         for (Display display : dm.getDisplays()) {
-            final int id = display.getDisplayId();
-            final boolean isDisplayPrivate = (display.getFlags() & Display.FLAG_PRIVATE) != 0;
-            final boolean isCurrentDisplay = id == currentDisplayId;
-            final StringBuilder sb = new StringBuilder();
+            int id = display.getDisplayId();
+            boolean isDisplayPrivate = (display.getFlags() & Display.FLAG_PRIVATE) != 0;
+            boolean isCurrentDisplay = id == currentDisplayId;
+            StringBuilder sb = new StringBuilder();
             sb.append(id).append(": ").append(display.getName());
             if (isDisplayPrivate) {
                 sb.append(" (private)");
@@ -255,7 +261,9 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
             if (isCurrentDisplay) {
                 sb.append(" [Current display]");
             }
-            mDisplayAdapter.add(new DisplayItem(id, sb.toString()));
+            String description = sb.toString();
+            Log.v(TAG, "Adding DisplayItem " + id + ": " + description);
+            mDisplayAdapter.add(new DisplayItem(id, description));
         }
 
         mDisplayAdapter.notifyDataSetChanged();
@@ -266,7 +274,8 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
      */
     @Override
     public void onAppPicked(AppEntry appEntry) {
-        final SharedPreferences sp = getSharedPreferences(PINNED_APPS_KEY, 0);
+        Log.i(TAG, "pinning " + appEntry);
+        SharedPreferences sp = getSharedPreferences(PINNED_APPS_KEY, 0);
         Set<String> pinnedApps = sp.getStringSet(PINNED_APPS_KEY, null);
         if (pinnedApps == null) {
             pinnedApps = new HashSet<String>();
@@ -276,20 +285,46 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         }
         pinnedApps.add(appEntry.getComponentName().flattenToString());
 
-        final SharedPreferences.Editor editor = sp.edit();
+        SharedPreferences.Editor editor = sp.edit();
         editor.putStringSet(PINNED_APPS_KEY, pinnedApps);
         editor.apply();
+    }
+
+    @Override
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        if (args != null && args.length > 0 && args[0].equals("--quiet")) {
+            writer.printf("%s(not dumping superclass info when using --quiet)\n\n", prefix);
+        } else {
+            super.dump(prefix, fd, writer, args);
+        }
+        String prefix2 = prefix + "  ";
+        writer.printf("%smUser: %s\n", prefix, getUserId());
+        writer.printf("%smDisplaySpinner: %s\n", prefix, mDisplaySpinner);
+        writer.printf("%smDisplayAdapter:\n", prefix);
+        SantasLittleHelper.dump(mDisplayAdapter, prefix2, writer);
+        writer.printf("%smAppDrawerHeader: %s\n", prefix, mAppDrawerHeader);
+        writer.printf("%smSelectedDisplayId: %d\n", prefix, mSelectedDisplayId);
+        writer.printf("%smRootView: %s\n", prefix, mRootView);
+        writer.printf("%smScrimView: %s\n", prefix, mScrimView);
+        writer.printf("%smAppDrawerHeader:\n", prefix);
+        SantasLittleHelper.dump(mAppListAdapter, prefix2, writer);
+        writer.printf("%smPinnedAppListAdapter:\n", prefix);
+        SantasLittleHelper.dump(mPinnedAppListAdapter, prefix2, writer);
+        writer.printf("%smFab: %s\n", prefix, mFab);
+        writer.printf("%smNewInstanceCheckBox: %s\n", prefix, mNewInstanceCheckBox);
+        writer.printf("%smAppDrawerShown: %s\n", prefix, mAppDrawerShown);
     }
 
     /**
      * Show/hide app drawer card with animation.
      */
     private void showAppDrawer(boolean show) {
+        Log.v(TAG, "showAppDrawer(show=" + show + ", mAppDrawerShown=" + mAppDrawerShown + ")");
         if (show == mAppDrawerShown) {
             return;
         }
 
-        final Animator animator = revealAnimator(mAppDrawerView, show);
+        Animator animator = revealAnimator(mAppDrawerView, show);
         if (show) {
             mAppDrawerShown = true;
             mAppDrawerView.setVisibility(View.VISIBLE);
@@ -315,14 +350,14 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
      * Create reveal/hide animator for app list card.
      */
     private Animator revealAnimator(View view, boolean open) {
-        final int radius = (int) Math.hypot((double) view.getWidth(), (double) view.getHeight());
+        int radius = (int) Math.hypot((double) view.getWidth(), (double) view.getHeight());
         return ViewAnimationUtils.createCircularReveal(view, view.getRight(), view.getBottom(),
                 open ? 0 : radius, open ? radius : 0);
     }
 
-    private static class DisplayItem {
-        final int mId;
-        final String mDescription;
+    private static final class DisplayItem {
+        private final int mId;
+        private final String mDescription;
 
         DisplayItem(int displayId, String description) {
             mId = displayId;
