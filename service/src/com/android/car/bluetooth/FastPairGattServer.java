@@ -491,6 +491,10 @@ class FastPairGattServer {
                 Slogf.d(TAG, "Decrypted, LocalMacAddress: %s remoteAddress: %s",
                         localAddress, reportedDevice);
             }
+            if (mLocalRpaDevice == null) {
+                Slogf.w(TAG, "Cannot get own address; AdvertisingSet#getOwnAddress"
+                        + " is not supported in this platform version.");
+            }
             // Test that the received device address matches this devices address
             if (reportedDevice.equals(localDevice) || reportedDevice.equals(mLocalRpaDevice)) {
                 if (DBG) {
