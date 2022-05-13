@@ -416,13 +416,13 @@ public class ICarImpl extends ICar.Stub {
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
         allServices.add(mFeatureController);
-        allServices.add(mCarOccupantZoneService);
+        allServices.add(mCarPropertyService); // mCarUXRestrictionsService depends on it
+        allServices.add(mCarOccupantZoneService); // mCarUXRestrictionsService depends on it
         allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
         addServiceIfNonNull(allServices, mExperimentalCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
-        allServices.add(mCarPropertyService);
         allServices.add(mCarDrivingStateService);
         addServiceIfNonNull(allServices, mOccupantAwarenessService);
         allServices.add(mCarPackageManagerService);
