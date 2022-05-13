@@ -105,7 +105,7 @@
     <!-- Controls whether system buttons use all caps for text -->
     <bool name="config_buttonTextAllCaps">false</bool>
 
-    <bool name="config_automotiveHideNavBarForKeyboard">true</bool>
+    <bool name="config_hideNavBarForKeyboard">true</bool>
 
     <!-- Turn off Wallpaper service -->
     <bool name="config_enableWallpaperService">false</bool>
