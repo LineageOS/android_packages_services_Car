@@ -23,7 +23,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 
 /** An entry that represents a single activity that can be launched. */
-public  class AppEntry {
+public final class AppEntry {
 
     private String mLabel;
     private Drawable mIcon;

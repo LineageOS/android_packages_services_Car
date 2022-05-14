@@ -39,6 +39,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 final class HidlVehicleStub extends VehicleStub {
@@ -217,8 +218,8 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     @Override
-    public void dump(FileDescriptor fd, ArrayList<String> args) throws RemoteException {
-        mHidlVehicle.debug(new NativeHandle(fd, /* own= */ false), args);
+    public void dump(FileDescriptor fd, List<String> args) throws RemoteException {
+        mHidlVehicle.debug(new NativeHandle(fd, /* own= */ false), new ArrayList<String>(args));
     }
 
     @Nullable

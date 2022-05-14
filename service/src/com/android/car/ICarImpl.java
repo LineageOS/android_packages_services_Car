@@ -52,6 +52,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcel;
+import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemProperties;
@@ -410,13 +411,13 @@ public class ICarImpl extends ICar.Stub {
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
         allServices.add(mFeatureController);
-        allServices.add(mCarOccupantZoneService);
+        allServices.add(mCarPropertyService); // mCarUXRestrictionsService depends on it
+        allServices.add(mCarOccupantZoneService); // mCarUXRestrictionsService depends on it
         allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
         addServiceIfNonNull(allServices, mExperimentalCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
-        allServices.add(mCarPropertyService);
         allServices.add(mCarDrivingStateService);
         addServiceIfNonNull(allServices, mOccupantAwarenessService);
         allServices.add(mCarPackageManagerService);
@@ -966,5 +967,14 @@ public class ICarImpl extends ICar.Stub {
         public void setInitialUser(UserHandle user) {
             mCarUserService.setInitialUserFromSystemServer(user);
         }
+    }
+
+    /* package */ void dumpVhal(ParcelFileDescriptor fd, List<String> options)
+            throws RemoteException {
+        mHal.dumpVhal(fd, options);
+    }
+
+    /* package */ boolean hasAidlVhal() {
+        return mHal.isAidlVhal();
     }
 }

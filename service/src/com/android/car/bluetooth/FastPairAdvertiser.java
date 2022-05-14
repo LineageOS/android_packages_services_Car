@@ -178,6 +178,8 @@ class FastPairAdvertiser {
             if (advertisingSet == null) return;
             //TODO: b/196233989
             //advertisingSet.getOwnAddress();
+            Slogf.w(TAG, "AdvertisingSet#getOwnAddress not called."
+                    + " This feature is not supported in this platform version.");
         }
 
         @Override

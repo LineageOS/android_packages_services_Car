@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.google.android.car.kitchensink.displayinfo;
+package com.google.android.car.kitchensink.display;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -38,7 +38,7 @@ import com.google.android.car.kitchensink.R;
  */
 public class DisplayInfoFragment extends Fragment {
 
-    private LinearLayout list;
+    private LinearLayout mList;
 
     @Nullable
     @Override
@@ -46,7 +46,7 @@ public class DisplayInfoFragment extends Fragment {
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.display_info, container, false);
 
-        list = (LinearLayout) view.findViewById(R.id.list);
+        mList = view.findViewById(R.id.list);
 
         return view;
     }
@@ -122,10 +122,10 @@ public class DisplayInfoFragment extends Fragment {
         TextView textView = new TextView(getContext());
         textView.setTextAppearance(R.style.TextAppearance_CarUi_Body2);
         textView.setText(text);
-        list.addView(textView);
+        mList.addView(textView);
     }
 
-    private static float convertPixelsToDp(float px, Context context){
+    private static float convertPixelsToDp(float px, Context context) {
         Resources resources = context.getResources();
         DisplayMetrics metrics = resources.getDisplayMetrics();
         float dp = px / ((float) metrics.densityDpi / DisplayMetrics.DENSITY_DEFAULT);
