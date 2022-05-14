@@ -21,14 +21,14 @@ import android.app.Service;
 import android.car.Car;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.CarTelemetryManager.AddMetricsConfigCallback;
+import android.car.telemetry.TelemetryProto.MetricsConfig;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.util.Log;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -44,6 +44,8 @@ public class CarMetricsCollectorService extends Service {
     private Car mCar;
     private CarTelemetryManager mCarTelemetryManager;
     private Set<String> mActiveConfigs = new HashSet<>();
+    private ConfigParser mConfigParser;
+    private Map<String, MetricsConfig> mConfigs;
     private Car.CarServiceLifecycleListener mCarLifecycleListener = (car, ready) -> {
         if (ready) {
             mCarTelemetryManager =
@@ -59,7 +61,9 @@ public class CarMetricsCollectorService extends Service {
                 /* handler= */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                 mCarLifecycleListener);
-        addAllConfigsFromAssets();
+        mConfigParser = new ConfigParser(this.getApplicationContext());
+        mConfigs = mConfigParser.getConfigs();
+        addActiveConfigs();
     }
 
     @Override
@@ -78,21 +82,25 @@ public class CarMetricsCollectorService extends Service {
         }
     }
 
+    public String dumpLogs() {
+        return mConfigParser.dumpLogs();
+    }
+
     /**
      * Get all the config names that are in the assets folder.
      *
      * They are not necessarily active.
      */
     public String[] getAllConfigNames() {
-        try {
-            return getAssets().list(ASSETS_METRICS_CONFIG_FOLDER);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to read configs from assets folder", e);
-        }
+        return mConfigs.keySet().toArray(new String[0]);
     }
 
     /**
      * Gets the finished report.
+     *
+     * @param configName the name of the {@link MetricsConfig} to get the report for.
+     * @param executor {@link Executor} to execute the callback in.
+     * @param callback function to be called with the finished report.
      */
     public void getFinishedReport(
             @NonNull String configName,
@@ -103,6 +111,9 @@ public class CarMetricsCollectorService extends Service {
 
     /**
      * Sets listener for getting notified when a report is ready.
+     *
+     * @param executor {@link Executor} to execute the listener on.
+     * @param listener the callback to call when report is ready.
      */
     public void setReportReadyListener(
             @CallbackExecutor @NonNull Executor executor,
@@ -111,20 +122,22 @@ public class CarMetricsCollectorService extends Service {
     }
 
     /**
-     * Adds a metrics config that's available from the assets folder.
+     * Adds {@link MetricsConfig} of a specific name.
+     *
+     * @param configName name of the {@link MetricsConfig} to add.
+     * @param executor {@link Executor} to execute the add operation on.
+     * @param callback the callback to call with the status of the add operation.
      */
     public void addMetricsConfig(
             @NonNull String configName,
             @CallbackExecutor @NonNull Executor executor,
             @NonNull AddMetricsConfigCallback callback) {
-        try (InputStream is = getAssets().open(ASSETS_METRICS_CONFIG_FOLDER + "/" + configName)) {
-            byte[] bytes = new byte[is.available()];
-            is.read(bytes);
-            mCarTelemetryManager.addMetricsConfig(
-                    configName, bytes, mExecutor, callback);
-        } catch (IOException e) {
-            throw new IllegalStateException("Failed to read config, could not add.", e);
+        if (!mConfigs.containsKey(configName)) {
+            throw new IllegalArgumentException(
+                    "Failed to add metrics config, name does not exist! " + configName);
         }
+        mCarTelemetryManager.addMetricsConfig(
+                    configName, mConfigs.get(configName).toByteArray(), mExecutor, callback);
     }
 
     /**
@@ -134,16 +147,13 @@ public class CarMetricsCollectorService extends Service {
         mCarTelemetryManager.removeMetricsConfig(configName);
     }
 
+    /**
+     * Gets the active configs.
+     *
+     * @return activated configs.
+     */
     public Set<String> getActiveConfigs() {
         return mActiveConfigs;
-    }
-
-    /** Adds all MetricsConfig in the assets folder to CarTelemetryManager. */
-    private void addAllConfigsFromAssets() {
-        String[] assets = getAllConfigNames();
-        for (String assetName : assets) {
-            addMetricsConfig(assetName, mExecutor, this::onAddMetricsConfigStatus);
-        }
     }
 
     private void onAddMetricsConfigStatus(String metricsConfigName, int statusCode) {
@@ -152,6 +162,13 @@ public class CarMetricsCollectorService extends Service {
         if (statusCode == CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED
                 || statusCode == CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS) {
             mActiveConfigs.add(metricsConfigName);
+        }
+    }
+
+    private void addActiveConfigs() {
+        // TODO(b/230664179): specific logic for what configs should be added
+        for (String configName : mConfigs.keySet()) {
+            addMetricsConfig(configName, mExecutor, this::onAddMetricsConfigStatus);
         }
     }
 
