@@ -30,6 +30,7 @@ import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ExperimentalFeature;
 import android.car.annotation.MandatoryFeature;
@@ -1092,6 +1093,16 @@ public final class Car {
     @AddedInOrBefore(majorVersion = 33)
     public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH =
             "android.car.permission.CONTROL_CAR_APP_LAUNCH";
+
+    /**
+     * Permission necessary to setting and getting thread scheduling policy and priority.
+     *
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    public static final String PERMISSION_MANAGE_THREAD_PRIORITY =
+            "android.car.permission.MANAGE_THREAD_PRIORITY";
 
     /**
      * Intent for connecting to the template renderer. Services that handle this intent must also

@@ -939,6 +939,14 @@
         android:label="@string/car_permission_label_control_car_app_launch"
         android:description="@string/car_permission_desc_control_car_app_launch"/>
 
+    <!-- Allows an application to set its own thread's scheduling policy and priority.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_manage_thread_priority"
+        android:description="@string/car_permission_desc_manage_thread_priority"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.
