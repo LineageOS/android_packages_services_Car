@@ -35,6 +35,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.ParcelFileDescriptor;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -761,6 +762,14 @@ public class VehicleHal implements HalClientCallback {
                         VehiclePropertyIds.toString(propId), service);
             }
         }
+    }
+
+     /**
+     * Dumps or debug VHAL.
+     */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dumpVhal(ParcelFileDescriptor fd, List<String> options) throws RemoteException {
+        mVehicleStub.dump(fd.getFileDescriptor(), options);
     }
 
     /**
