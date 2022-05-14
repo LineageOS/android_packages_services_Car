@@ -20,10 +20,14 @@ import android.app.Application;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.EthernetNetworkManagementException;
+import android.net.EthernetNetworkSpecifier;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.OutcomeReceiver;
 import android.util.Log;
 import android.widget.Button;
@@ -35,21 +39,32 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public final class MainActivity extends FragmentActivity {
     private static final String TAG = MainActivity.class.getName();
+    private static final Duration REQUEST_NETWORK_TIMEOUT =
+            Duration.of(200, ChronoUnit.MILLIS);
+
     private ConfigurationUpdater mConfigurationUpdater;
+    private InterfaceEnabler mInterfaceEnabler;
     private CurrentEthernetNetworksViewModel mCurrentEthernetNetworksViewModel;
+    private ConnectivityManager mConnectivityManager;
 
     private final List<Button> mButtons = new ArrayList<>();
+    private final List<EditText> mEditTexts = new ArrayList<>();
 
     private EditText mAllowedPackageNames;
     private EditText mIpConfiguration;
-    private EditText mInterfaceName;
+    private EditText mInterfaceName; // used in updateConfiguration
     private EditText mNetworkCapabilities;
+    private EditText mInterfaceName2; // used in connect/enable/disable
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +75,27 @@ public final class MainActivity extends FragmentActivity {
         mIpConfiguration = findViewById(R.id.ipConfigurationInput);
         mInterfaceName = findViewById(R.id.interfaceNameInput);
         mNetworkCapabilities = findViewById(R.id.networkCapabilitiesInput);
-
         Button updateButton = findViewById(R.id.updateButton);
         updateButton.setOnClickListener(v -> onUpdateButtonClick());
 
+        mInterfaceName2 = findViewById(R.id.interfaceNameInput2);
+        Button connectButton = findViewById(R.id.connectButton);
+        connectButton.setOnClickListener(v -> onConnectButtonClick());
+        Button enableButton = findViewById(R.id.enableButton);
+        enableButton.setOnClickListener(v -> onEnableButtonClick());
+        Button disableButton = findViewById(R.id.disableButton);
+        disableButton.setOnClickListener(v -> onDisableButtonClick());
+
         mButtons.add(updateButton);
-        // TODO(b/225226520): add connectButton to list when its function has been defined
-        // TODO(b/225226520): add enable/disableButton to list when implemented
+        mButtons.add(connectButton);
+        mButtons.add(enableButton);
+        mButtons.add(disableButton);
+
+        mEditTexts.add(mAllowedPackageNames);
+        mEditTexts.add(mIpConfiguration);
+        mEditTexts.add(mInterfaceName);
+        mEditTexts.add(mNetworkCapabilities);
+        mEditTexts.add(mInterfaceName2);
 
         TextView currentEthernetNetworksOutput = findViewById(R.id.currentEthernetNetworksOutput);
 
@@ -74,44 +103,54 @@ public final class MainActivity extends FragmentActivity {
                 new ViewModelProvider(this,
                         new CurrentEthernetNetworksViewModelFactory(
                                 (Application) getApplicationContext(),
-                                new NetworkCallback()))
+                                new CurrentEthernetNetworksCallback()))
                         .get(CurrentEthernetNetworksViewModel.class);
         mCurrentEthernetNetworksViewModel.getNetworksLiveData().observe(this,
                 networkNetworkInfoMap -> currentEthernetNetworksOutput
                         .setText(mCurrentEthernetNetworksViewModel
                                 .getCurrentEthernetNetworksText(networkNetworkInfoMap)));
 
-        mConfigurationUpdater = new ConfigurationUpdater(getApplicationContext(),
+        OutcomeReceiver<String, EthernetNetworkManagementException> outcomeReceiver =
                 new OutcomeReceiver<String, EthernetNetworkManagementException>() {
                     @Override
                     public void onResult(String result) {
-                        showDialogWithTitle(result);
+                        showOperationResultDialog(result, /* isSuccess= */ true);
                     }
 
                     @Override
                     public void onError(EthernetNetworkManagementException error) {
                         OutcomeReceiver.super.onError(error);
-                        showDialogWithTitle(error.getLocalizedMessage());
+                        showOperationResultDialog(error.getLocalizedMessage(),
+                                /* isSuccess= */ false);
                     }
-                });
+                };
+
+        mConfigurationUpdater = new ConfigurationUpdater(getApplicationContext(), outcomeReceiver);
+        mInterfaceEnabler = new InterfaceEnabler(getApplicationContext(), outcomeReceiver);
+        mConnectivityManager = getSystemService(ConnectivityManager.class);
     }
 
-    private void setButtonsEnabled(boolean enabled) {
+    private void setButtonsAndEditTextsEnabled(boolean isEnabled) {
         for (Button button : mButtons) {
-            button.setEnabled(enabled);
+            button.setEnabled(isEnabled);
+        }
+
+        for (EditText editText : mEditTexts) {
+            editText.setEnabled(isEnabled);
         }
     }
 
-    private void showDialogWithTitle(String title) {
+    private void showOperationResultDialog(String message, boolean isSuccess) {
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setOnDismissListener(d -> setButtonsEnabled(true))
+                .setTitle(isSuccess ? R.string.success : R.string.error)
+                .setMessage(message)
+                .setOnDismissListener(d -> setButtonsAndEditTextsEnabled(true))
                 .create();
         dialog.show();
     }
 
     private void onUpdateButtonClick() {
-        setButtonsEnabled(false);
+        setButtonsAndEditTextsEnabled(false);
         Log.d(TAG, "configuration update started");
         try {
             mConfigurationUpdater.updateNetworkConfiguration(
@@ -120,19 +159,78 @@ public final class MainActivity extends FragmentActivity {
                     mNetworkCapabilities.getText().toString(),
                     mInterfaceName.getText().toString());
         } catch (IllegalArgumentException | PackageManager.NameNotFoundException e) {
-            showDialogWithTitle(e.getLocalizedMessage());
+            showOperationResultDialog(e.getLocalizedMessage(), /* isSuccess= */ false);
         }
     }
 
-    private class NetworkCallback extends ConnectivityManager.NetworkCallback {
+    private void onConnectButtonClick() {
+        setButtonsAndEditTextsEnabled(false);
+        Log.d(TAG, "connect interface started");
+
+        try {
+            NetworkRequest request =
+                    new NetworkRequest.Builder()
+                            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+                            .setNetworkSpecifier(
+                            new EthernetNetworkSpecifier(
+                                    mInterfaceName2.getText().toString())).build();
+            mConnectivityManager.requestNetwork(request,
+                    new InterfaceConnectorCallback(),
+                    new Handler(Looper.getMainLooper()),
+                    Math.toIntExact(REQUEST_NETWORK_TIMEOUT.toMillis()));
+        } catch (IllegalArgumentException e) {
+            showOperationResultDialog(e.getLocalizedMessage(), /* isSuccess= */ false);
+        }
+    }
+
+    private void onEnableButtonClick() {
+        setButtonsAndEditTextsEnabled(false);
+        Log.d(TAG, "enable interface started");
+        mInterfaceEnabler.enableInterface(mInterfaceName2.getText().toString());
+    }
+
+    private void onDisableButtonClick() {
+        setButtonsAndEditTextsEnabled(false);
+        Log.d(TAG, "disable interface started");
+        mInterfaceEnabler.disableInterface(mInterfaceName2.getText().toString());
+    }
+
+    private class InterfaceConnectorCallback extends ConnectivityManager.NetworkCallback {
+        @Override
+        public void onAvailable(Network network) {
+            super.onAvailable(network);
+
+            try {
+                network.bindSocket(new Socket());
+            } catch (IOException e) {
+                showOperationResultDialog(e.getLocalizedMessage(), /* isSuccess= */ false);
+                return;
+            } finally {
+                mConnectivityManager.unregisterNetworkCallback(this);
+            }
+
+            showOperationResultDialog(
+                    mConnectivityManager.getLinkProperties(network).getInterfaceName(),
+                    /* isSuccess= */ true);
+        }
+
+        @Override
+        public void onUnavailable() {
+            super.onUnavailable();
+            mConnectivityManager.unregisterNetworkCallback(this);
+
+            showOperationResultDialog(mInterfaceName2.getText().toString() + " is not available",
+                    /* isSuccess= */ false);
+        }
+    }
+
+    private class CurrentEthernetNetworksCallback extends ConnectivityManager.NetworkCallback {
         @Override
         public void onAvailable(Network network) {
             super.onAvailable(network);
             Log.d(TAG, "Network " + network + " available");
 
-            runOnUiThread(() -> mCurrentEthernetNetworksViewModel.updateNetwork(
-                            network, /* available= */ true)
-            );
+            runOnUiThread(() -> mCurrentEthernetNetworksViewModel.addNetwork(network));
         }
 
         @Override
@@ -140,9 +238,7 @@ public final class MainActivity extends FragmentActivity {
             super.onLost(network);
             Log.d(TAG, "Network " + network + " lost");
 
-            runOnUiThread(() -> mCurrentEthernetNetworksViewModel.updateNetwork(
-                            network, /* available= */ false)
-            );
+            runOnUiThread(() -> mCurrentEthernetNetworksViewModel.removeNetwork(network));
         }
 
         @Override
@@ -152,9 +248,7 @@ public final class MainActivity extends FragmentActivity {
             Log.d(TAG, "Network " + network + " capabilities changed to "
                     + Arrays.toString(networkCapabilities.getCapabilities()));
 
-            runOnUiThread(() -> mCurrentEthernetNetworksViewModel.updateNetwork(
-                            network, networkCapabilities)
-            );
+            runOnUiThread(() -> mCurrentEthernetNetworksViewModel.onNetworkChanged());
         }
 
         @Override
@@ -163,10 +257,8 @@ public final class MainActivity extends FragmentActivity {
             super.onLinkPropertiesChanged(network, linkProperties);
             Log.d(TAG, "Network " + network + " link properties changed");
 
-            MainActivity.this.runOnUiThread(
-                    () -> mCurrentEthernetNetworksViewModel.updateNetwork(
-                            network, linkProperties)
-            );
+            runOnUiThread(
+                    () -> mCurrentEthernetNetworksViewModel.onNetworkChanged());
         }
     }
 
