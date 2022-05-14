@@ -28,4 +28,6 @@
     <string name="network_capabilities_title">Network Capabilities</string>
     <string name="enable_disable_section_title">Enable/Disable/Connect Interface</string>
     <string name="current_ethernet_networks_section_title">Current Ethernet Networks</string>
+    <string name="success">Success</string>
+    <string name="error">Error</string>
 </resources>

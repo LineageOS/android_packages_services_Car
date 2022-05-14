@@ -27,19 +27,19 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 import java.util.Set;
 
 public final class CurrentEthernetNetworksViewModel extends AndroidViewModel {
-    private final MutableLiveData<Map<Network, NetworkInfo>> mNetworks = new MutableLiveData<>();
+    private final MutableLiveData<List<Network>> mNetworks =
+            new MutableLiveData<>(new ArrayList<>());
     private final Application mApplication;
     private final ConnectivityManager mConnectivityManager;
     private final ConnectivityManager.NetworkCallback mNetworkCallback;
 
-    public LiveData<Map<Network, NetworkInfo>> getNetworksLiveData() {
+    public LiveData<List<Network>> getNetworksLiveData() {
         return mNetworks;
     }
 
@@ -69,74 +69,52 @@ public final class CurrentEthernetNetworksViewModel extends AndroidViewModel {
         mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);
     }
 
-    public void updateNetwork(Network network, NetworkCapabilities networkCapabilities) {
-        Map<Network, NetworkInfo> networkNetworkInfoMap =
-                Objects.requireNonNull(mNetworks.getValue());
-
-        if (networkNetworkInfoMap.containsKey(network)) {
-            networkNetworkInfoMap.get(network).mNetworkCapabilities = networkCapabilities;
-        } else {
-            NetworkInfo networkInfo = new NetworkInfo();
-            networkInfo.mNetworkCapabilities = networkCapabilities;
-            networkNetworkInfoMap.put(network, networkInfo);
-        }
-
-        mNetworks.setValue(networkNetworkInfoMap);
+    public void onNetworkChanged() {
+        mNetworks.setValue(mNetworks.getValue());
+        // setValue triggers an update on the observer that in turn updates the text view
     }
 
-    public void updateNetwork(Network network, LinkProperties linkProperties) {
-        Map<Network, NetworkInfo> networkNetworkInfoMap =
-                Objects.requireNonNull(mNetworks.getValue());
+    public void addNetwork(Network network) {
+        List<Network> networks = mNetworks.getValue();
 
-        if (networkNetworkInfoMap.containsKey(network)) {
-            networkNetworkInfoMap.get(network).mLinkProperties = linkProperties;
-        } else {
-            NetworkInfo networkInfo = new NetworkInfo();
-            networkInfo.mLinkProperties = linkProperties;
-            networkNetworkInfoMap.put(network, networkInfo);
-        }
-
-        mNetworks.setValue(networkNetworkInfoMap);
+        assert networks != null;
+        networks.add(network);
+        mNetworks.setValue(networks);
     }
 
-    public void updateNetwork(Network network, boolean available) {
-        Map<Network, NetworkInfo> networkNetworkInfoMap =
-                mNetworks.getValue() == null ? new HashMap<>() : mNetworks.getValue();
+    public void removeNetwork(Network network) {
+        List<Network> networks = mNetworks.getValue();
 
-        if (available && !networkNetworkInfoMap.containsKey(network)) {
-            networkNetworkInfoMap.put(network, new NetworkInfo());
-        } else if (!available) {
-            networkNetworkInfoMap.remove(network);
-        }
-
-        mNetworks.setValue(networkNetworkInfoMap);
+        assert networks != null;
+        networks.remove(network);
+        mNetworks.setValue(networks);
     }
 
-    public String getCurrentEthernetNetworksText(Map<Network, NetworkInfo> networksMap) {
+    public String getCurrentEthernetNetworksText(List<Network> networks) {
         StringBuilder sb = new StringBuilder();
-        Map<Network, NetworkInfo> networkNetworkInfoMap = Objects.requireNonNull(networksMap);
-        for (Network network : networkNetworkInfoMap.keySet()) {
-            NetworkInfo networkInfo = networkNetworkInfoMap.get(network);
+        for (Network network : networks) {
+            LinkProperties linkProperties = mConnectivityManager.getLinkProperties(network);
+            NetworkCapabilities networkCapabilities =
+                    mConnectivityManager.getNetworkCapabilities(network);
 
-            if (networkInfo.mLinkProperties != null) {
+            if (linkProperties != null) {
                 sb.append("- ");
-                sb.append(networkInfo.mLinkProperties.getInterfaceName());
+                sb.append(linkProperties.getInterfaceName());
 
                 sb.append("\n\t");
                 sb.append("ip: ");
-                sb.append(networkInfo.mLinkProperties.getLinkAddresses().get(
-                        0).getAddress().getHostAddress());
+                sb.append(linkProperties.getLinkAddresses().get(0).getAddress().getHostAddress());
             }
 
-            if (networkInfo.mNetworkCapabilities != null) {
+            if (networkCapabilities != null) {
                 sb.append("\n\t");
                 sb.append("capabilities: ");
-                sb.append(Arrays.toString(networkInfo.mNetworkCapabilities.getCapabilities()));
+                sb.append(Arrays.toString(networkCapabilities.getCapabilities()));
 
-                if (networkInfo.mNetworkCapabilities.getAllowedUids().size() > 0) {
+                Set<Integer> allowedUids = networkCapabilities.getAllowedUids();
+                if (allowedUids.size() > 0) {
                     sb.append("\n\t");
                     sb.append("allowed apps: ");
-                    Set<Integer> allowedUids = networkInfo.mNetworkCapabilities.getAllowedUids();
                     sb.append(
                             UidToPackageNameConverter.convertToPackageNames(mApplication,
                                     allowedUids));
@@ -145,10 +123,5 @@ public final class CurrentEthernetNetworksViewModel extends AndroidViewModel {
             sb.append("\n\n");
         }
         return sb.toString();
-    }
-
-    public static class NetworkInfo {
-        NetworkCapabilities mNetworkCapabilities;
-        LinkProperties mLinkProperties;
     }
 }
