@@ -56,4 +56,6 @@ public class UidToPackageNameConverter {
 
         return sb.toString();
     }
+
+    private UidToPackageNameConverter() {}
 }

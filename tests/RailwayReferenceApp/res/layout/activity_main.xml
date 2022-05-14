@@ -44,8 +44,7 @@
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="@id/guideline25"
         app:layout_constraintTop_toBottomOf="@id/enableDisableTitle"
-        android:backgroundTint="@color/green_button_background"
-        android:enabled="false" /> <!-- TODO(b/225226520): enable connectButton when its function has been defined -->
+        android:backgroundTint="@color/green_button_background" />
     <Button
         android:id="@+id/enableButton"
         android:layout_width="0dp"
@@ -56,8 +55,7 @@
         app:layout_constraintEnd_toStartOf="@id/guideline25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/interfaceNameInput2"
-        android:backgroundTint="@color/green_button_background"
-        android:enabled="false" /> <!-- TODO(b/225226520): enable enableButton -->
+        android:backgroundTint="@color/green_button_background" />
 
     <Button
         android:id="@+id/disableButton"
@@ -69,8 +67,7 @@
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="@id/guideline25"
         app:layout_constraintTop_toBottomOf="@id/interfaceNameInput2"
-        android:backgroundTint="@color/red_button_background"
-        android:enabled="false" /> <!-- TODO(b/225226520): enable disableButton-->
+        android:backgroundTint="@color/red_button_background" />
 
     <EditText
         android:id="@+id/allowedPackageNamesInput"
@@ -78,6 +75,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_size"
         android:textAppearance="@style/InputText"
+        android:textColor="@null"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline50"
         app:layout_constraintStart_toStartOf="parent"
@@ -88,6 +86,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/InputText"
+        android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
@@ -99,6 +98,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/InputText"
+        android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
@@ -109,6 +109,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/InputText"
+        android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline50"
@@ -120,6 +121,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textAppearance="@style/InputText"
+        android:textColor="@null"
         android:layout_margin="@dimen/margin_size"
         android:background="@android:color/white"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
