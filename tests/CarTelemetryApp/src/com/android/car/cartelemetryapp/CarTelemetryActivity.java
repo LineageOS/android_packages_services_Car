@@ -156,6 +156,7 @@ public class CarTelemetryActivity extends Activity {
 
     private void onServiceBound() {
         mConfigNames = mService.getAllConfigNames();
+        addToLog(mService.dumpLogs());
         Set<String> mActiveConfigs = mService.getActiveConfigs();
         for (int i = 0; i < mConfigNames.length; i++) {
             mConfigNameIndex.put(mConfigNames[i], i);
@@ -172,6 +173,10 @@ public class CarTelemetryActivity extends Activity {
             }
             config.selected = mActiveConfigs.contains(name);
             mConfigList.add(config);
+        }
+        if (mConfigList.size() != 0) {
+            mSelectedInfoConfig = mConfigList.get(0);  // Default to display first config data
+            refreshHistory();
         }
 
         mAdapter = new ConfigListAdaptor(
@@ -233,6 +238,26 @@ public class CarTelemetryActivity extends Activity {
         }
     }
 
+    private void addToLog(String log) {
+        // Add to logs, only a set number is kept
+        if (mLogs.size() >= LOG_SIZE) {
+            // Remove the oldest
+            mLogs.pollLast();
+        }
+        mLogs.addFirst(log);
+        // Display log
+        mLogView.setText(String.join("\n", mLogs));
+    }
+
+    private void refreshHistory() {
+        mConfigNameView.setText(mSelectedInfoConfig.getName());
+        if (mDataRadioSelected) {
+            mHistoryView.setText(mSelectedInfoConfig.getBundleHistoryString());
+        } else {
+            mHistoryView.setText(mSelectedInfoConfig.getErrorHistoryString());
+        }
+    }
+
     /** Listener for getting notified of ready reports. */
     private class ReportListener implements ReportReadyListener {
         @Override
@@ -273,18 +298,10 @@ public class CarTelemetryActivity extends Activity {
                 }
             }
             sb.append(metricsConfigName);
-            // Metric configs are removed after it's done, so we need to update UI
-            config.selected = false;
             mAdapter.notifyItemChanged(index);
-            // Add to logs, only a set number is kept
-            if (mLogs.size() >= LOG_SIZE) {
-                // Remove the oldest
-                mLogs.pollLast();
-            }
-            mLogs.addFirst(sb.toString());
-            // Display log
-            mLogView.setText(String.join("\n", mLogs));
+            addToLog(sb.toString());
             writeAppData();
+            refreshHistory();
         }
     }
 
