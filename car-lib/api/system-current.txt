@@ -1076,6 +1076,13 @@ package android.car.navigation {
 
 }
 
+package android.car.os {
+
+  public final class CarPerformanceManager {
+  }
+
+}
+
 package android.car.projection {
 
   public class ProjectionOptions {
