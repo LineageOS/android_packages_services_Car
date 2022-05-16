@@ -37,9 +37,13 @@ import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
 import android.app.TaskStackListener;
 import android.app.UiModeManager;
+import android.car.Car;
+import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
@@ -73,6 +77,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.internal.app.AssistUtils;
 import com.android.systemui.R;
+import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -84,6 +89,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -124,7 +130,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private final int mEnterExitAnimationDurationMs;
     // height of DA hosting the control bar.
     private final int mControlBarDisplayHeight;
-    private final ComponentName mAssistantVoicePlateActivityName;
     private final int mDpiDensity;
     private final int mTotalScreenWidth;
     // height of DA hosting default apps and covering the maps fully.
@@ -154,6 +159,15 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private boolean mIsForegroundDaVisible = false;
     private boolean mIsForegroundDaFullScreen = false;
     private boolean mIsUiModeNight = false;
+    // contains the list of activities that will be displayed on feature {@link
+    // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
+    private final Set<ComponentName> mVoicePlateActivitySet;
+    // true if there are activities still pending to be mapped to the voice plate DA as
+    // Car object was not created.
+    private boolean mIsPendingVoicePlateActivityMappingToDA;
+    private final CarServiceProvider mCarServiceProvider;
+    private Car mCar;
+
     /**
      * The WindowContext that is registered with {@link #mTitleBarWindowManager} with options to
      * specify the {@link RootDisplayArea} to attach the confirmation window.
@@ -254,6 +268,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             ShellExecutor shellExecutor,
             ConfigurationController configurationController,
             QSHost host,
+            CarServiceProvider carServiceProvider,
             CarDisplayAreaOrganizer organizer) {
         mApplicationContext = applicationContext;
         mSyncQueue = syncQueue;
@@ -261,6 +276,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mShellExecutor = shellExecutor;
         mCarFullscreenTaskListener = carFullscreenTaskListener;
         mConfigurationController = configurationController;
+        mCarServiceProvider = carServiceProvider;
         mUiModeManager = host.getUserContext().getSystemService(UiModeManager.class);
         mConfigurationController.addCallback(this);
         mDpiDensity = mOrganizer.getDpiDensity();
@@ -280,15 +296,13 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 applicationContext.getResources().getString(
                         R.string.config_controlBarActivity));
         mBackgroundActivityComponent = new ArrayList<>();
+        mVoicePlateActivitySet = new ArraySet<>();
         String[] backgroundActivities = mApplicationContext.getResources().getStringArray(
                 R.array.config_backgroundActivities);
         for (String backgroundActivity : backgroundActivities) {
             mBackgroundActivityComponent
                     .add(ComponentName.unflattenFromString(backgroundActivity));
         }
-        mAssistantVoicePlateActivityName = ComponentName.unflattenFromString(
-                applicationContext.getResources().getString(
-                        R.string.config_assistantVoicePlateActivity));
         mAssistUtils = new AssistUtils(applicationContext);
 
         // Get bottom nav bar height.
@@ -530,10 +544,45 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 });
         mCarDisplayAreaTouchHandler.enable(true);
 
+        mCarServiceProvider.addListener(car -> {
+            mCar = car;
+            if (mIsPendingVoicePlateActivityMappingToDA) {
+                mIsPendingVoicePlateActivityMappingToDA = false;
+                updateVoicePlateActivityMap();
+            }
+        });
+
         ActivityTaskManager.getInstance().registerTaskStackListener(
                 mOnActivityRestartAttemptListener);
         // add CarFullscreenTaskListener to control the foreground DA when the task appears.
         mCarFullscreenTaskListener.registerOnTaskChangeListener(mOnTaskChangeListener);
+    }
+
+    void updateVoicePlateActivityMap() {
+        Context currentUserContext = mApplicationContext.createContextAsUser(
+                UserHandle.of(ActivityManager.getCurrentUser()), /* flags= */ 0);
+
+        Intent voiceIntent = new Intent(Intent.ACTION_VOICE_ASSIST, /* uri= */ null);
+        List<ResolveInfo> result = currentUserContext.getPackageManager().queryIntentActivities(
+                voiceIntent, PackageManager.MATCH_ALL);
+        if (!result.isEmpty() && mCar == null) {
+            mIsPendingVoicePlateActivityMappingToDA = true;
+            return;
+        } else if (result.isEmpty()) {
+            return;
+        }
+
+        CarActivityManager carAm = (CarActivityManager) mCar.getCarManager(
+                Car.CAR_ACTIVITY_SERVICE);
+        for (ResolveInfo info : result) {
+            if (mVoicePlateActivitySet.add(info.activityInfo.getComponentName())) {
+                logIfDebuggable("adding the following component to voice plate: "
+                        + info.activityInfo.getComponentName());
+                CarDisplayAreaUtils.setPersistentActivity(carAm,
+                        info.activityInfo.getComponentName(),
+                        FEATURE_VOICE_PLATE, "VoicePlate");
+            }
+        }
     }
 
     @Override
@@ -562,7 +611,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
         // Voice plate will be shown as the top most layer. Also, we don't want to change the
         // state of the DA's when voice plate is shown.
-        boolean isVoicePlate = componentName.equals(mAssistantVoicePlateActivityName);
+        boolean isVoicePlate = mVoicePlateActivitySet.contains(componentName);
         if (isVoicePlate) {
             showVoicePlateDisplayArea();
             return;

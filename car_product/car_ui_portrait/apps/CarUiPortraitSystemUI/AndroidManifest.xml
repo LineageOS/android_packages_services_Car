@@ -22,6 +22,7 @@
           coreApp="true">
     <!-- Permission to assign Activity to TDA -->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <!-- System permission to call AM.getRunningAppProcesses().
      TODO: change this to REAL_GET_TASKS. -->
     <uses-permission android:name="android.permission.GET_TASKS"/>
