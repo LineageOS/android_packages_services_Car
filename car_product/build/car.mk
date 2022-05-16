@@ -30,7 +30,6 @@ PRODUCT_PACKAGES += \
     StatementService \
     SystemUpdater
 
-
 PRODUCT_PACKAGES += \
     pppd \
     screenrecord
