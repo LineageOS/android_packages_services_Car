@@ -18,6 +18,7 @@ package com.android.systemui.car.displayarea;
 
 import static android.car.settings.CarSettings.Secure.KEY_SETUP_WIZARD_IN_PROGRESS;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -49,7 +50,6 @@ public class DisplayAreaComponent extends CoreStartable {
 
     private final CarDisplayAreaController mCarDisplayAreaController;
     private final Context mContext;
-    private int mCurrentUser;
     private boolean mIsDefaultTdaFullScreen;
     final Handler mHandler = new Handler(Looper.myLooper());
     // When SUW is in progress, make foregroundDA fullscreen.
@@ -57,11 +57,12 @@ public class DisplayAreaComponent extends CoreStartable {
         @Override
         public void run() {
             try {
+                int currentUser = ActivityManager.getCurrentUser();
                 // ignore user 0 -> USER_SYSTEM and USER_ALL for suw
-                if (mCurrentUser != UserHandle.USER_ALL
-                        && mCurrentUser != UserHandle.USER_SYSTEM) {
+                if (currentUser != UserHandle.USER_ALL
+                        && currentUser != UserHandle.USER_SYSTEM) {
                     int res = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-                            KEY_SETUP_WIZARD_IN_PROGRESS, mCurrentUser);
+                            KEY_SETUP_WIZARD_IN_PROGRESS, currentUser);
                     logIfDebuggable("SUW in progress: " + (res == 1));
                     // res == 1 -> SUW in progress
                     if (res == 1 && !mIsDefaultTdaFullScreen) {
@@ -121,10 +122,10 @@ public class DisplayAreaComponent extends CoreStartable {
                 @Override
                 public void onReceive(Context context, Intent intent) {
                     if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
-                        mCurrentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE,
+                        int user = intent.getIntExtra(Intent.EXTRA_USER_HANDLE,
                                 UserHandle.USER_ALL);
                         logIfDebuggable(
-                                "ACTION_USER_SWITCHED received current user: " + mCurrentUser);
+                                "ACTION_USER_SWITCHED received current user: " + user);
                         mHandler.post(mUserSwitchedRunnable);
                         return;
                     }
@@ -148,6 +149,7 @@ public class DisplayAreaComponent extends CoreStartable {
                     mCarDisplayAreaController.updateVoicePlateActivityMap();
                 }
             }, packageChangeFilter, null, null);
+            mHandler.post(mUserSwitchedRunnable);
         }
     }
 
