@@ -24,6 +24,8 @@
     <!-- for CarActivityServiceTaskMonitorUnitTest -->
     <uses-permission android:name="android.permission.MANAGE_ACTIVITY_TASKS" />
     <uses-permission android:name="android.car.permission.CAR_ENROLL_TRUST" />
+    <!-- for OccupantAwarenessServiceTest -->
+    <uses-permission android:name="android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE" />
 
     <application android:label="@string/app_title"
             android:debuggable="true">
