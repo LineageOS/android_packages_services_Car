@@ -547,6 +547,8 @@ public class ConnectivityFragment extends Fragment {
         refreshNetworks();
         mWifiUpdater = new Timer();
         mWifiUpdater.scheduleAtFixedRate(new TimerTask() {
+
+            @Override
             public void run() {
                 updateApState();
             }
