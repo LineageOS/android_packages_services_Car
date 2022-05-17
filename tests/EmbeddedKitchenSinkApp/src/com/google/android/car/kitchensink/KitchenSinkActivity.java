@@ -63,6 +63,7 @@ import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.insets.WindowInsetsFullScreenFragment;
+import com.google.android.car.kitchensink.mainline.CarMainlineFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
@@ -197,6 +198,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("experimental feature", ExperimentalFeatureTestFragment.class),
             new FragmentMenuEntry("hvac", HvacTestFragment.class),
             new FragmentMenuEntry("inst cluster", InstrumentClusterFragment.class),
+            new FragmentMenuEntry("mainline", CarMainlineFragment.class),
             new FragmentMenuEntry("notification", NotificationFragment.class),
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
             new FragmentMenuEntry("package info", PackageInfoFragment.class),
