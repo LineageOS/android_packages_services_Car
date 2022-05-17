@@ -201,6 +201,8 @@ public final class VirtualDisplayView extends SurfaceView {
         DisplayManager displayManager = mContext.getSystemService(DisplayManager.class);
         DisplayMetrics metrics = new DisplayMetrics();
         displayManager.getDisplay(android.view.Display.DEFAULT_DISPLAY).getRealMetrics(metrics);
+        Log.v(TAG, "Physical display size: " + metrics.widthPixels + " x " + metrics.heightPixels);
+        Log.v(TAG, "View size: " + getWidth() + " x " + getHeight());
 
         Log.v(TAG, "Registering listener " + listener);
         displayManager.registerDisplayListener(listener, mHandler);
@@ -211,7 +213,7 @@ public final class VirtualDisplayView extends SurfaceView {
 
         Log.d(TAG, "Creating display named '" + mName + "'");
         mVirtualDisplay = displayManager.createVirtualDisplay(mName,
-                metrics.widthPixels, metrics.heightPixels, (int) metrics.xdpi, mSurface, flags);
+                getWidth(), getHeight(), (int) metrics.xdpi, mSurface, flags);
         int displayId = mVirtualDisplay.getDisplay().getDisplayId();
         Log.i(TAG, "Created display with id " + displayId);
         boolean created = false;
