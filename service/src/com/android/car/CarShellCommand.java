@@ -168,6 +168,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
     private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
     private static final String COMMAND_GET_PROPERTY_VALUE = "get-property-value";
+    private static final String COMMAND_SET_PROPERTY_VALUE = "set-property-value";
     private static final String COMMAND_PROJECTION_AP_TETHERING = "projection-tethering";
     private static final String COMMAND_PROJECTION_AP_STABLE_CONFIG =
             "projection-stable-lohs-config";
@@ -544,6 +545,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tget-property-value [PROPERTY_ID in Hex or Decimal] [areaId]");
         pw.println("\t  Get a vehicle property value by property id and areaId");
         pw.println("\t  or list all property values for all areaId");
+        pw.printf("\t%s\n", getSetPropertyValueUsage());
         pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_SUSPEND));
         pw.println("\t  Suspend the system to RAM.");
         pw.printf("\t  %s forces the device to perform suspend-to-RAM.\n", PARAM_REAL);
@@ -935,6 +937,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 String areaId = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA : args[2];
                 mHal.dumpPropertyValueByCommand(writer, Integer.decode(propId),
                         Integer.decode(areaId));
+                break;
+            case COMMAND_SET_PROPERTY_VALUE:
+                runSetVehiclePropertyValue(args, writer);
                 break;
             case COMMAND_PROJECTION_UI_MODE:
                 if (args.length != 2) {
@@ -2485,6 +2490,47 @@ final class CarShellCommand extends BasicShellCommandHandler {
             showHelp(writer);
         }
 
+    }
+
+    // Handles set-property-value command.
+    private void runSetVehiclePropertyValue(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 4) {
+            writer.println("Invalid command syntax:");
+            writer.printf("Usage: %s\n", getSetPropertyValueUsage());
+            return;
+        }
+        String strId = args[1];
+        String strAreaId = args[2];
+        String value = args[3];
+        int id;
+        int areaId;
+        try {
+            id = Integer.decode(strId);
+            areaId = Integer.decode(strAreaId);
+        } catch (NumberFormatException e) {
+            writer.printf("Cannot set a property: Invalid property ID(%s) or area ID(%s) format\n",
+                    strId, strAreaId);
+            return;
+        }
+        Slogf.i(TAG, "Setting vehicle property: id=%s, areaId=%s, value=%s", strId, strAreaId,
+                value);
+        if (strAreaId.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL)
+                && !isPropertyAreaTypeGlobal(strId)) {
+            writer.printf("Property area type is inconsistent with given area ID: %s\n",
+                    strAreaId);
+            return;
+        }
+        try {
+            mHal.setPropertyFromCommand(id, areaId, value, writer);
+            writer.printf("Property(%s) is set to %s successfully\n", strId, value);
+        } catch (Exception e) {
+            writer.printf("Cannot set a property: %s\n", e);
+        }
+    }
+
+    private static String getSetPropertyValueUsage() {
+        return COMMAND_SET_PROPERTY_VALUE + " <PROPERTY_ID in Hex or Decimal> <areaId> "
+                + "<data (can be comma-separated)>";
     }
 
     // Set a target camera device for the rearview
