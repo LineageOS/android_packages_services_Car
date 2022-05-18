@@ -281,9 +281,11 @@ public final class VirtualDisplayView extends SurfaceView {
     }
 
     private void releaseDisplay() {
-        Log.d(TAG, "Releasing display");
-        mVirtualDisplay.release();
-        mVirtualDisplay = null;
-        mDisplayId = NO_DISPLAY_ID;
+        if (mVirtualDisplay != null) {
+            Log.d(TAG, "Releasing display");
+            mVirtualDisplay.release();
+            mVirtualDisplay = null;
+            mDisplayId = NO_DISPLAY_ID;
+        }
     }
 }

@@ -62,28 +62,47 @@ public final class VirtualDisplayFragment extends Fragment {
     private EditText mDisplayIdEditText;
     private Button mCreateDisplayButton;
     private Button mDeleteDisplayButton;
-    private Button mMaximizeDisplayButton;
+    private Button mMaximizeButton;
     private boolean mMaximized;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.virtual_display, container, false);
+        Log.v(TAG, "onCreateView(): mMaximizeButton=" + mMaximizeButton);
 
+        if (mMaximizeButton == null) {
+            mMaximizeButton = new Button(getContext());
+            mMaximizeButton.setText("Maximize");
+            Log.v(TAG, "Created maximize button: " + mMaximizeButton);
+            ((KitchenSinkActivity) getActivity()).addHeaderView(mMaximizeButton);
+        }
+
+        View view = inflater.inflate(R.layout.virtual_display, container, false);
         mVirtualDisplayView = view.findViewById(R.id.virtual_display);
         mDisplayIdEditText = view.findViewById(R.id.display_id);
         mCreateDisplayButton = view.findViewById(R.id.create);
         mDeleteDisplayButton = view.findViewById(R.id.delete);
-        mMaximizeDisplayButton = view.findViewById(R.id.maximize);
         mButtonsLinearLayout = view.findViewById(R.id.buttons_panel);
 
         toggleCreateDeleteButtons(/* create= */ true);
+        toggleView(mMaximizeButton, /* on= */ true);
         mDisplayIdEditText.setText(NO_ID_TEXT);
         mCreateDisplayButton.setOnClickListener((v) -> createDisplay());
         mDeleteDisplayButton.setOnClickListener((v) -> deleteDisplay());
-        mMaximizeDisplayButton.setOnClickListener((v) -> maximizeDisplay());
+        mMaximizeButton.setOnClickListener((v) -> maximizeDisplay());
 
         return view;
+    }
+
+    @Override
+    public void onHiddenChanged(boolean hidden) {
+        Log.v(TAG, "onHiddenChanged(hidden=" + hidden + "): mMaximizeButton=" + mMaximizeButton);
+        if (mMaximizeButton == null) {
+            // NOTE: onHiddenChanged(false) is called before onCreateView(...)
+            Log.v(TAG, "Ignoring onHiddenChanged() call as fragment was not created yet");
+            return;
+        }
+        toggleView(mMaximizeButton, /* on= */ !hidden);
     }
 
     @Override
@@ -105,7 +124,7 @@ public final class VirtualDisplayFragment extends Fragment {
         dumpView(prefix, writer, mButtonsLinearLayout, "Buttons panel");
         dumpView(prefix, writer, mCreateDisplayButton, "Create display");
         dumpView(prefix, writer, mDeleteDisplayButton, "Delete display");
-        dumpView(prefix, writer, mMaximizeDisplayButton, "Maximize display");
+        dumpView(prefix, writer, mMaximizeButton, "Maximize screen");
         writer.printf("%sDisplay id: %s\n", prefix, mDisplayIdEditText.getText());
         writer.printf("%sVirtual Display View\n", prefix);
         writer.printf("%sMaximized: %b\n", prefix, mMaximized);
@@ -250,10 +269,7 @@ public final class VirtualDisplayFragment extends Fragment {
                 pkg, activity, DUMP_ARG_FRAGMENT, FRAGMENT_NAME, DUMP_ARG_CMD, CMD_MINIMIZE);
         logAndToastMessage(msg1);
         logAndToastMessage(msg2);
-        mMaximized = true;
-        boolean visible = false;
-        toggleView(mButtonsLinearLayout, visible);
-        ((KitchenSinkActivity) getActivity()).setHeaderVisibility(visible);
+        minimizeOrMaximizeViews(/* maximize= */ true);
     }
 
     private void minimizeOrMaximizeDisplay(PrintWriter writer, boolean maximize) {
@@ -278,10 +294,15 @@ public final class VirtualDisplayFragment extends Fragment {
                 (maximize ? CMD_MINIMIZE : CMD_MAXIMIZE));
         printMessage(writer, msg1);
         printMessage(writer, msg2);
+        minimizeOrMaximizeViews(maximize);
+    }
+
+    private void minimizeOrMaximizeViews(boolean maximize) {
         mMaximized = maximize;
         boolean visible = !maximize;
         toggleView(mButtonsLinearLayout, visible);
-        ((KitchenSinkActivity) getActivity()).setHeaderVisibility(visible);
+
+        ((KitchenSinkActivity) getActivity()).setHeaderVisibility(!maximize);
     }
 
     // TODO(b/231499090): move plumbing below to common code
@@ -317,7 +338,7 @@ public final class VirtualDisplayFragment extends Fragment {
         }
     }
 
-    private static String visibilityToString(int visibility) {
+    public static String visibilityToString(int visibility) {
         switch (visibility) {
             case View.VISIBLE:
                 return "VISIBLE";
