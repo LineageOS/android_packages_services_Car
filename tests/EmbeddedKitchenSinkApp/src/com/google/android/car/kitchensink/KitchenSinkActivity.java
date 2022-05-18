@@ -92,6 +92,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 
 public class KitchenSinkActivity extends FragmentActivity {
     private static final String TAG = "KitchenSinkActivity";
@@ -108,6 +109,10 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     private static abstract class MenuEntry implements ClickHandler {
         abstract String getText();
+
+        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+            writer.printf("%s doesn't implement dump()\n", this);
+        }
     }
 
     private final class OnClickMenuEntry extends MenuEntry {
@@ -174,6 +179,16 @@ public class KitchenSinkActivity extends FragmentActivity {
                 mLastFragmentTag = fragment.getTag();
             } else {
                 Log.e(TAG, "cannot show fragment for " + getText());
+            }
+        }
+
+        @Override
+        public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+            Fragment fragment = mFragment.getFragment();
+            if (fragment != null) {
+                fragment.dump(prefix, fd, writer, args);
+            } else {
+                writer.printf("Cannot dump %s\n", getText());
             }
         }
     }
@@ -408,11 +423,34 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     @Override
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
-        if (args != null && args.length > 0 && args[0].equals("cmd")) {
-            String[] cmdArgs = new String[args.length - 1];
-            System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
-            new KitchenSinkShellCommand(this, writer, cmdArgs).run();
-            return;
+        if (args != null && args.length > 0) {
+            Log.v(TAG, "dump: args=" + Arrays.toString(args));
+            String arg = args[0];
+            switch (arg) {
+                case "cmd":
+                    String[] cmdArgs = new String[args.length - 1];
+                    System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
+                    new KitchenSinkShellCommand(this, writer, cmdArgs).run();
+                    return;
+                case "fragment":
+                    if (args.length < 2) {
+                        writer.println("Missing fragment name");
+                        return;
+                    }
+                    String select = args[1];
+                    Optional<MenuEntry> entry = mMenuEntries.stream()
+                            .filter(me -> select.equals(me.getText())).findAny();
+                    if (entry.isPresent()) {
+                        String[] strippedArgs = new String[args.length - 2];
+                        System.arraycopy(args, 2, strippedArgs, 0, strippedArgs.length);
+                        entry.get().dump(prefix, fd, writer, strippedArgs);
+                    } else {
+                        writer.printf("No entry called '%s'\n", select);
+                    }
+                    return;
+                default:
+                    Log.v(TAG, "dump(): unknown arg, calling super(): " + Arrays.toString(args));
+            }
         }
         super.dump(prefix, fd, writer, args);
     }

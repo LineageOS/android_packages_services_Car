@@ -20,6 +20,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     <LinearLayout
+        android:id="@+id/buttons_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
@@ -42,8 +43,12 @@
             android:id="@+id/delete"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:enabled="false"
             android:text="Delete"/>
+        <Button
+            android:id="@+id/maximize"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:text="Max"/>
     </LinearLayout>
     <com.google.android.car.kitchensink.display.VirtualDisplayView
         android:id="@+id/virtual_display"
