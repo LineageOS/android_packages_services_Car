@@ -191,20 +191,6 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     /**
-     * Return property or null if property is not ready yet or there is an exception in HAL.
-     */
-    @Nullable
-    public CarPropertyValue getPropertySafe(int mgrPropId, int areaId) {
-        try {
-            return getProperty(mgrPropId, areaId);
-        } catch (Exception e) {
-            Slogf.w(TAG, e, "getProperty() failed for property id: %s area id: 0x%s",
-                    VehiclePropertyIds.toString(mgrPropId), toHexString(areaId));
-            return null;
-        }
-    }
-
-    /**
      * Returns sample rate for the property
      */
     public float getSampleRate(int mgrPropId) {
