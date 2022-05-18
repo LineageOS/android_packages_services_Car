@@ -474,6 +474,11 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
 ScopedAStatus Enumerator::closeDisplay(const std::shared_ptr<IEvsDisplay>& displayObj) {
     LOG(DEBUG) << __FUNCTION__;
 
+    if (!displayObj) {
+        LOG(WARNING) << "Ignoring a call with an invalid display object";
+        return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
+    }
+
     // Drop the active display
     std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
     if (pActiveDisplay != displayObj) {
