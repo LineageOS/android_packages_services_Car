@@ -46,6 +46,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.Lists;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -654,6 +655,25 @@ public class VehicleHal implements HalClientCallback {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Sets a property passed from the shell command.
+     *
+     * @param property Property ID in hex or decimal.
+     * @param areaId Area ID
+     * @param data Comma-separated value.
+     */
+    public void setPropertyFromCommand(int property, int areaId, String data,
+            IndentingPrintWriter writer) throws IllegalArgumentException, ServiceSpecificException {
+        long timestamp = SystemClock.elapsedRealtimeNanos();
+        HalPropValue v = createPropValueForInjecting(mPropValueBuilder, property, areaId,
+                List.of(data.split(DATA_DELIMITER)), timestamp);
+        if (v == null) {
+            throw new IllegalArgumentException("Unsupported property type: property=" + property
+                    + ", areaId=" + areaId);
+        }
+        set(v);
     }
 
     private final ArraySet<HalServiceBase> mServicesToDispatch = new ArraySet<>();
