@@ -75,42 +75,59 @@ cc_defaults {
 filegroup {
     name: "evsmanagerd_sources",
     srcs: [
-        "**/*.cpp",
+        "wrappers/src/HidlCameraStream.cpp",
+        "wrappers/src/AidlDisplay.cpp",
+        "wrappers/src/AidlCamera.cpp",
+        "wrappers/src/HidlEnumerator.cpp",
+        "wrappers/src/AidlCameraStream.cpp",
+        "wrappers/src/AidlEnumerator.cpp",
+        "wrappers/src/HidlDisplay.cpp",
+        "wrappers/src/HidlCamera.cpp",
+        "stats/src/CameraUsageStats.cpp",
+        "stats/src/StatsCollector.cpp",
+        "stats/src/LooperWrapper.cpp",
+        "utils/src/Utils.cpp",
+        "src/HalDisplay.cpp",
+        "src/VirtualCamera.cpp",
+        "src/Enumerator.cpp",
+        "src/HalCamera.cpp",
     ],
 }
 
 cc_binary {
     name: "evsmanagerd",
     defaults: ["evsmanagerd_defaults"],
-    srcs: [":evsmanagerd_sources"],
+    srcs: [
+        ":evsmanagerd_sources",
+        "src/service.cpp",
+    ],
     init_rc: ["evsmanagerd.rc"],
     vintf_fragments: ["manifest_evsmanagerd.xml"],
 }
 
-cc_library {
-    name: "libevsutils",
-    srcs: ["utils/src/*.cpp"],
-    shared_libs: [
-        "android.hardware.automotive.evs@1.0",
-        "android.hardware.automotive.evs@1.1",
-        "libbase",
-        "libbinder_ndk",
-        "libcamera_metadata",
-        "libcutils",
-        "libhidlbase",
-    ],
+cc_fuzz {
+    name: "evs_enumerator_fuzzer",
+    defaults: ["evsmanagerd_defaults"],
     static_libs: [
-        "android.hardware.automotive.evs-V1-ndk",
-        "android.hardware.common-V2-ndk",
-        "android.hardware.graphics.common-V3-ndk",
-        "libaidlcommonsupport",
+        "libbase",
+        "libbinder_random_parcel",
+        "libcutils",
+        "liblog",
     ],
-    header_libs: [
-        "libarect_headers",
-        "libnativewindow_headers",
+    shared_libs: [
+        "libbinder_ndk",
+        "libbinder",
+        "libutils",
     ],
-    local_include_dirs: ["utils/include"],
-    export_include_dirs: ["utils/include"],
+    srcs: [
+        ":evsmanagerd_sources",
+        "src/EnumeratorFuzzer.cpp",
+    ],
+    fuzz_config: {
+        cc: [
+            "keithmok@google.com",
+        ],
+    },
 }
 
 cc_library {
