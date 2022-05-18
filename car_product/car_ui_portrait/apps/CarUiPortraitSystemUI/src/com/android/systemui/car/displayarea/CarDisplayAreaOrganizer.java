@@ -32,7 +32,6 @@ import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.util.ArrayMap;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceControl;
 import android.window.DisplayAreaAppearedInfo;
@@ -71,7 +70,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     public static final int FEATURE_TITLE_BAR = FEATURE_VENDOR_FIRST + 5;
     static final int FEATURE_VOICE_PLATE = FEATURE_VENDOR_FIRST + 6;
     private static final String TAG = "CarDisplayAreaOrganizer";
-    private final ComponentName mAssistantVoicePlateActivityName;
     private final ComponentName mControlBarActivityName;
     private final List<ComponentName> mBackGroundActivities;
 
@@ -91,12 +89,10 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                         CarActivityManager carAm = (CarActivityManager) car.getCarManager(
                                 Car.CAR_ACTIVITY_SERVICE);
                         for (ComponentName backgroundCmp : mBackGroundActivities) {
-                            setPersistentActivity(carAm, backgroundCmp,
+                            CarDisplayAreaUtils.setPersistentActivity(carAm, backgroundCmp,
                                     BACKGROUND_TASK_CONTAINER, "Background");
                         }
-                        setPersistentActivity(carAm, mAssistantVoicePlateActivityName,
-                                FEATURE_VOICE_PLATE, "VoicePlate");
-                        setPersistentActivity(carAm, mControlBarActivityName,
+                        CarDisplayAreaUtils.setPersistentActivity(carAm, mControlBarActivityName,
                                 CONTROL_BAR_DISPLAY_AREA, "ControlBar");
                     }
                 }
@@ -161,9 +157,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         super(executor);
         mContext = context;
         mTransactionQueue = tx;
-        // TODO(b/201712747): Gets the Assistant Activity by resolving the indirect Intent.
-        mAssistantVoicePlateActivityName = ComponentName.unflattenFromString(
-                context.getResources().getString(R.string.config_assistantVoicePlateActivity));
         mControlBarActivityName = ComponentName.unflattenFromString(
                 context.getResources().getString(R.string.config_controlBarActivity));
         mBackGroundActivities = new ArrayList<>();
@@ -178,19 +171,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
 
         Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                 mCarServiceLifecycleListener);
-    }
-
-    private static void setPersistentActivity(CarActivityManager am,
-            ComponentName activity, int featureId, String featureName) {
-        if (activity == null) {
-            Log.e(TAG, "Empty activity for " + featureName + " (" + featureId + ")");
-            return;
-        }
-        int ret = am.setPersistentActivity(activity, DEFAULT_DISPLAY, featureId);
-        if (ret != CarActivityManager.RESULT_SUCCESS) {
-            Log.e(TAG, "Failed to set PersistentActivity: activity=" + activity
-                    + ", ret=" + ret);
-        }
     }
 
     int getDpiDensity() {

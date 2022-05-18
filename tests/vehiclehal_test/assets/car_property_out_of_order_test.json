@@ -1,26 +1,26 @@
 [
   {
-    "timestamp": 151111100000000,
+    "timestamp": 10000000,
     "areaId": 0,
     "value": 8,
     "prop": 289408000
   },
   {
-    "timestamp": 101111100000000,
+    "timestamp": 5000000,
     "areaId": 0,
-    "value": 4,
+    "value": 5,
     "prop": 289408000
   },
   {
-    "timestamp": 181111100000000,
+    "timestamp": 20000000,
     "areaId": 0,
     "value": 16,
     "prop": 289408000
   },
   {
-    "timestamp": 101111100000000,
+    "timestamp": 5000000,
     "areaId": 0,
-    "value": 4,
+    "value": 6,
     "prop": 289408000
   }
 ]

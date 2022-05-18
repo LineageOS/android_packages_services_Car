@@ -60,12 +60,6 @@
         <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
     </string-array>
 
-    <!-- TODO(b/202413464): Move GAS components to the separate RRO. -->
-    <!-- The ComponentName of Assistant VoicePlate Activity, the Activity will be placed in
-        VoicePlate TDA -->
-    <string name="config_assistantVoicePlateActivity" translatable="false">
-        com.google.android.carassistant/com.google.android.libraries.assistant.auto.tng.assistant.ui.activity.AutoAssistantActivity
-    </string>
     <string name="config_controlBarActivity" translatable="false">
         com.android.car.carlauncher/.ControlBarActivity
     </string>
