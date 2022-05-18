@@ -129,9 +129,6 @@ Result<void> SysfsMonitor::observe() {
                 if (fd == mPipefd[0]) {
                     return;
                 }
-                if (mMonitoringFds.count(fd) == 0) {
-                    continue;
-                }
                 if (events[i].events & EPOLLIN) {
                     fds.push_back(fd);
                 } else if (events[i].events & EPOLLERR) {

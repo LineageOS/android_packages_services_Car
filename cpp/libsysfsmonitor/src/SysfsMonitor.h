@@ -44,6 +44,8 @@ public:
     // Registers a sysfs file to monitor.
     android::base::Result<void> registerFd(int32_t fd);
     // Unregisters a sysfs file to monitor.
+    // Some events may be in process, so events may
+    // continue to be reported even after this method completes.
     android::base::Result<void> unregisterFd(int32_t fd);
     // Starts observing sysfs file changes.
     android::base::Result<void> observe();
