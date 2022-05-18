@@ -15,6 +15,11 @@
  */
 package com.google.android.car.kitchensink.display;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
+import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_CMD;
+import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_FRAGMENT;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -43,8 +48,13 @@ public final class VirtualDisplayFragment extends Fragment {
 
     private static final String NO_ID_TEXT = "N/A";
 
-    private static final String ARG_MAXIMIZE = "--maximize";
-    private static final String ARG_MINIMIZE = "--minimize";
+    private static final String CMD_HELP = "help";
+    private static final String CMD_CREATE = "create";
+    private static final String CMD_DELETE = "delete";
+    private static final String CMD_MAXIMIZE = "maximize";
+    private static final String CMD_MINIMIZE = "minimize";
+
+    public static final String FRAGMENT_NAME = "virtual display";
 
     private VirtualDisplayView mVirtualDisplayView;
 
@@ -53,6 +63,7 @@ public final class VirtualDisplayFragment extends Fragment {
     private Button mCreateDisplayButton;
     private Button mDeleteDisplayButton;
     private Button mMaximizeDisplayButton;
+    private boolean mMaximized;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -66,7 +77,7 @@ public final class VirtualDisplayFragment extends Fragment {
         mMaximizeDisplayButton = view.findViewById(R.id.maximize);
         mButtonsLinearLayout = view.findViewById(R.id.buttons_panel);
 
-        toggleCreateDeleteButtons(/* create=*/ true);
+        toggleCreateDeleteButtons(/* create= */ true);
         mDisplayIdEditText.setText(NO_ID_TEXT);
         mCreateDisplayButton.setOnClickListener((v) -> createDisplay());
         mDeleteDisplayButton.setOnClickListener((v) -> deleteDisplay());
@@ -84,19 +95,10 @@ public final class VirtualDisplayFragment extends Fragment {
 
     @Override
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        Log.v(TAG, "dump(): " + Arrays.toString(args));
 
-        if (args != null && args.length > 0) {
-            String arg = args[0];
-            switch (arg) {
-                case ARG_MINIMIZE:
-                    minimizeOrMaximizeDisplay(writer, /* maximize= */ false);
-                    break;
-                case ARG_MAXIMIZE:
-                    minimizeOrMaximizeDisplay(writer, /* maximize= */ true);
-                    break;
-                default:
-                    writer.printf("Invalid args: %s\n", Arrays.toString(args));
-            }
+        if (args != null && args.length > 0 && args[0].equals(DUMP_ARG_CMD)) {
+            runCmd(writer, args);
             return;
         }
 
@@ -106,8 +108,65 @@ public final class VirtualDisplayFragment extends Fragment {
         dumpView(prefix, writer, mMaximizeDisplayButton, "Maximize display");
         writer.printf("%sDisplay id: %s\n", prefix, mDisplayIdEditText.getText());
         writer.printf("%sVirtual Display View\n", prefix);
+        writer.printf("%sMaximized: %b\n", prefix, mMaximized);
+        writer.printf("%sVirtual Display View:\n", prefix);
         mVirtualDisplayView.dump(prefix + "  ", writer);
     }
+
+    private void runCmd(PrintWriter writer, String[] args) {
+        if (args.length < 2) {
+            writer.println("missing command\n");
+            return;
+        }
+        String cmd = args[1];
+        switch (cmd) {
+            case CMD_HELP:
+                showAvailableCommands(writer);
+                break;
+            case CMD_CREATE:
+                createDisplay(writer);
+                break;
+            case CMD_DELETE:
+                deleteDisplay(writer);
+                break;
+            case CMD_MAXIMIZE:
+                minimizeOrMaximizeDisplay(writer, /* maximize= */ true);
+                break;
+            case CMD_MINIMIZE:
+                minimizeOrMaximizeDisplay(writer, /* maximize= */ false);
+                break;
+            default:
+                showAvailableCommands(writer);
+                writer.printf("Invalid cmd: %s\n", Arrays.toString(args));
+        }
+        return;
+    }
+
+    private void showAvailableCommands(PrintWriter writer) {
+        writer.println("Available commands:\n");
+        showCommandHelp(writer, "Shows this help message.", CMD_HELP);
+        showCommandHelp(writer, "Maximizes the display view so it takes the whole screen.",
+                CMD_MAXIMIZE);
+        showCommandHelp(writer, "Minimizes the display view so the screen show the controls.",
+                CMD_MINIMIZE);
+        showCommandHelp(writer, "Creates the virtual display.",
+                CMD_CREATE);
+        showCommandHelp(writer, "Deletes the virtual display.",
+                CMD_DELETE);
+    }
+
+    private void showCommandHelp(PrintWriter writer, String description, String cmd,
+            String... args) {
+        writer.printf("%s", cmd);
+        if (args != null) {
+            for (String arg : args) {
+                writer.printf(" %s", arg);
+            }
+        }
+        writer.println(":");
+        writer.printf("  %s\n\n", description);
+    }
+
 
     private void dumpView(String prefix, PrintWriter writer, View view, String name) {
         writer.printf("%s%s: %s %s\n", prefix, name,
@@ -125,16 +184,31 @@ public final class VirtualDisplayFragment extends Fragment {
         view.setVisibility(on ? View.VISIBLE : View.GONE);
     }
 
+    // TODO(b/231499090): use custom Writer interface to reuse logic for toast / writer below
+
     private void createDisplay() {
         Log.i(TAG, "Creating virtual display");
         try {
             int displayId = mVirtualDisplayView.createVirtualDisplay();
-            logAndToast("Created virtual display with id %d", displayId);
+            logAndToastMessage("Created virtual display with id %d", displayId);
 
             mDisplayIdEditText.setText(String.valueOf(displayId));
             toggleCreateDeleteButtons(/* create= */ false);
         } catch (Exception e) {
-            logAndToast(e, "Failed to create virtual display");
+            logAndToastError(e, "Failed to create virtual display");
+        }
+    }
+
+    private void createDisplay(PrintWriter writer) {
+        Log.i(TAG, "Creating virtual display");
+        try {
+            int displayId = mVirtualDisplayView.createVirtualDisplay();
+            printMessage(writer, "Created virtual display with id %d", displayId);
+
+            mDisplayIdEditText.setText(String.valueOf(displayId));
+            toggleCreateDeleteButtons(/* create= */ false);
+        } catch (Exception e) {
+            printError(writer, e, "Failed to create virtual display");
         }
     }
 
@@ -142,20 +216,55 @@ public final class VirtualDisplayFragment extends Fragment {
         Log.i(TAG, "Deleting display");
         try {
             mVirtualDisplayView.deleteVirtualDisplay();
-            logAndToast("Virtual display deleted");
+            logAndToastMessage("Virtual display deleted");
 
             mDisplayIdEditText.setText(NO_ID_TEXT);
             toggleCreateDeleteButtons(/* create= */ true);
         } catch (Exception e) {
-            logAndToast(e, "Failed to delete virtual display");
+            logAndToastError(e, "Failed to delete virtual display");
+        }
+    }
+
+    private void deleteDisplay(PrintWriter writer) {
+        Log.i(TAG, "Deleting display");
+        try {
+            mVirtualDisplayView.deleteVirtualDisplay();
+            printMessage(writer, "Virtual display deleted");
+
+            mDisplayIdEditText.setText(NO_ID_TEXT);
+            toggleCreateDeleteButtons(/* create= */ true);
+        } catch (Exception e) {
+            printError(writer, e, "Failed to delete virtual display");
         }
     }
 
     private void maximizeDisplay() {
-        minimizeOrMaximizeDisplay(/* writer= */ null, /* maximize= */ true);
+        if (mMaximized) {
+            logAndToastError(/* exception= */ null, "Already maximized");
+            return;
+        }
+        String msg1 = "Maximizing display. To minimize, run:";
+        String pkg = getContext().getPackageName();
+        String activity = KitchenSinkActivity.class.getSimpleName();
+        String msg2 = String.format("adb shell 'dumpsys activity %s/.%s %s \"%s\" %s %s'",
+                pkg, activity, DUMP_ARG_FRAGMENT, FRAGMENT_NAME, DUMP_ARG_CMD, CMD_MINIMIZE);
+        logAndToastMessage(msg1);
+        logAndToastMessage(msg2);
+        mMaximized = true;
+        boolean visible = false;
+        toggleView(mButtonsLinearLayout, visible);
+        ((KitchenSinkActivity) getActivity()).setHeaderVisibility(visible);
     }
 
     private void minimizeOrMaximizeDisplay(PrintWriter writer, boolean maximize) {
+        if (maximize && mMaximized) {
+            printError(writer, /* exception= */ null, "Already maximized");
+            return;
+        }
+        if (!maximize && !mMaximized) {
+            printError(writer, /* exception= */ null, "Already minimized");
+            return;
+        }
         String msg1;
         if (maximize) {
             msg1 = "Maximizing display. To minimize, run:";
@@ -164,34 +273,48 @@ public final class VirtualDisplayFragment extends Fragment {
         }
         String pkg = getContext().getPackageName();
         String activity = KitchenSinkActivity.class.getSimpleName();
-        String msg2 = String.format("adb shell dumpsys activity %s/.%s%s", pkg, activity,
-                (maximize ? ARG_MINIMIZE : ARG_MAXIMIZE));
-        logAndToast(msg1);
-        logAndToast(Toast.LENGTH_SHORT, msg2);
-        if (writer != null) {
-            writer.println(msg1);
-            writer.println(msg2);
-        }
-        toggleView(mButtonsLinearLayout, !maximize);
-
-        // TODO(b/231499090): also hide the "show kitchensink menu" panel
+        String msg2 = String.format("adb shell 'dumpsys activity %s/.%s %s \"%s\" %s %s'",
+                pkg, activity, DUMP_ARG_FRAGMENT, FRAGMENT_NAME, DUMP_ARG_CMD,
+                (maximize ? CMD_MINIMIZE : CMD_MAXIMIZE));
+        printMessage(writer, msg1);
+        printMessage(writer, msg2);
+        mMaximized = maximize;
+        boolean visible = !maximize;
+        toggleView(mButtonsLinearLayout, visible);
+        ((KitchenSinkActivity) getActivity()).setHeaderVisibility(visible);
     }
 
+    // TODO(b/231499090): move plumbing below to common code
 
-    private void logAndToast(String format, Object...args) {
-        logAndToast(Toast.LENGTH_SHORT, format, args);
-    }
-
-    private void logAndToast(int duration, String format, Object...args) {
+    protected void logAndToastMessage(String format, Object...args) {
         String message = String.format(format, args);
         Log.i(TAG, message);
-        Toast.makeText(getContext(), message, duration).show();
+        Toast.makeText(getContext(), message, LENGTH_SHORT).show();
     }
 
-    private void logAndToast(Exception e, String format, Object...args) {
+    protected void printMessage(PrintWriter writer, String format, Object...args) {
         String message = String.format(format, args);
-        Log.e(TAG, message, e);
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        writer.printf("%s\n", message);
+    }
+
+    protected void logAndToastError(Exception e, String format, Object...args) {
+        String message = String.format(format, args);
+        if (e != null) {
+            Log.e(TAG, message, e);
+        } else {
+            Log.e(TAG, message);
+        }
+        Toast.makeText(getContext(), message, LENGTH_SHORT).show();
+    }
+
+    protected void printError(PrintWriter writer, Exception exception,
+            String format, Object...args) {
+        String message = String.format(format, args);
+        if (exception != null) {
+            writer.printf("%s: %s\n", message, exception);
+        } else {
+            writer.printf("%s\n", message);
+        }
     }
 
     private static String visibilityToString(int visibility) {
