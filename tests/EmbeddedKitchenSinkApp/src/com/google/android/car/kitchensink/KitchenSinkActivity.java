@@ -103,6 +103,9 @@ public class KitchenSinkActivity extends FragmentActivity {
     private View mKitchenContent;
     private String mLastFragmentTag = DEFAULT_FRAGMENT_TAG;
 
+    public static final String DUMP_ARG_CMD = "cmd";
+    public static final String DUMP_ARG_FRAGMENT = "fragment";
+
     private interface ClickHandler {
         void onClick();
     }
@@ -233,7 +236,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("users", UserFragment.class),
             new FragmentMenuEntry("user restrictions", UserRestrictionsFragment.class),
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
-            new FragmentMenuEntry("virtual display", VirtualDisplayFragment.class),
+            new FragmentMenuEntry(VirtualDisplayFragment.FRAGMENT_NAME,
+                    VirtualDisplayFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("watchdog", CarWatchdogTestFragment.class),
             new FragmentMenuEntry("web links", WebLinksTestFragment.class),
@@ -363,6 +367,13 @@ public class KitchenSinkActivity extends FragmentActivity {
         mMenuButton.setText(menuVisible ? "Show KitchenSink Menu" : "Hide KitchenSink Menu");
     }
 
+    /**
+     * Sets the visibility of the header that's shown on all fragments.
+     */
+    public void setHeaderVisibility(boolean visible) {
+        mMenuButton.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
     private void initCarApi() {
         if (mCarApi != null && mCarApi.isConnected()) {
             mCarApi.disconnect();
@@ -427,12 +438,12 @@ public class KitchenSinkActivity extends FragmentActivity {
             Log.v(TAG, "dump: args=" + Arrays.toString(args));
             String arg = args[0];
             switch (arg) {
-                case "cmd":
+                case DUMP_ARG_CMD:
                     String[] cmdArgs = new String[args.length - 1];
                     System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
                     new KitchenSinkShellCommand(this, writer, cmdArgs).run();
                     return;
-                case "fragment":
+                case DUMP_ARG_FRAGMENT:
                     if (args.length < 2) {
                         writer.println("Missing fragment name");
                         return;
