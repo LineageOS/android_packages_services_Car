@@ -23,6 +23,7 @@ import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
+import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.os.Handler;
 import android.os.IBinder;
@@ -288,13 +289,62 @@ public final class CarWatchdogDaemonHelper {
         invokeDaemonMethod((daemon) -> daemon.controlProcessHealthCheck(enable));
     }
 
+    /**
+     * Set the thread scheduling policy and priority.
+     *
+     * @param pid The process ID.
+     * @param tid The thread ID.
+     * @param uid The user ID for the thread.
+     * @param policy The scheduling policy.
+     * @param priority The scheduling priority.
+     */
+    public void setThreadPriority(int pid, int tid, int uid, int policy, int priority)
+            throws RemoteException {
+        invokeDaemonMethodForVersionAtLeast(
+                (daemon) -> daemon.setThreadPriority(pid, tid, uid, policy, priority),
+                /* expectedDaemonVersion= */ 2);
+    }
+
+    /**
+     * Get the thread scheduling policy and priority.
+     *
+     * @param pid The process ID.
+     * @param tid The thread ID.
+     * @param uid The user ID for the thread.
+     */
+    public int[] getThreadPriority(int pid, int tid, int uid)
+            throws RemoteException {
+        // resultValues stores policy as first element and priority as second element.
+        int[] resultValues = new int[2];
+
+        invokeDaemonMethodForVersionAtLeast((daemon) -> {
+            ThreadPolicyWithPriority t = daemon.getThreadPriority(pid, tid, uid);
+            resultValues[0] = t.policy;
+            resultValues[1] = t.priority;
+        }, /* expectedDaemonVersion= */ 2);
+
+        return resultValues;
+    }
+
     private void invokeDaemonMethod(Invokable r) throws RemoteException {
+        invokeDaemonMethodForVersionAtLeast(r, /* expectedDaemonVersion= */ -1);
+    }
+
+    private void invokeDaemonMethodForVersionAtLeast(Invokable r, int expectedDaemonVersion)
+            throws RemoteException {
         ICarWatchdog daemon;
         synchronized (mLock) {
             if (mCarWatchdogDaemon == null) {
                 throw new IllegalStateException("Car watchdog daemon is not connected");
             }
             daemon = mCarWatchdogDaemon;
+        }
+        int actualDaemonVersion = daemon.getInterfaceVersion();
+        if (actualDaemonVersion < expectedDaemonVersion) {
+            // TODO(b/238328234): Replace this with a special exception type.
+            throw new UnsupportedOperationException(
+                    "Require car watchdog daemon version: " + expectedDaemonVersion
+                    + ", actual version: " + actualDaemonVersion);
         }
         r.invoke(daemon);
     }
