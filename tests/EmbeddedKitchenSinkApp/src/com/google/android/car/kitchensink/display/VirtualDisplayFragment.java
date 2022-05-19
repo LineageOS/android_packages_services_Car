@@ -20,14 +20,18 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_CMD;
 import static com.google.android.car.kitchensink.KitchenSinkActivity.DUMP_ARG_FRAGMENT;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -37,6 +41,7 @@ import com.google.android.car.kitchensink.R;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
@@ -46,22 +51,30 @@ public final class VirtualDisplayFragment extends Fragment {
 
     private static final String TAG = VirtualDisplayFragment.class.getSimpleName();
 
-    private static final String NO_ID_TEXT = "N/A";
+    public static final String FRAGMENT_NAME = "virtual display";
+    private static final String DISPLAY_BASE_NAME = "KitchenSinkDisplay-";
 
     private static final String CMD_HELP = "help";
     private static final String CMD_CREATE = "create";
     private static final String CMD_DELETE = "delete";
     private static final String CMD_MAXIMIZE = "maximize";
     private static final String CMD_MINIMIZE = "minimize";
+    private static final String CMD_SET_NUMBER_DISPLAYS = "set-number-of-displays";
 
-    public static final String FRAGMENT_NAME = "virtual display";
+    private static final int MAX_NUMBER_DISPLAYS = 4;
 
-    private VirtualDisplayView mVirtualDisplayView;
+    private Spinner mNumberDisplaySpinner;
+    private RelativeLayout mDisplaysContainer;
 
-    private LinearLayout mButtonsLinearLayout;
-    private EditText mDisplayIdEditText;
-    private Button mCreateDisplayButton;
-    private Button mDeleteDisplayButton;
+    private SelfManagedVirtualDisplayView[] mDisplays =
+            new SelfManagedVirtualDisplayView[MAX_NUMBER_DISPLAYS];
+
+    private int mCurrentNumberOfDisplays;
+
+    // TODO(b/231499090): should not need those if we figure out how to automatically wrap the views
+    private int mDisplayWidth;
+    private int mDisplayHeight;
+
     private Button mMaximizeButton;
     private boolean mMaximized;
 
@@ -69,27 +82,47 @@ public final class VirtualDisplayFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         Log.v(TAG, "onCreateView(): mMaximizeButton=" + mMaximizeButton);
+        Context context = getContext();
 
         if (mMaximizeButton == null) {
-            mMaximizeButton = new Button(getContext());
+            mMaximizeButton = new Button(context);
             mMaximizeButton.setText("Maximize");
-            Log.v(TAG, "Created maximize button: " + mMaximizeButton);
+            Log.v(TAG, "Created mMaximizeButton: " + mMaximizeButton);
+            mMaximizeButton.setOnClickListener((v) -> maximizeScreen());
             ((KitchenSinkActivity) getActivity()).addHeaderView(mMaximizeButton);
         }
 
-        View view = inflater.inflate(R.layout.virtual_display, container, false);
-        mVirtualDisplayView = view.findViewById(R.id.virtual_display);
-        mDisplayIdEditText = view.findViewById(R.id.display_id);
-        mCreateDisplayButton = view.findViewById(R.id.create);
-        mDeleteDisplayButton = view.findViewById(R.id.delete);
-        mButtonsLinearLayout = view.findViewById(R.id.buttons_panel);
+        if (mNumberDisplaySpinner == null) {
+            ArrayList<String> spinnerValues = new ArrayList<String>(MAX_NUMBER_DISPLAYS);
 
-        toggleCreateDeleteButtons(/* create= */ true);
-        toggleView(mMaximizeButton, /* on= */ true);
-        mDisplayIdEditText.setText(NO_ID_TEXT);
-        mCreateDisplayButton.setOnClickListener((v) -> createDisplay());
-        mDeleteDisplayButton.setOnClickListener((v) -> deleteDisplay());
-        mMaximizeButton.setOnClickListener((v) -> maximizeDisplay());
+            for (int i = 0; i < MAX_NUMBER_DISPLAYS; i++) {
+                int displayNumber = i + 1;
+                spinnerValues.add(displayNumber == 1 ? "1 display" : displayNumber + " displays");
+            }
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<String>(context,
+                    android.R.layout.simple_spinner_dropdown_item, spinnerValues);
+
+            mNumberDisplaySpinner = new Spinner(context);
+            mNumberDisplaySpinner.setAdapter(spinnerAdapter);
+            mNumberDisplaySpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position,
+                        long id) {
+                    updateNumberDisplays(position + 1, /* force= */ false);
+                }
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+
+            Log.v(TAG, "Created mNumberDisplaySpinner: " + mNumberDisplaySpinner);
+            ((KitchenSinkActivity) getActivity()).addHeaderView(mNumberDisplaySpinner);
+        }
+
+        View view = inflater.inflate(R.layout.virtual_display, container, false);
+
+        mDisplaysContainer =  view.findViewById(R.id.displays_container);
 
         return view;
     }
@@ -102,12 +135,14 @@ public final class VirtualDisplayFragment extends Fragment {
             Log.v(TAG, "Ignoring onHiddenChanged() call as fragment was not created yet");
             return;
         }
-        toggleView(mMaximizeButton, /* on= */ !hidden);
+        boolean on = !hidden;
+        toggleView(mMaximizeButton, on);
+        toggleView(mNumberDisplaySpinner, on);
     }
 
     @Override
     public void onDestroyView() {
-        mVirtualDisplayView.release();
+        onAllDisplays((index, display) -> display.release());
 
         super.onDestroyView();
     }
@@ -121,15 +156,122 @@ public final class VirtualDisplayFragment extends Fragment {
             return;
         }
 
-        dumpView(prefix, writer, mButtonsLinearLayout, "Buttons panel");
-        dumpView(prefix, writer, mCreateDisplayButton, "Create display");
-        dumpView(prefix, writer, mDeleteDisplayButton, "Delete display");
-        dumpView(prefix, writer, mMaximizeButton, "Maximize screen");
-        writer.printf("%sDisplay id: %s\n", prefix, mDisplayIdEditText.getText());
-        writer.printf("%sVirtual Display View\n", prefix);
         writer.printf("%sMaximized: %b\n", prefix, mMaximized);
-        writer.printf("%sVirtual Display View:\n", prefix);
-        mVirtualDisplayView.dump(prefix + "  ", writer);
+        dumpView(prefix, writer, mMaximizeButton, "Maximize screen button");
+
+        writer.printf("%sCurrent number of displays: %d\n", prefix, mCurrentNumberOfDisplays);
+
+        writer.printf("%sDisplay resolution: %d x %d\n", prefix, mDisplayWidth, mDisplayHeight);
+
+        String prefix2 = prefix + "  ";
+
+        onAllDisplays((index, display) -> {
+            writer.printf("%sDisplay #%d:\n", prefix, (index + 1));
+            display.dump(prefix2, writer, args);
+        });
+
+    }
+
+    /**
+     * Visits all instantiated displays, including the hidden ones.
+     */
+    private void onAllDisplays(DisplayVisitor visitor) {
+        onDisplays(MAX_NUMBER_DISPLAYS, visitor);
+    }
+
+    /**
+     * Visits the visible displays.
+     */
+    private void onVisibleDisplays(DisplayVisitor visitor) {
+        onDisplays(mCurrentNumberOfDisplays, visitor);
+    }
+
+    private void onDisplays(int upperLimit, DisplayVisitor visitor) {
+        for (int i = 0; i < mDisplays.length && i < upperLimit; i++) {
+            SelfManagedVirtualDisplayView display = mDisplays[i];
+            if (display == null) {
+                // All done!
+                return;
+            }
+            visitor.visit(i, display);
+        }
+    }
+
+    private void updateNumberDisplays(int numberDisplays, boolean force) {
+        if (numberDisplays < 0 || numberDisplays > MAX_NUMBER_DISPLAYS) {
+            throw new IllegalArgumentException("Invalid number of displays: " + numberDisplays);
+        }
+        if (numberDisplays == mCurrentNumberOfDisplays && !force) {
+            Log.v(TAG, "updateNumberDisplays(): ignoring, already " + numberDisplays);
+            return;
+        }
+        Log.i(TAG, "updating number of displays from " + mCurrentNumberOfDisplays + " to "
+                + numberDisplays);
+        mCurrentNumberOfDisplays = numberDisplays;
+
+        // TODO(b/231499090): figure out how to use properly use WRAP_CONTENT without one of the
+        // displays taking the full view
+        mDisplayWidth = mDisplaysContainer.getRight();
+        mDisplayHeight = mDisplaysContainer.getBottom();
+        Log.v(TAG, "Full dimension: " + mDisplayWidth + "x" + mDisplayHeight);
+        switch (numberDisplays) {
+            case 3:
+            case 4:
+                mDisplayHeight /= 2;
+                // Fall through
+            case 2:
+                mDisplayWidth /= 2;
+                // Fall through
+        }
+        Log.v(TAG, "Display dimension: " + mDisplayWidth + "x" + mDisplayHeight);
+
+
+        for (int i = 0; i < MAX_NUMBER_DISPLAYS; i++) {
+            SelfManagedVirtualDisplayView display = mDisplays[i];
+
+            if (i >= numberDisplays && display != null) {
+                Log.v(TAG, "Disabling display at index " + i);
+                toggleView(display, /* on= */ false);
+                continue;
+            }
+
+            boolean isNew = false;
+            if (display == null) {
+                int subject = i + 1;
+                String name = DISPLAY_BASE_NAME + subject;
+                Log.i(TAG, "Creating display " + name + " at index " + i
+                        + " and RelativeLayout subject " + subject);
+                display = new SelfManagedVirtualDisplayView(getContext(), name);
+                display.setId(subject);
+                mDisplays[i] = display;
+                isNew = true;
+            } else {
+                Log.v(TAG, "Updating dimensions of display at index " + i);
+            }
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                    mDisplayWidth, mDisplayHeight);
+            switch (i) {
+                // Display 0 is the reference (Subject 1), it doesn't need any rule
+                case 1: // Subject 2
+                    params.addRule(RelativeLayout.RIGHT_OF, /* subject= */ 1);
+                    break;
+                case 2: // Subect 3
+                    params.addRule(RelativeLayout.BELOW, /* subject= */ 1);
+                    break;
+                case 3: // Subject 4
+                    params.addRule(RelativeLayout.BELOW, /* subject= */ 2);
+                    params.addRule(RelativeLayout.RIGHT_OF, /* subject= */ 3);
+                    break;
+            }
+            display.setLayoutParams(params);
+            toggleView(display, /* on= */ true);
+
+            if (isNew) {
+                Log.v(TAG, "Adding display to container");
+                mDisplaysContainer.addView(display);
+            }
+        }
+
     }
 
     private void runCmd(PrintWriter writer, String[] args) {
@@ -140,28 +282,69 @@ public final class VirtualDisplayFragment extends Fragment {
         String cmd = args[1];
         switch (cmd) {
             case CMD_HELP:
-                showAvailableCommands(writer);
+                cmdShowHelp(writer);
                 break;
             case CMD_CREATE:
-                createDisplay(writer);
+                cmdCreateDisplay(writer, args);
                 break;
             case CMD_DELETE:
-                deleteDisplay(writer);
+                cmdDeleteDisplay(writer, args);
                 break;
             case CMD_MAXIMIZE:
-                minimizeOrMaximizeDisplay(writer, /* maximize= */ true);
+                cmdMinimizeOrMaximizeScreen(writer, /* maximize= */ true);
                 break;
             case CMD_MINIMIZE:
-                minimizeOrMaximizeDisplay(writer, /* maximize= */ false);
+                cmdMinimizeOrMaximizeScreen(writer, /* maximize= */ false);
                 break;
+            case CMD_SET_NUMBER_DISPLAYS:
+                cmdSetNumberOfDisplays(writer, args);
+                break;
+
             default:
-                showAvailableCommands(writer);
+                cmdShowHelp(writer);
                 writer.printf("Invalid cmd: %s\n", Arrays.toString(args));
         }
         return;
     }
 
-    private void showAvailableCommands(PrintWriter writer) {
+    private void cmdDeleteDisplay(PrintWriter writer, String[] args) {
+        // TODO(b/231499090): parse args to get display #
+        try {
+            mDisplays[0].deleteDisplay();
+            printMessage(writer, "Deleted virtual display");
+        } catch (Exception e) {
+            writer.printf("Failed: %s\n", e);
+        }
+    }
+
+    private void cmdCreateDisplay(PrintWriter writer, String[] args) {
+        // TODO(b/231499090): parse args to get display #
+        try {
+            int displayId = mDisplays[0].createDisplay();
+            printMessage(writer, "Created virtual display with id %d", displayId);
+        } catch (Exception e) {
+            writer.printf("Failed: %s\n", e);
+        }
+    }
+
+    private void cmdSetNumberOfDisplays(PrintWriter writer, String[] args) {
+        // TODO(b/231499090): use helper to parse args
+        int number;
+        try {
+            number = Integer.parseInt(args[2]);
+        } catch (Exception e) {
+            writer.printf("Invalid args: %s\n", Arrays.toString(args));
+            return;
+        }
+        if (number < 1 || number > MAX_NUMBER_DISPLAYS) {
+            writer.printf("Invalid number of display (%d) - must be between 1 and %d\n",
+                    number, MAX_NUMBER_DISPLAYS);
+            return;
+        }
+        mNumberDisplaySpinner.setSelection(number - 1);
+    }
+
+    private void cmdShowHelp(PrintWriter writer) {
         writer.println("Available commands:\n");
         showCommandHelp(writer, "Shows this help message.", CMD_HELP);
         showCommandHelp(writer, "Maximizes the display view so it takes the whole screen.",
@@ -172,6 +355,8 @@ public final class VirtualDisplayFragment extends Fragment {
                 CMD_CREATE);
         showCommandHelp(writer, "Deletes the virtual display.",
                 CMD_DELETE);
+        showCommandHelp(writer, "Sets the number of virtual displays.",
+                CMD_SET_NUMBER_DISPLAYS, "<NUMBER>");
     }
 
     private void showCommandHelp(PrintWriter writer, String description, String cmd,
@@ -186,16 +371,8 @@ public final class VirtualDisplayFragment extends Fragment {
         writer.printf("  %s\n\n", description);
     }
 
-
-    private void dumpView(String prefix, PrintWriter writer, View view, String name) {
-        writer.printf("%s%s: %s %s\n", prefix, name,
-                (view.isEnabled() ? "enabled" : "disabled"),
-                visibilityToString(view.getVisibility()));
-    }
-
-    private void toggleCreateDeleteButtons(boolean create) {
-        toggleView(mCreateDisplayButton, create);
-        toggleView(mDeleteDisplayButton, !create);
+    private interface DisplayVisitor {
+        void visit(int index, SelfManagedVirtualDisplayView display);
     }
 
     private void toggleView(View view, boolean on) {
@@ -205,59 +382,7 @@ public final class VirtualDisplayFragment extends Fragment {
 
     // TODO(b/231499090): use custom Writer interface to reuse logic for toast / writer below
 
-    private void createDisplay() {
-        Log.i(TAG, "Creating virtual display");
-        try {
-            int displayId = mVirtualDisplayView.createVirtualDisplay();
-            logAndToastMessage("Created virtual display with id %d", displayId);
-
-            mDisplayIdEditText.setText(String.valueOf(displayId));
-            toggleCreateDeleteButtons(/* create= */ false);
-        } catch (Exception e) {
-            logAndToastError(e, "Failed to create virtual display");
-        }
-    }
-
-    private void createDisplay(PrintWriter writer) {
-        Log.i(TAG, "Creating virtual display");
-        try {
-            int displayId = mVirtualDisplayView.createVirtualDisplay();
-            printMessage(writer, "Created virtual display with id %d", displayId);
-
-            mDisplayIdEditText.setText(String.valueOf(displayId));
-            toggleCreateDeleteButtons(/* create= */ false);
-        } catch (Exception e) {
-            printError(writer, e, "Failed to create virtual display");
-        }
-    }
-
-    private void deleteDisplay() {
-        Log.i(TAG, "Deleting display");
-        try {
-            mVirtualDisplayView.deleteVirtualDisplay();
-            logAndToastMessage("Virtual display deleted");
-
-            mDisplayIdEditText.setText(NO_ID_TEXT);
-            toggleCreateDeleteButtons(/* create= */ true);
-        } catch (Exception e) {
-            logAndToastError(e, "Failed to delete virtual display");
-        }
-    }
-
-    private void deleteDisplay(PrintWriter writer) {
-        Log.i(TAG, "Deleting display");
-        try {
-            mVirtualDisplayView.deleteVirtualDisplay();
-            printMessage(writer, "Virtual display deleted");
-
-            mDisplayIdEditText.setText(NO_ID_TEXT);
-            toggleCreateDeleteButtons(/* create= */ true);
-        } catch (Exception e) {
-            printError(writer, e, "Failed to delete virtual display");
-        }
-    }
-
-    private void maximizeDisplay() {
+    private void maximizeScreen() {
         if (mMaximized) {
             logAndToastError(/* exception= */ null, "Already maximized");
             return;
@@ -272,7 +397,7 @@ public final class VirtualDisplayFragment extends Fragment {
         minimizeOrMaximizeViews(/* maximize= */ true);
     }
 
-    private void minimizeOrMaximizeDisplay(PrintWriter writer, boolean maximize) {
+    private void cmdMinimizeOrMaximizeScreen(PrintWriter writer, boolean maximize) {
         if (maximize && mMaximized) {
             printError(writer, /* exception= */ null, "Already maximized");
             return;
@@ -300,12 +425,23 @@ public final class VirtualDisplayFragment extends Fragment {
     private void minimizeOrMaximizeViews(boolean maximize) {
         mMaximized = maximize;
         boolean visible = !maximize;
-        toggleView(mButtonsLinearLayout, visible);
+
+        // TODO(b/231499090): must call updateNumberDisplays() as the dimensions are manually
+        // calculated (hence the force argument)
+        updateNumberDisplays(mCurrentNumberOfDisplays, /* force= */ true);
+
+        onVisibleDisplays((index, display) -> display.setHeaderVisible(visible));
 
         ((KitchenSinkActivity) getActivity()).setHeaderVisibility(!maximize);
     }
 
     // TODO(b/231499090): move plumbing below to common code
+
+    private void dumpView(String prefix, PrintWriter writer, View view, String name) {
+        writer.printf("%s%s: %s %s\n", prefix, name,
+                (view.isEnabled() ? "enabled" : "disabled"),
+                visibilityToString(view.getVisibility()));
+    }
 
     protected void logAndToastMessage(String format, Object...args) {
         String message = String.format(format, args);
