@@ -39,6 +39,7 @@ import androidx.test.filters.SmallTest;
 import com.android.car.hal.test.AidlVehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -86,6 +87,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
     }
 
     @Test
+    @Ignore("b/232940852")
     public void testDrivingStateChange() throws InterruptedException {
         CarDrivingStateEvent drivingEvent;
         CarUxRestrictions restrictions;
@@ -199,6 +201,7 @@ public class CarDrivingRestrictionsTest extends MockedCarTestBase {
     }
 
     @Test
+    @Ignore("b/232940852")
     public void testDrivingStateChangeForMalformedInputs() throws InterruptedException {
         CarDrivingStateEvent drivingEvent;
         CarUxRestrictions restrictions;
