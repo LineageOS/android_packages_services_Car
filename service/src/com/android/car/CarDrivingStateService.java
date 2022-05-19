@@ -46,6 +46,7 @@ import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -386,7 +387,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
                 return p.getConfigArray();
             }
         }
-        return null;
+        return Collections.emptyList();
     }
 
     @GuardedBy("mLock")
