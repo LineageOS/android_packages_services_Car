@@ -99,14 +99,13 @@ bool SilentModeHandler::isSilentMode() {
 }
 
 void SilentModeHandler::stopMonitoringSilentModeHwState() {
-    if (mIsMonitoring) {
+    if (mIsMonitoring.exchange(false)) {
         if (auto ret = mSysfsMonitor->unregisterFd(mFdSilentModeHwState.get()); !ret.ok()) {
             ALOGW("Unregistering %s from SysfsMonitor failed", mSilentModeHwStateFilename.c_str());
         }
     }
     mFdSilentModeHwState.reset();
     mSysfsMonitor->release();
-    mIsMonitoring = false;
 }
 
 Result<void> SilentModeHandler::dump(int fd, const Vector<String16>& /*args*/) {
