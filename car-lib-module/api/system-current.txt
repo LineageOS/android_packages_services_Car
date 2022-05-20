@@ -261,6 +261,18 @@ package android.car.cluster {
     method @Deprecated public void onClusterActivityStateChanged(String, android.os.Bundle);
   }
 
+  public class ClusterActivityState {
+    method @NonNull public static android.car.cluster.ClusterActivityState create(boolean, @NonNull android.graphics.Rect);
+    method @NonNull public static android.car.cluster.ClusterActivityState fromBundle(@NonNull android.os.Bundle);
+    method @Nullable public android.os.Bundle getExtras();
+    method @Nullable public android.graphics.Rect getUnobscuredBounds();
+    method public boolean isVisible();
+    method @NonNull public android.car.cluster.ClusterActivityState setExtras(@NonNull android.os.Bundle);
+    method @NonNull public android.car.cluster.ClusterActivityState setUnobscuredBounds(@NonNull android.graphics.Rect);
+    method @NonNull public android.car.cluster.ClusterActivityState setVisible(boolean);
+    method @NonNull public android.os.Bundle toBundle();
+  }
+
 }
 
 package android.car.cluster.renderer {
@@ -285,6 +297,8 @@ package android.car.cluster.renderer {
     method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
     method @MainThread public void onNavigationComponentLaunched();
     method @MainThread public void onNavigationComponentReleased();
+    method public void setClusterActivityLaunchOptions(@NonNull android.app.ActivityOptions);
+    method public void setClusterActivityState(@NonNull android.car.cluster.ClusterActivityState);
     method public boolean startFixedActivityModeForDisplayAndUser(@NonNull android.content.Intent, @NonNull android.app.ActivityOptions, int);
     method protected boolean startNavigationActivity(@NonNull android.content.ComponentName);
     method public void stopFixedActivityMode(int);

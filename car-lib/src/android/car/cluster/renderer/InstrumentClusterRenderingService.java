@@ -471,10 +471,9 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @param activityOptions contains information of how to start cluster activity (on what display
      *                        or activity stack).
-     * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public void setClusterActivityLaunchOptions(ActivityOptions activityOptions) {
+    public void setClusterActivityLaunchOptions(@NonNull ActivityOptions activityOptions) {
         mActivityOptions = activityOptions;
         updateNavigationActivity();
     }
@@ -495,10 +494,9 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *
      * @param state pass information about activity state, see
      *              {@link android.car.cluster.ClusterActivityState}
-     * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public void setClusterActivityState(ClusterActivityState state) {
+    public void setClusterActivityState(@NonNull ClusterActivityState state) {
         mActivityState = state;
         updateNavigationActivity();
     }
