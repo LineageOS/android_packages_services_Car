@@ -39,6 +39,7 @@ import android.view.SurfaceView;
 import com.google.android.car.kitchensink.R;
 
 import java.io.PrintWriter;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -51,13 +52,12 @@ public final class VirtualDisplayView extends SurfaceView {
 
     private static final boolean REALLY_VERBOSE_IS_FINE = false;
 
-    private static final String DEFAULT_NAME = "LAYOUT XML, Y U NO HAVE A NAME?";
     private static final int WAIT_TIMEOUT_MS = 4_000;
     private static final int NO_DISPLAY_ID = -42;
 
     private final Context mContext;
     private final InputManager mInputManager;
-    private final String mName;
+    private String mName = "LAYOUT XML, Y U NO HAVE A NAME?";
 
     private final SurfaceHolder.Callback mSurfaceViewCallback = new SurfaceHolder.Callback() {
 
@@ -102,27 +102,19 @@ public final class VirtualDisplayView extends SurfaceView {
     @Nullable
     private Handler mHandler;
 
-    public VirtualDisplayView(Context context, AttributeSet attrs) {
+    public VirtualDisplayView(Context context) {
+        this(context, null);
+    }
+
+    public VirtualDisplayView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
 
         mContext = context;
-        mInputManager = context.getSystemService(InputManager.class);
-
-        TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
-                R.styleable.VirtualDisplayView, /* defStyleAttr= */ 0, /* defStyleRes= */ 0);
-        try {
-            String name = a.getString(R.styleable.VirtualDisplayView_name);
-            if (name != null) {
-                Log.d(TAG, "name set from attribute virtualDisplayName: " + name);
-            } else {
-                Log.w(TAG, "virtualDisplayName attribute not set; using " + DEFAULT_NAME);
-                name = DEFAULT_NAME;
-            }
+        String name = getName(context, attrs);
+        if (name != null) {
             mName = name;
-        } finally {
-            a.recycle();
         }
-
+        mInputManager = context.getSystemService(InputManager.class);
         getHolder().addCallback(mSurfaceViewCallback);
     }
 
@@ -157,6 +149,22 @@ public final class VirtualDisplayView extends SurfaceView {
 
         Log.w(TAG, "onTouchEvent(): not handled by display, calling super instead");
         return super.onTouchEvent(event);
+    }
+
+    /**
+     * Sets the name of the display
+     */
+    public void setName(String name) {
+        Objects.requireNonNull(name, "name cannot be null");
+        Log.v(TAG, "Changing name from " + mName + " to " + name);
+        mName = name;
+    }
+
+    /**
+     * Gets the name of the display
+     */
+    public String getName() {
+        return mName;
     }
 
     /**
@@ -282,10 +290,24 @@ public final class VirtualDisplayView extends SurfaceView {
 
     private void releaseDisplay() {
         if (mVirtualDisplay != null) {
-            Log.d(TAG, "Releasing display");
+            Log.i(TAG, "Releasing display id " + mDisplayId);
             mVirtualDisplay.release();
             mVirtualDisplay = null;
             mDisplayId = NO_DISPLAY_ID;
+        }
+    }
+
+    @Nullable
+    static String getName(Context context, AttributeSet attrs) {
+        if (attrs == null) {
+            return null;
+        }
+        TypedArray a = context.getTheme().obtainStyledAttributes(attrs,
+                R.styleable.VirtualDisplayView, /* defStyleAttr= */ 0, /* defStyleRes= */ 0);
+        try {
+            return a.getString(R.styleable.VirtualDisplayView_name);
+        } finally {
+            a.recycle();
         }
     }
 }

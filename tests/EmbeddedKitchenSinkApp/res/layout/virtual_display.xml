@@ -19,35 +19,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    <LinearLayout
-        android:id="@+id/buttons_panel"
+
+    <RelativeLayout
+        android:id="@+id/displays_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal" >
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:enabled="false"
-            android:text="Display Id:"/>
-        <EditText
-            android:id="@+id/display_id"
-            android:layout_width="70dp"
-            android:layout_height="match_parent"
-            android:enabled="false"/>
-        <Button
-            android:id="@+id/create"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Create"/>
-        <Button
-            android:id="@+id/delete"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Delete"/>
-    </LinearLayout>
-    <com.google.android.car.kitchensink.display.VirtualDisplayView
-        android:id="@+id/virtual_display"
-        custom:name="KitchenSinkVirtualDisplay"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
 </LinearLayout>
