@@ -32,7 +32,6 @@ import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ExperimentalFeature;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
@@ -58,6 +57,7 @@ import android.car.media.CarMediaIntents;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
+import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManager;
@@ -419,7 +419,7 @@ public final class Car {
      *
      * @hide
      */
-    @ExperimentalFeature
+    @MandatoryFeature
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
 
@@ -2278,6 +2278,9 @@ public final class Car {
                 break;
             case CAR_ACTIVITY_SERVICE:
                 manager = new CarActivityManager(this, binder);
+                break;
+            case CAR_PERFORMANCE_SERVICE:
+                manager = new CarPerformanceManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing
