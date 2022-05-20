@@ -364,7 +364,7 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         // The app is being reloaded, restores the last fragment UI.
         mLastFragmentTag = savedInstanceState.getString(LAST_FRAGMENT_TAG);
-        if (mLastFragmentTag != DEFAULT_FRAGMENT_TAG) {
+        if (!DEFAULT_FRAGMENT_TAG.equals(mLastFragmentTag)) {
             toggleMenuVisibility();
         }
     }
