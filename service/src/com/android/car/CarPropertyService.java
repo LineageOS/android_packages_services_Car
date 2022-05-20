@@ -23,6 +23,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -300,7 +301,7 @@ public class CarPropertyService extends ICarProperty.Stub
         List<CarPropertyEvent> events = new ArrayList<>();
         int propId = config.getPropertyId();
         if (config.isGlobalProperty()) {
-            CarPropertyValue value = mHal.getPropertySafe(propId, 0);
+            CarPropertyValue value = getPropertySafe(propId, 0);
             if (value != null) {
                 CarPropertyEvent event = new CarPropertyEvent(
                         CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
@@ -308,7 +309,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
         } else {
             for (int areaId : config.getAreaIds()) {
-                CarPropertyValue value = mHal.getPropertySafe(propId, areaId);
+                CarPropertyValue value = getPropertySafe(propId, areaId);
                 if (value != null) {
                     CarPropertyEvent event = new CarPropertyEvent(
                             CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
@@ -489,21 +490,16 @@ public class CarPropertyService extends ICarProperty.Stub
     /**
      * Get property value for car service's internal usage.
      *
-     * @param prop property id
-     * @param zone area id
      * @return null if property is not implemented or there is an exception in the vehicle.
      */
-    public CarPropertyValue getPropertySafe(int prop, int zone) {
-        synchronized (mLock) {
-            if (mConfigs.get(prop) == null) {
-                // Do not attempt to register an invalid propId
-                Slogf.e(TAG, "getPropertySafe: propId is not in config list:0x"
-                        + toHexString(prop));
-                return null;
-            }
+    public CarPropertyValue getPropertySafe(int propertyId, int areaId) {
+        try {
+            return getProperty(propertyId, areaId);
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "getPropertySafe() failed for property id: %s area id: 0x%s",
+                    VehiclePropertyIds.toString(propertyId), toHexString(areaId));
+            return null;
         }
-        CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(prop));
-        return mHal.getPropertySafe(prop, zone);
     }
 
     @Nullable
