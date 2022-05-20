@@ -44,5 +44,6 @@
         <permission name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
         <permission name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"/>
         <permission name="android.car.permission.CAR_DYNAMICS_STATE"/>
+        <permission name="android.car.permission.CAR_ENGINE_DETAILED"/>
     </privapp-permissions>
 </permissions>
