@@ -62,6 +62,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
@@ -232,7 +233,7 @@ public class CarTelemetryActivity extends Activity {
         } catch (FileNotFoundException | InvalidClassException e) {
             // File might not have been created yet or object definition changed
             Log.w(TAG, "Could not read app data. Does not exist or format changed.", e);
-            return null;
+            return Collections.emptyMap();
         } catch (IOException | ClassNotFoundException e) {
             throw new IllegalStateException("Failed to read app data from file.", e);
         }

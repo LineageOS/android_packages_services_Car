@@ -16,6 +16,7 @@
 
 package com.google.android.car.kitchensink;
 
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarProjectionManager;
@@ -36,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -99,9 +101,16 @@ public class KitchenSinkActivity extends FragmentActivity {
     private static final String LAST_FRAGMENT_TAG = "lastFragmentTag";
     private static final String DEFAULT_FRAGMENT_TAG = "";
     private RecyclerView mMenu;
+    private LinearLayout mHeader;
     private Button mMenuButton;
     private View mKitchenContent;
     private String mLastFragmentTag = DEFAULT_FRAGMENT_TAG;
+    @Nullable
+    private Fragment mLastFragment;
+
+    public static final String DUMP_ARG_CMD = "cmd";
+    public static final String DUMP_ARG_FRAGMENT = "fragment";
+    public static final String DUMP_ARG_QUIET = "quiet";
 
     private interface ClickHandler {
         void onClick();
@@ -233,7 +242,8 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("users", UserFragment.class),
             new FragmentMenuEntry("user restrictions", UserRestrictionsFragment.class),
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
-            new FragmentMenuEntry("virtual display", VirtualDisplayFragment.class),
+            new FragmentMenuEntry(VirtualDisplayFragment.FRAGMENT_NAME,
+                    VirtualDisplayFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
             new FragmentMenuEntry("watchdog", CarWatchdogTestFragment.class),
             new FragmentMenuEntry("web links", WebLinksTestFragment.class),
@@ -337,6 +347,9 @@ public class KitchenSinkActivity extends FragmentActivity {
 
         mMenuButton = findViewById(R.id.menu_button);
         mMenuButton.setOnClickListener(view -> toggleMenuVisibility());
+
+        mHeader = findViewById(R.id.header);
+
         Log.i(TAG, "onCreate");
         onNewIntent(getIntent());
     }
@@ -359,8 +372,28 @@ public class KitchenSinkActivity extends FragmentActivity {
     private void toggleMenuVisibility() {
         boolean menuVisible = mMenu.getVisibility() == View.VISIBLE;
         mMenu.setVisibility(menuVisible ? View.GONE : View.VISIBLE);
-        mKitchenContent.setVisibility(menuVisible ? View.VISIBLE : View.GONE);
+        int contentVisibility = menuVisible ? View.VISIBLE : View.GONE;
+        mKitchenContent.setVisibility(contentVisibility);
         mMenuButton.setText(menuVisible ? "Show KitchenSink Menu" : "Hide KitchenSink Menu");
+        if (mLastFragment != null) {
+            mLastFragment.onHiddenChanged(!menuVisible);
+        }
+    }
+
+    /**
+     * Sets the visibility of the header that's shown on all fragments.
+     */
+    public void setHeaderVisibility(boolean visible) {
+        mHeader.setVisibility(visible ? View.VISIBLE : View.GONE);
+    }
+
+    /**
+     * Adds a view to the main header (which by default contains the "show/ hide KS menu" button).
+     */
+    public void addHeaderView(View view) {
+        Log.d(TAG, "Adding header view: " + view);
+        mHeader.addView(view, new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.MATCH_PARENT));
     }
 
     private void initCarApi() {
@@ -423,16 +456,17 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     @Override
     public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        boolean skipParentState = false;
         if (args != null && args.length > 0) {
             Log.v(TAG, "dump: args=" + Arrays.toString(args));
             String arg = args[0];
             switch (arg) {
-                case "cmd":
+                case DUMP_ARG_CMD:
                     String[] cmdArgs = new String[args.length - 1];
                     System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
                     new KitchenSinkShellCommand(this, writer, cmdArgs).run();
                     return;
-                case "fragment":
+                case DUMP_ARG_FRAGMENT:
                     if (args.length < 2) {
                         writer.println("Missing fragment name");
                         return;
@@ -448,17 +482,41 @@ public class KitchenSinkActivity extends FragmentActivity {
                         writer.printf("No entry called '%s'\n", select);
                     }
                     return;
+                case DUMP_ARG_QUIET:
+                    skipParentState = true;
+                    break;
                 default:
                     Log.v(TAG, "dump(): unknown arg, calling super(): " + Arrays.toString(args));
             }
         }
+        String innerPrefix = prefix;
+        if (!skipParentState) {
+            writer.printf("%sCustom state:\n", prefix);
+            innerPrefix = prefix + prefix;
+        }
+        writer.printf("%smLastFragmentTag: %s\n", innerPrefix, mLastFragmentTag);
+        writer.printf("%smLastFragment: %s\n", innerPrefix, mLastFragment);
+        writer.printf("%sHeader views: %d\n", innerPrefix, mHeader.getChildCount());
+
+        if (skipParentState) {
+            Log.v(TAG, "dump(): skipping parent state");
+            return;
+        }
+        writer.println();
+
         super.dump(prefix, fd, writer, args);
     }
 
     private void showFragment(Fragment fragment) {
+        if (mLastFragment != fragment) {
+            Log.v(TAG, "showFragment(): from " + mLastFragment + " to " + fragment);
+        } else {
+            Log.v(TAG, "showFragment(): showing " + fragment + " again");
+        }
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.kitchen_content, fragment)
                 .commit();
+        mLastFragment = fragment;
     }
 
     private void initManagers(Car car) {
