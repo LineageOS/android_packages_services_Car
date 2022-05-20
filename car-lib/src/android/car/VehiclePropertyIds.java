@@ -23,8 +23,14 @@ import android.car.annotation.AddedInOrBefore;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
+import android.util.Log;
+import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Copy from android.hardware.automotive.vehicle-V2.0-java_gen_java/gen/android/hardware/automotive
@@ -33,6 +39,9 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
  * {@link android.car.hardware.property.CarPropertyManager}
  */
 public final class VehiclePropertyIds {
+
+    private static final String TAG = VehiclePropertyIds.class.getSimpleName();
+
     /**
      * Undefined property.
      */
@@ -2254,6 +2263,13 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int TRAILER_PRESENT = 289410885;
 
+    /*
+     * Used to cache the mapping of property Id integer values into property name strings. This
+     * will be initialized during the first call to {@link VehiclePropertyIds#toString(int)}.
+     */
+    private static final AtomicReference<SparseArray<String>> sPropertyIdToPropertyNameHolder =
+            new AtomicReference<>();
+
     /**
      * @deprecated to prevent others from instantiating this class
      */
@@ -2267,341 +2283,41 @@ public final class VehiclePropertyIds {
      */
     @AddedInOrBefore(majorVersion = 33)
     public static String toString(int property) {
-        switch (property) {
-            case INVALID:
-                return "INVALID";
-            case INFO_VIN:
-                return "INFO_VIN";
-            case INFO_MAKE:
-                return "INFO_MAKE";
-            case INFO_MODEL:
-                return "INFO_MODEL";
-            case INFO_MODEL_YEAR:
-                return "INFO_MODEL_YEAR";
-            case INFO_FUEL_CAPACITY:
-                return "INFO_FUEL_CAPACITY";
-            case INFO_FUEL_TYPE:
-                return "INFO_FUEL_TYPE";
-            case INFO_EV_BATTERY_CAPACITY:
-                return "INFO_EV_BATTERY_CAPACITY";
-            case INFO_MULTI_EV_PORT_LOCATIONS:
-                return "INFO_MULTI_EV_PORT_LOCATIONS";
-            case INFO_EV_CONNECTOR_TYPE:
-                return "INFO_EV_CONNECTOR_TYPE";
-            case INFO_FUEL_DOOR_LOCATION:
-                return "INFO_FUEL_DOOR_LOCATION";
-            case INFO_EV_PORT_LOCATION:
-                return "INFO_EV_PORT_LOCATION";
-            case INFO_DRIVER_SEAT:
-                return "INFO_DRIVER_SEAT";
-            case INFO_EXTERIOR_DIMENSIONS:
-                return "INFO_EXTERIOR_DIMENSIONS";
-            case PERF_ODOMETER:
-                return "PERF_ODOMETER";
-            case PERF_VEHICLE_SPEED:
-                return "PERF_VEHICLE_SPEED";
-            case PERF_VEHICLE_SPEED_DISPLAY:
-                return "PERF_VEHICLE_SPEED_DISPLAY";
-            case PERF_STEERING_ANGLE:
-                return "PERF_STEERING_ANGLE";
-            case PERF_REAR_STEERING_ANGLE:
-                return "PERF_REAR_STEERING_ANGLE";
-            case ENGINE_COOLANT_TEMP:
-                return "ENGINE_COOLANT_TEMP";
-            case ENGINE_OIL_LEVEL:
-                return "ENGINE_OIL_LEVEL";
-            case ENGINE_OIL_TEMP:
-                return "ENGINE_OIL_TEMP";
-            case ENGINE_RPM:
-                return "ENGINE_RPM";
-            case WHEEL_TICK:
-                return "WHEEL_TICK";
-            case FUEL_LEVEL:
-                return "FUEL_LEVEL";
-            case FUEL_DOOR_OPEN:
-                return "FUEL_DOOR_OPEN";
-            case EV_BATTERY_LEVEL:
-                return "EV_BATTERY_LEVEL";
-            case EV_CHARGE_PORT_OPEN:
-                return "EV_CHARGE_PORT_OPEN";
-            case EV_CHARGE_PORT_CONNECTED:
-                return "EV_CHARGE_PORT_CONNECTED";
-            case EV_BATTERY_INSTANTANEOUS_CHARGE_RATE:
-                return "EV_BATTERY_INSTANTANEOUS_CHARGE_RATE";
-            case RANGE_REMAINING:
-                return "RANGE_REMAINING";
-            case TIRE_PRESSURE:
-                return "TIRE_PRESSURE";
-            case CRITICALLY_LOW_TIRE_PRESSURE:
-                return "CRITICALLY_LOW_TIRE_PRESSURE";
-            case GEAR_SELECTION:
-                return "GEAR_SELECTION";
-            case CURRENT_GEAR:
-                return "CURRENT_GEAR";
-            case PARKING_BRAKE_ON:
-                return "PARKING_BRAKE_ON";
-            case PARKING_BRAKE_AUTO_APPLY:
-                return "PARKING_BRAKE_AUTO_APPLY";
-            case FUEL_LEVEL_LOW:
-                return "FUEL_LEVEL_LOW";
-            case NIGHT_MODE:
-                return "NIGHT_MODE";
-            case TURN_SIGNAL_STATE:
-                return "TURN_SIGNAL_STATE";
-            case IGNITION_STATE:
-                return "IGNITION_STATE";
-            case ABS_ACTIVE:
-                return "ABS_ACTIVE";
-            case TRACTION_CONTROL_ACTIVE:
-                return "TRACTION_CONTROL_ACTIVE";
-            case HVAC_FAN_SPEED:
-                return "HVAC_FAN_SPEED";
-            case HVAC_FAN_DIRECTION:
-                return "HVAC_FAN_DIRECTION";
-            case HVAC_TEMPERATURE_CURRENT:
-                return "HVAC_TEMPERATURE_CURRENT";
-            case HVAC_TEMPERATURE_SET:
-                return "HVAC_TEMPERATURE_SET";
-            case HVAC_TEMPERATURE_VALUE_SUGGESTION:
-                return "HVAC_TEMPERATURE_VALUE_SUGGESTION";
-            case HVAC_DEFROSTER:
-                return "HVAC_DEFROSTER";
-            case HVAC_AC_ON:
-                return "HVAC_AC_ON";
-            case HVAC_MAX_AC_ON:
-                return "HVAC_MAX_AC_ON";
-            case HVAC_MAX_DEFROST_ON:
-                return "HVAC_MAX_DEFROST_ON";
-            case HVAC_RECIRC_ON:
-                return "HVAC_RECIRC_ON";
-            case HVAC_DUAL_ON:
-                return "HVAC_DUAL_ON";
-            case HVAC_AUTO_ON:
-                return "HVAC_AUTO_ON";
-            case HVAC_SEAT_TEMPERATURE:
-                return "HVAC_SEAT_TEMPERATURE";
-            case HVAC_SIDE_MIRROR_HEAT:
-                return "HVAC_SIDE_MIRROR_HEAT";
-            case HVAC_STEERING_WHEEL_HEAT:
-                return "HVAC_STEERING_WHEEL_HEAT";
-            case HVAC_TEMPERATURE_DISPLAY_UNITS:
-                return "HVAC_TEMPERATURE_DISPLAY_UNITS";
-            case HVAC_ACTUAL_FAN_SPEED_RPM:
-                return "HVAC_ACTUAL_FAN_SPEED_RPM";
-            case HVAC_POWER_ON:
-                return "HVAC_POWER_ON";
-            case HVAC_FAN_DIRECTION_AVAILABLE:
-                return "HVAC_FAN_DIRECTION_AVAILABLE";
-            case HVAC_AUTO_RECIRC_ON:
-                return "HVAC_AUTO_RECIRC_ON";
-            case HVAC_SEAT_VENTILATION:
-                return "HVAC_SEAT_VENTILATION";
-            case HVAC_ELECTRIC_DEFROSTER_ON:
-                return "HVAC_ELECTRIC_DEFROSTER_ON";
-            case DISTANCE_DISPLAY_UNITS:
-                return "DISTANCE_DISPLAY_UNITS";
-            case FUEL_VOLUME_DISPLAY_UNITS:
-                return "FUEL_VOLUME_DISPLAY_UNITS";
-            case TIRE_PRESSURE_DISPLAY_UNITS:
-                return "TIRE_PRESSURE_DISPLAY_UNITS";
-            case EV_BATTERY_DISPLAY_UNITS:
-                return "EV_BATTERY_DISPLAY_UNITS";
-            case FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME:
-                return "FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME";
-            case ENV_OUTSIDE_TEMPERATURE:
-                return "ENV_OUTSIDE_TEMPERATURE";
-            case AP_POWER_STATE_REQ:
-                return "AP_POWER_STATE_REQ";
-            case AP_POWER_STATE_REPORT:
-                return "AP_POWER_STATE_REPORT";
-            case AP_POWER_BOOTUP_REASON:
-                return "AP_POWER_BOOTUP_REASON";
-            case DISPLAY_BRIGHTNESS:
-                return "DISPLAY_BRIGHTNESS";
-            case HW_KEY_INPUT:
-                return "HW_KEY_INPUT";
-            case DOOR_POS:
-                return "DOOR_POS";
-            case DOOR_MOVE:
-                return "DOOR_MOVE";
-            case DOOR_LOCK:
-                return "DOOR_LOCK";
-            case MIRROR_Z_POS:
-                return "MIRROR_Z_POS";
-            case MIRROR_Z_MOVE:
-                return "MIRROR_Z_MOVE";
-            case MIRROR_Y_POS:
-                return "MIRROR_Y_POS";
-            case MIRROR_Y_MOVE:
-                return "MIRROR_Y_MOVE";
-            case MIRROR_LOCK:
-                return "MIRROR_LOCK";
-            case MIRROR_FOLD:
-                return "MIRROR_FOLD";
-            case SEAT_MEMORY_SELECT:
-                return "SEAT_MEMORY_SELECT";
-            case SEAT_MEMORY_SET:
-                return "SEAT_MEMORY_SET";
-            case SEAT_BELT_BUCKLED:
-                return "SEAT_BELT_BUCKLED";
-            case SEAT_BELT_HEIGHT_POS:
-                return "SEAT_BELT_HEIGHT_POS";
-            case SEAT_BELT_HEIGHT_MOVE:
-                return "SEAT_BELT_HEIGHT_MOVE";
-            case SEAT_FORE_AFT_POS:
-                return "SEAT_FORE_AFT_POS";
-            case SEAT_FORE_AFT_MOVE:
-                return "SEAT_FORE_AFT_MOVE";
-            case SEAT_BACKREST_ANGLE_1_POS:
-                return "SEAT_BACKREST_ANGLE_1_POS";
-            case SEAT_BACKREST_ANGLE_1_MOVE:
-                return "SEAT_BACKREST_ANGLE_1_MOVE";
-            case SEAT_BACKREST_ANGLE_2_POS:
-                return "SEAT_BACKREST_ANGLE_2_POS";
-            case SEAT_BACKREST_ANGLE_2_MOVE:
-                return "SEAT_BACKREST_ANGLE_2_MOVE";
-            case SEAT_HEIGHT_POS:
-                return "SEAT_HEIGHT_POS";
-            case SEAT_HEIGHT_MOVE:
-                return "SEAT_HEIGHT_MOVE";
-            case SEAT_DEPTH_POS:
-                return "SEAT_DEPTH_POS";
-            case SEAT_DEPTH_MOVE:
-                return "SEAT_DEPTH_MOVE";
-            case SEAT_TILT_POS:
-                return "SEAT_TILT_POS";
-            case SEAT_TILT_MOVE:
-                return "SEAT_TILT_MOVE";
-            case SEAT_LUMBAR_FORE_AFT_POS:
-                return "SEAT_LUMBAR_FORE_AFT_POS";
-            case SEAT_LUMBAR_FORE_AFT_MOVE:
-                return "SEAT_LUMBAR_FORE_AFT_MOVE";
-            case SEAT_LUMBAR_SIDE_SUPPORT_POS:
-                return "SEAT_LUMBAR_SIDE_SUPPORT_POS";
-            case SEAT_LUMBAR_SIDE_SUPPORT_MOVE:
-                return "SEAT_LUMBAR_SIDE_SUPPORT_MOVE";
-            case SEAT_HEADREST_HEIGHT_POS:
-                return "SEAT_HEADREST_HEIGHT_POS";
-            case SEAT_HEADREST_HEIGHT_MOVE:
-                return "SEAT_HEADREST_HEIGHT_MOVE";
-            case SEAT_HEADREST_ANGLE_POS:
-                return "SEAT_HEADREST_ANGLE_POS";
-            case SEAT_HEADREST_ANGLE_MOVE:
-                return "SEAT_HEADREST_ANGLE_MOVE";
-            case SEAT_HEADREST_FORE_AFT_POS:
-                return "SEAT_HEADREST_FORE_AFT_POS";
-            case SEAT_HEADREST_FORE_AFT_MOVE:
-                return "SEAT_HEADREST_FORE_AFT_MOVE";
-            case SEAT_OCCUPANCY:
-                return "SEAT_OCCUPANCY";
-            case WINDOW_POS:
-                return "WINDOW_POS";
-            case WINDOW_MOVE:
-                return "WINDOW_MOVE";
-            case WINDOW_LOCK:
-                return "WINDOW_LOCK";
-            case VEHICLE_MAP_SERVICE:
-                return "VEHICLE_MAP_SERVICE";
-            case OBD2_LIVE_FRAME:
-                return "OBD2_LIVE_FRAME";
-            case OBD2_FREEZE_FRAME:
-                return "OBD2_FREEZE_FRAME";
-            case OBD2_FREEZE_FRAME_INFO:
-                return "OBD2_FREEZE_FRAME_INFO";
-            case OBD2_FREEZE_FRAME_CLEAR:
-                return "OBD2_FREEZE_FRAME_CLEAR";
-            case HEADLIGHTS_STATE:
-                return "HEADLIGHTS_STATE";
-            case HIGH_BEAM_LIGHTS_STATE:
-                return "HIGH_BEAM_LIGHTS_STATE";
-            case FOG_LIGHTS_STATE:
-                return "FOG_LIGHTS_STATE";
-            case HAZARD_LIGHTS_STATE:
-                return "HAZARD_LIGHTS_STATE";
-            case HEADLIGHTS_SWITCH:
-                return "HEADLIGHTS_SWITCH";
-            case HIGH_BEAM_LIGHTS_SWITCH:
-                return "HIGH_BEAM_LIGHTS_SWITCH";
-            case FOG_LIGHTS_SWITCH:
-                return "FOG_LIGHTS_SWITCH";
-            case HAZARD_LIGHTS_SWITCH:
-                return "HAZARD_LIGHTS_SWITCH";
-            case CABIN_LIGHTS_STATE:
-                return "CABIN_LIGHTS_STATE";
-            case CABIN_LIGHTS_SWITCH:
-                return "CABIN_LIGHTS_SWITCH";
-            case READING_LIGHTS_STATE:
-                return "READING_LIGHTS_STATE";
-            case READING_LIGHTS_SWITCH:
-                return "READING_LIGHTS_SWITCH";
-            case VEHICLE_SPEED_DISPLAY_UNITS:
-                return "VEHICLE_SPEED_DISPLAY_UNITS";
-            case INITIAL_USER_INFO:
-                return "INITIAL_USER_INFO";
-            case SWITCH_USER:
-                return "SWITCH_USER";
-            case CREATE_USER:
-                return "CREATE_USER";
-            case REMOVE_USER:
-                return "REMOVE_USER";
-            case USER_IDENTIFICATION_ASSOCIATION:
-                return "USER_IDENTIFICATION_ASSOCIATION";
-            case POWER_POLICY_REQ:
-                return "POWER_POLICY_REQ";
-            case POWER_POLICY_GROUP_REQ:
-                return "POWER_POLICY_GROUP_REQ";
-            case CURRENT_POWER_POLICY:
-                return "CURRENT_POWER_POLICY";
-            case WATCHDOG_ALIVE:
-                return "WATCHDOG_ALIVE";
-            case WATCHDOG_TERMINATED_PROCESS:
-                return "WATCHDOG_TERMINATED_PROCESS";
-            case VHAL_HEARTBEAT:
-                return "VHAL_HEARTBEAT";
-            case CLUSTER_SWITCH_UI:
-                return "CLUSTER_SWITCH_UI";
-            case CLUSTER_DISPLAY_STATE:
-                return "CLUSTER_DISPLAY_STATE";
-            case CLUSTER_REPORT_STATE:
-                return "CLUSTER_REPORT_STATE";
-            case CLUSTER_REQUEST_DISPLAY:
-                return "CLUSTER_REQUEST_DISPLAY";
-            case CLUSTER_NAVIGATION_STATE:
-                return "CLUSTER_NAVIGATION_STATE";
-            case EPOCH_TIME:
-                return "EPOCH_TIME";
-            case STORAGE_ENCRYPTION_BINDING_SEED:
-                return "STORAGE_ENCRYPTION_BINDING_SEED";
-            case ELECTRONIC_TOLL_COLLECTION_CARD_STATUS:
-                return "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS";
-            case ELECTRONIC_TOLL_COLLECTION_CARD_TYPE:
-                return "ELECTRONIC_TOLL_COLLECTION_CARD_TYPE";
-            case FRONT_FOG_LIGHTS_STATE:
-                return "FRONT_FOG_LIGHTS_STATE";
-            case FRONT_FOG_LIGHTS_SWITCH:
-                return "FRONT_FOG_LIGHTS_SWITCH";
-            case REAR_FOG_LIGHTS_STATE:
-                return "REAR_FOG_LIGHTS_STATE";
-            case REAR_FOG_LIGHTS_SWITCH:
-                return "REAR_FOG_LIGHTS_SWITCH";
-            case EV_CHARGE_CURRENT_DRAW_LIMIT:
-                return "EV_CHARGE_CURRENT_DRAW_LIMIT";
-            case EV_CHARGE_PERCENT_LIMIT:
-                return "EV_CHARGE_PERCENT_LIMIT";
-            case EV_CHARGE_STATE:
-                return "EV_CHARGE_STATE";
-            case EV_CHARGE_SWITCH:
-                return "EV_CHARGE_SWITCH";
-            case EV_CHARGE_TIME_REMAINING:
-                return "EV_CHARGE_TIME_REMAINING";
-            case EV_REGENERATIVE_BRAKING_STATE:
-                return "EV_REGENERATIVE_BRAKING_STATE";
-            case VEHICLE_CURB_WEIGHT:
-                return "VEHICLE_CURB_WEIGHT";
-            case TRAILER_PRESENT:
-                return "TRAILER_PRESENT";
-            default:
-                return "0x" + Integer.toHexString(property);
+        SparseArray<String> propertyIdsToNameMapping = sPropertyIdToPropertyNameHolder.get();
+        if (propertyIdsToNameMapping == null) {
+            propertyIdsToNameMapping = getPropertyIdsToNameMapping();
+            sPropertyIdToPropertyNameHolder.compareAndSet(null, propertyIdsToNameMapping);
         }
+
+        String name = propertyIdsToNameMapping.get(property);
+        return name != null ? name : "0x" + Integer.toHexString(property);
+    }
+
+    /**
+     * Creates a SparseArray mapping property Ids to their String representations
+     * directly from this class.
+     */
+
+    private static SparseArray<String> getPropertyIdsToNameMapping() {
+        Field[] classFields = VehiclePropertyIds.class.getDeclaredFields();
+        SparseArray<String> propertyIdsToNameMapping = new SparseArray<>(classFields.length);
+        for (int i = 0; i < classFields.length; i++) {
+            Field candidateField = classFields[i];
+            try {
+                if (isPropertyId(candidateField)) {
+                    propertyIdsToNameMapping
+                            .put(candidateField.getInt(null), candidateField.getName());
+                }
+            } catch (IllegalAccessException e) {
+                Log.wtf(TAG, "Failed trying to find value for " + candidateField.getName(), e);
+            }
+        }
+        return propertyIdsToNameMapping;
+    }
+
+    private static boolean isPropertyId(Field field) {
+        // We only want public static final int values
+        return field.getType() == int.class
+            && field.getModifiers() == (Modifier.STATIC | Modifier.FINAL | Modifier.PUBLIC);
     }
 }
