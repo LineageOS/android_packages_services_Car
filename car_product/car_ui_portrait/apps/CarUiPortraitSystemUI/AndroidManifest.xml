@@ -26,4 +26,7 @@
     <!-- System permission to call AM.getRunningAppProcesses().
      TODO: change this to REAL_GET_TASKS. -->
     <uses-permission android:name="android.permission.GET_TASKS"/>
+
+    <!-- Permission to get car driving state -->
+    <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
 </manifest>

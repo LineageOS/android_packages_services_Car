@@ -16,9 +16,14 @@
 
 package com.android.systemui.wm;
 
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
+import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
 import static android.view.InsetsState.ITYPE_NAVIGATION_BAR;
 import static android.view.InsetsState.ITYPE_STATUS_BAR;
 
+import android.car.Car;
+import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.drivingstate.CarDrivingStateManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -27,7 +32,9 @@ import android.util.SparseArray;
 import android.view.IWindowManager;
 import android.view.InsetsVisibilities;
 import android.view.WindowInsets;
+import android.widget.Toast;
 
+import com.android.car.ui.R;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayInsetsController;
 import com.android.wm.shell.common.TransactionPool;
@@ -46,6 +53,11 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
     private static final String TAG = "CarUiPortraitDisplaySystemBarsController";
     private SparseArray<CarUiPortraitPerDisplay> mCarUiPerDisplaySparseArray;
 
+    private int mCurrentDrivingState = DRIVING_STATE_UNKNOWN;
+
+    private final CarDrivingStateManager.CarDrivingStateEventListener mDrivingStateEventListener =
+            this::handleDrivingStateChange;
+
     public CarUiPortraitDisplaySystemBarsController(Context context,
             IWindowManager wmService,
             DisplayController displayController,
@@ -54,6 +66,17 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             TransactionPool transactionPool) {
         super(context, wmService, displayController, displayInsetsController, mainHandler,
                 transactionPool);
+
+        Car car = Car.createCar(context);
+        if (car != null) {
+            CarDrivingStateManager mDrivingStateManager =
+                    (CarDrivingStateManager) car.getCarManager(Car.CAR_DRIVING_STATE_SERVICE);
+            mDrivingStateManager.registerListener(mDrivingStateEventListener);
+            mDrivingStateEventListener.onDrivingStateChanged(
+                    mDrivingStateManager.getCurrentCarDrivingState());
+        } else {
+            Slog.e(TAG, "Failed to initialize car");
+        }
     }
 
     @Override
@@ -116,6 +139,15 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             return;
         }
         display.removeCallbackForDisplay(callback);
+    }
+
+    private void handleDrivingStateChange(CarDrivingStateEvent event) {
+        mCurrentDrivingState = event.eventValue;
+        if (mCarUiPerDisplaySparseArray != null) {
+            for (int i = 0; i < mCarUiPerDisplaySparseArray.size(); i++) {
+                mCarUiPerDisplaySparseArray.valueAt(i).onDrivingStateChanged();
+            }
+        }
     }
 
     class CarUiPortraitPerDisplay extends DisplaySystemBarsController.PerDisplay {
@@ -190,6 +222,11 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             if (mImmersiveOverride == immersive) {
                 return;
             }
+            if (immersive && mCurrentDrivingState == DRIVING_STATE_MOVING) {
+                Toast.makeText(mContext,
+                        R.string.car_ui_restricted_while_driving, Toast.LENGTH_LONG).show();
+                return;
+            }
             mImmersiveOverride = immersive;
             updateDisplayWindowRequestedVisibilities();
         }
@@ -212,6 +249,13 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         void notifyOnImmersiveRequestedChanged(String pkg, boolean requested) {
             for (Callback callback : mCallbacks) {
                 callback.onImmersiveRequestedChanged(pkg, requested);
+            }
+        }
+
+        void onDrivingStateChanged() {
+            if (mImmersiveOverride && mCurrentDrivingState == DRIVING_STATE_MOVING) {
+                mImmersiveOverride = false;
+                updateDisplayWindowRequestedVisibilities();
             }
         }
     }
