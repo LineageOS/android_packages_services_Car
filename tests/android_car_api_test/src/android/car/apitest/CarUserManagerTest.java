@@ -41,6 +41,7 @@ import android.util.Log;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -196,6 +197,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * Tests resume behavior when current user is ephemeral guest, a new guest user should be
      * created and switched to.
      */
+    @Ignore("b/233164303")
     @Test
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
