@@ -165,6 +165,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     // true if there are activities still pending to be mapped to the voice plate DA as
     // Car object was not created.
     private boolean mIsPendingVoicePlateActivityMappingToDA;
+    private boolean mIsControlBarDisplayAreaEmpty = true;
     private final CarServiceProvider mCarServiceProvider;
     private Car mCar;
 
@@ -191,14 +192,49 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             logIfDebuggable("onTaskMovedToFront " + taskInfo);
             updateForegroundDaVisibility(taskInfo);
         }
+
+        @Override
+        public void onTaskCreated(int taskId, ComponentName componentName) throws RemoteException {
+            super.onTaskCreated(taskId, componentName);
+        }
+
+        @Override
+        public void onTaskRemoved(int taskId) throws RemoteException {
+            super.onTaskRemoved(taskId);
+            Log.e(TAG, " onTaskRemoved" + taskId);
+            // maybe recover
+            if (mActiveTasksOnBackgroundDA != null
+                    && mActiveTasksOnBackgroundDA.isEmpty()) {
+                // re launch background app
+                relaunchBackgroundApp();
+            }
+
+            if (mIsControlBarDisplayAreaEmpty) {
+                relaunchControlBarApp();
+            }
+        }
     };
 
     private final CarFullscreenTaskListener.OnTaskChangeListener mOnTaskChangeListener =
             new CarFullscreenTaskListener.OnTaskChangeListener() {
                 @Override
                 public void onTaskAppeared(ActivityManager.RunningTaskInfo taskInfo) {
-                    logIfDebuggable("onTaskAppeared" + taskInfo);
+                    logIfDebuggable("onTaskAppeared: " + taskInfo);
                     updateForegroundDaVisibility(taskInfo);
+                    ComponentName componentName = null;
+                    if (taskInfo.baseIntent != null) {
+                        componentName = taskInfo.baseIntent.getComponent();
+                    }
+
+                    boolean isBackgroundApp = mBackgroundActivityComponent.contains(componentName);
+                    if (isBackgroundApp) {
+                        addActiveTaskToBackgroundDAMap(taskInfo.taskId);
+                    }
+
+                    boolean isControlBarApp = mControlBarActivityComponent.equals(componentName);
+                    if (isControlBarApp) {
+                        mIsControlBarDisplayAreaEmpty = false;
+                    }
                 }
 
                 @Override
@@ -224,20 +260,15 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     if (isBackgroundApp && mActiveTasksOnBackgroundDA != null
                             && mActiveTasksOnBackgroundDA.isEmpty()) {
                         // re launch background app
-                        logIfDebuggable("relaunching background app...");
-                        Intent mapsIntent = new Intent();
-                        mapsIntent.setComponent(mBackgroundActivityComponent.get(0));
-                        mApplicationContext.startActivityAsUser(mapsIntent, UserHandle.CURRENT);
+                        relaunchBackgroundApp();
                     }
 
                     if (isControlBarApp) {
                         // re launch controlbar app
-                        logIfDebuggable("relaunching controlbar app...");
-                        Intent controlBarIntent = new Intent();
-                        controlBarIntent.setComponent(mControlBarActivityComponent);
-                        mApplicationContext.startActivityAsUser(controlBarIntent,
-                                UserHandle.CURRENT);
+                        mIsControlBarDisplayAreaEmpty = true;
+                        relaunchControlBarApp();
                     }
+
                     if (taskInfo.displayAreaFeatureId == FEATURE_VOICE_PLATE) {
                         resetVoicePlateDisplayArea();
                     }
@@ -258,6 +289,21 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     }
                 }
             };
+
+    private void relaunchBackgroundApp() {
+        logIfDebuggable("relaunching background app...");
+        Intent mapsIntent = new Intent();
+        mapsIntent.setComponent(mBackgroundActivityComponent.get(0));
+        mApplicationContext.startActivityAsUser(mapsIntent, UserHandle.CURRENT);
+    }
+
+    private void relaunchControlBarApp() {
+        logIfDebuggable("relaunching controlbar app...");
+        Intent controlBarIntent = new Intent();
+        controlBarIntent.setComponent(mControlBarActivityComponent);
+        mApplicationContext.startActivityAsUser(controlBarIntent,
+                UserHandle.CURRENT);
+    }
 
     /**
      * Initializes the controller
@@ -622,7 +668,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         if (isBackgroundApp) {
             // we don't want to change the state of the foreground DA when background
             // apps are launched.
-            addActiveTaskToBackgroundDAMap(taskInfo.taskId);
             return;
         }
 

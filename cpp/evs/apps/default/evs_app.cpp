@@ -56,30 +56,6 @@ android::sp<IEvsEnumerator> pEvs;
 android::sp<IEvsDisplay> pDisplay;
 EvsStateControl *pStateController;
 
-void sigHandler(int sig) {
-    LOG(WARNING) << "evs_app is being terminated on receiving a signal " << sig;
-    if (pEvs != nullptr) {
-        // Attempt to clean up the resources
-        pStateController->postCommand({EvsStateControl::Op::EXIT, 0, 0}, true);
-        pStateController->terminateUpdateLoop();
-        pDisplay = nullptr;
-        pEvs = nullptr;
-    }
-
-    android::hardware::IPCThreadState::self()->stopProcess();
-    exit(EXIT_FAILURE);
-}
-
-void registerSigHandler() {
-    struct sigaction sa;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    sa.sa_handler = sigHandler;
-    sigaction(SIGABRT, &sa, nullptr);
-    sigaction(SIGTERM, &sa, nullptr);
-    sigaction(SIGINT,  &sa, nullptr);
-}
-
 }  // namespace
 
 // Helper to subscribe to VHal notifications
@@ -126,9 +102,6 @@ static bool convertStringToFormat(const char* str, android_pixel_format_t* outpu
 int main(int argc, char** argv)
 {
     LOG(INFO) << "EVS app starting";
-
-    // Register a signal handler
-    registerSigHandler();
 
     // Set up default behavior, then check for command line options
     bool useVehicleHal = true;

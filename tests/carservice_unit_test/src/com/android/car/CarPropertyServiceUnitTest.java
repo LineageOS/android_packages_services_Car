@@ -111,7 +111,7 @@ public final class CarPropertyServiceUnitTest {
         // Initially SPEED_ID is not subscribed, so should return -1.
         when(mHalService.getSampleRate(SPEED_ID)).thenReturn(-1f);
         CarPropertyValue mValue = mock(CarPropertyValue.class);
-        when(mHalService.getPropertySafe(SPEED_ID, 0)).thenReturn(mValue);
+        when(mHalService.getProperty(SPEED_ID, 0)).thenReturn(mValue);
 
         // Register the first listener.
         mService.registerListener(SPEED_ID, /* rate= */ 10, mMockHandler1);
@@ -120,7 +120,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mMockHandler1, timeout(5000)).onEvent(any());
 
         verify(mHalService).subscribeProperty(SPEED_ID, 10f);
-        verify(mHalService).getPropertySafe(SPEED_ID, 0);
+        verify(mHalService).getProperty(SPEED_ID, 0);
 
         // Clean up invocation state.
         clearInvocations(mHalService);
@@ -133,7 +133,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mMockHandler2, timeout(5000)).onEvent(any());
 
         verify(mHalService).subscribeProperty(SPEED_ID, 20f);
-        verify(mHalService).getPropertySafe(SPEED_ID, 0);
+        verify(mHalService).getProperty(SPEED_ID, 0);
 
         // Clean up invocation state.
         clearInvocations(mHalService);
@@ -166,7 +166,7 @@ public final class CarPropertyServiceUnitTest {
         // Initially HVAC_TEMP is not subscribed, so should return -1.
         when(mHalService.getSampleRate(HVAC_TEMP)).thenReturn(-1f);
         CarPropertyValue mValue = mock(CarPropertyValue.class);
-        when(mHalService.getPropertySafe(HVAC_TEMP, 0)).thenReturn(mValue);
+        when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(mValue);
 
         // Register the first listener.
         mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, mMockHandler1);
@@ -175,7 +175,7 @@ public final class CarPropertyServiceUnitTest {
         verify(mMockHandler1, timeout(5000)).onEvent(any());
 
         verify(mHalService).subscribeProperty(HVAC_TEMP, 0f);
-        verify(mHalService).getPropertySafe(HVAC_TEMP, 0);
+        verify(mHalService).getProperty(HVAC_TEMP, 0);
 
         // Clean up invocation state.
         clearInvocations(mHalService);
@@ -189,7 +189,7 @@ public final class CarPropertyServiceUnitTest {
 
         // Must not subscribe again.
         verify(mHalService, never()).subscribeProperty(anyInt(), anyFloat());
-        verify(mHalService).getPropertySafe(HVAC_TEMP, 0);
+        verify(mHalService).getProperty(HVAC_TEMP, 0);
 
         // Clean up invocation state.
         clearInvocations(mHalService);
@@ -260,7 +260,7 @@ public final class CarPropertyServiceUnitTest {
         // Initially HVAC_TEMP is not subscribed, so should return -1.
         when(mHalService.getSampleRate(HVAC_TEMP)).thenReturn(-1f);
         CarPropertyValue<Float> value = new CarPropertyValue<Float>(HVAC_TEMP, 0, 1.0f);
-        when(mHalService.getPropertySafe(HVAC_TEMP, 0)).thenReturn(value);
+        when(mHalService.getProperty(HVAC_TEMP, 0)).thenReturn(value);
         EventListener listener = new EventListener(mService);
 
         mService.registerListener(HVAC_TEMP, /* rate= */ SENSOR_RATE_ONCHANGE, listener);

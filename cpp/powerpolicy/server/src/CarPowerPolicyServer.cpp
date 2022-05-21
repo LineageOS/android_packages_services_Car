@@ -279,6 +279,12 @@ ScopedAStatus CarPowerPolicyServer::getPowerComponentState(PowerComponent compon
 ScopedAStatus CarPowerPolicyServer::registerPowerPolicyChangeCallback(
         const std::shared_ptr<ICarPowerPolicyChangeCallback>& callback,
         const CarPowerPolicyFilter& filter) {
+    if (callback == nullptr) {
+        std::string errorMsg = "Cannot register a null callback";
+        ALOGW("%s", errorMsg.c_str());
+        return ScopedAStatus::fromServiceSpecificErrorWithMessage(EX_ILLEGAL_ARGUMENT,
+                                                                  errorMsg.c_str());
+    }
     Mutex::Autolock lock(mMutex);
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
