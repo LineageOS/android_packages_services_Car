@@ -282,27 +282,70 @@ public final class OccupantAwarenessServiceTest {
     }
 
     @Test
-    public void test_serviceStartsAndStopGraphWithListeners() throws Exception {
-        // Verify that the service starts the detection graph when the first client connects, and
-        // stop when the last client disconnects.
-
+    public void testRegisterEventListener_returnsGraphNotRunningOnStart()
+            throws Exception {
         // Should be not running on start (no clients are yet connected).
         assertThat(mMockHal.isGraphRunning()).isFalse();
+    }
 
+    @Test
+    public void testRegisterEventListener_returnsGraphRunningWithOneListener()
+            throws Exception {
         // Connect a client. Graph should be running.
         IOccupantAwarenessEventCallback first_client = registerCallbackToService();
+
         assertThat(mMockHal.isGraphRunning()).isTrue();
 
-        // Connect a second client. Graph should continue running.
-        IOccupantAwarenessEventCallback second_client = registerCallbackToService();
-        assertThat(mMockHal.isGraphRunning()).isTrue();
-
-        // Remove the first client. Graph should continue to run since a client still remains.
         mOasService.unregisterEventListener(first_client);
+    }
+
+    @Test
+    public void testRegisterEventListener_returnsGraphRunningWithTwoListeners()
+            throws Exception {
+        // Connect multiple (two) clients. Graph should be running.
+        IOccupantAwarenessEventCallback first_client = registerCallbackToService();
+        IOccupantAwarenessEventCallback second_client = registerCallbackToService();
+
         assertThat(mMockHal.isGraphRunning()).isTrue();
 
-        // Remove the second client. Graph should now stop since all clients have now closed.
+        mOasService.unregisterEventListener(first_client);
         mOasService.unregisterEventListener(second_client);
+        assertThat(mMockHal.isGraphRunning()).isFalse();
+    }
+
+    @Test
+    public void testUnregisterEventListener_returnsGraphNotRunningWithoutListeners()
+            throws Exception {
+        // Connect a client and disconnect it. Graph should be not running.
+        IOccupantAwarenessEventCallback first_client = registerCallbackToService();
+        mOasService.unregisterEventListener(first_client);
+
+        assertThat(mMockHal.isGraphRunning()).isFalse();
+    }
+
+    @Test
+    public void testUnregisterEventListener_returnsGraphRunningWithListeners()
+            throws Exception {
+        // Connect multipe (two) clients and disconnect one. Graph should be running.
+        IOccupantAwarenessEventCallback first_client = registerCallbackToService();
+        IOccupantAwarenessEventCallback second_client = registerCallbackToService();
+        mOasService.unregisterEventListener(first_client);
+
+        assertThat(mMockHal.isGraphRunning()).isTrue();
+
+        mOasService.unregisterEventListener(second_client);
+        assertThat(mMockHal.isGraphRunning()).isFalse();
+    }
+
+    @Test
+    public void testUnregisterEventListener_returnsGraphNotRunningAfterAllListenersRemoved()
+            throws Exception {
+        // Connect multipe (two) clients and disconnect them all. Graph should not be running.
+        IOccupantAwarenessEventCallback first_client = registerCallbackToService();
+        IOccupantAwarenessEventCallback second_client = registerCallbackToService();
+        mOasService.unregisterEventListener(first_client);
+        mOasService.unregisterEventListener(second_client);
+
         assertThat(mMockHal.isGraphRunning()).isFalse();
     }
 

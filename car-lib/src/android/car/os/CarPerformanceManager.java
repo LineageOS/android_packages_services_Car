@@ -19,8 +19,10 @@ package android.car.os;
 import android.annotation.CallbackExecutor;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ExperimentalFeature;
 import android.os.IBinder;
@@ -38,6 +40,8 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @ExperimentalFeature
+@SystemApi
+@AddedIn(majorVersion = 33, minorVersion = 1)
 public final class CarPerformanceManager extends CarManagerBase {
     private static final String TAG = CarPerformanceManager.class.getSimpleName();
     private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -70,6 +74,8 @@ public final class CarPerformanceManager extends CarManagerBase {
      * <li>Handle the CPU availability timeout.
      * </ul>
      * </p>
+     *
+     * @hide
      */
     public interface CpuAvailabilityChangeListener {
         /**
@@ -99,6 +105,8 @@ public final class CarPerformanceManager extends CarManagerBase {
      * interface.
      *
      * @throws IllegalStateException if {@code listener} is already added.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -119,6 +127,8 @@ public final class CarPerformanceManager extends CarManagerBase {
      *
      * @param listener Listener implementing {@link CpuAvailabilityChangeListener}
      * interface.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_CPU_INFO)
     @AddedInOrBefore(majorVersion = 33)
