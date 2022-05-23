@@ -150,8 +150,8 @@
     <string name="car_permission_desc_car_powertrain" msgid="1116007372551797796">"အင်ဂျင်အားဖြင့် ကားဝင်ရိုးလည်ပတ်မှုအ‌ချက်အလက်များကို ရယူပါမည်"</string>
     <string name="car_permission_label_car_power" msgid="8111448088314368268">"ကား၏ ပါဝါအခြေအနေကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_car_power" msgid="9202079903668652864">"ကား၏ ပါဝါအခြေအနေကို ရယူပါမည်။"</string>
-    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"ယုံကြည်ရသည့် ကိရိယာကို စာရင်းသွင်းရန်"</string>
-    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"ယုံကြည်ရသည့် ကိရိယာအား စာရင်းသွင်းခြင်းကို ခွင့်ပြုရန်"</string>
+    <string name="car_permission_label_enroll_trust" msgid="3512907900486690218">"စိတ်ချရသည့်စက်ပစ္စည်းကို စာရင်းသွင်းရန်"</string>
+    <string name="car_permission_desc_enroll_trust" msgid="4148649994602185130">"စိတ်ချရသည့်စက်ပစ္စည်း စာရင်းသွင်းခြင်းကို ခွင့်ပြုရန်"</string>
     <string name="car_permission_label_car_test_service" msgid="9159328930558208708">"ကား၏ စမ်းသပ်မုဒ်ကို ထိန်းချုပ်ရန်"</string>
     <string name="car_permission_desc_car_test_service" msgid="7426844534110145843">"ကား၏ စမ်းသပ်မုဒ်ကို ထိန်းချုပ်ရန်"</string>
     <string name="car_permission_label_control_car_features" msgid="3905791560378888286">"ကား၏ ဝန်ဆောင်မှုများကို ပိတ်ရန် သို့မဟုတ် ပိတ်ရန်"</string>
