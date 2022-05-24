@@ -55,6 +55,9 @@ cc_defaults {
         componentid: 162915,
         // aae-fuzz-bugs
         hotlists: ["1986127"],
+        libfuzzer_options: [
+            "timeout=120",
+        ],
     },
 }
 
