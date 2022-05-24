@@ -90,14 +90,11 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     protected void configureMockedHal() {
         addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
                 .setConfigArray(Lists.newArrayList(
-                    VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG))
+                        VehicleApPowerStateConfigFlag.ENABLE_DEEP_SLEEP_FLAG
+                                | VehicleApPowerStateConfigFlag.ENABLE_HIBERNATION_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
         addAidlProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler)
                 .setAccess(VehiclePropertyAccess.WRITE)
-                .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
-        addAidlProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
-                .setConfigArray(Lists.newArrayList(
-                        VehicleApPowerStateConfigFlag.ENABLE_HIBERNATION_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
     }
 
