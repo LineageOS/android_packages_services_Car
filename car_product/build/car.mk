@@ -48,7 +48,6 @@ PRODUCT_PACKAGES += \
     AdasLocationTestApp \
     curl \
     CarTelemetryApp \
-    RailwayReferenceApp \
 
 # SEPolicy for test apps / services
 BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
