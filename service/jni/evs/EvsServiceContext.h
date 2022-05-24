@@ -113,7 +113,7 @@ private:
     void onEvsServiceDiedImpl();
 
     // Acquires the camera and the display exclusive ownerships.
-    void acquireCameraAndDisplay() ACQUIRE(mLock);
+    void acquireCameraAndDisplayLocked() REQUIRES(mLock);
 
     // A mutex to protect shared resources
     mutable std::mutex mLock;
@@ -132,9 +132,6 @@ private:
     // Extended View System display handle.  This would not be used but held by
     // us to prevent other EVS clients from using EvsDisplay.
     std::shared_ptr<::aidl::android::hardware::automotive::evs::IEvsDisplay> mDisplay;
-
-    // A flag to acquire a display handle only once
-    std::once_flag mDisplayAcquired;
 
     // A death recipient of Extended View System service
     ::ndk::ScopedAIBinder_DeathRecipient mDeathRecipient GUARDED_BY(mLock);
