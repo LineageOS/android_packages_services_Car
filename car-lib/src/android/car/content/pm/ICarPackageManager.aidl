@@ -34,4 +34,6 @@ interface ICarPackageManager {
             boolean bypass, int userId) = 8;
     List<String> getSupportedDrivingSafetyRegionsForActivityAsUser(String packageName,
             String activityClassName, int userId) = 9;
+    int getTargetCarMajorVersion(String packageName) = 10;
+    int getTargetCarMinorVersion(String packageName) = 11;
 }

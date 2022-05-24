@@ -348,11 +348,16 @@ package android.car.content.pm {
   }
 
   public final class CarPackageManager {
+    method @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public int getTargetCarMajorVersion(@NonNull String);
+    method @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public int getTargetCarMinorVersion(@NonNull String);
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
     method @Deprecated public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
+    field public static final int CAR_TARGET_VERSION_UNDEFINED = -1; // 0xffffffff
     field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
     field @Deprecated public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
     field @Deprecated public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
+    field public static final String MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION = "android.car.targetCarMajorVersion";
+    field public static final String MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION = "android.car.targetCarMinorVersion";
   }
 
 }
