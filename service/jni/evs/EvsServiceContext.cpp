@@ -178,6 +178,9 @@ bool EvsServiceContext::initialize(JNIEnv* env, jobject thiz) {
         if (!mCarEvsServiceObj) {
             mCarEvsServiceObj = env->NewGlobalRef(thiz);
         }
+
+        // Reset a EvsDisplay handle
+        mDisplay = nullptr;
     }
 
     // Fetch a list of available camera devices
@@ -292,20 +295,17 @@ void EvsServiceContext::stopVideoStream() {
     }
 }
 
-void EvsServiceContext::acquireCameraAndDisplay() {
+void EvsServiceContext::acquireCameraAndDisplayLocked() {
     // Acquires the display ownership.  Because EVS awards this to the single
     // client, no other clients can use EvsDisplay as long as CarEvsManager
     // alives.
-    ::ndk::ScopedAStatus status;
-    {
-        std::lock_guard<std::mutex> lock(mLock);
-        status = mService->openDisplay(EvsServiceContext::kExclusiveMainDisplayId, &mDisplay);
-        if (!status.isOk() || !mDisplay) {
-            LOG(WARNING) << "Failed to acquire the display ownership.  "
-                         << "CarEvsManager may not be able to render "
-                         << "the contents on the screen.";
-            return;
-        }
+    ::ndk::ScopedAStatus status =
+            mService->openDisplay(EvsServiceContext::kExclusiveMainDisplayId, &mDisplay);
+    if (!status.isOk() || !mDisplay) {
+        LOG(WARNING) << "Failed to acquire the display ownership.  "
+                     << "CarEvsManager may not be able to render "
+                     << "the contents on the screen.";
+        return;
     }
 
     // Attempts to become a primary owner
@@ -326,13 +326,15 @@ void EvsServiceContext::doneWithFrame(int bufferId) {
         }
 
         mBufferRecords.erase(it);
+
+        // If this is the first frame since current video stream started, we'd claim
+        // the exclusive ownership of the camera and the display and keep for the rest
+        // of the lifespan.
+        if (!mDisplay) {
+            acquireCameraAndDisplayLocked();
+        }
     }
     mStreamHandler->doneWithFrame(bufferId);
-
-    // If this is the first frame since current video stream started, we'd claim
-    // the exclusive ownership of the camera and the display and keep for the rest
-    // of the lifespan.
-    std::call_once(mDisplayAcquired, &EvsServiceContext::acquireCameraAndDisplay, this);
 }
 
 /*
