@@ -85,7 +85,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
         public void onStreamEvent(int event) {
             // This reference implementation only monitors a stream event without any action.
             Log.i(TAG, "Received: " + event);
-            if (event == CarEvsManager.STREAM_EVENT_STREAM_STOPPED) {
+            if (event == CarEvsManager.STREAM_EVENT_STREAM_STOPPED ||
+                event == CarEvsManager.STREAM_EVENT_TIMEOUT) {
                 finish();
             }
         }

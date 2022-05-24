@@ -462,6 +462,7 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
         // to reduce an amount of timeout.
         constexpr auto kFrameTimeout = 5s;  // timeout in seconds.
         int64_t lastFrameTimestamp = -1;
+        EvsResult status = EvsResult::OK;
         while (mStreamState == RUNNING) {
             std::unique_lock lock(mMutex);
 
@@ -478,6 +479,12 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
                 ++count;
             }
 
+            if (count < 1) {
+                LOG(ERROR) << "No camera is available.";
+                status = EvsResult::RESOURCE_NOT_AVAILABLE;
+                break;
+            }
+
             if (!mFramesReadySignal.wait_for(lock, kFrameTimeout, [this]() {
                     // Stops waiting if
                     // 1) we've requested to stop capturing
@@ -489,6 +496,7 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
                 // before a timer expires or we're requested to stop
                 // capturing frames.
                 LOG(DEBUG) << "Timer for a new frame expires";
+                status = EvsResult::UNDERLYING_SERVICE_ERROR;
                 break;
             } else if (mStreamState == RUNNING) {
                 // Fetch frames and forward to the client
@@ -523,6 +531,17 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
         }
 
         LOG(DEBUG) << "Exiting a capture thread";
+        if (status != EvsResult::OK && mStream) {
+            EvsEventDesc event {
+                    .aType = status == EvsResult::RESOURCE_NOT_AVAILABLE ?
+                            EvsEventType::STREAM_ERROR : EvsEventType::TIMEOUT,
+                    .payload = { static_cast<int32_t>(status) },
+            };
+            if (!mStream->notify(std::move(event)).isOk()) {
+                LOG(WARNING) << "Error delivering a stream event"
+                             << static_cast<int32_t>(event.aType);
+            }
+        }
     });
 
     // TODO(b/213108625):
