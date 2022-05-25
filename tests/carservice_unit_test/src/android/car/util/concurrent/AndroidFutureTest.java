@@ -157,7 +157,7 @@ public final class AndroidFutureTest {
         mUncompletedFuture.orTimeout(TIMEOUT_MS, MILLISECONDS);
 
         ExecutionException thrown = expectThrows(ExecutionException.class,
-                () -> mUncompletedFuture.get(TIMEOUT_MS + 1, MILLISECONDS));
+                () -> mUncompletedFuture.get(TIMEOUT_MS * 2, MILLISECONDS));
         assertThat(thrown.getCause()).isInstanceOf(TimeoutException.class);
     }
 
