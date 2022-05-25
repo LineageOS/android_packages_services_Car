@@ -81,7 +81,7 @@ import java.util.Set;
  */
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
-    public static final boolean DEBUG = true; // STOPSHIP if true
+    public static final boolean DEBUG = false; // STOPSHIP if true
 
     private static final String PUBLISHER_DIR = "publisher";
     public static final String TELEMETRY_DIR = "telemetry";
