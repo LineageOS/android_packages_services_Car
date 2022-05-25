@@ -50,6 +50,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
@@ -69,6 +70,7 @@ import android.view.ViewGroup;
 import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowManagerGlobal;
+import android.widget.ImageView;
 import android.window.DisplayAreaAppearedInfo;
 import android.window.DisplayAreaInfo;
 import android.window.WindowContainerToken;
@@ -161,7 +163,10 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private boolean mIsHostingDefaultApplicationDisplayAreaVisible;
     private WindowManager mTitleBarWindowManager;
     private View mTitleBarView;
-    private View mImmersiveButtonView;
+    private View mTitleHandleBarView;
+    private ImageView mImmersiveButtonView;
+    private Drawable mChevronUpDrawable;
+    private Drawable mChevronDownDrawable;
     private boolean mIsForegroundDaVisible = false;
     private boolean mIsForegroundDaFullScreen = false;
     private boolean mIsUiModeNight = false;
@@ -313,6 +318,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                         return;
                     }
 
+                    if (mTitleHandleBarView != null) {
+                        mTitleHandleBarView.setVisibility(requested ? View.GONE : View.VISIBLE);
+                    }
                     if (mImmersiveButtonView != null) {
                         mImmersiveButtonView.setVisibility(requested ? View.VISIBLE : View.GONE);
                     }
@@ -364,20 +372,23 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mUiModeManager = host.getUserContext().getSystemService(UiModeManager.class);
         mConfigurationController.addCallback(this);
         mDpiDensity = mOrganizer.getDpiDensity();
-        mTotalScreenHeight = applicationContext.getResources().getDimensionPixelSize(
+        Resources resources = applicationContext.getResources();
+        mTotalScreenHeight = resources.getDimensionPixelSize(
                 R.dimen.total_screen_height);
-        mTotalScreenWidth = applicationContext.getResources().getDimensionPixelSize(
+        mTotalScreenWidth = resources.getDimensionPixelSize(
                 R.dimen.total_screen_width);
-        mControlBarDisplayHeight = applicationContext.getResources().getDimensionPixelSize(
+        mControlBarDisplayHeight = resources.getDimensionPixelSize(
                 R.dimen.control_bar_height);
-        mFullDisplayHeight = applicationContext.getResources().getDimensionPixelSize(
+        mFullDisplayHeight = resources.getDimensionPixelSize(
                 R.dimen.full_app_display_area_height);
-        mDefaultDisplayHeight = applicationContext.getResources().getDimensionPixelSize(
+        mDefaultDisplayHeight = resources.getDimensionPixelSize(
                 R.dimen.default_app_display_area_height);
+        mChevronUpDrawable = resources.getDrawable(R.drawable.ic_chevron_up);
+        mChevronDownDrawable = resources.getDrawable(R.drawable.ic_chevron_down);
         mCarDisplayAreaTouchHandler = new CarDisplayAreaTouchHandler(
                 new HandlerExecutor(applicationContext.getMainThreadHandler()));
         mControlBarActivityComponent = ComponentName.unflattenFromString(
-                applicationContext.getResources().getString(
+                resources.getString(
                         R.string.config_controlBarActivity));
         mBackgroundActivityComponent = new ArrayList<>();
         mVoicePlateActivitySet = new ArraySet<>();
@@ -390,7 +401,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mAssistUtils = new AssistUtils(applicationContext);
 
         // Get bottom nav bar height.
-        Resources resources = applicationContext.getResources();
         int navBarHeight = resources.getDimensionPixelSize(
                 com.android.internal.R.dimen.navigation_bar_height);
         if (navBarHeight > 0) {
@@ -419,9 +429,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
         mScreenHeightWithoutNavBar = mTotalScreenHeight - mNavBarBounds.height();
         mTitleBarHeight = resources.getDimensionPixelSize(R.dimen.title_bar_display_area_height);
-        mEnterExitAnimationDurationMs = applicationContext.getResources().getInteger(
+        mEnterExitAnimationDurationMs = resources.getInteger(
                 R.integer.enter_exit_animation_foreground_display_area_duration_ms);
-        mTitleBarDragThreshold = applicationContext.getResources().getDimensionPixelSize(
+        mTitleBarDragThreshold = resources.getDimensionPixelSize(
                 R.dimen.title_bar_display_area_touch_drag_threshold);
         mForegroundDisplayTop = mScreenHeightWithoutNavBar - mDefaultDisplayHeight;
 
@@ -496,11 +506,15 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         LayoutInflater inflater = LayoutInflater.from(mApplicationContext);
         mTitleBarView = inflater.inflate(R.layout.title_bar_display_area_view, null, true);
         mTitleBarView.setVisibility(View.VISIBLE);
+        mTitleHandleBarView = mTitleBarView.findViewById(R.id.title_handle_bar);
         mImmersiveButtonView = mTitleBarView.findViewById(R.id.immersive_button);
         if (mImmersiveButtonView != null) {
+            mImmersiveButtonView.setImageDrawable(
+                    mIsForegroundDaFullScreen ? mChevronDownDrawable
+                            : mChevronUpDrawable);
             mImmersiveButtonView.setOnClickListener(v -> {
                 mCarUiDisplaySystemBarsController.requestImmersiveMode(
-                        mApplicationContext.getDisplayId(), true);
+                        mApplicationContext.getDisplayId(), !mIsForegroundDaFullScreen);
             });
         }
 
@@ -516,14 +530,15 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mIsForegroundDaFullScreen = immersive;
         if (mIsForegroundDaFullScreen) {
             if (!isForegroundDaVisible()) {
-                hideTitleBar();
                 makeForegroundDaVisible(true);
             }
-            setControlBarVisibility(false);
             startAnimation(FULL);
         } else {
-            setControlBarVisibility(true);
             startAnimation(FULL_TO_DEFAULT);
+        }
+        if (mImmersiveButtonView != null) {
+            mImmersiveButtonView.setImageDrawable(
+                    mIsForegroundDaFullScreen ? mChevronDownDrawable : mChevronUpDrawable);
         }
     }
 
@@ -947,6 +962,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                         isForegroundDaVisible() ? mScreenHeightWithoutNavBar - mDefaultDisplayHeight
                                 - mControlBarDisplayHeight
                                 : mScreenHeightWithoutNavBar + mTitleBarHeight;
+                toPos = mTitleBarHeight;
                 animateToFullState(fromPos, toPos, mEnterExitAnimationDurationMs);
                 break;
             case FULL_TO_DEFAULT:
@@ -991,6 +1007,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         animate(fromPos, toPos, FULL_TO_DEFAULT, durationMs);
         mIsHostingDefaultApplicationDisplayAreaVisible = true;
         showTitleBar();
+        setControlBarVisibility(true);
         if (mCarDisplayAreaTouchHandler != null) {
             mCarDisplayAreaTouchHandler.updateTitleBarVisibility(true);
         }
@@ -1000,9 +1017,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         if (!isForegroundDaVisible()) {
             makeForegroundDaVisible(true);
         }
-        hideTitleBar();
+        setControlBarVisibility(false);
         mBackgroundApplicationDisplayBounds.bottom = mTotalScreenHeight;
-        makeForegroundDAFullScreen(/* setFullPosition= */ false);
+        makeForegroundDAFullScreen(/* setFullPosition= */ false, /* showTitleBar= */ true);
         animate(fromPos, toPos, FULL, durationMs);
         mIsHostingDefaultApplicationDisplayAreaVisible = true;
         if (mCarDisplayAreaTouchHandler != null) {
@@ -1197,7 +1214,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     /** See {@link makeForegroundDAFullScreen(boolean)} */
     void makeForegroundDAFullScreen() {
-        makeForegroundDAFullScreen(/* setFullPosition= */ true);
+        makeForegroundDAFullScreen(/* setFullPosition= */ true, /* showTitleBar= */ false);
     }
 
     /**
@@ -1207,10 +1224,11 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
      *                        position. Setting this to true will set the position to the full
      *                        screen while setting to false will use the default display bounds.
      */
-    void makeForegroundDAFullScreen(boolean setFullPosition) {
+    void makeForegroundDAFullScreen(boolean setFullPosition, boolean showTitleBar) {
         logIfDebuggable("make foregroundDA fullscreen");
         WindowContainerTransaction wct = new WindowContainerTransaction();
-        Rect foregroundApplicationDisplayBounds = new Rect(0, 0, mTotalScreenWidth,
+        int topBound = showTitleBar ? mTitleBarHeight : 0;
+        Rect foregroundApplicationDisplayBounds = new Rect(0, topBound, mTotalScreenWidth,
                 mTotalScreenHeight);
         WindowContainerToken foregroundDisplayToken =
                 mForegroundApplicationsDisplay.getDisplayAreaInfo().token;
