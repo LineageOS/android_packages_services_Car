@@ -410,6 +410,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     mPowerPolicyListeners.getRegisteredCallbackCount());
             writer.printf("mFactoryResetCallback: %s\n", mFactoryResetCallback);
             writer.printf("mIsListenerWaitingCancelled: %b\n", mIsListenerWaitingCancelled.get());
+            writer.printf("kernel support S2R: %b\n",
+                    mSystemInterface.isSystemSupportingDeepSleep());
+            writer.printf("kernel support S2D: %b\n",
+                    mSystemInterface.isSystemSupportingHibernation());
         }
         mPolicyReader.dump(writer);
         mPowerComponentHandler.dump(writer);
