@@ -426,7 +426,7 @@
     <bool name="enableProfileUserAssignmentForMultiDisplay" translatable="false">false</bool>
 
     <!-- The ComponentName of the media source that will be selected as the default -->
-    <string name="config_defaultMediaSource">com.android.bluetooth.services/com.android.bluetooth.avrcpcontroller.BluetoothMediaBrowserService</string>
+    <string name="config_defaultMediaSource">com.android.car.radio/.service.RadioAppService</string>
 
     <!-- A configuration flag to enable ending an ongoing call using the physical Call button. -->
     <bool name="config_callButtonEndsOngoingCall">false</bool>
