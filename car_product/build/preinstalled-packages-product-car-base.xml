@@ -153,6 +153,12 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- Required to implement QualifiedNetworksService to bind with AccessNetworksManager -->
+    <install-in-user-type package="com.android.qns">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
     <!-- Needs this packages during bootup, otherwise system won't boot -->
     <install-in-user-type package="com.android.wifi.resources">
         <install-in user-type="FULL" />
