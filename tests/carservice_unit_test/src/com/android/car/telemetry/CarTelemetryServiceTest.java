@@ -22,9 +22,10 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFI
 import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_PENDING;
 import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR;
 
-import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_HI;
-import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_LOW;
-import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_MED;
+// TODO(b/233973826): Uncomment once SystemMonitor work is complete.
+// import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_HI;
+// import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_LOW;
+// import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_MED;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -61,7 +62,7 @@ import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
-import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
+// import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -125,7 +126,8 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         when(mMockContext.getSystemService(ActivityManager.class))
                 .thenReturn(mMockActivityManager);
 
-        when(SystemMonitor.create(any(), any())).thenReturn(mMockSystemMonitor);
+        // TODO(b/233973826): Re-enable once SystemMonitor work is complete.
+        // when(SystemMonitor.create(any(), any())).thenReturn(mMockSystemMonitor);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
@@ -150,10 +152,12 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         verify(mMockDataBroker).setDataBrokerListener(dataBrokerListenerArgumentCaptor.capture());
         mDataBrokerListener = dataBrokerListenerArgumentCaptor.getValue();
 
+        // TODO(b/233973826): Uncomment once SystemMonitor work is complete.
+        /*
         ArgumentCaptor<SystemMonitor.SystemMonitorCallback> systemMonitorCallbackCaptor =
                 ArgumentCaptor.forClass(SystemMonitor.SystemMonitorCallback.class);
         verify(mMockSystemMonitor).setSystemMonitorCallback(systemMonitorCallbackCaptor.capture());
-        mSystemMonitorCallback = systemMonitorCallbackCaptor.getValue();
+        mSystemMonitorCallback = systemMonitorCallbackCaptor.getValue(); */
 
         mMetricsConfigStore = mService.getMetricsConfigStore();
         mResultStore = mService.getResultStore();
@@ -508,6 +512,8 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNotNull();
     }
 
+    // TODO(b/233973826): Uncomment once SystemMonitor is tuned-up.
+    /*
     @Test
     public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForHighCpuUsage() {
         SystemMonitorEvent highCpuEvent = new SystemMonitorEvent();
@@ -561,5 +567,5 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         mSystemMonitorCallback.onSystemMonitorEvent(lowUsageEvent);
 
         verify(mMockDataBroker).setTaskExecutionPriority(eq(TASK_PRIORITY_LOW));
-    }
+    }*/
 }
