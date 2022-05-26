@@ -79,4 +79,14 @@ public class CarPackageManagerPermissionTest {
         assertThat(mPm.isActivityBackedBySafeActivity(new ComponentName("blah", "someClass")))
                 .isFalse();
     }
+
+    @Test
+    public void testGetTargetCarMajorVersion() {
+        assertThrows(SecurityException.class, () -> mPm.getTargetCarMajorVersion("Y U NO THROW?"));
+    }
+
+    @Test
+    public void testGetTargetCarMinorVersion() {
+        assertThrows(SecurityException.class, () -> mPm.getTargetCarMinorVersion("Y U NO THROW?"));
+    }
 }

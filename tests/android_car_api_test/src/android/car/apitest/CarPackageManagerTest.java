@@ -21,16 +21,47 @@ import android.car.content.pm.CarPackageManager;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
+import org.junit.Before;
 import org.junit.Test;
 
 @MediumTest
 public class CarPackageManagerTest extends CarApiTestBase {
 
+    private CarPackageManager mCarPackageManager;
+
+    @Before
+    public void setFixtures() {
+        mCarPackageManager = (CarPackageManager) getCar().getCarManager(Car.PACKAGE_SERVICE);
+    }
+
     @Test
     public void testCreate() throws Exception {
-        CarPackageManager carPackageManager = (CarPackageManager) getCar()
-                .getCarManager(Car.PACKAGE_SERVICE);
-        assertThat(carPackageManager).isNotNull();
+        assertThat(mCarPackageManager).isNotNull();
+    }
+
+    @Test
+    public void testGetTargetCarMajorAndMinorVersion_notSet() throws Exception {
+        String pkg = "com.android.car";
+
+        assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
+                .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
+                .isEqualTo(CarPackageManager.CAR_TARGET_VERSION_UNDEFINED);
+        assertWithMessage("getTargetCarMinorVersion(%s)", pkg)
+                .that(mCarPackageManager.getTargetCarMinorVersion(pkg))
+                .isEqualTo(CarPackageManager.CAR_TARGET_VERSION_UNDEFINED);
+    }
+
+    @Test
+    public void testGetTargetCarMajorAndMinorVersion_set() throws Exception {
+        String pkg = sContext.getPackageName();
+
+        assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
+                .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
+                .isEqualTo(108);
+        assertWithMessage("getTargetCarMinorVersion(%s)", pkg)
+                .that(mCarPackageManager.getTargetCarMinorVersion(pkg))
+                .isEqualTo(42);
     }
 }
