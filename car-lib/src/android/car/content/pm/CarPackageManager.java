@@ -37,17 +37,17 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 
+import com.android.internal.annotations.VisibleForTesting;
+
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Provides car specific API related with package management.
  */
 public final class CarPackageManager extends CarManagerBase {
-    private static final String TAG = "CarPackageManager";
 
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -204,8 +204,14 @@ public final class CarPackageManager extends CarManagerBase {
 
     /** @hide */
     public CarPackageManager(Car car, IBinder service) {
+        this(car, ICarPackageManager.Stub.asInterface(service));
+    }
+
+    /** @hide */
+    @VisibleForTesting
+    public CarPackageManager(Car car, ICarPackageManager service) {
         super(car);
-        mService = ICarPackageManager.Stub.asInterface(service);
+        mService = service;
     }
 
     /** @hide */
@@ -478,7 +484,7 @@ public final class CarPackageManager extends CarManagerBase {
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
     public int getTargetCarMajorVersion(@NonNull String packageName) {
         try {
-            return mService.getTargetCarMajorVersion(Objects.requireNonNull(packageName));
+            return mService.getTargetCarMajorVersion(packageName);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
         }
@@ -499,7 +505,7 @@ public final class CarPackageManager extends CarManagerBase {
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
     public int getTargetCarMinorVersion(@NonNull String packageName) {
         try {
-            return mService.getTargetCarMinorVersion(Objects.requireNonNull(packageName));
+            return mService.getTargetCarMinorVersion(packageName);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
         }
