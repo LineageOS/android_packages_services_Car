@@ -23,6 +23,9 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLO
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
+import static android.car.content.pm.CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
+import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION;
+import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -1514,50 +1517,51 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         }
         mCarUxRestrictionsService.setUxRChangeBroadcastEnabled(enable);
     }
+
     @Override
     public int getTargetCarMajorVersion(String packageName) {
-        return getTargetCarVersion(CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION,
-                packageName);
+        return getTargetCarVersion(Binder.getCallingUserHandle(),
+                MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION, packageName);
     }
 
     @Override
     public int getTargetCarMinorVersion(String packageName) {
-        return getTargetCarVersion(CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION,
-                packageName);
+        return getTargetCarVersion(Binder.getCallingUserHandle(),
+                MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION, packageName);
     }
 
-    private int getTargetCarVersion(String metadataAttribute, String packageName) {
-        // TODO(b/228506662): finish implementation:
-        // - check packageName is not null
-        // - don't query, but use a cache (which is update as packages are added / removed)
-        // - get it per user (and pass --user to the Shell command)
-        // - add unit tests
-        // - move permission check to helper method
-        // - dump cache
+    private int getTargetCarVersion(UserHandle user, String metadataAttribute,
+            String packageName) {
+        Context context = mContext.createContextAsUser(user, /* flags= */ 0);
+        return getTargetCarVersion(context, metadataAttribute, packageName);
+    }
 
+    /**
+     * Used by {@code CarShellCommand} as well.
+     */
+    public static int getTargetCarVersion(Context context, String metadataAttribute,
+            String packageName) {
         String permission = android.Manifest.permission.QUERY_ALL_PACKAGES;
-        if (mContext
-                .checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             Slogf.w(TAG, "getTargetCarVersion(%s, %s): UID %d doesn't have %s permission",
                     metadataAttribute, packageName, Binder.getCallingUid(), permission);
             throw new SecurityException("requires permission " + permission);
         }
-        int version = CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
+        int version = CAR_TARGET_VERSION_UNDEFINED;
         try {
-            ApplicationInfo info = mPackageManager.getApplicationInfo(packageName,
+            ApplicationInfo info = context.getPackageManager().getApplicationInfo(packageName,
                     PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA));
             if (info.metaData != null) {
-                version = info.metaData
-                        .getInt(metadataAttribute, CarPackageManager.CAR_TARGET_VERSION_UNDEFINED);
+                version = info.metaData.getInt(metadataAttribute, CAR_TARGET_VERSION_UNDEFINED);
             } else if (DBG) {
-                Slogf.d(TAG, "getTargetCarVersion(%s, %s): no metadata", metadataAttribute,
-                        packageName);
+                Slogf.d(TAG, "getTargetCarVersion(%s, %s, %s): no metadata", context.getUser(),
+                        metadataAttribute, packageName);
 
             }
         } catch (NameNotFoundException e) {
             if (DBG) {
-                Slogf.w(TAG, e, "getTargetCarVersion(%s, %s): not found", metadataAttribute,
-                        packageName);
+                Slogf.w(TAG, e, "getTargetCarVersion(%s, %s, %s): not found", context.getUser(),
+                        metadataAttribute, packageName);
             }
         }
         return version;
