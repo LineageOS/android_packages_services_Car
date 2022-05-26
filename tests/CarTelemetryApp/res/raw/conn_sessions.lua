@@ -22,11 +22,13 @@ function onConnectivityDataWithSession(published_data, state)
     if published_data['packages'] == nil then
         -- on_metrics_report(r) sends r as finished result table
         -- on_metrics_report(r, s) sends r as finished result table while also sending
-        -- s as intermediate result that will be sent next time as 'state' param
+        -- s as intermediate result that will be sent received time as 'state' param
+        log("packages is nil, only sessions data available.")
         on_metrics_report(res)
+        do return end
     end
 
-    -- Accumulate rxBytes and txBytes for each package group, save uid
+    -- Accumulate rxBytes and txBytes for each package group
     rx = {}
     tx = {}
     uids = {}
@@ -39,12 +41,12 @@ function onConnectivityDataWithSession(published_data, state)
             rx[ps] = 0
             tx[ps] = 0
         end
-        -- For each package group accumulate the rx and tx separately, record uid
+        -- For each package group accumulate the rx and tx separately
         rx[ps] = rx[ps] + published_data['rxBytes'][i]
         tx[ps] = tx[ps] + published_data['txBytes'][i]
         uids[ps] = published_data['uid'][i]
     end
-    -- For each package group name combine rx, tx and uid into one string for print
+    -- For each package group name combine rx and tx into one string for print
     for p, v in pairs(rx) do
         res[p] = 'rx: ' .. rx[p] .. ', tx: ' .. tx[p] .. ', uid: ' .. uids[p]
     end
