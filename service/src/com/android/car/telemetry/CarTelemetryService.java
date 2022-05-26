@@ -166,7 +166,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
     private SessionController mSessionController;
-    private SystemMonitor mSystemMonitor;
+    // private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
     static class Dependencies {
@@ -239,8 +239,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             }
             mDataBroker.setDataBrokerListener(mDataBrokerListener);
             ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
-            mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
-            mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
+            // TODO(b/233973826): Re-enable once SystemMonitor tune-up is complete.
+            // mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
+            // mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
             mOnShutdownReboot = new OnShutdownReboot(mContext);
