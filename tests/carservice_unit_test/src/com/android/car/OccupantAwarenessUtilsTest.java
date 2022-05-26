@@ -17,8 +17,10 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.occupantawareness.GazeDetection;
 import android.car.occupantawareness.OccupantAwarenessDetection;
 import android.car.occupantawareness.SystemStatusEvent;
+import android.hardware.automotive.occupant_awareness.ConfidenceLevel;
 import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
 import android.test.suitebuilder.annotation.MediumTest;
@@ -259,5 +261,81 @@ public final class OccupantAwarenessUtilsTest {
         assertThat(OccupantAwarenessUtils.convertToRole(
                 android.hardware.automotive.occupant_awareness.Role.ROW_3_PASSENGER_RIGHT))
                 .isEqualTo(OccupantAwarenessDetection.VEHICLE_OCCUPANT_ROW_3_PASSENGER_RIGHT);
+    }
+
+    @Test
+    public void testConvertToGazeDetection_returnsProperConfidenceLevel() {
+        android.hardware.automotive.occupant_awareness.GazeDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.GazeDetection();
+        // assign an any ConfidenceLevel, such as LOW
+        inputDetection.gazeConfidence = ConfidenceLevel.LOW;
+        int expected = OccupantAwarenessDetection.CONFIDENCE_LEVEL_LOW;
+
+        GazeDetection outputDetection =
+                OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
+
+        assertThat(outputDetection.confidenceLevel).isEqualTo(expected);
+    }
+
+    @Test
+    public void testConvertToGazeDetection_returnsNullLeftAndRightEyePositions() {
+        android.hardware.automotive.occupant_awareness.GazeDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.GazeDetection();
+
+        GazeDetection outputDetection =
+                OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
+
+        assertThat(outputDetection.leftEyePosition).isNull();
+        assertThat(outputDetection.rightEyePosition).isNull();
+    }
+
+
+    @Test
+    public void testConvertToGazeDetection_returnsNonNullLeftAndRightEyePositions() {
+        android.hardware.automotive.occupant_awareness.GazeDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.GazeDetection();
+        inputDetection.headPosition = new double[] {1.0, 2.0, 3.0};
+
+        GazeDetection outputDetection =
+                OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
+
+        assertThat(outputDetection.leftEyePosition).isNotNull();
+        assertThat(outputDetection.rightEyePosition).isNotNull();
+    }
+
+    @Test
+    public void testConvertToGazeDetection_returnsNullHeadAndGazeAngleUnitVectors() {
+        android.hardware.automotive.occupant_awareness.GazeDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.GazeDetection();
+
+        GazeDetection outputDetection =
+                OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
+
+        assertThat(outputDetection.headAngleUnitVector).isNull();
+        assertThat(outputDetection.gazeAngleUnitVector).isNull();
+    }
+
+    @Test
+    public void testConvertToGazeDetection_returnsNonNullHeadAngleUnitVector() {
+        android.hardware.automotive.occupant_awareness.GazeDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.GazeDetection();
+        inputDetection.headAngleUnitVector = new double[] {1.0, 2.0, 3.0};
+
+        GazeDetection outputDetection =
+                OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
+
+        assertThat(outputDetection.headAngleUnitVector).isNotNull();
+    }
+
+    @Test
+    public void testConvertToGazeDetection_returnsNonNullGazeAngleUnitVector() {
+        android.hardware.automotive.occupant_awareness.GazeDetection inputDetection =
+                new android.hardware.automotive.occupant_awareness.GazeDetection();
+        inputDetection.gazeAngleUnitVector = new double[] {1.0, 2.0, 3.0};
+
+        GazeDetection outputDetection =
+                OccupantAwarenessUtils.convertToGazeDetection(inputDetection);
+
+        assertThat(outputDetection.gazeAngleUnitVector).isNotNull();
     }
 }
