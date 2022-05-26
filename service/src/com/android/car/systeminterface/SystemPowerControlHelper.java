@@ -110,7 +110,7 @@ public final class SystemPowerControlHelper {
 
         boolean isSuspendTypeSupported = false;
         try {
-            String fileContents = IoUtils.readFileAsString(sysFsPowerControlFile);
+            String fileContents = IoUtils.readFileAsString(sysFsPowerControlFile).trim();
             for (String supported : fileContents.split(" ")) {
                 if (suspendType.equals(supported)) {
                     isSuspendTypeSupported = true;
