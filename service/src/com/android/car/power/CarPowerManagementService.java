@@ -1595,7 +1595,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void notifyPowerPolicyChangeToDaemon(String policyId, boolean force) {
         ICarPowerPolicySystemNotification daemon;
-        boolean hadPendingPolicyNotification;
         synchronized (mLock) {
             daemon = mCarPowerPolicyDaemon;
             if (daemon == null) {

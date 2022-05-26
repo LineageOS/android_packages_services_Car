@@ -218,8 +218,6 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testUnsubscribe() throws Exception {
-        SubscribeOptions option = mock(SubscribeOptions.class);
-
         mClient.unsubscribe(1);
 
         verify(mSubscriptionClient).unsubscribe(1);
