@@ -1212,9 +1212,15 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         });
     }
 
-    /** See {@link makeForegroundDAFullScreen(boolean)} */
-    void makeForegroundDAFullScreen() {
-        makeForegroundDAFullScreen(/* setFullPosition= */ true, /* showTitleBar= */ false);
+    /** Bypass the typical fullscreen flow specifically for SUW */
+    void immersiveForSUW(boolean immersive) {
+        if (immersive) {
+            makeForegroundDAFullScreen(/* setFullPosition= */ true, /* showTitleBar= */ false);
+        } else {
+            setDefaultBounds();
+        }
+        mCarUiDisplaySystemBarsController.requestImmersiveModeForSUW(
+                mApplicationContext.getDisplayId(), immersive);
     }
 
     /**
