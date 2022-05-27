@@ -1026,8 +1026,6 @@ public final class VehiclePropertyIds {
      * ELECTRIC DEFROSTER
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_CLIMATE.
-     *
-     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     @AddedInOrBefore(majorVersion = 33)
