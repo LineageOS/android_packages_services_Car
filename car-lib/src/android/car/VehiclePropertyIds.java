@@ -1015,10 +1015,8 @@ public final class VehiclePropertyIds {
     public static final int HVAC_SEAT_VENTILATION = 356517139;
     /**
      * ELECTRIC DEFROSTER
-     * The property is protected by the signature permission:
+     * The property is a read and write controllable and is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_CLIMATE.
-     *
-     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     @AddedInOrBefore(majorVersion = 33)
