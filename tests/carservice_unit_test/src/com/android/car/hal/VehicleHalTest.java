@@ -1102,7 +1102,6 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
         when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
@@ -1120,7 +1119,6 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
         when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
@@ -1146,7 +1144,6 @@ public class VehicleHalTest {
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
 
-        HalPropValue propValue = mPropValueBuilder.build(/*propId=*/0, /*areaId=*/0, "some_value");
         when(mHalClient.getValue(any(HalPropValue.class))).thenThrow(
                 new ServiceSpecificException(0));
 
@@ -1357,7 +1354,6 @@ public class VehicleHalTest {
         List<HalPropValue> values = new ArrayList<HalPropValue>();
         // SOME_READ_ON_CHANGE_PROPERTY does not have a valid property type.
         setupInjectEventTest(SOME_READ_ON_CHANGE_PROPERTY, values);
-        long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_READ_ON_CHANGE_PROPERTY, VehicleHal.NO_AREA, "1", 0);
@@ -1372,7 +1368,6 @@ public class VehicleHalTest {
         // Arrange
         List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
-        long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
         mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", 10, 1);
@@ -1392,7 +1387,6 @@ public class VehicleHalTest {
         List<HalPropValue> values = new ArrayList<HalPropValue>();
         // SOME_READ_ON_CHANGE_PROPERTY does not have a valid property type.
         setupInjectEventTest(SOME_READ_ON_CHANGE_PROPERTY, values);
-        long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
         mVehicleHal.injectContinuousVhalEvent(
@@ -1408,7 +1402,6 @@ public class VehicleHalTest {
         // Arrange
         List<HalPropValue> values = new ArrayList<HalPropValue>();
         setupInjectEventTest(SOME_INT32_PROPERTY, values);
-        long time = SystemClock.elapsedRealtimeNanos();
 
         // Act
         mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", -1, 1);

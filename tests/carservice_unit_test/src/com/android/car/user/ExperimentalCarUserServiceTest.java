@@ -140,7 +140,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
 
         mockCreateProfile(driverId, userName, passenger);
 
-        UserHandle driver = expectRegularUserExists(mMockedUserHandleHelper, driverId);
+        expectRegularUserExists(mMockedUserHandleHelper, driverId);
         assertThat(mExperimentalCarUserService.createPassenger(userName, driverId))
                 .isEqualTo(passenger);
     }
@@ -159,8 +159,7 @@ public final class ExperimentalCarUserServiceTest extends BaseCarUserServiceTest
     @Test
     public void testCreatePassenger_IfDriverIsGuest() {
         int driverId = 90;
-        UserHandle driver = expectGuestUserExists(mMockedUserHandleHelper, driverId,
-                /* isEphemeral= */ false);
+        expectGuestUserExists(mMockedUserHandleHelper, driverId, /* isEphemeral= */ false);
         String userName = "testUser";
         assertThat(mExperimentalCarUserService.createPassenger(userName, driverId)).isNull();
     }

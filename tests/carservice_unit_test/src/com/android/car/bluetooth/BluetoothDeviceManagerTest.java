@@ -558,7 +558,6 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
     @Test
     public void testGetConnectionPriority_prioritiesReturned() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
-        ArrayList<BluetoothDevice> devices = makeDeviceList(SMALL_DEVICE_LIST);
         for (int i = 0; i < mDeviceList.size(); i++) {
             BluetoothDevice device = mDeviceList.get(i);
             int priority = mDeviceManager.getDeviceConnectionPriority(device);

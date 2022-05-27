@@ -619,7 +619,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         AtomicFile configFile = new AtomicFile(file);
         try (JsonReader reader = new JsonReader(
                 new InputStreamReader(configFile.openRead(), StandardCharsets.UTF_8))) {
-            List<CarUxRestrictionsConfiguration> configs = new ArrayList<>();
             if (reader.peek() == JsonToken.BEGIN_ARRAY) {
                 // only schema V1 beings with an array - no need to keep reading
                 reader.close();

@@ -541,8 +541,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     @Test
     public void testReplaceUser_ok() throws Exception {
         mockGetCurrentUser(CURRENT_USER_ID);
-        UserHandle guest = expectGuestUserExists(mMockedUserHandleHelper, CURRENT_USER_ID,
-                /* isEphemeral= */ true);
+        expectGuestUserExists(mMockedUserHandleHelper, CURRENT_USER_ID, /* isEphemeral= */ true);
         UserHandle newGuest = expectGuestUserExists(mMockedUserHandleHelper, NEW_USER_ID,
                 /* isEphemeral= */ true);
 

@@ -681,8 +681,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
                 .setComponents(PowerComponent.AUDIO).build();
         CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
                 .setComponents(PowerComponent.WIFI).build();
-        CarPowerPolicyFilter filterLocation = new CarPowerPolicyFilter.Builder()
-                .setComponents(PowerComponent.LOCATION).build();
 
         mService.addPowerPolicyListener(filterAudio, listenerAudio);
         mService.addPowerPolicyListener(filterWifi, listenerWifi);

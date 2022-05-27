@@ -128,7 +128,6 @@ public class AudioControlWrapperV1Test {
     @Test
     public void unregisterFocusListener_throws() {
         AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
-        HalFocusListener mockListener = mock(HalFocusListener.class);
 
         assertThrows(UnsupportedOperationException.class,
                 () -> audioControlWrapperV1.unregisterFocusListener());
