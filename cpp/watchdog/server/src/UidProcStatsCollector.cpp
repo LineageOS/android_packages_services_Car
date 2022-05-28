@@ -21,6 +21,7 @@
 
 #include <android-base/file.h>
 #include <android-base/parseint.h>
+#include <android-base/result.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 #include <log/log.h>
@@ -48,6 +49,7 @@ using ::android::base::Trim;
 namespace {
 
 constexpr const char* kProcPidStatFileFormat = "/proc/%" PRIu32 "/stat";
+constexpr const char* kProcPidStatusFileFormat = "/proc/%" PRIu32 "/status";
 
 enum ReadError {
     ERR_INVALID_FILE = 0,
@@ -376,6 +378,11 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
 Result<PidStat> UidProcStatsCollector::readStatFileForPid(pid_t pid) {
     std::string path = StringPrintf(kProcPidStatFileFormat, pid);
     return readPidStatFile(path, 1000 / sysconf(_SC_CLK_TCK));
+}
+
+Result<std::tuple<uid_t, pid_t>> UidProcStatsCollector::readPidStatusFileForPid(pid_t pid) {
+    std::string path = StringPrintf(kProcPidStatusFileFormat, pid);
+    return readPidStatusFile(path);
 }
 
 }  // namespace watchdog
