@@ -19,6 +19,7 @@ package com.android.systemui.car.hvac;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
+import android.app.UiModeManager;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
@@ -32,6 +33,7 @@ import com.android.systemui.car.CarDeviceProvisionedController;
 import com.android.systemui.car.window.OverlayViewGlobalStateController;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.dagger.qualifiers.Main;
+import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.wm.shell.animation.FlingAnimationUtils;
 
 import javax.inject.Inject;
@@ -66,9 +68,12 @@ public class AutoDismissHvacPanelOverlayViewController extends HvacPanelOverlayV
             OverlayViewGlobalStateController overlayViewGlobalStateController,
             FlingAnimationUtils.Builder flingAnimationUtilsBuilder,
             CarDeviceProvisionedController carDeviceProvisionedController,
-            @Main Handler handler) {
+            @Main Handler handler,
+            ConfigurationController configurationController,
+            UiModeManager uiModeManager) {
         super(context, resources, hvacController, overlayViewGlobalStateController,
-                flingAnimationUtilsBuilder, carDeviceProvisionedController);
+                flingAnimationUtilsBuilder, carDeviceProvisionedController, configurationController,
+                uiModeManager);
         mResources = resources;
         mHandler = handler;
         mContext = context;
