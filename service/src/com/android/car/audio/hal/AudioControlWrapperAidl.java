@@ -51,10 +51,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-/**
- * Wrapper for AIDL interface for AudioControl HAL
- */
-public final class AudioControlWrapperAidl implements AudioControlWrapper {
+/** Wrapper for AIDL interface for AudioControl HAL */
+public final class AudioControlWrapperAidl implements AudioControlWrapper, IBinder.DeathRecipient {
     static final String TAG = CarLog.tagFor(AudioControlWrapperAidl.class);
 
     private static final String AUDIO_CONTROL_SERVICE =
@@ -230,7 +228,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     @Override
     public void linkToDeath(@Nullable AudioControlDeathRecipient deathRecipient) {
         try {
-            mBinder.linkToDeath(this::binderDied, 0);
+            mBinder.linkToDeath(this, 0);
             mDeathRecipient = deathRecipient;
         } catch (RemoteException e) {
             throw new IllegalStateException("Call to IAudioControl#linkToDeath failed", e);
@@ -239,11 +237,12 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
     @Override
     public void unlinkToDeath() {
-        mBinder.unlinkToDeath(this::binderDied, 0);
+        mBinder.unlinkToDeath(this, 0);
         mDeathRecipient = null;
     }
 
-    private void binderDied() {
+    @Override
+    public void binderDied() {
         Slogf.w(TAG, "AudioControl HAL died. Fetching new handle");
         mListenerRegistered = false;
         mGainCallbackRegistered = false;
