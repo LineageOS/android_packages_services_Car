@@ -18,6 +18,7 @@ package com.android.car;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
@@ -221,7 +222,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      * @return {@link CarDrivingStateEvent} for the given event type
      */
     @Override
-    @Nullable
+    @NonNull
     public CarDrivingStateEvent getCurrentDrivingState() {
         synchronized (mLock) {
             return mCurrentDrivingState;
