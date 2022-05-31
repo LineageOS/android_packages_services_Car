@@ -136,8 +136,16 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public CarUxRestrictions getUxRestrictions(@CarDrivingState int drivingState,
-            float currentSpeed, @NonNull String mode) {
+            @FloatRange(from = 0f) float currentSpeed, @NonNull String mode) {
         Objects.requireNonNull(mode, "mode must not be null");
+
+        if (Float.isNaN(currentSpeed) || currentSpeed < 0f) {
+            if (BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild()) {
+                throw new IllegalArgumentException("Invalid currentSpeed: " + currentSpeed);
+            }
+            Log.e(TAG, "getUxRestrictions: Invalid currentSpeed: " + currentSpeed);
+            return createDefaultUxRestrictionsEvent();
+        }
         RestrictionsPerSpeedRange restriction = null;
         if (mRestrictionModes.containsKey(mode)) {
             restriction = findUxRestrictionsInList(currentSpeed,
