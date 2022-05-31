@@ -75,6 +75,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
 
     private final Context mContext;
     private final SyncTransactionQueue mTransactionQueue;
+    private final Rect mForegroundApplicationDisplayBounds = new Rect();
     private final Rect mBackgroundApplicationDisplayBounds = new Rect();
     private final CarDisplayAreaAnimationController mAnimationController;
     private final Handler mHandlerForAnimation;
@@ -139,6 +140,12 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.DEFAULT) {
                             // Foreground DA opens to default height.
                             updateBackgroundDisplayBounds(wct);
+                            applyTransaction(wct);
+                        } else if (mToState
+                                == DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT) {
+                            updateForegroundDisplayBounds(wct);
+                            updateBackgroundDisplayBounds(wct);
+                            applyTransaction(wct);
                         }
                     }
                 }
@@ -190,6 +197,24 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         return mIsDisplayAreaAnimating;
     }
 
+    private void updateForegroundDisplayBounds(WindowContainerTransaction wct) {
+        Rect foregroundApplicationDisplayBound = mForegroundApplicationDisplayBounds;
+        WindowContainerToken foregroundDisplayToken =
+                mForegroundApplicationDisplay.getDisplayAreaInfo().token;
+
+        int foregroundDisplayWidthDp =
+                foregroundApplicationDisplayBound.width() * DisplayMetrics.DENSITY_DEFAULT
+                        / getDpiDensity();
+        int foregroundDisplayHeightDp =
+                foregroundApplicationDisplayBound.height() * DisplayMetrics.DENSITY_DEFAULT
+                        / getDpiDensity();
+        wct.setBounds(foregroundDisplayToken, foregroundApplicationDisplayBound);
+        wct.setScreenSizeDp(foregroundDisplayToken, foregroundDisplayWidthDp,
+                foregroundDisplayHeightDp);
+        wct.setSmallestScreenWidthDp(foregroundDisplayToken,
+                Math.min(foregroundDisplayWidthDp, foregroundDisplayHeightDp));
+    }
+
     private void updateBackgroundDisplayBounds(WindowContainerTransaction wct) {
         Rect backgroundApplicationDisplayBound = mBackgroundApplicationDisplayBounds;
         WindowContainerToken backgroundDisplayToken =
@@ -212,8 +237,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                     backgroundApplicationDisplayBound.left,
                     backgroundApplicationDisplayBound.top);
         });
-
-        applyTransaction(wct);
     }
 
     void resetWindowsOffset() {
@@ -236,7 +259,8 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
      * Offsets the windows by a given offset on Y-axis, triggered also from screen rotation.
      * Directly perform manipulation/offset on the leash.
      */
-    void scheduleOffset(int fromPos, int toPos, Rect finalBackgroundBounds,
+    void scheduleOffset(int fromPos, int toPos,
+            Rect finalBackgroundBounds, Rect finalForegroundBounds,
             DisplayAreaAppearedInfo backgroundApplicationDisplay,
             DisplayAreaAppearedInfo foregroundDisplay,
             DisplayAreaAppearedInfo controlBarDisplay,
@@ -251,6 +275,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                     if (token == mBackgroundDisplayToken) {
                         mBackgroundApplicationDisplayBounds.set(finalBackgroundBounds);
                     } else if (token == mForegroundDisplayToken) {
+                        mForegroundApplicationDisplayBounds.set(finalForegroundBounds);
                         animateWindows(token, leash, fromPos, toPos, durationMs);
                     }
                 });
@@ -258,6 +283,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.CONTROL_BAR) {
             WindowContainerTransaction wct = new WindowContainerTransaction();
             updateBackgroundDisplayBounds(wct);
+            applyTransaction(wct);
         }
     }
 

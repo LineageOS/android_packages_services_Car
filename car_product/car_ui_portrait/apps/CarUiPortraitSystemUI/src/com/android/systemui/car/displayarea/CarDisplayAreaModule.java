@@ -23,6 +23,7 @@ import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.dagger.SysUISingleton;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.statusbar.policy.ConfigurationController;
+import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
@@ -51,9 +52,11 @@ public abstract class CarDisplayAreaModule {
             SyncTransactionQueue syncQueue, CarFullscreenTaskListener carFullscreenTaskListener,
             ConfigurationController configurationController, QSHost host,
             ShellExecutor mainExecutor, CarServiceProvider carServiceProvider,
-            CarDisplayAreaOrganizer organizer) {
+            CarDisplayAreaOrganizer organizer, CarUiPortraitDisplaySystemBarsController
+            carUiPortraitDisplaySystemBarsController) {
         return new CarDisplayAreaController(context, syncQueue, carFullscreenTaskListener,
-                mainExecutor, configurationController, host, carServiceProvider, organizer);
+                mainExecutor, configurationController, host, carServiceProvider, organizer,
+                carUiPortraitDisplaySystemBarsController);
     }
 
     @Provides

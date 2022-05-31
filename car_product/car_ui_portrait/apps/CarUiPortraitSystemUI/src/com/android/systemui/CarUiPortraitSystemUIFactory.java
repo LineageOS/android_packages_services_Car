@@ -43,6 +43,8 @@ public class CarUiPortraitSystemUIFactory extends CarSystemUIFactory {
         boolean isSystemUser = UserHandle.myUserId() == UserHandle.USER_SYSTEM;
         return ((CarUiPortraitSysUIComponent.Builder) sysUIBuilder).setRootTaskDisplayAreaOrganizer(
                 isSystemUser ? Optional.of(carWm.getRootTaskDisplayAreaOrganizer())
-                        : Optional.empty());
+                        : Optional.empty())
+                .setCarUiPortraitDisplaySystemBarsController(
+                        carWm.getCarUiPortraitDisplaySystemBarsController());
     }
 }
