@@ -160,7 +160,7 @@ public class DisplayAreaComponent extends CoreStartable {
      * DEFAULT state where maps are shown above DA for default apps.
      */
     public enum FOREGROUND_DA_STATE {
-        CONTROL_BAR, DEFAULT, FULL
+        CONTROL_BAR, DEFAULT, FULL, FULL_TO_DEFAULT
     }
 
     private static void logIfDebuggable(String message) {
