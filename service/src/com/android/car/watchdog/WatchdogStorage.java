@@ -558,12 +558,14 @@ public final class WatchdogStorage {
         public final @UserIdInt int userId;
         public final String packageName;
         public final @KillableState int killableState;
+        public final long killableStateLastModifiedEpochSeconds;
 
         UserPackageSettingsEntry(@UserIdInt int userId, String packageName,
-                @KillableState int killableState) {
+                @KillableState int killableState, long killableStateLastModifiedEpochSeconds) {
             this.userId = userId;
             this.packageName = packageName;
             this.killableState = killableState;
+            this.killableStateLastModifiedEpochSeconds = killableStateLastModifiedEpochSeconds;
         }
 
         @Override
@@ -666,6 +668,8 @@ public final class WatchdogStorage {
         public static final String COLUMN_PACKAGE_NAME = "package_name";
         public static final String COLUMN_USER_ID = "user_id";
         public static final String COLUMN_KILLABLE_STATE = "killable_state";
+        public static final String COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH =
+                "killable_state_last_modified_epoch";
 
         public static void createTable(SQLiteDatabase db) {
             StringBuilder createCommand = new StringBuilder();
@@ -680,6 +684,7 @@ public final class WatchdogStorage {
                     .append(COLUMN_PACKAGE_NAME).append(" TEXT NOT NULL, ")
                     .append(COLUMN_USER_ID).append(" INTEGER NOT NULL, ")
                     .append(COLUMN_KILLABLE_STATE).append(" INTEGER NOT NULL, ")
+                    .append(COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH).append(" INTEGER NOT NULL, ")
                     .append("UNIQUE(").append(COLUMN_PACKAGE_NAME)
                     .append(", ").append(COLUMN_USER_ID).append("))");
             db.execSQL(createCommand.toString());
@@ -690,6 +695,8 @@ public final class WatchdogStorage {
         public static boolean updateEntry(SQLiteDatabase db, UserPackageSettingsEntry entry) {
             ContentValues values = new ContentValues();
             values.put(COLUMN_KILLABLE_STATE, entry.killableState);
+            values.put(COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH,
+                    entry.killableStateLastModifiedEpochSeconds);
 
             StringBuilder whereClause = new StringBuilder(COLUMN_PACKAGE_NAME).append(" = ? AND ")
                             .append(COLUMN_USER_ID).append(" = ?");
@@ -708,6 +715,8 @@ public final class WatchdogStorage {
             values.put(COLUMN_USER_ID, entry.userId);
             values.put(COLUMN_PACKAGE_NAME, entry.packageName);
             values.put(COLUMN_KILLABLE_STATE, entry.killableState);
+            values.put(COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH,
+                    entry.killableStateLastModifiedEpochSeconds);
 
             if (db.replaceOrThrow(UserPackageSettingsTable.TABLE_NAME, null, values) == -1) {
                 Slogf.e(TAG, "Failed to replaced %s entry [%s]", TABLE_NAME, values);
@@ -722,7 +731,8 @@ public final class WatchdogStorage {
                     .append(COLUMN_USER_PACKAGE_ID).append(", ")
                     .append(COLUMN_USER_ID).append(", ")
                     .append(COLUMN_PACKAGE_NAME).append(", ")
-                    .append(COLUMN_KILLABLE_STATE)
+                    .append(COLUMN_KILLABLE_STATE).append(", ")
+                    .append(COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH)
                     .append(" FROM ").append(TABLE_NAME);
 
             try (Cursor cursor = db.rawQuery(queryBuilder.toString(), new String[]{})) {
@@ -730,7 +740,8 @@ public final class WatchdogStorage {
                         cursor.getCount());
                 while (cursor.moveToNext()) {
                     entriesById.put(cursor.getString(0), new UserPackageSettingsEntry(
-                            cursor.getInt(1), cursor.getString(2), cursor.getInt(3)));
+                            cursor.getInt(1), cursor.getString(2), cursor.getInt(3),
+                            cursor.getInt(4)));
                 }
                 return entriesById;
             }
@@ -1259,7 +1270,7 @@ public final class WatchdogStorage {
     static final class WatchdogDbHelper extends SQLiteOpenHelper {
         public static final String DATABASE_NAME = "car_watchdog.db";
 
-        private static final int DATABASE_VERSION = 2;
+        private static final int DATABASE_VERSION = 3;
 
         private ZonedDateTime mLatestShrinkDate;
         private TimeSource mTimeSource;
@@ -1305,16 +1316,29 @@ public final class WatchdogStorage {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int currentVersion) {
-            if (oldVersion != 1) {
+            if (oldVersion < 1 || oldVersion > 2) {
                 return;
             }
-            // Upgrade logic from version 1 to 2.
+            // Upgrade logic from version 1 to 3.
             int upgradeVersion = oldVersion;
             db.beginTransaction();
             try {
-                upgradeToVersion2(db);
+                while (upgradeVersion < currentVersion) {
+                    switch (upgradeVersion) {
+                        case 1:
+                            upgradeToVersion2(db);
+                            break;
+                        case 2:
+                            upgradeToVersion3(db);
+                            break;
+                        default:
+                            String errorMsg = "Tried upgrading to an invalid database version: "
+                                    + upgradeVersion + " (current version: " + currentVersion + ")";
+                            throw new IllegalStateException(errorMsg);
+                    }
+                    upgradeVersion++;
+                }
                 db.setTransactionSuccessful();
-                upgradeVersion = currentVersion;
                 Slogf.i(TAG, "Successfully upgraded database from version %d to %d", oldVersion,
                         upgradeVersion);
             } finally {
@@ -1325,6 +1349,62 @@ public final class WatchdogStorage {
                         + "Attempting to recreate database.", oldVersion, currentVersion);
                 recreateDatabase(db);
             }
+        }
+
+        /**
+         * Upgrades the given {@code db} to version {@code 3}.
+         *
+         * <p>Entries from {@link UserPackageSettingsTable} and {@link IoUsageStatsTable} are
+         * migrated to version 3. The {@code killable_sate_modified_date} column is initialized with
+         * the epoch seconds at {@code UserPackageSettingTable} table creation.
+         */
+        private void upgradeToVersion3(SQLiteDatabase db) {
+            Slogf.i(TAG, "Upgrading car watchdog database to version 3.");
+            String oldUserPackageSettingsTable = UserPackageSettingsTable.TABLE_NAME + "_old_v2";
+            StringBuilder execSql = new StringBuilder("ALTER TABLE ")
+                    .append(UserPackageSettingsTable.TABLE_NAME)
+                    .append(" RENAME TO ").append(oldUserPackageSettingsTable);
+            db.execSQL(execSql.toString());
+
+            String oldIoUsageStatsTable = IoUsageStatsTable.TABLE_NAME + "_old_v2";
+            execSql = new StringBuilder("ALTER TABLE ")
+                    .append(IoUsageStatsTable.TABLE_NAME)
+                    .append(" RENAME TO ").append(oldIoUsageStatsTable);
+            db.execSQL(execSql.toString());
+
+            UserPackageSettingsTable.createTable(db);
+            IoUsageStatsTable.createTable(db);
+
+            // The COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH takes on the epoch seconds at which the
+            // migration occurs.
+            execSql = new StringBuilder("INSERT INTO ").append(UserPackageSettingsTable.TABLE_NAME)
+                    .append(" (")
+                    .append(UserPackageSettingsTable.COLUMN_USER_PACKAGE_ID).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_PACKAGE_NAME).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_USER_ID).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_KILLABLE_STATE).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_KILLABLE_STATE_LAST_MODIFIED_EPOCH)
+                    .append(") ")
+                    .append("SELECT ").append(UserPackageSettingsTable.COLUMN_USER_PACKAGE_ID)
+                    .append(", ").append(UserPackageSettingsTable.COLUMN_PACKAGE_NAME)
+                    .append(", ").append(UserPackageSettingsTable.COLUMN_USER_ID).append(", ")
+                    .append(UserPackageSettingsTable.COLUMN_KILLABLE_STATE).append(", ")
+                    .append(mTimeSource.getCurrentDate().toEpochSecond()).append(" FROM ")
+                    .append(oldUserPackageSettingsTable);
+            db.execSQL(execSql.toString());
+
+            execSql = new StringBuilder("DROP TABLE IF EXISTS ")
+                    .append(oldUserPackageSettingsTable);
+            db.execSQL(execSql.toString());
+
+            execSql = new StringBuilder("INSERT INTO ").append(IoUsageStatsTable.TABLE_NAME)
+                    .append(" SELECT * FROM ").append(oldIoUsageStatsTable);
+            db.execSQL(execSql.toString());
+
+            execSql = new StringBuilder("DROP TABLE IF EXISTS ")
+                    .append(oldIoUsageStatsTable);
+            db.execSQL(execSql.toString());
+            Slogf.i(TAG, "Successfully upgraded car watchdog database to version 3.");
         }
 
         /**
@@ -1349,7 +1429,7 @@ public final class WatchdogStorage {
                     .append(IoUsageStatsTable.TABLE_NAME);
             db.execSQL(execSql.toString());
 
-            UserPackageSettingsTable.createTable(db);
+            createUserPackageSettingsTableV2(db);
             IoUsageStatsTable.createTable(db);
 
             execSql = new StringBuilder("INSERT INTO ").append(UserPackageSettingsTable.TABLE_NAME)
@@ -1365,6 +1445,25 @@ public final class WatchdogStorage {
             execSql = new StringBuilder("DROP TABLE IF EXISTS ")
                     .append(oldUserPackageSettingsTable);
             db.execSQL(execSql.toString());
+        }
+
+        public static void createUserPackageSettingsTableV2(SQLiteDatabase db) {
+            StringBuilder createCommand = new StringBuilder();
+            createCommand.append("CREATE TABLE ").append(UserPackageSettingsTable.TABLE_NAME)
+                    .append(" (")
+                    .append(UserPackageSettingsTable.COLUMN_USER_PACKAGE_ID)
+                    .append(" INTEGER PRIMARY KEY AUTOINCREMENT, ")
+                    .append(UserPackageSettingsTable.COLUMN_PACKAGE_NAME)
+                    .append(" TEXT NOT NULL, ")
+                    .append(UserPackageSettingsTable.COLUMN_USER_ID)
+                    .append(" INTEGER NOT NULL, ")
+                    .append(UserPackageSettingsTable.COLUMN_KILLABLE_STATE)
+                    .append(" INTEGER NOT NULL, ")
+                    .append("UNIQUE(").append(UserPackageSettingsTable.COLUMN_PACKAGE_NAME)
+                    .append(", ").append(UserPackageSettingsTable.COLUMN_USER_ID).append("))");
+            db.execSQL(createCommand.toString());
+            Slogf.i(TAG, "Successfully created the %s table in the %s database version %d",
+                    UserPackageSettingsTable.TABLE_NAME, WatchdogDbHelper.DATABASE_NAME, 2);
         }
 
         private void recreateDatabase(SQLiteDatabase db) {

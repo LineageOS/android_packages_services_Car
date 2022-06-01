@@ -207,6 +207,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     private static final int IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES = 500 * 1024 * 1024;
     private static final long STATS_DURATION_SECONDS = 3 * 60 * 60;
     private static final long SYSTEM_DAILY_IO_USAGE_SUMMARY_MULTIPLIER = 10_000;
+    private static final int PACKAGE_KILLABLE_STATE_RESET_DAYS = 90;
 
     @Mock private Context mMockContext;
     @Mock private Context mMockBuiltinPackageContext;
@@ -268,8 +269,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             new ArrayMap<>();
     private final ArraySet<String> mDisabledUserPackages = new ArraySet<>();
     private final SparseArray<String> mDisabledPackagesSettingsStringByUserid = new SparseArray<>();
-    private final List<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
-            new ArrayList<>();
+    private final Set<WatchdogStorage.UserPackageSettingsEntry> mUserPackageSettingsEntries =
+            new ArraySet<>();
     private final List<WatchdogStorage.IoUsageStatsEntry> mIoUsageStatsEntries = new ArrayList<>();
     private final List<AtomsProto.CarWatchdogSystemIoUsageSummary> mPulledSystemIoUsageSummaries =
             new ArrayList<>();
@@ -307,16 +308,19 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 CarWatchdogServiceUnitTest.class.getCanonicalName());
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.recurringResourceOverusePeriodInDays)))
+                com.android.car.R.integer.watchdogUserPackageSettingsResetDays))
+                .thenReturn(PACKAGE_KILLABLE_STATE_RESET_DAYS);
+        when(mMockResources.getInteger(
+                com.android.car.R.integer.recurringResourceOverusePeriodInDays))
                 .thenReturn(RECURRING_OVERUSE_PERIOD_IN_DAYS);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.recurringResourceOveruseTimes)))
+                com.android.car.R.integer.recurringResourceOveruseTimes))
                 .thenReturn(RECURRING_OVERUSE_TIMES);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.uidIoUsageSummaryTopCount)))
+                com.android.car.R.integer.uidIoUsageSummaryTopCount))
                 .thenReturn(UID_IO_USAGE_SUMMARY_TOP_COUNT);
         when(mMockResources.getInteger(
-                eq(com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes)))
+                com.android.car.R.integer.ioUsageSummaryMinSystemTotalWrittenBytes))
                 .thenReturn(IO_USAGE_SUMMARY_MIN_SYSTEM_TOTAL_WRITTEN_BYTES);
         doReturn(mMockSystemInterface)
                 .when(() -> CarLocalServices.getService(SystemInterface.class));
@@ -1804,6 +1808,80 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testResetPackageKillableStateDuringBootup() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101);
+        injectPackageInfos(Collections.singletonList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null)));
+
+        mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS);
+        UserHandle userHandle = UserHandle.of(101);
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package", userHandle,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS / 2);
+        restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 1,
+                /* isWriteIoStats= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        restartService(/* totalRestarts= */ 2, /* wantedDbWrites= */ 2,
+                /* isWriteIoStats= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
+    public void testResetPackageKillableStateDuringDateChange() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101);
+        injectPackageInfos(Collections.singletonList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null)));
+
+        UserHandle userHandle = UserHandle.of(101);
+
+        // Reset the latest reported date
+        mTimeSource.updateNow(PACKAGE_KILLABLE_STATE_RESET_DAYS);
+        restartService(/* totalRestarts= */ 1, /* wantedDbWrites= */ 0);
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package", userHandle,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        // Random I/O overuse stats
+        List<PackageIoOveruseStats> packageIoOveruseStats = Collections.singletonList(
+                constructPackageIoOveruseStats(123456, /* shouldNotify= */ true,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 3)));
+
+        mTimeSource.updateNow(/* numDaysAgo= */ 0);
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        PackageKillableStateSubject
+                .assertThat(mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
     public void testGetPackageKillableStatesAsUser() throws Exception {
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
         injectPackageInfos(Arrays.asList(
@@ -2628,10 +2706,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 Arrays.asList(
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 100,
                                 "system_package",
-                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES),
+                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES,
+                                /* lastModifiedKillableStateEpoch= */ 123456789),
                         new WatchdogStorage.UserPackageSettingsEntry(/* userId= */ 100,
                                 "third_party_package",
-                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES));
+                                /* killableState= */ PackageKillableState.KILLABLE_STATE_YES,
+                                /* lastModifiedKillableStateEpoch= */ 123456789));
 
         List<WatchdogStorage.IoUsageStatsEntry> expectedSavedIoUsageEntries = Arrays.asList(
                 new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 100, "system_package",
@@ -3966,7 +4046,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             }
             return ioUsageStatsEntries.size();
         }).when(mSpiedWatchdogStorage).saveIoUsageStats(any());
-        doReturn(mUserPackageSettingsEntries).when(mSpiedWatchdogStorage).getUserPackageSettings();
+        doAnswer((args) -> {
+            List<WatchdogStorage.UserPackageSettingsEntry> entries =
+                    new ArrayList<>(mUserPackageSettingsEntries.size());
+            entries.addAll(mUserPackageSettingsEntries);
+            return entries;
+        }).when(mSpiedWatchdogStorage).getUserPackageSettings();
         doReturn(mIoUsageStatsEntries).when(mSpiedWatchdogStorage).getTodayIoUsageStats();
         doReturn(List.of()).when(mSpiedWatchdogStorage)
                 .getNotForgivenHistoricalIoOveruses(RECURRING_OVERUSE_PERIOD_IN_DAYS);
@@ -4008,11 +4093,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void restartService(int totalRestarts, int wantedDbWrites) throws Exception {
+        restartService(totalRestarts, wantedDbWrites, /* isWriteIoStats= */ true);
+    }
+
+    private void restartService(int totalRestarts, int wantedDbWrites, boolean isWriteIoStats)
+            throws Exception {
         setCarPowerState(CarPowerManager.STATE_SHUTDOWN_PREPARE);
         setCarPowerState(CarPowerManager.STATE_SHUTDOWN_ENTER);
         mCarWatchdogService.release();
         verify(mSpiedWatchdogStorage, times(totalRestarts)).startWrite();
-        verify(mSpiedWatchdogStorage, times(wantedDbWrites)).saveIoUsageStats(any());
+        verify(mSpiedWatchdogStorage, times(isWriteIoStats ? wantedDbWrites : 0))
+                .saveIoUsageStats(any());
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).saveUserPackageSettings(any());
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).markWriteSuccessful();
         verify(mSpiedWatchdogStorage, times(wantedDbWrites)).endWrite();

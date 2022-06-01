@@ -178,6 +178,11 @@
     <integer name="maxExcessiveIoSamplesInWindow">11</integer>
 
     <!-- The number of days past until the current day considered by car watchdog to
+         reset the killable state of a package back to KILLABLE_STATE_YES if the package
+         was set to prioritize performance by the user. -->
+    <integer name="watchdogUserPackageSettingsResetDays">90</integer>
+
+    <!-- The number of days past until the current day considered by car watchdog to
          attribute recurring overuse to a package.  -->
     <integer name="recurringResourceOverusePeriodInDays">14</integer>
 
