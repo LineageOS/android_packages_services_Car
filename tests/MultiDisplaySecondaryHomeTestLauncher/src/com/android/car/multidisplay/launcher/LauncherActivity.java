@@ -23,9 +23,11 @@ import android.animation.AnimatorListenerAdapter;
 import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Application;
+import android.app.WallpaperManager;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -64,7 +66,7 @@ import java.util.Set;
  * Main launcher activity. It's launch mode is configured as "singleTop" to allow showing on
  * multiple displays and to ensure a single instance per each display.
  */
-public class LauncherActivity extends FragmentActivity implements AppPickedCallback,
+public final class LauncherActivity extends FragmentActivity implements AppPickedCallback,
         PopupMenu.OnMenuItemClickListener {
 
     private static final String TAG = LauncherActivity.class.getSimpleName();
@@ -80,17 +82,28 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
     private CircularRevealCardView mAppDrawerView;
     private FloatingActionButton mFab;
     private CheckBox mNewInstanceCheckBox;
+    private TextDrawable mBackgroundDrawable;
 
+    private boolean mIsWallpaperSupported;
     private boolean mAppDrawerShown;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        WallpaperManager wallpaperMgr = getSystemService(WallpaperManager.class);
+        mIsWallpaperSupported = wallpaperMgr != null && wallpaperMgr.isWallpaperSupported();
+        Log.d(TAG, "Creating for user " + getUserId() + ". Wallpaper supported: "
+                + mIsWallpaperSupported);
         setContentView(R.layout.activity_main);
 
         mRootView = findViewById(R.id.RootView);
         mScrimView = findViewById(R.id.Scrim);
         mAppDrawerView = findViewById(R.id.FloatingSheet);
+
+        mBackgroundDrawable = new TextDrawable(this, Color.WHITE, /* defaultSize= */ 150,
+                "User #" + getUserId());
+        mRootView.setBackground(mBackgroundDrawable);
 
         // get system insets and apply padding accordingly to the content view
         mRootView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
@@ -154,6 +167,9 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
             popup.setOnMenuItemClickListener(this);
             MenuInflater inflater = popup.getMenuInflater();
             inflater.inflate(R.menu.context_menu, popup.getMenu());
+            if (!mIsWallpaperSupported) {
+                popup.getMenu().findItem(R.id.set_wallpaper).setEnabled(false);
+            }
             popup.show();
         });
     }
@@ -171,6 +187,10 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
             case R.id.set_wallpaper:
                 Intent intent = new Intent(Intent.ACTION_SET_WALLPAPER);
                 startActivity(Intent.createChooser(intent, getString(R.string.set_wallpaper)));
+                return true;
+            case R.id.exit:
+                Log.i(TAG, "So long, and thanks for all the fish...");
+                finish();
                 return true;
             default:
                 return true;
@@ -299,6 +319,7 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         }
         String prefix2 = prefix + "  ";
         writer.printf("%smUser: %s\n", prefix, getUserId());
+        writer.printf("%smmIsWallpaperSupported: %s\n", prefix, mIsWallpaperSupported);
         writer.printf("%smDisplaySpinner: %s\n", prefix, mDisplaySpinner);
         writer.printf("%smDisplayAdapter:\n", prefix);
         SantasLittleHelper.dump(mDisplayAdapter, prefix2, writer);
@@ -313,6 +334,8 @@ public class LauncherActivity extends FragmentActivity implements AppPickedCallb
         writer.printf("%smFab: %s\n", prefix, mFab);
         writer.printf("%smNewInstanceCheckBox: %s\n", prefix, mNewInstanceCheckBox);
         writer.printf("%smAppDrawerShown: %s\n", prefix, mAppDrawerShown);
+        writer.printf("%smBackgroundDrawable:\n", prefix);
+        mBackgroundDrawable.dump(prefix2, writer);
     }
 
     /**
