@@ -16,6 +16,9 @@
 
 package com.android.car.power;
 
+import static android.car.hardware.power.CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
+import static android.car.hardware.power.CarPowerManager.STATE_SHUTDOWN_PREPARE;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -373,7 +376,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mBinderHandler.unlinkToDeath();
         }
         synchronized (mLock) {
-            cancelWaitingForCompletion();
+            clearWaitingForCompletion(/* clearQueue= */ false);
             mCurrentState = null;
             mCarPowerPolicyDaemon = null;
             mHandler.cancelAll();
@@ -467,15 +470,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandlePowerStateChange() {
-        CpmsState state;
+        CpmsState newState;
+        CpmsState prevState;
         synchronized (mLock) {
-            state = mPendingPowerStates.pollFirst();
-            if (state == null) {
+            prevState = mCurrentState;
+            newState = mPendingPowerStates.pollFirst();
+            if (newState == null) {
                 Slogf.w(TAG, "No more power state to process");
                 return;
             }
-            Slogf.i(TAG, "doHandlePowerStateChange: newState=%s", state.name());
-            if (!needPowerStateChangeLocked(state)) {
+            Slogf.i(TAG, "doHandlePowerStateChange: newState=%s", newState.name());
+            if (!needPowerStateChangeLocked(newState)) {
                 // We may need to process the pending power state request.
                 if (!mPendingPowerStates.isEmpty()) {
                     Slogf.i(TAG, "There is a pending power state change request. requesting the "
@@ -484,32 +489,44 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
                 return;
             }
+
             // now real power change happens. Whatever was queued before should be all cancelled.
             mPendingPowerStates.clear();
-            cancelWaitingForCompletion();
-            mCurrentState = state;
+
+            // Received updated SHUTDOWN_PREPARE there could be several reasons for that
+            //  1. CPMS is in SHUTDOWN_PREPARE, and received state change to perform transition
+            //     from PRE_SHUTDOWN_PREPARE into SHUTDOWN_PREPARE
+            //  2. New SHUTDOWN_PREPARE request is received, and it is different from existing one.
+            if (newState.mState == CpmsState.SHUTDOWN_PREPARE && newState.mState == prevState.mState
+                    && newState.mCarPowerStateListenerState == STATE_PRE_SHUTDOWN_PREPARE) {
+                // Nothing to do here, skipping clearing completion queue
+            } else {
+                clearWaitingForCompletion(/* clearQueue= */ false);
+            }
+
+            mCurrentState = newState;
         }
         mHandler.cancelProcessingComplete();
 
-        Slogf.i(TAG, "setCurrentState %s", state);
-        CarStatsLogHelper.logPowerState(state.mState);
-        EventLogHelper.writeCarPowerManagerStateChange(state.mState);
-        switch (state.mState) {
+        Slogf.i(TAG, "setCurrentState %s", newState);
+        CarStatsLogHelper.logPowerState(newState.mState);
+        EventLogHelper.writeCarPowerManagerStateChange(newState.mState);
+        switch (newState.mState) {
             case CpmsState.WAIT_FOR_VHAL:
-                handleWaitForVhal(state);
+                handleWaitForVhal(newState);
                 break;
             case CpmsState.ON:
                 handleOn();
                 break;
             case CpmsState.SHUTDOWN_PREPARE:
-                handleShutdownPrepare(state);
+                handleShutdownPrepare(newState, prevState);
                 break;
             case CpmsState.SIMULATE_SLEEP:
             case CpmsState.SIMULATE_HIBERNATION:
-                simulateShutdownPrepare(state);
+                simulateShutdownPrepare(newState, prevState);
                 break;
             case CpmsState.WAIT_FOR_FINISH:
-                handleWaitForFinish(state);
+                handleWaitForFinish(newState);
                 break;
             case CpmsState.SUSPEND:
                 // Received FINISH from VHAL
@@ -662,24 +679,39 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
     }
 
-    private void handleShutdownPrepare(CpmsState newState) {
-        switch (newState.mCarPowerStateListenerState) {
+    private void handleShutdownPrepare(CpmsState currentState, CpmsState prevState) {
+        switch (currentState.mCarPowerStateListenerState) {
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
-                handlePreShutdownPrepare(newState);
+                updateShutdownPrepareStatus(currentState);
+                if (prevState.mCarPowerStateListenerState == STATE_SHUTDOWN_PREPARE) {
+                    // Received request to update SHUTDOWN target
+                    currentState = new CpmsState(currentState.mState,
+                            prevState.mCarPowerStateListenerState,
+                            prevState.mCanPostpone, currentState.mShutdownType);
+                    synchronized (mLock) {
+                        mCurrentState = currentState;
+                    }
+                    clearWaitingForCompletion(/* clearQueue= */ true);
+                } else if (prevState.mCarPowerStateListenerState == STATE_PRE_SHUTDOWN_PREPARE) {
+                    // Update of state occurred while in PRE_SHUTDOWN_PREPARE
+                    // shutdown target was updated above, nothing to do here
+                    break;
+                } else {
+                    handlePreShutdownPrepare();
+                }
                 break;
             case CarPowerManager.STATE_SHUTDOWN_PREPARE:
                 handleCoreShutdownPrepare();
                 break;
             default:
                 Slogf.w(TAG, "Not supported listener state(%d)",
-                        newState.mCarPowerStateListenerState);
+                        currentState.mCarPowerStateListenerState);
         }
     }
 
-    private void handlePreShutdownPrepare(CpmsState newState) {
+    private void updateShutdownPrepareStatus(CpmsState newState) {
         // Shutdown on finish if the system doesn't support deep sleep/hibernation
         // or doesn't allow it.
-        int intervalMs;
         synchronized (mLock) {
             if (mShutdownOnNextSuspend
                     || newState.mShutdownType == PowerState.SHUTDOWN_TYPE_POWER_OFF) {
@@ -698,10 +730,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Slogf.wtf(TAG, "handleShutdownPrepare - incorrect state " + newState);
             }
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
-            intervalMs = mShutdownPollingIntervalMs;
         }
-        Slogf.i(TAG, newState.mCanPostpone ? "starting shutdown prepare with Garage Mode"
-                : "starting shutdown prepare without Garage Mode");
+    }
+
+    private void handlePreShutdownPrepare() {
+        int intervalMs;
+        synchronized (mLock) {
+            intervalMs = mShutdownPollingIntervalMs;
+            Slogf.i(TAG,
+                    mGarageModeShouldExitImmediately ? "starting shutdown prepare with Garage Mode"
+                            : "starting shutdown prepare without Garage Mode");
+        }
 
         long timeoutMs = getPreShutdownPrepareTimeoutConfig();
         int state = CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE;
@@ -723,9 +762,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     // Simulates system shutdown to suspend
-    private void simulateShutdownPrepare(CpmsState state) {
+    private void simulateShutdownPrepare(CpmsState newState, CpmsState oldState) {
         Slogf.i(TAG, "Simulating shutdown prepare");
-        handleShutdownPrepare(state);
+        handleShutdownPrepare(newState, oldState);
     }
 
     private void doShutdownPrepare() {
@@ -1001,8 +1040,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         executor.shutdown();
     }
 
-    private void cancelWaitingForCompletion() {
-        mIsListenerWaitingCancelled.set(true);
+    private void clearWaitingForCompletion(boolean clearQueue) {
+        if (clearQueue) {
+            synchronized (mLock) {
+                mListenersWeAreWaitingFor.clear();
+            }
+        } else {
+            mIsListenerWaitingCancelled.set(true);
+        }
+
         mListenerCompletionSem.release();
     }
 
@@ -1177,7 +1223,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void doHandleProcessingComplete() {
         int listenerState = CarPowerManager.STATE_SHUTDOWN_ENTER;
         synchronized (mLock) {
-            cancelWaitingForCompletion();
+            clearWaitingForCompletion(/* clearQueue= */ false);
             boolean shutdownOnFinish = (mActionOnFinish == ACTION_ON_FINISH_SHUTDOWN);
             if (!shutdownOnFinish && mLastSleepEntryTime > mShutdownStartTime) {
                 // entered sleep after processing start. So this could be duplicate request.
@@ -1967,6 +2013,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             this.mShutdownType = state == SIMULATE_SLEEP ? PowerState.SHUTDOWN_TYPE_DEEP_SLEEP :
                     (state == SIMULATE_HIBERNATION ? PowerState.SHUTDOWN_TYPE_HIBERNATION
                             : PowerState.SHUTDOWN_TYPE_POWER_OFF);
+        }
+
+        CpmsState(int state, int carPowerStateListenerState, boolean canPostpone,
+                int shutdownType) {
+            this.mCanPostpone = canPostpone;
+            this.mCarPowerStateListenerState = carPowerStateListenerState;
+            this.mState = state;
+            this.mShutdownType = shutdownType;
         }
 
         public String name() {
