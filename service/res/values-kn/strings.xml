@@ -40,9 +40,9 @@
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"ಕಾರಿನ ರೇಡಿಯೋವನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇನಲ್ಲಿರುವ ಫೋನ್‌ನಿಂದ ಇಂಟರ್ ಫೇಸ್ ಅನ್ನು ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡಿ"</string>
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇನಲ್ಲಿರುವ ಫೋನ್‌ನಿಂದ ಇಂಟರ್ ಫೇಸ್ ಅನ್ನು ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
-    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ಪ್ರಕ್ಷೇಪಣೆ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
+    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ಪ್ರೊಜೆಕ್ಷನ್ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇಗೆ ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡುವ ಇತರ ಆ್ಯಪ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪಡೆಯಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ಪ್ರಕ್ಷೇಪಣೆ ಸೇವೆಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
     <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಯ ಉನ್ನತ ಮಟ್ಟದ ಇಂಟರ್ ಫೇಸ್‌ಗೆ ಪ್ರತಿಬಂಧಿಸಲು ಮಾಲೀಕರಿಗೆ ಅವಕಾಶ ನೀಡುತ್ತದೆ. ಸಾಮಾನ್ಯ ಆ್ಯಪ್‌ಗಳಿಗೆ ಎಂದಿಗೂ ಅಗತ್ಯವಿರುವುದಿಲ್ಲ."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ಕಾರಿನ ಆಡಿಯೋ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"</string>
