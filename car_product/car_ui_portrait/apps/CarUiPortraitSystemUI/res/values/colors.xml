@@ -46,4 +46,5 @@
 
     <color name="title_bar_display_area_handle_bar_color">#9aa0a6</color>
     <color name="title_bar_display_area_background_color">#ffffff</color>
+    <color name="fullscreen_icon_color">@color/title_bar_display_area_handle_bar_color</color>
 </resources>

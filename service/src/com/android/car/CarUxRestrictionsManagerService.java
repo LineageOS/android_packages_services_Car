@@ -27,6 +27,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -46,6 +47,7 @@ import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.VehicleAreaType;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -92,6 +94,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -115,7 +118,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static final boolean DBG = false;
     private static final int MAX_TRANSITION_LOG_SIZE = 20;
     private static final int PROPERTY_UPDATE_RATE = 5; // Update rate in Hz
-    private static final float SPEED_NOT_AVAILABLE = -1.0F;
 
     private static final int UNKNOWN_JSON_SCHEMA_VERSION = -1;
     private static final int JSON_SCHEMA_VERSION_V1 = 1;
@@ -338,26 +340,22 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 || currentDrivingStateEvent.eventValue == DRIVING_STATE_UNKNOWN) {
             return;
         }
-        int currentDrivingState = currentDrivingStateEvent.eventValue;
-        Float currentSpeed = getCurrentSpeed();
-        if (currentSpeed == SPEED_NOT_AVAILABLE) {
-            return;
-        }
+
         // At this point the underlying CarPropertyService has provided us enough information to
         // compute the UX restrictions that could be potentially different from the initial UX
         // restrictions.
         synchronized (mLock) {
-            handleDispatchUxRestrictionsLocked(currentDrivingState, currentSpeed);
+            handleDrivingStateEventLocked(currentDrivingStateEvent);
         }
     }
 
-    private Float getCurrentSpeed() {
+    private @FloatRange(from = 0f) Optional<Float> getCurrentSpeed() {
         CarPropertyValue value = mCarPropertyService.getPropertySafe(
-                VehicleProperty.PERF_VEHICLE_SPEED, 0);
+                VehicleProperty.PERF_VEHICLE_SPEED, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
         if (value != null && value.getStatus() == CarPropertyValue.STATUS_AVAILABLE) {
-            return Math.abs((Float) value.getValue());
+            return Optional.of(Math.abs((Float) value.getValue()));
         }
-        return SPEED_NOT_AVAILABLE;
+        return Optional.empty();
     }
 
     @Override
@@ -502,8 +500,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             mRestrictionMode = mode;
             logd("Set restriction mode to: " + mode);
 
-            handleDispatchUxRestrictionsLocked(
-                    mDrivingStateService.getCurrentDrivingState().eventValue, getCurrentSpeed());
+            handleDrivingStateEventLocked(mDrivingStateService.getCurrentDrivingState());
         }
         return true;
     }
@@ -677,15 +674,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         synchronized (mLock) {
             if (enable) {
                 // if enabling it back, send the current restrictions
-                mUxRChangeBroadcastEnabled = enable;
-                handleDispatchUxRestrictionsLocked(
-                        mDrivingStateService.getCurrentDrivingState().eventValue,
-                        getCurrentSpeed());
+                mUxRChangeBroadcastEnabled = true;
+                handleDrivingStateEventLocked(
+                        mDrivingStateService.getCurrentDrivingState());
             } else {
                 // fake parked state, so if the system is currently restricted, the restrictions are
                 // relaxed.
-                handleDispatchUxRestrictionsLocked(DRIVING_STATE_PARKED, 0);
-                mUxRChangeBroadcastEnabled = enable;
+                handleDispatchUxRestrictionsLocked(DRIVING_STATE_PARKED, /* speed= */ 0f);
+                mUxRChangeBroadcastEnabled = false;
             }
         }
     }
@@ -751,16 +747,16 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return;
         }
         int drivingState = event.eventValue;
-        Float speed = getCurrentSpeed();
+        Optional<Float> currentSpeed = getCurrentSpeed();
 
-        if (speed != SPEED_NOT_AVAILABLE) {
-            mCurrentMovingSpeed = speed;
-        } else if (drivingState == DRIVING_STATE_PARKED
-                || drivingState == DRIVING_STATE_UNKNOWN) {
+        if (currentSpeed.isPresent()) {
+            mCurrentMovingSpeed = currentSpeed.get();
+            handleDispatchUxRestrictionsLocked(drivingState, mCurrentMovingSpeed);
+        } else if (drivingState != DRIVING_STATE_MOVING) {
             // If speed is unavailable, but the driving state is parked or unknown, it can still be
             // handled.
             logd("Speed null when driving state is: " + drivingState);
-            mCurrentMovingSpeed = 0;
+            handleDispatchUxRestrictionsLocked(drivingState, /* speed= */ 0f);
         } else {
             // If we get here with driving state != parked or unknown && speed == null,
             // something is wrong.  CarDrivingStateService could not have inferred idling or moving
@@ -768,7 +764,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Slogf.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
             return;
         }
-        handleDispatchUxRestrictionsLocked(drivingState, mCurrentMovingSpeed);
     }
 
     /**
@@ -786,7 +781,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                                     && (event.getCarPropertyValue().getPropertyId()
                                     == VehicleProperty.PERF_VEHICLE_SPEED)) {
                                 handleSpeedChangeLocked(
-                                        (Float) event.getCarPropertyValue().getValue());
+                                        Math.abs((Float) event.getCarPropertyValue().getValue()));
                             }
                         }
                     }
@@ -794,18 +789,18 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             };
 
     @GuardedBy("mLock")
-    private void handleSpeedChangeLocked(float newSpeed) {
+    private void handleSpeedChangeLocked(@FloatRange(from = 0f) float newSpeed) {
         if (newSpeed == mCurrentMovingSpeed) {
             // Ignore if speed hasn't changed
             return;
         }
+        mCurrentMovingSpeed = newSpeed;
         int currentDrivingState = mDrivingStateService.getCurrentDrivingState().eventValue;
         if (currentDrivingState != DRIVING_STATE_MOVING) {
             // Ignore speed changes if the vehicle is not moving
             return;
         }
-        mCurrentMovingSpeed = newSpeed;
-        handleDispatchUxRestrictionsLocked(currentDrivingState, newSpeed);
+        handleDispatchUxRestrictionsLocked(currentDrivingState, mCurrentMovingSpeed);
     }
 
     /**
@@ -816,7 +811,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     @GuardedBy("mLock")
     private void handleDispatchUxRestrictionsLocked(@CarDrivingState int currentDrivingState,
-            float speed) {
+            @FloatRange(from = 0f) float speed) {
         Objects.requireNonNull(mCarUxRestrictionsConfigurations,
                 "mCarUxRestrictionsConfigurations must be initialized");
         Objects.requireNonNull(mCurrentUxRestrictions,
