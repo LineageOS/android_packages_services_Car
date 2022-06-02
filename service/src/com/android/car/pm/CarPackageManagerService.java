@@ -60,6 +60,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -123,12 +124,16 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
-
-    static final boolean DBG = false;
+/**
+ * Package manager service for cars.
+ */
+public final class CarPackageManagerService extends ICarPackageManager.Stub
+        implements CarServiceBase {
 
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(CarPackageManagerService.class);
+
+    static final boolean DBG = false;
 
     // Delimiters to parse packages and activities in the configuration XML resource.
     private static final String PACKAGE_DELIMITER = ",";
@@ -1508,6 +1513,54 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                     + " does not have the right signature");
         }
         mCarUxRestrictionsService.setUxRChangeBroadcastEnabled(enable);
+    }
+    @Override
+    public int getTargetCarMajorVersion(String packageName) {
+        return getTargetCarVersion(CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION,
+                packageName);
+    }
+
+    @Override
+    public int getTargetCarMinorVersion(String packageName) {
+        return getTargetCarVersion(CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION,
+                packageName);
+    }
+
+    private int getTargetCarVersion(String metadataAttribute, String packageName) {
+        // TODO(b/228506662): finish implementation:
+        // - check packageName is not null
+        // - don't query, but use a cache (which is update as packages are added / removed)
+        // - get it per user (and pass --user to the Shell command)
+        // - add unit tests
+        // - move permission check to helper method
+        // - dump cache
+
+        String permission = android.Manifest.permission.QUERY_ALL_PACKAGES;
+        if (mContext
+                .checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            Slogf.w(TAG, "getTargetCarVersion(%s, %s): UID %d doesn't have %s permission",
+                    metadataAttribute, packageName, Binder.getCallingUid(), permission);
+            throw new SecurityException("requires permission " + permission);
+        }
+        int version = CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
+        try {
+            ApplicationInfo info = mPackageManager.getApplicationInfo(packageName,
+                    PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA));
+            if (info.metaData != null) {
+                version = info.metaData
+                        .getInt(metadataAttribute, CarPackageManager.CAR_TARGET_VERSION_UNDEFINED);
+            } else if (DBG) {
+                Slogf.d(TAG, "getTargetCarVersion(%s, %s): no metadata", metadataAttribute,
+                        packageName);
+
+            }
+        } catch (NameNotFoundException e) {
+            if (DBG) {
+                Slogf.w(TAG, e, "getTargetCarVersion(%s, %s): not found", metadataAttribute,
+                        packageName);
+            }
+        }
+        return version;
     }
 
     /**

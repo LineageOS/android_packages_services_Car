@@ -172,6 +172,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     // Car object was not created.
     private boolean mIsPendingVoicePlateActivityMappingToDA;
     private boolean mIsControlBarDisplayAreaEmpty = true;
+    private int mControlBarTaskId = -1;
     private final CarServiceProvider mCarServiceProvider;
     private Car mCar;
 
@@ -187,7 +188,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 boolean homeTaskVisible, boolean clearedTask, boolean wasVisible)
                 throws RemoteException {
             super.onActivityRestartAttempt(task, homeTaskVisible, clearedTask, wasVisible);
-            logIfDebuggable("onActivityRestartAttempt " + task);
+            logIfDebuggable("onActivityRestartAttempt: " + task);
             updateForegroundDaVisibility(task);
         }
 
@@ -195,19 +196,14 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         public void onTaskMovedToFront(ActivityManager.RunningTaskInfo taskInfo)
                 throws RemoteException {
             super.onTaskMovedToFront(taskInfo);
-            logIfDebuggable("onTaskMovedToFront " + taskInfo);
+            logIfDebuggable("onTaskMovedToFront: " + taskInfo);
             updateForegroundDaVisibility(taskInfo);
-        }
-
-        @Override
-        public void onTaskCreated(int taskId, ComponentName componentName) throws RemoteException {
-            super.onTaskCreated(taskId, componentName);
         }
 
         @Override
         public void onTaskRemoved(int taskId) throws RemoteException {
             super.onTaskRemoved(taskId);
-            Log.e(TAG, " onTaskRemoved" + taskId);
+            Log.e(TAG, " onTaskRemoved: " + taskId);
             // maybe recover
             if (mActiveTasksOnBackgroundDA != null
                     && mActiveTasksOnBackgroundDA.isEmpty()) {
@@ -215,7 +211,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 relaunchBackgroundApp();
             }
 
-            if (mIsControlBarDisplayAreaEmpty) {
+            if (mIsControlBarDisplayAreaEmpty && taskId == mControlBarTaskId) {
                 relaunchControlBarApp();
             }
         }
@@ -245,7 +241,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
                 @Override
                 public void onTaskVanished(ActivityManager.RunningTaskInfo taskInfo) {
-                    Log.e(TAG, " onTaskVanished" + taskInfo);
+                    Log.e(TAG, " onTaskVanished: " + taskInfo);
                     boolean isBackgroundApp = false;
                     boolean isControlBarApp = false;
                     ComponentName cmp = null;
@@ -749,6 +745,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         if (isControlBar) {
             // we don't want to change the state of the foreground DA when
             // controlbar apps are launched.
+            mControlBarTaskId = taskInfo.taskId;
             return;
         }
 
