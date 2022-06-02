@@ -79,7 +79,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     private final Rect mBackgroundApplicationDisplayBounds = new Rect();
     private final CarDisplayAreaAnimationController mAnimationController;
     private final Handler mHandlerForAnimation;
-    private final Rect mLastVisualDisplayBounds = new Rect();
     private final ArrayMap<WindowContainerToken, SurfaceControl> mDisplayAreaTokenMap =
             new ArrayMap();
     private final Car.CarServiceLifecycleListener mCarServiceLifecycleListener =
@@ -136,16 +135,13 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                     mAnimationController.removeAnimator(animator.getToken());
                     if (mAnimationController.isAnimatorsConsumed()) {
                         WindowContainerTransaction wct = new WindowContainerTransaction();
-
                         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.DEFAULT) {
                             // Foreground DA opens to default height.
                             updateBackgroundDisplayBounds(wct);
-                            applyTransaction(wct);
                         } else if (mToState
                                 == DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT) {
                             updateForegroundDisplayBounds(wct);
                             updateBackgroundDisplayBounds(wct);
-                            applyTransaction(wct);
                         }
                     }
                 }
@@ -197,6 +193,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         return mIsDisplayAreaAnimating;
     }
 
+    // WCT will be queued in updateBackgroundDisplayBounds().
     private void updateForegroundDisplayBounds(WindowContainerTransaction wct) {
         Rect foregroundApplicationDisplayBound = mForegroundApplicationDisplayBounds;
         WindowContainerToken foregroundDisplayToken =
@@ -231,8 +228,12 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                 backgroundDisplayHeightDp);
         wct.setSmallestScreenWidthDp(backgroundDisplayToken,
                 Math.min(backgroundDisplayWidthDp, backgroundDisplayHeightDp));
+        mTransactionQueue.queue(wct);
 
         mTransactionQueue.runInSync(t -> {
+            t.setWindowCrop(mBackgroundApplicationDisplay.getLeash(),
+                    backgroundApplicationDisplayBound.width(),
+                    backgroundApplicationDisplayBound.height());
             t.setPosition(mBackgroundApplicationDisplay.getLeash(),
                     backgroundApplicationDisplayBound.left,
                     backgroundApplicationDisplayBound.top);
@@ -283,7 +284,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.CONTROL_BAR) {
             WindowContainerTransaction wct = new WindowContainerTransaction();
             updateBackgroundDisplayBounds(wct);
-            applyTransaction(wct);
         }
     }
 
@@ -291,8 +291,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
             float toPos, int durationMs) {
         CarDisplayAreaAnimationController.CarDisplayAreaTransitionAnimator
                 animator =
-                mAnimationController.getAnimator(token, leash, fromPos, toPos,
-                        mLastVisualDisplayBounds);
+                mAnimationController.getAnimator(token, leash, fromPos, toPos);
 
 
         if (animator != null) {
