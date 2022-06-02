@@ -3205,6 +3205,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         Context userContext = getContextForUser(userId);
         for (int i = firstAppArg; i < args.length; i++) {
             String app = args[i];
+            // TODO(b/228506662): handle when it's not found
             int majorVersion = CarPackageManagerService.getTargetCarVersion(userContext,
                     CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION, app);
             int minorVersion = CarPackageManagerService.getTargetCarVersion(userContext,
