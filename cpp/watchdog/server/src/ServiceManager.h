@@ -25,26 +25,50 @@
 
 #include <android-base/result.h>
 #include <utils/Looper.h>
+#include <utils/RefBase.h>
 #include <utils/StrongPointer.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-class ServiceManager final {
+// Manages all the services that are run by the car watchdog daemon.
+class ServiceManager final : virtual public android::RefBase {
 public:
-    static android::base::Result<void> startServices(const android::sp<Looper>& looper);
-    static android::base::Result<void> startBinderMediator();
-    static void terminateServices();
+    ServiceManager() :
+          mWatchdogProcessService(nullptr),
+          mWatchdogPerfService(nullptr),
+          mWatchdogBinderMediator(nullptr),
+          mWatchdogServiceHelper(nullptr) {}
+
+    static android::sp<ServiceManager> getInstance() {
+        if (sServiceManager == nullptr) {
+            sServiceManager = android::sp<ServiceManager>::make();
+        }
+        return sServiceManager;
+    }
+
+    static void terminate() {
+        if (sServiceManager == nullptr) {
+            return;
+        }
+        sServiceManager->terminateServices();
+        sServiceManager.clear();
+    }
+
+    android::base::Result<void> startServices(const android::sp<Looper>& mainLooper);
 
 private:
-    static android::base::Result<void> startProcessAnrMonitor(const android::sp<Looper>& looper);
-    static android::base::Result<void> startPerfService();
+    inline static android::sp<ServiceManager> sServiceManager = nullptr;
 
-    static android::sp<WatchdogProcessServiceInterface> sWatchdogProcessService;
-    static android::sp<WatchdogPerfServiceInterface> sWatchdogPerfService;
-    static android::sp<WatchdogBinderMediatorInterface> sWatchdogBinderMediator;
-    static android::sp<WatchdogServiceHelperInterface> sWatchdogServiceHelper;
+    void terminateServices();
+    android::base::Result<void> startWatchdogProcessService(const android::sp<Looper>& mainLooper);
+    android::base::Result<void> startWatchdogPerfService();
+
+    android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
+    android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
+    android::sp<WatchdogBinderMediatorInterface> mWatchdogBinderMediator;
+    android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
 };
 
 }  // namespace watchdog

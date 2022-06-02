@@ -18,47 +18,20 @@
 
 #include "ServiceManager.h"
 
-#include <android-base/chrono_utils.h>
-#include <android-base/properties.h>
-#include <android-base/result.h>
 #include <binder/IPCThreadState.h>
-#include <binder/IServiceManager.h>
 #include <binder/ProcessState.h>
 #include <log/log.h>
 #include <utils/Looper.h>
-
-#include <signal.h>
-
-#include <thread>  // NOLINT(build/c++11)
 
 using ::android::IPCThreadState;
 using ::android::Looper;
 using ::android::ProcessState;
 using ::android::sp;
 using ::android::automotive::watchdog::ServiceManager;
-using ::android::base::Result;
-
-namespace {
 
 const size_t kMaxBinderThreadCount = 16;
 
-}  // namespace
-
 int main(int /*argc*/, char** /*argv*/) {
-    // Set up the looper
-    sp<Looper> looper(Looper::prepare(/*opts=*/0));
-
-    // Start the services
-    auto result = ServiceManager::startServices(looper);
-    if (!result.ok()) {
-        ALOGE("Failed to start services: %s", result.error().message().c_str());
-        ServiceManager::terminateServices();
-        exit(result.error().code());
-    }
-
-    // Wait for the service manager before starting binder mediator.
-    android::base::WaitForProperty("init.svc.servicemanager", "running");
-
     // Set up the binder
     sp<ProcessState> ps(ProcessState::self());
     ps->setThreadPoolMaxThreadCount(kMaxBinderThreadCount);
@@ -66,19 +39,22 @@ int main(int /*argc*/, char** /*argv*/) {
     ps->giveThreadPoolName();
     IPCThreadState::self()->disableBackgroundScheduling(true);
 
-    result = ServiceManager::startBinderMediator();
+    sp<Looper> mainLooper(Looper::prepare(/*opts=*/0));
+
+    auto result = ServiceManager::getInstance()->startServices(mainLooper);
     if (!result.ok()) {
-        ALOGE("Failed to start binder mediator: %s", result.error().message().c_str());
-        ServiceManager::terminateServices();
+        ALOGE("Failed to start services: %s", result.error().message().c_str());
+        ServiceManager::terminate();
         exit(result.error().code());
     }
 
     // Loop forever -- the health check runs on this thread in a handler, and the binder calls
     // remain responsive in their pool of threads.
     while (true) {
-        looper->pollAll(/*timeoutMillis=*/-1);
+        mainLooper->pollAll(/*timeoutMillis=*/-1);
     }
     ALOGW("Car watchdog server escaped from its loop.");
+    ServiceManager::terminate();
 
     return 0;
 }
