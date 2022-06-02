@@ -79,6 +79,18 @@ public class AidlVehiclePropConfigBuilder {
     }
 
     @CheckResult
+    public AidlVehiclePropConfigBuilder setMaxSampleRate(float maxSampleRate) {
+        mConfig.maxSampleRate = maxSampleRate;
+        return this;
+    }
+
+    @CheckResult
+    public AidlVehiclePropConfigBuilder setMinSampleRate(float minSampleRate) {
+        mConfig.minSampleRate = minSampleRate;
+        return this;
+    }
+
+    @CheckResult
     public AidlVehiclePropConfigBuilder setConfigString(String configString) {
         mConfig.configString = configString;
         return this;
