@@ -61,6 +61,7 @@ import com.google.android.car.kitchensink.connectivity.ConnectivityFragment;
 import com.google.android.car.kitchensink.cube.CubesTestFragment;
 import com.google.android.car.kitchensink.diagnostic.DiagnosticTestFragment;
 import com.google.android.car.kitchensink.display.DisplayInfoFragment;
+import com.google.android.car.kitchensink.display.DisplayMirroringFragment;
 import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
@@ -219,6 +220,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("device policy", DevicePolicyFragment.class),
             new FragmentMenuEntry("diagnostic", DiagnosticTestFragment.class),
             new FragmentMenuEntry("display info", DisplayInfoFragment.class),
+            new FragmentMenuEntry("display mirroring", DisplayMirroringFragment.class),
             new FragmentMenuEntry("experimental feature", ExperimentalFeatureTestFragment.class),
             new FragmentMenuEntry("hvac", HvacTestFragment.class),
             new FragmentMenuEntry("inst cluster", InstrumentClusterFragment.class),
