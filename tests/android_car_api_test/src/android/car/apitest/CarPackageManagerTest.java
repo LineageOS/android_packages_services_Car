@@ -21,13 +21,13 @@ import static org.junit.Assert.assertThrows;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.Build;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 @MediumTest
@@ -59,12 +59,14 @@ public class CarPackageManagerTest extends CarApiTestBase {
                 .that(e.getMessage()).contains(pkg);
     }
 
+    @Ignore("TODO(b/228506662): need to update Car.PLATFORM_API_VERSION on master")
     @Test
     public void testGetTargetCarMajorAndMinorVersion_notSet() throws Exception {
         String pkg = "com.android.car";
-        // TODO(b/228506662): need to add another app that explicitly sets sdkTarget instead, as
-        // car's targetSdk would change on release
-        int targetSdk = Build.VERSION_CODES.CUR_DEVELOPMENT;
+        // TODO(b/228506662): it would be better add another app that explicitly sets sdkTarget
+        // version instead, so it doesn't depend on com.android.car's version (which this test
+        // doesn't control)
+        int targetSdk = Car.PLATFORM_API_VERSION.getMajorVersion();
 
         assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
                 .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
