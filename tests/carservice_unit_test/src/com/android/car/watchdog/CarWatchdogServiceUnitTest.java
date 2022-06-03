@@ -1632,6 +1632,173 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testSetKillablePackageAsUserReenablesPackage() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101);
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting("third_party_package", 101);
+
+        injectPackageInfos(Collections.singletonList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null)));
+
+        UserHandle userHandle = UserHandle.of(101);
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package", userHandle,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(userHandle))
+                .containsExactly(new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package", 101);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+    }
+
+    @Test
+    public void testSetKillablePackageAsUserReenablesPackagesWithSharedUids() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101);
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(anyString(), eq(101));
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "third_party_package.A", 10103456, "third_party_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.B", 10103456, "third_party_shared_package.A")));
+
+        UserHandle userHandle = UserHandle.of(101);
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package.A", userHandle,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(userHandle)).containsExactly(
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.A", 101);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.B", 101);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+    }
+
+    @Test
+    public void testSetKillablePackageAsUserForAllUsersReenablesPackages() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(eq("third_party_package"), anyInt());
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package", 10103456, null),
+                constructPackageManagerPackageInfo("third_party_package", 10203456, null)));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                constructPackageIoOveruseStats(10103456, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 1)),
+                constructPackageIoOveruseStats(10203456, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 1)));
+
+        // Push stats in order to create and cache the usages of the third_party_package
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package", UserHandle.ALL,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package", 102,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package", 101);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package", 102);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
+    }
+
+    @Test
+    public void testSetKillablePackageAsUsersForAllUsersReenablesPackagesWithSharedUids()
+            throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(eq("third_party_package.A"), anyInt());
+        doReturn(COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED).when(mSpiedPackageManager)
+                .getApplicationEnabledSetting(eq("third_party_package.B"), anyInt());
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "third_party_package.A", 10103456, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.B", 10103456, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.A", 10203456, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.B", 10203456, "third_party_shared_package")));
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
+                constructPackageIoOveruseStats(10103456, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 1)),
+                constructPackageIoOveruseStats(10203456, /* shouldNotify= */ false,
+                        /* forgivenWriteBytes= */ constructPerStateBytes(80, 170, 260),
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 1)));
+
+        // Push stats in order to create and cache the usages of the third_party_shared_package
+        pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package.A", UserHandle.ALL,
+                /* isKillable= */ false);
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.A", 102,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 102,
+                        PackageKillableState.KILLABLE_STATE_NO));
+
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.A", 101);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.B", 101);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.A", 102);
+        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.B", 102);
+
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(101), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
+        verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.B"),
+                eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(102), anyString());
+    }
+
+    @Test
     public void testGetPackageKillableStatesAsUser() throws Exception {
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
         injectPackageInfos(Arrays.asList(

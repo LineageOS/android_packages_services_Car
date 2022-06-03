@@ -582,6 +582,7 @@ public final class WatchdogPerfHandler {
             throw new IllegalArgumentException("Package '" + packageName + "' not found");
         }
         String key = getUserPackageUniqueId(userId, genericPackageName);
+        PackageResourceUsage usage;
         synchronized (mLock) {
             // When the queried package is not cached in {@link mUsageByUserPackage}, the set API
             // will update the killable state even when the package should never be killed.
@@ -591,7 +592,7 @@ public final class WatchdogPerfHandler {
             // between the set and the get API calls, the daemon will provide correct killable
             // state when pushing the latest stats. Ergo, the invalid killable state doesn't have
             // any effect.
-            PackageResourceUsage usage = mUsageByUserPackage.get(key);
+            usage = mUsageByUserPackage.get(key);
             if (usage == null) {
                 usage = new PackageResourceUsage(userId, genericPackageName,
                         getDefaultKillableStateLocked(genericPackageName));
@@ -603,6 +604,10 @@ public final class WatchdogPerfHandler {
             }
             mUsageByUserPackage.put(key, usage);
         }
+        if (!isKillable) {
+            int uid = getOrFetchUid(usage, packageName);
+            enablePackageForUser(uid, usage.genericPackageName);
+        }
         mWatchdogStorage.markDirty();
         if (DEBUG) {
             Slogf.d(TAG, "Successfully set killable package state for user %d", userId);
@@ -612,8 +617,9 @@ public final class WatchdogPerfHandler {
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
         int[] userIds = getAliveUserIds();
         String genericPackageName = null;
+        List<PackageResourceUsage> updatedUsages = new ArrayList<>(userIds.length);
         synchronized (mLock) {
-            for (int i = 0; i < userIds.length; ++i) {
+            for (int i = 0; i < userIds.length; i++) {
                 int userId = userIds[i];
                 String name = mPackageInfoHandler.getNameForUserPackage(packageName, userId);
                 if (name == null) {
@@ -630,6 +636,7 @@ public final class WatchdogPerfHandler {
                     throw new IllegalArgumentException(
                             "Package killable state is not updatable");
                 }
+                updatedUsages.add(usage);
             }
             if (genericPackageName != null) {
                 if (!isKillable) {
@@ -638,6 +645,16 @@ public final class WatchdogPerfHandler {
                     mDefaultNotKillableGenericPackages.remove(genericPackageName);
                 }
                 mWatchdogStorage.markDirty();
+            }
+        }
+        // Enabling user packages requires accessing package manager which requires making binder
+        // calls. Binder calls should not be made while holding a lock, given it might lead to
+        // deadlock. Hence, enabling packages after the synchronized block.
+        if (!isKillable) {
+            for (int i = 0; i < updatedUsages.size(); i++) {
+                PackageResourceUsage usage = updatedUsages.get(i);
+                int uid = getOrFetchUid(usage, packageName);
+                enablePackageForUser(uid, usage.genericPackageName);
             }
         }
         if (DEBUG) {
@@ -868,38 +885,16 @@ public final class WatchdogPerfHandler {
                 Slogf.i(TAG,
                         "Reset resource overuse settings and stats for user '%d' package '%s'",
                         usage.userId, usage.genericPackageName);
-                List<String> packages;
-                if (usage.isSharedPackage()) {
-                    int uid = usage.getUid();
-                    if (uid == INVALID_UID) {
-                        // Only enable packages that were disabled by the watchdog service. Ergo, if
-                        // the usage doesn't have a valid UID, the package was not recently disabled
-                        // by the watchdog service (unless the service crashed) and can be safely
-                        // skipped.
-                        Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
-                                usage.genericPackageName);
-                        continue;
-                    }
-                    packages = mPackageInfoHandler.getPackagesForUid(uid, usage.genericPackageName);
-                } else {
-                    packages = Collections.singletonList(usage.genericPackageName);
+                if (usage.isSharedPackage() && usage.getUid() == INVALID_UID) {
+                    // Only enable packages that were disabled by the watchdog service. Ergo, if
+                    // the usage doesn't have a valid UID, the package was not recently disabled
+                    // by the watchdog service (unless the service crashed) and can be safely
+                    // skipped.
+                    Slogf.e(TAG, "Skipping enabling user %d's package %s", usage.userId,
+                            usage.genericPackageName);
+                    continue;
                 }
-                for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
-                    String packageName = packages.get(pkgIdx);
-                    try {
-                        if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
-                                usage.userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
-                            continue;
-                        }
-                        PackageManagerHelper.setApplicationEnabledSettingForUser(
-                                packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0,
-                                usage.userId, mContext.getPackageName());
-                        Slogf.i(TAG, "Enabled user '%d' package '%s'", usage.userId, packageName);
-                    } catch (RemoteException | IllegalArgumentException e) {
-                        Slogf.e(TAG, e, "Failed to verify and enable user %d, package '%s'",
-                                usage.userId, packageName);
-                    }
-                }
+                enablePackageForUser(usage.getUid(), usage.genericPackageName);
             }
         }
     }
@@ -1713,6 +1708,32 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    private void enablePackageForUser(int uid, String genericPackageName) {
+        List<String> packages;
+        if (isSharedPackage(genericPackageName)) {
+            packages = mPackageInfoHandler.getPackagesForUid(uid, genericPackageName);
+        } else {
+            packages = Collections.singletonList(genericPackageName);
+        }
+        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
+        for (int i = 0; i < packages.size(); i++) {
+            String packageName = packages.get(i);
+            try {
+                if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
+                        userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                    continue;
+                }
+                PackageManagerHelper.setApplicationEnabledSettingForUser(
+                        packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, userId,
+                        mContext.getPackageName());
+                Slogf.i(TAG, "Enabled user '%d' package '%s'", userId, packageName);
+            } catch (RemoteException | IllegalArgumentException e) {
+                Slogf.e(TAG, e, "Failed to verify and enable user %d, package '%s'", userId,
+                        packageName);
+            }
+        }
+    }
+
     private void sendResourceOveruseNotificationsAsUser(@UserIdInt int userId,
             SparseArray<String> headsUpNotificationPackagesById,
             SparseArray<String> notificationCenterPackagesById) {
@@ -2015,6 +2036,22 @@ public final class WatchdogPerfHandler {
                 numPulledUidSummaryStats);
     }
 
+    /**
+     * Gets the UID for the resource usage's user package.
+     *
+     * <p>If the package resource usage's UID is not valid, fetches the UID for the user package
+     * from the package manager. Returns {@code INVALID_UID} if the package manager cannot find the
+     * package. </p>
+     */
+    private int getOrFetchUid(PackageResourceUsage usage, String packageName) {
+        int uid = usage.getUid();
+        if (uid == INVALID_UID) {
+            uid = getPackageUidAsUser(mContext.getPackageManager(), packageName,
+                    usage.userId);
+        }
+        return uid;
+    }
+
     private SparseArray<Map<String, Integer>> getPackageUidsForUsers(
             SparseArray<List<String>> genericPackageNamesByUserId) {
         PackageManager pm = mContext.getPackageManager();
@@ -2052,7 +2089,7 @@ public final class WatchdogPerfHandler {
                 uidsByGenericPackageNames.put(genericPackageName, usage.getUid());
                 continue;
             }
-            if (genericPackageName.startsWith(SHARED_PACKAGE_PREFIX)) {
+            if (isSharedPackage(genericPackageName)) {
                 resolveSharedUserIds.add(
                         genericPackageName.substring(SHARED_PACKAGE_PREFIX.length()));
                 continue;
@@ -2410,6 +2447,10 @@ public final class WatchdogPerfHandler {
                     "System wide threshold written bytes per second must be greater than zero for: "
                             + ioOveruseAlertThreshold);
         }
+    }
+
+    private static boolean isSharedPackage(String genericPackageName) {
+        return genericPackageName.startsWith(SHARED_PACKAGE_PREFIX);
     }
 
     private static void replaceKey(Map<String, PerStateBytes> map, String oldKey, String newKey) {
