@@ -1078,14 +1078,14 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mCarDisplayAreaTouchHandler.setTitleBarBounds(titleBarBounds);
 
         // Set the initial bounds for first and second displays.
-        WindowContainerTransaction wct = new WindowContainerTransaction();
-        updateBounds(wct);
-        mOrganizer.applyTransaction(wct);
+        updateBounds();
         mIsForegroundDaFullScreen = false;
     }
 
     /** Updates the default and background display bounds for the given config. */
-    private void updateBounds(WindowContainerTransaction wct) {
+    private void updateBounds() {
+        WindowContainerTransaction wct = new WindowContainerTransaction();
+
         Rect foregroundApplicationDisplayBound = mForegroundApplicationDisplayBounds;
         Rect titleBarDisplayBounds = mTitleBarDisplayBounds;
         Rect voicePlateDisplayBounds = mVoicePlateDisplayBounds;
@@ -1170,22 +1170,45 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         wct.setScreenSizeDp(controlBarDisplayToken, controlBarDisplayWidthDp,
                 controlBarDisplayHeightDp);
         wct.setSmallestScreenWidthDp(controlBarDisplayToken, controlBarDisplayWidthDp);
+        mSyncQueue.queue(wct);
 
         mSyncQueue.runInSync(t -> {
+            Rect foregroundApplicationAndTitleBarDisplayBound = new Rect(0, -mTitleBarHeight,
+                    foregroundApplicationDisplayBound.width(),
+                    foregroundApplicationDisplayBound.height());
+            t.setCrop(mForegroundApplicationsDisplay.getLeash(),
+                    foregroundApplicationAndTitleBarDisplayBound);
             t.setPosition(mForegroundApplicationsDisplay.getLeash(),
                     foregroundApplicationDisplayBound.left,
                     foregroundApplicationDisplayBound.top);
+
+            t.setWindowCrop(mVoicePlateDisplay.getLeash(),
+                    voicePlateDisplayBounds.width(), voicePlateDisplayBounds.height());
             t.setPosition(mVoicePlateDisplay.getLeash(),
                     voicePlateDisplayBounds.left,
                     voicePlateDisplayBounds.top);
+
+            t.setWindowCrop(mTitleBarDisplay.getLeash(),
+                    titleBarDisplayBounds.width(), titleBarDisplayBounds.height());
             t.setPosition(mTitleBarDisplay.getLeash(),
                     titleBarDisplayBounds.left, -mTitleBarHeight);
+
+            t.setWindowCrop(mBackgroundApplicationDisplay.getLeash(),
+                    backgroundApplicationDisplayBound.width(),
+                    backgroundApplicationDisplayBound.height());
             t.setPosition(mBackgroundApplicationDisplay.getLeash(),
                     backgroundApplicationDisplayBound.left,
                     backgroundApplicationDisplayBound.top);
+
+            t.setWindowCrop(mImeContainerDisplayArea.getLeash(),
+                    backgroundApplicationDisplayBound.width(),
+                    backgroundApplicationDisplayBound.height());
             t.setPosition(mImeContainerDisplayArea.getLeash(),
                     backgroundApplicationDisplayBound.left,
                     backgroundApplicationDisplayBound.top);
+
+            t.setWindowCrop(mControlBarDisplay.getLeash(),
+                    controlBarDisplayBound.width(), controlBarDisplayBound.height());
             t.setPosition(mControlBarDisplay.getLeash(),
                     controlBarDisplayBound.left,
                     controlBarDisplayBound.top);
@@ -1223,14 +1246,16 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 foregroundDisplayHeightDp);
         wct.setSmallestScreenWidthDp(foregroundDisplayToken,
                 Math.min(foregroundDisplayWidthDp, foregroundDisplayHeightDp));
+        mSyncQueue.queue(wct);
 
-        if (setFullPosition) {
-            mSyncQueue.runInSync(t -> {
+        mSyncQueue.runInSync(t -> {
+            t.setWindowCrop(mForegroundApplicationsDisplay.getLeash(),
+                    mTotalScreenWidth, mTotalScreenHeight);
+            if (setFullPosition) {
                 t.setPosition(mForegroundApplicationsDisplay.getLeash(), 0, 0);
-            });
-        }
+            }
+        });
 
-        mOrganizer.applyTransaction(wct);
         mIsForegroundDaFullScreen = true;
     }
 }
