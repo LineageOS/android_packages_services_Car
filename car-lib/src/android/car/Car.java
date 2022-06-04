@@ -396,6 +396,7 @@ public final class Car {
      * @hide
      */
     @MandatoryFeature
+    @SystemApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
 
