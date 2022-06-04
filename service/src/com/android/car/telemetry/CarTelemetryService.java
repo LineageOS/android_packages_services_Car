@@ -83,7 +83,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     public static final boolean DEBUG = false; // STOPSHIP if true
 
-    private static final String PUBLISHER_DIR = "publisher";
     public static final String TELEMETRY_DIR = "telemetry";
 
     /**
@@ -176,12 +175,11 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 CarPropertyService carPropertyService,
                 Handler handler,
                 Context context,
-                File publisherDirectory,
                 SessionController sessionController, ResultStore resultStore,
                 UidPackageMapper uidMapper) {
             return new PublisherFactory(
-                    carPropertyService, handler, context, publisherDirectory, sessionController,
-                    resultStore, uidMapper);
+                    carPropertyService, handler, context, sessionController, resultStore,
+                    uidMapper);
         }
 
         /** Returns a new UidPackageMapper instance. */
@@ -221,8 +219,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                     this::startMetricsCollection, Duration.ZERO);
             // full root directory path is /data/system/car/telemetry
             File rootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
-            File publisherDirectory = new File(rootDirectory, PUBLISHER_DIR);
-            publisherDirectory.mkdirs();
             // initialize all necessary components
             mUidMapper.init();
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
@@ -231,8 +227,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 mSessionController = new SessionController(mContext, mTelemetryHandler);
             }
             mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
-                    mTelemetryHandler, mContext, publisherDirectory, mSessionController,
-                    mResultStore, mUidMapper);
+                    mTelemetryHandler, mContext, mSessionController, mResultStore, mUidMapper);
             if (mDataBroker == null) {
                 mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
                         mTelemetryThreadTraceLog);

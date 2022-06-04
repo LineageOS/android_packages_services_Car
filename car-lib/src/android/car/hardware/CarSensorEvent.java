@@ -172,16 +172,10 @@ public class CarSensorEvent implements Parcelable {
     public CarSensorEvent(Parcel in) {
         sensorType = in.readInt();
         timestamp = in.readLong();
-        int len = in.readInt();
-        floatValues = new float[len];
-        in.readFloatArray(floatValues);
-        len = in.readInt();
-        intValues = new int[len];
-        in.readIntArray(intValues);
+        floatValues = in.createFloatArray();
+        intValues = in.createIntArray();
         // version 1 up to here
-        len = in.readInt();
-        longValues = new long[len];
-        in.readLongArray(longValues);
+        longValues = in.createLongArray();
     }
 
     @Override
@@ -196,11 +190,8 @@ public class CarSensorEvent implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeInt(sensorType);
         dest.writeLong(timestamp);
-        dest.writeInt(floatValues.length);
         dest.writeFloatArray(floatValues);
-        dest.writeInt(intValues.length);
         dest.writeIntArray(intValues);
-        dest.writeInt(longValues.length);
         dest.writeLongArray(longValues);
     }
 
