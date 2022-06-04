@@ -29,6 +29,11 @@
 
     <application android:label="CarApiTest"
          android:debuggable="true">
+
+        <!-- Used by CarPackageManagerTest -->
+        <meta-data android:name="android.car.targetCarMajorVersion" android:value="108"/>
+        <meta-data android:name="android.car.targetCarMinorVersion" android:value="42"/>
+
         <uses-library android:name="android.test.runner"/>
         <activity android:name=".TestCarProxyActivity"
              android:exported="true">
