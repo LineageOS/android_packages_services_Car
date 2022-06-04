@@ -260,6 +260,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_TEST_ECHO_REVERSE_BYTES = "test-echo-reverse-bytes";
 
+    private static final String COMMAND_GET_TARGET_CAR_VERSIONS = "get-target-car-versions";
+
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
             android.Manifest.permission.MANAGE_USERS
@@ -347,6 +349,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_TEST_ECHO_REVERSE_BYTES,
                 android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_TARGET_CAR_VERSIONS,
+                android.Manifest.permission.QUERY_ALL_PACKAGES);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -756,6 +760,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  test the ECHO_REVERSE_BYTES property. PROP_ID is the ID (int) for "
                 + "ECHO_REVERSE_BYTES, REQUEST_SIZE is how many byteValues in the request. "
                 + "This command can be used for testing LargeParcelable by passing large request.");
+
+        pw.printf("\t%s <APP1> [APPN]", COMMAND_GET_TARGET_CAR_VERSIONS);
+        pw.println("\t  Gets the target API versions (major and minor) defined by the given apps.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1128,6 +1135,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_TEST_ECHO_REVERSE_BYTES:
                 testEchoReverseBytes(args, writer);
+                break;
+            case COMMAND_GET_TARGET_CAR_VERSIONS:
+                getTargetCarVersions(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -3156,6 +3166,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         writer.println("Test Succeeded!");
+    }
+
+    private void getTargetCarVersions(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+        for (int i = 1; i < args.length; i++) {
+            String app = args[i];
+            int majorVersion = mCarPackageManagerService.getTargetCarMajorVersion(app);
+            int minorVersion = mCarPackageManagerService.getTargetCarMinorVersion(app);
+            writer.printf("%s: major=%d, minor=%d\n", app, majorVersion, minorVersion);
+        }
     }
 
     // Check if the given property is global

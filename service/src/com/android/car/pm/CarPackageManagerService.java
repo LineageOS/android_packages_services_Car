@@ -1509,6 +1509,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mCarUxRestrictionsService.setUxRChangeBroadcastEnabled(enable);
     }
 
+    // TODO(b/228506662): implement 2 methods below
+    // - check caller permission
+    // - check null argument (and unit test)
+    // - keep cache (which must listen to package changes)
+    // - dump cache
+
+    @Override
+    public int getTargetCarMajorVersion(String packageName) {
+        Slogf.w(TAG, "getTargetCarMajorVersion(%s): not implemented yet", packageName);
+        return CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
+    }
+
+    @Override
+    public int getTargetCarMinorVersion(String packageName) {
+        Slogf.w(TAG, "getTargetCarMinorVersion(%s): not implemented yet", packageName);
+        return CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
+    }
+
     /**
      * Get the distraction optimized activities for the given package.
      *

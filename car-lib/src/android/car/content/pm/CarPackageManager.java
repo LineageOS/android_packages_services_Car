@@ -18,6 +18,7 @@ package android.car.content.pm;
 
 import static android.car.Car.PERMISSION_CONTROL_APP_BLOCKING;
 
+import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
@@ -27,6 +28,7 @@ import android.annotation.UserIdInt;
 import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -39,6 +41,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Provides car specific API related with package management.
@@ -159,6 +162,37 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_NO_PACKAGE = -100;
+
+
+    /**
+     * Value returned by {@link #getTargetCarMajorVersion(String)} and
+     * {@link #getTargetCarMinorVersion(String)} when the target API is undefined.
+     *
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @SystemApi
+    public static final int CAR_TARGET_VERSION_UNDEFINED = -1;
+
+    /**
+     * Manifest metadata used to specify the minimum major Car API version an app is targeting.
+     *
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @SystemApi
+    public static final String MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION =
+            "android.car.targetCarMajorVersion";
+
+    /**
+     * Manifest metadata used to specify the minimum minor Car API version an app is targeting.
+     *
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @SystemApi
+    public static final String MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION =
+            "android.car.targetCarMinorVersion";
 
     /** @hide */
     @IntDef(flag = true,
@@ -427,6 +461,48 @@ public final class CarPackageManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, Collections.EMPTY_LIST);
         }
         return Collections.EMPTY_LIST; // cannot reach here but the compiler complains.
+    }
+
+    /**
+     * Gets the major Car API version targeted by the given package (as defined by
+     * {@link #MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION}.
+     *
+     * @return minimum major Car API version targeted by the app, or
+     * {@link #CAR_TARGET_VERSION_UNDEFINED} (if app didn't define it, app doesn't exist, an error
+     * occurred, etc).
+     *
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @SystemApi
+    @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
+    public int getTargetCarMajorVersion(@NonNull String packageName) {
+        try {
+            return mService.getTargetCarMajorVersion(Objects.requireNonNull(packageName));
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
+        }
+    }
+
+    /**
+     * Gets the minor Car API version targeted by the given package (as defined by
+     * {@link #MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION}.
+     *
+     * @return minimum minor Car API version targeted by the app, or
+     * {@link #CAR_TARGET_VERSION_UNDEFINED} (if app didn't define it, app doesn't exist, an error
+     * occurred, etc).
+     *
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @SystemApi
+    @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
+    public int getTargetCarMinorVersion(@NonNull String packageName) {
+        try {
+            return mService.getTargetCarMinorVersion(Objects.requireNonNull(packageName));
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
+        }
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,
