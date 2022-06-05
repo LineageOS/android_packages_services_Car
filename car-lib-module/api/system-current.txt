@@ -20,6 +20,7 @@ package android.car {
     field public static final String ACCESS_PRIVATE_DISPLAY_ID = "android.car.permission.ACCESS_PRIVATE_DISPLAY_ID";
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
+    field public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EVS_SERVICE = "car_evs_service";
@@ -88,6 +89,22 @@ package android.car {
     field public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
     field @Deprecated public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
     field @Deprecated public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
+  }
+
+  public final class CarBugreportManager {
+    method @RequiresPermission(android.Manifest.permission.DUMP) public void cancelBugreport();
+    method @RequiresPermission(android.Manifest.permission.DUMP) public void requestBugreport(@NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull android.car.CarBugreportManager.CarBugreportManagerCallback);
+  }
+
+  public abstract static class CarBugreportManager.CarBugreportManagerCallback {
+    ctor public CarBugreportManager.CarBugreportManagerCallback();
+    method public void onError(int);
+    method public void onFinished();
+    method public void onProgress(@FloatRange(from=0.0f, to=100.0f) float);
+    field public static final int CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED = 3; // 0x3
+    field public static final int CAR_BUGREPORT_DUMPSTATE_FAILED = 1; // 0x1
+    field public static final int CAR_BUGREPORT_IN_PROGRESS = 2; // 0x2
+    field public static final int CAR_BUGREPORT_SERVICE_NOT_AVAILABLE = 4; // 0x4
   }
 
   public class CarOccupantZoneManager {
