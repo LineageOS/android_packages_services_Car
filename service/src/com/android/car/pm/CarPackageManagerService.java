@@ -1547,22 +1547,31 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                     metadataAttribute, packageName, Binder.getCallingUid(), permission);
             throw new SecurityException("requires permission " + permission);
         }
-        int version = CAR_TARGET_VERSION_UNDEFINED;
+        ApplicationInfo info = null;
         try {
-            ApplicationInfo info = context.getPackageManager().getApplicationInfo(packageName,
+            info = context.getPackageManager().getApplicationInfo(packageName,
                     PackageManager.ApplicationInfoFlags.of(PackageManager.GET_META_DATA));
-            if (info.metaData != null) {
-                version = info.metaData.getInt(metadataAttribute, CAR_TARGET_VERSION_UNDEFINED);
-            } else if (DBG) {
-                Slogf.d(TAG, "getTargetCarVersion(%s, %s, %s): no metadata", context.getUser(),
-                        metadataAttribute, packageName);
-
-            }
         } catch (NameNotFoundException e) {
             if (DBG) {
                 Slogf.w(TAG, e, "getTargetCarVersion(%s, %s, %s): not found", context.getUser(),
                         metadataAttribute, packageName);
             }
+            // Manager will convert it to NameNotFoundException
+            return CAR_TARGET_VERSION_UNDEFINED;
+        }
+        int version = CAR_TARGET_VERSION_UNDEFINED;
+        if (info.metaData != null) {
+            version = info.metaData.getInt(metadataAttribute, CAR_TARGET_VERSION_UNDEFINED);
+        }
+        if (version == CAR_TARGET_VERSION_UNDEFINED) {
+            version = MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION.equals(metadataAttribute)
+                    ? info.targetSdkVersion
+                    : 0;
+            if (DBG) {
+                Slogf.d(TAG, "getTargetCarVersion(%s, %s, %s): no metadata, returning %d",
+                        context.getUser(), metadataAttribute, packageName, version);
+            }
+
         }
         return version;
     }

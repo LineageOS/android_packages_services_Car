@@ -31,6 +31,7 @@ import android.car.CarManagerBase;
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.content.ComponentName;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
 import android.os.Looper;
@@ -163,7 +164,7 @@ public final class CarPackageManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_NO_PACKAGE = -100;
 
-
+    // TODO(b/228506662): will be removed once APIs return a new Parcelable instead of ints
     /**
      * Value returned by {@link #getTargetCarMajorVersion(String)} and
      * {@link #getTargetCarMinorVersion(String)} when the target API is undefined.
@@ -171,9 +172,9 @@ public final class CarPackageManager extends CarManagerBase {
      * @hide
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
-    @SystemApi
     public static final int CAR_TARGET_VERSION_UNDEFINED = -1;
 
+    // TODO(b/228506662): merge both so the string is MAJOR.MINOR
     /**
      * Manifest metadata used to specify the minimum major Car API version an app is targeting.
      *
@@ -184,6 +185,7 @@ public final class CarPackageManager extends CarManagerBase {
     public static final String MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION =
             "android.car.targetCarMajorVersion";
 
+    // TODO(b/228506662): merge both so the string is MAJOR.MINOR
     /**
      * Manifest metadata used to specify the minimum minor Car API version an app is targeting.
      *
@@ -474,41 +476,51 @@ public final class CarPackageManager extends CarManagerBase {
      * {@link #MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION}.
      *
      * @return minimum major Car API version targeted by the app, or
-     * {@link #CAR_TARGET_VERSION_UNDEFINED} (if app didn't define it, app doesn't exist, an error
-     * occurred, etc).
+     * app's {@link ApplicationInfo#targetSdkVersion} if the app doesn't define it.
+     *
+     * @throws NameNotFoundException if a package with the given name is not available for the user.
      *
      * @hide
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
-    public int getTargetCarMajorVersion(@NonNull String packageName) {
-        try {
-            return mService.getTargetCarMajorVersion(packageName);
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
-        }
+    public int getTargetCarMajorVersion(@NonNull String packageName) throws NameNotFoundException {
+        return getTargetCarMinorVersion(packageName, /* isMajor= */ true);
     }
 
     /**
      * Gets the minor Car API version targeted by the given package (as defined by
      * {@link #MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION}.
      *
-     * @return minimum minor Car API version targeted by the app, or
-     * {@link #CAR_TARGET_VERSION_UNDEFINED} (if app didn't define it, app doesn't exist, an error
-     * occurred, etc).
+     * @return minimum major Car API version targeted by the app, or {@code 0} if the app doesn't
+     * define it.
+     *
+     * @throws NameNotFoundException if a package with the given name is not available for the user.
      *
      * @hide
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
-    public int getTargetCarMinorVersion(@NonNull String packageName) {
+    public int getTargetCarMinorVersion(@NonNull String packageName) throws NameNotFoundException {
+        return getTargetCarMinorVersion(packageName, /* isMajor= */ false);
+    }
+
+    // TODO(b/228506662): will be removed once APIs return a new Parcelable instead of ints
+    private int getTargetCarMinorVersion(String packageName, boolean isMajor)
+            throws NameNotFoundException {
+        int version;
         try {
-            return mService.getTargetCarMinorVersion(packageName);
+            version = isMajor ? mService.getTargetCarMajorVersion(packageName)
+                    : mService.getTargetCarMinorVersion(packageName);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
+            version = handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
         }
+        if (version == CAR_TARGET_VERSION_UNDEFINED) {
+            throw new NameNotFoundException(packageName);
+        }
+        return version;
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,

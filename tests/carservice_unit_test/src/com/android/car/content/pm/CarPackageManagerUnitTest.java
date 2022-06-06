@@ -15,17 +15,18 @@
  */
 package com.android.car.content.pm;
 
-import static android.car.content.pm.CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
 import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
 
 import org.junit.Before;
@@ -59,8 +60,10 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
         when(mService.getTargetCarMajorVersion("the.meaning.of.life"))
                 .thenThrow(new RemoteException("D'OH!"));
 
-        assertThat(mMgr.getTargetCarMajorVersion("the.meaning.of.life"))
-                .isEqualTo(CAR_TARGET_VERSION_UNDEFINED);
+        NameNotFoundException e = assertThrows(NameNotFoundException.class,
+                () -> mMgr.getTargetCarMajorVersion("the.meaning.of.life"));
+
+        assertThat(e.getMessage()).contains("the.meaning.of.life");
     }
 
     @Test
@@ -76,7 +79,9 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
         when(mService.getTargetCarMinorVersion("the.meaning.of.life"))
                 .thenThrow(new RemoteException("D'OH!"));
 
-        assertThat(mMgr.getTargetCarMinorVersion("the.meaning.of.life"))
-                .isEqualTo(CAR_TARGET_VERSION_UNDEFINED);
+        NameNotFoundException e = assertThrows(NameNotFoundException.class,
+                () -> mMgr.getTargetCarMinorVersion("the.meaning.of.life"));
+
+        assertThat(e.getMessage()).contains("the.meaning.of.life");
     }
 }
