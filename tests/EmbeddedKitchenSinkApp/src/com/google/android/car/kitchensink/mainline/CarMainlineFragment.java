@@ -18,6 +18,7 @@ package com.google.android.car.kitchensink.mainline;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -92,9 +93,8 @@ public class CarMainlineFragment extends Fragment {
         boolean isCarApiUOrHigher = Car.API_VERSION_MAJOR_INT > Build.VERSION_CODES.TIRAMISU;
         Log.v(TAG, "onStart(): isTQpr=" + isCarApiTQpr + ", isUOrHigher=" + isCarApiUOrHigher);
         if (isCarApiTQpr || isCarApiUOrHigher) {
-            String ksPkg = getContext().getPackageName();
-            mAppCarTargetMajorSdk.setText(String.valueOf(mCarPm.getTargetCarMajorVersion(ksPkg)));
-            mAppCarTargetMinorSdk.setText(String.valueOf(mCarPm.getTargetCarMinorVersion(ksPkg)));
+            setTargetCarVersion(/* isMajor= */ true);
+            setTargetCarVersion(/* isMajor= */ false);
         } else {
             // TODO(b/228506662): install on device running T to make sure it works
             String unsupported = String.format("unsupported on (%s, %s)", Car.API_VERSION_MAJOR_INT,
@@ -102,6 +102,25 @@ public class CarMainlineFragment extends Fragment {
             mAppCarTargetMajorSdk.setText(unsupported);
             mAppCarTargetMinorSdk.setText(unsupported);
         }
+    }
+
+    private void setTargetCarVersion(boolean isMajor) {
+        String ksPkg = getContext().getPackageName();
+        TextView textView;
+        String text = null;
+        try {
+            if (isMajor) {
+                textView = mAppCarTargetMajorSdk;
+                text = String.valueOf(mCarPm.getTargetCarMajorVersion(ksPkg));
+            } else {
+                textView = mAppCarTargetMinorSdk;
+                text = String.valueOf(mCarPm.getTargetCarMinorVersion(ksPkg));
+            }
+        } catch (NameNotFoundException e) {
+            Log.e(TAG, "Could not get version of " + ksPkg, e);
+            return;
+        }
+        textView.setText(text);
     }
 
     @Override

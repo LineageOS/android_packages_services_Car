@@ -16,8 +16,12 @@
 
 package android.car.apitest;
 
+import static org.junit.Assert.assertThrows;
+
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Build;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -42,15 +46,32 @@ public class CarPackageManagerTest extends CarApiTestBase {
     }
 
     @Test
+    public void testGetTargetCarMajorAndMinorVersion_noPackage() throws Exception {
+        String pkg = "I can't believe a package with this name exist. If so, well, too bad!";
+
+        NameNotFoundException e = assertThrows(NameNotFoundException.class,
+                () -> mCarPackageManager.getTargetCarMajorVersion(pkg));
+        assertWithMessage("msg on exception (%s) thrown by getTargetCarMinorVersion(%s)", e, pkg)
+                .that(e.getMessage()).contains(pkg);
+        e = assertThrows(NameNotFoundException.class,
+                () -> mCarPackageManager.getTargetCarMinorVersion(pkg));
+        assertWithMessage("msg on exception (%s) thrown by getTargetCarMinorVersion(%s)", e, pkg)
+                .that(e.getMessage()).contains(pkg);
+    }
+
+    @Test
     public void testGetTargetCarMajorAndMinorVersion_notSet() throws Exception {
         String pkg = "com.android.car";
+        // TODO(b/228506662): need to add another app that explicitly sets sdkTarget instead, as
+        // car's targetSdk would change on release
+        int targetSdk = Build.VERSION_CODES.CUR_DEVELOPMENT;
 
         assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
                 .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
-                .isEqualTo(CarPackageManager.CAR_TARGET_VERSION_UNDEFINED);
+                .isEqualTo(targetSdk);
         assertWithMessage("getTargetCarMinorVersion(%s)", pkg)
                 .that(mCarPackageManager.getTargetCarMinorVersion(pkg))
-                .isEqualTo(CarPackageManager.CAR_TARGET_VERSION_UNDEFINED);
+                .isEqualTo(0);
     }
 
     @Test
