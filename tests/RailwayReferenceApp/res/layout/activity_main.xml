@@ -227,7 +227,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/margin_size"
         android:textAppearance="@style/BodyText"
-        android:text="@string/network_capabilities_title"
+        android:text="@string/interface_name_title"
         app:layout_constraintEnd_toStartOf="@id/guideline25"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/enableDisableTitle" />
