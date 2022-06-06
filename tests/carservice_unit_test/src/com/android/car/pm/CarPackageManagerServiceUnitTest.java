@@ -247,7 +247,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         assertWithMessage("static getTargetCarVersion() call")
                 .that(CarPackageManagerService.getTargetCarVersion(mUserContext,
                         "meaning", "of.life"))
-                .isEqualTo(CAR_TARGET_VERSION_UNDEFINED);
+                .isEqualTo(0);
     }
 
     @Test
