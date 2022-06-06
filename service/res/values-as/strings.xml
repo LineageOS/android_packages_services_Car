@@ -33,7 +33,7 @@
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"গাড়ীৰ ডাইনেমিক স্থিতি এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"আপোনাৰ গাড়ীৰ ডায়নামিক্সৰ স্থিতি এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"গাড়ীৰ ভেণ্ডৰ চেনেল এক্সেছ কৰিব"</string>
-    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"নিৰ্দিষ্ট গাড়ী বিষয়ক তথ্য বিনিময়ৰ বাবে গাড়ীৰ বিক্ৰেতাৰ চ্চেনেল এক্সেছ কৰিব।"</string>
+    <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"নিৰ্দিষ্ট গাড়ী বিষয়ক তথ্য বিনিময়ৰ বাবে গাড়ীৰ বিক্ৰেতাৰ চেনেল এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"গাড়ীৰ ৰেডিঅ’ পৰিচালনা কৰিব"</string>
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"আপোনাৰ গাড়ীৰ ৰেডিঅ’ এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"কোনো ফ’নৰ পৰা এটা ইণ্টাৰফে’চ গাড়ীৰ ডিছপ্লে’ত প্ৰজেক্ট কৰিব"</string>

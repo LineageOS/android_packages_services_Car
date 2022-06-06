@@ -55,7 +55,7 @@
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Upravitelj navigacije"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Dostaviti podatke o navigaciji kontrolnoj tabli"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Direktno iscrtavanje na kontrolnoj ploči"</string>
-    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Dopustiti aplikaciji da navede aktivnosti koje će se prikazivati na kontrolnoj tabli"</string>
+    <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"Dozvoliti aplikaciji da navede aktivnosti koje će se prikazivati na kontrolnoj tabli"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"Upravljanje kontrolnom tablom"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Pokrenuti aplikacije na kontrolnoj tabli"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Iscrtavanje na kontrolnoj tabli"</string>
