@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Supervisar uso del almacenamiento flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"detectar el estado de conducción"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Detectar cambios en el estado de conducción."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Usar servicio de telemetría del coche."</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Recoger datos del estado del sistema del coche."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilizar servicio EVS del coche"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Suscribirse a streams de vídeo de EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Solicitar la actividad de vista previa de EVS"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Acceder a la información de permisos del proveedor del coche."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"consultar el estado de las luces exteriores del coche"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Acceder al estado de las luces exteriores del coche."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"acceder al tiempo UNIX del coche"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Acceder al tiempo UNIX del coche."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"acceder al tiempo epoch del coche"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Acceder al tiempo epoch del coche."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"acceder a la provisión de vinculación del cifrado del coche"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Acceder a la provisión de vinculación del cifrado del coche."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"controlar las luces exteriores del coche"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Controlar política de energía del coche."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"renderizar plantillas"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Renderizar plantillas."</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"controla las aplicaciones abiertas"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"Controla las aplicaciones abiertas."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mi dispositivo"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Invitado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importancia predeterminada"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Restablecer más tarde"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"El sistema se restablecerá cuando arranques el coche."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"El coche debe estar aparcado para restablecerlo."</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> está afectando al rendimiento de tu sistema"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"Inhabilita la aplicación para mejorar el rendimiento del sistema. Puedes habilitarla de nuevo en Ajustes."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"Prioriza la aplicación para seguir usándola."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"Desinstala la aplicación para mejorar el rendimiento del sistema."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"Inhabilitar aplicación"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"Priorizar aplicación"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"Desinstalar aplicación"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> se ha inhabilitado. Puedes habilitarla de nuevo en Ajustes."</string>
 </resources>

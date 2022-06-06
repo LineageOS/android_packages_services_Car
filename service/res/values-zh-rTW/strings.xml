@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"監控快閃記憶體用量"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"監聽駕駛狀態"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"監聽駕駛狀態變更。"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"使用車輛遙測服務"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"收集車輛系統的健康狀態資料。"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"使用車輛 EVS 服務"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"訂閱 EVS 視訊串流"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"要求 EVS 預覽活動"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"存取車商權限資訊。"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"讀取車輛外部燈光狀態"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"存取車輛外部燈光狀態。"</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"存取車輛的 UNIX 時間"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"存取車輛的 UNIX 時間。"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"存取車輛的 Epoch 紀元時間"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"存取車輛的 Epoch 紀元時間。"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"存取車輛的加密繫結種子"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"存取車輛的加密繫結種子。"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"讀取車輛外部燈光"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"控制車輛電源政策。"</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"算繪範本"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"算繪範本。"</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"控制要啟動的應用程式"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"控制要啟動的應用程式。"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"訪客"</string>
     <string name="importance_default" msgid="8587741629268312938">"預設重要性"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"稍後重設"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"資訊娛樂系統將在下次車輛發動時重設。"</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"必須停車才能啟動重設程序。"</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"「<xliff:g id="ID_1">^1</xliff:g>」目前已對系統效能造成影響"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"停用應用程式可改善系統效能。你可以前往「設定」再次啟用應用程式。"</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"如要繼續使用應用程式，請將應用程式設為優先。"</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"解除安裝應用程式可改善系統效能。"</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"停用應用程式"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"將應用程式設為優先"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"解除安裝應用程式"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"「<xliff:g id="ID_1">^1</xliff:g>」已停用。你可以前往「設定」重新啟用應用程式。"</string>
 </resources>

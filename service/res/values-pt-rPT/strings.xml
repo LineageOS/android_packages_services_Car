@@ -74,7 +74,7 @@
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Processe eventos de entrada."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Falha no CAN bus."</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O CAN bus não responde. Desligue e volte a ligar a caixa da unidade principal e reinicie o automóvel."</string>
-    <string name="activity_blocked_text" msgid="8088902789540147995">"Não pode utilizar esta funcionalidade enquanto conduz."</string>
+    <string name="activity_blocked_text" msgid="8088902789540147995">"Não pode usar esta funcionalidade enquanto conduz."</string>
     <string name="exit_button_message" msgid="8554690915924055685">"Para começar de novo com funcionalidades de aplicações seguras, selecione <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="5829638404777671253">"Anterior"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Fechar app"</string>
@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Monitorize a utilização do armazenamento flash."</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ouvir o estado de condução"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Ouvir as alterações ao estado de condução."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Utilizar o serviço de telemetria do automóvel"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Recolha dados do estado de funcionamento do sistema do automóvel."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilizar o Serviço de EVS do carro"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Subscrever streams de vídeo de EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Solicitar a atividade de pré-visualização de EVS"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Aceda às informações de autorização do fornecedor do automóvel."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ler o estado das luzes exteriores do automóvel"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Aceder ao estado das luzes exteriores do automóvel."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"aceder à hora UNIX do automóvel"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Aceder à hora UNIX do automóvel."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"aceder à hora da época do automóvel"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Aceda à hora da época do automóvel."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"aceder à semente de vinculação de encriptação do automóvel"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Aceder à semente de vinculação de encriptação do automóvel."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ler as luzes exteriores do automóvel"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"Controlar a política de energia do automóvel."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"renderizar modelos"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"Renderizar modelos."</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"controlar o início de aplicações"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"Controlar o início de aplicações."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispositivo"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"Convidado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importância predefinida"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Repor mais tarde"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"O sist. infoentretenim. é reposto quando ligar o carro de novo."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"O carro deve estar estacionado para a reposição."</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"A app <xliff:g id="ID_1">^1</xliff:g> está a afetar o desempenho do sistema."</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"Desative a app para melhorar o desempenho do sistema. Pode ativar a app novamente nas Definições."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"Dê prioridade à app para continuar a utilizá-la."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"Desinstale a app para melhorar o desempenho do sistema."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"Desativar app"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"Dar prioridade à app"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"Desinstalar app"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"A app <xliff:g id="ID_1">^1</xliff:g> foi desativada. Pode ativá-la novamente nas Definições."</string>
 </resources>

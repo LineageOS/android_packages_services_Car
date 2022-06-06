@@ -38,9 +38,9 @@
     <string name="car_permission_desc_radio" msgid="3385999027478186964">"ಕಾರಿನ ರೇಡಿಯೋವನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_projection" msgid="9107156380287576787">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇನಲ್ಲಿರುವ ಫೋನ್‌ನಿಂದ ಇಂಟರ್ ಫೇಸ್ ಅನ್ನು ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡಿ"</string>
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇನಲ್ಲಿರುವ ಫೋನ್‌ನಿಂದ ಇಂಟರ್ ಫೇಸ್ ಅನ್ನು ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
-    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ಪ್ರಕ್ಷೇಪಣೆ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
+    <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ಪ್ರೊಜೆಕ್ಷನ್ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇಗೆ ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡುವ ಇತರ ಆ್ಯಪ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪಡೆಯಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ಪ್ರಕ್ಷೇಪಣೆ ಸೇವೆಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
     <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಯ ಉನ್ನತ ಮಟ್ಟದ ಇಂಟರ್ ಫೇಸ್‌ಗೆ ಪ್ರತಿಬಂಧಿಸಲು ಮಾಲೀಕರಿಗೆ ಅವಕಾಶ ನೀಡುತ್ತದೆ. ಸಾಮಾನ್ಯ ಆ್ಯಪ್‌ಗಳಿಗೆ ಎಂದಿಗೂ ಅಗತ್ಯವಿರುವುದಿಲ್ಲ."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ಕಾರಿನ ಆಡಿಯೋ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"</string>
@@ -59,7 +59,7 @@
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"ಸಲಕರಣೆ ಸಂಚಯ ನಿಯಂತ್ರಣ"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಆ್ಯಪ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ಸಲಕರಣೆ ಸಂಚಯ ತೋರಿಸು"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸು"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶ"</string>
@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ಫ್ಲಾಶ್ ಸಂಗ್ರಹ ಬಳಕೆಯ ಉಸ್ತುವಾರಿ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಯನ್ನು ಆಲಿಸಿ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಗಳನ್ನು ಆಲಿಸಿ."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ಕಾರ್ ಟೆಲಿಮೆಟ್ರಿ ಸೇವೆಯನ್ನು ಬಳಸಿ"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ಕಾರ್ ಸಿಸ್ಟಂ ಆರೋಗ್ಯದ ಡೇಟಾವನ್ನು ಸಂಗ್ರಹಿಸಿ."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ಕಾರ್ EVS ಸೇವೆಯನ್ನು ಬಳಸಿ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ವೀಡಿಯೋ ಸ್ಟ್ರೀಮ್‌ಗಳಿಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಮಾಡಿ"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS ಪೂರ್ವವೀಕ್ಷಣೆ ಚಟುವಟಿಕೆಯನ್ನು ವಿನಂತಿಸಿ"</string>
@@ -125,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ಕಾರಿನ ಮಾರಾಟಗಾರರ ಅನುಮತಿ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಸ್ಥಿತಿಯ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"ಕಾರ್‌ನ UNIX ಸಮಯವನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"ಕಾರ್‌ನ UNIX ಸಮಯವನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"ಕಾರ್‌ನ epoch ಸಮಯವನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"ಕಾರ್‌ನ epoch ಸಮಯವನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ಕಾರ್‌ನ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಬೈಡಿಂಗ್ ಸೀಡ್ ಅನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ಕಾರ್‌ನ ಎನ್‌ಕ್ರಿಪ್ಶನ್ ಬೈಡಿಂಗ್ ಸೀಡ್ ಅನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ಕಾರಿನ ಹೊರಾಂಗಣ ಲೈಟ್‌ಗಳ ಮಾಹಿತಿಯನ್ನು ಓದಿ"</string>
@@ -167,6 +169,8 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"ಕಾರಿನ ಪವರ್ ನೀತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ರೆಂಡರ್ ಮಾಡಿ"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"ಟೆಂಪ್ಲೇಟ್‌ಗಳನ್ನು ರೆಂಡರ್ ಮಾಡಿ."</string>
+    <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"ಪ್ರಾರಂಭಿಸುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"ಪ್ರಾರಂಭಿಸುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ನನ್ನ ಸಾಧನ"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"ಅತಿಥಿ"</string>
     <string name="importance_default" msgid="8587741629268312938">"ಮಹತ್ವವಾದುದು: ಡೀಫಾಲ್ಟ್"</string>
@@ -180,4 +184,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"ನಂತರ ರೀಸೆಟ್ ಮಾಡಿ"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"ಮುಂದಿನ ಬಾರಿ ಕಾರ್ ಆರಂಭವಾದಾಗ ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಅನ್ನು ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"ರೀಸೆಟ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಲು ಕಾರ್ ಅನ್ನು ನಿಲ್ಲಿಸಿರಬೇಕು."</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> ನಿಮ್ಮ ಸಿಸ್ಟಂ ಕಾರ್ಯಕ್ಷಮತೆಯ ಮೇಲೆ ಪರಿಣಾಮ ಬೀರುತ್ತಿದೆ"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"ಸಿಸ್ಟಂ ಕಾರ್ಯಕ್ಷಮತೆಯನ್ನು ಸುಧಾರಿಸಲು ಆ್ಯಪ್ ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ. ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ನೀವು ಆ್ಯಪ್ ಅನ್ನು ಪುನಃ ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"ಆ್ಯಪ್ ಬಳಸುವುದನ್ನು ಮುಂದುವರಿಸಲು ಆ್ಯಪ್ ಅನ್ನು ಆದ್ಯತೆಗೊಳಿಸಿ."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"ಸಿಸ್ಟಂ ಕಾರ್ಯಕ್ಷಮತೆಯನ್ನು ಸುಧಾರಿಸಲು ಆ್ಯಪ್ ಅನ್ನು ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"ಆ್ಯಪ್ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"ಆ್ಯಪ್ ಅನ್ನು ಆದ್ಯತೆಗೊಳಿಸಿ"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"ಆ್ಯಪ್‌ ಅನ್‌ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> ಅನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ. ಸೆಟ್ಟಿಂಗ್‌ಗಳಲ್ಲಿ ನೀವು ಇದನ್ನು ಪುನಃ ಸಕ್ರಿಯಗೊಳಿಸಬಹುದು."</string>
 </resources>
