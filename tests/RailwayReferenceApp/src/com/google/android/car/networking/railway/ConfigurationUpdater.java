@@ -27,6 +27,7 @@ import android.net.NetworkCapabilities;
 import android.net.StaticIpConfiguration;
 import android.os.OutcomeReceiver;
 
+import com.google.common.base.Strings;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,8 @@ public final class ConfigurationUpdater {
             String interfaceName)
             throws IllegalArgumentException, PackageManager.NameNotFoundException {
 
-        IpConfiguration ipConfiguration = new IpConfiguration.Builder()
+        IpConfiguration ipConfiguration = Strings.isNullOrEmpty(ipConfigurationText) ? null :
+                new IpConfiguration.Builder()
                 .setStaticIpConfiguration(new StaticIpConfiguration.Builder()
                         .setIpAddress(new LinkAddress(ipConfigurationText)).build())
                 .build();
