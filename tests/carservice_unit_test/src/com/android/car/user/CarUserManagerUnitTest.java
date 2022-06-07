@@ -155,9 +155,9 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     public void testIsValidUser_found() {
         setExistingUsers(1, 2, 3);
 
-        assertThat(mMgr.isValidUser(1)).isTrue();
-        assertThat(mMgr.isValidUser(2)).isTrue();
-        assertThat(mMgr.isValidUser(3)).isTrue();
+        expectThat(mMgr.isValidUser(1)).isTrue();
+        expectThat(mMgr.isValidUser(2)).isTrue();
+        expectThat(mMgr.isValidUser(3)).isTrue();
     }
 
     @Test
