@@ -679,6 +679,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void handlePreShutdownPrepare(CpmsState newState) {
         // Shutdown on finish if the system doesn't support deep sleep/hibernation
         // or doesn't allow it.
+        int intervalMs;
         synchronized (mLock) {
             if (mShutdownOnNextSuspend
                     || newState.mShutdownType == PowerState.SHUTDOWN_TYPE_POWER_OFF) {
@@ -697,6 +698,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Slogf.wtf(TAG, "handleShutdownPrepare - incorrect state " + newState);
             }
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
+            intervalMs = mShutdownPollingIntervalMs;
         }
         Slogf.i(TAG, newState.mCanPostpone ? "starting shutdown prepare with Garage Mode"
                 : "starting shutdown prepare without Garage Mode");
@@ -711,9 +713,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             onApPowerStateChange(CpmsState.SHUTDOWN_PREPARE,
                     CarPowerManager.STATE_SHUTDOWN_PREPARE);
         };
-        Slogf.i(TAG, "Start waiting for listener completion for %s", powerStateToString(state));
-        waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
-                /* intervalMs= */ -1);
+
+        waitForCompletionWithShutdownPostpone(state, timeoutMs, taskAtCompletion, intervalMs);
     }
 
     private void handleCoreShutdownPrepare() {
@@ -771,10 +772,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     break;
             }
         };
-        Slogf.i(TAG, "Start waiting for listener completion for %s",
-                powerStateToString(state.mCarPowerStateListenerState));
-        waitForCompletion(taskAtCompletion, /* taskAtInterval= */ null, timeoutMs,
-                /* intervalMs= */ -1);
+
+        int intervalMs;
+        synchronized (mLock) {
+            intervalMs = mShutdownPollingIntervalMs;
+        }
+
+        waitForCompletionWithShutdownPostpone(state.mCarPowerStateListenerState, timeoutMs,
+                taskAtCompletion, intervalMs);
     }
 
     private void handleFinish() {
@@ -921,11 +926,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             finishShutdownPrepare();
             Slogf.i(TAG, "All listeners completed for %s", powerStateToString(state));
         };
-        Runnable taskAtInterval = () -> {
-            mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
-        };
-        Slogf.i(TAG, "Start waiting for listeners to complete for %s", powerStateToString(state));
-        waitForCompletion(taskAtCompletion, taskAtInterval, timeoutMs, intervalMs);
+
+        waitForCompletionWithShutdownPostpone(state, timeoutMs, taskAtCompletion, intervalMs);
 
         // allowUserSwitch value doesn't matter for onSuspend = true
         mUserService.onSuspend();
@@ -2418,5 +2420,18 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             default:
                 return "Unknown";
         }
+    }
+
+    private void waitForCompletionWithShutdownPostpone(
+            @CarPowerManager.CarPowerState int carPowerStateListenerState, long timeoutMs,
+            Runnable taskAtCompletion, long intervalMs) {
+        Runnable taskAtInterval = () -> {
+            mHal.sendShutdownPostpone(SHUTDOWN_EXTEND_MAX_MS);
+        };
+
+        Slogf.i(TAG, "Start waiting for listener completion for %s",
+                powerStateToString(carPowerStateListenerState));
+
+        waitForCompletion(taskAtCompletion, taskAtInterval, timeoutMs, intervalMs);
     }
 }
