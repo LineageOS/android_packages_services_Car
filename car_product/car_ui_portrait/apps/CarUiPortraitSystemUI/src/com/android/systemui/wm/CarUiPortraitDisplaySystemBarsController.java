@@ -120,6 +120,19 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
     }
 
     /**
+     * Request an immersive mode override for a particular display id specifically for setup wizard.
+     * This request will override the usual BarControlPolicy and will persist until explicitly
+     * revoked.
+     */
+    public void requestImmersiveModeForSUW(int displayId, boolean immersive) {
+        CarUiPortraitPerDisplay display = mCarUiPerDisplaySparseArray.get(displayId);
+        if (display == null) {
+            return;
+        }
+        display.setImmersiveModeForSUW(immersive);
+    }
+
+    /**
      * Register an immersive mode callback for a particular display.
      */
     public void registerCallback(int displayId, Callback callback) {
@@ -155,6 +168,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         private final List<Callback> mCallbacks = new ArrayList<>();
         private InsetsVisibilities mWindowRequestedVisibilities;
         private boolean mImmersiveOverride = false;
+        private boolean mImmersiveForSUW = false;
 
         CarUiPortraitPerDisplay(int displayId) {
             super(displayId);
@@ -193,10 +207,10 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
 
         @Override
         protected void updateDisplayWindowRequestedVisibilities() {
-            if (mPackageName == null && !mImmersiveOverride) {
+            if (mPackageName == null && !mImmersiveOverride && !mImmersiveForSUW) {
                 return;
             }
-            int[] barVisibilities = mImmersiveOverride
+            int[] barVisibilities = mImmersiveOverride || mImmersiveForSUW
                     ? mImmersiveVisibilities
                     : BarControlPolicy.getBarVisibilities(mPackageName);
             updateRequestedVisibilities(barVisibilities[0], /* visible= */ true);
@@ -204,7 +218,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             showInsets(barVisibilities[0], /* fromIme= */ false);
             hideInsets(barVisibilities[1], /* fromIme= */ false);
 
-            boolean immersiveState = mImmersiveOverride || (
+            boolean immersiveState = mImmersiveOverride || mImmersiveForSUW || (
                     (barVisibilities[1] & (WindowInsets.Type.statusBars()
                             | WindowInsets.Type.navigationBars())) == (
                             WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars()));
@@ -228,6 +242,14 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                 return;
             }
             mImmersiveOverride = immersive;
+            updateDisplayWindowRequestedVisibilities();
+        }
+
+        void setImmersiveModeForSUW(boolean immersive) {
+            if (mImmersiveForSUW == immersive) {
+                return;
+            }
+            mImmersiveForSUW = immersive;
             updateDisplayWindowRequestedVisibilities();
         }
 
