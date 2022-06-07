@@ -67,4 +67,6 @@
     <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
     <!-- Permission required for CTS test - LocationManagerFineTest -->
     <uses-permission android:name="android.permission.LOCATION_BYPASS" />
+    <!-- Permission required for CTS test - CarPropertyManagerTest -->
+    <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE" />
 </manifest>

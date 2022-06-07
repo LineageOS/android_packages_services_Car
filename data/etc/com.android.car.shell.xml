@@ -43,5 +43,6 @@
         <permission name="android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG" />
         <permission name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
         <permission name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"/>
+        <permission name="android.car.permission.CAR_DYNAMICS_STATE"/>
     </privapp-permissions>
 </permissions>
