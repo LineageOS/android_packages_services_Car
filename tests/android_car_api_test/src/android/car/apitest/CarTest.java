@@ -71,10 +71,10 @@ public class CarTest {
     }
 
     @AddedIn(majorVersion = 31)
-    @MinimumPlatformSdkVersion(30)
+    @MinimumPlatformSdkVersion(majorVersion = 30)
     private static class AnnotationTest1 {
         @AddedIn(majorVersion = 31)
-        @MinimumPlatformSdkVersion(29)
+        @MinimumPlatformSdkVersion(majorVersion = 29)
         public int val;
 
         @AddedIn(majorVersion = 31)
@@ -83,10 +83,10 @@ public class CarTest {
     }
 
     @AddedIn(majorVersion = 31, minorVersion = 0)
-    @MinimumPlatformSdkVersion(30)
+    @MinimumPlatformSdkVersion(majorVersion = 30)
     private static class AnnotationTest2 {
         @AddedIn(majorVersion = 31, minorVersion = 0)
-        @MinimumPlatformSdkVersion(29)
+        @MinimumPlatformSdkVersion(majorVersion = 29)
         public int val;
 
         @AddedIn(majorVersion = 31, minorVersion = 0)
@@ -96,10 +96,10 @@ public class CarTest {
 
 
     @AddedInOrBefore(majorVersion = 31)
-    @MinimumPlatformSdkVersion(30)
+    @MinimumPlatformSdkVersion(majorVersion = 30)
     private static class AnnotationTest3 {
         @AddedInOrBefore(majorVersion = 31)
-        @MinimumPlatformSdkVersion(29)
+        @MinimumPlatformSdkVersion(majorVersion = 29)
         public int val;
 
         @AddedInOrBefore(majorVersion = 31)
@@ -108,10 +108,10 @@ public class CarTest {
     }
 
     @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
-    @MinimumPlatformSdkVersion(30)
+    @MinimumPlatformSdkVersion(majorVersion = 30)
     private static class AnnotationTest4 {
         @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
-        @MinimumPlatformSdkVersion(29)
+        @MinimumPlatformSdkVersion(majorVersion = 29)
         public int val;
 
         @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
