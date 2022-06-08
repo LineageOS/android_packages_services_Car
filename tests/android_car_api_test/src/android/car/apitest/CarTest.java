@@ -26,6 +26,7 @@ import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.MinimumPlatformSdkVersion;
 import android.car.hardware.CarSensorManager;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -35,20 +36,14 @@ import android.test.suitebuilder.annotation.SmallTest;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.google.common.truth.Expect;
-
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @SmallTest
-public class CarTest {
+public final class CarTest extends AbstractExpectableTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
-
-    @Rule
-    public final Expect mExpect = Expect.create();
 
     private final Context mContext = InstrumentationRegistry.getInstrumentation()
             .getTargetContext();
@@ -175,24 +170,24 @@ public class CarTest {
     public void testApiVersion() throws Exception {
         int ApiVersionTooHigh = 1000000;
         int MinorApiVersionTooHigh = 1000000;
-        mExpect.that(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT)).isTrue();
-        mExpect.that(Car.isApiVersionAtLeast(ApiVersionTooHigh)).isFalse();
+        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT)).isTrue();
+        expectThat(Car.isApiVersionAtLeast(ApiVersionTooHigh)).isFalse();
 
-        mExpect.that(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT - 1,
+        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT - 1,
                 MinorApiVersionTooHigh)).isTrue();
-        mExpect.that(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT)).isTrue();
-        mExpect.that(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+        expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 MinorApiVersionTooHigh)).isFalse();
-        mExpect.that(Car.isApiVersionAtLeast(ApiVersionTooHigh, 0)).isFalse();
+        expectThat(Car.isApiVersionAtLeast(ApiVersionTooHigh, 0)).isFalse();
 
-        mExpect.that(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Build.VERSION.SDK_INT)).isTrue();
-        mExpect.that(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Build.VERSION.SDK_INT + 1)).isFalse();
-        mExpect.that(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT)).isTrue();
-        mExpect.that(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
     }
 }
