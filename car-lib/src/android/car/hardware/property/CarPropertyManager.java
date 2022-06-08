@@ -154,7 +154,7 @@ public class CarPropertyManager extends CarManagerBase {
     public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4;
 
     /**
-     * Status to indicate that set operation failed because of an general error in cars.
+     * Status to indicate that set operation failed because of a general error in cars.
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN = 5;
@@ -254,7 +254,7 @@ public class CarPropertyManager extends CarManagerBase {
             if (mCarPropertyEventToService == null) {
                 mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
             }
-            CarPropertyConfig config = getCarPropertyConfig(propertyId);
+            CarPropertyConfig<?> config = getCarPropertyConfig(propertyId);
             if (config == null) {
                 Log.e(TAG, "registerListener:  propId is not in config list:  " + propertyId);
                 return false;
@@ -377,7 +377,7 @@ public class CarPropertyManager extends CarManagerBase {
             configs = mService.getPropertyList();
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
-            return handleRemoteExceptionFromCarService(e, new ArrayList<CarPropertyConfig>());
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
         }
         return configs;
     }
@@ -401,13 +401,13 @@ public class CarPropertyManager extends CarManagerBase {
             configs = mService.getPropertyConfigList(propIds);
         } catch (RemoteException e) {
             Log.e(TAG, "getPropertyList exception ", e);
-            return handleRemoteExceptionFromCarService(e, new ArrayList<CarPropertyConfig>());
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
         }
         return configs;
     }
 
     /**
-     * Get CarPropertyConfig by property Id.
+     * Get CarPropertyConfig by property ID.
      *
      * @param propId Property ID
      * @return {@link CarPropertyConfig} for the selected property.
@@ -428,7 +428,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Returns areaId contains the seletcted area for the property.
+     * Returns areaId contains the selected area for the property.
      *
      * @param propId Property ID
      * @param area Area enum such as Enums in {@link android.car.VehicleAreaSeat}.
@@ -504,7 +504,7 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Check whether a given property is available or disabled based on the car's current state.
-     * @param propId Property Id
+     * @param propId Property ID
      * @param area AreaId of property
      * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
      */
@@ -526,7 +526,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of a bool property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
@@ -558,7 +558,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
      * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      *
-     * @return value of a bool property, {@code false} if can not get value from cars.
+     * @return value of a bool property, {@code false} if unable to get value from car.
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean getBooleanProperty(int prop, int area) {
@@ -570,7 +570,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of a float property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
@@ -586,7 +586,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
      * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      *
-     * @return value of a float property, 0 if can not get value from the cars.
+     * @return value of a float property, 0 if unable to get value from the car.
      */
     @AddedInOrBefore(majorVersion = 33)
     public float getFloatProperty(int prop, int area) {
@@ -598,7 +598,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of an integer property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called form an
+     * <p> This method may take couple seconds to complete, so it needs to be called form a
      * non-main thread.
      *
      * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
@@ -614,7 +614,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
      * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      *
-     * @return value of an integer property, 0 if can not get the value from cars.
+     * @return value of an integer property, 0 if unable to get the value from car.
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getIntProperty(int prop, int area) {
@@ -626,7 +626,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Returns value of an integer array property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
@@ -642,8 +642,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
      * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
      *
-     * @return value of an integer array property, an empty integer array if can not get the value
-     * from cars.
+     * @return value of an integer array property, an empty integer array if unable to get the value
+     * from car.
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -690,7 +690,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Return CarPropertyValue
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
@@ -758,14 +758,15 @@ public class CarPropertyManager extends CarManagerBase {
                             + "areaId: 0x%x", propId, areaId));
                 }
             }
-            return handleCarServiceSpecificException(e, propId, areaId, null);
+            handleCarServiceSpecificException(e, propId, areaId);
+            return null;
         }
     }
 
     /**
      * Query CarPropertyValue with property id and areaId.
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
@@ -786,7 +787,7 @@ public class CarPropertyManager extends CarManagerBase {
      *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
      * </ul>
      *
-     * @param propId Property Id
+     * @param propId Property ID
      * @param areaId areaId
      * @param <E> Value type of the property
      *
@@ -806,8 +807,7 @@ public class CarPropertyManager extends CarManagerBase {
         checkSupportedProperty(propId);
 
         try {
-            CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
-            return propVal;
+            return (CarPropertyValue<E>) mService.getProperty(propId, areaId);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         } catch (ServiceSpecificException e) {
@@ -819,7 +819,8 @@ public class CarPropertyManager extends CarManagerBase {
                             + "areaId: 0x%x", propId, areaId));
                 }
             }
-            return handleCarServiceSpecificException(e, propId, areaId, null);
+            handleCarServiceSpecificException(e, propId, areaId);
+            return null;
         }
     }
 
@@ -830,7 +831,7 @@ public class CarPropertyManager extends CarManagerBase {
      * precedence is undefined. Typically, the last set operation (in the order that they are issued
      * to the car's ECU) overrides the previous set operations.
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called form an
+     * <p> This method may take couple seconds to complete, so it needs to be called form a
      * non-main thread.
      *
      * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
@@ -894,7 +895,7 @@ public class CarPropertyManager extends CarManagerBase {
                             + "areaId: 0x%x", propId, areaId));
                 }
             }
-            handleCarServiceSpecificException(e, propId, areaId, null);
+            handleCarServiceSpecificException(e, propId, areaId);
         }
     }
 
@@ -902,7 +903,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Modifies a property.  If the property modification doesn't occur, an error event shall be
      * generated and propagated back to the application.
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * @param prop Property ID to modify
@@ -917,7 +918,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Set float value of property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * @param prop Property ID to modify
@@ -932,7 +933,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * Set int value of property
      *
-     * <p> This method may take couple seconds to complete, so it needs to be called from an
+     * <p> This method may take couple seconds to complete, so it needs to be called from a
      * non-main thread.
      *
      * @param prop Property ID to modify
@@ -945,8 +946,8 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     // Handles ServiceSpecificException in CarService for R and later version.
-    private <T> T handleCarServiceSpecificException(
-            ServiceSpecificException e, int propId, int areaId, T returnValue) {
+    private void handleCarServiceSpecificException(
+            ServiceSpecificException e, int propId, int areaId) {
         // We are not passing the error message down, so log it here.
         Log.w(TAG, "received ServiceSpecificException: " + e);
         int errorCode = e.errorCode;
@@ -962,7 +963,6 @@ public class CarPropertyManager extends CarManagerBase {
             default:
                 Log.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
         }
-        return returnValue;
     }
 
     /**
@@ -998,7 +998,7 @@ public class CarPropertyManager extends CarManagerBase {
             int areaId = event.getCarPropertyValue().getAreaId();
             if (!needUpdateForAreaId(areaId, updateTime)) {
                 if (DBG) {
-                    Log.w(TAG, "Dropping a stale event: " + event.toString());
+                    Log.w(TAG, "Dropping a stale event: " + event);
                 }
                 return;
             }
@@ -1016,18 +1016,17 @@ public class CarPropertyManager extends CarManagerBase {
 
         void onErrorEvent(final CarPropertyEvent event) {
             List<CarPropertyEventCallback> listeners;
-            CarPropertyValue value = event.getCarPropertyValue();
+            CarPropertyValue<?> value = event.getCarPropertyValue();
             synchronized (mActivePropertyListener) {
                 listeners = new ArrayList<>(getListeners());
             }
             listeners.forEach(listener -> {
                 if (contains(listener)) {
                     if (DBG) {
-                        Log.d(TAG, new StringBuilder().append("onErrorEvent for ")
-                                .append("property: ").append(value.getPropertyId())
-                                .append(" areaId: ").append(value.getAreaId())
-                                .append(" errorCode: ").append(event.getErrorCode())
-                                .toString());
+                        Log.d(TAG, "onErrorEvent for "
+                                + "property: " + value.getPropertyId()
+                                + " areaId: " + value.getAreaId()
+                                + " errorCode: " + event.getErrorCode());
                     }
                     listener.onErrorEvent(value.getPropertyId(), value.getAreaId(),
                             event.getErrorCode());
