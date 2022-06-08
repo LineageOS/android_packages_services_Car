@@ -23,20 +23,17 @@ import static org.junit.Assume.assumeTrue;
 import android.car.Car;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
-import android.car.evs.CarEvsManager.CarEvsServiceState;
-import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
-import android.content.Context;
 import android.os.SystemClock;
 import android.test.suitebuilder.annotation.MediumTest;
-import android.util.Log;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -129,6 +126,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         mEvsManager.clearStatusListener();
     }
 
+    @Ignore("b/233636131:STOPSHIP if not re-enabled")
     @Test
     public void testStartAndStopVideoStream() throws Exception {
         // Requests to start a video stream.  We're intentionally using the listener that
