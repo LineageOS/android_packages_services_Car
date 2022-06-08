@@ -40,7 +40,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
@@ -139,8 +139,8 @@ public final class OccupantAwarenessServiceTest {
     private MockOasHal mMockHal;
     private com.android.car.OccupantAwarenessService mOasService;
 
-    private CompletableFuture<SystemStatusEvent> mFutureStatus;
-    private CompletableFuture<OccupantAwarenessDetection> mFutureDetection;
+    private CountDownLatch mStatusLatch;
+    private SystemStatusEvent mSystemStatus;
 
     @Before
     public void setUp() {
@@ -149,7 +149,7 @@ public final class OccupantAwarenessServiceTest {
         mOasService = new com.android.car.OccupantAwarenessService(context, mMockHal);
         mOasService.init();
 
-        resetFutures();
+        resetStatus();
     }
 
     @After
@@ -162,56 +162,74 @@ public final class OccupantAwarenessServiceTest {
         // Verify operation when no listeners are registered.
         mMockHal.fireStatusEvent(IOccupantAwareness.CAP_NONE, OccupantAwarenessStatus.READY);
 
+        // Give some time for the asynchronous event to be propagated
+        pauseForEventPropagation();
+
         // Nothing should have been received.
-        assertThat(mFutureStatus.isDone()).isFalse();
-        assertThat(mFutureDetection.isDone()).isFalse();
+        assertThat(mSystemStatus).isNull();
     }
 
     @Test
-    @Ignore("b/219798573 - this test case fails always. ignore it for now. will fix it")
-    public void testStatusEventsWithRegisteredListeners() throws Exception {
-        // Verify correct operation when a listener has been registered.
-        registerCallbackToService();
-        SystemStatusEvent result;
-
+    public void testRegisterEventListener_returnsSystemStatusReady() throws Exception {
         // Fire a status event and ensure it is received.
         // "Presence status is ready"
-        resetFutures();
+        IOccupantAwarenessEventCallback callback = registerCallbackToService();
         mMockHal.fireStatusEvent(
                 IOccupantAwareness.CAP_PRESENCE_DETECTION, OccupantAwarenessStatus.READY);
+        waitStatusReady();
 
-        result = mFutureStatus.get(1, TimeUnit.SECONDS);
-        assertThat(result.detectionType).isEqualTo(SystemStatusEvent.DETECTION_TYPE_PRESENCE);
-        assertThat(result.systemStatus).isEqualTo(SystemStatusEvent.SYSTEM_STATUS_READY);
+        assertThat(mSystemStatus.detectionType)
+                .isEqualTo(SystemStatusEvent.DETECTION_TYPE_PRESENCE);
+        assertThat(mSystemStatus.systemStatus).isEqualTo(SystemStatusEvent.SYSTEM_STATUS_READY);
 
+        mOasService.unregisterEventListener(callback);
+    }
+
+    @Test
+    public void testRegisterEventListener_returnsSystemStatusFailure() throws Exception {
         // "Gaze status is failed"
-        resetFutures();
+        IOccupantAwarenessEventCallback callback = registerCallbackToService();
         mMockHal.fireStatusEvent(
                 IOccupantAwareness.CAP_GAZE_DETECTION, OccupantAwarenessStatus.FAILURE);
+        waitStatusReady();
 
-        result = mFutureStatus.get(1, TimeUnit.SECONDS);
-        assertThat(result.detectionType).isEqualTo(SystemStatusEvent.DETECTION_TYPE_GAZE);
-        assertThat(result.systemStatus).isEqualTo(SystemStatusEvent.SYSTEM_STATUS_SYSTEM_FAILURE);
+        assertThat(mSystemStatus.detectionType).isEqualTo(SystemStatusEvent.DETECTION_TYPE_GAZE);
+        assertThat(mSystemStatus.systemStatus)
+                .isEqualTo(SystemStatusEvent.SYSTEM_STATUS_SYSTEM_FAILURE);
 
+        mOasService.unregisterEventListener(callback);
+    }
+
+    @Test
+    public void testRegisterEventListener_returnsSystemStatusNotReady() throws Exception {
         // "Driver monitoring status is not-ready"
-        resetFutures();
+        IOccupantAwarenessEventCallback callback = registerCallbackToService();
         mMockHal.fireStatusEvent(
                 IOccupantAwareness.CAP_DRIVER_MONITORING_DETECTION,
                 OccupantAwarenessStatus.NOT_INITIALIZED);
+        waitStatusReady();
 
-        result = mFutureStatus.get(1, TimeUnit.SECONDS);
-        assertThat(result.detectionType)
+        assertThat(mSystemStatus.detectionType)
                 .isEqualTo(SystemStatusEvent.DETECTION_TYPE_DRIVER_MONITORING);
-        assertThat(result.systemStatus).isEqualTo(SystemStatusEvent.SYSTEM_STATUS_NOT_READY);
+        assertThat(mSystemStatus.systemStatus)
+                .isEqualTo(SystemStatusEvent.SYSTEM_STATUS_NOT_READY);
 
+        mOasService.unregisterEventListener(callback);
+    }
+
+    @Test
+    public void testRegisterEventListener_returnsSystemStatusNotSupported() throws Exception {
         // "None is non-supported"
-        resetFutures();
+        IOccupantAwarenessEventCallback callback = registerCallbackToService();
         mMockHal.fireStatusEvent(
                 IOccupantAwareness.CAP_NONE, OccupantAwarenessStatus.NOT_SUPPORTED);
+        waitStatusReady();
 
-        result = mFutureStatus.get(1, TimeUnit.SECONDS);
-        assertThat(result.detectionType).isEqualTo(SystemStatusEvent.DETECTION_TYPE_NONE);
-        assertThat(result.systemStatus).isEqualTo(SystemStatusEvent.SYSTEM_STATUS_NOT_SUPPORTED);
+        assertThat(mSystemStatus.detectionType).isEqualTo(SystemStatusEvent.DETECTION_TYPE_NONE);
+        assertThat(mSystemStatus.systemStatus)
+                .isEqualTo(SystemStatusEvent.SYSTEM_STATUS_NOT_SUPPORTED);
+
+        mOasService.unregisterEventListener(callback);
     }
 
     @Test
@@ -229,9 +247,11 @@ public final class OccupantAwarenessServiceTest {
         mMockHal.fireStatusEvent(
                 IOccupantAwareness.CAP_DRIVER_MONITORING_DETECTION, OccupantAwarenessStatus.READY);
 
+        // Give some time for the asynchronous event to be propagated
+        pauseForEventPropagation();
+
         // Nothing should have been received.
-        assertThat(mFutureStatus.isDone()).isFalse();
-        assertThat(mFutureDetection.isDone()).isFalse();
+        assertThat(mSystemStatus).isNull();
 
         // Unregister a second time should log an error, but otherwise not cause any action.
         mOasService.unregisterEventListener(callback);
@@ -355,11 +375,12 @@ public final class OccupantAwarenessServiceTest {
                 new IOccupantAwarenessEventCallback.Stub() {
                     @Override
                     public void onStatusChanged(SystemStatusEvent systemStatusEvent) {
-                        mFutureStatus.complete(systemStatusEvent);
+                        mSystemStatus = systemStatusEvent;
+                        mStatusLatch.countDown();
                     }
 
-                    public void onDetectionEvent(OccupantAwarenessDetection detectionEvent) {
-                        mFutureDetection.complete(detectionEvent);
+                    @Override
+                    public void onDetectionEvent(OccupantAwarenessDetection detection) {
                     }
                 };
 
@@ -368,8 +389,19 @@ public final class OccupantAwarenessServiceTest {
     }
 
     /** Resets futures for testing. */
-    private void resetFutures() {
-        mFutureStatus = new CompletableFuture<>();
-        mFutureDetection = new CompletableFuture<>();
+    private void resetStatus() {
+        mStatusLatch = new CountDownLatch(1);
+        mSystemStatus = null;
+    }
+
+    private void waitStatusReady() throws Exception {
+        mStatusLatch.await(1L, TimeUnit.SECONDS);
+    }
+
+    private void pauseForEventPropagation() {
+        try {
+            mStatusLatch.await(100L, TimeUnit.MILLISECONDS);
+        } catch (Exception e) {
+        }
     }
 }
