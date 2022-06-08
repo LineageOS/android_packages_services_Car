@@ -110,7 +110,7 @@ cc_library {
         "libwatchdog_package_info_resolver",
     ],
     whole_static_libs: [
-        "libwatchdog_properties",
+        "liblibwatchdog_properties",
     ],
     export_include_dirs: [
         "src",
