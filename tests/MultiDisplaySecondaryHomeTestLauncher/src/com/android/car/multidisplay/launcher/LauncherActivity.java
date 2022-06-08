@@ -30,6 +30,7 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.util.Log;
 import android.view.Display;
 import android.view.MenuInflater;
@@ -336,6 +337,10 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
         writer.printf("%smAppDrawerShown: %s\n", prefix, mAppDrawerShown);
         writer.printf("%smBackgroundDrawable:\n", prefix);
         mBackgroundDrawable.dump(prefix2, writer);
+    }
+
+    public int getUserId() {
+        return UserHandle.myUserId();
     }
 
     /**
