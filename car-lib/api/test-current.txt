@@ -103,7 +103,7 @@ package android.car.content.pm {
 package android.car.drivingstate {
 
   public final class CarDrivingStateManager {
-    method public void injectDrivingState(int);
+    method @RequiresPermission("android.car.permission.CONTROL_APP_BLOCKING") public void injectDrivingState(int);
   }
 
 }

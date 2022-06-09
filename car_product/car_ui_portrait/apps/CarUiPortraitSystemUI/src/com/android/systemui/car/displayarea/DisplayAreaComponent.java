@@ -70,13 +70,15 @@ public class DisplayAreaComponent extends CoreStartable {
                             mCarDisplayAreaController.hideTitleBar();
                             mCarDisplayAreaController.makeForegroundDaVisible(true);
                         }
-                        mCarDisplayAreaController.makeForegroundDAFullScreen();
+                        mCarDisplayAreaController.setControlBarVisibility(false);
+                        mCarDisplayAreaController.immersiveForSUW(true);
                         mIsDefaultTdaFullScreen = true;
                     } else if (res == 0 && mIsDefaultTdaFullScreen) {
                         // reset
                         mCarDisplayAreaController.makeForegroundDaVisible(false);
-                        mCarDisplayAreaController.setDefaultBounds();
+                        mCarDisplayAreaController.immersiveForSUW(false);
                         mCarDisplayAreaController.showTitleBar();
+                        mCarDisplayAreaController.setControlBarVisibility(true);
                         mIsDefaultTdaFullScreen = false;
                     }
                 }

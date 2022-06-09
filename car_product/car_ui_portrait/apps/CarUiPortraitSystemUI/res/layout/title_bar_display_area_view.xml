@@ -22,6 +22,7 @@
     android:layout_height="@dimen/title_bar_display_area_height"
     android:background="@color/title_bar_display_area_background_color">
     <View
+        android:id="@+id/title_handle_bar"
         android:layout_width="160dp"
         android:layout_height="6dp"
         android:background="@color/title_bar_display_area_handle_bar_color"
@@ -31,9 +32,7 @@
         android:id="@+id/immersive_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="5dp"
-        android:src="@drawable/ic_fullscreen"
+        android:layout_centerInParent="true"
         android:visibility="gone"
     />
     <TextView

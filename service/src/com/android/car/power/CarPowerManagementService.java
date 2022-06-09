@@ -836,7 +836,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // shutdown HU
             mSystemInterface.shutdown();
         } else {
-            doHandleDeepSleep(simulatedMode);
+            doHandleSuspend(simulatedMode);
         }
         synchronized (mLock) {
             mShutdownOnNextSuspend = false;
@@ -1080,13 +1080,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         listenerList.finishBroadcast();
     }
 
-    private void doHandleDeepSleep(boolean simulatedMode) {
+    private void doHandleSuspend(boolean simulatedMode) {
         int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_PREP);
         if (status != PolicyOperationStatus.OK) {
             Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
         }
-        // Keeps holding partial wakelock to prevent entering sleep before enterDeepSleep call.
-        // enterDeepSleep should force sleep entry even if wake lock is kept.
+        // Keeps holding partial wakelock to prevent entering sleep before enterDeepSleep/
+        // enterHibernation call. enterDeepSleep/enterHibernation should force sleep entry even if
+        // wake lock is kept.
         mSystemInterface.switchToPartialWakeLock();
         mHandler.cancelProcessingComplete();
         synchronized (mLock) {

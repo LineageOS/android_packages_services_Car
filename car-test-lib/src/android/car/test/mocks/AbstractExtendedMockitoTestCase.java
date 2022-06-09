@@ -31,6 +31,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.test.AbstractExpectableTestCase;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -89,7 +90,7 @@ import java.util.Set;
       libstaticjvmtiagent \
  *  </code></pre>
  */
-public abstract class AbstractExtendedMockitoTestCase {
+public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectableTestCase {
 
     private static final String TAG = AbstractExtendedMockitoTestCase.class.getSimpleName();
 
