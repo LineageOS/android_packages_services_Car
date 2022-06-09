@@ -500,7 +500,7 @@ public final class CarEvsManager extends CarManagerBase {
     public void returnFrameBuffer(@NonNull CarEvsBufferDescriptor buffer) {
         Objects.requireNonNull(buffer);
         try {
-            mService.returnFrameBuffer(buffer.getId());
+            mService.returnFrameBuffer(buffer);
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
         } finally {

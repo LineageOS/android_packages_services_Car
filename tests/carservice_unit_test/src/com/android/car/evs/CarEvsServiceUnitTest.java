@@ -721,7 +721,7 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         mCarEvsService.setStreamCallback(spiedCallback);
         mCarEvsService.onFrameEvent(bufferId, buffer);
         doAnswer(args -> {
-                mCarEvsService.returnFrameBuffer(bufferId);
+                mCarEvsService.returnFrameBuffer(new CarEvsBufferDescriptor(bufferId, buffer));
                 return true;
         }).when(spiedCallback).onNewFrame(any());
         mCarEvsService.stopVideoStream(spiedCallback);
@@ -859,8 +859,16 @@ public final class CarEvsServiceUnitTest extends AbstractExtendedMockitoTestCase
         when(mMockEvsHalWrapper.openCamera(any())).thenReturn(true);
         when(mMockEvsHalWrapper.connectToHalServiceIfNecessary()).thenReturn(true);
         when(mMockEvsHalWrapper.requestToStartVideoStream()).thenReturn(true);
+
+        // Create a buffer to circulate
+        HardwareBuffer buffer =
+                HardwareBuffer.create(/* width= */ 64, /* height= */ 32,
+                                      /* format= */ HardwareBuffer.RGBA_8888,
+                                      /* layers= */ 1,
+                                      /* usage= */ HardwareBuffer.USAGE_CPU_READ_OFTEN);
         doAnswer(args -> {
-                mCarEvsService.returnFrameBuffer(args.getArgument(0));
+                mCarEvsService.returnFrameBuffer(
+                        new CarEvsBufferDescriptor(args.getArgument(0), buffer));
                 return true;
         }).when(mMockEvsHalWrapper).doneWithFrame(anyInt());
     }

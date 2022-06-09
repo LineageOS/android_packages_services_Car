@@ -1060,25 +1060,27 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      *
      * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
      *
-     * @param bufferId An unique 32-bit integer identifier of the buffer to return.
+     * @param buffer A consumed CarEvsBufferDescriptor object.  This would not be used and returned
+     *               to the native EVS service.
      * @throws IllegalArgumentException if a passed buffer has an unregistered identifier.
      */
     @Override
-    public void returnFrameBuffer(int bufferId) {
+    public void returnFrameBuffer(@NonNull CarEvsBufferDescriptor buffer) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        Objects.requireNonNull(buffer);
 
         synchronized (mLock) {
-            if (!mBufferRecords.contains(bufferId)) {
+            if (!mBufferRecords.contains(buffer.getId())) {
                 Slogf.w(TAG_EVS, "Ignores a request to return a buffer with unknown id = "
-                        + bufferId);
+                        + buffer.getId());
                 return;
             }
 
-            mBufferRecords.remove(bufferId);
+            mBufferRecords.remove(buffer.getId());
         }
 
         // This may throw a NullPointerException if the native EVS service handle is invalid.
-        mHalWrapper.doneWithFrame(bufferId);
+        mHalWrapper.doneWithFrame(buffer.getId());
     }
 
     /**
