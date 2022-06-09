@@ -17,8 +17,6 @@ package com.android.car.hal;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import static java.lang.Integer.toHexString;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
@@ -127,7 +125,7 @@ public class PropertyHalService extends HalServiceBase {
 
     public PropertyHalService(VehicleHal vehicleHal) {
         mPropIds = new PropertyHalServiceIds();
-        mSubscribedHalPropIds = new HashSet<Integer>();
+        mSubscribedHalPropIds = new HashSet<>();
         mVehicleHal = vehicleHal;
         if (mDbg) {
             Slogf.d(TAG, "started PropertyHalService");
@@ -156,7 +154,7 @@ public class PropertyHalService extends HalServiceBase {
                 for (int i = 0; i < mHalPropIdToPropConfig.size(); i++) {
                     HalPropConfig halPropConfig = mHalPropIdToPropConfig.valueAt(i);
                     int mgrPropId = halToManagerPropId(halPropConfig.getPropId());
-                    CarPropertyConfig carPropertyConfig = halPropConfig.toCarPropertyConfig(
+                    CarPropertyConfig<?> carPropertyConfig = halPropConfig.toCarPropertyConfig(
                             mgrPropId);
                     mMgrPropIdToCarPropConfig.put(mgrPropId, carPropertyConfig);
                 }
@@ -388,7 +386,7 @@ public class PropertyHalService extends HalServiceBase {
                             VehiclePropertyIds.toString(halToManagerPropId(halPropId)));
                     continue;
                 }
-                // Check payload if it is a userdebug build.
+                // Check payload if it is an userdebug build.
                 if (BuildHelper.isDebuggableBuild() && !mPropIds.checkPayload(halPropValue)) {
                     Slogf.w(TAG,
                             "Drop event for property: %s because it is failed "
