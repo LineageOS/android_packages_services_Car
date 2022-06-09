@@ -81,12 +81,7 @@ public class CarPackageManagerPermissionTest {
     }
 
     @Test
-    public void testGetTargetCarMajorVersion() {
-        assertThrows(SecurityException.class, () -> mPm.getTargetCarMajorVersion("Y U NO THROW?"));
-    }
-
-    @Test
-    public void testGetTargetCarMinorVersion() {
-        assertThrows(SecurityException.class, () -> mPm.getTargetCarMinorVersion("Y U NO THROW?"));
+    public void testGetTargetCarVersion() {
+        assertThrows(SecurityException.class, () -> mPm.getTargetCarApiVersion("Y U NO THROW?"));
     }
 }

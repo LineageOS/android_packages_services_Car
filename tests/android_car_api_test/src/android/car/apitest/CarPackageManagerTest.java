@@ -16,11 +16,9 @@
 
 package android.car.apitest;
 
-import static org.junit.Assert.assertThrows;
-
 import android.car.Car;
+import android.car.CarApiVersion;
 import android.car.content.pm.CarPackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -46,17 +44,12 @@ public class CarPackageManagerTest extends CarApiTestBase {
     }
 
     @Test
-    public void testGetTargetCarMajorAndMinorVersion_noPackage() throws Exception {
+    public void testgetTargetCarApiVersion_noPackage() throws Exception {
         String pkg = "I can't believe a package with this name exist. If so, well, too bad!";
 
-        NameNotFoundException e = assertThrows(NameNotFoundException.class,
-                () -> mCarPackageManager.getTargetCarMajorVersion(pkg));
-        assertWithMessage("msg on exception (%s) thrown by getTargetCarMinorVersion(%s)", e, pkg)
-                .that(e.getMessage()).contains(pkg);
-        e = assertThrows(NameNotFoundException.class,
-                () -> mCarPackageManager.getTargetCarMinorVersion(pkg));
-        assertWithMessage("msg on exception (%s) thrown by getTargetCarMinorVersion(%s)", e, pkg)
-                .that(e.getMessage()).contains(pkg);
+        CarApiVersion apiVersion = mCarPackageManager.getTargetCarApiVersion(pkg);
+
+        assertWithMessage("getTargetCarApiVersion(%s)", pkg).that(apiVersion).isNull();
     }
 
     @Ignore("TODO(b/228506662): need to update Car.PLATFORM_API_VERSION on master")
@@ -68,11 +61,14 @@ public class CarPackageManagerTest extends CarApiTestBase {
         // doesn't control)
         int targetSdk = Car.getPlatformApiVersion().getMajorVersion();
 
-        assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
-                .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
+        CarApiVersion apiVersion = mCarPackageManager.getTargetCarApiVersion(pkg);
+
+        assertWithMessage("getTargetCarApiVersion(%s)", pkg).that(apiVersion).isNotNull();
+        assertWithMessage("major version for %s", pkg)
+                .that(apiVersion.getMajorVersion())
                 .isEqualTo(targetSdk);
-        assertWithMessage("getTargetCarMinorVersion(%s)", pkg)
-                .that(mCarPackageManager.getTargetCarMinorVersion(pkg))
+        assertWithMessage("minor version for %s", pkg)
+                .that(apiVersion.getMinorVersion())
                 .isEqualTo(0);
     }
 
@@ -80,11 +76,14 @@ public class CarPackageManagerTest extends CarApiTestBase {
     public void testGetTargetCarMajorAndMinorVersion_set() throws Exception {
         String pkg = sContext.getPackageName();
 
-        assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
-                .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
+        CarApiVersion apiVersion = mCarPackageManager.getTargetCarApiVersion(pkg);
+
+        assertWithMessage("getTargetCarApiVersion(%s)", pkg).that(apiVersion).isNotNull();
+        assertWithMessage("major version for %s", pkg)
+                .that(apiVersion.getMajorVersion())
                 .isEqualTo(108);
-        assertWithMessage("getTargetCarMinorVersion(%s)", pkg)
-                .that(mCarPackageManager.getTargetCarMinorVersion(pkg))
+        assertWithMessage("minor version for %s", pkg)
+                .that(apiVersion.getMinorVersion())
                 .isEqualTo(42);
     }
 }
