@@ -109,13 +109,14 @@ public class CarUxRestrictionsManagerServiceTest {
     private SystemInterface mMockSystemInterface;
 
     private Context mSpyContext;
-
+    private SystemInterface mOriginalSystemInterface;
     private File mTempSystemCarDir;
 
     @Before
     public void setUp() throws Exception {
         // Spy context because service needs to access xml resource during init.
         mSpyContext = spy(getInstrumentation().getTargetContext());
+        mOriginalSystemInterface = CarLocalServices.getService(SystemInterface.class);
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
 
@@ -134,7 +135,8 @@ public class CarUxRestrictionsManagerServiceTest {
     @After
     public void tearDown() throws Exception {
         mService = null;
-        CarLocalServices.removeAllServices();
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mOriginalSystemInterface);
     }
 
     @Test
