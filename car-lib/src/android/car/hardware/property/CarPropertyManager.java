@@ -562,7 +562,6 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean getBooleanProperty(int prop, int area) {
-        checkSupportedProperty(prop);
         CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, prop, area);
         return handleNullAndPropertyStatus(carProp, area, false);
     }
@@ -590,7 +589,6 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public float getFloatProperty(int prop, int area) {
-        checkSupportedProperty(prop);
         CarPropertyValue<Float> carProp = getProperty(Float.class, prop, area);
         return handleNullAndPropertyStatus(carProp, area, 0f);
     }
@@ -618,7 +616,6 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getIntProperty(int prop, int area) {
-        checkSupportedProperty(prop);
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, prop, area);
         return handleNullAndPropertyStatus(carProp, area, 0);
     }
@@ -648,7 +645,6 @@ public class CarPropertyManager extends CarManagerBase {
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
     public int[] getIntArrayProperty(int prop, int area) {
-        checkSupportedProperty(prop);
         CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
         Integer[] res = handleNullAndPropertyStatus(carProp, area, new Integer[0]);
         return toIntArray(res);
@@ -729,38 +725,16 @@ public class CarPropertyManager extends CarManagerBase {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public <E> CarPropertyValue<E> getProperty(@NonNull Class<E> clazz, int propId, int areaId) {
-        if (DBG) {
-            Log.d(TAG, "getProperty, propId: 0x" + toHexString(propId)
-                    + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz);
-        }
-
-        checkSupportedProperty(propId);
-
-        try {
-            CarPropertyValue<E> propVal = mService.getProperty(propId, areaId);
-            if (propVal != null && propVal.getValue() != null) {
-                Class<?> actualClass = propVal.getValue().getClass();
-                if (actualClass != clazz) {
-                    throw new IllegalArgumentException("Invalid property type. " + "Expected: "
-                            + clazz + ", but was: " + actualClass);
-                }
+        CarPropertyValue<E> carPropertyValue = getProperty(propId, areaId);
+        if (carPropertyValue != null && carPropertyValue.getValue() != null) {
+            Class<?> actualClass = carPropertyValue.getValue().getClass();
+            if (actualClass != clazz) {
+                throw new IllegalArgumentException(
+                        "Invalid property type. " + "Expected: " + clazz + ", but was: "
+                                + actualClass);
             }
-            return propVal;
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, null);
-        } catch (ServiceSpecificException e) {
-            // For pre R apps, throws the old exceptions.
-            if (mAppTargetSdk < Build.VERSION_CODES.R) {
-                if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
-                    return null;
-                } else {
-                    throw new IllegalStateException(String.format("Failed to get property: 0x%x, "
-                            + "areaId: 0x%x", propId, areaId));
-                }
-            }
-            handleCarServiceSpecificException(e, propId, areaId);
-            return null;
         }
+        return carPropertyValue;
     }
 
     /**
@@ -804,6 +778,10 @@ public class CarPropertyManager extends CarManagerBase {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public <E> CarPropertyValue<E> getProperty(int propId, int areaId) {
+        if (DBG) {
+            Log.d(TAG, "getProperty, propId: " + VehiclePropertyIds.toString(propId)
+                    + ", areaId: 0x" + toHexString(areaId));
+        }
         checkSupportedProperty(propId);
 
         try {
