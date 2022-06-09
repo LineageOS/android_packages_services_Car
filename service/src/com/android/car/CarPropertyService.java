@@ -61,7 +61,7 @@ public class CarPropertyService extends ICarProperty.Stub
     private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(CarPropertyService.class);
     private final Context mContext;
-    private final PropertyHalService mHal;
+    private final PropertyHalService mPropertyHalService;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final Map<IBinder, Client> mClientMap = new ArrayMap<>();
@@ -74,15 +74,15 @@ public class CarPropertyService extends ICarProperty.Stub
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     // Use SparseArray instead of map to save memory.
     @GuardedBy("mLock")
-    private SparseArray<CarPropertyConfig<?>> mConfigs = new SparseArray<>();
+    private SparseArray<CarPropertyConfig<?>> mPropertyIdToCarPropertyConfig = new SparseArray<>();
     @GuardedBy("mLock")
     private SparseArray<Pair<String, String>> mPropToPermission = new SparseArray<>();
 
-    public CarPropertyService(Context context, PropertyHalService hal) {
+    public CarPropertyService(Context context, PropertyHalService propertyHalService) {
         if (DBG) {
             Slogf.d(TAG, "CarPropertyService started!");
         }
-        mHal = hal;
+        mPropertyHalService = propertyHalService;
         mContext = context;
     }
 
@@ -190,13 +190,13 @@ public class CarPropertyService extends ICarProperty.Stub
     public void init() {
         synchronized (mLock) {
             // Cache the configs list and permissions to avoid subsequent binder calls
-            mConfigs = mHal.getPropertyList();
-            mPropToPermission = mHal.getPermissionsForAllProperties();
+            mPropertyIdToCarPropertyConfig = mPropertyHalService.getPropertyList();
+            mPropToPermission = mPropertyHalService.getPermissionsForAllProperties();
             if (DBG) {
-                Slogf.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
+                Slogf.d(TAG, "cache CarPropertyConfigs " + mPropertyIdToCarPropertyConfig.size());
             }
         }
-        mHal.setPropertyHalListener(this);
+        mPropertyHalService.setPropertyHalListener(this);
     }
 
     @Override
@@ -204,7 +204,7 @@ public class CarPropertyService extends ICarProperty.Stub
         synchronized (mLock) {
             mClientMap.clear();
             mPropIdClientMap.clear();
-            mHal.setPropertyHalListener(null);
+            mPropertyHalService.setPropertyHalListener(null);
             mSetOperationClientMap.clear();
         }
     }
@@ -257,14 +257,15 @@ public class CarPropertyService extends ICarProperty.Stub
         CarPropertyConfig propertyConfig;
         Client finalClient;
         synchronized (mLock) {
-            propertyConfig = mConfigs.get(propId);
+            propertyConfig = mPropertyIdToCarPropertyConfig.get(propId);
             if (propertyConfig == null) {
                 // Do not attempt to register an invalid propId
                 Slogf.e(TAG, "registerListener:  propId is not in config list: 0x"
                         + toHexString(propId));
                 return;
             }
-            CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(propId));
+            CarServiceUtils.assertPermission(mContext,
+                    mPropertyHalService.getReadPermission(propId));
             // Get or create the client for this listener
             Client client = mClientMap.get(listenerBinder);
             if (client == null) {
@@ -286,8 +287,8 @@ public class CarPropertyService extends ICarProperty.Stub
                 clients.add(client);
             }
             // Set the new rate
-            if (rate > mHal.getSampleRate(propId)) {
-                mHal.subscribeProperty(propId, rate);
+            if (rate > mPropertyHalService.getSampleRate(propId)) {
+                mPropertyHalService.subscribeProperty(propId, rate);
             }
             finalClient = client;
         }
@@ -334,7 +335,7 @@ public class CarPropertyService extends ICarProperty.Stub
         if (DBG) {
             Slogf.d(TAG, "unregisterListener propId=0x" + toHexString(propId));
         }
-        CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(propId));
+        CarServiceUtils.assertPermission(mContext, mPropertyHalService.getReadPermission(propId));
         if (listener == null) {
             Slogf.e(TAG, "unregisterListener: Listener is null.");
             throw new IllegalArgumentException("Listener is null");
@@ -349,7 +350,7 @@ public class CarPropertyService extends ICarProperty.Stub
         float updateMaxRate = 0f;
         Client client = mClientMap.get(listenerBinder);
         List<Client> propertyClients = mPropIdClientMap.get(propId);
-        if (mConfigs.get(propId) == null) {
+        if (mPropertyIdToCarPropertyConfig.get(propId) == null) {
             // Do not attempt to unregister an invalid propId
             Slogf.e(TAG, "unregisterListener: propId is not in config list:0x%s",
                     toHexString(propId));
@@ -377,7 +378,7 @@ public class CarPropertyService extends ICarProperty.Stub
             // Last listener for this property unsubscribed.  Clean up
             mPropIdClientMap.remove(propId);
             mSetOperationClientMap.remove(propId);
-            mHal.unsubscribeProperty(propId);
+            mPropertyHalService.unsubscribeProperty(propId);
             return;
         }
         // Other listeners are still subscribed.  Calculate the new rate
@@ -386,10 +387,10 @@ public class CarPropertyService extends ICarProperty.Stub
             float rate = c.getRate(propId);
             updateMaxRate = Math.max(rate, updateMaxRate);
         }
-        if (Float.compare(updateMaxRate, mHal.getSampleRate(propId)) != 0) {
+        if (Float.compare(updateMaxRate, mPropertyHalService.getSampleRate(propId)) != 0) {
             try {
                 // Only reset the sample rate if needed
-                mHal.subscribeProperty(propId, updateMaxRate);
+                mPropertyHalService.subscribeProperty(propId, updateMaxRate);
             } catch (IllegalArgumentException e) {
                 Slogf.e(TAG, "failed to subscribe to propId=0x" + toHexString(propId)
                         + ", error: " + e);
@@ -415,9 +416,9 @@ public class CarPropertyService extends ICarProperty.Stub
         int[] allPropId;
         // Avoid permission checking under lock.
         synchronized (mLock) {
-            allPropId = new int[mConfigs.size()];
-            for (int i = 0; i < mConfigs.size(); i++) {
-                allPropId[i] = mConfigs.keyAt(i);
+            allPropId = new int[mPropertyIdToCarPropertyConfig.size()];
+            for (int i = 0; i < mPropertyIdToCarPropertyConfig.size(); i++) {
+                allPropId[i] = mPropertyIdToCarPropertyConfig.keyAt(i);
             }
         }
         return getPropertyConfigList(allPropId);
@@ -447,7 +448,7 @@ public class CarPropertyService extends ICarProperty.Stub
                     || checkAndUpdateGrantedPermissionSet(mContext, grantedPermission,
                     writePermission)) {
                 synchronized (mLock) {
-                    availableProp.add(mConfigs.get(propId));
+                    availableProp.add(mPropertyIdToCarPropertyConfig.get(propId));
                 }
             }
         }
@@ -471,20 +472,20 @@ public class CarPropertyService extends ICarProperty.Stub
     public CarPropertyValue getProperty(int prop, int zone)
             throws IllegalArgumentException, ServiceSpecificException {
         synchronized (mLock) {
-            if (mConfigs.get(prop) == null) {
+            if (mPropertyIdToCarPropertyConfig.get(prop) == null) {
                 // Do not attempt to register an invalid propId
                 Slogf.e(TAG, "getProperty: propId is not in config list:0x" + toHexString(prop));
                 return null;
             }
         }
          // Checks if android has permission to read property.
-        String permission = mHal.getReadPermission(prop);
+        String permission = mPropertyHalService.getReadPermission(prop);
         if (permission == null) {
             throw new SecurityException("Platform does not have permission to read value for "
                     + "property Id: 0x" + Integer.toHexString(prop));
         }
         CarServiceUtils.assertPermission(mContext, permission);
-        return mHal.getProperty(prop, zone);
+        return mPropertyHalService.getProperty(prop, zone);
     }
 
     /**
@@ -540,10 +541,10 @@ public class CarPropertyService extends ICarProperty.Stub
         int propId = prop.getPropertyId();
         checkPropertyAccessibility(propId);
         // need an extra permission for writing display units properties.
-        if (mHal.isDisplayUnitsProperty(propId)) {
+        if (mPropertyHalService.isDisplayUnitsProperty(propId)) {
             CarServiceUtils.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
         }
-        mHal.setProperty(prop);
+        mPropertyHalService.setProperty(prop);
         IBinder listenerBinder = listener.asBinder();
         synchronized (mLock) {
             Client client = mClientMap.get(listenerBinder);
@@ -563,14 +564,14 @@ public class CarPropertyService extends ICarProperty.Stub
     private void checkPropertyAccessibility(int propId) {
         // Checks if the car implemented the property or not.
         synchronized (mLock) {
-            if (mConfigs.get(propId) == null) {
+            if (mPropertyIdToCarPropertyConfig.get(propId) == null) {
                 throw new IllegalArgumentException("Property Id: 0x" + Integer.toHexString(propId)
                         + " does not exist in the vehicle");
             }
         }
 
         // Checks if android has permission to write property.
-        String propertyWritePermission = mHal.getWritePermission(propId);
+        String propertyWritePermission = mPropertyHalService.getWritePermission(propId);
         if (propertyWritePermission == null) {
             throw new SecurityException("Platform does not have permission to change value for "
                     + "property Id: 0x" + Integer.toHexString(propId));
