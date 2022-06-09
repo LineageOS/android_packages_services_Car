@@ -196,7 +196,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 Slogf.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
             }
         }
-        mHal.setListener(this);
+        mHal.setPropertyHalListener(this);
     }
 
     @Override
@@ -204,7 +204,7 @@ public class CarPropertyService extends ICarProperty.Stub
         synchronized (mLock) {
             mClientMap.clear();
             mPropIdClientMap.clear();
-            mHal.setListener(null);
+            mHal.setPropertyHalListener(null);
             mSetOperationClientMap.clear();
         }
     }
