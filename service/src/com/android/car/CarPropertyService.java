@@ -93,7 +93,7 @@ public class CarPropertyService extends ICarProperty.Stub
         private final Object mLock = new Object();
         // propId->rate map.
         @GuardedBy("mLock")
-        private final SparseArray<Float> mRateMap = new SparseArray<Float>();
+        private final SparseArray<Float> mRateMap = new SparseArray<>();
         @GuardedBy("mLock")
         private boolean mIsDead = false;
 
@@ -279,7 +279,7 @@ public class CarPropertyService extends ICarProperty.Stub
             // Insert the client into the propId --> clients map
             List<Client> clients = mPropIdClientMap.get(propId);
             if (clients == null) {
-                clients = new ArrayList<Client>();
+                clients = new ArrayList<>();
                 mPropIdClientMap.put(propId, clients);
             }
             if (!clients.contains(client)) {
@@ -323,7 +323,7 @@ public class CarPropertyService extends ICarProperty.Stub
         try {
             client.onEvent(events);
         } catch (RemoteException ex) {
-            // If we cannot send a record, its likely the connection snapped. Let the binder
+            // If we cannot send a record, it's likely the connection snapped. Let the binder
             // death handle the situation.
             Slogf.e(TAG, "onEvent calling failed", ex);
         }
@@ -643,7 +643,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
         // Parse the dispatch list to send events. We must call the callback outside the
         // scoped lock since the callback might call some function in CarPropertyService
-        // which might cause dead-lock.
+        // which might cause deadlock.
         // In rare cases, if this specific client is unregistered after the lock but before
         // the callback, we would call callback on an unregistered client which should be ok because
         // 'onEvent' is an async oneway callback that might be delivered after unregistration
@@ -652,7 +652,7 @@ public class CarPropertyService extends ICarProperty.Stub
             try {
                 client.onEvent(eventsToDispatch.get(client));
             } catch (RemoteException ex) {
-                // If we cannot send a record, its likely the connection snapped. Let binder
+                // If we cannot send a record, it's likely the connection snapped. Let binder
                 // death handle the situation.
                 Slogf.e(TAG, "onEvent calling failed: " + ex);
             }
