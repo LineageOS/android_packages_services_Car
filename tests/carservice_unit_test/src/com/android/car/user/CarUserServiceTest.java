@@ -903,8 +903,11 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
 
     @Test
     public void testSwitchUser_nonExistingTarget() throws Exception {
-        assertThrows(IllegalArgumentException.class, () -> mCarUserService
-                .switchUser(NON_EXISTING_USER, mAsyncCallTimeoutMs, mUserSwitchFuture));
+        switchUser(NON_EXISTING_USER, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertUserSwitchResult(getUserSwitchResult(NON_EXISTING_USER),
+                UserSwitchResult.STATUS_INVALID_REQUEST);
+        verifyNoLogoutUser();
     }
 
     @Test

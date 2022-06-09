@@ -880,7 +880,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkManageOrCreateUsersPermission("switchUser");
         Objects.requireNonNull(receiver);
         UserHandle targetUser = mUserHandleHelper.getExistingUserHandle(targetUserId);
-        Preconditions.checkArgument(targetUser != null, "Target user doesn't exist");
+        if (targetUser == null) {
+            sendUserSwitchResult(receiver, /* isLogout= */ false,
+                    UserSwitchResult.STATUS_INVALID_REQUEST);
+            return;
+        }
         if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
             sendUserSwitchResult(receiver, /* isLogout= */ false,
                     UserSwitchResult.STATUS_NOT_SWITCHABLE);
