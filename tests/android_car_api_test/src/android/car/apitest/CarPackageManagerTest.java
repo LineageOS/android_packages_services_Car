@@ -66,7 +66,7 @@ public class CarPackageManagerTest extends CarApiTestBase {
         // TODO(b/228506662): it would be better add another app that explicitly sets sdkTarget
         // version instead, so it doesn't depend on com.android.car's version (which this test
         // doesn't control)
-        int targetSdk = Car.PLATFORM_API_VERSION.getMajorVersion();
+        int targetSdk = Car.getPlatformApiVersion().getMajorVersion();
 
         assertWithMessage("getTargetCarMajorVersion(%s)", pkg)
                 .that(mCarPackageManager.getTargetCarMajorVersion(pkg))
