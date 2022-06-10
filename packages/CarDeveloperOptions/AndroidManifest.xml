@@ -860,6 +860,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$PrivacyControlsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.security.CredentialStorage"
             android:enabled="false"
             android:exported="false"
@@ -2481,7 +2490,7 @@
         </activity>
 
         <activity
-            android:name="com.android.settingslib.qrcode.QrCodeScanModeActivity"
+            android:name="com.android.settings.bluetooth.QrCodeScanModeActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
