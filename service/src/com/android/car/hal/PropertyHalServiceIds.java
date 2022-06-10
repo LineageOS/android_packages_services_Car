@@ -57,22 +57,22 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Helper class to define which property IDs are used by PropertyHalService.  This class binds the
- * read and write permissions to the property ID.
+ * Helper class to define which AIDL HAL property IDs are used by PropertyHalService.  This class
+ * binds the read and write permissions to the property ID.
  */
 public class PropertyHalServiceIds {
 
     /**
-     * Index key is propertyId, and the value is readPermission, writePermission.
+     * Index key is an AIDL HAL property ID, and the value is readPermission, writePermission.
      * If the property can not be written (or read), set value as NULL.
      * Throw an IllegalArgumentException when try to write READ_ONLY properties or read WRITE_ONLY
      * properties.
      */
-    private final SparseArray<Pair<String, String>> mProps;
-    private final HashSet<Integer> mPropForUnits;
+    private final SparseArray<Pair<String, String>> mHalPropIdToPermissions;
+    private final HashSet<Integer> mHalPropIdsForUnits;
     // Key: propId, Value: possible value for the property
-    private final HashMap<Integer, Set<Integer>> mPropToValidValue;
-    private final HashMap<Integer, Integer> mPropToValidBitFlag;
+    private final HashMap<Integer, Set<Integer>> mHalPropIdToValidValues;
+    private final HashMap<Integer, Integer> mHalPropIdToValidBitFlag;
     private static final String TAG = CarLog.tagFor(PropertyHalServiceIds.class);
     // Enums are used as return value in Vehicle HAL.
     private static final Set<Integer> FUEL_TYPE =
@@ -166,484 +166,481 @@ public class PropertyHalServiceIds {
     private static final int PERMISSION_CAR_VENDOR_NOT_ACCESSIBLE = 0xF0000000;
 
     public PropertyHalServiceIds() {
-        mProps = new SparseArray<>();
-        mPropForUnits = new HashSet<>();
-        mPropToValidValue = new HashMap<>();
-        mPropToValidBitFlag = new HashMap<>();
+        mHalPropIdToPermissions = new SparseArray<>();
+        mHalPropIdsForUnits = new HashSet<>();
+        mHalPropIdToValidValues = new HashMap<>();
+        mHalPropIdToValidBitFlag = new HashMap<>();
         // Add propertyId and read/write permissions
         // Cabin Properties
-        mProps.put(VehicleProperty.DOOR_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.DOOR_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_DOORS,
                 Car.PERMISSION_CONTROL_CAR_DOORS));
-        mProps.put(VehicleProperty.DOOR_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.DOOR_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_DOORS,
                 Car.PERMISSION_CONTROL_CAR_DOORS));
-        mProps.put(VehicleProperty.DOOR_LOCK, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.DOOR_LOCK, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_DOORS,
                 Car.PERMISSION_CONTROL_CAR_DOORS));
-        mProps.put(VehicleProperty.MIRROR_Z_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_Z_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
-        mProps.put(VehicleProperty.MIRROR_Z_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_Z_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
-        mProps.put(VehicleProperty.MIRROR_Y_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_Y_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
-        mProps.put(VehicleProperty.MIRROR_Y_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_Y_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
-        mProps.put(VehicleProperty.MIRROR_LOCK, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_LOCK, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
-        mProps.put(VehicleProperty.MIRROR_FOLD, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.MIRROR_FOLD, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_MIRRORS,
                 Car.PERMISSION_CONTROL_CAR_MIRRORS));
-        mProps.put(VehicleProperty.SEAT_MEMORY_SELECT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_MEMORY_SELECT, new Pair<>(
                 null,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_MEMORY_SET, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_MEMORY_SET, new Pair<>(
                 null,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BELT_BUCKLED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BELT_BUCKLED, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BELT_HEIGHT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BELT_HEIGHT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BELT_HEIGHT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BELT_HEIGHT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_FORE_AFT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_FORE_AFT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_FORE_AFT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_FORE_AFT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BACKREST_ANGLE_1_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BACKREST_ANGLE_1_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BACKREST_ANGLE_1_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BACKREST_ANGLE_1_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BACKREST_ANGLE_2_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BACKREST_ANGLE_2_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_BACKREST_ANGLE_2_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_BACKREST_ANGLE_2_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEIGHT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEIGHT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEIGHT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEIGHT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_DEPTH_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_DEPTH_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_DEPTH_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_DEPTH_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_TILT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_TILT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_TILT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_TILT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_LUMBAR_FORE_AFT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_FORE_AFT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_LUMBAR_FORE_AFT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_FORE_AFT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_LUMBAR_SIDE_SUPPORT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_SIDE_SUPPORT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_LUMBAR_SIDE_SUPPORT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_LUMBAR_SIDE_SUPPORT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEADREST_HEIGHT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_HEIGHT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEADREST_HEIGHT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_HEIGHT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEADREST_ANGLE_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_ANGLE_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEADREST_ANGLE_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_ANGLE_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEADREST_FORE_AFT_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_FORE_AFT_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_HEADREST_FORE_AFT_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_HEADREST_FORE_AFT_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 Car.PERMISSION_CONTROL_CAR_SEATS));
-        mProps.put(VehicleProperty.SEAT_OCCUPANCY, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SEAT_OCCUPANCY, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_SEATS,
                 null));
-        mProps.put(VehicleProperty.WINDOW_POS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.WINDOW_POS, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_WINDOWS,
                 Car.PERMISSION_CONTROL_CAR_WINDOWS));
-        mProps.put(VehicleProperty.WINDOW_MOVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.WINDOW_MOVE, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_WINDOWS,
                 Car.PERMISSION_CONTROL_CAR_WINDOWS));
-        mProps.put(VehicleProperty.WINDOW_LOCK, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.WINDOW_LOCK, new Pair<>(
                 Car.PERMISSION_CONTROL_CAR_WINDOWS,
                 Car.PERMISSION_CONTROL_CAR_WINDOWS));
 
         // HVAC properties
-        mProps.put(VehicleProperty.HVAC_FAN_SPEED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_FAN_SPEED, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_FAN_DIRECTION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_FAN_DIRECTION, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_TEMPERATURE_CURRENT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_TEMPERATURE_CURRENT, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_TEMPERATURE_SET, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_TEMPERATURE_SET, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_TEMPERATURE_VALUE_SUGGESTION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_TEMPERATURE_VALUE_SUGGESTION, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_DEFROSTER, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_DEFROSTER, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_ELECTRIC_DEFROSTER_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_ELECTRIC_DEFROSTER_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_AC_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_AC_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_MAX_AC_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_MAX_AC_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_MAX_DEFROST_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_MAX_DEFROST_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_RECIRC_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_RECIRC_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_DUAL_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_DUAL_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_AUTO_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_AUTO_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_SEAT_TEMPERATURE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_SEAT_TEMPERATURE, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_SIDE_MIRROR_HEAT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_SIDE_MIRROR_HEAT, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_STEERING_WHEEL_HEAT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_STEERING_WHEEL_HEAT, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_ACTUAL_FAN_SPEED_RPM, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_ACTUAL_FAN_SPEED_RPM, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_POWER_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_POWER_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     null));
-        mProps.put(VehicleProperty.HVAC_AUTO_RECIRC_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_AUTO_RECIRC_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
-        mProps.put(VehicleProperty.HVAC_SEAT_VENTILATION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HVAC_SEAT_VENTILATION, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
 
         // Info properties
-        mProps.put(VehicleProperty.INFO_VIN, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_VIN, new Pair<>(
                     Car.PERMISSION_IDENTIFICATION,
                     null));
-        mProps.put(VehicleProperty.INFO_MAKE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_MAKE, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_MODEL, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_MODEL, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_MODEL_YEAR, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_MODEL_YEAR, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_FUEL_CAPACITY, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_FUEL_CAPACITY, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_FUEL_TYPE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_FUEL_TYPE, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_EV_BATTERY_CAPACITY, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_EV_BATTERY_CAPACITY, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_EV_PORT_LOCATION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_EV_PORT_LOCATION, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_DRIVER_SEAT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_DRIVER_SEAT, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
-        mProps.put(VehicleProperty.INFO_EXTERIOR_DIMENSIONS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.INFO_EXTERIOR_DIMENSIONS, new Pair<>(
                     Car.PERMISSION_CAR_INFO,
                     null));
 
         // Sensor properties
-        mProps.put(VehicleProperty.PERF_ODOMETER, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PERF_ODOMETER, new Pair<>(
                 Car.PERMISSION_MILEAGE,
                 null));
-        mProps.put(VehicleProperty.PERF_VEHICLE_SPEED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PERF_VEHICLE_SPEED, new Pair<>(
                 Car.PERMISSION_SPEED,
                 null));
-        mProps.put(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY, new Pair<>(
                 Car.PERMISSION_SPEED,
                 null));
-        mProps.put(VehicleProperty.ENGINE_COOLANT_TEMP, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ENGINE_COOLANT_TEMP, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 null));
-        mProps.put(VehicleProperty.ENGINE_OIL_LEVEL, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ENGINE_OIL_LEVEL, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 null));
-        mProps.put(VehicleProperty.ENGINE_OIL_TEMP, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ENGINE_OIL_TEMP, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 null));
-        mProps.put(VehicleProperty.ENGINE_RPM, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ENGINE_RPM, new Pair<>(
                 Car.PERMISSION_CAR_ENGINE_DETAILED,
                 null));
-        mProps.put(VehicleProperty.WHEEL_TICK, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.WHEEL_TICK, new Pair<>(
                 Car.PERMISSION_SPEED,
                 null));
-        mProps.put(VehicleProperty.FUEL_LEVEL, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FUEL_LEVEL, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
-        mProps.put(VehicleProperty.FUEL_DOOR_OPEN, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FUEL_DOOR_OPEN, new Pair<>(
                 Car.PERMISSION_ENERGY_PORTS,
                 Car.PERMISSION_CONTROL_ENERGY_PORTS));
-        mProps.put(VehicleProperty.EV_BATTERY_LEVEL, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_BATTERY_LEVEL, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
-        mProps.put(VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_CURRENT_DRAW_LIMIT, new Pair<>(
                 Car.PERMISSION_ENERGY, Car.PERMISSION_CONTROL_CAR_ENERGY));
-        mProps.put(VehicleProperty.EV_CHARGE_PERCENT_LIMIT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_PERCENT_LIMIT, new Pair<>(
                 Car.PERMISSION_ENERGY, Car.PERMISSION_CONTROL_CAR_ENERGY));
-        mProps.put(VehicleProperty.EV_CHARGE_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_STATE, new Pair<>(
                 Car.PERMISSION_ENERGY, null));
-        mProps.put(VehicleProperty.EV_CHARGE_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_SWITCH, new Pair<>(
                 Car.PERMISSION_ENERGY, Car.PERMISSION_CONTROL_CAR_ENERGY));
-        mProps.put(VehicleProperty.EV_CHARGE_TIME_REMAINING, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_TIME_REMAINING, new Pair<>(
                 Car.PERMISSION_ENERGY, null));
-        mProps.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE, new Pair<>(
                 Car.PERMISSION_ENERGY, null));
-        mProps.put(VehicleProperty.EV_CHARGE_PORT_OPEN, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_PORT_OPEN, new Pair<>(
                 Car.PERMISSION_ENERGY_PORTS,
                 Car.PERMISSION_CONTROL_ENERGY_PORTS));
-        mProps.put(VehicleProperty.EV_CHARGE_PORT_CONNECTED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_CHARGE_PORT_CONNECTED, new Pair<>(
                 Car.PERMISSION_ENERGY_PORTS,
                 null));
-        mProps.put(VehicleProperty.EV_BATTERY_INSTANTANEOUS_CHARGE_RATE, new Pair<>(
-                Car.PERMISSION_ENERGY,
-                null));
-        mProps.put(VehicleProperty.RANGE_REMAINING, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.EV_BATTERY_INSTANTANEOUS_CHARGE_RATE,
+                new Pair<>(Car.PERMISSION_ENERGY, null));
+        mHalPropIdToPermissions.put(VehicleProperty.RANGE_REMAINING, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 Car.PERMISSION_ADJUST_RANGE_REMAINING));
-        mProps.put(VehicleProperty.TIRE_PRESSURE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.TIRE_PRESSURE, new Pair<>(
                 Car.PERMISSION_TIRES,
                 null));
-        mProps.put(VehicleProperty.CRITICALLY_LOW_TIRE_PRESSURE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.CRITICALLY_LOW_TIRE_PRESSURE, new Pair<>(
                 Car.PERMISSION_TIRES,
                 null));
-        mProps.put(VehicleProperty.PERF_STEERING_ANGLE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PERF_STEERING_ANGLE, new Pair<>(
                 Car.PERMISSION_READ_STEERING_STATE,
                 null));
-        mProps.put(VehicleProperty.PERF_REAR_STEERING_ANGLE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PERF_REAR_STEERING_ANGLE, new Pair<>(
                 Car.PERMISSION_READ_STEERING_STATE,
                 null));
-        mProps.put(VehicleProperty.GEAR_SELECTION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.GEAR_SELECTION, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
-        mProps.put(VehicleProperty.CURRENT_GEAR, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.CURRENT_GEAR, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
-        mProps.put(VehicleProperty.PARKING_BRAKE_ON, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PARKING_BRAKE_ON, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
-        mProps.put(VehicleProperty.PARKING_BRAKE_AUTO_APPLY, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.PARKING_BRAKE_AUTO_APPLY, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
-        mProps.put(VehicleProperty.FUEL_LEVEL_LOW, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FUEL_LEVEL_LOW, new Pair<>(
                 Car.PERMISSION_ENERGY,
                 null));
-        mProps.put(VehicleProperty.NIGHT_MODE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.NIGHT_MODE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_ENVIRONMENT,
                 null));
-        mProps.put(VehicleProperty.TURN_SIGNAL_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.TURN_SIGNAL_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.IGNITION_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.IGNITION_STATE, new Pair<>(
                 Car.PERMISSION_POWERTRAIN,
                 null));
-        mProps.put(VehicleProperty.ABS_ACTIVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ABS_ACTIVE, new Pair<>(
                 Car.PERMISSION_CAR_DYNAMICS_STATE,
                 null));
-        mProps.put(VehicleProperty.TRACTION_CONTROL_ACTIVE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.TRACTION_CONTROL_ACTIVE, new Pair<>(
                 Car.PERMISSION_CAR_DYNAMICS_STATE,
                 null));
-        mProps.put(VehicleProperty.ENV_OUTSIDE_TEMPERATURE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ENV_OUTSIDE_TEMPERATURE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_ENVIRONMENT,
                 null));
-        mProps.put(VehicleProperty.HEADLIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HEADLIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.FOG_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FOG_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.HAZARD_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HAZARD_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_EXTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.HEADLIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HEADLIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.FOG_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FOG_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_EXTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.READING_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.READING_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_READ_INTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.CABIN_LIGHTS_STATE, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.CABIN_LIGHTS_STATE, new Pair<>(
                 Car.PERMISSION_READ_INTERIOR_LIGHTS,
                 null));
-        mProps.put(VehicleProperty.READING_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.READING_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.CABIN_LIGHTS_SWITCH, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.CABIN_LIGHTS_SWITCH, new Pair<>(
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS,
                 Car.PERMISSION_CONTROL_INTERIOR_LIGHTS));
-        mProps.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ANDROID_EPOCH_TIME, new Pair<>(
                 null,
                 Car.PERMISSION_CAR_EPOCH_TIME));
-        mProps.put(VehicleProperty.STORAGE_ENCRYPTION_BINDING_SEED, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.STORAGE_ENCRYPTION_BINDING_SEED, new Pair<>(
                 Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED,
                 Car.PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED));
         // Display_Units
-        mProps.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
-        mPropForUnits.add(VehicleProperty.DISTANCE_DISPLAY_UNITS);
-        mProps.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, new Pair<>(
+        mHalPropIdsForUnits.add(VehicleProperty.DISTANCE_DISPLAY_UNITS);
+        mHalPropIdToPermissions.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
-        mPropForUnits.add(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS);
-        mProps.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, new Pair<>(
+        mHalPropIdsForUnits.add(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS);
+        mHalPropIdToPermissions.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
-        mPropForUnits.add(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS);
-        mProps.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, new Pair<>(
+        mHalPropIdsForUnits.add(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS);
+        mHalPropIdToPermissions.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
-        mPropForUnits.add(VehicleProperty.EV_BATTERY_DISPLAY_UNITS);
-        mProps.put(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME, new Pair<>(
+        mHalPropIdsForUnits.add(VehicleProperty.EV_BATTERY_DISPLAY_UNITS);
+        mHalPropIdToPermissions.put(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME,
+                new Pair<>(Car.PERMISSION_READ_DISPLAY_UNITS,
+                        Car.PERMISSION_CONTROL_DISPLAY_UNITS));
+        mHalPropIdsForUnits.add(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME);
+        mHalPropIdToPermissions.put(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, new Pair<>(
                 Car.PERMISSION_READ_DISPLAY_UNITS,
                 Car.PERMISSION_CONTROL_DISPLAY_UNITS));
-        mPropForUnits.add(VehicleProperty.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME);
-        mProps.put(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, new Pair<>(
-                Car.PERMISSION_READ_DISPLAY_UNITS,
-                Car.PERMISSION_CONTROL_DISPLAY_UNITS));
-        mPropForUnits.add(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+        mHalPropIdsForUnits.add(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
 
-        mProps.put(VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION, new Pair<>(
                 Car.PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO,
                 null));
-        mProps.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE, new Pair<>(
-                Car.PERMISSION_CAR_INFO,
-                null));
-        mProps.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS, new Pair<>(
-                Car.PERMISSION_CAR_INFO,
-                null));
-        mProps.put(VehicleProperty.VEHICLE_CURB_WEIGHT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
+                new Pair<>(Car.PERMISSION_CAR_INFO, null));
+        mHalPropIdToPermissions.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
+                new Pair<>(Car.PERMISSION_CAR_INFO, null));
+        mHalPropIdToPermissions.put(VehicleProperty.VEHICLE_CURB_WEIGHT, new Pair<>(
                 Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
-        mProps.put(VehicleProperty.TRAILER_PRESENT, new Pair<>(
+        mHalPropIdToPermissions.put(VehicleProperty.TRAILER_PRESENT, new Pair<>(
                 Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
         // mPropToValidValue should contain all properties which has @data_enum in types.hal
-        mPropToValidValue.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
-        mPropToValidValue.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
-        mPropToValidValue.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, PORT_LOCATION);
-        mPropToValidValue.put(VehicleProperty.INFO_DRIVER_SEAT, VEHICLE_SEAT);
-        mPropToValidValue.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, PORT_LOCATION);
-        mPropToValidValue.put(VehicleProperty.ENGINE_OIL_LEVEL, OIL_LEVEL);
-        mPropToValidValue.put(VehicleProperty.GEAR_SELECTION, VEHICLE_GEAR);
-        mPropToValidValue.put(VehicleProperty.CURRENT_GEAR, VEHICLE_GEAR);
-        mPropToValidValue.put(VehicleProperty.TURN_SIGNAL_STATE, TURN_SIGNAL);
-        mPropToValidValue.put(VehicleProperty.IGNITION_STATE, IGNITION_STATE);
-        mPropToValidValue.put(VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS, VEHICLE_UNITS);
-        mPropToValidValue.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, VEHICLE_UNITS);
-        mPropToValidValue.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, VEHICLE_UNITS);
-        mPropToValidValue.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, VEHICLE_UNITS);
-        mPropToValidValue.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, VEHICLE_UNITS);
-        mPropToValidValue.put(VehicleProperty.SEAT_OCCUPANCY, SEAT_OCCUPANCY_STATE);
-        mPropToValidValue.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.HAZARD_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.CABIN_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.READING_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
-        mPropToValidValue.put(VehicleProperty.EV_CHARGE_STATE, EV_CHARGE_STATE);
-        mPropToValidValue.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE,
+        mHalPropIdToValidValues.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
+        mHalPropIdToValidValues.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
+        mHalPropIdToValidValues.put(VehicleProperty.INFO_FUEL_DOOR_LOCATION, PORT_LOCATION);
+        mHalPropIdToValidValues.put(VehicleProperty.INFO_DRIVER_SEAT, VEHICLE_SEAT);
+        mHalPropIdToValidValues.put(VehicleProperty.INFO_MULTI_EV_PORT_LOCATIONS, PORT_LOCATION);
+        mHalPropIdToValidValues.put(VehicleProperty.ENGINE_OIL_LEVEL, OIL_LEVEL);
+        mHalPropIdToValidValues.put(VehicleProperty.GEAR_SELECTION, VEHICLE_GEAR);
+        mHalPropIdToValidValues.put(VehicleProperty.CURRENT_GEAR, VEHICLE_GEAR);
+        mHalPropIdToValidValues.put(VehicleProperty.TURN_SIGNAL_STATE, TURN_SIGNAL);
+        mHalPropIdToValidValues.put(VehicleProperty.IGNITION_STATE, IGNITION_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.HVAC_TEMPERATURE_DISPLAY_UNITS, VEHICLE_UNITS);
+        mHalPropIdToValidValues.put(VehicleProperty.DISTANCE_DISPLAY_UNITS, VEHICLE_UNITS);
+        mHalPropIdToValidValues.put(VehicleProperty.FUEL_VOLUME_DISPLAY_UNITS, VEHICLE_UNITS);
+        mHalPropIdToValidValues.put(VehicleProperty.TIRE_PRESSURE_DISPLAY_UNITS, VEHICLE_UNITS);
+        mHalPropIdToValidValues.put(VehicleProperty.EV_BATTERY_DISPLAY_UNITS, VEHICLE_UNITS);
+        mHalPropIdToValidValues.put(VehicleProperty.SEAT_OCCUPANCY, SEAT_OCCUPANCY_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.HIGH_BEAM_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.HEADLIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.FRONT_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.REAR_FOG_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_STATE, VEHICLE_LIGHT_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.EV_CHARGE_STATE, EV_CHARGE_STATE);
+        mHalPropIdToValidValues.put(VehicleProperty.EV_REGENERATIVE_BRAKING_STATE,
                 EV_REGENERATIVE_BREAKING_STATE);
-        mPropToValidValue.put(VehicleProperty.HEADLIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-        mPropToValidValue.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
+        mHalPropIdToValidValues.put(VehicleProperty.HEADLIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.HIGH_BEAM_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.FRONT_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.REAR_FOG_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
+        mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
                 ETC_CARD_STATUS);
-        mPropToValidValue.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
+        mHalPropIdToValidValues.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
                 ETC_CARD_TYPE);
-        mPropToValidValue.put(VehicleProperty.TRAILER_PRESENT,
+        mHalPropIdToValidValues.put(VehicleProperty.TRAILER_PRESENT,
                 TRAILER_PRESENT);
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
-        mPropToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
+        mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
-        mPropToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION,
+        mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
     }
 
@@ -654,7 +651,7 @@ public class PropertyHalServiceIds {
      */
     @Nullable
     public String getReadPermission(int propId) {
-        Pair<String, String> p = mProps.get(propId);
+        Pair<String, String> p = mHalPropIdToPermissions.get(propId);
         if (p != null) {
             // Property ID exists.  Return read permission.
             if (p.first == null) {
@@ -676,7 +673,7 @@ public class PropertyHalServiceIds {
      */
     @Nullable
     public String getWritePermission(int propId) {
-        Pair<String, String> p = mProps.get(propId);
+        Pair<String, String> p = mHalPropIdToPermissions.get(propId);
         if (p != null) {
             // Property ID exists.  Return write permission.
             if (p.second == null) {
@@ -699,14 +696,14 @@ public class PropertyHalServiceIds {
      */
     public boolean isSupportedProperty(int propId) {
         // Property is in the list of supported properties
-        return mProps.get(propId) != null || isVendorProperty(propId);
+        return mHalPropIdToPermissions.get(propId) != null || isVendorProperty(propId);
     }
 
     /**
      * Check if the property is one of display units properties.
      */
     public boolean isPropertyToChangeUnits(int propertyId) {
-        return mPropForUnits.contains(propertyId);
+        return mHalPropIdsForUnits.contains(propertyId);
     }
 
     /**
@@ -729,7 +726,7 @@ public class PropertyHalServiceIds {
             }
             int readPermission = configArray[index++];
             int writePermission = configArray[index++];
-            mProps.put(propId, new Pair<>(
+            mHalPropIdToPermissions.put(propId, new Pair<>(
                     toPermissionString(readPermission, propId),
                     toPermissionString(writePermission, propId)));
         }
@@ -842,17 +839,17 @@ public class PropertyHalServiceIds {
             Slogf.e(TAG, "Property value" + propValue + "has an invalid data format");
             return false;
         }
-        if (mPropToValidValue.containsKey(propId)) {
+        if (mHalPropIdToValidValues.containsKey(propId)) {
             return checkDataEnum(propValue);
         }
-        if (mPropToValidBitFlag.containsKey(propId)) {
+        if (mHalPropIdToValidBitFlag.containsKey(propId)) {
             return checkValidBitFlag(propValue);
         }
         return true;
     }
 
     private boolean checkValidBitFlag(HalPropValue propValue) {
-        int flagCombination = mPropToValidBitFlag.get(propValue.getPropId());
+        int flagCombination = mHalPropIdToValidBitFlag.get(propValue.getPropId());
         for (int i = 0; i < propValue.getInt32ValuesSize(); i++) {
             int value = propValue.getInt32Value(i);
             if ((value & flagCombination) != value) {
@@ -897,7 +894,7 @@ public class PropertyHalServiceIds {
     }
     private boolean checkDataEnum(HalPropValue propValue) {
         int propId = propValue.getPropId();
-        Set<Integer> validValue = mPropToValidValue.get(propId);
+        Set<Integer> validValue = mHalPropIdToValidValues.get(propId);
         for (int i = 0; i < propValue.getInt32ValuesSize(); i++) {
             if (!validValue.contains(propValue.getInt32Value(i))) {
                 return false;
