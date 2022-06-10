@@ -26,13 +26,32 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
 /**
- * Represents minimum platform sdk int {@link android.os.Build.VERSION#SDK_INT} this method / type
- * / field can be used.
+ * Minimum platform sdk version this method / type / field can be used.
  *
  * @hide
  */
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE, FIELD, TYPE, METHOD})
 public @interface MinimumPlatformSdkVersion {
-    int value();
+
+    /**
+     * Represents the minimum version of Android Platform required to call this API.
+     *
+     * <p> Represents the minimum version of the Android platform (as defined by
+     * {@link android.os.Build.VERSION#SDK_INT}) that is required to call this API.
+     */
+    int majorVersion();
+
+    /**
+     * Represents the minor version of the Android platform required to call this API.
+     *
+     * <p> Represents the minimum minor version of the Android platform (as defined by
+     * {@link android.car.Car#PLATFORM_VERSION_MINOR_INT}) that is required to call this API.
+     *
+     * <p> The standard Android SDK doesn't provide an API to check incremental versions of the
+     * platform, but Car needs them as the Car APIs can be updated separately from the platform, and
+     * in some cases some APIs might depend on services that are not updatable by Car. This version
+     * would be incresed when Car API version is changed with the same {@link #majorVersion}.
+     */
+    int minorVersion() default 0;
 }
