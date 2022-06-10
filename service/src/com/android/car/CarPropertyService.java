@@ -253,7 +253,6 @@ public class CarPropertyService extends ICarProperty.Stub
             throw new IllegalArgumentException("listener cannot be null.");
         }
 
-        IBinder listenerBinder = listener.asBinder();
         CarPropertyConfig propertyConfig;
         Client finalClient;
         synchronized (mLock) {
@@ -264,9 +263,9 @@ public class CarPropertyService extends ICarProperty.Stub
                         + toHexString(propId));
                 return;
             }
-            CarServiceUtils.assertPermission(mContext,
-                    mPropertyHalService.getReadPermission(propId));
+            assertReadPermission(propId);
             // Get or create the client for this listener
+            IBinder listenerBinder = listener.asBinder();
             Client client = mClientMap.get(listenerBinder);
             if (client == null) {
                 client = new Client(listener);
@@ -335,11 +334,11 @@ public class CarPropertyService extends ICarProperty.Stub
         if (DBG) {
             Slogf.d(TAG, "unregisterListener propId=0x" + toHexString(propId));
         }
-        CarServiceUtils.assertPermission(mContext, mPropertyHalService.getReadPermission(propId));
         if (listener == null) {
             Slogf.e(TAG, "unregisterListener: Listener is null.");
             throw new IllegalArgumentException("Listener is null");
         }
+        assertReadPermission(propId);
 
         IBinder listenerBinder = listener.asBinder();
         unregisterListenerBinderForProps(List.of(propId), listenerBinder);
@@ -478,13 +477,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 return null;
             }
         }
-         // Checks if android has permission to read property.
-        String permission = mPropertyHalService.getReadPermission(prop);
-        if (permission == null) {
-            throw new SecurityException("Platform does not have permission to read value for "
-                    + "property Id: 0x" + Integer.toHexString(prop));
-        }
-        CarServiceUtils.assertPermission(mContext, permission);
+        assertReadPermission(prop);
         return mPropertyHalService.getProperty(prop, zone);
     }
 
@@ -539,7 +532,7 @@ public class CarPropertyService extends ICarProperty.Stub
     public void setProperty(CarPropertyValue prop, ICarPropertyEventListener listener)
             throws IllegalArgumentException, ServiceSpecificException {
         int propId = prop.getPropertyId();
-        checkPropertyAccessibility(propId);
+        checkPropertyWritable(propId);
         // need an extra permission for writing display units properties.
         if (mPropertyHalService.isDisplayUnitsProperty(propId)) {
             CarServiceUtils.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
@@ -560,8 +553,8 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     // The helper method checks if the vehicle has implemented this property and the property
-    // is accessible or not for platform and client.
-    private void checkPropertyAccessibility(int propId) {
+    // is writable or not for platform and client.
+    private void checkPropertyWritable(int propId) {
         // Checks if the car implemented the property or not.
         synchronized (mLock) {
             if (mPropertyIdToCarPropertyConfig.get(propId) == null) {
@@ -570,14 +563,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
         }
 
-        // Checks if android has permission to write property.
-        String propertyWritePermission = mPropertyHalService.getWritePermission(propId);
-        if (propertyWritePermission == null) {
-            throw new SecurityException("Platform does not have permission to change value for "
-                    + "property Id: 0x" + Integer.toHexString(propId));
-        }
-        // Checks if the client has the permission.
-        CarServiceUtils.assertPermission(mContext, propertyWritePermission);
+        assertWritePermission(propId);
     }
 
     // Updates recorder for set operation.
@@ -689,5 +675,25 @@ public class CarPropertyService extends ICarProperty.Stub
         } catch (RemoteException ex) {
             Slogf.e(TAG, "onEvent calling failed: " + ex);
         }
+    }
+
+    private void assertReadPermission(int propertyId) {
+        String readPermission = mPropertyHalService.getReadPermission(propertyId);
+        if (readPermission == null) {
+            throw new SecurityException(
+                    "Platform does not have permission to read value for property ID: "
+                            + VehiclePropertyIds.toString(propertyId));
+        }
+        CarServiceUtils.assertPermission(mContext, readPermission);
+    }
+
+    private void assertWritePermission(int propertyId) {
+        String writePermission = mPropertyHalService.getWritePermission(propertyId);
+        if (writePermission == null) {
+            throw new SecurityException(
+                    "Platform does not have permission to write value for property ID: "
+                            + VehiclePropertyIds.toString(propertyId));
+        }
+        CarServiceUtils.assertPermission(mContext, writePermission);
     }
 }
