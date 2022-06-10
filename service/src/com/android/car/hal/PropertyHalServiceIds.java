@@ -68,11 +68,11 @@ public class PropertyHalServiceIds {
      * Throw an IllegalArgumentException when try to write READ_ONLY properties or read WRITE_ONLY
      * properties.
      */
-    private final SparseArray<Pair<String, String>> mHalPropIdToPermissions;
-    private final HashSet<Integer> mHalPropIdsForUnits;
+    private final SparseArray<Pair<String, String>> mHalPropIdToPermissions = new SparseArray<>();
+    private final HashSet<Integer> mHalPropIdsForUnits = new HashSet<>();
     // Key: propId, Value: possible value for the property
-    private final SparseArray<Set<Integer>> mHalPropIdToValidValues;
-    private final SparseIntArray mHalPropIdToValidBitFlag;
+    private final SparseArray<Set<Integer>> mHalPropIdToValidValues = new SparseArray<>();
+    private final SparseIntArray mHalPropIdToValidBitFlag = new SparseIntArray();
     private static final String TAG = CarLog.tagFor(PropertyHalServiceIds.class);
     // Enums are used as return value in Vehicle HAL.
     private static final Set<Integer> FUEL_TYPE =
@@ -166,10 +166,6 @@ public class PropertyHalServiceIds {
     private static final int PERMISSION_CAR_VENDOR_NOT_ACCESSIBLE = 0xF0000000;
 
     public PropertyHalServiceIds() {
-        mHalPropIdToPermissions = new SparseArray<>();
-        mHalPropIdsForUnits = new HashSet<>();
-        mHalPropIdToValidValues = new SparseArray<>();
-        mHalPropIdToValidBitFlag = new SparseIntArray();
         // Add propertyId and read/write permissions
         // Cabin Properties
         mHalPropIdToPermissions.put(VehicleProperty.DOOR_POS, new Pair<>(
