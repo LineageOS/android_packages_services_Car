@@ -168,6 +168,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private Drawable mChevronDownDrawable;
     private boolean mIsForegroundDaVisible = false;
     private boolean mIsForegroundDaFullScreen = false;
+    private boolean mIsForegroundAppRequestingImmersiveMode = false;
     private boolean mIsUiModeNight = false;
     // contains the list of activities that will be displayed on feature {@link
     // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
@@ -326,6 +327,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     if (mImmersiveButtonView != null) {
                         mImmersiveButtonView.setVisibility(requested ? View.VISIBLE : View.GONE);
                     }
+                    mIsForegroundAppRequestingImmersiveMode = requested;
                 }
 
                 @Override
@@ -655,6 +657,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
                     @Override
                     public void onMove(float x, float y) {
+                        if (mIsForegroundAppRequestingImmersiveMode) {
+                            return;
+                        }
                         if (y <= mScreenHeightWithoutNavBar - mDefaultDisplayHeight
                                 - mControlBarDisplayHeight) {
                             return;
@@ -665,6 +670,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
                     @Override
                     public void onFinish(float x, float y) {
+                        if (mIsForegroundAppRequestingImmersiveMode) {
+                            return;
+                        }
                         if (y >= mTitleBarDragThreshold) {
                             animateToControlBarState((int) y,
                                     mScreenHeightWithoutNavBar + mTitleBarHeight, 0);
@@ -1268,8 +1276,11 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mSyncQueue.queue(wct);
 
         mSyncQueue.runInSync(t -> {
+            Rect foregroundApplicationAndTitleBarDisplayBound = new Rect(0, -topBound,
+                    foregroundApplicationDisplayBounds.width(),
+                    foregroundApplicationDisplayBounds.height());
             t.setWindowCrop(mForegroundApplicationsDisplay.getLeash(),
-                    mTotalScreenWidth, mTotalScreenHeight);
+                    foregroundApplicationAndTitleBarDisplayBound);
             if (setFullPosition) {
                 t.setPosition(mForegroundApplicationsDisplay.getLeash(), 0, 0);
             }
