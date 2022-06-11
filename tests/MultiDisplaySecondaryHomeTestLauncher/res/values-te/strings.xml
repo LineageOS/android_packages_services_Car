@@ -25,6 +25,5 @@
     <string name="set_wallpaper" msgid="3650915172749345197">"వాల్‌పేపర్‌ను సెట్ చేయి"</string>
     <string name="new_instance" msgid="1924479866055190730">"కొత్త సందర్భంలో ప్రారంభించడానికి రిక్వెస్ట్ చేయండి"</string>
     <string name="wallpaper_description" msgid="5885164573334720996">"మల్టీ డిస్‌ప్లే వాల్‌పేపర్ నమూనా"</string>
-    <!-- no translation found for exit (3648703694102318310) -->
-    <skip />
+    <string name="exit" msgid="3648703694102318310">"నిష్క్రమించండి"</string>
 </resources>
