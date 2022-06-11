@@ -150,7 +150,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private final int mForegroundDisplayTop;
     private final AssistUtils mAssistUtils;
     private HashSet<Integer> mActiveTasksOnForegroundDA;
-    private HashSet<String> mActivePackagesOnForegroundDA;
     private HashSet<Integer> mActiveTasksOnBackgroundDA;
     private final ConfigurationController mConfigurationController;
     private final UiModeManager mUiModeManager;
@@ -281,10 +280,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                         resetVoicePlateDisplayArea();
                     }
 
-                    if (mActivePackagesOnForegroundDA != null && cmp != null) {
-                        mActivePackagesOnForegroundDA.remove(cmp.getPackageName());
-                    }
-
                     if (mActiveTasksOnForegroundDA == null) {
                         return;
                     }
@@ -308,9 +303,20 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             new CarUiPortraitDisplaySystemBarsController.Callback() {
                 @Override
                 public void onImmersiveRequestedChanged(String pkg, boolean requested) {
-                    if (mActivePackagesOnForegroundDA == null
-                            || !mActivePackagesOnForegroundDA.contains(pkg)) {
-                        // only respond to requests by a foreground package
+                    // If the requesting application is a voice plate, background, or ignored
+                    // package, ignore immersive requests.
+                    if (mVoicePlateActivitySet != null && mVoicePlateActivitySet.stream().anyMatch(
+                            component -> component.getPackageName().equals(pkg))) {
+                        return;
+                    }
+                    if (mBackgroundActivityComponent != null
+                            && mBackgroundActivityComponent.stream().anyMatch(
+                                component -> component.getPackageName().equals(pkg))) {
+                        return;
+                    }
+                    if (mIgnoreOpeningForegroundDAComponentsSet != null
+                            && mIgnoreOpeningForegroundDAComponentsSet.stream().anyMatch(
+                                component -> component.getPackageName().equals(pkg))) {
                         return;
                     }
 
@@ -797,12 +803,10 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 startAnimation(CONTROL_BAR);
             }
             addActiveTaskToForegroundDAMap(taskInfo.taskId);
-            addActivePackageToForegroundDAMap(componentName);
         } else {
             logIfDebuggable("opening DA on request for cmp: " + componentName);
             startAnimation(DEFAULT);
             addActiveTaskToForegroundDAMap(taskInfo.taskId);
-            addActivePackageToForegroundDAMap(componentName);
         }
 
         mForegroundDAComponentsVisibilityMap.replaceAll((n, v) -> name.equals(n));
@@ -816,15 +820,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             mActiveTasksOnForegroundDA.add(taskId);
             logIfDebuggable("added task to foreground DA: " + taskId + " total tasks: "
                     + mActiveTasksOnForegroundDA.size());
-        }
-    }
-
-    private void addActivePackageToForegroundDAMap(ComponentName componentName) {
-        if (mActivePackagesOnForegroundDA == null) {
-            mActivePackagesOnForegroundDA = new HashSet<>();
-        }
-        if (componentName != null) {
-            mActivePackagesOnForegroundDA.add(componentName.getPackageName());
         }
     }
 

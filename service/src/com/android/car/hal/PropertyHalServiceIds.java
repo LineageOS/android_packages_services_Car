@@ -46,12 +46,12 @@ import android.hardware.automotive.vehicle.VehicleTurnSignal;
 import android.hardware.automotive.vehicle.VehicleUnit;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -68,11 +68,11 @@ public class PropertyHalServiceIds {
      * Throw an IllegalArgumentException when try to write READ_ONLY properties or read WRITE_ONLY
      * properties.
      */
-    private final SparseArray<Pair<String, String>> mHalPropIdToPermissions;
-    private final HashSet<Integer> mHalPropIdsForUnits;
+    private final SparseArray<Pair<String, String>> mHalPropIdToPermissions = new SparseArray<>();
+    private final HashSet<Integer> mHalPropIdsForUnits = new HashSet<>();
     // Key: propId, Value: possible value for the property
-    private final HashMap<Integer, Set<Integer>> mHalPropIdToValidValues;
-    private final HashMap<Integer, Integer> mHalPropIdToValidBitFlag;
+    private final SparseArray<Set<Integer>> mHalPropIdToValidValues = new SparseArray<>();
+    private final SparseIntArray mHalPropIdToValidBitFlag = new SparseIntArray();
     private static final String TAG = CarLog.tagFor(PropertyHalServiceIds.class);
     // Enums are used as return value in Vehicle HAL.
     private static final Set<Integer> FUEL_TYPE =
@@ -166,10 +166,6 @@ public class PropertyHalServiceIds {
     private static final int PERMISSION_CAR_VENDOR_NOT_ACCESSIBLE = 0xF0000000;
 
     public PropertyHalServiceIds() {
-        mHalPropIdToPermissions = new SparseArray<>();
-        mHalPropIdsForUnits = new HashSet<>();
-        mHalPropIdToValidValues = new HashMap<>();
-        mHalPropIdToValidBitFlag = new HashMap<>();
         // Add propertyId and read/write permissions
         // Cabin Properties
         mHalPropIdToPermissions.put(VehicleProperty.DOOR_POS, new Pair<>(
@@ -839,10 +835,10 @@ public class PropertyHalServiceIds {
             Slogf.e(TAG, "Property value" + propValue + "has an invalid data format");
             return false;
         }
-        if (mHalPropIdToValidValues.containsKey(propId)) {
+        if (mHalPropIdToValidValues.contains(propId)) {
             return checkDataEnum(propValue);
         }
-        if (mHalPropIdToValidBitFlag.containsKey(propId)) {
+        if (mHalPropIdToValidBitFlag.indexOfKey(propId) >= 0) {
             return checkValidBitFlag(propValue);
         }
         return true;

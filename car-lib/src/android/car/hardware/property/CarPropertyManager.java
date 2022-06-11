@@ -59,7 +59,8 @@ public class CarPropertyManager extends CarManagerBase {
     private final ICarProperty mService;
     private final int mAppTargetSdk;
 
-    private CarPropertyEventListenerToService mCarPropertyEventToService;
+    private final CarPropertyEventListenerToService mCarPropertyEventToService =
+            new CarPropertyEventListenerToService(this);
 
     /** Record of locally active properties. Key is propertyId */
     private final SparseArray<CarPropertyListeners> mActivePropertyListener =
@@ -251,9 +252,6 @@ public class CarPropertyManager extends CarManagerBase {
     public boolean registerCallback(@NonNull CarPropertyEventCallback callback,
             int propertyId, @FloatRange(from = 0.0, to = 100.0) float rate) {
         synchronized (mActivePropertyListener) {
-            if (mCarPropertyEventToService == null) {
-                mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
-            }
             CarPropertyConfig<?> config = getCarPropertyConfig(propertyId);
             if (config == null) {
                 Log.e(TAG, "registerListener:  propId is not in config list:  " + propertyId);
@@ -291,25 +289,25 @@ public class CarPropertyManager extends CarManagerBase {
         return true;
     }
 
-    private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub{
-        private final WeakReference<CarPropertyManager> mMgr;
+    private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {
+        private final WeakReference<CarPropertyManager> mCarPropertyManager;
 
-        CarPropertyEventListenerToService(CarPropertyManager mgr) {
-            mMgr = new WeakReference<>(mgr);
+        CarPropertyEventListenerToService(CarPropertyManager carPropertyManager) {
+            mCarPropertyManager = new WeakReference<>(carPropertyManager);
         }
 
         @Override
-        public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
-            CarPropertyManager manager = mMgr.get();
-            if (manager != null) {
-                manager.handleEvent(events);
+        public void onEvent(List<CarPropertyEvent> carPropertyEvents) throws RemoteException {
+            CarPropertyManager carPropertyManager = mCarPropertyManager.get();
+            if (carPropertyManager != null) {
+                carPropertyManager.handleEvents(carPropertyEvents);
             }
         }
     }
 
-    private void handleEvent(List<CarPropertyEvent> events) {
+    private void handleEvents(List<CarPropertyEvent> carPropertyEvents) {
         if (mHandler != null) {
-            mHandler.sendEvents(events);
+            mHandler.sendEvents(carPropertyEvents);
         }
     }
 
@@ -856,9 +854,6 @@ public class CarPropertyManager extends CarManagerBase {
         }
         checkSupportedProperty(propId);
         try {
-            if (mCarPropertyEventToService == null) {
-                mCarPropertyEventToService = new CarPropertyEventListenerToService(this);
-            }
             mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
                     mCarPropertyEventToService);
         } catch (RemoteException e) {
@@ -1019,7 +1014,6 @@ public class CarPropertyManager extends CarManagerBase {
     public void onCarDisconnected() {
         synchronized (mActivePropertyListener) {
             mActivePropertyListener.clear();
-            mCarPropertyEventToService = null;
         }
     }
 }

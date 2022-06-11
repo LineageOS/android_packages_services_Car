@@ -68,13 +68,13 @@ public class PropertyHalService extends HalServiceBase {
                             VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS});
     private static final String TAG = CarLog.tagFor(PropertyHalService.class);
     private final VehicleHal mVehicleHal;
-    private final PropertyHalServiceIds mPropertyHalServiceIds;
+    private final PropertyHalServiceIds mPropertyHalServiceIds = new PropertyHalServiceIds();
     private final HalPropValueBuilder mPropValueBuilder;
 
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
     @GuardedBy("mLock")
-    private final Set<Integer> mSubscribedHalPropIds;
+    private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
 
     private final Object mLock = new Object();
 
@@ -124,8 +124,6 @@ public class PropertyHalService extends HalServiceBase {
     }
 
     public PropertyHalService(VehicleHal vehicleHal) {
-        mPropertyHalServiceIds = new PropertyHalServiceIds();
-        mSubscribedHalPropIds = new HashSet<>();
         mVehicleHal = vehicleHal;
         if (mDbg) {
             Slogf.d(TAG, "started PropertyHalService");
