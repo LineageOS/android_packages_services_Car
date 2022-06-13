@@ -79,7 +79,7 @@ java_defaults {
         "android.hardware.automotive.audiocontrol-V1.0-java",
         "android.hardware.automotive.audiocontrol-V2.0-java",
         "android.hardware.automotive.audiocontrol-V2-java",
-        "android.hardware.automotive.vehicle-V1-java",
+        "android.hardware.automotive.vehicle-V2-java",
         "android.hardware.automotive.vehicle-V2.0-java",
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
@@ -154,7 +154,7 @@ java_library {
     ],
 
     static_libs: [
-        "android.hardware.automotive.vehicle-V1-java",
+        "android.hardware.automotive.vehicle-V2-java",
         "android.hardware.automotive.vehicle-V2.0-java",
     ],
 
