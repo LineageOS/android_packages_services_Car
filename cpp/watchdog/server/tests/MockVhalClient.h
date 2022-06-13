@@ -28,7 +28,7 @@ namespace watchdog {
 class MockVhalClient final : public android::frameworks::automotive::vhal::IVhalClient {
 public:
     template <class T>
-    using VhalResult = android::hardware::automotive::vehicle::VhalResult<T>;
+    using VhalClientResult = android::frameworks::automotive::vhal::VhalClientResult<T>;
 
     explicit MockVhalClient(const std::shared_ptr<MockVehicle>& vehicle) { mVehicle = vehicle; }
     ~MockVhalClient() { mVehicle.reset(); }
@@ -50,23 +50,24 @@ public:
                 (const android::frameworks::automotive::vhal::IHalPropValue&,
                  std::shared_ptr<GetValueCallbackFunc>),
                 (override));
-    MOCK_METHOD(VhalResult<std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>,
-                getValueSync, (const android::frameworks::automotive::vhal::IHalPropValue&),
-                (override));
+    MOCK_METHOD(
+            VhalClientResult<std::unique_ptr<android::frameworks::automotive::vhal::IHalPropValue>>,
+            getValueSync, (const android::frameworks::automotive::vhal::IHalPropValue&),
+            (override));
     MOCK_METHOD(void, setValue,
                 (const android::frameworks::automotive::vhal::IHalPropValue&,
                  std::shared_ptr<SetValueCallbackFunc>),
                 (override));
-    MOCK_METHOD(VhalResult<void>, setValueSync,
+    MOCK_METHOD(VhalClientResult<void>, setValueSync,
                 (const android::frameworks::automotive::vhal::IHalPropValue&), (override));
-    MOCK_METHOD(VhalResult<void>, addOnBinderDiedCallback,
+    MOCK_METHOD(VhalClientResult<void>, addOnBinderDiedCallback,
                 (std::shared_ptr<OnBinderDiedCallbackFunc>), (override));
-    MOCK_METHOD(VhalResult<void>, removeOnBinderDiedCallback,
+    MOCK_METHOD(VhalClientResult<void>, removeOnBinderDiedCallback,
                 (std::shared_ptr<OnBinderDiedCallbackFunc>), (override));
-    MOCK_METHOD(VhalResult<std::vector<
+    MOCK_METHOD(VhalClientResult<std::vector<
                         std::unique_ptr<android::frameworks::automotive::vhal::IHalPropConfig>>>,
                 getAllPropConfigs, (), (override));
-    MOCK_METHOD(VhalResult<std::vector<
+    MOCK_METHOD(VhalClientResult<std::vector<
                         std::unique_ptr<android::frameworks::automotive::vhal::IHalPropConfig>>>,
                 getPropConfigs, (std::vector<int32_t>), (override));
 

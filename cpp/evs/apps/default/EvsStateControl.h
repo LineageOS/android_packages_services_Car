@@ -85,7 +85,7 @@ public:
 
 private:
     void updateLoop();
-    aidl::android::hardware::automotive::vehicle::StatusCode invokeGet(
+    android::frameworks::automotive::vhal::ErrorCode invokeGet(
             aidl::android::hardware::automotive::vehicle::VehiclePropValue* pRequestedPropValue);
     bool selectStateForCurrentConditions();
     bool configureEvsPipeline(State desiredState);  // Only call from one thread!
