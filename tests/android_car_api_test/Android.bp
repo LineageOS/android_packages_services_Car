@@ -48,6 +48,7 @@ android_test {
         "android.car.test.utils",
         "androidx.test.runner",
         "compatibility-device-util-axt",
+        "guava-android-testlib",
         "platform-test-annotations",
         "testng",
         "truth-prebuilt",
