@@ -233,5 +233,22 @@ public class CarSettings {
         @SystemApi
         public static final String KEY_SETUP_WIZARD_IN_PROGRESS =
                 "android.car.SETUP_WIZARD_IN_PROGRESS";
+
+        /**
+         * Key for a {@code ;} separated list of packages disabled on resource overuse.
+         *
+         * <p>The value is written by {@link com.android.car.watchdog.CarWatchdogService}.
+         *
+         * <p>The value is read by user interfaces (such as launcher) that show applications
+         * disabled on resource overuse. When a user selects any application from this list,
+         * the user interface should either enable the application immediately or provide user
+         * affordance to enable the application when the driving conditions are safe.
+         *
+         * <p>When an application (which is on this list) is enabled, CarService will immediately
+         * remove the application's package name form the list.
+         * @hide
+         */
+        public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE =
+                "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
     }
 }

@@ -16,12 +16,13 @@
 
 package com.android.car.telemetry.publisher;
 
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
+import static android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+
 import static com.android.car.telemetry.AtomsProto.Atom.ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
-import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
 import static com.android.car.telemetry.publisher.StatsPublisher.ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID;
 import static com.android.car.telemetry.publisher.StatsPublisher.ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID;
 import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID;
@@ -43,6 +44,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.app.StatsManager;
+import android.car.telemetry.TelemetryProto;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PersistableBundle;
@@ -61,7 +63,6 @@ import com.android.car.telemetry.StatsLogProto.GaugeBucketInfo;
 import com.android.car.telemetry.StatsLogProto.GaugeMetricData;
 import com.android.car.telemetry.StatsLogProto.StatsLogReport;
 import com.android.car.telemetry.StatsdConfigProto;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeHandlerWrapper;
 

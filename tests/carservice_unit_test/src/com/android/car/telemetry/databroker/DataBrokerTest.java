@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.Nullable;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.hardware.CarPropertyConfig;
-import android.car.telemetry.MetricsConfigKey;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Handler;
@@ -38,15 +38,16 @@ import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
+import android.util.Log;
+import android.util.TimingsTraceLog;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
-import com.android.car.telemetry.publisher.StatsManagerProxy;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -67,6 +68,8 @@ import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
+    private static final String TAG = DataBrokerTest.class.getSimpleName();
+
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
     private static final int PRIORITY_HIGH = 1;
@@ -90,8 +93,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_FOO =
             TelemetryProto.MetricsConfig.newBuilder().setName("Foo").setVersion(
                     1).addSubscribers(SUBSCRIBER_FOO).build();
-    private static final MetricsConfigKey KEY_FOO = new MetricsConfigKey(
-            METRICS_CONFIG_FOO.getName(), METRICS_CONFIG_FOO.getVersion());
+    private static final String NAME_FOO = METRICS_CONFIG_FOO.getName();
 
     /** MetricsConfig that contains a low priority subscriber. */
     private static final TelemetryProto.Subscriber SUBSCRIBER_BAR =
@@ -100,9 +102,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_BAR =
             TelemetryProto.MetricsConfig.newBuilder().setName("Bar").setVersion(
                     1).addSubscribers(SUBSCRIBER_BAR).build();
-    private static final MetricsConfigKey KEY_BAR = new MetricsConfigKey(
-            METRICS_CONFIG_BAR.getName(), METRICS_CONFIG_BAR.getVersion());
-
+    private static final String NAME_BAR = METRICS_CONFIG_BAR.getName();
 
     // when count reaches 0, all handler messages are scheduled to be dispatched after current time
     private CountDownLatch mIdleHandlerLatch = new CountDownLatch(1);
@@ -121,20 +121,21 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     @Mock
     private Handler mMockHandler;
     @Mock
-    private StatsManagerProxy mMockStatsManager;
-    @Mock
     private IBinder mMockScriptExecutorBinder;
     @Mock
     private ResultStore mMockResultStore;
+    @Mock
+    private TimingsTraceLog mMockTimingsTraceLog;
 
     @Before
     public void setUp() throws Exception {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
         PublisherFactory factory = new PublisherFactory(
-                mMockCarPropertyService, mMockHandler, mMockStatsManager,
+                mMockCarPropertyService, mMockHandler, mMockContext,
                 Files.createTempDirectory("telemetry_test").toFile());
-        mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
+        mDataBroker = new DataBrokerImpl(
+                mMockContext, factory, mMockResultStore, mMockTimingsTraceLog);
         mDataBroker.setOnScriptFinishedCallback(mMockScriptFinishedCallback);
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {
@@ -163,9 +164,30 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
                 false);
     }
 
+    @After
+    public void tearDown() throws Exception {
+        if (mDataBroker != null) {
+            // Remove all to make sure that those are not kicked in after test.
+            mDataBroker.getTelemetryHandler().removeMessages(DataBrokerImpl.MSG_HANDLE_TASK);
+            mDataBroker.getTelemetryHandler().removeMessages(
+                    DataBrokerImpl.MSG_BIND_TO_SCRIPT_EXECUTOR);
+            mDataBroker.getTelemetryHandler().removeMessages(
+                    DataBrokerImpl.MSG_STOP_HANGING_SCRIPT);
+        }
+        Log.i(TAG, "tearDown completed");
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder.spyStatic(ParcelFileDescriptor.class);
+    }
+
+    @Test
+    public void testStopHangingScript_shouldUnbindScriptExecutor() throws Exception {
+        mDataBroker.getTelemetryHandler().sendEmptyMessage(DataBrokerImpl.MSG_STOP_HANGING_SCRIPT);
+
+        waitForTelemetryThreadToFinish();
+        verify(mMockContext).unbindService(any());
     }
 
     @Test
@@ -282,7 +304,9 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
 
         waitForTelemetryThreadToFinish();
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
-        verify(mMockResultStore).putError(eq(METRICS_CONFIG_FOO.getName()), eq(expectedError));
+        verify(mMockResultStore).putErrorResult(
+                eq(METRICS_CONFIG_FOO.getName()), eq(expectedError));
+        verify(mMockScriptFinishedCallback).onScriptFinished(eq(NAME_FOO));
     }
 
     @Test
@@ -300,7 +324,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
         verify(mMockResultStore).putFinalResult(
                 eq(mHighPriorityTask.getMetricsConfig().getName()), eq(mData));
-        verify(mMockScriptFinishedCallback).onScriptFinished(eq(KEY_FOO));
+        verify(mMockScriptFinishedCallback).onScriptFinished(eq(NAME_FOO));
     }
 
     @Test
@@ -396,7 +420,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
                     }
                 });
         mDataBroker.mBindScriptExecutorDelayMillis = 0L; // immediately rebind for testing purpose
-        mDataBroker.addMetricsConfig(KEY_FOO, METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfig(NAME_FOO, METRICS_CONFIG_FOO);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
 
@@ -416,7 +440,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any()))
                 .thenReturn(false, false, false, false, false, false);
         mDataBroker.mBindScriptExecutorDelayMillis = 0L; // immediately rebind for testing purpose
-        mDataBroker.addMetricsConfig(KEY_FOO, METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfig(NAME_FOO, METRICS_CONFIG_FOO);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
 
@@ -445,6 +469,33 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     }
 
     @Test
+    public void testScheduleNextTask_shouldPreventHangingScript() throws Exception {
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+
+        waitForTelemetryThreadToFinish();
+        assertThat(mDataBroker.getTelemetryHandler().hasMessages(
+                DataBrokerImpl.MSG_STOP_HANGING_SCRIPT)).isTrue();
+    }
+
+    @Test
+    public void testScheduleNextTask_whenScriptReturns_shouldCancelStopHangingScriptMessage()
+            throws Exception {
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+        waitForTelemetryThreadToFinish();
+        mFakeScriptExecutor.notifyScriptSuccess(mData); // script returns
+
+        waitForTelemetryThreadToFinish();
+        assertThat(mDataBroker.getTelemetryHandler().hasMessages(
+                DataBrokerImpl.MSG_STOP_HANGING_SCRIPT)).isFalse();
+    }
+
+    @Test
     public void testAddTaskToQueue_shouldInvokeScriptExecutor() throws Exception {
         mDataBroker.addTaskToQueue(mHighPriorityTask);
 
@@ -454,29 +505,29 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
 
     @Test
     public void testAddMetricsConfig_newMetricsConfig() {
-        mDataBroker.addMetricsConfig(KEY_BAR, METRICS_CONFIG_BAR);
+        mDataBroker.addMetricsConfig(NAME_BAR, METRICS_CONFIG_BAR);
 
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(1);
-        assertThat(mDataBroker.getSubscriptionMap()).containsKey(KEY_BAR);
+        assertThat(mDataBroker.getSubscriptionMap()).containsKey(NAME_BAR);
         // there should be one data subscriber in the subscription list of METRICS_CONFIG_BAR
-        assertThat(mDataBroker.getSubscriptionMap().get(KEY_BAR)).hasSize(1);
+        assertThat(mDataBroker.getSubscriptionMap().get(NAME_BAR)).hasSize(1);
     }
 
 
     @Test
     public void testAddMetricsConfig_duplicateMetricsConfig_shouldDoNothing() {
-        mDataBroker.addMetricsConfig(KEY_FOO, METRICS_CONFIG_FOO);
-        mDataBroker.addMetricsConfig(KEY_FOO, METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfig(NAME_FOO, METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfig(NAME_FOO, METRICS_CONFIG_FOO);
 
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(1);
-        assertThat(mDataBroker.getSubscriptionMap()).containsKey(KEY_FOO);
-        assertThat(mDataBroker.getSubscriptionMap().get(KEY_FOO)).hasSize(1);
+        assertThat(mDataBroker.getSubscriptionMap()).containsKey(NAME_FOO);
+        assertThat(mDataBroker.getSubscriptionMap().get(NAME_FOO)).hasSize(1);
     }
 
     @Test
     public void testRemoveMetricsConfiguration_shouldRemoveAllAssociatedTasks() {
-        mDataBroker.addMetricsConfig(KEY_FOO, METRICS_CONFIG_FOO);
-        mDataBroker.addMetricsConfig(KEY_BAR, METRICS_CONFIG_BAR);
+        mDataBroker.addMetricsConfig(NAME_FOO, METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfig(NAME_BAR, METRICS_CONFIG_BAR);
         ScriptExecutionTask taskWithMetricsConfigFoo = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 mData,
@@ -488,7 +539,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         taskQueue.add(taskWithMetricsConfigFoo); // associated with METRICS_CONFIG_FOO
         assertThat(taskQueue).hasSize(3);
 
-        mDataBroker.removeMetricsConfig(KEY_FOO);
+        mDataBroker.removeMetricsConfig(NAME_FOO);
 
         assertThat(taskQueue).hasSize(1);
         assertThat(taskQueue.poll()).isEqualTo(mLowPriorityTask);
@@ -496,15 +547,15 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
 
     @Test
     public void testRemoveMetricsConfiguration_whenMetricsConfigNonExistent_shouldDoNothing() {
-        mDataBroker.removeMetricsConfig(KEY_BAR);
+        mDataBroker.removeMetricsConfig(NAME_BAR);
 
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(0);
     }
 
     @Test
     public void testRemoveAllMetricsConfigs_shouldRemoveTasksAndClearSubscriptionMap() {
-        mDataBroker.addMetricsConfig(KEY_FOO, METRICS_CONFIG_FOO);
-        mDataBroker.addMetricsConfig(KEY_BAR, METRICS_CONFIG_BAR);
+        mDataBroker.addMetricsConfig(NAME_FOO, METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfig(NAME_BAR, METRICS_CONFIG_BAR);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask); // associated with METRICS_CONFIG_FOO
         taskQueue.add(mLowPriorityTask); // associated with METRICS_CONFIG_BAR

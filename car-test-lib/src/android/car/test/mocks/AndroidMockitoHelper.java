@@ -212,6 +212,15 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a call to {@code UserManager#mockUmHasUserRestrictionForUser(String, UserHandle)} that
+     * returns {@code value}.
+     */
+    public static void mockUmHasUserRestrictionForUser(@NonNull UserManager um,
+            @NonNull UserHandle user, @NonNull String restrictionKey, boolean value) {
+        when(um.hasUserRestrictionForUser(restrictionKey, user)).thenReturn(value);
+    }
+
+    /**
      * Mocks a call to {@link ServiceManager#getService(name)}.
      *
      * <p><b>Note: </b>it must be made inside a

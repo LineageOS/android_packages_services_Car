@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,47 +16,62 @@
 
 package com.android.car.telemetry.publisher;
 
+import android.annotation.NonNull;
+import android.app.StatsManager;
+import android.app.usage.NetworkStatsManager;
+import android.car.telemetry.TelemetryProto;
+import android.content.Context;
 import android.os.Handler;
 
 import com.android.car.CarPropertyService;
-import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
+import com.android.internal.util.Preconditions;
 
 import java.io.File;
+import java.util.Objects;
 
 /**
- * Lazy factory class for Publishers. It's expected to have a single factory instance.
- * Must be called from the telemetry thread.
+ * Lazy factory class for Publishers. It's expected to have a single factory instance. Must be
+ * called from the telemetry thread.
  *
- * <p>It doesn't instantiate all the publishers right away, as in some cases some publishers are
- * not needed.
+ * <p>It doesn't instantiate all the publishers right away, as in some cases some publishers are not
+ * needed.
  *
  * <p>Methods in this class must be called on telemetry thread unless specified as thread-safe.
  */
 public class PublisherFactory {
+    // Some publishers must be initialized as early as possible during boot.
+    private static final TelemetryProto.Publisher.PublisherCase[] sForceInitPublishers = {
+        TelemetryProto.Publisher.PublisherCase.CONNECTIVITY
+    };
+
     private final Object mLock = new Object();
     private final CarPropertyService mCarPropertyService;
     private final File mPublisherDirectory;
     private final Handler mTelemetryHandler;
-    private final StatsManagerProxy mStatsManager;
+    private final Context mContext;  // CarService context
+
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
     private StatsPublisher mStatsPublisher;
-
+    private ConnectivityPublisher mConnectivityPublisher;
     private AbstractPublisher.PublisherFailureListener mFailureListener;
 
     public PublisherFactory(
-            CarPropertyService carPropertyService,
-            Handler handler,
-            StatsManagerProxy statsManager,
-            File publisherDirectory) {
+            @NonNull CarPropertyService carPropertyService,
+            @NonNull Handler handler,
+            @NonNull Context context,
+            @NonNull File publisherDirectory) {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
-        mStatsManager = statsManager;
+        mContext = context;
         mPublisherDirectory = publisherDirectory;
     }
 
     /** Returns the publisher by given type. This method is thread-safe. */
-    public AbstractPublisher getPublisher(TelemetryProto.Publisher.PublisherCase type) {
+    @NonNull
+    public AbstractPublisher getPublisher(@NonNull TelemetryProto.Publisher.PublisherCase type) {
+        Preconditions.checkState(mFailureListener != null, "PublisherFactory is not initialized");
         // No need to optimize locks, as this method is infrequently called.
         synchronized (mLock) {
             switch (type.getNumber()) {
@@ -74,11 +89,26 @@ public class PublisherFactory {
                     return mCarTelemetrydPublisher;
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
+                        StatsManager stats = mContext.getSystemService(StatsManager.class);
+                        Preconditions.checkState(stats != null, "StatsManager not found");
+                        StatsManagerProxy statsManager = new StatsManagerImpl(stats);
                         mStatsPublisher = new StatsPublisher(
-                                mFailureListener, mStatsManager, mPublisherDirectory,
-                                mTelemetryHandler);
+                                mFailureListener, statsManager, mPublisherDirectory,
+                                        mTelemetryHandler);
                     }
                     return mStatsPublisher;
+                case TelemetryProto.Publisher.CONNECTIVITY_FIELD_NUMBER:
+                    if (mConnectivityPublisher == null) {
+                        NetworkStatsManager networkStatsManager =
+                                Objects.requireNonNull(
+                                        mContext.getSystemService(NetworkStatsManager.class));
+                        mConnectivityPublisher =
+                                new ConnectivityPublisher(
+                                        mFailureListener,
+                                        new NetworkStatsManagerProxy(networkStatsManager),
+                                        mTelemetryHandler);
+                    }
+                    return mConnectivityPublisher;
                 default:
                     throw new IllegalArgumentException(
                             "Publisher type " + type + " is not supported");
@@ -102,12 +132,16 @@ public class PublisherFactory {
     }
 
     /**
-     * Sets the publisher failure listener for all the publishers. This is expected to be called
-     * before {@link #getPublisher} method, because the listener is set after
-     * {@code PublisherFactory} initialized. This is not the best approach, but it suits for this
-     * case.
+     * Initializes the factory and sets the publisher failure listener for all the publishers.
+     * This is expected to be called before {@link #getPublisher} method. This is not the best
+     * approach, but it suits for this case.
      */
-    public void setFailureListener(AbstractPublisher.PublisherFailureListener listener) {
+    public void initialize(@NonNull AbstractPublisher.PublisherFailureListener listener) {
+        Preconditions.checkState(
+                mFailureListener == null, "PublisherFactory is already initialized");
         mFailureListener = listener;
+        for (TelemetryProto.Publisher.PublisherCase publisher: sForceInitPublishers) {
+            getPublisher(publisher);
+        }
     }
 }

@@ -49,13 +49,51 @@ public class ProjectionOptions {
     @Retention(RetentionPolicy.SOURCE)
     public @interface ProjectionUiMode {}
 
+    /** Indicates that head unit didn't specify information about access point mode.  This value
+     * can only be seen on Android SDK 31 and below.
+     *
+     * @hide
+     */
+    public static final int AP_MODE_NOT_SPECIFIED = 0;
+
+    /**
+     * Projection access point was created such that it may provide Internet access.
+     *
+     * @hide
+     */
+    public static final int AP_MODE_TETHERED = 1;
+
+    /**
+     * Projection access point was created as local-only hotspot, without Internet access and the
+     * credentials will be auto-generated for every access point initialization.
+     *
+     * @hide
+     */
+    public static final int AP_MODE_LOHS_DYNAMIC_CREDENTIALS = 2;
+
+    /**
+     * Projection access point was created as local-only hotspot, without Internet access and the
+     * credentials will persist reboots.  Credentials still can be reseted by user or app request.
+     *
+     * @hide
+     */
+    public static final int AP_MODE_LOHS_STATIC_CREDENTIALS = 3;
+
+    /** @hide */
+    @IntDef({AP_MODE_NOT_SPECIFIED, AP_MODE_TETHERED, AP_MODE_LOHS_DYNAMIC_CREDENTIALS,
+            AP_MODE_LOHS_STATIC_CREDENTIALS})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ProjectionAccessPointMode {}
+
     private static final String KEY_ACTIVITY_OPTIONS = KEY_PREFIX + "activityOptions";
     private static final String KEY_UI_MODE = KEY_PREFIX + "systemUiFlags";
     private static final String KEY_CONSENT_ACTIVITY = KEY_PREFIX + "consentActivity";
+    private static final String KEY_ACCESS_POINT_MODE = KEY_PREFIX + "ap_mode";
 
     private final ActivityOptions mActivityOptions;
     private final int mUiMode;
     private final ComponentName mConsentActivity;
+    private final int mApMode;
 
     /**
      * Creates new instance for given {@code Bundle}
@@ -68,12 +106,14 @@ public class ProjectionOptions {
                 ? new ActivityOptions(activityOptionsBundle) : null;
         mUiMode = bundle.getInt(KEY_UI_MODE, UI_MODE_DEFAULT);
         mConsentActivity = bundle.getParcelable(KEY_CONSENT_ACTIVITY);
+        mApMode = bundle.getInt(KEY_ACCESS_POINT_MODE, AP_MODE_NOT_SPECIFIED);
     }
 
     private ProjectionOptions(Builder builder) {
         mActivityOptions = builder.mActivityOptions;
         mUiMode = builder.mUiMode;
         mConsentActivity = builder.mConsentActivity;
+        mApMode = builder.mApMode;
     }
 
     /**
@@ -82,6 +122,23 @@ public class ProjectionOptions {
      */
     public @ProjectionUiMode int getUiMode() {
         return mUiMode;
+    }
+
+    /**
+     * Returns projection access point mode.
+     *
+     * <p>The result could be one of the following values:
+     * <ul>
+     *     <li>{@link #AP_MODE_NOT_SPECIFIED}</li>
+     *     <li>{@link #AP_MODE_TETHERED}</li>
+     *     <li>{@link #AP_MODE_LOHS_DYNAMIC_CREDENTIALS}</li>
+     *     <li>{@link #AP_MODE_LOHS_STATIC_CREDENTIALS}</li>
+     * </ul>
+     *
+     * @hide
+     */
+    public @ProjectionAccessPointMode int getProjectionAccessPointMode() {
+        return mApMode;
     }
 
     /**
@@ -111,6 +168,7 @@ public class ProjectionOptions {
         if (mUiMode != UI_MODE_DEFAULT) {
             bundle.putInt(KEY_UI_MODE, mUiMode);
         }
+        bundle.putInt(KEY_ACCESS_POINT_MODE, mApMode);
         return bundle;
     }
 
@@ -124,6 +182,7 @@ public class ProjectionOptions {
         private ActivityOptions mActivityOptions;
         private int mUiMode = UI_MODE_DEFAULT;
         private ComponentName mConsentActivity;
+        private int mApMode = AP_MODE_NOT_SPECIFIED;
 
         /** Sets {@link ActivityOptions} to launch projection activity. */
         public Builder setProjectionActivityOptions(ActivityOptions activityOptions) {
@@ -140,6 +199,12 @@ public class ProjectionOptions {
         /** Sets consent activity which will be shown before starting projection. */
         public Builder setConsentActivity(ComponentName consentActivity) {
             mConsentActivity = consentActivity;
+            return this;
+        }
+
+        /** Sets projection access point mode */
+        public Builder setAccessPointMode(@ProjectionAccessPointMode int accessPointMode) {
+            this.mApMode = accessPointMode;
             return this;
         }
 

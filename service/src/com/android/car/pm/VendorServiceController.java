@@ -60,7 +60,7 @@ class VendorServiceController implements UserLifecycleListener {
 
     private static final String TAG = CarLog.tagFor(VendorServiceController.class);
 
-    private static final boolean DBG = true;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final int MSG_SWITCH_USER = 1;
     private static final int MSG_USER_LOCK_CHANGED = 2;
@@ -128,12 +128,11 @@ class VendorServiceController implements UserLifecycleListener {
 
     @Override
     public void onEvent(UserLifecycleEvent event) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
+        if (DBG) {
             Slog.d(TAG, "onEvent(" + event + ")");
         }
-        // TODO(b/152069895): Use USER_LIFECYCLE_EVENT_TYPE_UNLOCKED and not care about the
-        //     deprecated unlock=false scenario.
-        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING == event.getEventType()) {
+        // TODO(b/152069895): remove unlock=false  / use handler.post() directly
+        if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED == event.getEventType()) {
             Message msg = mHandler.obtainMessage(
                     MSG_USER_LOCK_CHANGED,
                     event.getUserId(),
@@ -354,11 +353,22 @@ class VendorServiceController implements UserLifecycleListener {
         @Override
         public void onBindingDied(ComponentName name) {
             mBound = false;
+            if (DBG) {
+                Slog.d(TAG, "onBindingDied, name: " + name);
+            }
             tryToRebind();
         }
 
         private void tryToRebind() {
             if (mStopRequested) {
+                return;
+            }
+
+            if (mFailureHandler.hasMessages(MSG_REBIND)) {
+                if (DBG) {
+                    Slog.d(TAG, "Rebind already scheduled for "
+                            + mVendorServiceInfo.toShortString());
+                }
                 return;
             }
 

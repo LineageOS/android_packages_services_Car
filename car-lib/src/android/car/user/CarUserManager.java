@@ -83,7 +83,7 @@ public final class CarUserManager extends CarManagerBase {
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
     private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
@@ -340,6 +340,10 @@ public final class CarUserManager extends CarManagerBase {
             @NonNull UserManager userManager) {
         super(car);
 
+        if (DBG) {
+            Log.d(TAG, "DBG enabled");
+        }
+
         mService = service;
         mUserManager = userManager;
     }
@@ -368,6 +372,40 @@ public final class CarUserManager extends CarManagerBase {
             };
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
+            return new AndroidAsyncFuture<>(future);
+        } catch (SecurityException e) {
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            AsyncFuture<UserSwitchResult> future =
+                    newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+            return handleExceptionFromCarService(e, future);
+        }
+    }
+
+    /**
+     * Logouts the current user (if it was switched to by a device admin).
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public AsyncFuture<UserSwitchResult> logoutUser() {
+        int uid = myUid();
+        try {
+            AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
+                @Override
+                protected void onCompleted(UserSwitchResult result, Throwable err) {
+                    if (result != null) {
+                        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_RESP, uid,
+                                result.getStatus(), result.getErrorMessage());
+                    } else {
+                        Log.w(TAG, "logoutUser() failed: " + err);
+                    }
+                    super.onCompleted(result, err);
+                }
+            };
+            EventLog.writeEvent(EventLogTags.CAR_USER_MGR_LOGOUT_USER_REQ, uid);
+            mService.logoutUser(HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
         } catch (SecurityException e) {
             throw e;

@@ -85,6 +85,8 @@ import com.google.android.car.kitchensink.volume.VolumeTestFragment;
 import com.google.android.car.kitchensink.watchdog.CarWatchdogTestFragment;
 import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 
+import java.io.FileDescriptor;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
@@ -399,6 +401,17 @@ public class KitchenSinkActivity extends FragmentActivity {
         }
         Log.i(TAG, "onDestroy");
         super.onDestroy();
+    }
+
+    @Override
+    public void dump(String prefix, FileDescriptor fd, PrintWriter writer, String[] args) {
+        if (args != null && args.length > 0 && args[0].equals("cmd")) {
+            String[] cmdArgs = new String[args.length - 1];
+            System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
+            new KitchenSinkShellCommand(this, writer, cmdArgs).run();
+            return;
+        }
+        super.dump(prefix, fd, writer, args);
     }
 
     private void showFragment(Fragment fragment) {

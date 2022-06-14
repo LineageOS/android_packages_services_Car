@@ -1973,24 +1973,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     /**
-     * Powers off the device, considering the given options.
-     *
-     * <p>The final state can be "suspend-to-RAM" or "shutdown". Attempting to go to suspend-to-RAM
-     * on devices which do not support it may lead to an unexpected system state.
+     * Powers off the device.
      */
-    public void powerOffFromCommand(boolean skipGarageMode, boolean shutdown) {
+    public void powerOffFromCommand(boolean skipGarageMode, boolean reboot) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        int param = 0;
-        if (shutdown) {
-            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
-                    : VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
-        } else {
-            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY
-                    : VehicleApPowerStateShutdownParam.CAN_SLEEP;
-        }
+        Slogf.i(TAG, "%s %s Garage Mode", reboot ? "Rebooting" : "Powering off",
+                skipGarageMode ? "with" : "without");
+        int param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
+                : VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
         PowerState state = new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, param);
         synchronized (mLock) {
-            mRebootAfterGarageMode = false;
+            mRebootAfterGarageMode = reboot;
             mPendingPowerStates.addFirst(new CpmsState(state));
             mLock.notify();
         }

@@ -848,7 +848,7 @@ public final class Car {
      * @hide
      */
     public static final String PERMISSION_USE_CAR_TELEMETRY_SERVICE =
-            "android.car.permission.USE_CAR_TELEMETRY_SERVICE";
+            "com.android.car.permission.USE_CAR_TELEMETRY_SERVICE";
 
     /**
      * Type of car connection: platform runs directly in car.

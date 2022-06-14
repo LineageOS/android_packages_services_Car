@@ -16,10 +16,13 @@
 
 package com.android.car.telemetry.publisher;
 
+import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
@@ -28,8 +31,6 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
-import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.util.Preconditions;
 import com.android.server.utils.Slogf;
@@ -75,8 +76,10 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                 }
             };
 
-    public VehiclePropertyPublisher(CarPropertyService carPropertyService,
-            PublisherFailureListener failureListener, Handler handler) {
+    public VehiclePropertyPublisher(
+            @NonNull CarPropertyService carPropertyService,
+            @NonNull PublisherFailureListener failureListener,
+            @NonNull Handler handler) {
         super(failureListener);
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
@@ -89,7 +92,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void addDataSubscriber(DataSubscriber subscriber) {
+    public void addDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase()
@@ -120,7 +123,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void removeDataSubscriber(DataSubscriber subscriber) {
+    public void removeDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.VEHICLE_PROPERTY) {
             Slogf.w(CarLog.TAG_TELEMETRY,
@@ -155,7 +158,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     }
 
     @Override
-    public boolean hasDataSubscriber(DataSubscriber subscriber) {
+    public boolean hasDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.VEHICLE_PROPERTY) {
             return false;
@@ -169,7 +172,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
      * Called when publisher receives new event. It's executed on a CarPropertyService's
      * worker thread.
      */
-    private void onVehicleEvent(CarPropertyEvent event) {
+    private void onVehicleEvent(@NonNull CarPropertyEvent event) {
         // move the work from CarPropertyService's worker thread to the telemetry thread
         mTelemetryHandler.post(() -> {
             // TODO(b/197269115): convert CarPropertyEvent into PersistableBundle

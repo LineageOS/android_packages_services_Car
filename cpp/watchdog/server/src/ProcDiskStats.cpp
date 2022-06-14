@@ -202,7 +202,7 @@ bool DiskStats::EqualByPartition::operator()(const DiskStats& lhs, const DiskSta
 }
 
 Result<void> ProcDiskStats::collect() {
-    if (!kEnabled) {
+    if (!mEnabled) {
         return Error() << "Failed to access " << kPath;
     }
 

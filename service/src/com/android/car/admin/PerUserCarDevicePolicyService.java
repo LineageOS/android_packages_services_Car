@@ -153,7 +153,7 @@ public final class PerUserCarDevicePolicyService {
         NewUserDisclaimerActivity.cancelNotification(mContext);
 
         DevicePolicyManager dpm = mContext.getSystemService(DevicePolicyManager.class);
-        dpm.resetNewUserDisclaimer();
+        dpm.acknowledgeNewUserDisclaimer();
     }
 
     private void showNewUserDisclaimer() {

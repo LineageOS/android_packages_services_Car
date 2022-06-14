@@ -31,13 +31,14 @@ import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssocia
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.ASSOCIATED_CURRENT_USER;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
@@ -46,7 +47,10 @@ import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.car.hardware.property.VehicleHalStatusCode;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
@@ -74,6 +78,7 @@ import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.Pair;
 
@@ -92,12 +97,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class UserHalServiceTest {
+public final class UserHalServiceTest extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = UserHalServiceTest.class.getSimpleName();
 
@@ -160,8 +166,15 @@ public final class UserHalServiceTest {
     // Must be a spy so we can mock getNextRequestId()
     private UserHalService mUserHalService;
 
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        builder.spyStatic(CarProperties.class);
+    }
+
     @Before
     public void setFixtures() {
+        mockUserHalEnabled(true);
+
         mUserHalService = spy(new UserHalService(mVehicleHal, mHandler));
         // Needs at least one property, otherwise isSupported() and isUserAssociationSupported()
         // will return false
@@ -211,6 +224,32 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testTakeSupportedProperties_supportedAllCorePropertiesButEnabledPropertyNotSet() {
+        mockUserHalEnabled(null);
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER)));
+
+        assertThat(myHalService.isSupported()).isFalse();
+        assertThat(myHalService.isUserAssociationSupported()).isFalse();
+    }
+
+    @Test
+    public void testTakeSupportedProperties_supportedAllCorePropertiesButDisabled() {
+        mockUserHalEnabled(false);
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER)));
+
+        assertThat(myHalService.isSupported()).isFalse();
+        assertThat(myHalService.isUserAssociationSupported()).isFalse();
+    }
+
+    @Test
     public void testTakeSupportedProperties_supportedAllCoreProperties() {
         // Cannot use mUserHalService because it's already set with supported properties
         UserHalService myHalService = new UserHalService(mVehicleHal);
@@ -220,6 +259,34 @@ public final class UserHalServiceTest {
 
         assertThat(myHalService.isSupported()).isTrue();
         assertThat(myHalService.isUserAssociationSupported()).isFalse();
+    }
+
+    @Test
+    public void testTakeSupportedProperties_supportedAllPropertiesButDisabled() {
+        mockUserHalEnabled(false);
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER),
+                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+
+        assertThat(myHalService.isSupported()).isFalse();
+        assertThat(myHalService.isUserAssociationSupported()).isTrue();
+    }
+
+    @Test
+    public void testTakeSupportedProperties_supportedAllPropertiesButEnablePropertyNotSet() {
+        mockUserHalEnabled(null);
+        // Cannot use mUserHalService because it's already set with supported properties
+        UserHalService myHalService = new UserHalService(mVehicleHal);
+        myHalService.takeProperties(Arrays.asList(newSubscribableConfig(INITIAL_USER_INFO),
+                newSubscribableConfig(CREATE_USER), newSubscribableConfig(REMOVE_USER),
+                newSubscribableConfig(SWITCH_USER),
+                newSubscribableConfig(USER_IDENTIFICATION_ASSOCIATION)));
+
+        assertThat(myHalService.isSupported()).isFalse();
+        assertThat(myHalService.isUserAssociationSupported()).isTrue();
     }
 
     @Test
@@ -1555,6 +1622,11 @@ public final class UserHalServiceTest {
 
     private void mockNextRequestId(int requestId) {
         doReturn(requestId).when(mUserHalService).getNextRequestId();
+    }
+
+    private void mockUserHalEnabled(@Nullable Boolean enabled) {
+        Optional<Boolean> value = enabled != null ? Optional.of(enabled) : Optional.empty();
+        doReturn(value).when(() -> CarProperties.user_hal_enabled());
     }
 
     private void assertInitialUserInfoSetRequest(VehiclePropValue req, int requestType) {

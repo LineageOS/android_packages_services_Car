@@ -86,6 +86,8 @@ TEST(ProcStatTest, TestValidStatFile) {
     ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
 
     ProcStat procStat(tf.path);
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
     ASSERT_RESULT_OK(procStat.collect());
 
@@ -154,6 +156,8 @@ TEST(ProcStatTest, TestErrorOnCorruptedStatFile) {
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
     ProcStat procStat(tf.path);
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(procStat.collect().ok()) << "No error returned for corrupted file";
 }
@@ -177,6 +181,8 @@ TEST(ProcStatTest, TestErrorOnMissingCpuLine) {
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
     ProcStat procStat(tf.path);
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing cpu line";
 }
@@ -200,6 +206,8 @@ TEST(ProcStatTest, TestErrorOnMissingProcsRunningLine) {
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
     ProcStat procStat(tf.path);
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing procs_running line";
 }
@@ -223,6 +231,8 @@ TEST(ProcStatTest, TestErrorOnMissingProcsBlockedLine) {
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
     ProcStat procStat(tf.path);
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to missing procs_blocked line";
 }
@@ -248,12 +258,16 @@ TEST(ProcStatTest, TestErrorOnUnknownProcsLine) {
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
     ProcStat procStat(tf.path);
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(procStat.collect().ok()) << "No error returned due to unknown procs line";
 }
 
 TEST(ProcStatTest, TestProcStatContentsFromDevice) {
     ProcStat procStat;
+    procStat.init();
+
     ASSERT_TRUE(procStat.enabled()) << kProcStatPath << " file is inaccessible";
     ASSERT_RESULT_OK(procStat.collect());
 

@@ -104,6 +104,10 @@ PRODUCT_COPY_FILES += \
     packages/services/Car/car_product/init/init.bootstat.rc:system/etc/init/init.bootstat.car.rc \
     packages/services/Car/car_product/init/init.car.rc:system/etc/init/init.car.rc
 
+# Device policy management support
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.software.device_admin.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.device_admin.xml
+
 # Enable car watchdog
 include packages/services/Car/cpp/watchdog/product/carwatchdog.mk
 

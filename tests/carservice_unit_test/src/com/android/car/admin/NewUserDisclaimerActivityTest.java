@@ -31,6 +31,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -39,6 +40,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.Button;
@@ -114,11 +116,13 @@ public final class NewUserDisclaimerActivityTest extends AbstractExtendedMockito
     public void testAccept() throws Exception {
         AndroidMockitoHelper.syncRunOnUiThread(mActivity, () -> {
             mActivity.onCreate(/* savedInstanceState= */ null);
-            Button button = mActivity.getAcceptButton();
+            mActivity.onResume();
+            Button button = getAlertDialog().getButton(DialogInterface.BUTTON_POSITIVE);
             Log.d(TAG, "Clicking accept button: " + button);
             button.performClick();
         });
 
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync();
         verify(mService).setAcknowledged();
         assertWithMessage("activity is finishing").that(mActivity.isFinishing()).isTrue();
     }
@@ -182,5 +186,9 @@ public final class NewUserDisclaimerActivityTest extends AbstractExtendedMockito
         assertWithMessage("value of extra %s", EXTRA_TEXT)
                 .that(notification.extras.getString(EXTRA_TEXT))
                 .isEqualTo(ManagedDeviceTextView.getManagedDeviceText(mRealContext));
+    }
+
+    private AlertDialog getAlertDialog() {
+        return mActivity.getDialog();
     }
 }

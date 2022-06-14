@@ -97,6 +97,8 @@ TEST(ProcDiskStatsTest, TestValidStatsFile) {
     DiskStats expectedDiskStats = aggregateSystemWideDiskStats(latestDiskStats);
 
     ProcDiskStats procDiskStats(tf.path);
+    procDiskStats.init();
+
     ASSERT_TRUE(procDiskStats.enabled()) << "Temporary file is inaccessible";
     ASSERT_RESULT_OK(procDiskStats.collect());
 
@@ -135,6 +137,8 @@ TEST(ProcDiskStatsTest, TestErrorOnInvalidStatsFile) {
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
     ProcDiskStats procDiskStats(tf.path);
+    procDiskStats.init();
+
     ASSERT_TRUE(procDiskStats.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(procDiskStats.collect().ok()) << "No error returned for invalid file";
 }

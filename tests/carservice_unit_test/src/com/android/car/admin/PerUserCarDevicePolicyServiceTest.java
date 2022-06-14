@@ -131,7 +131,7 @@ public final class PerUserCarDevicePolicyServiceTest extends AbstractExtendedMoc
         assertStatusString(NEW_USER_DISCLAIMER_STATUS_ACKED);
         verify(() -> NewUserDisclaimerActivity.cancelNotification(mContext));
 
-        verify(mDpm).resetNewUserDisclaimer();
+        verify(mDpm).acknowledgeNewUserDisclaimer();
     }
 
     private BroadcastReceiver callOnCreate() {

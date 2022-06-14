@@ -29,9 +29,9 @@ CAR_UI_RRO_TARGETS := \
     com.android.car.carlauncher \
     com.android.car.home \
     com.android.car.media \
+    com.android.car.messenger \
     com.android.car.radio \
     com.android.car.calendar \
-    com.android.car.companiondevicesupport \
     com.android.car.systemupdater \
     com.android.car.dialer \
     com.android.car.linkviewer \
@@ -44,6 +44,7 @@ CAR_UI_RRO_TARGETS := \
     com.google.android.apps.automotive.inputmethod \
     com.google.android.apps.automotive.inputmethod.dev \
     com.google.android.apps.automotive.templates.host \
+    com.google.android.companiondevicesupport \
     com.google.android.embedded.projection \
     com.google.android.gms \
     com.google.android.gsf \

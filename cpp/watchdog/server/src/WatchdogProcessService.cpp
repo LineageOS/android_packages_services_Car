@@ -223,7 +223,7 @@ Status WatchdogProcessService::unregisterMonitor(const sp<aawi::ICarWatchdogMoni
                                          "The monitor has not been registered.");
     }
     curBinder->unlinkToDeath(mBinderDeathRecipient);
-    mMonitor = nullptr;
+    mMonitor.clear();
     if (DEBUG) {
         ALOGD("Car watchdog monitor is unregistered");
     }
@@ -278,14 +278,24 @@ Status WatchdogProcessService::tellDumpFinished(const sp<aawi::ICarWatchdogMonit
 
 void WatchdogProcessService::setEnabled(bool isEnabled) {
     Mutex::Autolock lock(mMutex);
-    if (mIsEnabled != isEnabled) {
-        ALOGI("%s is %s", kServiceName, isEnabled ? "enabled" : "disabled");
+    if (mIsEnabled == isEnabled) {
+        return;
     }
+    ALOGI("%s is %s", kServiceName, isEnabled ? "enabled" : "disabled");
     mIsEnabled = isEnabled;
-    if (mIsEnabled) {
-        for (const auto& timeout : kTimeouts) {
-            startHealthCheckingLocked(timeout);
-        }
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
+    if (!mIsEnabled) {
+        return;
+    }
+    if (mNotSupportedVhalProperties.count(VehicleProperty::VHAL_HEARTBEAT) == 0) {
+        mVhalHeartBeat.eventTime = uptimeMillis();
+        std::chrono::nanoseconds intervalNs = mVhalHealthCheckWindowMs + kHealthCheckDelayMs;
+        mHandlerLooper->sendMessageDelayed(intervalNs.count(), mMessageHandler,
+                                           Message(MSG_VHAL_HEALTH_CHECK));
+    }
+    for (const auto& timeout : kTimeouts) {
+        mHandlerLooper->removeMessages(mMessageHandler, static_cast<int>(timeout));
+        startHealthCheckingLocked(timeout);
     }
 }
 
@@ -411,10 +421,18 @@ void WatchdogProcessService::terminate() {
         sp<IBinder> binder = aawi::BnCarWatchdogMonitor::asBinder(mMonitor);
         binder->unlinkToDeath(mBinderDeathRecipient);
     }
-    if (mVhalService != nullptr) {
-        mVhalService->unlinkToDeath(mHidlDeathRecipient);
-    }
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
     mServiceStarted = false;
+    if (mVhalService != nullptr) {
+        StatusCode status =
+                mVhalService->unsubscribe(mPropertyChangeListener,
+                                          static_cast<int32_t>(VehicleProperty::VHAL_HEARTBEAT));
+        if (status != StatusCode::OK) {
+            ALOGW("Failed to unsubscribe from VHAL_HEARTBEAT.");
+        }
+        mVhalService->unlinkToDeath(mHidlDeathRecipient);
+        mVhalService.clear();
+    }
 }
 
 Status WatchdogProcessService::registerClientLocked(const ClientInfo& clientInfo,
@@ -595,7 +613,7 @@ void WatchdogProcessService::handleBinderDeath(const wp<IBinder>& who) {
     // Check if dead binder is monitor.
     sp<IBinder> monitor = aawi::BnCarWatchdogMonitor::asBinder(mMonitor);
     if (monitor == binder) {
-        mMonitor = nullptr;
+        mMonitor.clear();
         ALOGW("The monitor has died.");
         return;
     }
@@ -614,8 +632,9 @@ void WatchdogProcessService::handleHidlDeath(const wp<IBase>& who) {
         return;
     }
     ALOGW("VHAL has died.");
-    mVhalService->unlinkToDeath(mHidlDeathRecipient);
-    mVhalService = nullptr;
+    mHandlerLooper->removeMessages(mMessageHandler, MSG_VHAL_HEALTH_CHECK);
+    // Destroying mVHalService would remove all onBinderDied callbacks.
+    mVhalService.clear();
 }
 
 void WatchdogProcessService::reportWatchdogAliveToVhal() {
@@ -780,6 +799,9 @@ void WatchdogProcessService::updateVhalHeartBeat(int64_t value) {
     bool wrongHeartBeat;
     {
         Mutex::Autolock lock(mMutex);
+        if (!mIsEnabled) {
+            return;
+        }
         wrongHeartBeat = value <= mVhalHeartBeat.value;
         mVhalHeartBeat.eventTime = uptimeMillis();
         mVhalHeartBeat.value = value;
@@ -799,6 +821,9 @@ void WatchdogProcessService::checkVhalHealth() {
     int64_t currentUptime = uptimeMillis();
     {
         Mutex::Autolock lock(mMutex);
+        if (mVhalService == nullptr || !mIsEnabled) {
+            return;
+        }
         lastEventTime = mVhalHeartBeat.eventTime;
     }
     if (currentUptime > lastEventTime + mVhalHealthCheckWindowMs.count()) {

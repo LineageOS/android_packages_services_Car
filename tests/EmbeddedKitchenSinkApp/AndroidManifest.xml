@@ -55,7 +55,7 @@
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <!-- use for CarServiceTest -->
-    <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE"/>
+    <uses-permission android:name="com.android.car.permission.USE_CAR_TELEMETRY_SERVICE"/>
     <!-- Allow querying and writing to any property -->
     <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.PERMISSION_CONTROL_ENERGY_PORTS" />

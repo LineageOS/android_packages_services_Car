@@ -30,7 +30,8 @@ interface ICarUserService {
     AndroidFuture<UserCreationResult> createDriver(@nullable String name, boolean admin);
     UserInfo createPassenger(@nullable String name, int driverId);
     void switchDriver(int driverId, in AndroidFuture<UserSwitchResult> receiver);
-    void switchUser(int tagerUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void switchUser(int targetUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
+    void logoutUser(int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
     void setUserSwitchUiCallback(in IResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);

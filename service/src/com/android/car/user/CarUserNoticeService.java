@@ -47,6 +47,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.IndentingPrintWriter;
+import android.util.Log;
 import android.util.Slog;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
@@ -72,8 +73,8 @@ import com.android.internal.annotations.VisibleForTesting;
  */
 public final class CarUserNoticeService implements CarServiceBase {
 
-    private static final boolean DBG = false;
     private static final String TAG = CarLog.tagFor(CarUserNoticeService.class);
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Keyguard unlocking can be only polled as we cannot dismiss keyboard.
     // Polling will stop when keyguard is unlocked.
@@ -114,7 +115,9 @@ public final class CarUserNoticeService implements CarServiceBase {
     private int mIgnoreUserId = UserHandle.USER_NULL;
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
-        if (DBG) Slog.d(TAG, "onEvent(" + event + ")");
+        if (DBG) {
+            Slog.d(TAG, "onEvent(" + event + ")");
+        }
 
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
 

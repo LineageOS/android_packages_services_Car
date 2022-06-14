@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.IndentingPrintWriter;
@@ -47,6 +48,8 @@ public class PerUserCarServiceHelper implements CarServiceBase {
 
     private final Context mContext;
     private final CarUserService mUserService;
+    private final Handler mHandler;
+
     private IPerUserCarService mPerUserCarService;
     // listener to call on a ServiceConnection to PerUserCarService
     private List<ServiceCallback> mServiceCallbacks;
@@ -58,6 +61,8 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         mContext = context;
         mServiceCallbacks = new ArrayList<>();
         mUserService = userService;
+        mHandler = new Handler(CarServiceUtils.getHandlerThread(
+                PerUserCarServiceHelper.class.getSimpleName()).getLooper());
         mUserService.addUserLifecycleListener(mUserLifecycleListener);
     }
 
@@ -109,40 +114,48 @@ public class PerUserCarServiceHelper implements CarServiceBase {
      * ServiceConnection to detect connecting/disconnecting to {@link PerUserCarService}
      */
     private final ServiceConnection mUserServiceConnection = new ServiceConnection() {
+        // Handle ServiceConnection on a separate thread because the tasks performed on service
+        // connected/disconnected take long time to complete and block the executing thread.
+        // Executing these tasks on the main thread will result in CarService ANR.
+
         // On connecting to the service, get the binder object to the CarBluetoothService
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
-            List<ServiceCallback> callbacks;
-            if (DBG) {
-                Slog.d(TAG, "Connected to User Service");
-            }
-            mPerUserCarService = IPerUserCarService.Stub.asInterface(service);
-            if (mPerUserCarService != null) {
+            mHandler.post(() -> {
+                List<ServiceCallback> callbacks;
+                if (DBG) {
+                    Slog.d(TAG, "Connected to User Service");
+                }
+                mPerUserCarService = IPerUserCarService.Stub.asInterface(service);
+                if (mPerUserCarService != null) {
+                    synchronized (mServiceBindLock) {
+                        // copy the callbacks
+                        callbacks = new ArrayList<>(mServiceCallbacks);
+                    }
+                    // call them
+                    for (ServiceCallback callback : callbacks) {
+                        callback.onServiceConnected(mPerUserCarService);
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mHandler.post(() -> {
+                List<ServiceCallback> callbacks;
+                if (DBG) {
+                    Slog.d(TAG, "Disconnected from User Service");
+                }
                 synchronized (mServiceBindLock) {
                     // copy the callbacks
                     callbacks = new ArrayList<>(mServiceCallbacks);
                 }
                 // call them
                 for (ServiceCallback callback : callbacks) {
-                    callback.onServiceConnected(mPerUserCarService);
+                    callback.onServiceDisconnected();
                 }
-            }
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            List<ServiceCallback> callbacks;
-            if (DBG) {
-                Slog.d(TAG, "Disconnected from User Service");
-            }
-            synchronized (mServiceBindLock) {
-                // copy the callbacks
-                callbacks = new ArrayList<>(mServiceCallbacks);
-            }
-            // call them
-            for (ServiceCallback callback : callbacks) {
-                callback.onServiceDisconnected();
-            }
+            });
         }
     };
 

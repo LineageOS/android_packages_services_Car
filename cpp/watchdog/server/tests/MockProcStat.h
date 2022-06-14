@@ -31,6 +31,7 @@ namespace watchdog {
 class MockProcStat : public ProcStat {
 public:
     MockProcStat() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
+    MOCK_METHOD(void, init, (), (override));
     MOCK_METHOD(bool, enabled, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
     MOCK_METHOD(const ProcStatInfo, latestStats, (), (const, override));

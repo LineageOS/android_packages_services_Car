@@ -16,51 +16,55 @@
 
 package com.android.car.telemetry;
 
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_FINISHED;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_PENDING;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR;
+
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityManager;
+import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.telemetry.CarTelemetryManager;
-import android.car.telemetry.ICarTelemetryServiceListener;
-import android.car.telemetry.MetricsConfigKey;
+import android.car.telemetry.ICarTelemetryReportListener;
+import android.car.telemetry.ICarTelemetryReportReadyListener;
+import android.car.telemetry.TelemetryProto;
 import android.content.Context;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.os.ResultReceiver;
 
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarPropertyService;
+import com.android.car.CarServiceUtils;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.telemetry.systemmonitor.SystemMonitor;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.junit.MockitoRule;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
-@RunWith(MockitoJUnitRunner.class)
 @SmallTest
-public class CarTelemetryServiceTest {
-    private static final long TIMEOUT_MS = 15_000L;
+public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final String METRICS_CONFIG_NAME = "my_metrics_config";
-    private static final MetricsConfigKey KEY_V1 = new MetricsConfigKey(METRICS_CONFIG_NAME, 1);
-    private static final MetricsConfigKey KEY_V2 = new MetricsConfigKey(METRICS_CONFIG_NAME, 2);
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_V1 =
             TelemetryProto.MetricsConfig.newBuilder()
                     .setName(METRICS_CONFIG_NAME).setVersion(1).setScript("no-op").build();
@@ -68,202 +72,287 @@ public class CarTelemetryServiceTest {
             TelemetryProto.MetricsConfig.newBuilder()
                     .setName(METRICS_CONFIG_NAME).setVersion(2).setScript("no-op").build();
 
-    private CountDownLatch mIdleHandlerLatch = new CountDownLatch(1);
     private CarTelemetryService mService;
     private File mTempSystemCarDir;
     private Handler mTelemetryHandler;
     private MetricsConfigStore mMetricsConfigStore;
     private ResultStore mResultStore;
 
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    @Mock
-    private CarPropertyService mMockCarPropertyService;
-    @Mock
-    private Context mContext;
-    @Mock
-    private ICarTelemetryServiceListener mMockListener;
-    @Mock
-    private SystemInterface mMockSystemInterface;
-    @Mock
-    private SystemStateInterface mMockSystemStateInterface;
+    @Mock private ActivityManager mMockActivityManager;
+    @Mock private CarPropertyService mMockCarPropertyService;
+    @Mock private Context mMockContext;
+    @Mock private ICarTelemetryReportListener mMockReportListener;
+    @Mock private ICarTelemetryReportReadyListener mMockReportReadyListener;
+    @Mock private SystemInterface mMockSystemInterface;
+    @Mock private SystemStateInterface mMockSystemStateInterface;
+    @Mock private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock private SystemMonitor mMockSystemMonitor;
+    @Mock private ResultReceiver mMockAddMetricsConfigCallback;
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(SystemMonitor.class);
+    }
 
     @Before
     public void setUp() throws Exception {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        CarLocalServices.addService(CarPowerManagementService.class,
+                mMockCarPowerManagementService);
+
+        when(mMockContext.getSystemService(ActivityManager.class))
+                .thenReturn(mMockActivityManager);
+
+        when(SystemMonitor.create(any(), any())).thenReturn(mMockSystemMonitor);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
         when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        mService = new CarTelemetryService(mContext, mMockCarPropertyService);
+        mService = new CarTelemetryService(mMockContext, mMockCarPropertyService);
         mService.init();
-        mService.setListener(mMockListener);
 
         mTelemetryHandler = mService.getTelemetryHandler();
-        mTelemetryHandler.getLooper().getQueue().addIdleHandler(() -> {
-            mIdleHandlerLatch.countDown();
-            return true;
-        });
-        waitForHandlerThreadToFinish();
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
 
         mMetricsConfigStore = mService.getMetricsConfigStore();
         mResultStore = mService.getResultStore();
     }
 
     @Test
-    public void testAddMetricsConfig_newMetricsConfig_shouldSucceed() throws Exception {
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
+    public void testAddMetricsConfig_newMetricsConfig_shouldSucceed() {
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED), isNull());
     }
 
     @Test
-    public void testAddMetricsConfig_duplicateMetricsConfig_shouldFail() throws Exception {
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+    public void testAddMetricsConfig_duplicateMetricsConfig_shouldFail() {
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED), isNull());
 
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS), isNull());
     }
 
     @Test
-    public void testAddMetricsConfig_invalidMetricsConfig_shouldFail() throws Exception {
-        mService.addMetricsConfig(KEY_V1, "bad config".getBytes());
+    public void testAddMetricsConfig_invalidMetricsConfig_shouldFail() {
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, "bad config".getBytes(),
+                mMockAddMetricsConfigCallback);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_PARSE_FAILED), isNull());
     }
 
     @Test
-    public void testAddMetricsConfig_olderMetricsConfig_shouldFail() throws Exception {
-        mService.addMetricsConfig(KEY_V2, METRICS_CONFIG_V2.toByteArray());
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+    public void testAddMetricsConfig_olderMetricsConfig_shouldFail() {
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V2.toByteArray(),
+                mMockAddMetricsConfigCallback);
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED), isNull());
 
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V1), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD), isNull());
     }
 
     @Test
-    public void testAddMetricsConfig_newerMetricsConfig_shouldReplaceAndDeleteOldResult()
-            throws Exception {
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
-        mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
+    public void testAddMetricsConfig_newerMetricsConfig_shouldReplaceAndDeleteOldResult() {
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
+        mResultStore.putInterimResult(METRICS_CONFIG_NAME, new PersistableBundle());
 
-        mService.addMetricsConfig(KEY_V2, METRICS_CONFIG_V2.toByteArray());
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V2.toByteArray(),
+                mMockAddMetricsConfigCallback);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onAddMetricsConfigStatus(
-                eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback, atLeastOnce()).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED), isNull());
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs())
                 .containsExactly(METRICS_CONFIG_V2);
-        assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
+        assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isNull();
     }
 
     @Test
-    public void testRemoveMetricsConfig_shouldDeleteConfigAndResult() throws Exception {
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
-        mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
+    public void testAddMetricsConfig_invalidName_shouldFail() {
+        String wrongName = "wrong name";
 
-        mService.removeMetricsConfig(KEY_V1);
+        mService.addMetricsConfig(wrongName, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
 
-        waitForHandlerThreadToFinish();
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_PARSE_FAILED), isNull());
+    }
+
+    @Test
+    public void testRemoveMetricsConfig_shouldDeleteConfigAndResult() {
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
+        mResultStore.putInterimResult(METRICS_CONFIG_NAME, new PersistableBundle());
+
+        mService.removeMetricsConfig(METRICS_CONFIG_NAME);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
-        assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
+        assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isNull();
     }
 
     @Test
-    public void testRemoveAllMetricsConfigs_shouldRemoveConfigsAndResults() throws Exception {
-        MetricsConfigKey key = new MetricsConfigKey("test config", 2);
+    public void testRemoveAllMetricsConfigs_shouldRemoveConfigsAndResults() {
+        String testConfigName = "test config";
         TelemetryProto.MetricsConfig config =
-                TelemetryProto.MetricsConfig.newBuilder().setName(key.getName()).build();
-        mService.addMetricsConfig(key, config.toByteArray());
-        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
-        mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
-        mResultStore.putFinalResult(key.getName(), new PersistableBundle());
+                TelemetryProto.MetricsConfig.newBuilder().setName(testConfigName).build();
+        mService.addMetricsConfig(testConfigName, config.toByteArray(),
+                mMockAddMetricsConfigCallback);
+        mService.addMetricsConfig(METRICS_CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
+                mMockAddMetricsConfigCallback);
+        mResultStore.putInterimResult(METRICS_CONFIG_NAME, new PersistableBundle());
+        mResultStore.putFinalResult(testConfigName, new PersistableBundle());
 
         mService.removeAllMetricsConfigs();
 
-        waitForHandlerThreadToFinish();
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
-        assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
-        assertThat(mResultStore.getFinalResult(key.getName(), /* deleteResult = */ false)).isNull();
+        assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isNull();
+        assertThat(mResultStore.getFinalResult(testConfigName, /* deleteResult = */ false))
+                .isNull();
     }
 
     @Test
-    public void testSendFinishedReports_whenNoReport_shouldNotReceiveResponse() throws Exception {
-        mService.sendFinishedReports(KEY_V1);
+    public void testGetFinishedReport_whenNoReport_shouldReceiveNoReportStatus()
+            throws Exception {
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener, never()).onResult(any(), any());
-        verify(mMockListener, never()).onError(any(), any());
+        mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), isNull(), isNull(),
+                eq(STATUS_GET_METRICS_CONFIG_PENDING));
     }
 
     @Test
-    public void testSendFinishedReports_whenFinalResult_shouldReceiveResult() throws Exception {
+    public void testGetFinishedReport_whenNoConfig_shouldReceiveNoConfigStatus()
+            throws Exception {
+        mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), isNull(), isNull(),
+                eq(STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST));
+    }
+
+    @Test
+    public void testGetFinishedReport_whenInterimResultExists_shouldReceiveInterimResultStatus()
+            throws Exception {
+        mResultStore.putInterimResult(METRICS_CONFIG_NAME, new PersistableBundle());
+
+        mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), isNull(), isNull(),
+                eq(STATUS_GET_METRICS_CONFIG_INTERIM_RESULTS));
+    }
+
+    @Test
+    public void testGetFinishedReport_whenFinalResult_shouldReceiveResult() throws Exception {
         PersistableBundle finalResult = new PersistableBundle();
         finalResult.putBoolean("finished", true);
-        mResultStore.putFinalResult(KEY_V1.getName(), finalResult);
+        mResultStore.putFinalResult(METRICS_CONFIG_NAME, finalResult);
 
-        mService.sendFinishedReports(KEY_V1);
+        mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
 
-        waitForHandlerThreadToFinish();
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        finalResult.writeToStream(bos);
-        verify(mMockListener).onResult(eq(KEY_V1), eq(bos.toByteArray()));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        ArgumentCaptor<PersistableBundle> reportCaptor =
+                ArgumentCaptor.forClass(PersistableBundle.class);
+        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), reportCaptor.capture(),
+                isNull(), eq(STATUS_GET_METRICS_CONFIG_FINISHED));
+        assertThat(reportCaptor.getValue().toString()).isEqualTo(finalResult.toString());
         // result should have been deleted
-        assertThat(mResultStore.getFinalResult(KEY_V1.getName(), false)).isNull();
+        assertThat(mResultStore.getFinalResult(METRICS_CONFIG_NAME, false)).isNull();
     }
 
     @Test
-    public void testSendFinishedReports_whenError_shouldReceiveError() throws Exception {
+    public void testGetFinishedReport_whenError_shouldReceiveError() throws Exception {
         TelemetryProto.TelemetryError error = TelemetryProto.TelemetryError.newBuilder()
                 .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
                 .setMessage("test error")
                 .build();
-        mResultStore.putError(KEY_V1.getName(), error);
+        mResultStore.putErrorResult(METRICS_CONFIG_NAME, error);
 
-        mService.sendFinishedReports(KEY_V1);
+        mService.getFinishedReport(METRICS_CONFIG_NAME, mMockReportListener);
 
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onError(eq(KEY_V1), eq(error.toByteArray()));
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener).onResult(eq(METRICS_CONFIG_NAME), isNull(),
+                eq(error.toByteArray()), eq(STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR));
         // error should have been deleted
-        assertThat(mResultStore.getError(KEY_V1.getName(), false)).isNull();
+        assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNull();
     }
 
     @Test
-    public void testSendFinishedReports_whenListenerNotSet_shouldDoNothing() throws Exception {
-        PersistableBundle finalResult = new PersistableBundle();
-        finalResult.putBoolean("finished", true);
-        mResultStore.putFinalResult(KEY_V1.getName(), finalResult);
-        mService.clearListener(); // no listener = no way to send back results
+    public void testGetAllFinishedReports_whenNoResult_shouldGetNothing() throws Exception {
+        mService.getAllFinishedReports(mMockReportListener);
 
-        mService.sendFinishedReports(KEY_V1);
-
-        waitForHandlerThreadToFinish();
-        // if listener is null, nothing should be done, result should still be in result store
-        assertThat(mResultStore.getFinalResult(KEY_V1.getName(), false).toString())
-                .isEqualTo(finalResult.toString());
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener, never()).onResult(any(), any(), any(), anyInt());
     }
 
-    private void waitForHandlerThreadToFinish() throws Exception {
-        assertWithMessage("handler not idle in %sms", TIMEOUT_MS)
-                .that(mIdleHandlerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
-        mIdleHandlerLatch = new CountDownLatch(1); // reset idle handler condition
-        mTelemetryHandler.runWithScissors(() -> { }, TIMEOUT_MS);
+    @Test
+    public void testGetAllFinishedReports_shouldSendEverything() throws Exception {
+        String nameFoo = "foo";
+        TelemetryProto.TelemetryError error = TelemetryProto.TelemetryError.newBuilder()
+                .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
+                .setMessage("test error")
+                .build();
+        mResultStore.putErrorResult(nameFoo, error); // result 1
+        String nameBar = "bar";
+        PersistableBundle finalResult = new PersistableBundle();
+        finalResult.putBoolean("finished", true);
+        mResultStore.putFinalResult(nameBar, finalResult); // result 2
+
+        mService.getAllFinishedReports(mMockReportListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportListener).onResult(eq(nameFoo), isNull(), eq(error.toByteArray()),
+                eq(STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR));
+        ArgumentCaptor<PersistableBundle> reportCaptor =
+                ArgumentCaptor.forClass(PersistableBundle.class);
+        verify(mMockReportListener).onResult(eq(nameBar), reportCaptor.capture(), isNull(),
+                eq(STATUS_GET_METRICS_CONFIG_FINISHED));
+        assertThat(reportCaptor.getValue().toString()).isEqualTo(finalResult.toString());
+        // results should have been deleted
+        assertThat(mResultStore.getErrorResult(nameFoo, false)).isNull();
+        assertThat(mResultStore.getFinalResult(nameBar, false)).isNull();
+    }
+
+    @Test
+    public void testSetReportReadyListener() throws Exception {
+        String name1 = "name1";
+        String name2 = "name2";
+        mResultStore.putFinalResult(name1, new PersistableBundle());
+        mResultStore.putErrorResult(
+                name2, TelemetryProto.TelemetryError.newBuilder().build());
+
+        mService.setReportReadyListener(mMockReportReadyListener);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockReportReadyListener).onReady(eq(name1));
+        verify(mMockReportReadyListener).onReady(eq(name2));
     }
 }

@@ -16,10 +16,10 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.annotation.NonNull;
+import android.car.telemetry.TelemetryProto;
 import android.os.PersistableBundle;
 import android.os.SystemClock;
-
-import com.android.car.telemetry.TelemetryProto;
 
 import java.util.Objects;
 
@@ -34,15 +34,16 @@ public class DataSubscriber {
     private final TelemetryProto.Subscriber mSubscriber;
 
     public DataSubscriber(
-            DataBroker dataBroker,
-            TelemetryProto.MetricsConfig metricsConfig,
-            TelemetryProto.Subscriber subscriber) {
+            @NonNull DataBroker dataBroker,
+            @NonNull TelemetryProto.MetricsConfig metricsConfig,
+            @NonNull TelemetryProto.Subscriber subscriber) {
         mDataBroker = dataBroker;
         mMetricsConfig = metricsConfig;
         mSubscriber = subscriber;
     }
 
     /** Returns the handler function name for this subscriber. */
+    @NonNull
     public String getHandlerName() {
         return mSubscriber.getHandler();
     }
@@ -51,6 +52,7 @@ public class DataSubscriber {
      * Returns the publisher param {@link TelemetryProto.Publisher} that
      * contains the data source and the config.
      */
+    @NonNull
     public TelemetryProto.Publisher getPublisherParam() {
         return mSubscriber.getPublisher();
     }
@@ -59,7 +61,7 @@ public class DataSubscriber {
      * Creates a {@link ScriptExecutionTask} and pushes it to the priority queue where the task
      * will be pending execution. Flag isLargeData indicates whether data is large.
      */
-    public void push(PersistableBundle data, boolean isLargeData) {
+    public void push(@NonNull PersistableBundle data, boolean isLargeData) {
         ScriptExecutionTask task = new ScriptExecutionTask(
                 this, data, SystemClock.elapsedRealtime(), isLargeData);
         mDataBroker.addTaskToQueue(task);
@@ -69,16 +71,18 @@ public class DataSubscriber {
      * Creates a {@link ScriptExecutionTask} and pushes it to the priority queue where the task
      * will be pending execution. Defaults isLargeData flag to false.
      */
-    public void push(PersistableBundle data) {
+    public void push(@NonNull PersistableBundle data) {
         push(data, false);
     }
 
     /** Returns the {@link TelemetryProto.MetricsConfig}. */
+    @NonNull
     public TelemetryProto.MetricsConfig getMetricsConfig() {
         return mMetricsConfig;
     }
 
     /** Returns the {@link TelemetryProto.Subscriber}. */
+    @NonNull
     public TelemetryProto.Subscriber getSubscriber() {
         return mSubscriber;
     }

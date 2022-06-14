@@ -583,9 +583,16 @@
     <!-- Text of the toast shown to when detailed factory reset information is requested when driving [CHAR_LIMIT=50]-->
     <string name="factory_reset_driving_text">The car must be parked to start the reset.</string>
 
-    <!--  TODO(b/175214581): STOPSHIP use proper sentence and remove translatable=false -->
-    <!--  Button on screen that warns the user that device is owned and managed by an enterprise
-          (like a car rental company), asking user to accept [CHAR_LIMIT=20] -->
+    <!--  TODO(b/203004258): STOPSHIP use proper sentence and remove translatable=false -->
+    <!-- Title of the new managed user disclaimer dialog that informs the user that device is owned and managed by an enterprise [CHAR_LIMIT=60] -->
+    <string name="new_user_managed_device_title" translatable="false">This is a managed vehicle</string>
+    <!-- Message of the new managed user disclaimer dialog asking user to accept [CHAR_LIMIT=NONE] -->
+    <string name="new_user_managed_device_text" translatable="false">
+        New profiles will also be managed. Terms apply.\n\nIf you have questions, contact the admin. \n
+    </string>
+    <!-- Text for New managed user disclaimer dialog button to launch Enterprise Privacy settings screen [CHAR_LIMIT=20]  -->
+    <string name="new_user_managed_device_learn_more" translatable="false">Learn more</string>
+    <!-- Text for New managed user disclaimer dialog button to accept the disclaimer [CHAR_LIMIT=20] -->
     <string name="new_user_managed_device_acceptance" translatable="false">Accept and continue</string>
     <string name="new_user_managed_notification_title" translatable="false">Managed device</string>
 

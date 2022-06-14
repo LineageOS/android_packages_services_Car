@@ -211,14 +211,14 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testSwitchUser_success() throws Exception {
-        expectServiceSwitchUserSucceeds(11, UserSwitchResult.STATUS_SUCCESSFUL, "D'OH!");
+        expectServiceSwitchUserSucceeds(11, UserSwitchResult.STATUS_SUCCESSFUL);
 
         AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
 
         assertThat(future).isNotNull();
         UserSwitchResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
-        assertThat(result.getErrorMessage()).isEqualTo("D'OH!");
+        assertThat(result.getErrorMessage()).isNull();
     }
 
     @Test
@@ -239,6 +239,43 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         expectServiceSwitchUserFails(11, new RuntimeException("D'OH!"));
 
         AsyncFuture<UserSwitchResult> future = mMgr.switchUser(11);
+
+        assertThat(future).isNotNull();
+        UserSwitchResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.getErrorMessage()).isNull();
+    }
+
+    @Test
+    public void testLogoutUser_success() throws Exception {
+        expectServiceLogoutUserSucceeds(UserSwitchResult.STATUS_SUCCESSFUL);
+
+        AsyncFuture<UserSwitchResult> future = mMgr.logoutUser();
+
+        assertThat(future).isNotNull();
+        UserSwitchResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
+        assertThat(result.getErrorMessage()).isNull();
+    }
+
+    @Test
+    public void testLogoutUser_remoteException() throws Exception {
+        expectServiceLogoutUserFails(new RemoteException("D'OH!"));
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        AsyncFuture<UserSwitchResult> future = mMgr.logoutUser();
+
+        assertThat(future).isNotNull();
+        UserSwitchResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.getErrorMessage()).isNull();
+    }
+
+    @Test
+    public void testLogoutUser_runtimeException() throws Exception {
+        expectServiceLogoutUserFails(new RuntimeException("D'OH!"));
+
+        AsyncFuture<UserSwitchResult> future = mMgr.logoutUser();
 
         assertThat(future).isNotNull();
         UserSwitchResult result = getResult(future);
@@ -589,19 +626,33 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     private void expectServiceSwitchUserSucceeds(@UserIdInt int userId,
-            @UserSwitchResult.Status int status, @Nullable String errorMessage)
-            throws RemoteException {
+            @UserSwitchResult.Status int status) throws RemoteException {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
             AndroidFuture<UserSwitchResult> future =
                     (AndroidFuture<UserSwitchResult>) invocation.getArguments()[2];
-            future.complete(new UserSwitchResult(status, errorMessage));
+            future.complete(new UserSwitchResult(status, /* errorMessage= */ null));
             return null;
         }).when(mService).switchUser(eq(userId), anyInt(), notNull());
     }
 
     private void expectServiceSwitchUserFails(@UserIdInt int userId, Exception e) throws Exception {
         doThrow(e).when(mService).switchUser(eq(userId), anyInt(), notNull());
+    }
+
+    private void expectServiceLogoutUserSucceeds(@UserSwitchResult.Status int status)
+            throws RemoteException {
+        doAnswer((invocation) -> {
+            @SuppressWarnings("unchecked")
+            AndroidFuture<UserSwitchResult> future =
+                    (AndroidFuture<UserSwitchResult>) invocation.getArguments()[1];
+            future.complete(new UserSwitchResult(status, /* errorMessage= */ null));
+            return null;
+        }).when(mService).logoutUser(anyInt(), notNull());
+    }
+
+    private void expectServiceLogoutUserFails(Exception e) throws Exception {
+        doThrow(e).when(mService).logoutUser(anyInt(), notNull());
     }
 
     private void expectServiceRemoveUserSucceeds(@UserIdInt int userId) throws RemoteException {

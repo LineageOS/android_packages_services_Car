@@ -90,12 +90,18 @@ public:
 // Collector/parser for `/proc/stat` file.
 class ProcStat : public RefBase {
 public:
-    explicit ProcStat(const std::string& path = kProcStatPath) :
-          mLatestStats({}),
-          kEnabled(!access(path.c_str(), R_OK)),
-          kPath(path) {}
+    explicit ProcStat(const std::string& path = kProcStatPath) : kPath(path), mLatestStats({}) {}
 
     virtual ~ProcStat() {}
+
+    // Initializes the collector.
+    virtual void init() {
+        Mutex::Autolock lock(mMutex);
+        // Note: Verify proc file access outside the constructor. Otherwise, the unittests of
+        // dependent classes would call the constructor before mocking and get killed due to
+        // sepolicy violation.
+        mEnabled = access(kPath.c_str(), R_OK) == 0;
+    }
 
     // Collects proc stat delta since the last collection.
     virtual android::base::Result<void> collect();
@@ -103,7 +109,10 @@ public:
     /* Returns true when the proc stat file is accessible. Otherwise, returns false.
      * Called by WatchdogPerfService and tests.
      */
-    virtual bool enabled() { return kEnabled; }
+    virtual bool enabled() {
+        Mutex::Autolock lock(mMutex);
+        return mEnabled;
+    }
 
     virtual std::string filePath() { return kProcStatPath; }
 
@@ -123,20 +132,20 @@ private:
     // Reads the contents of |kPath|.
     android::base::Result<ProcStatInfo> getProcStatLocked() const;
 
+    // Path to proc stat file. Default path is |kProcStatPath|.
+    const std::string kPath;
+
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
+
+    // True if |kPath| is accessible.
+    bool mEnabled GUARDED_BY(mMutex);
 
     // Latest dump of CPU stats from the file at |kPath|.
     ProcStatInfo mLatestStats GUARDED_BY(mMutex);
 
     // Delta of CPU stats from the latest collection.
     ProcStatInfo mDeltaStats GUARDED_BY(mMutex);
-
-    // True if |kPath| is accessible.
-    const bool kEnabled;
-
-    // Path to proc stat file. Default path is |kProcStatPath|.
-    const std::string kPath;
 };
 
 }  // namespace watchdog

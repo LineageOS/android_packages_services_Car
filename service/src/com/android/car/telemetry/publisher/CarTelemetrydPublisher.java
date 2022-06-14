@@ -16,9 +16,11 @@
 
 package com.android.car.telemetry.publisher;
 
+import android.annotation.NonNull;
 import android.automotive.telemetry.internal.CarDataInternal;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
+import android.car.telemetry.TelemetryProto;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -26,7 +28,6 @@ import android.os.ServiceManager;
 
 import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
-import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -58,7 +59,8 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
 
     private final ICarDataListener mListener = new ICarDataListener.Stub() {
         @Override
-        public void onCarDataReceived(final CarDataInternal[] dataList) throws RemoteException {
+        public void onCarDataReceived(
+                @NonNull final CarDataInternal[] dataList) throws RemoteException {
             if (DEBUG) {
                 Slogf.d(CarLog.TAG_TELEMETRY,
                         "Received " + dataList.length + " CarData from cartelemetryd");
@@ -68,7 +70,8 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         }
     };
 
-    CarTelemetrydPublisher(PublisherFailureListener failureListener, Handler telemetryHandler) {
+    CarTelemetrydPublisher(
+            @NonNull PublisherFailureListener failureListener, @NonNull Handler telemetryHandler) {
         super(failureListener);
         this.mTelemetryHandler = telemetryHandler;
     }
@@ -125,6 +128,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         }
     }
 
+    @NonNull
     private ArrayList<TelemetryProto.MetricsConfig> getMetricsConfigs() {
         return new ArrayList<>(mSubscribers.stream().map(DataSubscriber::getMetricsConfig).collect(
                 Collectors.toSet()));
@@ -154,7 +158,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void addDataSubscriber(DataSubscriber subscriber) {
+    public void addDataSubscriber(@NonNull DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase()
@@ -177,7 +181,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     }
 
     @Override
-    public void removeDataSubscriber(DataSubscriber subscriber) {
+    public void removeDataSubscriber(@NonNull DataSubscriber subscriber) {
         mSubscribers.remove(subscriber);
         if (mSubscribers.isEmpty()) {
             disconnectFromCarTelemetryd();
@@ -191,14 +195,14 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     }
 
     @Override
-    public boolean hasDataSubscriber(DataSubscriber subscriber) {
+    public boolean hasDataSubscriber(@NonNull DataSubscriber subscriber) {
         return mSubscribers.contains(subscriber);
     }
 
     /**
      * Called when publisher receives new car data list. It's executed on the telemetry thread.
      */
-    private void onCarDataListReceived(CarDataInternal[] dataList) {
+    private void onCarDataListReceived(@NonNull CarDataInternal[] dataList) {
         // TODO(b/189142577): implement
     }
 }
