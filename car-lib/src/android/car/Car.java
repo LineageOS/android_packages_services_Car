@@ -30,6 +30,7 @@ import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ExperimentalFeature;
 import android.car.annotation.MandatoryFeature;
@@ -105,25 +106,6 @@ import java.util.Objects;
 public final class Car {
 
     /**
-     *  Represents the platform SDK_INT version with which this car API is developed.
-     *  <p>Note that new car APIs can be used in older platform releases and clients
-     *  should check both this and {@link android.os.Build.VERSION#SDK_INT} before using
-     *  an API added in a specific car API version.
-     */
-    @AddedInOrBefore(majorVersion = 33)
-    public static final int API_VERSION_MAJOR_INT = 33;
-
-    /**
-     * Represents a minor version change for the same {@link #API_VERSION_MAJOR_INT}.
-     * <p>It will reset to {@code 0} whenever {@link #API_VERSION_MAJOR_INT} is updated and will
-     * increase by {@code 1} if car API is changed with the same {@link #API_VERSION_MAJOR_INT}.
-     * Client should check this version to use APIs which were added in a minor only version
-     * update.
-     */
-    @AddedInOrBefore(majorVersion = 33)
-    public static final int API_VERSION_MINOR_INT = 1;
-
-    /**
      * System property to define platform minor version.
      *
      * <p>Value is int string. Check {@link #PROPERTY_PLATFORM_MINOR_INT} for further details.
@@ -132,18 +114,58 @@ public final class Car {
     private static final String PROPERTY_PLATFORM_MINOR_VERSION =
             "ro.android.car.version.platform_minor";
 
+    // Hack to avoid deprecated warnings on CAR_API_VERSION / PLATFORM_API_VERSION
+    private static final int NON_DEPRECATED_API_VERSION_MAJOR_INT = 33;
+    private static final int NON_DEPRECATED_API_VERSION_MINOR_INT = 1;
+    private static final int NON_DEPRECATED_PLATFORM_VERSION_MINOR_INT =
+            SystemProperties.getInt(PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
+
     /**
-     * Represents a minor version change of car platform for the same
-     * {@link android.os.Build.VERSION#SDK_INT}.
-     *
-     * <p>It will reset to {@code 0} whenever {@link android.os.Build.VERSION#SDK_INT} is updated
-     * and will increase by {@code 1} if car builtin or other car platform part is changed with the
-     * same {@link android.os.Build.VERSION#SDK_INT}. Client should check this version to use APIs
-     * which were added in a minor only version update.
+     * @deprecated - use {@link #CAR_API_VERSION CAR_API_VERSION.getMajorVersion()} instead
      */
-    @AddedInOrBefore(majorVersion = 33)
-    public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties.getInt(
-            PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
+    @Deprecated
+    @AddedIn(majorVersion = 33)
+    public static final int API_VERSION_MAJOR_INT = NON_DEPRECATED_API_VERSION_MAJOR_INT;
+
+    /**
+     * @deprecated - use {@link #CAR_API_VERSION CAR_API_VERSION.getMajorVersion()} instead
+     */
+    @Deprecated
+    @AddedIn(majorVersion = 33)
+    public static final int API_VERSION_MINOR_INT = NON_DEPRECATED_API_VERSION_MINOR_INT;
+
+
+    /**
+     * @deprecated - use {@link #PLATFORM_API_VERSION PLATFORM_API_VERSION.getMinorVersion()}
+     * instead
+     */
+    @Deprecated
+    @AddedIn(majorVersion = 33)
+    public static final int PLATFORM_VERSION_MINOR_INT = NON_DEPRECATED_PLATFORM_VERSION_MINOR_INT;
+
+    /**
+     * Defines the {@link ApiVersion version} of the standard {@code SDK} APIs in the device.
+     *
+     * <p>Its {@link ApiVersion#getMajorVersion() major version} will always be the same as
+     * {@link Build.VERSION#SDK_INT}, but its {@link ApiVersion#getMinorVersion() minor version}
+     * will reflect the incremental, quarterly releases.
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public static final ApiVersion PLATFORM_API_VERSION =
+            new ApiVersion(Build.VERSION.SDK_INT, NON_DEPRECATED_PLATFORM_VERSION_MINOR_INT);
+
+    /**
+     * Defines the {@link ApiVersion version} of the {@code Car} APIs in the device.
+     *
+     * <p>Starting on {@link Build.VERSION_CODES#TIRAMISU Android 13}, the {@code Car} APIs can be
+     * upgraded without an OTA, so it's possible that these APIs are higher than the
+     * {@link #PLATFORM_API_VERSION platform's}.
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public static final ApiVersion CAR_API_VERSION = new ApiVersion(
+            NON_DEPRECATED_API_VERSION_MAJOR_INT, NON_DEPRECATED_API_VERSION_MINOR_INT);
 
     /**
      * Binder service name of car service registered to service manager.
@@ -1381,68 +1403,48 @@ public final class Car {
     private final CarFeatures mFeatures = new CarFeatures();
 
     /**
-     * Checks if the current car API version is meeting the required version number.
-     *
-     * @param requiredApiVersionMajor Required major version number. Minor version is not checked.
-     * @return true if car API version in the system is same or newer than
-     *              {@code requiredApiVersionMajor}.
+     * @deprecated - use {@link #CAR_API_VERSION CAR_API_VERSION.isAtLeast()} instead
      */
-    @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
+    @AddedIn(majorVersion = 33)
     public static boolean isApiVersionAtLeast(int requiredApiVersionMajor) {
-        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor;
+        return CAR_API_VERSION.isAtLeast(requiredApiVersionMajor);
     }
 
     /**
-     * Checks if the current car API version is meeting the required version number.
-     *
-     * @param requiredApiVersionMajor Required major version number.
-     * @param requiredApiVersionMinor Required minor version number.
-     * @return true if car Major API version in the system is newer than
-     *         {@code requiredApiVersionMajor} or car Major API version in the system is same as
-     *         {@code requiredApiVersionMajor} with minor version same or newer than
-     *         {@code requiredApiVersionMinor}.
+     * @deprecated - use {@link #CAR_API_VERSION CAR_API_VERSION.isAtLeast()} instead
      */
-    @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
+    @AddedIn(majorVersion = 33)
     public static boolean isApiVersionAtLeast(int requiredApiVersionMajor,
             int requiredApiVersionMinor) {
-        return (API_VERSION_MAJOR_INT > requiredApiVersionMajor)
-                || (API_VERSION_MAJOR_INT == requiredApiVersionMajor
-                        && API_VERSION_MINOR_INT >= requiredApiVersionMinor);
+        return CAR_API_VERSION.isAtLeast(requiredApiVersionMajor, requiredApiVersionMinor);
     }
 
     /**
-     * Checks if the current car API version and platform version are meeting the required version
-     * numbers.
-     *
-     * @param requiredApiVersionMajor Required major version number. Minor version is not checked.
-     * @param minPlatformSdkInt Required platform version.
-     * @return true if car API version in the system is same or newer than
-     *              {@code requiredApiVersionMajor}.
+     * @deprecated - use
+     * {@code CAR_API_VERSION.isAtLeast(major) && PLATFORM_API_VERSION.isAtLeast()}
+     * instead
      */
-    @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
+    @AddedIn(majorVersion = 33)
     public static boolean isApiAndPlatformVersionAtLeast(int requiredApiVersionMajor,
             int minPlatformSdkInt) {
-        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor
-                && Build.VERSION.SDK_INT >= minPlatformSdkInt;
+        return CAR_API_VERSION.isAtLeast(requiredApiVersionMajor)
+                && PLATFORM_API_VERSION.isAtLeast(minPlatformSdkInt);
     }
 
     /**
-     * Checks if the current car API version and platform version are meeting the required version
-     * numbers.
-     *
-     * @param requiredApiVersionMajor Required major version number.
-     * @param requiredApiVersionMinor Required minor version number.
-     * @param minPlatformSdkInt Required platform version.
-     * @return true if car API version in the system is same or newer than
-     *              {@code requiredApiVersionMajor}.
+     * @deprecated - use
+     * {@code CAR_API_VERSION.isAtLeast(major, minor) && PLATFORM_API_VERSION.isAtLeast()}
+     * instead
      */
     @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
     public static boolean isApiAndPlatformVersionAtLeast(int requiredApiVersionMajor,
-            int requiredApiVersionMinor,
-            int minPlatformSdkInt) {
-        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor
-                && API_VERSION_MINOR_INT >= requiredApiVersionMinor
-                && Build.VERSION.SDK_INT >= minPlatformSdkInt;
+            int requiredApiVersionMinor, int minPlatformSdkInt) {
+        return CAR_API_VERSION.isAtLeast(requiredApiVersionMajor, requiredApiVersionMinor)
+                && PLATFORM_API_VERSION.isAtLeast(minPlatformSdkInt);
     }
 
     /**

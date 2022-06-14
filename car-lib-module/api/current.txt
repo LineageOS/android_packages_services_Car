@@ -1,6 +1,16 @@
 // Signature format: 2.0
 package android.car {
 
+  public final class ApiVersion implements android.os.Parcelable {
+    method public int describeContents();
+    method public int getMajorVersion();
+    method public int getMinorVersion();
+    method public boolean isAtLeast(int);
+    method public boolean isAtLeast(int, int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.ApiVersion> CREATOR;
+  }
+
   public final class Car {
     method @Deprecated public void connect() throws java.lang.IllegalStateException;
     method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, @Nullable android.os.Handler);
@@ -11,17 +21,18 @@ package android.car {
     method public void disconnect();
     method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
-    method public static boolean isApiAndPlatformVersionAtLeast(int, int);
-    method public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
-    method public static boolean isApiVersionAtLeast(int);
-    method public static boolean isApiVersionAtLeast(int, int);
+    method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
+    method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
+    method @Deprecated public static boolean isApiVersionAtLeast(int);
+    method @Deprecated public static boolean isApiVersionAtLeast(int, int);
     method public boolean isConnected();
     method public boolean isConnecting();
     method public boolean isFeatureEnabled(@NonNull String);
-    field public static final int API_VERSION_MAJOR_INT = 33; // 0x21
-    field public static final int API_VERSION_MINOR_INT = 1; // 0x1
+    field @Deprecated public static final int API_VERSION_MAJOR_INT = 33; // 0x21
+    field @Deprecated public static final int API_VERSION_MINOR_INT = 1; // 0x1
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
+    field @NonNull public static final android.car.ApiVersion CAR_API_VERSION;
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
     field @Deprecated public static final String CAR_EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
     field @Deprecated public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
@@ -54,7 +65,8 @@ package android.car {
     field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
     field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
     field public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
-    field public static final int PLATFORM_VERSION_MINOR_INT;
+    field @NonNull public static final android.car.ApiVersion PLATFORM_API_VERSION;
+    field @Deprecated public static final int PLATFORM_VERSION_MINOR_INT;
     field public static final String POWER_SERVICE = "power";
     field public static final String PROPERTY_SERVICE = "property";
     field @Deprecated public static final String SENSOR_SERVICE = "sensor";
