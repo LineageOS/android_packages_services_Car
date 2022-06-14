@@ -38,7 +38,6 @@ namespace watchdog {
 
 using ::android::RefBase;
 using ::android::sp;
-using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::base::ReadFdToString;
 using ::android::base::Result;
 using ::testing::_;
