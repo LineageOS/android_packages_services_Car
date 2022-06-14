@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.testng.Assert.assertThrows;
 
+import android.car.ApiVersion;
 import android.car.Car;
 import android.car.ICar;
 import android.car.annotation.AddedIn;
@@ -167,7 +168,7 @@ public final class CarTest extends AbstractExpectableTestCase {
     }
 
     @Test
-    public void testApiVersion() throws Exception {
+    public void testApiVersion_deprecated() throws Exception {
         int ApiVersionTooHigh = 1000000;
         int MinorApiVersionTooHigh = 1000000;
         expectThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT)).isTrue();
@@ -189,5 +190,24 @@ public final class CarTest extends AbstractExpectableTestCase {
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT)).isTrue();
         expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
+    }
+
+    @Test
+    public void testApiVersion_car() throws Exception {
+        ApiVersion carVersion = Car.CAR_API_VERSION;
+
+        assertThat(carVersion).isNotNull();
+        assertThat(carVersion.getMajorVersion()).isAtLeast(Build.VERSION.SDK_INT);
+        assertThat(carVersion.getMajorVersion()).isAtMost(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        assertThat(carVersion.getMinorVersion()).isAtLeast(0);
+    }
+
+    @Test
+    public void testApiVersion_platform() throws Exception {
+        ApiVersion platformVersion = Car.CAR_API_VERSION;
+
+        assertThat(platformVersion).isNotNull();
+        assertThat(platformVersion.getMajorVersion()).isEqualTo(Build.VERSION.SDK_INT);
+        assertThat(platformVersion.getMinorVersion()).isAtLeast(0);
     }
 }
