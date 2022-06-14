@@ -24,7 +24,6 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
-#include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -67,7 +66,7 @@ enum SystemState {
  * DataProcessor defines methods that must be implemented in order to process the data collected
  * by |WatchdogPerfService|.
  */
-class DataProcessorInterface : public android::RefBase {
+class DataProcessorInterface : virtual public android::RefBase {
 public:
     DataProcessorInterface() {}
     virtual ~DataProcessorInterface() {}
@@ -145,7 +144,7 @@ enum SwitchMessage {
  * boot complete. It exposes APIs that the main thread and binder service can call to start a
  * collection, switch the collection type, and generate collection dumps.
  */
-class WatchdogPerfServiceInterface : public MessageHandler {
+class WatchdogPerfServiceInterface : virtual public MessageHandler {
 public:
     // Register a data processor to process the data collected by |WatchdogPerfService|.
     virtual android::base::Result<void> registerDataProcessor(
@@ -167,8 +166,8 @@ public:
      * 2. Or ends the current custom collection and dumps the collected data.
      * Returns any error observed during the dump generation.
      */
-    virtual android::base::Result<void> onCustomCollection(
-            int fd, const Vector<android::String16>& args) = 0;
+    virtual android::base::Result<void> onCustomCollection(int fd, const char** args,
+                                                           uint32_t numArgs) = 0;
     // Generates a dump from the boot-time and periodic collection events.
     virtual android::base::Result<void> onDump(int fd) const = 0;
     // Dumps the help text.
@@ -201,8 +200,8 @@ public:
 
     android::base::Result<void> onBootFinished() override;
 
-    android::base::Result<void> onCustomCollection(int fd,
-                                                   const Vector<android::String16>& args) override;
+    android::base::Result<void> onCustomCollection(int fd, const char** args,
+                                                   uint32_t numArgs) override;
 
     android::base::Result<void> onDump(int fd) const override;
 
