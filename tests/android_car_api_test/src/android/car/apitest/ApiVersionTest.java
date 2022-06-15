@@ -25,7 +25,8 @@ import android.car.ApiVersion;
 import android.car.CarApiVersion;
 import android.car.PlatformApiVersion;
 
-import com.google.common.testing.EqualsTester;
+//TODO(b/236153976): add when supported
+//import com.google.common.testing.EqualsTester;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -107,22 +108,23 @@ public final class ApiVersionTest {
                 .that(version.isAtLeast(version(43, 0))).isFalse();
     }
 
-    @Test
-    public void testEqualsAndHashcode() {
-        new EqualsTester()
-                .addEqualityGroup(version(4, 8), version(4, 8))
-                .addEqualityGroup(version(15), version(15))
-                .addEqualityGroup(version(16), version(16, 0))
-                .addEqualityGroup(version(23, 0), version(23))
-
-                // Make sure different subclasses are different
-                .addEqualityGroup(CarApiVersion.forMajorVersion(42),
-                        CarApiVersion.forMajorVersion(42))
-                .addEqualityGroup(PlatformApiVersion.forMajorVersion(42),
-                        PlatformApiVersion.forMajorVersion(42))
-
-                .testEquals();
-    }
+    // TODO(b/236153976): comment back once guava is supported
+//    @Test
+//    public void testEqualsAndHashcode() {
+//        new EqualsTester()
+//                .addEqualityGroup(version(4, 8), version(4, 8))
+//                .addEqualityGroup(version(15), version(15))
+//                .addEqualityGroup(version(16), version(16, 0))
+//                .addEqualityGroup(version(23, 0), version(23))
+//
+//                // Make sure different subclasses are different
+//                .addEqualityGroup(CarApiVersion.forMajorVersion(42),
+//                        CarApiVersion.forMajorVersion(42))
+//                .addEqualityGroup(PlatformApiVersion.forMajorVersion(42),
+//                        PlatformApiVersion.forMajorVersion(42))
+//
+//                .testEquals();
+//    }
 
     private ApiVersion<?> version(int major, int minor) {
         return mFactory.newApiVersion(major, minor);
