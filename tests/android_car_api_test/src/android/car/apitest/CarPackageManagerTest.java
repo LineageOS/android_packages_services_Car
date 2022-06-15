@@ -27,7 +27,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 @MediumTest
@@ -59,7 +58,6 @@ public class CarPackageManagerTest extends CarApiTestBase {
                 .that(e.getMessage()).contains(pkg);
     }
 
-    @Ignore("TODO(b/228506662): need to update Car.PLATFORM_API_VERSION on master")
     @Test
     public void testGetTargetCarMajorAndMinorVersion_notSet() throws Exception {
         String pkg = "com.android.car";
