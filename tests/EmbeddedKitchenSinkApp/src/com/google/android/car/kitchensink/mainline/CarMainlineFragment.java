@@ -42,13 +42,19 @@ public class CarMainlineFragment extends Fragment {
 
     private static final String TAG = CarMainlineFragment.class.getSimpleName();
 
+    // TODO(b/228506662): also add a ListView with existing apps
+
+    // Reported by SDK
     private TextView mAppTargetSdk;
     private TextView mAppCompilationSdk;
-    // TODO(b/228506662): also add a ListView with existing apps
-    private TextView mAppCarTargetMajorSdk;
-    private TextView mAppCarTargetMinorSdk;
     private TextView mAndroidSdkCodename;
     private TextView mAndroidSdkVersion;
+
+    // Reported by Car
+    private TextView mAppCarTargetMajorSdk;
+    private TextView mAppCarTargetMinorSdk;
+    private TextView mPlatformVersion;
+    private TextView mCarVersion;
     private TextView mCarMajorVersion;
     private TextView mCarMinorVersion;
 
@@ -65,6 +71,8 @@ public class CarMainlineFragment extends Fragment {
         mAppCarTargetMinorSdk = view.findViewById(R.id.app_car_target_minor_sdk);
         mAndroidSdkCodename = view.findViewById(R.id.android_sdk_codename);
         mAndroidSdkVersion = view.findViewById(R.id.android_sdk_version);
+        mPlatformVersion = view.findViewById(R.id.platform_version);
+        mCarVersion = view.findViewById(R.id.car_version);
         mCarMajorVersion = view.findViewById(R.id.car_major_version);
         mCarMinorVersion = view.findViewById(R.id.car_minor_version);
 
@@ -84,21 +92,25 @@ public class CarMainlineFragment extends Fragment {
         mAppCompilationSdk.setText(String.valueOf(appInfo.compileSdkVersion));
         mAndroidSdkCodename.setText(String.valueOf(Build.VERSION.CODENAME));
         mAndroidSdkVersion.setText(String.valueOf(Build.VERSION.SDK_INT));
-        mCarMajorVersion.setText(String.valueOf(Car.API_VERSION_MAJOR_INT));
-        mCarMinorVersion.setText(String.valueOf(Car.API_VERSION_MINOR_INT));
+        mCarMajorVersion.setText(String.valueOf(Car.CAR_API_VERSION.getMajorVersion()));
+        mCarMinorVersion.setText(String.valueOf(Car.CAR_API_VERSION.getMinorVersion()));
 
-        boolean isCarApiTQpr = Car.API_VERSION_MAJOR_INT == Build.VERSION_CODES.TIRAMISU
-                && Car.API_VERSION_MINOR_INT > 0;
+        boolean isCarApiTQpr = Car.CAR_API_VERSION.isAtLeast(Build.VERSION_CODES.TIRAMISU, 1);
         // TODO(b/230004170): use >= Build.VERSION_CODES.U when available
-        boolean isCarApiUOrHigher = Car.API_VERSION_MAJOR_INT > Build.VERSION_CODES.TIRAMISU;
-        Log.v(TAG, "onStart(): isTQpr=" + isCarApiTQpr + ", isUOrHigher=" + isCarApiUOrHigher);
-        if (isCarApiTQpr || isCarApiUOrHigher) {
+        boolean isAndroidUOrHigher = Car.PLATFORM_API_VERSION
+                .isAtLeast(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        Log.v(TAG, "onStart(): isCarApiTQpr=" + isCarApiTQpr
+                + ", isAndroidUOrHigher=" + isAndroidUOrHigher);
+        if (isCarApiTQpr || isAndroidUOrHigher) {
+            mPlatformVersion.setText(Car.PLATFORM_API_VERSION.toString());
+            mCarVersion.setText(Car.CAR_API_VERSION.toString());
             setTargetCarVersion(/* isMajor= */ true);
             setTargetCarVersion(/* isMajor= */ false);
         } else {
             // TODO(b/228506662): install on device running T to make sure it works
-            String unsupported = String.format("unsupported on (%s, %s)", Car.API_VERSION_MAJOR_INT,
-                    Car.API_VERSION_MINOR_INT);
+            String unsupported = String.format("N/A on %s", Car.CAR_API_VERSION);
+            mPlatformVersion.setText(unsupported);
+            mCarVersion.setText(unsupported);
             mAppCarTargetMajorSdk.setText(unsupported);
             mAppCarTargetMinorSdk.setText(unsupported);
         }
