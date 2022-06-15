@@ -39,6 +39,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.google.common.base.Strings;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.time.Duration;
@@ -149,7 +151,16 @@ public final class MainActivity extends FragmentActivity {
         dialog.show();
     }
 
+    private String getUpdateConfigurationIface() {
+        return mInterfaceName.getText().toString();
+    }
+
+    private String getEnableDisableConnectIface() {
+        return mInterfaceName2.getText().toString();
+    }
+
     private void onUpdateButtonClick() {
+        validateInterfaceName(getUpdateConfigurationIface());
         setButtonsAndEditTextsEnabled(false);
         Log.d(TAG, "configuration update started");
         try {
@@ -157,8 +168,10 @@ public final class MainActivity extends FragmentActivity {
                     mAllowedPackageNames.getText().toString(),
                     mIpConfiguration.getText().toString(),
                     mNetworkCapabilities.getText().toString(),
-                    mInterfaceName.getText().toString());
-        } catch (IllegalArgumentException | PackageManager.NameNotFoundException e) {
+                    getUpdateConfigurationIface());
+        } catch (IllegalStateException | IllegalArgumentException
+                | PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Error updating: " + e.getMessage());
             showOperationResultDialog(e.getLocalizedMessage(), /* isSuccess= */ false);
         }
     }
@@ -168,12 +181,12 @@ public final class MainActivity extends FragmentActivity {
         Log.d(TAG, "connect interface started");
 
         try {
+            validateInterfaceName(getEnableDisableConnectIface());
             NetworkRequest request =
                     new NetworkRequest.Builder()
                             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
                             .setNetworkSpecifier(
-                            new EthernetNetworkSpecifier(
-                                    mInterfaceName2.getText().toString())).build();
+                            new EthernetNetworkSpecifier(getEnableDisableConnectIface())).build();
             mConnectivityManager.requestNetwork(request,
                     new InterfaceConnectorCallback(),
                     new Handler(Looper.getMainLooper()),
@@ -184,15 +197,23 @@ public final class MainActivity extends FragmentActivity {
     }
 
     private void onEnableButtonClick() {
+        validateInterfaceName(getEnableDisableConnectIface());
         setButtonsAndEditTextsEnabled(false);
         Log.d(TAG, "enable interface started");
-        mInterfaceEnabler.enableInterface(mInterfaceName2.getText().toString());
+        mInterfaceEnabler.enableInterface(getEnableDisableConnectIface());
     }
 
     private void onDisableButtonClick() {
+        validateInterfaceName(getEnableDisableConnectIface());
         setButtonsAndEditTextsEnabled(false);
         Log.d(TAG, "disable interface started");
-        mInterfaceEnabler.disableInterface(mInterfaceName2.getText().toString());
+        mInterfaceEnabler.disableInterface(getEnableDisableConnectIface());
+    }
+
+    private void validateInterfaceName(String iface) {
+        if (Strings.isNullOrEmpty(iface)) {
+            throw new IllegalArgumentException("Interface Name can't be empty.");
+        }
     }
 
     private class InterfaceConnectorCallback extends ConnectivityManager.NetworkCallback {
