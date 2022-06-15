@@ -47,8 +47,9 @@ android_test {
         "android.car.testapi",
         "android.car.test.utils",
         "androidx.test.runner",
+// TODO(b/236153976): comment back once guava is supported
+//      "guava-android-testlib",
         "compatibility-device-util-axt",
-        "guava-android-testlib",
         "platform-test-annotations",
         "testng",
         "truth-prebuilt",
