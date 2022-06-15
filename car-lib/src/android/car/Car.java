@@ -119,14 +119,14 @@ public final class Car {
      */
     @Deprecated
     @AddedIn(majorVersion = 33)
-    public static final int API_VERSION_MAJOR_INT = 33;
+    public static final int API_VERSION_MAJOR_INT = 34;
 
     /**
      * @deprecated - use {@code getCarApiVersion().getMinorVersion()} instead
      */
     @Deprecated
     @AddedIn(majorVersion = 33)
-    public static final int API_VERSION_MINOR_INT = 1;
+    public static final int API_VERSION_MINOR_INT = 0;
 
 
     /**

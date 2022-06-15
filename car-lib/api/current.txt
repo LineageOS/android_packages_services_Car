@@ -27,8 +27,8 @@ package android.car {
     method public boolean isConnected();
     method public boolean isConnecting();
     method public boolean isFeatureEnabled(@NonNull String);
-    field @Deprecated public static final int API_VERSION_MAJOR_INT = 33; // 0x21
-    field @Deprecated public static final int API_VERSION_MINOR_INT = 1; // 0x1
+    field @Deprecated public static final int API_VERSION_MAJOR_INT = 34; // 0x22
+    field @Deprecated public static final int API_VERSION_MINOR_INT = 0; // 0x0
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
@@ -81,6 +81,7 @@ package android.car {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.CarApiVersion> CREATOR;
     field @NonNull public static final android.car.CarApiVersion TIRAMISU_0;
     field @NonNull public static final android.car.CarApiVersion TIRAMISU_1;
+    field @NonNull public static final android.car.CarApiVersion UPSIDE_DOWN_CAKE_0;
   }
 
   public final class CarAppFocusManager {
