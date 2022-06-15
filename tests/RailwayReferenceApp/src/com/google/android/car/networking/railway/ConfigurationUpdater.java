@@ -27,6 +27,8 @@ import android.net.NetworkCapabilities;
 import android.net.StaticIpConfiguration;
 import android.os.OutcomeReceiver;
 
+import androidx.annotation.Nullable;
+
 import com.google.common.base.Strings;
 
 import java.util.ArrayList;
@@ -51,30 +53,47 @@ public final class ConfigurationUpdater {
             String interfaceName)
             throws IllegalArgumentException, PackageManager.NameNotFoundException {
 
-        IpConfiguration ipConfiguration = Strings.isNullOrEmpty(ipConfigurationText) ? null :
+        EthernetNetworkUpdateRequest request = new EthernetNetworkUpdateRequest.Builder()
+                .setIpConfiguration(getIpConfiguration(ipConfigurationText))
+                .setNetworkCapabilities(getCapabilities(networkCapabilitiesText, packageNames))
+                .build();
+
+        mEthernetManager.updateConfiguration(interfaceName, request,
+                mApplicationContext.getMainExecutor(), mCallback);
+    }
+
+    @Nullable
+    private IpConfiguration getIpConfiguration(String ipConfigurationText) {
+        return Strings.isNullOrEmpty(ipConfigurationText) ? null :
                 new IpConfiguration.Builder()
                 .setStaticIpConfiguration(new StaticIpConfiguration.Builder()
                         .setIpAddress(new LinkAddress(ipConfigurationText)).build())
                 .build();
+    }
 
-        NetworkCapabilities.Builder networkCapabilitiesBuilder = new NetworkCapabilities.Builder()
-                .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET);
+    @Nullable
+    private NetworkCapabilities getCapabilities(String networkCapabilitiesText,
+            String packageNames) throws PackageManager.NameNotFoundException {
+        // TODO: Allow for setting package names without capabilities. In this case, the existing
+        //  capabilities should be used.
+        if (Strings.isNullOrEmpty(networkCapabilitiesText)) {
+            return null;
+        }
 
-        networkCapabilitiesBuilder.setAllowedUids(
-                UidToPackageNameConverter.convertToUids(mApplicationContext, packageNames));
-
+        NetworkCapabilities.Builder networkCapabilitiesBuilder =
+                NetworkCapabilities.Builder.withoutDefaultCapabilities()
+                        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET);
 
         for (int capability : getCapabilitiesList(networkCapabilitiesText)) {
             networkCapabilitiesBuilder.addCapability(capability);
         }
 
-        EthernetNetworkUpdateRequest request = new EthernetNetworkUpdateRequest.Builder()
-                .setIpConfiguration(ipConfiguration)
-                .setNetworkCapabilities(networkCapabilitiesBuilder.build())
-                .build();
+        if (!Strings.isNullOrEmpty(packageNames)) {
+            networkCapabilitiesBuilder.setAllowedUids(
+                    UidToPackageNameConverter.convertToUids(mApplicationContext, packageNames));
+        }
 
-        mEthernetManager.updateConfiguration(interfaceName, request,
-                mApplicationContext.getMainExecutor(), mCallback);
+        return networkCapabilitiesBuilder.build();
     }
 
     private static List<Integer> getCapabilitiesList(String capabilitiesText)
