@@ -70,4 +70,5 @@
     <!-- Permissions required for CTS test - CarPropertyManagerTest -->
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE" />
     <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED" />
+    <uses-permission android:name="android.car.permission.CAR_MILEAGE" />
 </manifest>
