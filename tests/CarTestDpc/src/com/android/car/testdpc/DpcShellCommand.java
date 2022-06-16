@@ -33,6 +33,10 @@ final class DpcShellCommand {
     private final PrintWriter mWriter;
     private final String[] mArgs;
 
+    private static final String CMD_ADD_USER_RESTRICTION = "add-user-restriction";
+    private static final String CMD_CLR_USER_RESTRICTION = "clear-user-restriction";
+    private static final String CMD_HELP = "help";
+
     DpcShellCommand(Context context, PrintWriter writer, String[] args) {
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mAdmin = new ComponentName(context, DpcReceiver.class.getName());
@@ -50,21 +54,34 @@ final class DpcShellCommand {
         String cmd = mArgs[0];
         try {
             switch (cmd) {
-                case "add-user-restriction":
+                case CMD_HELP:
+                    runHelp();
+                    break;
+                case CMD_ADD_USER_RESTRICTION:
                     runAddUserRestriction();
                     break;
-                case "clear-user-restriction":
+                case CMD_CLR_USER_RESTRICTION:
                     runClearUserRestriction();
                     break;
                 default:
                     mWriter.println("Invalid command: " + cmd);
+                    runHelp();
                     return;
             }
         } catch (Exception e) {
             mWriter.println("Failed to execute " + Arrays.toString(mArgs) + ": " + e);
             return;
         }
-        mWriter.println("Command succeeded!");
+    }
+
+    private void runHelp() {
+        mWriter.println("Commands: ");
+        mWriter.printf("%s\n", CMD_HELP);
+        mWriter.println("\tList all available commands for device policy.");
+        mWriter.printf("%s <key>\n", CMD_ADD_USER_RESTRICTION);
+        mWriter.println("\tSet a user restriction specified by the key.");
+        mWriter.printf("%s <key>\n", CMD_CLR_USER_RESTRICTION);
+        mWriter.println("\tClear a user restriction specified by the key.");
     }
 
     private void runAddUserRestriction() {
