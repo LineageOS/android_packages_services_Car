@@ -452,6 +452,7 @@ package android.car {
 package android.car.content.pm {
 
   public final class CarPackageManager {
+    method @NonNull public android.car.CarApiVersion getTargetCarApiVersion();
     method public boolean isActivityDistractionOptimized(String, String);
     method public boolean isPendingIntentDistractionOptimized(@NonNull android.app.PendingIntent);
     method public boolean isServiceDistractionOptimized(String, String);
