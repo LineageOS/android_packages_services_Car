@@ -472,6 +472,41 @@ public class CarAudioFocusUnitTest {
     }
 
     @Test
+    public void requestAudioFocusWithDelayed_whileInCall_thenCallFocusRequestReplaced_noChanges() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo callFocusInfo = setupFocusInfoAndRequestFocusForCall(carAudioFocus);
+        AudioFocusInfo delayedFocusInfo = getDelayedExclusiveInfo(AUDIOFOCUS_GAIN);
+        carAudioFocus.onAudioFocusRequest(delayedFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        // Same client makes the same focus request, AFI will be replaced
+        carAudioFocus.onAudioFocusRequest(callFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        verify(mMockAudioManager, times(2))
+                .setFocusRequestResult(callFocusInfo, AUDIOFOCUS_REQUEST_GRANTED, mAudioPolicy);
+        // No focus change expected for Call, even if the replaced request was removed.
+        verify(mMockAudioManager, never())
+                .dispatchAudioFocusChange(callFocusInfo, AUDIOFOCUS_LOSS, mAudioPolicy);
+        // No focus change expected for delayed as well.
+        verify(mMockAudioManager, never())
+                .dispatchAudioFocusChange(delayedFocusInfo, AUDIOFOCUS_GAIN, mAudioPolicy);
+    }
+
+    @Test
+    public void requestAudioFocus_afterReplacedFocusHolderRequestAbandon_delayedFocusGained() {
+        CarAudioFocus carAudioFocus = getCarAudioFocus();
+        AudioFocusInfo callFocusInfo = setupFocusInfoAndRequestFocusForCall(carAudioFocus);
+        AudioFocusInfo delayedFocusInfo = getDelayedExclusiveInfo(AUDIOFOCUS_GAIN);
+        carAudioFocus.onAudioFocusRequest(delayedFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+        // Same client makes the same focus request, AFI will be replaced
+        carAudioFocus.onAudioFocusRequest(callFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
+
+        carAudioFocus.onAudioFocusAbandon(callFocusInfo);
+
+        verify(mMockAudioManager)
+                .dispatchAudioFocusChange(delayedFocusInfo, AUDIOFOCUS_GAIN, mAudioPolicy);
+    }
+
+    @Test
     public void onAudioFocus_delayedRequestAbandonedBeforeGettingFocus_abandonSucceeds() {
         CarAudioFocus carAudioFocus = getCarAudioFocus();
 
