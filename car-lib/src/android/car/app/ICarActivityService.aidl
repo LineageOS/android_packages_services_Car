@@ -18,6 +18,8 @@ package android.car.app;
 
 import android.app.ActivityManager.RunningTaskInfo;
 import android.content.ComponentName;
+import java.util.List;
+
 
 /** @hide */
 interface ICarActivityService {
@@ -53,5 +55,10 @@ interface ICarActivityService {
      * Unregisters the caller from TaskMonitor.
      */
     void unregisterTaskMonitor(in IBinder token) = 5;
+
+    /**
+     * Returns all the visible tasks ordered in top to bottom manner.
+     */
+    List<RunningTaskInfo> getVisibleTasks() = 6;
 }
 
