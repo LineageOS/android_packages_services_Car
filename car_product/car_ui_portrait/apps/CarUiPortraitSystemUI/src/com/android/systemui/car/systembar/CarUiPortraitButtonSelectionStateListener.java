@@ -16,34 +16,45 @@
 
 package com.android.systemui.car.systembar;
 
+import static android.view.Display.DEFAULT_DISPLAY;
+
 import static com.android.systemui.car.displayarea.DisplayAreaComponent.DISPLAY_AREA_VISIBILITY_CHANGED;
-import static com.android.systemui.car.displayarea.DisplayAreaComponent.INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.util.AttributeSet;
 
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-/** A CarSystemBarButton that controls a display area. */
-public class CarUiPortraitSystemBarButton extends CarSystemBarButton {
+import com.android.systemui.car.displayarea.CarDisplayAreaController;
 
-    public CarUiPortraitSystemBarButton(Context context, AttributeSet attrs) {
-        super(context, attrs);
+class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateListener {
+
+    private final CarDisplayAreaController mDisplayAreaController;
+
+    CarUiPortraitButtonSelectionStateListener(Context context,
+            ButtonSelectionStateController carSystemButtonController,
+            CarDisplayAreaController displayAreaController) {
+        super(carSystemButtonController);
+        mDisplayAreaController = displayAreaController;
+
         BroadcastReceiver displayAreaVisibilityReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                boolean isDefaultDAVisible = intent.getBooleanExtra(
-                        INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE, true);
-                if (getSelected() && !isDefaultDAVisible) {
-                    context.getMainExecutor().execute(() -> setSelected(/* selected= */ false));
-                }
-                setSelected(isDefaultDAVisible);
+                onTaskStackChanged();
             }
         };
         LocalBroadcastManager.getInstance(context).registerReceiver(displayAreaVisibilityReceiver,
                 new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED));
+    }
+
+    @Override
+    public void onTaskStackChanged() {
+        if (!mDisplayAreaController.isHostingDefaultApplicationDisplayAreaVisible()) {
+            mButtonSelectionStateController.clearAllSelectedButtons(DEFAULT_DISPLAY);
+            return;
+        }
+        super.onTaskStackChanged();
     }
 }
