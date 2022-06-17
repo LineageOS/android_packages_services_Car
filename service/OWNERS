@@ -1,11 +1,7 @@
 # Project owners
-keunyoung@google.com
-sgurun@google.com
-gurunagarajan@google.com
-pfg@google.com
+include platform/packages/services/Car:/OWNERS
 kevinme@google.com
-ankitarora@google.com
-swan@google.com
 salsavage@google.com
 twasilczyk@google.com
-felipeal@google.com
+ycheo@google.com
+ericjeong@google.com
