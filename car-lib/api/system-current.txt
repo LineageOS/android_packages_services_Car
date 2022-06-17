@@ -66,6 +66,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
@@ -1114,6 +1115,24 @@ package android.car.navigation {
 package android.car.os {
 
   public final class CarPerformanceManager {
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public android.car.os.ThreadPolicyWithPriority getThreadPriority();
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public void setThreadPriority(@NonNull android.car.os.ThreadPolicyWithPriority) throws android.car.os.CarPerformanceManager.SetSchedulerFailedException;
+  }
+
+  public static final class CarPerformanceManager.SetSchedulerFailedException extends java.lang.Exception {
+  }
+
+  public final class ThreadPolicyWithPriority implements android.os.Parcelable {
+    ctor public ThreadPolicyWithPriority(int, @IntRange(from=1, to=99) int);
+    method public int describeContents();
+    method public int getPolicy();
+    method @IntRange(from=1, to=99) public int getPriority();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.os.ThreadPolicyWithPriority> CREATOR;
+    field public static final int PRIORITY_MAX = 99; // 0x63
+    field public static final int PRIORITY_MIN = 1; // 0x1
+    field public static final int SCHED_FIFO = 1; // 0x1
+    field public static final int SCHED_RR = 2; // 0x2
   }
 
 }

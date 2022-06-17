@@ -1093,6 +1093,16 @@ public final class Car {
             "android.car.permission.CONTROL_CAR_APP_LAUNCH";
 
     /**
+     * Permission necessary to setting and getting thread scheduling policy and priority.
+     *
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    public static final String PERMISSION_MANAGE_THREAD_PRIORITY =
+            "android.car.permission.MANAGE_THREAD_PRIORITY";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use
