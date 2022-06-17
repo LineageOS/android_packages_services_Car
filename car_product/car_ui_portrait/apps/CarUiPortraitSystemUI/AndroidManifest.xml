@@ -17,6 +17,7 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:androidprv="http://schemas.android.com/apk/prv/res/android"
+          xmlns:tools="http://schemas.android.com/tools"
           package="com.android.systemui"
           android:sharedUserId="android.uid.systemui"
           coreApp="true">
@@ -29,4 +30,9 @@
 
     <!-- Permission to get car driving state -->
     <uses-permission android:name="android.car.permission.CAR_DRIVING_STATE"/>
+
+    <application
+        tools:replace="android:appComponentFactory"
+        android:appComponentFactory="com.android.systemui.CarUiPortraitSystemUIAppComponentFactory">
+    </application>
 </manifest>
