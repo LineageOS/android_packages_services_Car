@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-  ~ Copyright (C) 2021 The Android Open Source Project
+  ~ Copyright (C) 2022 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -16,10 +16,7 @@
   -->
 
 <resources>
-    <color name="default_audio_background_image_color">#515355</color>
-    <color name="default_audio_background_color">#1E2125</color>
-    <color name="default_audio_background_gradient_start_color">#99000000</color>
-    <color name="default_audio_background_gradient_end_color">#00000000</color>
-
-    <color name="icon_tint">#e8eaed</color>
+    <color name="icon_color">#202124</color>
+    <color name="disabled_icon_color">#9AA0A6</color>
+    <color name="action_button_icon_tint">@android:color/transparent</color>
 </resources>
