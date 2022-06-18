@@ -550,6 +550,11 @@
     <!-- Permission text: app can control launching applications in Car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_control_car_app_launch">Control launching applications.</string>
 
+    <!-- Permission text: apps manage thread prioirty [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_manage_thread_priority">manage thread priority</string>
+    <!-- Permission text: apps manage thread prioirty [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_manage_thread_priority">Manage thread priority.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>

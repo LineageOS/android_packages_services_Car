@@ -25,8 +25,8 @@ import android.car.CarManagerBase;
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ExperimentalFeature;
+import android.car.annotation.MinimumPlatformSdkVersion;
 import android.os.IBinder;
-import android.util.Log;
 
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -43,10 +43,21 @@ import java.util.concurrent.Executor;
 @SystemApi
 @AddedIn(majorVersion = 33, minorVersion = 1)
 public final class CarPerformanceManager extends CarManagerBase {
-    private static final String TAG = CarPerformanceManager.class.getSimpleName();
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final ICarPerformanceService mService;
+
+    /**
+     * An exception type thrown when {@link setThreadPriority} failed.
+     *
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    public static final class SetSchedulerFailedException extends Exception {
+        SetSchedulerFailedException(Throwable cause) {
+            super(cause);
+        }
+    }
 
     /** @hide */
     public CarPerformanceManager(Car car, IBinder service) {
@@ -140,6 +151,52 @@ public final class CarPerformanceManager extends CarManagerBase {
 
         // TODO(b/217422127): Implement the API.
         throw new UnsupportedOperationException("Not yet implemented");
+    }
+
+    /**
+     * Sets the thread scheduling policy with priority for the current thread.
+     *
+     * @param policyWithPriority A thread scheduling policy with priority.
+     * @throws IllegalArgumentException If the policy is not supported or the priority is not within
+     *         {@link ThreadPolicyWithPriority#PRIORITY_MIN} and
+     *         {@link ThreadPolicyWithPriority#PRIORITY_MAX}.
+     * @throws SetSchedulerFailedException If failed to set the scheduling policy and priority.
+     * @throws SecurityException If permission check failed.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     *
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 1)
+    @RequiresPermission(Car.PERMISSION_MANAGE_THREAD_PRIORITY)
+    public void setThreadPriority(@NonNull ThreadPolicyWithPriority policyWithPriority)
+            throws SetSchedulerFailedException {
+        // TODO(b/156400843): Implement this.
+        throw new UnsupportedOperationException("Unimplemented");
+    }
+
+    /**
+     * Gets the thread scheduling policy with priority for the current thread.
+     *
+     * This function only works for policy {@link ThreadPolicyWithPriority#SCHED_FIFO} or
+     * {@link ThreadPolicyWithPriority#SCHED_RR} because we only support adjusting thread priority
+     * for these two real-time scheduling policies.
+     *
+     * @throws IllegalStateException if the current thread policy is not FIFO or RR or failed to
+     *         get policy or priority.
+     * @throws SecurityException If permission check failed.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     *
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 1)
+    @RequiresPermission(Car.PERMISSION_MANAGE_THREAD_PRIORITY)
+    public @NonNull ThreadPolicyWithPriority getThreadPriority() {
+        // TODO(b/156400843): Implement this.
+        throw new UnsupportedOperationException("Unimplemented");
     }
 }
 

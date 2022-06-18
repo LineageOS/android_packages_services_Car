@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.VehicleAreaType;
+import android.car.VehicleGear;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -63,30 +64,37 @@ public final class CarPropertyServiceUnitTest {
     private Context mContext;
     @Mock
     private PropertyHalService mHalService;
+    @Mock
+    private ICarPropertyEventListener mICarPropertyEventListener;
 
-    private String mReadPermission;
     private CarPropertyService mService;
 
     private static final int SPEED_ID = VehiclePropertyIds.PERF_VEHICLE_SPEED;
     private static final int HVAC_TEMP = VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+    private static final String GRANTED_PERMISSION = "GRANTED_PERMISSION";
+    private static final String DENIED_PERMISSION = "DENIED_PERMISSION";
+    private static final CarPropertyValue<Integer> GEAR_CAR_PROPERTY_VALUE = new CarPropertyValue<>(
+            VehiclePropertyIds.GEAR_SELECTION, 0, VehicleGear.GEAR_DRIVE);
 
     @Before
     public void setUp() {
-        mReadPermission = "READ_PERMISSION";
 
-        when(mContext.checkCallingOrSelfPermission(mReadPermission)).thenReturn(
+        when(mContext.checkCallingOrSelfPermission(GRANTED_PERMISSION)).thenReturn(
                 PackageManager.PERMISSION_GRANTED);
+        when(mContext.checkCallingOrSelfPermission(DENIED_PERMISSION)).thenReturn(
+                PackageManager.PERMISSION_DENIED);
 
         SparseArray<CarPropertyConfig<?>> configs = new SparseArray<>();
-        configs.put(SPEED_ID, CarPropertyConfig.newBuilder(
-                Float.class, SPEED_ID,
+        configs.put(SPEED_ID, CarPropertyConfig.newBuilder(Float.class, SPEED_ID,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
-        when(mHalService.getReadPermission(SPEED_ID)).thenReturn(mReadPermission);
+        when(mHalService.getReadPermission(SPEED_ID)).thenReturn(GRANTED_PERMISSION);
         // HVAC_TEMP is actually not a global property, but for simplicity, make it global here.
-        configs.put(HVAC_TEMP, CarPropertyConfig.newBuilder(
-                Float.class, HVAC_TEMP,
+        configs.put(HVAC_TEMP, CarPropertyConfig.newBuilder(Float.class, HVAC_TEMP,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
-        when(mHalService.getReadPermission(HVAC_TEMP)).thenReturn(mReadPermission);
+        when(mHalService.getReadPermission(HVAC_TEMP)).thenReturn(GRANTED_PERMISSION);
+        configs.put(VehiclePropertyIds.GEAR_SELECTION,
+                CarPropertyConfig.newBuilder(Integer.class, VehiclePropertyIds.GEAR_SELECTION,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mHalService.getPropertyList()).thenReturn(configs);
 
         mService = new CarPropertyService(mContext, mHalService);
@@ -268,5 +276,65 @@ public final class CarPropertyServiceUnitTest {
         mService.onPropertyChange(events);
 
         assertThat(listener.getEvents()).isEqualTo(events);
+    }
+
+    @Test
+    public void getProperty_throwsSecurityExceptionIfPlatformDoesNotHavePermissionToRead() {
+        assertThrows(SecurityException.class,
+                () -> mService.getProperty(VehiclePropertyIds.GEAR_SELECTION, 0));
+    }
+
+    @Test
+    public void getProperty_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
+        when(mHalService.getReadPermission(VehiclePropertyIds.GEAR_SELECTION)).thenReturn(
+                DENIED_PERMISSION);
+        assertThrows(SecurityException.class,
+                () -> mService.getProperty(VehiclePropertyIds.GEAR_SELECTION, 0));
+    }
+
+    @Test
+    public void setProperty_throwsSecurityExceptionIfPlatformDoesNotHavePermissionToWrite() {
+        assertThrows(SecurityException.class,
+                () -> mService.setProperty(GEAR_CAR_PROPERTY_VALUE, mICarPropertyEventListener));
+    }
+
+    @Test
+    public void setProperty_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
+        when(mHalService.getWritePermission(VehiclePropertyIds.GEAR_SELECTION)).thenReturn(
+                DENIED_PERMISSION);
+        assertThrows(SecurityException.class,
+                () -> mService.setProperty(GEAR_CAR_PROPERTY_VALUE, mICarPropertyEventListener));
+    }
+
+    @Test
+    public void registerListener_throwsSecurityExceptionIfPlatformDoesNotHavePermissionToRead() {
+        assertThrows(SecurityException.class,
+                () -> mService.registerListener(VehiclePropertyIds.GEAR_SELECTION, 0,
+                        mICarPropertyEventListener));
+    }
+
+    @Test
+    public void registerListener_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
+        when(mHalService.getReadPermission(VehiclePropertyIds.GEAR_SELECTION)).thenReturn(
+                DENIED_PERMISSION);
+        assertThrows(SecurityException.class,
+                () -> mService.registerListener(VehiclePropertyIds.GEAR_SELECTION, 0,
+                        mICarPropertyEventListener));
+    }
+
+    @Test
+    public void unregisterListener_throwsSecurityExceptionIfPlatformDoesNotHavePermissionToRead() {
+        assertThrows(SecurityException.class,
+                () -> mService.unregisterListener(VehiclePropertyIds.GEAR_SELECTION,
+                        mICarPropertyEventListener));
+    }
+
+    @Test
+    public void unregisterListener_throwsSecurityExceptionIfAppDoesNotHavePermissionToRead() {
+        when(mHalService.getReadPermission(VehiclePropertyIds.GEAR_SELECTION)).thenReturn(
+                DENIED_PERMISSION);
+        assertThrows(SecurityException.class,
+                () -> mService.unregisterListener(VehiclePropertyIds.GEAR_SELECTION,
+                        mICarPropertyEventListener));
     }
 }

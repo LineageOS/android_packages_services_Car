@@ -34,3 +34,9 @@ ifneq ($(INCLUDE_SEAHAWK_ONLY_RROS),)
 PRODUCT_PACKAGES += \
     CarUiPortraitSettingsProviderRRO
 endif
+
+# Set necessary framework configs for SUW to run at boot.
+ifneq ($(filter $(TARGET_PRODUCT), gcar_ui_portrait_suw),)
+PRODUCT_PACKAGES += \
+    CarUiPortraitSettingsProviderEmuRRO
+endif

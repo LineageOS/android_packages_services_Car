@@ -25,7 +25,6 @@ PRODUCT_PACKAGES += \
     CarDeveloperOptions \
     CarSettingsIntelligence \
     CarManagedProvisioning \
-    OneTimeInitializer \
     CarProvision \
     StatementService \
     SystemUpdater
