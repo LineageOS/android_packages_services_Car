@@ -172,7 +172,7 @@
     </install-in-user-type>
 
     <!-- Needs to run on system user otherwise cannot find available device -->
-    <install-in-user-type package="com.android.bluetooth.services">
+    <install-in-user-type package="com.android.bluetooth">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
