@@ -172,6 +172,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"નમૂના જનરેટ કરો."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"લૉન્ચિંગ ઍપ્લિકેશનો નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"લૉન્ચિંગ ઍપ્લિકેશનો નિયંત્રિત કરો."</string>
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"થ્રેડની પ્રાધાન્યતા મેનેજ કરો"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"થ્રેડની પ્રાધાન્યતા મેનેજ કરો."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN બસ નિષ્ફળ રહી"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN બસ પ્રતિસાદ આપતી નથી. હેડયુનિટ બોક્સને અનપ્લગ કરી ફરી પ્લગ કરો અને કારને ફરી શરૂ કરો"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"મારું ડિવાઇસ"</string>
