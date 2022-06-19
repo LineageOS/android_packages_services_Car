@@ -102,11 +102,11 @@ public class MockedCarTestBase {
     private SystemInterface mFakeSystemInterface;
     private MockedCarTestContext mMockedCarTestContext;
     private CarTelemetryService mCarTelemetryService;
+    private CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
+    private CarPerformanceService mCarPerformanceService;
 
     private final CarUserService mCarUserService = mock(CarUserService.class);
     private final MockIOInterface mMockIOInterface = new MockIOInterface();
-    private final CarWatchdogService mCarWatchdogService = mock(CarWatchdogService.class);
-    private final CarPerformanceService mCarPerformanceService = mock(CarPerformanceService.class);
     private final GarageModeService mGarageModeService = mock(GarageModeService.class);
     private final FakeCarPowerPolicyDaemon mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
 
@@ -169,6 +169,23 @@ public class MockedCarTestBase {
      */
     protected void useAidlVhal() {
         mUseAidlVhal = true;
+    }
+
+    /**
+     * Set the CarWatchDogService to be used during the test.
+     */
+    protected void setCarWatchDogService(CarWatchdogService service) {
+        mCarWatchdogService = service;
+    }
+
+    /**
+     * Set the CarPerformanceService to be used during the test.
+     *
+     * Must be called during {@link configureMockedHal}. If not called, the real service would be
+     * used.
+     */
+    protected void setCarPerformanceService(CarPerformanceService service) {
+        mCarPerformanceService = service;
     }
 
     /**
