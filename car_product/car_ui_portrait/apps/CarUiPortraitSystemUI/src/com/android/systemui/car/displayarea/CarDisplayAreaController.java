@@ -677,10 +677,6 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                             animateToControlBarState((int) y,
                                     mScreenHeightWithoutNavBar + mTitleBarHeight, 0);
                             mCarDisplayAreaTouchHandler.updateTitleBarVisibility(false);
-                            Intent intent = new Intent(DISPLAY_AREA_VISIBILITY_CHANGED);
-                            intent.putExtra(INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE, false);
-                            LocalBroadcastManager.getInstance(mApplicationContext).sendBroadcast(
-                                    intent);
                         } else {
                             animateToDefaultState((int) y,
                                     mScreenHeightWithoutNavBar - mDefaultDisplayHeight
@@ -986,6 +982,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 mScreenHeightWithoutNavBar - mControlBarDisplayHeight;
         animate(fromPos, toPos, CONTROL_BAR, durationMs);
         mIsHostingDefaultApplicationDisplayAreaVisible = false;
+        broadcastForegroundDAVisibilityChange(false);
     }
 
     private void animateToDefaultState(int fromPos, int toPos, int durationMs) {
@@ -996,6 +993,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mBackgroundApplicationDisplayBounds.bottom = toPos - mTitleBarHeight;
         animate(fromPos, toPos, DEFAULT, durationMs);
         mIsHostingDefaultApplicationDisplayAreaVisible = true;
+        broadcastForegroundDAVisibilityChange(true);
         if (mCarDisplayAreaTouchHandler != null) {
             mCarDisplayAreaTouchHandler.updateTitleBarVisibility(true);
         }
@@ -1287,5 +1285,12 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         });
 
         mIsForegroundDaFullScreen = true;
+    }
+
+    private void broadcastForegroundDAVisibilityChange(boolean visible) {
+        Intent intent = new Intent(DISPLAY_AREA_VISIBILITY_CHANGED);
+        intent.putExtra(INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE, visible);
+        LocalBroadcastManager.getInstance(mApplicationContext).sendBroadcast(
+                intent);
     }
 }

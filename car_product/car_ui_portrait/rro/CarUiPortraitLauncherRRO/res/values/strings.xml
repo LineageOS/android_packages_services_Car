@@ -17,4 +17,5 @@
 
 <resources>
     <string name="ongoing_call_duration_text_separator">&#160;&#8226;&#160;</string>
+    <string name="default_media_song_title">Select media</string>
 </resources>
