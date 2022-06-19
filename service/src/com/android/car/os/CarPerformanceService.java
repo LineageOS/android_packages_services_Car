@@ -33,6 +33,7 @@ import android.car.builtin.util.Slogf;
 import android.car.os.CpuAvailabilityMonitoringConfig;
 import android.car.os.ICarPerformanceService;
 import android.car.os.ICpuAvailabilityChangeListener;
+import android.car.os.ThreadPolicyWithPriority;
 import android.content.Context;
 import android.os.Binder;
 import android.os.RemoteCallbackList;
@@ -132,6 +133,41 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
         // the listener, override RemoteCallbackList.onCallbackDied methods to clean up the internal
         // state on binder death and on removeCpuAvailabilityChangeListener.
         mCpuAvailabilityChangeListeners.unregister(listener);
+    }
+
+    /**
+     * Sets the thread priority for a specific thread.
+     *
+     * The thread must belong to the calling process.
+     *
+     * @throws SecurityException If permission check failed.
+     * @throws ServiceSpecificException If the operation failed.
+     * @throws IllegalArgumentException If the provided tid does not belong to the calling process
+     *         or the policy/priority is not valid.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     */
+    @Override
+    public void setThreadPriority(int tid, int policy, int priority) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
+        // int pid = Binder.getCallingPid();
+        // TODO(b/156400843): Use CarWatchdogDaemonHelper to set priority. Check input.
+    }
+
+    /**
+     * Gets the thread scheduling policy and priority for the specified thread.
+     *
+     * The thread must belong to the calling process.
+     *
+     * @throws SecurityException If permission check failed.
+     * @throws ServiceSpecificException If the scheduling policy is not a real-time policy or the
+     *         operation failed.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     */
+    @Override
+    public ThreadPolicyWithPriority getThreadPriority(int tid) {
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
+        // TODO(b/156400843): Use CarWatchdogDaemonHelper to set priority.
+        return new ThreadPolicyWithPriority(ThreadPolicyWithPriority.SCHED_FIFO, 1);
     }
 
     private void verifyCpuAvailabilityMonitoringConfig(CpuAvailabilityMonitoringConfig config) {
