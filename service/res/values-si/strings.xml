@@ -172,6 +172,10 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"අච්චු විදහන්න."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"යෙදුම් දියත් කිරීම කළමනාකරණය කරන්න"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"යෙදුම් දියත් කිරීම කළමනාකරණය කරන්න."</string>
+    <!-- no translation found for car_permission_label_manage_thread_priority (6775846409863509575) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_manage_thread_priority (3833845502119615929) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN බස් අසාර්ථකයි"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN බස් ප්‍රතිචාර නොදක්වයි. හෙඩ්යුනිට් පෙට්ටිය පේනු ඉවත් කර ආපසු පේනුගත කර, මෝටර් රථය යළි අරඹන්න"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"මගේ උපාංගය"</string>

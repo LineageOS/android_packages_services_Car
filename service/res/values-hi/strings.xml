@@ -172,6 +172,10 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"टेंप्लेट बनाएं."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"लॉन्च किए जाने वाले ऐप्लिकेशन कंट्रोल करता है"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"लॉन्च किए जाने वाले ऐप्लिकेशन कंट्रोल करता है."</string>
+    <!-- no translation found for car_permission_label_manage_thread_priority (6775846409863509575) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_manage_thread_priority (3833845502119615929) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>
