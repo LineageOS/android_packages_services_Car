@@ -172,6 +172,10 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"ສະແດງແມ່ແບບ."</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"ຄວບຄຸມການເປີດໃຊ້ແອັບພລິເຄຊັນ"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"ຄວບຄຸມການເປີດໃຊ້ແອັບພລິເຄຊັນ."</string>
+    <!-- no translation found for car_permission_label_manage_thread_priority (6775846409863509575) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_manage_thread_priority (3833845502119615929) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus ບໍ່ສຳເລັດ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ບໍ່ຕອບສະໜອງ. ຖອດປລັກກ່ອງເຄື່ອງຫຼິ້ນວິທະຍຸ (Headunit) ແລ້ວສຽບເຂົ້າຄືນໃໝ່ ແລະ ຣິສະຕາດລົດ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ອຸປະກອນຂອງຂ້ອຍ"</string>
