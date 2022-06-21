@@ -184,14 +184,16 @@ public final class MainActivity extends FragmentActivity {
             validateInterfaceName(getEnableDisableConnectIface());
             NetworkRequest request =
                     new NetworkRequest.Builder()
+                            .clearCapabilities()
                             .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
                             .setNetworkSpecifier(
-                            new EthernetNetworkSpecifier(getEnableDisableConnectIface())).build();
+                                    new EthernetNetworkSpecifier(getEnableDisableConnectIface()))
+                            .build();
             mConnectivityManager.requestNetwork(request,
                     new InterfaceConnectorCallback(),
                     new Handler(Looper.getMainLooper()),
                     Math.toIntExact(REQUEST_NETWORK_TIMEOUT.toMillis()));
-        } catch (IllegalArgumentException e) {
+        } catch (SecurityException | IllegalArgumentException e) {
             showOperationResultDialog(e.getLocalizedMessage(), /* isSuccess= */ false);
         }
     }
@@ -221,8 +223,8 @@ public final class MainActivity extends FragmentActivity {
         public void onAvailable(Network network) {
             super.onAvailable(network);
 
-            try {
-                network.bindSocket(new Socket());
+            try (Socket socket = new Socket()) {
+                network.bindSocket(socket);
             } catch (IOException e) {
                 showOperationResultDialog(e.getLocalizedMessage(), /* isSuccess= */ false);
                 return;

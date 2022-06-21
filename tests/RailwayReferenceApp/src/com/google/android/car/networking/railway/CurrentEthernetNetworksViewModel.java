@@ -18,6 +18,7 @@ package com.google.android.car.networking.railway;
 
 import android.app.Application;
 import android.net.ConnectivityManager;
+import android.net.LinkAddress;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -102,8 +103,10 @@ public final class CurrentEthernetNetworksViewModel extends AndroidViewModel {
                 sb.append(linkProperties.getInterfaceName());
 
                 sb.append("\n\t");
-                sb.append("ip: ");
-                sb.append(linkProperties.getLinkAddresses().get(0).getAddress().getHostAddress());
+                sb.append("ip addresses: ");
+                for (LinkAddress address : linkProperties.getLinkAddresses()) {
+                    sb.append("\n\t\t").append(address.getAddress().getHostAddress());
+                }
             }
 
             if (networkCapabilities != null) {
