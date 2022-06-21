@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.EthernetManager;
 import android.net.EthernetNetworkManagementException;
+import android.net.EthernetNetworkSpecifier;
 import android.net.EthernetNetworkUpdateRequest;
 import android.net.IpConfiguration;
 import android.net.LinkAddress;
@@ -55,7 +56,8 @@ public final class ConfigurationUpdater {
 
         EthernetNetworkUpdateRequest request = new EthernetNetworkUpdateRequest.Builder()
                 .setIpConfiguration(getIpConfiguration(ipConfigurationText))
-                .setNetworkCapabilities(getCapabilities(networkCapabilitiesText, packageNames))
+                .setNetworkCapabilities(getCapabilities(
+                        interfaceName, networkCapabilitiesText, packageNames))
                 .build();
 
         mEthernetManager.updateConfiguration(interfaceName, request,
@@ -72,7 +74,7 @@ public final class ConfigurationUpdater {
     }
 
     @Nullable
-    private NetworkCapabilities getCapabilities(String networkCapabilitiesText,
+    private NetworkCapabilities getCapabilities(String iface, String networkCapabilitiesText,
             String packageNames) throws PackageManager.NameNotFoundException {
         // TODO: Allow for setting package names without capabilities. In this case, the existing
         //  capabilities should be used.
@@ -82,7 +84,8 @@ public final class ConfigurationUpdater {
 
         NetworkCapabilities.Builder networkCapabilitiesBuilder =
                 NetworkCapabilities.Builder.withoutDefaultCapabilities()
-                        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET);
+                        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+                        .setNetworkSpecifier(new EthernetNetworkSpecifier(iface));
 
         for (int capability : getCapabilitiesList(networkCapabilitiesText)) {
             networkCapabilitiesBuilder.addCapability(capability);
