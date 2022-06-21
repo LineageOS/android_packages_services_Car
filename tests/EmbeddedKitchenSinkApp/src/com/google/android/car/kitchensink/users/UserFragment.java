@@ -289,7 +289,6 @@ public final class UserFragment extends Fragment {
 
     private void updateState() {
         // Current user
-        int userId = UserHandle.myUserId();
         boolean isAdmin = mUserManager.isAdminUser();
         boolean isAssociatedKeyFob = isAssociatedKeyFob();
         UserInfo user = mUserManager.getUserInfo(mUserId);

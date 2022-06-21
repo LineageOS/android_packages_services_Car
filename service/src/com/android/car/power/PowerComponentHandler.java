@@ -110,7 +110,6 @@ public final class PowerComponentHandler {
                     component++) {
                 mComponentStates.put(component, false);
                 PowerComponentMediator mediator = factory.createPowerComponent(component);
-                String componentName = powerComponentToString(component);
                 if (mediator == null || !mediator.isComponentAvailable()) {
                     // We don't not associate a mediator with the component.
                     continue;

@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
@@ -76,13 +75,12 @@ public class BluetoothDeviceConnectionPolicy {
      * tracking and uses them to update the status.
      *
      * On BluetoothAdapter.ACTION_STATE_CHANGED:
-     *    If the adapter is going into the ON state, then commit trigger auto connection.
+     * If the adapter is going into the ON state, then commit trigger auto connection.
      */
     private class BluetoothBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
-            BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
                 if (DBG) {
@@ -95,6 +93,7 @@ public class BluetoothDeviceConnectionPolicy {
             }
         }
     }
+
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
 
     /**
@@ -210,7 +209,7 @@ public class BluetoothDeviceConnectionPolicy {
                 // {@code mConfigs.get(prop)} in {@link CarPropertyService#getProperty} and
                 // {@link CarPropertyService#getPropertyConfigList}
                 List<CarPropertyConfig> availableProp = mCarPropertyService.getPropertyConfigList(
-                        new int[] {VehiclePropertyIds.INFO_DRIVER_SEAT});
+                        new int[]{VehiclePropertyIds.INFO_DRIVER_SEAT});
                 if (availableProp.isEmpty() || availableProp.get(0) == null) {
                     if (DBG) {
                         Slogf.d(TAG, "Driver seat location property is not in config list.");
