@@ -113,6 +113,8 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     private CarPowerManager mCarPowerManager;
     private PowerComponentHandler mPowerComponentHandler;
 
+    private static final Object sLock = new Object();
+
     @Mock
     private Resources mResources;
     @Mock
@@ -487,8 +489,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
+        @GuardedBy("sLock")
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
@@ -501,7 +502,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
         @Override
         public void setDisplayState(boolean on) {
-            synchronized (mLock) {
+            synchronized (sLock) {
                 mDisplayOn = on;
             }
             mDisplayStateWait.release();
@@ -509,7 +510,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
         public boolean waitForDisplayStateChange(long timeoutMs) throws Exception {
             JavaMockitoHelper.await(mDisplayStateWait, timeoutMs);
-            synchronized (mLock) {
+            synchronized (sLock) {
                 return mDisplayOn;
             }
         }
@@ -525,7 +526,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
         @Override
         public boolean isDisplayEnabled() {
-            synchronized (mLock) {
+            synchronized (sLock) {
                 return mDisplayOn;
             }
         }
@@ -601,6 +602,8 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         private final Semaphore mShutdownWait = new Semaphore(0);
         private final Semaphore mSleepWait = new Semaphore(0);
         private final Semaphore mSleepExitWait = new Semaphore(0);
+
+        @GuardedBy("sLock")
         private boolean mWakeupCausedByTimer = false;
 
         @Override
@@ -645,8 +648,10 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
             return mWakeupCausedByTimer;
         }
 
-        public synchronized void setWakeupCausedByTimer(boolean set) {
-            mWakeupCausedByTimer = set;
+        public void setWakeupCausedByTimer(boolean set) {
+            synchronized (sLock) {
+                mWakeupCausedByTimer = set;
+            }
         }
 
         @Override
