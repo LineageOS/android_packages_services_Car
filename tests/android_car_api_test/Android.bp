@@ -61,5 +61,8 @@ android_test {
         "android.test.base",
     ],
 
-    test_suites: ["general-tests"],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+    ],
 }
