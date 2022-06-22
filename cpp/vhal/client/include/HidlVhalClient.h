@@ -62,17 +62,18 @@ public:
                   std::shared_ptr<HidlVhalClient::SetValueCallbackFunc> callback) override;
 
     // Add the callback that would be called when VHAL binder died.
-    VhalClientResult<void> addOnBinderDiedCallback(
+    android::hardware::automotive::vehicle::VhalResult<void> addOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
     // Remove a previously added OnBinderDied callback.
-    VhalClientResult<void> removeOnBinderDiedCallback(
+    android::hardware::automotive::vehicle::VhalResult<void> removeOnBinderDiedCallback(
             std::shared_ptr<OnBinderDiedCallbackFunc> callback) override;
 
-    VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> getAllPropConfigs() override;
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    getAllPropConfigs() override;
 
-    VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> getPropConfigs(
-            std::vector<int32_t> propIds) override;
+    android::hardware::automotive::vehicle::VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>>
+    getPropConfigs(std::vector<int32_t> propIds) override;
 
     std::unique_ptr<ISubscriptionClient> getSubscriptionClient(
             std::shared_ptr<ISubscriptionCallback> callback) override;
@@ -110,10 +111,11 @@ public:
     HidlSubscriptionClient(android::sp<android::hardware::automotive::vehicle::V2_0::IVehicle> hal,
                            std::shared_ptr<ISubscriptionCallback> callback);
 
-    VhalClientResult<void> subscribe(
+    android::hardware::automotive::vehicle::VhalResult<void> subscribe(
             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                     options) override;
-    VhalClientResult<void> unsubscribe(const std::vector<int32_t>& propIds) override;
+    android::hardware::automotive::vehicle::VhalResult<void> unsubscribe(
+            const std::vector<int32_t>& propIds) override;
 
 private:
     std::shared_ptr<ISubscriptionCallback> mCallback;
