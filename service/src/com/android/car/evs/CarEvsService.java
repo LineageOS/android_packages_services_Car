@@ -1370,10 +1370,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     /** EVS frame handler called after a native handler */
     @Override
     public void onFrameEvent(int id, HardwareBuffer buffer) {
-        if (!processNewFrame(id, buffer)) {
-            // No client uses this buffer.
-            Slogf.d(TAG_EVS, "Returns buffer " + id + " because no client uses it.");
-            mHalWrapper.doneWithFrame(id);
+        try {
+            if (!processNewFrame(id, buffer)) {
+                // No client uses this buffer.
+                Slogf.d(TAG_EVS, "Returns buffer " + id + " because no client uses it.");
+                mHalWrapper.doneWithFrame(id);
+            }
+        } finally {
+            buffer.close();
         }
     }
 
