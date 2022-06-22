@@ -38,7 +38,9 @@ using ::android::sp;
 using ::android::wp;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
+using ::android::hardware::automotive::vehicle::StatusError;
 using ::android::hardware::automotive::vehicle::toInt;
+using ::android::hardware::automotive::vehicle::VhalResult;
 using ::android::hardware::automotive::vehicle::V2_0::IVehicle;
 using ::android::hardware::automotive::vehicle::V2_0::StatusCode;
 using ::android::hardware::automotive::vehicle::V2_0::SubscribeFlags;
@@ -112,7 +114,7 @@ void HidlVhalClient::getValue(const IHalPropValue& requestValue,
                               VehiclePropValue valueCopy = value;
                               (*callback)(std::make_unique<HidlHalPropValue>(std::move(valueCopy)));
                           } else {
-                              (*callback)(ClientStatusError(toAidlStatusCode(status))
+                              (*callback)(StatusError(toAidlStatusCode(status))
                                           << "failed to get value for prop: " << propId
                                           << ", areaId: " << areaId
                                           << ": status code: " << toInt(status));
@@ -120,7 +122,7 @@ void HidlVhalClient::getValue(const IHalPropValue& requestValue,
                       });
 
     if (!result.isOk()) {
-        (*callback)(ClientStatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
+        (*callback)(StatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
                     << "failed to get value for prop: " << requestValue.getPropId() << ", areaId: "
                     << requestValue.getAreaId() << ": error: " << result.description());
     }
@@ -132,14 +134,14 @@ void HidlVhalClient::setValue(const IHalPropValue& value,
             reinterpret_cast<const VehiclePropValue*>(value.toVehiclePropValue());
     auto result = mHal->set(*propValue);
     if (!result.isOk()) {
-        (*callback)(ClientStatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
+        (*callback)(StatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
                     << "failed to set value for prop: " << value.getPropId()
                     << ", areaId: " << value.getAreaId() << ": error: " << result.description());
         return;
     }
     StatusCode status = result;
     if (status != StatusCode::OK) {
-        (*callback)(ClientStatusError(toAidlStatusCode(status))
+        (*callback)(StatusError(toAidlStatusCode(status))
                     << "failed to set value for prop: " << value.getPropId()
                     << ", areaId: " << value.getAreaId() << ": status code: " << toInt(status));
         return;
@@ -148,7 +150,7 @@ void HidlVhalClient::setValue(const IHalPropValue& value,
 }
 
 // Add the callback that would be called when VHAL binder died.
-VhalClientResult<void> HidlVhalClient::addOnBinderDiedCallback(
+VhalResult<void> HidlVhalClient::addOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     mOnBinderDiedCallbacks.insert(callback);
@@ -156,18 +158,18 @@ VhalClientResult<void> HidlVhalClient::addOnBinderDiedCallback(
 }
 
 // Remove a previously added OnBinderDied callback.
-VhalClientResult<void> HidlVhalClient::removeOnBinderDiedCallback(
+VhalResult<void> HidlVhalClient::removeOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     if (mOnBinderDiedCallbacks.find(callback) == mOnBinderDiedCallbacks.end()) {
-        return ClientStatusError(toAidlStatusCode(StatusCode::INVALID_ARG))
+        return StatusError(toAidlStatusCode(StatusCode::INVALID_ARG))
                 << "The callback to remove was not added before";
     }
     mOnBinderDiedCallbacks.erase(callback);
     return {};
 }
 
-VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> HidlVhalClient::getAllPropConfigs() {
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> HidlVhalClient::getAllPropConfigs() {
     std::vector<std::unique_ptr<IHalPropConfig>> halPropConfigs;
     auto result = mHal->getAllPropConfigs([&halPropConfigs](
                                                   const hidl_vec<VehiclePropConfig>& propConfigs) {
@@ -177,13 +179,13 @@ VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> HidlVhalClient::g
         }
     });
     if (!result.isOk()) {
-        return ClientStatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
+        return StatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
                 << "failed to getAllPropConfigs: error: " << result.description();
     }
     return std::move(halPropConfigs);
 }
 
-VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> HidlVhalClient::getPropConfigs(
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> HidlVhalClient::getPropConfigs(
         std::vector<int32_t> propIds) {
     std::vector<std::unique_ptr<IHalPropConfig>> halPropConfigs;
     hidl_vec<int32_t> hidlPropIds(propIds);
@@ -205,11 +207,11 @@ VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> HidlVhalClient::g
                                      }
                                  });
     if (!result.isOk()) {
-        return ClientStatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
+        return StatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
                 << "failed to getPropConfigs: error: " << result.description();
     }
     if (status != StatusCode::OK) {
-        return ClientStatusError(toAidlStatusCode(status))
+        return StatusError(toAidlStatusCode(status))
                 << "failed to getPropConfigs: status code: " << toInt(status);
     }
     return std::move(halPropConfigs);
@@ -240,7 +242,7 @@ HidlSubscriptionClient::HidlSubscriptionClient(sp<IVehicle> hal,
     mVhalCallback = sp<SubscriptionCallback>::make(callback);
 }
 
-VhalClientResult<void> HidlSubscriptionClient::subscribe(
+VhalResult<void> HidlSubscriptionClient::subscribe(
         const std::vector<::aidl::android::hardware::automotive::vehicle::SubscribeOptions>&
                 options) {
     std::vector<SubscribeOptions> hidlOptions;
@@ -253,28 +255,28 @@ VhalClientResult<void> HidlSubscriptionClient::subscribe(
     }
     auto result = mHal->subscribe(mVhalCallback, hidlOptions);
     if (!result.isOk()) {
-        return ClientStatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
+        return StatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
                 << "failed to subscribe: error: " << result.description();
     }
     StatusCode status = result;
     if (status != StatusCode::OK) {
-        return ClientStatusError(toAidlStatusCode(status))
+        return StatusError(toAidlStatusCode(status))
                 << "failed to subscribe: status code: " << toInt(status);
     }
     return {};
 }
 
-VhalClientResult<void> HidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
+VhalResult<void> HidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
     for (int32_t propId : propIds) {
         auto result = mHal->unsubscribe(mVhalCallback, propId);
         if (!result.isOk()) {
-            return ClientStatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
+            return StatusError(toAidlStatusCode(StatusCode::TRY_AGAIN))
                     << "failed to unsubscribe prop Id: " << propId
                     << ": error: " << result.description();
         }
         StatusCode status = result;
         if (status != StatusCode::OK) {
-            return ClientStatusError(toAidlStatusCode(status))
+            return StatusError(toAidlStatusCode(status))
                     << "failed to unsubscribe prop Id: " << propId
                     << ": status code: " << toInt(status);
         }

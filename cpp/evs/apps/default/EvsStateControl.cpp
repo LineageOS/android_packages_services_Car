@@ -32,17 +32,17 @@
 #include <stdio.h>
 #include <string.h>
 
+using ::aidl::android::hardware::automotive::vehicle::StatusCode;
 using ::aidl::android::hardware::automotive::vehicle::VehicleGear;
 using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyType;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
 using ::aidl::android::hardware::automotive::vehicle::VehicleTurnSignal;
 using ::android::base::Result;
-using ::android::frameworks::automotive::vhal::ErrorCode;
 using ::android::frameworks::automotive::vhal::IHalPropValue;
 using ::android::frameworks::automotive::vhal::IVhalClient;
-using ::android::frameworks::automotive::vhal::VhalClientResult;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
+using ::android::hardware::automotive::vehicle::VhalResult;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
@@ -256,11 +256,11 @@ bool EvsStateControl::selectStateForCurrentConditions() {
 
     if (mVehicle != nullptr) {
         // Query the car state
-        if (invokeGet(&mGearValue) != ErrorCode::OK) {
+        if (invokeGet(&mGearValue) != StatusCode::OK) {
             LOG(ERROR) << "GEAR_SELECTION not available from vehicle.  Exiting.";
             return false;
         }
-        if ((mTurnSignalValue.prop == 0) || (invokeGet(&mTurnSignalValue) != ErrorCode::OK)) {
+        if ((mTurnSignalValue.prop == 0) || (invokeGet(&mTurnSignalValue) != StatusCode::OK)) {
             // Silently treat missing turn signal state as no turn signal active
             mTurnSignalValue.value.int32Values = {sMockSignal};
             mTurnSignalValue.prop = 0;
@@ -299,19 +299,19 @@ bool EvsStateControl::selectStateForCurrentConditions() {
     return configureEvsPipeline(desiredState);
 }
 
-ErrorCode EvsStateControl::invokeGet(VehiclePropValue* pRequestedPropValue) {
+StatusCode EvsStateControl::invokeGet(VehiclePropValue* pRequestedPropValue) {
     auto halPropValue = mVehicle->createHalPropValue(pRequestedPropValue->prop);
     // We are only setting int32Values.
     halPropValue->setInt32Values(pRequestedPropValue->value.int32Values);
 
-    VhalClientResult<std::unique_ptr<IHalPropValue>> result = mVehicle->getValueSync(*halPropValue);
+    VhalResult<std::unique_ptr<IHalPropValue>> result = mVehicle->getValueSync(*halPropValue);
 
     if (!result.ok()) {
-        return static_cast<ErrorCode>(result.error().code());
+        return static_cast<StatusCode>(result.error().code());
     }
     pRequestedPropValue->value.int32Values = result.value()->getInt32Values();
     pRequestedPropValue->timestamp = result.value()->getTimestamp();
-    return ErrorCode::OK;
+    return StatusCode::OK;
 }
 
 bool EvsStateControl::configureEvsPipeline(State desiredState) {
