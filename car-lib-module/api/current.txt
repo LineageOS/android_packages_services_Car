@@ -76,6 +76,8 @@ package android.car {
   public final class CarApiVersion extends android.car.ApiVersion<android.car.CarApiVersion> {
     method @NonNull public static android.car.CarApiVersion forMajorAndMinorVersions(int, int);
     method @NonNull public static android.car.CarApiVersion forMajorVersion(int);
+    field @NonNull public static final android.car.CarApiVersion TIRAMISU_0;
+    field @NonNull public static final android.car.CarApiVersion TIRAMISU_1;
   }
 
   public final class CarAppFocusManager {
@@ -193,6 +195,8 @@ package android.car {
   public final class PlatformApiVersion extends android.car.ApiVersion<android.car.PlatformApiVersion> {
     method @NonNull public static android.car.PlatformApiVersion forMajorAndMinorVersions(int, int);
     method @NonNull public static android.car.PlatformApiVersion forMajorVersion(int);
+    field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
+    field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
   }
 
   public final class PortLocationType {
