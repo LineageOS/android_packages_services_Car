@@ -17,12 +17,29 @@ package android.car;
 
 import android.annotation.NonNull;
 import android.car.annotation.AddedIn;
+import android.os.Build;
 
 /**
  * Represents the API version of the {@code Car} SDK.
  */
 @AddedIn(majorVersion = 33, minorVersion = 1)
 public final class CarApiVersion extends ApiVersion<CarApiVersion> {
+
+    /**
+     * Helper object for main version of Android 13.
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public static final CarApiVersion TIRAMISU_0 =
+            forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 0);
+
+    /**
+     * Helper object for first minor upgrade of Android 13.
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public static final CarApiVersion TIRAMISU_1 =
+            forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 1);
 
     /**
      * Creates a new instance with the given major and minor versions.
