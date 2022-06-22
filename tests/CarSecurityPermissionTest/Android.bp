@@ -47,4 +47,8 @@ android_test {
     certificate: "platform",
 
     min_sdk_version: "33",
+
+    test_suites: [
+        "automotive-tests",
+    ],
 }
