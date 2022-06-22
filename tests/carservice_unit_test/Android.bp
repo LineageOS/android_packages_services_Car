@@ -67,7 +67,10 @@ android_test {
         "vehicle-hal-support-lib",
     ],
 
-    test_suites: ["general-tests"],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+    ],
 
     // mockito-target-inline dependency
     jni_libs: [
