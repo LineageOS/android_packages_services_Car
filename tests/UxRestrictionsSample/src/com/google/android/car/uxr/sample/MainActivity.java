@@ -34,6 +34,7 @@ import android.car.experimental.DriverDistractionChangeEvent;
 import android.car.experimental.ExperimentalCar;
 import android.os.Bundle;
 import android.util.JsonWriter;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -287,7 +288,7 @@ public class MainActivity extends AppCompatActivity
                     .setMessage(charWriter.toString())
                     .show();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed writing restrictions configuration", e);
         }
     }
 
@@ -310,7 +311,7 @@ public class MainActivity extends AppCompatActivity
                     .setMessage(charWriter.toString())
                     .show();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed writing restrictions configuration", e);
         }
     }
 }

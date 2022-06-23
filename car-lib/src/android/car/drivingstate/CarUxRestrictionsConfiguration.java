@@ -323,7 +323,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         try {
             writeJson(writer);
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e(TAG, "Failed printing UX restrictions configuration", e);
         }
         return charWriter.toString();
     }
