@@ -63,6 +63,9 @@
     <string name="config_controlBarActivity" translatable="false">
         com.android.car.carlauncher/.ControlBarActivity
     </string>
+    <string name="config_notificationCenterActivity" translatable="false">
+        com.android.car.notification/.CarNotificationCenterActivity
+    </string>
     <!--  default relaunch will be the first item  -->
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>

@@ -83,6 +83,7 @@ import com.android.internal.app.AssistUtils;
 import com.android.systemui.R;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.qs.QSHost;
+import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.ShellTaskOrganizer;
@@ -102,7 +103,8 @@ import javax.inject.Inject;
  * Controls the bounds of the home background, audio bar and application displays. This is a
  * singleton class as there should be one controller used to register and control the DA's
  */
-public class CarDisplayAreaController implements ConfigurationController.ConfigurationListener {
+public class CarDisplayAreaController implements ConfigurationController.ConfigurationListener,
+        CommandQueue.Callbacks {
 
     // Layer index of how display areas should be placed. Keeping a gap of 100 if we want to
     // add some other display area layers in between in the future.
@@ -145,6 +147,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private final int mTitleBarHeight;
     private final int mScreenHeightWithoutNavBar;
     private final int mTotalScreenHeight;
+    private final ComponentName mNotificationCenterComponent;
     private final CarDisplayAreaTouchHandler mCarDisplayAreaTouchHandler;
     private final Context mApplicationContext;
     private final int mForegroundDisplayTop;
@@ -362,7 +365,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             QSHost host,
             CarServiceProvider carServiceProvider,
             CarDisplayAreaOrganizer organizer,
-            CarUiPortraitDisplaySystemBarsController carUiPortraitDisplaySystemBarsController) {
+            CarUiPortraitDisplaySystemBarsController carUiPortraitDisplaySystemBarsController,
+            CommandQueue commandQueue) {
         mApplicationContext = applicationContext;
         mSyncQueue = syncQueue;
         mOrganizer = organizer;
@@ -394,6 +398,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mControlBarActivityComponent = ComponentName.unflattenFromString(
                 resources.getString(
                         R.string.config_controlBarActivity));
+        mNotificationCenterComponent = ComponentName.unflattenFromString(resources.getString(
+                R.string.config_notificationCenterActivity));
         mBackgroundActivityComponent = new ArrayList<>();
         mVoicePlateActivitySet = new ArraySet<>();
         String[] backgroundActivities = mApplicationContext.getResources().getStringArray(
@@ -403,6 +409,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                     .add(ComponentName.unflattenFromString(backgroundActivity));
         }
         mAssistUtils = new AssistUtils(applicationContext);
+        commandQueue.addCallback(this);
 
         // Get bottom nav bar height.
         int navBarHeight = resources.getDimensionPixelSize(
@@ -452,6 +459,20 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             ComponentName componentName = ComponentName.unflattenFromString(component);
             mIgnoreOpeningForegroundDAComponentsSet.add(componentName);
         }
+    }
+
+    @Override
+    public void animateExpandNotificationsPanel() {
+        String name = mNotificationCenterComponent.flattenToShortString();
+        if (isHostingDefaultApplicationDisplayAreaVisible()
+                && mForegroundDAComponentsVisibilityMap.containsKey(name)
+                && mForegroundDAComponentsVisibilityMap.get(name)) {
+            // notifications activity already visible
+            return;
+        }
+        Intent intent = new Intent();
+        intent.setComponent(mNotificationCenterComponent);
+        mApplicationContext.startActivityAsUser(intent, UserHandle.CURRENT);
     }
 
     /**
