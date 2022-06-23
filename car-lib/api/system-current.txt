@@ -50,6 +50,7 @@ package android.car {
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
+    field public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION = "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
     field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH = "android.car.permission.CONTROL_CAR_APP_LAUNCH";
@@ -665,6 +666,28 @@ package android.car.drivingstate {
 
   public static interface CarDrivingStateManager.CarDrivingStateEventListener {
     method public void onDrivingStateChanged(android.car.drivingstate.CarDrivingStateEvent);
+  }
+
+  public final class CarUxRestrictionsConfiguration implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public Integer getPhysicalPort();
+    method @NonNull public android.car.drivingstate.CarUxRestrictions getUxRestrictions(int, float);
+    method @NonNull public android.car.drivingstate.CarUxRestrictions getUxRestrictions(int, @FloatRange(from=0.0f) float, @NonNull String);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUxRestrictionsConfiguration> CREATOR;
+  }
+
+  public final class CarUxRestrictionsManager {
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration> getConfigs();
+    method @Nullable public android.car.drivingstate.CarUxRestrictions getCurrentCarUxRestrictions(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public String getRestrictionMode();
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration> getStagedConfigs();
+    method public void onCarDisconnected();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration>);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull android.car.drivingstate.CarUxRestrictionsConfiguration);
+    method public void setListener(int, @NonNull android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean setRestrictionMode(@NonNull String);
+    field public static final String UX_RESTRICTION_MODE_BASELINE = "baseline";
   }
 
 }
