@@ -18,8 +18,8 @@
 
 #include "ServiceManager.h"
 
-#include "IoPerfCollection.h"
 #include "PackageInfoResolver.h"
+#include "PerformanceProfiler.h"
 
 #include <android/binder_interface_utils.h>
 
@@ -102,9 +102,9 @@ Result<void> ServiceManager::startWatchdogProcessService(const sp<Looper>& mainL
 
 Result<void> ServiceManager::startWatchdogPerfService() {
     mWatchdogPerfService = sp<WatchdogPerfService>::make();
-    if (auto result = mWatchdogPerfService->registerDataProcessor(sp<IoPerfCollection>::make());
+    if (auto result = mWatchdogPerfService->registerDataProcessor(sp<PerformanceProfiler>::make());
         !result.ok()) {
-        return Error() << "Failed to register I/O perf collection: " << result.error();
+        return Error() << "Failed to register performance profiler: " << result.error();
     }
     if (auto result = mWatchdogPerfService->start(); !result.ok()) {
         return Error(result.error().code())
