@@ -22,7 +22,6 @@ import android.car.content.pm.CarPackageManager;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build.VERSION;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -100,14 +99,9 @@ public class CarMainlineFragment extends Fragment {
         mCarMajorVersion.setText(String.valueOf(carApiVersion.getMajorVersion()));
         mCarMinorVersion.setText(String.valueOf(carApiVersion.getMinorVersion()));
 
-        boolean isCarApiTQpr = carApiVersion
-                .isAtLeast(CarApiVersion.forMajorAndMinorVersions(VERSION_CODES.TIRAMISU, 1));
-        // TODO(b/230004170): use >= VERSION_CODES.U when available
-        boolean isAndroidUOrHigher = platformApiVersion
-                .isAtLeast(PlatformApiVersion.forMajorVersion(VERSION_CODES.CUR_DEVELOPMENT));
-        Log.v(TAG, "onStart(): isCarApiTQpr=" + isCarApiTQpr
-                + ", isAndroidUOrHigher=" + isAndroidUOrHigher);
-        if (isCarApiTQpr || isAndroidUOrHigher) {
+        boolean isCarApiTQpr = carApiVersion.isAtLeast(CarApiVersion.TIRAMISU_1);
+        Log.v(TAG, "onStart(): isCarApiTQpr=" + isCarApiTQpr);
+        if (isCarApiTQpr) {
             mPlatformVersion.setText(platformApiVersion.toString());
             mCarVersion.setText(carApiVersion.toString());
             setTargetCarVersion(/* isMajor= */ true);
