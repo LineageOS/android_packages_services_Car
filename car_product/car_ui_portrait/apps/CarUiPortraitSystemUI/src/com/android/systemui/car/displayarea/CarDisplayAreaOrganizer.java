@@ -26,6 +26,7 @@ import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -143,6 +144,12 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                                 == DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT) {
                             updateForegroundDisplayBounds(wct);
                             updateBackgroundDisplayBounds(wct);
+                        }
+                        else if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.CONTROL_BAR) {
+                            Intent homeActivityIntent = new Intent(Intent.ACTION_MAIN);
+                            homeActivityIntent.addCategory(Intent.CATEGORY_HOME);
+                            homeActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.startActivity(homeActivityIntent);
                         }
                     }
                 }
