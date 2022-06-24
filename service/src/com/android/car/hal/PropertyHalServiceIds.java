@@ -30,6 +30,7 @@ import android.hardware.automotive.vehicle.EvChargeState;
 import android.hardware.automotive.vehicle.EvConnectorType;
 import android.hardware.automotive.vehicle.EvRegenerativeBrakingState;
 import android.hardware.automotive.vehicle.FuelType;
+import android.hardware.automotive.vehicle.GsrComplianceRequirementType;
 import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.TrailerState;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
@@ -111,6 +112,8 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(EvRegenerativeBrakingState.class));
     private static final Set<Integer> TRAILER_PRESENT =
             new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
+    private static final Set<Integer> GSR_COMP_REQ_TYPE =
+            new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -591,6 +594,9 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
         mHalPropIdToPermissions.put(VehicleProperty.TRAILER_PRESENT, new Pair<>(
                 Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
+        mHalPropIdToPermissions.put(
+                VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
+                new Pair<>(Car.PERMISSION_CAR_INFO, null));
         // mPropToValidValue should contain all properties which has @data_enum in types.hal
         mHalPropIdToValidValues.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
         mHalPropIdToValidValues.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
@@ -633,6 +639,9 @@ public class PropertyHalServiceIds {
                 ETC_CARD_TYPE);
         mHalPropIdToValidValues.put(VehicleProperty.TRAILER_PRESENT,
                 TRAILER_PRESENT);
+        mHalPropIdToValidValues.put(
+                VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
+                GSR_COMP_REQ_TYPE);
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
