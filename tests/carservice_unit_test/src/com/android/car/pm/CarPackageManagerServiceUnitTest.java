@@ -17,7 +17,6 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
-import static android.car.content.pm.CarPackageManager.CAR_TARGET_VERSION_UNDEFINED;
 import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION;
 import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
@@ -37,6 +36,7 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.app.PendingIntent;
+import android.car.CarApiVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -96,8 +96,8 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         builder
             .spyStatic(ActivityManagerHelper.class)
             .spyStatic(Binder.class)
-            // Need to mock service itself because of getTargetCarVersion() - it doesn't make sense
-            // to test all variations of the methods that call it
+            // Need to mock service itself because of getTargetCarApiVersion() - it doesn't make
+            // sense to test all variations of the methods that call it
             .spyStatic(CarPackageManagerService.class);
     }
 
@@ -190,77 +190,74 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    public void testGetTargetCarMajorVersion() {
-        String pkgName = "bond.james.bond";
-        int version = 0x07;
-        mockGetTargetCarVersion(MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION, pkgName, version);
+    public void testgetTargetCarApiVersion() {
+        String pkgName = "dr.evil";
+        CarApiVersion apiVersion = CarApiVersion.forMajorAndMinorVersions(66, 6);
+
+        doReturn(apiVersion)
+                .when(() -> CarPackageManagerService.getTargetCarApiVersion(mUserContext, pkgName));
+
         mockCallingUser();
 
-        assertWithMessage("getTargetCarMajorVersion(%s)", pkgName)
-                .that(mService.getTargetCarMajorVersion(pkgName)).isEqualTo(version);
+        assertWithMessage("getTargetCarApiVersion(%s)", pkgName)
+                .that(mService.getTargetCarApiVersion(pkgName)).isSameInstanceAs(apiVersion);
     }
 
     @Test
-    public void testGetTargetCarMinorVersion() {
-        String pkgName = "bond.james.bond";
-        int version = 0x07;
-        mockGetTargetCarVersion(MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION, pkgName, version);
-        mockCallingUser();
-
-        assertWithMessage("getTargetCarMinorVersion(%s)", pkgName)
-                .that(mService.getTargetCarMinorVersion(pkgName)).isEqualTo(version);
-    }
-
-    @Test
-    public void testGetTargetCarVersion_null() {
+    public void testgetTargetCarApiVersion_null() {
         assertThrows(NullPointerException.class,
-                () -> CarPackageManagerService.getTargetCarVersion(mUserContext, "anyAttribute",
-                        null));
+                () -> CarPackageManagerService.getTargetCarApiVersion(mUserContext, null));
     }
 
     @Test
-    public void testGetTargetCarVersion_noPermission() {
+    public void testgetTargetCarApiVersion_noPermission() {
         mockQueryPermission(/* granted= */ false);
 
         assertThrows(SecurityException.class,
-                () -> CarPackageManagerService.getTargetCarVersion(mUserContext, "anyAttribute",
-                        "anyPackage"));
+                () -> CarPackageManagerService.getTargetCarApiVersion(mUserContext, "d.oh"));
     }
 
 
     @Test
-    public void testGetTargetCarVersion_noApp() throws Exception {
+    public void testgetTargetCarApiVersion_noApp() throws Exception {
         mockQueryPermission(/* granted= */ true);
-        mockGetApplicationInfoThrowsNotFound(mUserContext, "of.life");
+        mockGetApplicationInfoThrowsNotFound(mUserContext, "meaning.of.life");
 
-        assertWithMessage("static getTargetCarVersion() call")
-                .that(CarPackageManagerService.getTargetCarVersion(mUserContext,
-                        "meaning", "of.life"))
-                .isEqualTo(CAR_TARGET_VERSION_UNDEFINED);
+        assertWithMessage("static getTargetCarApiVersion() call")
+                .that(CarPackageManagerService.getTargetCarApiVersion(mUserContext,
+                        "meaning.of.life"))
+                .isNull();
     }
 
     @Test
-    public void testGetTargetCarVersion_noMetadata() throws Exception {
+    public void testgetTargetCarApiVersion_noMetadata() throws Exception {
         mockQueryPermission(/* granted= */ true);
-        mockGetApplicationInfo(mUserContext, "of.life");
+        ApplicationInfo info = mockGetApplicationInfo(mUserContext, "meaning.of.life");
+        info.targetSdkVersion = 42;
 
-        assertWithMessage("static getTargetCarVersion() call")
-                .that(CarPackageManagerService.getTargetCarVersion(mUserContext,
-                        "meaning", "of.life"))
-                .isEqualTo(0);
+        CarApiVersion actualApiVersion = CarPackageManagerService.getTargetCarApiVersion(
+                mUserContext, "meaning.of.life");
+
+        assertWithMessage("static getTargetCarApiVersion() call").that(actualApiVersion)
+                .isNotNull();
+        assertWithMessage("major version").that(actualApiVersion.getMajorVersion()).isEqualTo(42);
+        assertWithMessage("minorversion").that(actualApiVersion.getMinorVersion()).isEqualTo(0);
     }
 
     @Test
-    public void testGetTargetCarVersion_ok() throws Exception {
+    public void testgetTargetCarApiVersion_ok() throws Exception {
         mockQueryPermission(/* granted= */ true);
-        ApplicationInfo info = mockGetApplicationInfo(mUserContext, "of.life");
+        ApplicationInfo info = mockGetApplicationInfo(mUserContext, "meaning.of.life");
         info.metaData = new Bundle();
-        info.metaData.putInt("meaning", 42);
+        info.metaData.putInt(MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION, 42);
+        info.metaData.putInt(MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION, 108);
 
-        assertWithMessage("static getTargetCarVersion() call")
-                .that(CarPackageManagerService.getTargetCarVersion(mUserContext,
-                        "meaning", "of.life"))
-                .isEqualTo(42);
+        CarApiVersion actualApiVersion = CarPackageManagerService.getTargetCarApiVersion(
+                mUserContext, "meaning.of.life");
+
+        assertWithMessage("static getTargetCarApiVersion()").that(actualApiVersion).isNotNull();
+        assertWithMessage("major version").that(actualApiVersion.getMajorVersion()).isEqualTo(42);
+        assertWithMessage("minorversion").that(actualApiVersion.getMinorVersion()).isEqualTo(108);
     }
 
     private void mockQueryPermission(boolean granted) {
@@ -271,12 +268,6 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(result).when(() -> ActivityManagerHelper.checkComponentPermission(
                 eq(QUERY_ALL_PACKAGES), anyInt(), anyInt(), anyBoolean()));
         when(mUserContext.checkCallingOrSelfPermission(QUERY_ALL_PACKAGES)).thenReturn(result);
-    }
-
-    private void mockGetTargetCarVersion(String attribute, String packageName, int version) {
-        doReturn(version)
-                .when(() -> CarPackageManagerService.getTargetCarVersion(mUserContext, attribute,
-                        packageName));
     }
 
     private void mockCallingUser() {

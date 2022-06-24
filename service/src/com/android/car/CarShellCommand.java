@@ -42,6 +42,7 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
+import android.car.CarApiVersion;
 import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.content.pm.PackageManagerHelper;
@@ -260,7 +261,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_TEST_ECHO_REVERSE_BYTES = "test-echo-reverse-bytes";
 
-    private static final String COMMAND_GET_TARGET_CAR_VERSIONS = "get-target-car-versions";
+    private static final String COMMAND_GET_TARGET_CAR_API_VERSION = "get-target-car-api-version";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -349,7 +350,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_TEST_ECHO_REVERSE_BYTES,
                 android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_TARGET_CAR_VERSIONS,
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_TARGET_CAR_API_VERSION,
                 android.Manifest.permission.QUERY_ALL_PACKAGES);
     }
 
@@ -761,8 +762,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "ECHO_REVERSE_BYTES, REQUEST_SIZE is how many byteValues in the request. "
                 + "This command can be used for testing LargeParcelable by passing large request.");
 
-        pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_VERSIONS);
-        pw.println("\t  Gets the target API versions (major and minor) defined by the given apps "
+        pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_API_VERSION);
+        pw.println("\t  Gets the target API version (major and minor) defined by the given apps "
                 + "for the given user (or current user when --user is not set).");
     }
 
@@ -1137,8 +1138,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_TEST_ECHO_REVERSE_BYTES:
                 testEchoReverseBytes(args, writer);
                 break;
-            case COMMAND_GET_TARGET_CAR_VERSIONS:
-                getTargetCarVersions(args, writer);
+            case COMMAND_GET_TARGET_CAR_API_VERSION:
+                getTargetCarApiVersion(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -3171,7 +3172,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("Test Succeeded!");
     }
 
-    private void getTargetCarVersions(String[] args, IndentingPrintWriter writer) {
+    private void getTargetCarApiVersion(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             showInvalidArguments(writer);
             return;
@@ -3205,12 +3206,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
         Context userContext = getContextForUser(userId);
         for (int i = firstAppArg; i < args.length; i++) {
             String app = args[i];
-            // TODO(b/228506662): handle when it's not found
-            int majorVersion = CarPackageManagerService.getTargetCarVersion(userContext,
-                    CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION, app);
-            int minorVersion = CarPackageManagerService.getTargetCarVersion(userContext,
-                    CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION, app);
-            writer.printf("  %s: major=%d, minor=%d\n", app, majorVersion, minorVersion);
+            CarApiVersion apiVersion = CarPackageManagerService.getTargetCarApiVersion(userContext,
+                    app);
+            if (apiVersion == null) {
+                writer.printf("  %s: not found\n", app);
+                continue;
+            }
+            writer.printf("  %s: major=%d, minor=%d\n", app,
+                    apiVersion.getMajorVersion(), apiVersion.getMinorVersion());
         }
     }
 
