@@ -2109,7 +2109,7 @@ public final class Car {
     public void handleRemoteExceptionFromCarService(RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
             Log.w(TAG_CAR, "Car service threw TransactionTooLargeException", e);
-            throw new CarTransactionException(e, "Car service threw TransactionTooLargException");
+            throw new CarTransactionException(e, "Car service threw TransactionTooLargeException");
         } else {
             Log.w(TAG_CAR, "Car service has crashed", e);
         }
