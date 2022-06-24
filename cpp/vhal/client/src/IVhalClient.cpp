@@ -19,7 +19,6 @@
 #include "AidlVhalClient.h"
 #include "HidlVhalClient.h"
 
-#include <android-base/stringprintf.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 
 #include <condition_variable>  // NOLINT
@@ -30,7 +29,7 @@ namespace frameworks {
 namespace automotive {
 namespace vhal {
 
-using ::android::base::StringPrintf;
+using ::android::hardware::automotive::vehicle::VhalResult;
 
 std::shared_ptr<IVhalClient> IVhalClient::create() {
     auto client = AidlVhalClient::create();
@@ -58,17 +57,17 @@ std::shared_ptr<IVhalClient> IVhalClient::tryCreateHidlClient(const char* descri
     return HidlVhalClient::tryCreate(descriptor);
 }
 
-VhalClientResult<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
+VhalResult<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
         const IHalPropValue& requestValue) {
     struct {
         std::mutex lock;
         std::condition_variable cv;
-        VhalClientResult<std::unique_ptr<IHalPropValue>> result;
+        VhalResult<std::unique_ptr<IHalPropValue>> result;
         bool gotResult = false;
     } s;
 
     auto callback = std::make_shared<IVhalClient::GetValueCallbackFunc>(
-            [&s](VhalClientResult<std::unique_ptr<IHalPropValue>> r) {
+            [&s](VhalResult<std::unique_ptr<IHalPropValue>> r) {
                 {
                     std::lock_guard<std::mutex> lockGuard(s.lock);
                     s.result = std::move(r);
@@ -85,23 +84,22 @@ VhalClientResult<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
     return std::move(s.result);
 }
 
-VhalClientResult<void> IVhalClient::setValueSync(const IHalPropValue& requestValue) {
+VhalResult<void> IVhalClient::setValueSync(const IHalPropValue& requestValue) {
     struct {
         std::mutex lock;
         std::condition_variable cv;
-        VhalClientResult<void> result;
+        VhalResult<void> result;
         bool gotResult = false;
     } s;
 
-    auto callback =
-            std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](VhalClientResult<void> r) {
-                {
-                    std::lock_guard<std::mutex> lockGuard(s.lock);
-                    s.result = std::move(r);
-                    s.gotResult = true;
-                }
-                s.cv.notify_one();
-            });
+    auto callback = std::make_shared<IVhalClient::SetValueCallbackFunc>([&s](VhalResult<void> r) {
+        {
+            std::lock_guard<std::mutex> lockGuard(s.lock);
+            s.result = std::move(r);
+            s.gotResult = true;
+        }
+        s.cv.notify_one();
+    });
 
     setValue(requestValue, callback);
 
@@ -109,37 +107,6 @@ VhalClientResult<void> IVhalClient::setValueSync(const IHalPropValue& requestVal
     s.cv.wait(lk, [&s] { return s.gotResult; });
 
     return std::move(s.result);
-}
-
-ErrorCode VhalClientError::value() const {
-    return mCode;
-}
-
-std::string VhalClientError::toString(ErrorCode code) {
-    switch (code) {
-        case ErrorCode::OK:
-            return "OK";
-        case ErrorCode::INVALID_ARG:
-            return "INVALID_ARG";
-        case ErrorCode::TIMEOUT:
-            return "TIMEOUT";
-        case ErrorCode::TRANSACTION_ERROR:
-            return "TRANSACTION_ERROR";
-        case ErrorCode::TRY_AGAIN_FROM_VHAL:
-            return "TRY_AGAIN_FROM_VHAL";
-        case ErrorCode::NOT_AVAILABLE_FROM_VHAL:
-            return "NOT_AVAILABLE_FROM_VHAL";
-        case ErrorCode::ACCESS_DENIED_FROM_VHAL:
-            return "ACCESS_DENIED_FROM_VHAL";
-        case ErrorCode::INTERNAL_ERROR_FROM_VHAL:
-            return "INTERNAL_ERROR_FROM_VHAL";
-        default:
-            return StringPrintf("Unknown error. Code: %d", static_cast<int>(code));
-    }
-}
-
-std::string VhalClientError::print() const {
-    return VhalClientError::toString(mCode);
 }
 
 }  // namespace vhal

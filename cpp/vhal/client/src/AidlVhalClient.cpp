@@ -41,8 +41,10 @@ using ::android::base::Join;
 using ::android::base::StringPrintf;
 using ::android::hardware::automotive::vehicle::fromStableLargeParcelable;
 using ::android::hardware::automotive::vehicle::PendingRequestPool;
+using ::android::hardware::automotive::vehicle::StatusError;
 using ::android::hardware::automotive::vehicle::toInt;
 using ::android::hardware::automotive::vehicle::vectorToStableLargeParcelable;
+using ::android::hardware::automotive::vehicle::VhalResult;
 
 using ::aidl::android::hardware::automotive::vehicle::GetValueRequest;
 using ::aidl::android::hardware::automotive::vehicle::GetValueRequests;
@@ -174,25 +176,25 @@ void AidlVhalClient::setValue(const IHalPropValue& requestValue,
     mGetSetValueClient->setValue(requestId, requestValue, callback, mGetSetValueClient);
 }
 
-VhalClientResult<void> AidlVhalClient::addOnBinderDiedCallback(
+VhalResult<void> AidlVhalClient::addOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     mOnBinderDiedCallbacks.insert(callback);
     return {};
 }
 
-VhalClientResult<void> AidlVhalClient::removeOnBinderDiedCallback(
+VhalResult<void> AidlVhalClient::removeOnBinderDiedCallback(
         std::shared_ptr<OnBinderDiedCallbackFunc> callback) {
     std::lock_guard<std::mutex> lk(mLock);
     if (mOnBinderDiedCallbacks.find(callback) == mOnBinderDiedCallbacks.end()) {
-        return ClientStatusError(ErrorCode::INVALID_ARG)
+        return StatusError(StatusCode::INVALID_ARG)
                 << "The callback to remove was not added before";
     }
     mOnBinderDiedCallbacks.erase(callback);
     return {};
 }
 
-VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getAllPropConfigs() {
     VehiclePropConfigs configs;
     if (ScopedAStatus status = mHal->getAllPropConfigs(&configs); !status.isOk()) {
         return statusToError<
@@ -202,7 +204,7 @@ VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::g
     return parseVehiclePropConfigs(configs);
 }
 
-VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConfigs(
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::getPropConfigs(
         std::vector<int32_t> propIds) {
     VehiclePropConfigs configs;
     if (ScopedAStatus status = mHal->getPropConfigs(propIds, &configs); !status.isOk()) {
@@ -214,11 +216,11 @@ VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::g
     return parseVehiclePropConfigs(configs);
 }
 
-VhalClientResult<std::vector<std::unique_ptr<IHalPropConfig>>>
-AidlVhalClient::parseVehiclePropConfigs(const VehiclePropConfigs& configs) {
+VhalResult<std::vector<std::unique_ptr<IHalPropConfig>>> AidlVhalClient::parseVehiclePropConfigs(
+        const VehiclePropConfigs& configs) {
     auto parcelableResult = fromStableLargeParcelable(configs);
     if (!parcelableResult.ok()) {
-        return ClientStatusError(ErrorCode::INTERNAL_ERROR_FROM_VHAL)
+        return StatusError(StatusCode::INTERNAL_ERROR)
                 << "failed to parse VehiclePropConfigs returned from VHAL, error: "
                 << parcelableResult.error().getMessage();
     }
@@ -447,11 +449,11 @@ void GetSetValueClient::onGetValue(const GetValueResult& result) {
     int32_t areaId = pendingRequest->areaId;
     if (result.status != StatusCode::OK) {
         StatusCode status = result.status;
-        (*callback)(ClientStatusError(status)
+        (*callback)(StatusError(status)
                     << "failed to get value for propId: " << propId << ", areaId: " << areaId
                     << ": status: " << toString(status));
     } else if (!result.prop.has_value()) {
-        (*callback)(ClientStatusError(ErrorCode::INTERNAL_ERROR_FROM_VHAL)
+        (*callback)(StatusError(StatusCode::INTERNAL_ERROR)
                     << "failed to get value for propId: " << propId << ", areaId: " << areaId
                     << ": returns no value");
     } else {
@@ -489,7 +491,7 @@ void GetSetValueClient::onSetValue(const SetValueResult& result) {
     int32_t propId = pendingRequest->propId;
     int32_t areaId = pendingRequest->areaId;
     if (result.status != StatusCode::OK) {
-        (*callback)(ClientStatusError(result.status)
+        (*callback)(StatusError(result.status)
                     << "failed to set value for propId: " << propId << ", areaId: " << areaId
                     << ": status: " << toString(result.status));
     } else {
@@ -499,17 +501,15 @@ void GetSetValueClient::onSetValue(const SetValueResult& result) {
 
 ScopedAStatus GetSetValueClient::onPropertyEvent([[maybe_unused]] const VehiclePropValues&,
                                                  int32_t) {
-    return ScopedAStatus::
-            fromServiceSpecificErrorWithMessage(toInt(ErrorCode::INTERNAL_ERROR_FROM_VHAL),
-                                                "onPropertyEvent should never be "
-                                                "called from GetSetValueClient");
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onPropertyEvent should never be "
+                                                              "called from GetSetValueClient");
 }
 
 ScopedAStatus GetSetValueClient::onPropertySetError([[maybe_unused]] const VehiclePropErrors&) {
-    return ScopedAStatus::
-            fromServiceSpecificErrorWithMessage(toInt(ErrorCode::INTERNAL_ERROR_FROM_VHAL),
-                                                "onPropertySetError should never be "
-                                                "called from GetSetValueClient");
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onPropertySetError should never be "
+                                                              "called from GetSetValueClient");
 }
 
 template <class T>
@@ -530,7 +530,7 @@ void GetSetValueClient::onTimeout(const std::unordered_set<int64_t>& requestIds,
         }
 
         (*pendingRequest->callback)(
-                ClientStatusError(ErrorCode::TIMEOUT)
+                StatusError(StatusCode::TRY_AGAIN)
                 << "failed to get/set value for propId: " << pendingRequest->propId
                 << ", areaId: " << pendingRequest->areaId << ": request timed out");
     }
@@ -549,8 +549,7 @@ AidlSubscriptionClient::AidlSubscriptionClient(std::shared_ptr<IVehicle> hal,
     mSubscriptionCallback = SharedRefBase::make<SubscriptionVehicleCallback>(callback);
 }
 
-VhalClientResult<void> AidlSubscriptionClient::subscribe(
-        const std::vector<SubscribeOptions>& options) {
+VhalResult<void> AidlSubscriptionClient::subscribe(const std::vector<SubscribeOptions>& options) {
     std::vector<int32_t> propIds;
     for (const SubscribeOptions& option : options) {
         propIds.push_back(option.propId);
@@ -568,7 +567,7 @@ VhalClientResult<void> AidlSubscriptionClient::subscribe(
     return {};
 }
 
-VhalClientResult<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
+VhalResult<void> AidlSubscriptionClient::unsubscribe(const std::vector<int32_t>& propIds) {
     if (auto status = mHal->unsubscribe(mSubscriptionCallback, propIds); !status.isOk()) {
         return AidlVhalClient::statusToError<
                 void>(status,
@@ -584,18 +583,16 @@ SubscriptionVehicleCallback::SubscriptionVehicleCallback(
 
 ScopedAStatus SubscriptionVehicleCallback::onGetValues(
         [[maybe_unused]] const GetValueResults& results) {
-    return ScopedAStatus::
-            fromServiceSpecificErrorWithMessage(toInt(ErrorCode::INTERNAL_ERROR_FROM_VHAL),
-                                                "onGetValues should never be called "
-                                                "from SubscriptionVehicleCallback");
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onGetValues should never be called "
+                                                              "from SubscriptionVehicleCallback");
 }
 
 ScopedAStatus SubscriptionVehicleCallback::onSetValues(
         [[maybe_unused]] const SetValueResults& results) {
-    return ScopedAStatus::
-            fromServiceSpecificErrorWithMessage(toInt(ErrorCode::INTERNAL_ERROR_FROM_VHAL),
-                                                "onSetValues should never be called "
-                                                "from SubscriptionVehicleCallback");
+    return ScopedAStatus::fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
+                                                              "onSetValues should never be called "
+                                                              "from SubscriptionVehicleCallback");
 }
 
 ScopedAStatus SubscriptionVehicleCallback::onPropertyEvent(
@@ -603,7 +600,7 @@ ScopedAStatus SubscriptionVehicleCallback::onPropertyEvent(
     auto parcelableResult = fromStableLargeParcelable(values);
     if (!parcelableResult.ok()) {
         return ScopedAStatus::
-                fromServiceSpecificErrorWithMessage(toInt(ErrorCode::INTERNAL_ERROR_FROM_VHAL),
+                fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
                                                     StringPrintf("failed to parse "
                                                                  "VehiclePropValues returned from "
                                                                  "VHAL, error: %s",
@@ -625,7 +622,7 @@ ScopedAStatus SubscriptionVehicleCallback::onPropertySetError(const VehiclePropE
     auto parcelableResult = fromStableLargeParcelable(errors);
     if (!parcelableResult.ok()) {
         return ScopedAStatus::
-                fromServiceSpecificErrorWithMessage(toInt(ErrorCode::INTERNAL_ERROR_FROM_VHAL),
+                fromServiceSpecificErrorWithMessage(toInt(StatusCode::INTERNAL_ERROR),
                                                     StringPrintf("failed to parse "
                                                                  "VehiclePropErrors returned from "
                                                                  "VHAL, error: %s",
