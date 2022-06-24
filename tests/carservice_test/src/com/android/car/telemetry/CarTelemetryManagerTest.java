@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,25 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.telemetry;
 
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS;
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
+import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 import android.annotation.NonNull;
 import android.car.Car;
@@ -35,7 +43,7 @@ import android.util.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
-import com.android.car.telemetry.CarTelemetryService;
+import com.android.car.MockedCarTestBase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,7 +52,13 @@ import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 
-/** Test the public entry points for the CarTelemetryManager. */
+/**
+ * Tests the public entry points for the CarTelemetryManager. It uses a real instance of
+ * CarTelemetryService, however the service cannot find ScriptExecutor package so this class
+ * cannot test script execution and report retrieval.
+ * Tests that use a real CarTelemetryService should be in CarTelemetryManagerTest.
+ * Tests that use a spied CarTelemetryService should be in CarTelemetryManagerSpyServiceTest.
+ */
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarTelemetryManagerTest extends MockedCarTestBase {
@@ -151,6 +165,26 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         // test clearReportReadyListener, should not error
         mCarTelemetryManager.clearReportReadyListener();
         mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener);
+    }
+
+    @Test
+    public void testGetFinishedReport_noSuchConfig() throws Exception {
+        Semaphore semaphore = new Semaphore(0);
+        CarTelemetryManager.MetricsReportCallback callback = mock(
+                CarTelemetryManager.MetricsReportCallback.class);
+        doAnswer((invocation) -> {
+            semaphore.release();
+            return null;
+        }).when(callback).onResult(any(), any(), any(), anyInt());
+
+        mCarTelemetryManager.getFinishedReport(CONFIG_NAME, DIRECT_EXECUTOR, callback);
+
+        semaphore.acquire();
+        verify(callback).onResult(
+                eq(CONFIG_NAME),
+                isNull(),
+                isNull(),
+                eq(STATUS_GET_METRICS_CONFIG_DOES_NOT_EXIST));
     }
 
     private static final class AddMetricsConfigCallbackImpl
