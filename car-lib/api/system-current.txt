@@ -372,8 +372,7 @@ package android.car.content.pm {
     field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
     field @Deprecated public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
     field @Deprecated public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
-    field public static final String MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION = "android.car.targetCarMajorVersion";
-    field public static final String MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION = "android.car.targetCarMinorVersion";
+    field public static final String MANIFEST_METADATA_TARGET_CAR_API_VERSION = "android.car.targetCarApiVersion";
   }
 
 }
