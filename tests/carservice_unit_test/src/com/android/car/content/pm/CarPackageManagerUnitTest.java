@@ -19,14 +19,13 @@ import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFrom
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
+import android.car.CarApiVersion;
 import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
 
 import org.junit.Before;
@@ -48,40 +47,19 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
     }
 
     @Test
-    public void testgetTargetCarMajorVersion_ok() throws Exception {
-        when(mService.getTargetCarMajorVersion("bond.james.bond")).thenReturn(0x07);
+    public void testgetTargetCarVersion_ok() throws Exception {
+        CarApiVersion apiVersion = CarApiVersion.forMajorAndMinorVersions(66, 6);
+        when(mService.getTargetCarApiVersion("dr.evil")).thenReturn(apiVersion);
 
-        assertThat(mMgr.getTargetCarMajorVersion("bond.james.bond")).isEqualTo(0x07);
+        assertThat(mMgr.getTargetCarApiVersion("dr.evil")).isSameInstanceAs(apiVersion);
     }
 
     @Test
-    public void testgetTargetCarMajorVersion_remoteException() throws Exception {
+    public void testgetTargetCarVersion_remoteException() throws Exception {
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
-        when(mService.getTargetCarMajorVersion("the.meaning.of.life"))
+        when(mService.getTargetCarApiVersion("the.meaning.of.life"))
                 .thenThrow(new RemoteException("D'OH!"));
 
-        NameNotFoundException e = assertThrows(NameNotFoundException.class,
-                () -> mMgr.getTargetCarMajorVersion("the.meaning.of.life"));
-
-        assertThat(e.getMessage()).contains("the.meaning.of.life");
-    }
-
-    @Test
-    public void testgetTargetCarMinorVersion_ok() throws Exception {
-        when(mService.getTargetCarMinorVersion("bond.james.bond")).thenReturn(0x07);
-
-        assertThat(mMgr.getTargetCarMinorVersion("bond.james.bond")).isEqualTo(0x07);
-    }
-
-    @Test
-    public void testgetTargetCarMinorVersion_remoteException() throws Exception {
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
-        when(mService.getTargetCarMinorVersion("the.meaning.of.life"))
-                .thenThrow(new RemoteException("D'OH!"));
-
-        NameNotFoundException e = assertThrows(NameNotFoundException.class,
-                () -> mMgr.getTargetCarMinorVersion("the.meaning.of.life"));
-
-        assertThat(e.getMessage()).contains("the.meaning.of.life");
+        assertThat(mMgr.getTargetCarApiVersion("the.meaning.of.life")).isNull();
     }
 }
