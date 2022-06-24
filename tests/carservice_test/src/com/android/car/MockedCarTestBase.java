@@ -494,7 +494,7 @@ public class MockedCarTestBase {
             @Override
             public void onServiceConnected(ComponentName name, IBinder service) {
                 synchronized (waitForConnection) {
-                    waitForConnection.notify();
+                    waitForConnection.notifyAll();
                 }
             }
 
