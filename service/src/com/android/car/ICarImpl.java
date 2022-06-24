@@ -361,13 +361,6 @@ public class ICarImpl extends ICar.Stub {
                 () -> new CarMediaService(serviceContext, mCarUserService), allServices);
         mCarBugreportManagerService = constructWithTrace(t, CarBugreportManagerService.class,
                 () -> new CarBugreportManagerService(serviceContext), allServices);
-        if (!BuildHelper.isUserBuild()) {
-            mCarExperimentalFeatureServiceController = constructWithTrace(
-                    t, CarExperimentalFeatureServiceController.class,
-                    () -> new CarExperimentalFeatureServiceController(serviceContext));
-        } else {
-            mCarExperimentalFeatureServiceController = null;
-        }
         if (carWatchdogService == null) {
             mCarWatchdogService = constructWithTrace(t, CarWatchdogService.class,
                     () -> new CarWatchdogService(serviceContext, mCarServiceBuiltinPackageContext),
@@ -423,18 +416,19 @@ public class ICarImpl extends ICar.Stub {
         }
 
         // Always put mCarExperimentalFeatureServiceController in last.
-        addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
+        if (!BuildHelper.isUserBuild()) {
+            mCarExperimentalFeatureServiceController = constructWithTrace(
+                    t, CarExperimentalFeatureServiceController.class,
+                    () -> new CarExperimentalFeatureServiceController(serviceContext),
+                    allServices);
+        } else {
+            mCarExperimentalFeatureServiceController = null;
+        }
         mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
 
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
 
         t.traceEnd(); // "ICarImpl.constructor"
-    }
-
-    private void addServiceIfNonNull(List<CarServiceBase> services, CarServiceBase service) {
-        if (service != null) {
-            services.add(service);
-        }
     }
 
     @MainThread
@@ -884,8 +878,7 @@ public class ICarImpl extends ICar.Stub {
         newCarShellCommand().exec(args, writer);
     }
 
-    // TODO(b/232550251): Remove this once VehicleHal, CarStatsService and
-    // CarExperimentalFeatureServiceController use the overload below.
+    // TODO(b/232550251): Remove this once VehicleHal and CarStatsService use the overload.
 
     /**
      * @deprecated to use the overload that adds the service to allServices right after
