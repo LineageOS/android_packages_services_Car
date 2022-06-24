@@ -169,27 +169,30 @@ public final class CarPackageManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_NO_PACKAGE = -100;
 
-    // TODO(b/228506662): merge both so the string is MAJOR.MINOR
     /**
-     * Manifest metadata used to specify the minimum major Car API version an app is targeting.
+     * Manifest metadata used to specify the minimum major and minor Car API version an app is
+     * targeting.
+     *
+     * <p>Format is in the form {@code major:minor} or {@code major}.
+     *
+     * <p>For example, for {@link Build.VERSION_CODES#TIRAMISU Android 13}, it would be:
+     * <code><meta-data android:name="android.car.targetCarApiVersion" android:value="33"/></code>
+     *
+     * <p>Or:
+     *
+     * <code><meta-data android:name="android.car.targetCarApiVersion" android:value="33:0"/></code>
+     *
+     * <p>And for {@link Build.VERSION_CODES#TIRAMISU Android 13} first update:
+     *
+     * <code><meta-data android:name="android.car.targetCarApiVersion" android:value="33:1"/></code>
      *
      * @hide
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
     @SystemApi
-    public static final String MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION =
-            "android.car.targetCarMajorVersion";
+    public static final String MANIFEST_METADATA_TARGET_CAR_API_VERSION =
+            "android.car.targetCarApiVersion";
 
-    // TODO(b/228506662): merge both so the string is MAJOR.MINOR
-    /**
-     * Manifest metadata used to specify the minimum minor Car API version an app is targeting.
-     *
-     * @hide
-     */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
-    @SystemApi
-    public static final String MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION =
-            "android.car.targetCarMinorVersion";
 
     /** @hide */
     @IntDef(flag = true,
@@ -466,15 +469,18 @@ public final class CarPackageManager extends CarManagerBase {
         return Collections.EMPTY_LIST; // cannot reach here but the compiler complains.
     }
 
-    // TODO(b/228506662): document what's returned when not defined (will need to wait until the
-    // 2 attributes are merged)
     /**
      * Gets the Car API version targeted by the given package (as defined by
-     * {@link #MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION} and
-     * {@link #MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION} manifest metadata attributes).
+     * {@link #MANIFEST_METADATA_TARGET_CAR_API_VERSION}.
      *
-     * @return target Car API version or {@code null} if app a package with the given name is not
-     * available for the user or if an error happened trying to obtain that info.
+     * <p>If the app manifest doesn't contain the {@link #MANIFEST_METADATA_TARGET_CAR_API_VERSION}
+     * metadata attribute, the attribute format is invalid, the returned {@code CarApiVersion} will
+     * be using the
+     * {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform version} as major
+     * and {@code 0} as minor instead.
+     *
+     * @return targeted Car API version (as defined above) or {@code null} when a package with the
+     * given name is not installedfor the user or an error occurred inferring that info.
      *
      * @hide
      */
@@ -486,9 +492,7 @@ public final class CarPackageManager extends CarManagerBase {
         try {
             return mService.getTargetCarApiVersion(packageName);
         } catch (RemoteException e) {
-            if (DEBUG) {
-                Log.d(TAG, "Failed to get CarApiVersion for " + packageName, e);
-            }
+            Log.w(TAG, "Failed to get CarApiVersion for " + packageName, e);
             return handleRemoteExceptionFromCarService(e, null);
         }
     }

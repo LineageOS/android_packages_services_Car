@@ -23,8 +23,6 @@ import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLO
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
-import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION;
-import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -1550,20 +1548,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             }
             return null;
         }
-        int major, minor;
-        if (info.metaData == null) {
-            major = info.targetSdkVersion;
-            minor = 0;
-            Slogf.d(TAG, "getTargetCarVersion(%s, %s): no metadata, returning (%d, %d)",
-                    context.getUser(), packageName, major, minor);
-        } else {
-            major = info.metaData.getInt(MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION,
-                    info.targetSdkVersion);
-            minor = info.metaData.getInt(MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION, 0);
-        }
-
-        return CarApiVersion.forMajorAndMinorVersions(major, minor);
-
+        return CarApiVersionParser.getTargetCarApiVersion(info);
     }
 
     /**

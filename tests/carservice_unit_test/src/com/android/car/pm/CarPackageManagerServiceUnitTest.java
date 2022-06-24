@@ -17,8 +17,7 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
-import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION;
-import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION;
+import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_API_VERSION;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -229,35 +228,21 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
                 .isNull();
     }
 
-    @Test
-    public void testgetTargetCarApiVersion_noMetadata() throws Exception {
-        mockQueryPermission(/* granted= */ true);
-        ApplicationInfo info = mockGetApplicationInfo(mUserContext, "meaning.of.life");
-        info.targetSdkVersion = 42;
-
-        CarApiVersion actualApiVersion = CarPackageManagerService.getTargetCarApiVersion(
-                mUserContext, "meaning.of.life");
-
-        assertWithMessage("static getTargetCarApiVersion() call").that(actualApiVersion)
-                .isNotNull();
-        assertWithMessage("major version").that(actualApiVersion.getMajorVersion()).isEqualTo(42);
-        assertWithMessage("minorversion").that(actualApiVersion.getMinorVersion()).isEqualTo(0);
-    }
-
+    // No need to test all scenarios, as they're tested by CarApiVersionParserParseMethodTest
     @Test
     public void testgetTargetCarApiVersion_ok() throws Exception {
         mockQueryPermission(/* granted= */ true);
         ApplicationInfo info = mockGetApplicationInfo(mUserContext, "meaning.of.life");
+        info.targetSdkVersion = 666; // Set to make sure it's not used
         info.metaData = new Bundle();
-        info.metaData.putInt(MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION, 42);
-        info.metaData.putInt(MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION, 108);
+        info.metaData.putString(MANIFEST_METADATA_TARGET_CAR_API_VERSION, "42:108");
 
         CarApiVersion actualApiVersion = CarPackageManagerService.getTargetCarApiVersion(
                 mUserContext, "meaning.of.life");
 
         assertWithMessage("static getTargetCarApiVersion()").that(actualApiVersion).isNotNull();
         assertWithMessage("major version").that(actualApiVersion.getMajorVersion()).isEqualTo(42);
-        assertWithMessage("minorversion").that(actualApiVersion.getMinorVersion()).isEqualTo(108);
+        assertWithMessage("minor version").that(actualApiVersion.getMinorVersion()).isEqualTo(108);
     }
 
     private void mockQueryPermission(boolean granted) {
