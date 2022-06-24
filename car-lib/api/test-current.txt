@@ -405,7 +405,7 @@ package android.car.content.pm {
   }
 
   public final class CarPackageManager {
-    method @Nullable @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public android.car.CarApiVersion getTargetCarApiVersion(@NonNull String);
+    method @NonNull @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public android.car.CarApiVersion getTargetCarApiVersion(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
     method @Deprecated public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
     method public void setEnableActivityBlocking(boolean);
