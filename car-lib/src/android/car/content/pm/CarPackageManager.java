@@ -21,22 +21,24 @@ import static android.car.Car.PERMISSION_CONTROL_APP_BLOCKING;
 import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.annotation.UserIdInt;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.CarApiVersion;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.content.ComponentName;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -49,6 +51,9 @@ import java.util.List;
  * Provides car specific API related with package management.
  */
 public final class CarPackageManager extends CarManagerBase {
+
+    private static final String TAG = CarPackageManager.class.getSimpleName();
+    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
@@ -163,16 +168,6 @@ public final class CarPackageManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public static final int ERROR_CODE_NO_PACKAGE = -100;
-
-    // TODO(b/228506662): will be removed once APIs return a new Parcelable instead of ints
-    /**
-     * Value returned by {@link #getTargetCarMajorVersion(String)} and
-     * {@link #getTargetCarMinorVersion(String)} when the target API is undefined.
-     *
-     * @hide
-     */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
-    public static final int CAR_TARGET_VERSION_UNDEFINED = -1;
 
     // TODO(b/228506662): merge both so the string is MAJOR.MINOR
     /**
@@ -471,56 +466,31 @@ public final class CarPackageManager extends CarManagerBase {
         return Collections.EMPTY_LIST; // cannot reach here but the compiler complains.
     }
 
+    // TODO(b/228506662): document what's returned when not defined (will need to wait until the
+    // 2 attributes are merged)
     /**
-     * Gets the major Car API version targeted by the given package (as defined by
-     * {@link #MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION}.
+     * Gets the Car API version targeted by the given package (as defined by
+     * {@link #MANIFEST_METADATA_TARGET_CAR_MAJOR_VERSION} and
+     * {@link #MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION} manifest metadata attributes).
      *
-     * @return minimum major Car API version targeted by the app, or
-     * app's {@link ApplicationInfo#targetSdkVersion} if the app doesn't define it.
-     *
-     * @throws NameNotFoundException if a package with the given name is not available for the user.
+     * @return target Car API version or {@code null} if app a package with the given name is not
+     * available for the user or if an error happened trying to obtain that info.
      *
      * @hide
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
-    public int getTargetCarMajorVersion(@NonNull String packageName) throws NameNotFoundException {
-        return getTargetCarMinorVersion(packageName, /* isMajor= */ true);
-    }
-
-    /**
-     * Gets the minor Car API version targeted by the given package (as defined by
-     * {@link #MANIFEST_METADATA_TARGET_CAR_MINOR_VERSION}.
-     *
-     * @return minimum major Car API version targeted by the app, or {@code 0} if the app doesn't
-     * define it.
-     *
-     * @throws NameNotFoundException if a package with the given name is not available for the user.
-     *
-     * @hide
-     */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
-    @SystemApi
-    @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
-    public int getTargetCarMinorVersion(@NonNull String packageName) throws NameNotFoundException {
-        return getTargetCarMinorVersion(packageName, /* isMajor= */ false);
-    }
-
-    // TODO(b/228506662): will be removed once APIs return a new Parcelable instead of ints
-    private int getTargetCarMinorVersion(String packageName, boolean isMajor)
-            throws NameNotFoundException {
-        int version;
+    @Nullable
+    public CarApiVersion getTargetCarApiVersion(@NonNull String packageName) {
         try {
-            version = isMajor ? mService.getTargetCarMajorVersion(packageName)
-                    : mService.getTargetCarMinorVersion(packageName);
+            return mService.getTargetCarApiVersion(packageName);
         } catch (RemoteException e) {
-            version = handleRemoteExceptionFromCarService(e, CAR_TARGET_VERSION_UNDEFINED);
+            if (DEBUG) {
+                Log.d(TAG, "Failed to get CarApiVersion for " + packageName, e);
+            }
+            return handleRemoteExceptionFromCarService(e, null);
         }
-        if (version == CAR_TARGET_VERSION_UNDEFINED) {
-            throw new NameNotFoundException(packageName);
-        }
-        return version;
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,

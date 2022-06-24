@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package android.car.apitest;
 
 import static android.car.CarApiVersion.TIRAMISU_0;
 import static android.car.CarApiVersion.TIRAMISU_1;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
-import android.car.test.AbstractExpectableTestCase;
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import android.car.CarApiVersion;
+import android.os.Parcel;
 
 import org.junit.Test;
 
-public final class CarApiVersionTest extends AbstractExpectableTestCase {
+public final class CarApiVersionTest {
 
     @Test
     public void testTiramisu_0() {
@@ -42,5 +44,41 @@ public final class CarApiVersionTest extends AbstractExpectableTestCase {
                 .isEqualTo(TIRAMISU);
         expectWithMessage("TIRAMISU_1.minor").that(TIRAMISU_1.getMinorVersion())
                 .isEqualTo(1);
+    }
+
+    @Test
+    public void testMarshalling() {
+        CarApiVersion original = CarApiVersion.forMajorAndMinorVersions(66, 6);
+        Parcel parcel =  Parcel.obtain();
+        try {
+            original.writeToParcel(parcel, /* flags= */ 0);
+            parcel.setDataPosition(0);
+
+            CarApiVersion clone = CarApiVersion.CREATOR.createFromParcel(parcel);
+
+            assertWithMessage("CREATOR.createFromParcel()").that(clone).isNotNull();
+            expectWithMessage("clone.major").that(clone.getMajorVersion()).isEqualTo(66);
+            expectWithMessage("clone.minor").that(clone.getMinorVersion()).isEqualTo(6);
+
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void testNewArray() {
+        CarApiVersion[] array = CarApiVersion.CREATOR.newArray(42);
+
+        expectWithMessage("CREATOR.newArray()").that(array).isNotNull();
+        expectWithMessage("CREATOR.newArray()").that(array).hasLength(42);
+    }
+
+    // TODO(b/228506662): extend AbstractExpectableTestCase and remove members below (on master)
+
+    @org.junit.Rule
+    public final com.google.common.truth.Expect mExpect = com.google.common.truth.Expect.create();
+
+    protected com.google.common.truth.StandardSubjectBuilder expectWithMessage(String msg) {
+        return mExpect.withMessage(msg);
     }
 }
