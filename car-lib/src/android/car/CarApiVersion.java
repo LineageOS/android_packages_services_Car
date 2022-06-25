@@ -15,15 +15,21 @@
  */
 package android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.car.annotation.AddedIn;
 import android.os.Build;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Represents the API version of the {@code Car} SDK.
  */
 @AddedIn(majorVersion = 33, minorVersion = 1)
-public final class CarApiVersion extends ApiVersion<CarApiVersion> {
+public final class CarApiVersion extends ApiVersion<CarApiVersion> implements Parcelable {
 
     /**
      * Helper object for main version of Android 13.
@@ -62,4 +68,36 @@ public final class CarApiVersion extends ApiVersion<CarApiVersion> {
     private CarApiVersion(int majorVersion, int minorVersion) {
         super(majorVersion, minorVersion);
     }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeInt(getMajorVersion());
+        dest.writeInt(getMinorVersion());
+    }
+
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public static final Parcelable.Creator<CarApiVersion> CREATOR =
+            new Parcelable.Creator<CarApiVersion>() {
+
+        @Override
+        public CarApiVersion createFromParcel(Parcel source) {
+            int major = source.readInt();
+            int minor = source.readInt();
+            return forMajorAndMinorVersions(major, minor);
+        }
+
+        @Override
+        public CarApiVersion[] newArray(int size) {
+            return new CarApiVersion[size];
+        }
+    };
 }

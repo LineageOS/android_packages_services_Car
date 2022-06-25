@@ -37,7 +37,7 @@ android_test {
     static_libs: [
         "vehicle-hal-support-lib",
         "androidx.test.rules",
-        "android.hardware.automotive.vehicle-V1-java",
+        "android.hardware.automotive.vehicle-V2-java",
         "compatibility-device-util-axt",
         "truth-prebuilt",
     ],

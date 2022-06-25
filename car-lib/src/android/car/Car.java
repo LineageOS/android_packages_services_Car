@@ -115,14 +115,14 @@ public final class Car {
             "ro.android.car.version.platform_minor";
 
     /**
-     * @deprecated - use {@link #CAR_API_VERSION CAR_API_VERSION.getMajorVersion()} instead
+     * @deprecated - use {@code getCarApiVersion().getMajorVersion()} instead
      */
     @Deprecated
     @AddedIn(majorVersion = 33)
     public static final int API_VERSION_MAJOR_INT = 33;
 
     /**
-     * @deprecated - use {@link #CAR_API_VERSION CAR_API_VERSION.getMajorVersion()} instead
+     * @deprecated - use {@code getCarApiVersion().getMinorVersion()} instead
      */
     @Deprecated
     @AddedIn(majorVersion = 33)
@@ -130,8 +130,7 @@ public final class Car {
 
 
     /**
-     * @deprecated - use {@link #PLATFORM_API_VERSION PLATFORM_API_VERSION.getMinorVersion()}
-     * instead
+     * @deprecated - use {@code getPlatformApiVersion().getMinorVersion()} instead
      */
     @Deprecated
     @AddedIn(majorVersion = 33)

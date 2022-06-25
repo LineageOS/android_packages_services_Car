@@ -71,10 +71,11 @@ using ::android::frameworks::automotive::vhal::HalPropError;
 using ::android::frameworks::automotive::vhal::IHalPropValue;
 using ::android::frameworks::automotive::vhal::ISubscriptionClient;
 using ::android::frameworks::automotive::vhal::IVhalClient;
+using ::android::frameworks::automotive::vhal::VhalClientResult;
+
 using ::android::hardware::hidl_vec;
 using ::android::hardware::interfacesEqual;
 using ::android::hardware::Return;
-using ::android::hardware::automotive::vehicle::VhalResult;
 
 using ::android::hidl::base::V1_0::IBase;
 using ::ndk::ScopedAIBinder_DeathRecipient;
@@ -775,7 +776,7 @@ void CarPowerPolicyServer::subscribeToProperty(
         vhalService = mVhalService;
     }
 
-    VhalResult<std::unique_ptr<IHalPropValue>> result =
+    VhalClientResult<std::unique_ptr<IHalPropValue>> result =
             vhalService->getValueSync(*vhalService->createHalPropValue(prop));
 
     if (!result.ok()) {
@@ -810,7 +811,7 @@ Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& p
     std::unique_ptr<IHalPropValue> propValue = vhalService->createHalPropValue(prop);
     propValue->setStringValue(policyId);
 
-    VhalResult<void> result = vhalService->setValueSync(*propValue);
+    VhalClientResult<void> result = vhalService->setValueSync(*propValue);
     if (!result.ok()) {
         return Error() << "Failed to set CURRENT_POWER_POLICY property";
     }

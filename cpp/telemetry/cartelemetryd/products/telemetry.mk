@@ -15,14 +15,16 @@
 # Selinux public policies for cartelemetry
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/public
 
-# Enable Automotive Telemetry Services (cartelemetryd) only on specific devices, see b/186879271.
-# Cuttlefish (cf_*) targets are used for testing.
-ifneq ($(filter $(TARGET_PRODUCT), cf_x86_auto cf_x86_64_auto cf_arm64_auto seahawk gcar_emu_x86),)
-
 # cartelemetryd service
 PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
 
 # Selinux private policies for cartelemetry
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/private
 
-endif
+# Sets soong build variables that are declared in
+# cpp/telemetry/cartelemetryd/products/soong/Android.bp and can be used to check whether the
+# telemetry service is included in the target product or not, in Android.bp.  Please refer to
+# cpp/evs/apps/default/Android.bp for more details.
+SOONG_CONFIG_NAMESPACES += cartelemetry
+SOONG_CONFIG_cartelemetry += enabled
+SOONG_CONFIG_cartelemetry_enabled := true
