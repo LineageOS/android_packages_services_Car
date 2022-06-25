@@ -1002,7 +1002,7 @@ public class CarDiagnosticManagerTest extends MockedCarTestBase {
             synchronized (mSync) {
                 // We're going to hold a reference to this object
                 mLastEvent = event;
-                mSync.notify();
+                mSync.notifyAll();
             }
         }
     }

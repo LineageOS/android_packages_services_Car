@@ -772,7 +772,7 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
                 Log.d(TAG, "listener " + mName + " received event " + event);
                 // We're going to hold a reference to this object
                 mLastEvent = event;
-                mSync.notify();
+                mSync.notifyAll();
             }
         }
 

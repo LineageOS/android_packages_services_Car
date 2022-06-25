@@ -2089,7 +2089,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                     args.getArgument(0);
             synchronized (actualConfigs) {
                 actualConfigs.addAll(configs);
-                actualConfigs.notify();
+                actualConfigs.notifyAll();
             }
             return null;
         }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
