@@ -21,7 +21,6 @@ import static android.car.Car.PERMISSION_CONTROL_APP_BLOCKING;
 import android.Manifest;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
@@ -36,6 +35,7 @@ import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.Log;
@@ -479,25 +479,40 @@ public final class CarPackageManager extends CarManagerBase {
      * {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform version} as major
      * and {@code 0} as minor instead.
      *
-     * @return targeted Car API version (as defined above) or {@code null} when a package with the
-     * given name is not installedfor the user or an error occurred inferring that info.
+     * @return Car API version targeted by the given package (as described above).
+     *
+     * @throws NameNotFoundException If the given package does not exist for the user.
      *
      * @hide
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
-    @Nullable
-    public CarApiVersion getTargetCarApiVersion(@NonNull String packageName) {
+    @NonNull
+    public CarApiVersion getTargetCarApiVersion(@NonNull String packageName)
+            throws NameNotFoundException {
         try {
             return mService.getTargetCarApiVersion(packageName);
-        } catch (RemoteException e) {
+        } catch (ServiceSpecificException e) {
             Log.w(TAG, "Failed to get CarApiVersion for " + packageName, e);
-            return handleRemoteExceptionFromCarService(e, null);
+            handleServiceSpecificFromCarService(e, packageName);
+        } catch (RemoteException e) {
+            e.rethrowFromSystemServer();
         }
+        return null; // cannot reach here but the compiler complains.
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,
+            String packageName) throws NameNotFoundException {
+        if (e.errorCode == ERROR_CODE_NO_PACKAGE) {
+            throw new NameNotFoundException(
+                    "cannot find " + packageName + " for user " + Process.myUserHandle());
+        }
+        // don't know what this is
+        throw new IllegalStateException(e);
+    }
+
+    private static void handleServiceSpecificFromCarService(ServiceSpecificException e,
             String packageName, String activityClassName, @UserIdInt int userId)
             throws NameNotFoundException {
         if (e.errorCode == ERROR_CODE_NO_PACKAGE) {

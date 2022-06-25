@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+import static android.car.content.pm.CarPackageManager.ERROR_CODE_NO_PACKAGE;
 import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_API_VERSION;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
 
@@ -44,6 +45,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
 import android.os.Bundle;
+import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -220,12 +222,13 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testgetTargetCarApiVersion_noApp() throws Exception {
         mockQueryPermission(/* granted= */ true);
-        mockGetApplicationInfoThrowsNotFound(mUserContext, "meaning.of.life");
+        String causeMsg = mockGetApplicationInfoThrowsNotFound(mUserContext, "meaning.of.life");
 
-        assertWithMessage("static getTargetCarApiVersion() call")
-                .that(CarPackageManagerService.getTargetCarApiVersion(mUserContext,
-                        "meaning.of.life"))
-                .isNull();
+        ServiceSpecificException e = assertThrows(ServiceSpecificException.class,
+                () -> CarPackageManagerService.getTargetCarApiVersion(mUserContext,
+                        "meaning.of.life"));
+        assertWithMessage("exception code").that(e.errorCode).isEqualTo(ERROR_CODE_NO_PACKAGE);
+        assertWithMessage("exception msg").that(e.getMessage()).isEqualTo(causeMsg);
     }
 
     // No need to test all scenarios, as they're tested by CarApiVersionParserParseMethodTest
@@ -259,12 +262,14 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         doReturn(mUserHandle).when(() -> Binder.getCallingUserHandle());
     }
 
-    private static void mockGetApplicationInfoThrowsNotFound(Context context, String packageName)
+    private static String mockGetApplicationInfoThrowsNotFound(Context context, String packageName)
             throws NameNotFoundException {
+        String msg = "D'OH!";
         PackageManager pm = mock(PackageManager.class);
         when(context.getPackageManager()).thenReturn(pm);
         when(pm.getApplicationInfo(eq(packageName), any()))
-                .thenThrow(new NameNotFoundException("D'OH!"));
+                .thenThrow(new NameNotFoundException(msg));
+        return msg;
     }
 
     private static ApplicationInfo mockGetApplicationInfo(Context context, String packageName)

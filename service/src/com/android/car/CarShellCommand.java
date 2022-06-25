@@ -3213,14 +3213,19 @@ final class CarShellCommand extends BasicShellCommandHandler {
         Context userContext = getContextForUser(userId);
         for (int i = firstAppArg; i < args.length; i++) {
             String app = args[i];
-            CarApiVersion apiVersion = CarPackageManagerService.getTargetCarApiVersion(userContext,
-                    app);
-            if (apiVersion == null) {
-                writer.printf("  %s: not found\n", app);
+            try {
+                CarApiVersion apiVersion = CarPackageManagerService.getTargetCarApiVersion(
+                        userContext, app);
+                writer.printf("  %s: major=%d, minor=%d\n", app,
+                        apiVersion.getMajorVersion(), apiVersion.getMinorVersion());
+            } catch (ServiceSpecificException e) {
+                if (e.errorCode == CarPackageManager.ERROR_CODE_NO_PACKAGE) {
+                    writer.printf("  %s: not found\n", app);
+                } else {
+                    writer.printf("  %s: unexpected exception: %s \n", app, e);
+                }
                 continue;
             }
-            writer.printf("  %s: major=%d, minor=%d\n", app,
-                    apiVersion.getMajorVersion(), apiVersion.getMinorVersion());
         }
     }
 
