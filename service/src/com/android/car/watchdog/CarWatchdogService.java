@@ -16,14 +16,12 @@
 
 package com.android.car.watchdog;
 
-import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
 import static android.content.Intent.ACTION_REBOOT;
 import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.ACTION_USER_REMOVED;
-import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -40,7 +38,6 @@ import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
-import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
@@ -141,7 +138,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 case ACTION_LAUNCH_APP_SETTINGS:
                 case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
-                    mWatchdogPerfHandler.handleIntent(intent);
+                    mWatchdogPerfHandler.processUserNotificationIntent(intent);
                     break;
                 case ACTION_GARAGE_MODE_ON:
                 case ACTION_GARAGE_MODE_OFF:
@@ -193,22 +190,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     break;
                 }
                 case ACTION_PACKAGE_CHANGED: {
-                    String packageName = intent.getData().getSchemeSpecificPart();
-                    int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
-                    if (userId == USER_NULL) {
-                        break;
-                    }
-                    try {
-                        if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
-                                userId) == COMPONENT_ENABLED_STATE_ENABLED) {
-                            mWatchdogPerfHandler.removeFromDisabledPackagesSettingsString(
-                                    packageName, userId);
-                        }
-                    } catch (RemoteException e) {
-                        Slogf.e(TAG, e,
-                                "Failed to verify enabled setting for user %d, package '%s'",
-                                userId, packageName);
-                    }
+                    mWatchdogPerfHandler.processPackageChangedIntent(intent);
                     break;
                 }
             }
