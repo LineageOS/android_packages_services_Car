@@ -79,6 +79,7 @@ TEST(ProcStatCollectorTest, TestValidStatFile) {
             .guestTime = 0,
             .guestNiceTime = 0,
     };
+    expectedFirstDelta.contextSwitchesCount = 579020168;
     expectedFirstDelta.runnableProcessCount = 17;
     expectedFirstDelta.ioBlockedProcessCount = 5;
 
@@ -105,7 +106,7 @@ TEST(ProcStatCollectorTest, TestValidStatFile) {
             "cpu3 3000 920 240 850 500 430 340 0 0 0\n"
             "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
             "0 0\n"
-            "ctxt 579020168\n"
+            "ctxt 810020192\n"
             "btime 1579718450\n"
             "processes 113804\n"
             "procs_running 10\n"
@@ -124,6 +125,7 @@ TEST(ProcStatCollectorTest, TestValidStatFile) {
             .guestTime = 0,
             .guestNiceTime = 0,
     };
+    expectedFirstDelta.contextSwitchesCount = 810020192;
     expectedSecondDelta.runnableProcessCount = 10;
     expectedSecondDelta.ioBlockedProcessCount = 2;
 
@@ -186,6 +188,31 @@ TEST(ProcStatCollectorTest, TestErrorOnMissingCpuLine) {
 
     ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
     EXPECT_FALSE(collector.collect().ok()) << "No error returned due to missing cpu line";
+}
+
+TEST(ProcStatCollectorTest, TestErrorOnMissingCtxtLine) {
+    constexpr char contents[] =
+            "cpu  16200 8700 2000 4100 1250 6200 5900 0 0 0\n"
+            "cpu0 2400 2900 600 690 340 4300 2100 0 0 0\n"
+            "cpu1 1900 2380 510 760 51 370 1500 0 0 0\n"
+            "cpu2 900 400 400 1000 600 400 160 0 0 0\n"
+            "cpu3 1000 20 190 650 109 130 140 0 0 0\n"
+            "intr 694351583 0 0 0 297062868 0 5922464 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "
+            "0 0\n"
+            "btime 1579718450\n"
+            "processes 113804\n"
+            "procs_running 17\n"
+            "procs_blocked 5\n"
+            "softirq 33275060 934664 11958403 5111 516325 200333 0 341482 10651335 0 8667407\n";
+    TemporaryFile tf;
+    ASSERT_NE(tf.fd, -1);
+    ASSERT_TRUE(WriteStringToFile(contents, tf.path));
+
+    ProcStatCollector collector(tf.path);
+    collector.init();
+
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned due to missing ctxt line";
 }
 
 TEST(ProcStatCollectorTest, TestErrorOnMissingProcsRunningLine) {
