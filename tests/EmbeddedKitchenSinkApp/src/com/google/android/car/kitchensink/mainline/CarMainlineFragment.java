@@ -20,6 +20,7 @@ import android.car.CarApiVersion;
 import android.car.PlatformApiVersion;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Build.VERSION;
 import android.os.Bundle;
 import android.util.Log;
@@ -116,9 +117,11 @@ public class CarMainlineFragment extends Fragment {
 
     private void setTargetCarApiVersion() {
         String ksPkg = getContext().getPackageName();
-        CarApiVersion apiVersion = mCarPm.getTargetCarApiVersion(ksPkg);
-        if (apiVersion == null) {
-            Log.w(TAG, "Could not get target car version for " + ksPkg);
+        CarApiVersion apiVersion;
+        try {
+            apiVersion = mCarPm.getTargetCarApiVersion(ksPkg);
+        } catch (NameNotFoundException e) {
+            Log.w(TAG, "Could not get target car version for " + ksPkg, e);
             String text = "N/A";
             mAppCarTargetMajorSdk.setText(text);
             mAppCarTargetMinorSdk.setText(text);

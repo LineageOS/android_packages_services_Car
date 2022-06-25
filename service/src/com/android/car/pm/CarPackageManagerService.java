@@ -1546,7 +1546,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.d(TAG, "getTargetCarVersion(%s, %s): not found: %s", context.getUser(),
                         packageName, e);
             }
-            return null;
+            throw new ServiceSpecificException(CarPackageManager.ERROR_CODE_NO_PACKAGE,
+                    e.getMessage());
         }
         return CarApiVersionParser.getTargetCarApiVersion(info);
     }

@@ -19,10 +19,13 @@ package android.car.apitest;
 import android.car.Car;
 import android.car.CarApiVersion;
 import android.car.content.pm.CarPackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.test.suitebuilder.annotation.MediumTest;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.junit.Assert.assertThrows;
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -47,9 +50,10 @@ public class CarPackageManagerTest extends CarApiTestBase {
     public void testgetTargetCarApiVersion_noPackage() throws Exception {
         String pkg = "I can't believe a package with this name exist. If so, well, too bad!";
 
-        CarApiVersion apiVersion = mCarPackageManager.getTargetCarApiVersion(pkg);
+        NameNotFoundException e = assertThrows(NameNotFoundException.class,
+                () -> mCarPackageManager.getTargetCarApiVersion(pkg));
 
-        assertWithMessage("getTargetCarApiVersion(%s)", pkg).that(apiVersion).isNull();
+        assertWithMessage("exception msg").that(e.getMessage()).contains(pkg);
     }
 
     @Ignore("TODO(b/228506662): need to update Car.PLATFORM_API_VERSION on master")
