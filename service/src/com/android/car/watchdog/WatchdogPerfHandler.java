@@ -18,6 +18,7 @@ package com.android.car.watchdog;
 
 import static android.app.StatsManager.PULL_SKIP;
 import static android.app.StatsManager.PULL_SUCCESS;
+import static android.car.builtin.os.UserManagerHelper.USER_NULL;
 import static android.car.settings.CarSettings.Secure.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE;
 import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.STATS_PERIOD_CURRENT_DAY;
@@ -265,6 +266,11 @@ public final class WatchdogPerfHandler {
      */
     @GuardedBy("mLock")
     private final ArraySet<String> mActionableUserPackages = new ArraySet<>();
+    /**
+     * Tracks user packages disabled due to resource overuse.
+     */
+    @GuardedBy("mLock")
+    private final SparseArray<ArraySet<String>> mDisabledUserPackagesByUserId = new SparseArray<>();
     @GuardedBy("mLock")
     private ZonedDateTime mLatestStatsReportDate;
     @GuardedBy("mLock")
@@ -935,7 +941,7 @@ public final class WatchdogPerfHandler {
     }
 
     /** Handles intents from user notification actions. */
-    public void handleIntent(Intent intent) {
+    public void processUserNotificationIntent(Intent intent) {
         String action = intent.getAction();
         String packageName = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
         UserHandle userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
@@ -1004,8 +1010,51 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    /** Handles when system broadcast package changed action */
+    public void processPackageChangedIntent(Intent intent) {
+        int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
+        if (userId == USER_NULL) {
+            Slogf.w(TAG, "Skipping package changed action with USER_NULL user");
+            return;
+        }
+        String packageName = intent.getData().getSchemeSpecificPart();
+        try {
+            if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId)
+                    != COMPONENT_ENABLED_STATE_ENABLED) {
+                return;
+            }
+        } catch (Exception e) {
+            // Catch IllegalArgumentException thrown by PackageManager when the package
+            // is not found. CarWatchdogService shouldn't crash when the package
+            // no longer exists when the {@link ACTION_PACKAGE_CHANGED} broadcast is
+            // handled.
+            Slogf.e(TAG, e,
+                    "Failed to verify enabled setting for user %d, package '%s'",
+                    userId, packageName);
+            return;
+        }
+        synchronized (mLock) {
+            ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
+            if (disabledPackages == null || !disabledPackages.contains(packageName)) {
+                return;
+            }
+            removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
+            disabledPackages.remove(packageName);
+            mDisabledUserPackagesByUserId.put(userId, disabledPackages);
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "Successfully enabled package due to package changed action");
+        }
+    }
+
     /** Disables a package for specific user until used. */
     public boolean disablePackageForUser(String packageName, @UserIdInt int userId) {
+        synchronized (mLock) {
+            ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
+            if (disabledPackages != null && disabledPackages.contains(packageName)) {
+                return true;
+            }
+        }
         try {
             int currentEnabledState =
                     PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId);
@@ -1021,7 +1070,15 @@ public final class WatchdogPerfHandler {
             PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
                     COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
                     mContext.getPackageName());
-            appendToDisabledPackagesSettingsString(packageName, userId);
+            synchronized (mLock) {
+                ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
+                if (disabledPackages == null) {
+                    disabledPackages = new ArraySet<>(1);
+                }
+                appendToDisabledPackagesSettingsString(packageName, userId);
+                disabledPackages.add(packageName);
+                mDisabledUserPackagesByUserId.put(userId, disabledPackages);
+            }
             Slogf.i(TAG, "Disabled package '%s' on user %d until used due to resource overuse",
                     packageName, userId);
         } catch (Exception e) {
@@ -1030,33 +1087,6 @@ public final class WatchdogPerfHandler {
             return false;
         }
         return true;
-    }
-
-    /**
-     * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
-     * {@code Settings} of the given user.
-     */
-    public void removeFromDisabledPackagesSettingsString(String packageName,
-            @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-        // Appending and removing package names to/from the settings string
-        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-        // these operations using the class wide lock.
-        synchronized (mLock) {
-            ArraySet<String> packages = extractPackages(
-                    Settings.Secure.getString(contentResolverForUser,
-                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
-            if (!packages.remove(packageName)) {
-                return;
-            }
-            String settingsString = constructSettingsString(packages);
-            Settings.Secure.putString(contentResolverForUser,
-                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-            if (DEBUG) {
-                Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
-                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
-            }
-        }
     }
 
     /**
@@ -1709,19 +1739,33 @@ public final class WatchdogPerfHandler {
     }
 
     private void enablePackageForUser(int uid, String genericPackageName) {
+        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
+        synchronized (mLock) {
+            ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
+            if (disabledPackages == null) {
+                return;
+            }
+        }
         List<String> packages;
         if (isSharedPackage(genericPackageName)) {
             packages = mPackageInfoHandler.getPackagesForUid(uid, genericPackageName);
         } else {
             packages = Collections.singletonList(genericPackageName);
         }
-        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
         for (int i = 0; i < packages.size(); i++) {
             String packageName = packages.get(i);
             try {
                 if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
                         userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
                     continue;
+                }
+                synchronized (mLock) {
+                    ArraySet<String> disabledPackages = mDisabledUserPackagesByUserId.get(userId);
+                    if (disabledPackages == null || !disabledPackages.contains(packageName)) {
+                        continue;
+                    }
+                    removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
+                    disabledPackages.remove(packageName);
                 }
                 PackageManagerHelper.setApplicationEnabledSettingForUser(
                         packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, userId,
@@ -1771,6 +1815,32 @@ public final class WatchdogPerfHandler {
                 Slogf.d(TAG, "Appended %s to %s. New value is '%s'", packageName,
                         KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
             }
+        }
+    }
+
+    /**
+     * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
+     * {@code Settings} of the given user.
+     */
+    @GuardedBy("mLock")
+    private void removeFromDisabledPackagesSettingsStringLocked(String packageName,
+            @UserIdInt int userId) {
+        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
+        // Appending and removing package names to/from the settings string
+        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
+        // these operations using the class wide lock.
+        ArraySet<String> packages = extractPackages(
+                Settings.Secure.getString(contentResolverForUser,
+                        KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
+        if (!packages.remove(packageName)) {
+            return;
+        }
+        String settingsString = constructSettingsString(packages);
+        Settings.Secure.putString(contentResolverForUser,
+                KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+        if (DEBUG) {
+            Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
+                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
         }
     }
 
