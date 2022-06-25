@@ -18,7 +18,6 @@ package android.car;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -29,6 +28,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.annotation.Nullable;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.util.ExceptionalFunction;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.IBinder;
@@ -40,40 +41,39 @@ import android.util.Pair;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ICarServiceHelper;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mock;
-import org.mockito.MockitoSession;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.quality.Strictness;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * Unit test for Car API.
  */
-@RunWith(JUnit4.class)
-public class CarTest {
-    private static final String TAG = CarTest.class.getSimpleName();
+public final class CarTest extends AbstractExtendedMockitoTestCase {
 
-    private MockitoSession mMockingSession;
+    private static final String TAG = CarTest.class.getSimpleName();
+    private static final String PKG_NAME = "Bond.James.Bond";
 
     @Mock
     private Context mContext;
 
     private int mGetServiceCallCount;
 
+
     // It is tricky to mock this. So create placeholder version instead.
-    private ICar.Stub mService = new ICar.Stub() {
+    private static final class FakeService extends ICar.Stub {
+
+        public ExceptionalFunction<String, CarApiVersion, RemoteException>
+                getTargetCarApiVersionMocker;
+
         @Override
         public void setSystemServerConnections(ICarServiceHelper helper,
-                ICarResultReceiver receiver)
-                throws RemoteException {
+                ICarResultReceiver receiver) throws RemoteException {
         }
 
         @Override
@@ -122,7 +122,10 @@ public class CarTest {
         }
     };
 
-    private class LifecycleListener implements Car.CarServiceLifecycleListener {
+    private final FakeService mService = new FakeService();
+
+
+    private final class LifecycleListener implements Car.CarServiceLifecycleListener {
         // Use thread safe one to prevent adding another lock for testing
         private CopyOnWriteArrayList<Pair<Car, Boolean>> mEvents = new CopyOnWriteArrayList<>();
 
@@ -133,21 +136,16 @@ public class CarTest {
         }
     }
 
-    private  final LifecycleListener mLifecycleListener = new LifecycleListener();
+    private final LifecycleListener mLifecycleListener = new LifecycleListener();
 
     @Before
     public void setUp() {
-        mMockingSession = mockitoSession()
-                .initMocks(this)
-                .mockStatic(ServiceManager.class)
-                .strictness(Strictness.LENIENT)
-                .startMocking();
-        mGetServiceCallCount = 0;
+        when(mContext.getPackageName()).thenReturn(PKG_NAME);
     }
 
-    @After
-    public void tearDown() {
-        mMockingSession.finishMocking();
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(ServiceManager.class);
     }
 
     private void expectService(@Nullable IBinder service) {
@@ -294,5 +292,17 @@ public class CarTest {
     private void waitForMainToBeComplete() {
         // dispatch placeholder runnable and confirm that it is done.
         runOnMainSyncSafe(() -> { });
+    }
+
+    private void onNewCar(Consumer<Car> action) throws Exception {
+        expectService(mService);
+
+        Car car = Car.createCar(mContext);
+        try {
+            assertThat(car).isNotNull();
+            action.accept(car);
+        } finally {
+            car.disconnect();
+        }
     }
 }

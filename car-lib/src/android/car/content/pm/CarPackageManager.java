@@ -17,6 +17,7 @@
 package android.car.content.pm;
 
 import static android.car.Car.PERMISSION_CONTROL_APP_BLOCKING;
+import static android.car.CarLibLog.TAG_CAR;
 
 import android.Manifest;
 import android.annotation.IntDef;
@@ -479,6 +480,8 @@ public final class CarPackageManager extends CarManagerBase {
      * {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform version} as major
      * and {@code 0} as minor instead.
      *
+     * <p><b>Note: </b>to get the target {@link CarApiVersion} for your own app, use
+     * {@link #getTargetCarApiVersion()} instead.
      * @return Car API version targeted by the given package (as described above).
      *
      * @throws NameNotFoundException If the given package does not exist for the user.
@@ -500,6 +503,31 @@ public final class CarPackageManager extends CarManagerBase {
             e.rethrowFromSystemServer();
         }
         return null; // cannot reach here but the compiler complains.
+    }
+
+    /**
+     * Gets the Car API version targeted by app (as defined by
+     * {@link #MANIFEST_METADATA_TARGET_CAR_API_VERSION}.
+     *
+     * <p>If the app manifest doesn't contain the {@link #MANIFEST_METADATA_TARGET_CAR_API_VERSION}
+     * metadata attribute, the attribute format is invalid, the returned {@code CarApiVersion} will
+     * be using the {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform
+     * version} as major and {@code 0} as minor instead.
+     *
+     * @return targeted Car API version (as defined above)
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public CarApiVersion getTargetCarApiVersion() {
+        String pkgName = mCar.getContext().getPackageName();
+        try {
+            return mService.getSelfTargetCarApiVersion(pkgName);
+        } catch (RemoteException e) {
+            Log.w(TAG_CAR, "Car service threw exception calling getTargetCarApiVersion(" + pkgName
+                    + ")", e);
+            e.rethrowFromSystemServer();
+            return null;
+        }
     }
 
     private void handleServiceSpecificFromCarService(ServiceSpecificException e,
