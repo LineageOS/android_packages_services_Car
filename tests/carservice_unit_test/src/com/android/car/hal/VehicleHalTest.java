@@ -641,7 +641,7 @@ public class VehicleHalTest {
         // Assert
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
-        mVehicleHal.dump(printWriter);
+        mVehicleHal.dumpAllHals(printWriter);
         String actual = writer.toString();
 
         // There should be 2 events.
@@ -962,7 +962,7 @@ public class VehicleHalTest {
         PrintWriter printWriter = new PrintWriter(writer);
 
         // Act
-        mVehicleHal.dump(printWriter);
+        mVehicleHal.dumpAllHals(printWriter);
 
         // Assert
         String actual = writer.toString();
