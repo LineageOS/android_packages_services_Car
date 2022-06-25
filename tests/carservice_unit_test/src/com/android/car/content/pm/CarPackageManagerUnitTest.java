@@ -20,6 +20,7 @@ import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFrom
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -27,6 +28,7 @@ import android.car.CarApiVersion;
 import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -39,6 +41,7 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
     @Mock
     private Car mCar;
+
     @Mock
     private ICarPackageManager mService;
 
@@ -47,6 +50,27 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
     @Before
     public void setFixtures() {
         mMgr = new CarPackageManager(mCar, mService);
+    }
+
+    @Test
+    public void testGetTargetCarVersion_self_ok() throws Exception {
+        mockPackageName("dr.evil");
+        CarApiVersion apiVersion = CarApiVersion.forMajorAndMinorVersions(66, 6);
+        when(mService.getSelfTargetCarApiVersion("dr.evil")).thenReturn(apiVersion);
+
+        assertThat(mMgr.getTargetCarApiVersion()).isSameInstanceAs(apiVersion);
+    }
+
+    @Test
+    public void testGetTargetCarVersion_self_remoteException() throws Exception {
+        mockPackageName("the.meaning.of.life");
+        RemoteException cause = new RemoteException("D'OH!");
+        when(mService.getSelfTargetCarApiVersion("the.meaning.of.life")).thenThrow(cause);
+
+        RuntimeException e = assertThrows(RuntimeException.class,
+                () -> mMgr.getTargetCarApiVersion());
+
+        assertThat(e.getCause()).isSameInstanceAs(cause);
     }
 
     @Test
@@ -93,5 +117,11 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
 
         assertThat(e.getMessage()).contains("the.meaning.of.life");
         assertThat(e.getMessage()).doesNotContain("D'OH!");
+    }
+
+    private void mockPackageName(String name) {
+        Context context = mock(Context.class);
+        when(context.getPackageName()).thenReturn(name);
+        when(mCar.getContext()).thenReturn(context);
     }
 }

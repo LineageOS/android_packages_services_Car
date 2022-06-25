@@ -36,4 +36,5 @@ interface ICarPackageManager {
     List<String> getSupportedDrivingSafetyRegionsForActivityAsUser(String packageName,
             String activityClassName, int userId) = 9;
     CarApiVersion getTargetCarApiVersion(String packageName) = 10;
+    CarApiVersion getSelfTargetCarApiVersion(in String packageName) = 11;
 }
