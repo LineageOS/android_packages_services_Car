@@ -47,6 +47,19 @@ public class CarPackageManagerTest extends CarApiTestBase {
     }
 
     @Test
+    public void testGetTargetCarApiVersion_self() throws Exception {
+        CarApiVersion apiVersion = mCarPackageManager.getTargetCarApiVersion();
+
+        assertWithMessage("getTargetCarApiVersion()").that(apiVersion).isNotNull();
+        assertWithMessage("major version")
+                .that(apiVersion.getMajorVersion())
+                .isEqualTo(108);
+        assertWithMessage("minor version for")
+                .that(apiVersion.getMinorVersion())
+                .isEqualTo(42);
+    }
+
+    @Test
     public void testgetTargetCarApiVersion_noPackage() throws Exception {
         String pkg = "I can't believe a package with this name exist. If so, well, too bad!";
 
