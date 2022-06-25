@@ -19,6 +19,7 @@ import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFrom
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
 
 import android.car.Car;
@@ -26,7 +27,9 @@ import android.car.CarApiVersion;
 import android.car.content.pm.CarPackageManager;
 import android.car.content.pm.ICarPackageManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +50,7 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
     }
 
     @Test
-    public void testgetTargetCarVersion_ok() throws Exception {
+    public void testGetTargetCarVersion_ok() throws Exception {
         CarApiVersion apiVersion = CarApiVersion.forMajorAndMinorVersions(66, 6);
         when(mService.getTargetCarApiVersion("dr.evil")).thenReturn(apiVersion);
 
@@ -55,11 +58,40 @@ public final class CarPackageManagerUnitTest extends AbstractExtendedMockitoTest
     }
 
     @Test
-    public void testgetTargetCarVersion_remoteException() throws Exception {
+    public void testGetTargetCarVersion_runtimeException() throws Exception {
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+        RemoteException cause = new RemoteException("D'OH!");
+        when(mService.getTargetCarApiVersion("the.meaning.of.life")).thenThrow(cause);
+
+        RuntimeException e = assertThrows(RuntimeException.class,
+                () -> mMgr.getTargetCarApiVersion("the.meaning.of.life"));
+
+        assertThat(e.getCause()).isSameInstanceAs(cause);
+    }
+
+    @Test
+    public void testGetTargetCarVersion_serviceException_unexpectedErrorCode() throws Exception {
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+        ServiceSpecificException cause = new ServiceSpecificException(666, "D'OH!");
+        when(mService.getTargetCarApiVersion("the.meaning.of.life")).thenThrow(cause);
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> mMgr.getTargetCarApiVersion("the.meaning.of.life"));
+
+        assertThat(e.getCause()).isSameInstanceAs(cause);
+    }
+
+    @Test
+    public void testGetTargetCarVersion_serviceException_notFound() throws Exception {
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
         when(mService.getTargetCarApiVersion("the.meaning.of.life"))
-                .thenThrow(new RemoteException("D'OH!"));
+                .thenThrow(new ServiceSpecificException(CarPackageManager.ERROR_CODE_NO_PACKAGE,
+                        "D'OH!"));
 
-        assertThat(mMgr.getTargetCarApiVersion("the.meaning.of.life")).isNull();
+        NameNotFoundException e = assertThrows(NameNotFoundException.class,
+                () -> mMgr.getTargetCarApiVersion("the.meaning.of.life"));
+
+        assertThat(e.getMessage()).contains("the.meaning.of.life");
+        assertThat(e.getMessage()).doesNotContain("D'OH!");
     }
 }
