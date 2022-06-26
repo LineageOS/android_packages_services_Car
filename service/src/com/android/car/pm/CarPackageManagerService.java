@@ -107,6 +107,7 @@ import com.android.car.internal.util.LocalLog;
 import com.android.car.internal.util.Sets;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
+import com.android.car.util.Utils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -1521,7 +1522,17 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         return getTargetCarApiVersion(Binder.getCallingUserHandle(), packageName);
     }
 
-    private CarApiVersion getTargetCarApiVersion(UserHandle user, String packageName) {
+    @Override
+    public CarApiVersion getSelfTargetCarApiVersion(String packageName) {
+        Utils.checkCalledByPackage(mContext, packageName);
+
+        return getTargetCarApiVersion(Binder.getCallingUserHandle(), packageName);
+    }
+
+    /**
+     * Public, as it's also used by {@code ICarImpl}.
+     */
+    public CarApiVersion getTargetCarApiVersion(UserHandle user, String packageName) {
         Context context = mContext.createContextAsUser(user, /* flags= */ 0);
         return getTargetCarApiVersion(context, packageName);
     }
@@ -1546,7 +1557,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 Slogf.d(TAG, "getTargetCarVersion(%s, %s): not found: %s", context.getUser(),
                         packageName, e);
             }
-            return null;
+            throw new ServiceSpecificException(CarPackageManager.ERROR_CODE_NO_PACKAGE,
+                    e.getMessage());
         }
         return CarApiVersionParser.getTargetCarApiVersion(info);
     }

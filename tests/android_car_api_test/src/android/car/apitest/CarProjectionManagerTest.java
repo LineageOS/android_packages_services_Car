@@ -55,7 +55,7 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
         public IBinder onBind(Intent intent) {
             setBound(true);
             synchronized (mLock) {
-                mLock.notify();
+                mLock.notifyAll();
             }
             return mBinder;
         }

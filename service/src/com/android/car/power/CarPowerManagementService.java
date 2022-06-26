@@ -425,7 +425,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         EventLogHelper.writeCarPowerManagerStateRequest(state.mState, state.mParam);
         synchronized (mLock) {
             mPendingPowerStates.addFirst(new CpmsState(state));
-            mLock.notify();
+            mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
     }
@@ -461,7 +461,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 }
             }
             mPendingPowerStates.addFirst(newState);
-            mLock.notify();
+            mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
     }
@@ -2052,13 +2052,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             // Cancel Garage Mode in case it's running
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.WAIT_FOR_VHAL,
                     CarPowerManager.STATE_SHUTDOWN_CANCELLED, /* canPostpone= */ false));
-            mLock.notify();
+            mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
 
         synchronized (mSimulationWaitObject) {
             mWakeFromSimulatedSleep = true;
-            mSimulationWaitObject.notify();
+            mSimulationWaitObject.notifyAll();
         }
     }
 
@@ -2285,7 +2285,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             mRebootAfterGarageMode = false;
             mPendingPowerStates.addFirst(new CpmsState(state));
-            mLock.notify();
+            mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
     }
@@ -2303,7 +2303,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mLock) {
             mRebootAfterGarageMode = reboot;
             mPendingPowerStates.addFirst(new CpmsState(state));
-            mLock.notify();
+            mLock.notifyAll();
         }
         mHandler.handlePowerStateChange();
     }

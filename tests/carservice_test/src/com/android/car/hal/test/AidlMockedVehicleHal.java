@@ -45,6 +45,7 @@ import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
@@ -53,6 +54,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AidlMockedVehicleHal extends IVehicle.Stub {
+
+    private static final String TAG = AidlMockedVehicleHal.class.getSimpleName();
 
     /**
     * Interface for handler of each property.
@@ -132,7 +135,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                     propValues.payloads[0] = value;
                     callback.onPropertyEvent(propValues, /* sharedMemoryCount= */ 0);
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Failed invoking callback", e);
                     fail("Remote exception while injecting events.");
                 }
             }
@@ -159,7 +162,7 @@ public class AidlMockedVehicleHal extends IVehicle.Stub {
                     propErrors.payloads = new VehiclePropError[] {error};
                     callback.onPropertySetError(propErrors);
                 } catch (RemoteException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Failed invoking callback", e);
                     fail("Remote exception while injecting errors.");
                 }
             }
