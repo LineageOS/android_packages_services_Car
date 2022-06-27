@@ -24,8 +24,10 @@ import android.util.Log;
 
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
+import com.android.internal.annotations.GuardedBy;
 
 import java.util.LinkedList;
+import java.util.concurrent.TimeoutException;
 
 public class MockedPowerHalService extends PowerHalService {
     private static final String TAG = MockedPowerHalService.class.getSimpleName();
@@ -34,10 +36,19 @@ public class MockedPowerHalService extends PowerHalService {
     private final boolean mIsDeepSleepAllowed;
     private final boolean mIsHibernationAllowed;
     private final boolean mIsTimedWakeupAllowed;
+
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
     private PowerState mCurrentPowerState = new PowerState(VehicleApPowerStateReq.ON, 0);
+
+    @GuardedBy("mLock")
     private PowerEventListener mListener;
+
+    @GuardedBy("mLock")
     private SignalListener mSignalListener;
 
+    @GuardedBy("mLock")
     private final LinkedList<int[]> mSentStates = new LinkedList<>();
 
     public interface SignalListener {
@@ -75,13 +86,17 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     @Override
-    public synchronized void setListener(PowerEventListener listener) {
-        mListener = listener;
+    public void setListener(PowerEventListener listener) {
+        synchronized (mLock) {
+            mListener = listener;
+        }
     }
 
     // For testing purposes only
-    public synchronized void setSignalListener(SignalListener listener) {
-        mSignalListener =  listener;
+    public void setSignalListener(SignalListener listener) {
+        synchronized (mLock) {
+            mSignalListener = listener;
+        }
     }
 
     @Override
@@ -144,24 +159,33 @@ public class MockedPowerHalService extends PowerHalService {
         doSendState(SET_HIBERNATION_EXIT, 0);
     }
 
-    public synchronized int[] waitForSend(long timeoutMs) throws Exception {
-        if (mSentStates.size() == 0) {
-            wait(timeoutMs);
+    public int[] waitForSend(long timeoutMs) throws Exception {
+        long now = System.currentTimeMillis();
+        long deadline = now + timeoutMs;
+        synchronized (mLock) {
+            while (mSentStates.isEmpty() && now < deadline) {
+                mLock.wait(deadline - now);
+                now = System.currentTimeMillis();
+            }
+            if (mSentStates.isEmpty()) {
+                throw new TimeoutException("mSentStates is still empty "
+                        + "(monitor was not notified in " + timeoutMs + " ms)");
+            }
+            return mSentStates.removeFirst();
         }
-        return mSentStates.removeFirst();
     }
 
-    private synchronized void doSendState(int state, int param) {
+    private void doSendState(int state, int param) {
+        int[] toSend = new int[] {state, param};
         SignalListener listener;
-        synchronized (this) {
+        synchronized (mLock) {
             listener = mSignalListener;
+            mSentStates.addLast(toSend);
+            mLock.notifyAll();
         }
         if (listener != null) {
             listener.sendingSignal(state);
         }
-        int[] toSend = new int[] {state, param};
-        mSentStates.addLast(toSend);
-        notifyAll();
     }
 
     @Override
@@ -185,8 +209,10 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     @Override
-    public synchronized PowerState getCurrentPowerState() {
-        return mCurrentPowerState;
+    public PowerState getCurrentPowerState() {
+        synchronized (mLock) {
+            return mCurrentPowerState;
+        }
     }
 
     public void setCurrentPowerState(PowerState state) {
@@ -195,7 +221,7 @@ public class MockedPowerHalService extends PowerHalService {
 
     public void setCurrentPowerState(PowerState state, boolean notify) {
         PowerEventListener listener;
-        synchronized (this) {
+        synchronized (mLock) {
             mCurrentPowerState = state;
             listener = mListener;
         }

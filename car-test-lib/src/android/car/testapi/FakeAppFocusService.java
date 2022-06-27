@@ -28,7 +28,7 @@ import com.android.car.AppFocusService;
  * to allow the use of {@link CarAppFocusManager} in unit tests.
  */
 public class FakeAppFocusService extends AppFocusService implements CarAppFocusController {
-    FakeSystemActivityMonitoringService mSystemActivityMonitoringService;
+    private final FakeSystemActivityMonitoringService mSystemActivityMonitoringService;
 
     private FakeAppFocusService(
             Context context,
@@ -45,22 +45,22 @@ public class FakeAppFocusService extends AppFocusService implements CarAppFocusC
     //************************* CarAppFocusController implementation ******************************/
 
     @Override
-    public synchronized void setForegroundUid(int uid) {
+    public void setForegroundUid(int uid) {
         mSystemActivityMonitoringService.setForegroundUid(uid);
     }
 
     @Override
-    public synchronized void setForegroundPid(int pid) {
+    public void setForegroundPid(int pid) {
         mSystemActivityMonitoringService.setForegroundPid(pid);
     }
 
     @Override
-    public synchronized void resetForegroundUid() {
+    public void resetForegroundUid() {
         mSystemActivityMonitoringService.resetForegroundUid();
     }
 
     @Override
-    public synchronized void resetForegroundPid() {
+    public void resetForegroundPid() {
         mSystemActivityMonitoringService.resetForegroundPid();
     }
 
