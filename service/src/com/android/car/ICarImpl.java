@@ -368,6 +368,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarWatchdogService = carWatchdogService;
             allServices.add(mCarWatchdogService);
+            CarLocalServices.addService(CarWatchdogService.class, mCarWatchdogService);
         }
         if (carPerformanceService == null) {
             mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
@@ -375,6 +376,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarPerformanceService = carPerformanceService;
             allServices.add(mCarPerformanceService);
+            CarLocalServices.addService(CarPerformanceService.class, mCarPerformanceService);
         }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
