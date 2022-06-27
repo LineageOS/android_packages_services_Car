@@ -80,7 +80,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     /**
      * configArray[0], 1 indicates the property has a String value
      * configArray[1], 1 indicates the property has a Boolean value .
-     * configArray[2], 1 indicates the property has a Integer value
+     * configArray[2], 1 indicates the property has an Integer value
      * configArray[3], the number indicates the size of Integer[]  in the property.
      * configArray[4], 1 indicates the property has a Long value .
      * configArray[5], the number indicates the size of Long[]  in the property.
@@ -388,15 +388,15 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Test
     public void testGetPropertyConfig() {
-        CarPropertyConfig config = mManager.getCarPropertyConfig(CUSTOM_SEAT_MIXED_PROP_ID_1);
+        CarPropertyConfig<?> config = mManager.getCarPropertyConfig(CUSTOM_SEAT_MIXED_PROP_ID_1);
         assertThat(config.getPropertyId()).isEqualTo(CUSTOM_SEAT_MIXED_PROP_ID_1);
-        // return null if can not find the propertyConfig for the property.
+        // returns null if it cannot find the propertyConfig for the property.
         assertThat(mManager.getCarPropertyConfig(FAKE_PROPERTY_ID)).isNull();
     }
 
     @Test
     public void testGetPropertyConfig_withReadOnlyPermission() {
-        CarPropertyConfig configForReadOnlyProperty = mManager
+        CarPropertyConfig<?> configForReadOnlyProperty = mManager
                 .getCarPropertyConfig(PROP_WITH_READ_ONLY_PERMISSION);
 
         assertThat(configForReadOnlyProperty).isNotNull();
@@ -406,7 +406,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Test
     public void testGetPropertyConfig_withWriteOnlyPermission() {
-        CarPropertyConfig configForWriteOnlyProperty = mManager
+        CarPropertyConfig<?> configForWriteOnlyProperty = mManager
                 .getCarPropertyConfig(PROP_WITH_WRITE_ONLY_PERMISSION);
 
         assertThat(configForWriteOnlyProperty).isNotNull();
@@ -430,7 +430,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testRegisterPropertyUnavailable() throws Exception {
+    public void testRegisterPropertyUnavailable() {
         TestSequenceCallback callback = new TestSequenceCallback(1);
         // Registering a property which has an unavailable initial value
         // won't throw ServiceSpecificException.
@@ -695,7 +695,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
         callback.assertRegisterCompleted();
 
-        List<VehiclePropValue> props = new ArrayList<VehiclePropValue>();
+        List<VehiclePropValue> props = new ArrayList<>();
         VehiclePropValue emptyProp = new VehiclePropValue();
         emptyProp.prop = CUSTOM_SEAT_INT_PROP_1;
         props.add(emptyProp);
@@ -819,7 +819,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     private void userHalPropertiesTest(String method, Visitor<Integer> visitor) {
-        List<String> failedProperties = new ArrayList<String>();
+        List<String> failedProperties = new ArrayList<>();
         for (int propertyId : USER_HAL_PROPERTIES) {
             try {
                 visitor.visit(propertyId);
@@ -903,7 +903,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             if (value.prop == NULL_VALUE_PROP) {
                 // Return null to simulate an unavailable property.
                 // HAL implementation should return STATUS_TRY_AGAIN when a property is unavailable,
-                // however, it may also return null with STATUS_OKAY and we want to handle this
+                // however, it may also return null with STATUS_OKAY, and we want to handle this
                 // properly.
                 return null;
             }
@@ -1015,7 +1015,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
-    private class TestSequenceCallback implements CarPropertyManager.CarPropertyEventCallback {
+    private static class TestSequenceCallback implements
+            CarPropertyManager.CarPropertyEventCallback {
 
         private final ConcurrentHashMap<Integer, CarPropertyValue> mRecorder =
                 new ConcurrentHashMap<>();
