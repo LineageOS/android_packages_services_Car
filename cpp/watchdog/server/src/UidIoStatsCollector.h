@@ -47,7 +47,7 @@ enum MetricType {
 };
 
 // Defines the per-UID I/O stats.
-class UidIoStats {
+class UidIoStats final {
 public:
     UidIoStats() : metrics{{0}} {};
     UidIoStats(int64_t fgRdBytes, int64_t bgRdBytes, int64_t fgWrBytes, int64_t bgWrBytes,

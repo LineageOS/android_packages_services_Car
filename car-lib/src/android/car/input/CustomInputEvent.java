@@ -20,11 +20,12 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.annotation.AddedInOrBefore;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * {@code Parcelable} containing custom input event.
@@ -42,15 +43,25 @@ public final class CustomInputEvent implements Parcelable {
 
     // The following constant values must be in sync with the ones defined in
     // {@code hardware/interfaces/automotive/vehicle/2.0/types.hal}
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F1 = 1001;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F2 = 1002;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F3 = 1003;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F4 = 1004;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F5 = 1005;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F6 = 1006;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F7 = 1007;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F8 = 1008;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F9 = 1009;
+    @AddedInOrBefore(majorVersion = 33)
     public static final int INPUT_CODE_F10 = 1010;
 
     private final int mInputCode;
@@ -75,6 +86,7 @@ public final class CustomInputEvent implements Parcelable {
 
     @DataClass.Generated.Member
     @NonNull
+    @AddedInOrBefore(majorVersion = 33)
     public static String inputCodeToString(int value) {
         return Integer.toString(value);
     }
@@ -93,16 +105,19 @@ public final class CustomInputEvent implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public int getInputCode() {
         return mInputCode;
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public int getTargetDisplayType() {
         return mTargetDisplayType;
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public int getRepeatCounter() {
         return mRepeatCounter;
     }
@@ -110,6 +125,7 @@ public final class CustomInputEvent implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         // You can override field toString logic by defining methods like:
         // String fieldNameToString() { ... }
@@ -124,6 +140,7 @@ public final class CustomInputEvent implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public boolean equals(@android.annotation.Nullable Object o) {
         // You can override field equality logic by defining either of the methods like:
         // boolean fieldNameEquals(CustomInputEvent other) { ... }
@@ -143,6 +160,7 @@ public final class CustomInputEvent implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int hashCode() {
         // You can override field hashCode logic by defining methods like:
         // int fieldNameHashCode() { ... }
@@ -156,6 +174,7 @@ public final class CustomInputEvent implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -168,6 +187,7 @@ public final class CustomInputEvent implements Parcelable {
     @Override
     @DataClass.Generated.Member
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
+    @AddedInOrBefore(majorVersion = 33)
     public int describeContents() {
         return 0;
     }
@@ -187,6 +207,7 @@ public final class CustomInputEvent implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull
     Parcelable.Creator<CustomInputEvent> CREATOR
             = new Parcelable.Creator<CustomInputEvent>() {
@@ -215,7 +236,7 @@ public final class CustomInputEvent implements Parcelable {
                     + "@android.car.input.CustomInputEvent.InputCode int mInputCode\nprivate "
                     + "final  int mTargetDisplayType\nprivate final  int mRepeatCounter\nclass "
                     + "CustomInputEvent extends java.lang.Object implements [android.os"
-                    + ".Parcelable]\n@com.android.internal.util.DataClass(genEqualsHashCode=true,"
+                    + ".Parcelable]\n@com.android.car.internal.util.DataClass(genEqualsHashCode=true,"
                     + " genAidl=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)

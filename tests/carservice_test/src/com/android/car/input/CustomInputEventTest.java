@@ -50,9 +50,14 @@ public final class CustomInputEventTest {
     }
 
     @Test
+    public void testInputCodeToString() {
+        assertThat(CustomInputEvent.inputCodeToString(CustomInputEvent.INPUT_CODE_F1)).isEqualTo(
+                Integer.toString(CustomInputEvent.INPUT_CODE_F1));
+    }
+
+    @Test
     public void testCustomInputEventParcelNewArray() {
         CustomInputEvent[] eventArray = CustomInputEvent.CREATOR.newArray(10);
         assertThat(eventArray).hasLength(10);
     }
 }
-

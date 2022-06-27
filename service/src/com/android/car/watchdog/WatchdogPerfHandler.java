@@ -47,8 +47,8 @@ import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__SYST
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_KILL_STATS_REPORTED__UID_STATE__UNKNOWN_UID_STATE;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_SYSTEM_IO_USAGE_SUMMARY;
 import static com.android.car.CarStatsLog.CAR_WATCHDOG_UID_IO_USAGE_SUMMARY;
-import static com.android.car.admin.NotificationHelper.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
-import static com.android.car.admin.NotificationHelper.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.getContentResolverForUser;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_LAUNCH_APP_SETTINGS;
 import static com.android.car.watchdog.CarWatchdogService.ACTION_RESOURCE_OVERUSE_DISABLE_APP;
@@ -63,8 +63,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.ActivityThread;
-import android.app.NotificationManager;
 import android.app.StatsManager;
 import android.app.StatsManager.PullAtomMetadata;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
@@ -76,6 +74,8 @@ import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
+import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.watchdog.CarWatchdogManager;
@@ -93,7 +93,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
@@ -112,7 +111,6 @@ import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.AtomicFile;
-import android.util.IndentingPrintWriter;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 import android.util.Pair;
@@ -120,16 +118,19 @@ import android.util.SparseArray;
 import android.util.StatsEvent;
 import android.view.Display;
 
+import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLog;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.NotificationHelperBase;
+import com.android.car.internal.util.ConcurrentUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.ConcurrentUtils;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -165,7 +166,7 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
 
-    static final String INTENT_EXTRA_ID = "notification_id";
+    static final String INTENT_EXTRA_NOTIFICATION_ID = "notification_id";
     static final String USER_PACKAGE_SEPARATOR = ":";
     static final String PACKAGES_DISABLED_ON_RESOURCE_OVERUSE_SEPARATOR = ";";
 
@@ -211,22 +212,28 @@ public final class WatchdogPerfHandler {
     private @interface UxStateType{}
 
     private final Context mContext;
+    /**
+     * Context of the builtin car service that hosts the permissions, resources, and external
+     * facing services required for showing notifications.
+     */
+    private final Context mBuiltinPackageContext;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final PackageInfoHandler mPackageInfoHandler;
     private final Handler mMainHandler;
     private final Handler mServiceHandler;
     private final WatchdogStorage mWatchdogStorage;
     private final OveruseConfigurationCache mOveruseConfigurationCache;
-    private final UserNotificationHelper mUserNotificationHelper;
     private final int mUidIoUsageSummaryTopCount;
     private final int mIoUsageSummaryMinSystemTotalWrittenBytes;
     private final int mRecurringOverusePeriodInDays;
     private final int mRecurringOveruseTimes;
+    private final int mResourceOveruseNotificationBaseId;
+    private final int mResourceOveruseNotificationMaxOffset;
     private final TimeSource mTimeSource;
     private final Object mLock = new Object();
     /**
      * Tracks user packages' resource usage. When cache is updated, call
-     * {@link WatchdogStorage#markDirty()} to notify database is out of sync.
+     * {@link WatchdogStorage#markDirty} to notify database is out of sync.
      */
     @GuardedBy("mLock")
     private final ArrayMap<String, PackageResourceUsage> mUsageByUserPackage = new ArrayMap<>();
@@ -238,7 +245,7 @@ public final class WatchdogPerfHandler {
             mOveruseSystemListenerInfosByUid = new SparseArray<>();
     /**
      * Default killable state for packages. Updated only for {@link UserHandle#ALL} user handle.
-     * When cache is updated, call {@link WatchdogStorage#markDirty()} to notify database is out of
+     * When cache is updated, call {@link WatchdogStorage#markDirty} to notify database is out of
      * sync.
      */
     @GuardedBy("mLock")
@@ -270,11 +277,11 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private CarUxRestrictions mCurrentUxRestrictions;
     @GuardedBy("mLock")
-    private @GarageMode int mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
-    @GuardedBy("mLock")
     private boolean mIsHeadsUpNotificationSent;
     @GuardedBy("mLock")
     private int mCurrentOveruseNotificationIdOffset;
+    @GuardedBy("mLock")
+    private @GarageMode int mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
     @GuardedBy("mLock")
     private long mOveruseHandlingDelayMills = OVERUSE_HANDLING_DELAY_MILLS;
     @GuardedBy("mLock")
@@ -293,10 +300,11 @@ public final class WatchdogPerfHandler {
                 }
             };
 
-    public WatchdogPerfHandler(Context context, CarWatchdogDaemonHelper daemonHelper,
-            PackageInfoHandler packageInfoHandler, WatchdogStorage watchdogStorage,
-            UserNotificationHelper userNotificationHelper, TimeSource timeSource) {
+    public WatchdogPerfHandler(Context context, Context builtinPackageContext,
+            CarWatchdogDaemonHelper daemonHelper, PackageInfoHandler packageInfoHandler,
+            WatchdogStorage watchdogStorage, TimeSource timeSource) {
         mContext = context;
+        mBuiltinPackageContext = builtinPackageContext;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
         mMainHandler = new Handler(Looper.getMainLooper());
@@ -304,7 +312,6 @@ public final class WatchdogPerfHandler {
                 CarWatchdogService.class.getSimpleName()).getLooper());
         mWatchdogStorage = watchdogStorage;
         mOveruseConfigurationCache = new OveruseConfigurationCache();
-        mUserNotificationHelper = userNotificationHelper;
         mTimeSource = timeSource;
         Resources resources = mContext.getResources();
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
@@ -313,6 +320,10 @@ public final class WatchdogPerfHandler {
         mRecurringOverusePeriodInDays = resources
                 .getInteger(R.integer.recurringResourceOverusePeriodInDays);
         mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
+        mResourceOveruseNotificationBaseId =
+                NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
+        mResourceOveruseNotificationMaxOffset =
+                NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
     }
 
     /** Initializes the handler. */
@@ -353,6 +364,7 @@ public final class WatchdogPerfHandler {
     }
 
     /** Dumps its state. */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         /*
          * TODO(b/183436216): Implement this method.
@@ -425,8 +437,8 @@ public final class WatchdogPerfHandler {
         Preconditions.checkArgument((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0,
                 "Must provide resource I/O overuse flag");
         int callingUid = Binder.getCallingUid();
-        int callingUserId = UserHandle.getUserId(callingUid);
-        UserHandle callingUserHandle = UserHandle.of(callingUserId);
+        UserHandle callingUserHandle = Binder.getCallingUserHandle();
+        int callingUserId = callingUserHandle.getIdentifier();
         String genericPackageName =
                 mPackageInfoHandler.getNamesForUids(new int[]{callingUid})
                         .get(callingUid, null);
@@ -842,7 +854,6 @@ public final class WatchdogPerfHandler {
 
     /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
-        IPackageManager packageManager = ActivityThread.getPackageManager();
         synchronized (mLock) {
             mIsHeadsUpNotificationSent = false;
             for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
@@ -876,13 +887,13 @@ public final class WatchdogPerfHandler {
                 for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
                     String packageName = packages.get(pkgIdx);
                     try {
-                        if (packageManager.getApplicationEnabledSetting(packageName, usage.userId)
-                                != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                        if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
+                                usage.userId) != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
                             continue;
                         }
-                        packageManager.setApplicationEnabledSetting(packageName,
-                                COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, usage.userId,
-                                mContext.getPackageName());
+                        PackageManagerHelper.setApplicationEnabledSettingForUser(
+                                packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0,
+                                usage.userId, mContext.getPackageName());
                         Slogf.i(TAG, "Enabled user '%d' package '%s'", usage.userId, packageName);
                     } catch (RemoteException | IllegalArgumentException e) {
                         Slogf.e(TAG, e, "Failed to verify and enable user %d, package '%s'",
@@ -929,11 +940,11 @@ public final class WatchdogPerfHandler {
     }
 
     /** Handles intents from user notification actions. */
-    public void handleIntent(Context context, Intent intent) {
+    public void handleIntent(Intent intent) {
         String action = intent.getAction();
         String packageName = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
         UserHandle userHandle = intent.getParcelableExtra(Intent.EXTRA_USER);
-        int id = intent.getIntExtra(INTENT_EXTRA_ID, -1);
+        int notificationId = intent.getIntExtra(INTENT_EXTRA_NOTIFICATION_ID, -1);
         if (packageName == null || packageName.isEmpty() || userHandle == null
                 || userHandle.getIdentifier() < 0) {
             Slogf.w(TAG, "Invalid package '%s' or userHandle '%s' received in the intent",
@@ -942,10 +953,9 @@ public final class WatchdogPerfHandler {
         }
         switch (action) {
             case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
-                disablePackageForUser(ActivityThread.getPackageManager(), packageName,
-                        userHandle.getIdentifier());
+                disablePackageForUser(packageName, userHandle.getIdentifier());
                 if (DEBUG) {
-                    Slogf.e(TAG,
+                    Slogf.d(TAG,
                             "Handled user notification action to disable package %s for user %s",
                             packageName, userHandle);
                 }
@@ -954,9 +964,9 @@ public final class WatchdogPerfHandler {
                 Intent settingsIntent = new Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
                         .setData(Uri.parse("package:" + packageName))
                         .setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-                context.startActivityAsUser(settingsIntent, userHandle);
+                mBuiltinPackageContext.startActivityAsUser(settingsIntent, userHandle);
                 if (DEBUG) {
-                    Slogf.e(TAG, "Handled user notification action to launch settings app for "
+                    Slogf.d(TAG, "Handled user notification action to launch settings app for "
                             + "package %s and user %s", packageName, userHandle);
                 }
                 break;
@@ -967,36 +977,43 @@ public final class WatchdogPerfHandler {
                 return;
         }
 
-        if (id == -1) {
+        if (notificationId == -1) {
             Slogf.e(TAG, "Didn't received user notification id in action %s", action);
             return;
         }
 
+        int maxNotificationId =
+                mResourceOveruseNotificationBaseId + mResourceOveruseNotificationMaxOffset - 1;
+        if (notificationId < mResourceOveruseNotificationBaseId
+                || notificationId > maxNotificationId) {
+            Slogf.e(TAG, "Notification id (%d) outside of reserved IDs (%d - %d) for car watchdog.",
+                    notificationId, mResourceOveruseNotificationBaseId, maxNotificationId);
+            return;
+        }
+
         synchronized (mLock) {
-            String uniqueUserPackageId = mActiveUserNotificationsByNotificationId.get(id);
+            String uniqueUserPackageId = mActiveUserNotificationsByNotificationId.get(
+                    notificationId);
             if (uniqueUserPackageId != null
                     && uniqueUserPackageId.equals(getUserPackageUniqueId(userHandle.getIdentifier(),
                     packageName))) {
-                mActiveUserNotificationsByNotificationId.remove(id);
+                mActiveUserNotificationsByNotificationId.remove(notificationId);
                 mActiveUserNotifications.remove(uniqueUserPackageId);
             }
         }
 
-        NotificationManager notificationManager =
-                context.getSystemService(NotificationManager.class);
-        notificationManager.cancelAsUser(TAG, id, userHandle);
+        cancelNotificationAsUser(notificationId, userHandle);
         if (DEBUG) {
-            Slogf.e(TAG, "Successfully canceled notification id %d for user %s and package %s", id,
-                    userHandle, packageName);
+            Slogf.d(TAG, "Successfully canceled notification id %d for user %s and package %s",
+                    notificationId, userHandle, packageName);
         }
     }
 
     /** Disables a package for specific user until used. */
-    public boolean disablePackageForUser(IPackageManager packageManager, String packageName,
-            @UserIdInt int userId) {
+    public boolean disablePackageForUser(String packageName, @UserIdInt int userId) {
         try {
-            int currentEnabledState = packageManager.getApplicationEnabledSetting(packageName,
-                    userId);
+            int currentEnabledState =
+                    PackageManagerHelper.getApplicationEnabledSettingForUser(packageName, userId);
             switch (currentEnabledState) {
                 case COMPONENT_ENABLED_STATE_DISABLED:
                 case COMPONENT_ENABLED_STATE_DISABLED_USER:
@@ -1006,7 +1023,7 @@ public final class WatchdogPerfHandler {
                             toEnabledStateString(currentEnabledState));
                     return false;
             }
-            packageManager.setApplicationEnabledSetting(packageName,
+            PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
                     COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
                     mContext.getPackageName());
             appendToDisabledPackagesSettingsString(packageName, userId);
@@ -1026,7 +1043,7 @@ public final class WatchdogPerfHandler {
      */
     public void removeFromDisabledPackagesSettingsString(String packageName,
             @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(userId);
+        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
         // Appending and removing package names to/from the settings string
         // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
         // these operations using the class wide lock.
@@ -1135,7 +1152,7 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             for (int i = 0; i < settingsEntries.size(); ++i) {
                 WatchdogStorage.UserPackageSettingsEntry entry = settingsEntries.get(i);
-                if (entry.userId == UserHandle.USER_ALL) {
+                if (entry.userId == UserHandle.ALL.getIdentifier()) {
                     if (entry.killableState != KILLABLE_STATE_YES) {
                         mDefaultNotKillableGenericPackages.add(entry.packageName);
                     }
@@ -1223,8 +1240,7 @@ public final class WatchdogPerfHandler {
                     ioUsageStatsEntries.add(new WatchdogStorage.IoUsageStatsEntry(usage.userId,
                             usage.genericPackageName, usage.ioUsage));
                 }
-                for (int i = 0; i < mDefaultNotKillableGenericPackages.size(); i++) {
-                    String packageName = mDefaultNotKillableGenericPackages.valueAt(i);
+                for (String packageName : mDefaultNotKillableGenericPackages) {
                     userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
                             UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO));
                 }
@@ -1573,7 +1589,7 @@ public final class WatchdogPerfHandler {
     }
 
     private int[] getAliveUserIds() {
-        UserManager userManager = UserManager.get(mContext);
+        UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
         int userSize = aliveUsers.size();
         int[] userIds = new int[userSize];
@@ -1589,13 +1605,13 @@ public final class WatchdogPerfHandler {
             return;
         }
         if (!mUserNotifiablePackages.isEmpty()) {
-            // User notification delay is tolerable, so posting this on the service thread.
+            // Notifications are presented asynchronously, therefore the delay added by posting
+            // to the handler should not affect the system behavior.
             mServiceHandler.post(this::notifyUserOnOveruse);
         }
         if (mActionableUserPackages.isEmpty() || mCurrentUxState != UX_STATE_NO_INTERACTION) {
             return;
         }
-        IPackageManager packageManager = ActivityThread.getPackageManager();
         ArraySet<String> killedUserPackageKeys = new ArraySet<>();
         for (int i = 0; i < mActionableUserPackages.size(); ++i) {
             PackageResourceUsage usage =
@@ -1620,7 +1636,7 @@ public final class WatchdogPerfHandler {
             boolean isKilled = false;
             for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
                 String packageName = packages.get(pkgIdx);
-                isKilled |= disablePackageForUser(packageManager, packageName, usage.userId);
+                isKilled |= disablePackageForUser(packageName, usage.userId);
             }
             if (isKilled) {
                 usage.ioUsage.killed();
@@ -1632,10 +1648,9 @@ public final class WatchdogPerfHandler {
     }
 
     private void notifyUserOnOveruse() {
+        SparseArray<String> headsUpNotificationPackagesByNotificationId = new SparseArray<>();
+        SparseArray<String> notificationCenterPackagesByNotificationId = new SparseArray<>();
         int currentUserId = ActivityManager.getCurrentUser();
-        UserHandle currentUserHandle = UserHandle.of(currentUserId);
-        List<UserNotificationHelper.PackageNotificationInfo> packageNotificationInfos =
-                new ArrayList<>();
         synchronized (mLock) {
             for (int i = mUserNotifiablePackages.size() - 1; i >= 0; i--) {
                 String uniqueId = mUserNotifiablePackages.valueAt(i);
@@ -1647,8 +1662,8 @@ public final class WatchdogPerfHandler {
                 }
                 if (usage.userId != currentUserId) {
                     Slogf.i(TAG, "Skipping notification for user %d and package %s because current"
-                            + " user %d is different", usage.userId, usage.genericPackageName,
-                            currentUserId);
+                                    + " user %d is different", usage.userId,
+                            usage.genericPackageName, currentUserId);
                     continue;
                 }
                 List<String> packages;
@@ -1666,18 +1681,15 @@ public final class WatchdogPerfHandler {
                                 + "an active notification", currentUserId, packageName);
                         continue;
                     }
-                    int importance = NotificationManager.IMPORTANCE_DEFAULT;
-                    if (mCurrentUxState != UX_STATE_NO_INTERACTION
-                            && !mIsHeadsUpNotificationSent) {
-                        importance = NotificationManager.IMPORTANCE_HIGH;
+                    int notificationId = mResourceOveruseNotificationBaseId
+                            + mCurrentOveruseNotificationIdOffset;
+                    if (mCurrentUxState == UX_STATE_NO_INTERACTION || mIsHeadsUpNotificationSent) {
+                        notificationCenterPackagesByNotificationId.put(notificationId, packageName);
+                    } else {
+                        headsUpNotificationPackagesByNotificationId.put(notificationId,
+                                packageName);
                         mIsHeadsUpNotificationSent = true;
                     }
-                    int notificationId = RESOURCE_OVERUSE_NOTIFICATION_BASE_ID
-                            + mCurrentOveruseNotificationIdOffset;
-
-                    packageNotificationInfos.add(
-                            new UserNotificationHelper.PackageNotificationInfo(packageName,
-                                    importance, notificationId));
                     if (mActiveUserNotificationsByNotificationId.contains(notificationId)) {
                         mActiveUserNotifications.remove(
                                 mActiveUserNotificationsByNotificationId.get(notificationId));
@@ -1686,19 +1698,41 @@ public final class WatchdogPerfHandler {
                     mActiveUserNotificationsByNotificationId.put(notificationId,
                             userPackageUniqueId);
                     mCurrentOveruseNotificationIdOffset = ++mCurrentOveruseNotificationIdOffset
-                            % RESOURCE_OVERUSE_NOTIFICATION_MAX_OFFSET;
+                            % mResourceOveruseNotificationMaxOffset;
                 }
                 mUserNotifiablePackages.removeAt(i);
             }
         }
-        if (!packageNotificationInfos.isEmpty()) {
-            mUserNotificationHelper.showResourceOveruseNotificationsAsUser(packageNotificationInfos,
-                    currentUserHandle);
+        sendResourceOveruseNotificationsAsUser(currentUserId,
+                headsUpNotificationPackagesByNotificationId,
+                notificationCenterPackagesByNotificationId);
+        if (DEBUG) {
+            Slogf.d(TAG, "Sent %d resource overuse notifications successfully",
+                    headsUpNotificationPackagesByNotificationId.size()
+                            + notificationCenterPackagesByNotificationId.size());
         }
     }
 
+    private void sendResourceOveruseNotificationsAsUser(@UserIdInt int userId,
+            SparseArray<String> headsUpNotificationPackagesById,
+            SparseArray<String> notificationCenterPackagesById) {
+        if (headsUpNotificationPackagesById.size() == 0
+                && notificationCenterPackagesById.size() == 0) {
+            return;
+        }
+        BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
+                .showResourceOveruseNotificationsAsUser(
+                        UserHandle.of(userId),
+                        headsUpNotificationPackagesById, notificationCenterPackagesById);
+    }
+
+    private void cancelNotificationAsUser(int notificationId, UserHandle userHandle) {
+        BuiltinPackageDependency.createNotificationHelper(mBuiltinPackageContext)
+                        .cancelNotificationAsUser(userHandle, notificationId);
+    }
+
     private void appendToDisabledPackagesSettingsString(String packageName, @UserIdInt int userId) {
-        ContentResolver contentResolverForUser = getContentResolverForUser(userId);
+        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
         // Appending and removing package names to/from the settings string
         // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
         // these operations using the class wide lock.
@@ -1717,14 +1751,6 @@ public final class WatchdogPerfHandler {
                         KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
             }
         }
-    }
-
-    private ContentResolver getContentResolverForUser(@UserIdInt int userId) {
-        if (userId == UserHandle.CURRENT.getIdentifier()) {
-            userId = ActivityManager.getCurrentUser();
-        }
-        return mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0)
-                .getContentResolver();
     }
 
     private static ArraySet<String> extractPackages(String settingsString) {
@@ -2058,7 +2084,7 @@ public final class WatchdogPerfHandler {
 
     private int getPackageUidAsUser(PackageManager pm, String packageName, @UserIdInt int userId) {
         try {
-            return pm.getPackageUidAsUser(packageName, userId);
+            return PackageManagerHelper.getPackageUidAsUser(pm, packageName, userId);
         } catch (PackageManager.NameNotFoundException e) {
             Slogf.e(TAG, "Package %s for user %d is not found", packageName, userId);
             return INVALID_UID;

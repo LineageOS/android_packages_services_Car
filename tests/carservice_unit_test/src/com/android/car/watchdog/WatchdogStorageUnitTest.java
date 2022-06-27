@@ -28,11 +28,11 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.automotive.watchdog.PerStateBytes;
+import android.car.builtin.util.Slogf;
 import android.car.watchdog.IoOveruseStats;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import androidx.test.InstrumentationRegistry;
@@ -80,7 +80,7 @@ public final class WatchdogStorageUnitTest {
     public void tearDown() {
         mService.release();
         if (!mDatabaseFile.delete()) {
-            Slog.e(TAG, "Failed to delete the database file: " + mDatabaseFile.getAbsolutePath());
+            Slogf.e(TAG, "Failed to delete the database file: %s", mDatabaseFile.getAbsolutePath());
         }
     }
 
@@ -396,7 +396,7 @@ public final class WatchdogStorageUnitTest {
             throws Exception {
         injectSampleUserPackageSettings();
         List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 1; i < 30; i++) {
+        for (int i = 1; i < 30; ++i) {
             entries.addAll(sampleStatsBetweenDates(/* includingStartDaysAgo= */ i,
                     /* excludingEndDaysAgo= */ i + 1, /* writtenBytesMultiplier= */ i));
         }
@@ -654,9 +654,9 @@ public final class WatchdogStorageUnitTest {
         IoOveruseStats actualVendorPackage = mService.getHistoricalIoOveruseStats(
                 /* userId= */ 100, "vendor_package.critical.C", /* numDaysAgo= */ 7);
 
-        assertWithMessage("System I/O overuse stats for deleted user")
+        assertWithMessage("Fetched system I/O overuse stats for deleted user")
                 .that(actualSystemPackage).isNull();
-        assertWithMessage("Vendor I/O overuse stats for deleted user")
+        assertWithMessage("Fetched vendor I/O overuse stats for deleted user")
                 .that(actualVendorPackage).isNull();
     }
 

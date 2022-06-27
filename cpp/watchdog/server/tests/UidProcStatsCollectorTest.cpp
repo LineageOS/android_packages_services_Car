@@ -481,7 +481,7 @@ TEST(UidProcStatsCollectorTest, TestUidProcStatsCollectorContentsFromDevice) {
     const auto& processStats = collector.deltaStats();
 
     // The below check should pass because there should be at least one process.
-    EXPECT_GT(processStats.size(), 0);
+    EXPECT_GT(processStats.size(), static_cast<size_t>(0));
 }
 
 }  // namespace watchdog

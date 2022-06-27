@@ -26,7 +26,6 @@ import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -45,6 +44,7 @@ import android.window.WindowContainerTransaction;
 import com.android.systemui.R;
 import com.android.wm.shell.common.SyncTransactionQueue;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -73,10 +73,9 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     private static final String TAG = "CarDisplayAreaOrganizer";
     private final ComponentName mAssistantVoicePlateActivityName;
     private final ComponentName mControlBarActivityName;
-    private final ComponentName mBackGroundActivityName;
+    private final List<ComponentName> mBackGroundActivities;
 
     private final Context mContext;
-    private final Intent mMapsIntent;
     private final SyncTransactionQueue mTransactionQueue;
     private final Rect mBackgroundApplicationDisplayBounds = new Rect();
     private final CarDisplayAreaAnimationController mAnimationController;
@@ -91,8 +90,10 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                     if (ready) {
                         CarActivityManager carAm = (CarActivityManager) car.getCarManager(
                                 Car.CAR_ACTIVITY_SERVICE);
-                        setPersistentActivity(carAm, mBackGroundActivityName,
-                                BACKGROUND_TASK_CONTAINER, "Background");
+                        for (ComponentName backgroundCmp : mBackGroundActivities) {
+                            setPersistentActivity(carAm, backgroundCmp,
+                                    BACKGROUND_TASK_CONTAINER, "Background");
+                        }
                         setPersistentActivity(carAm, mAssistantVoicePlateActivityName,
                                 FEATURE_VOICE_PLATE, "VoicePlate");
                         setPersistentActivity(carAm, mControlBarActivityName,
@@ -159,16 +160,19 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     public CarDisplayAreaOrganizer(Executor executor, Context context, SyncTransactionQueue tx) {
         super(executor);
         mContext = context;
-        mMapsIntent = CarDisplayAreaUtils.getMapsIntent(context);
-
         mTransactionQueue = tx;
         // TODO(b/201712747): Gets the Assistant Activity by resolving the indirect Intent.
         mAssistantVoicePlateActivityName = ComponentName.unflattenFromString(
                 context.getResources().getString(R.string.config_assistantVoicePlateActivity));
         mControlBarActivityName = ComponentName.unflattenFromString(
                 context.getResources().getString(R.string.config_controlBarActivity));
-        mBackGroundActivityName = ComponentName.unflattenFromString(
-                context.getResources().getString(R.string.config_backgroundActivity));
+        mBackGroundActivities = new ArrayList<>();
+        String[] backgroundActivities = mContext.getResources().getStringArray(
+                R.array.config_backgroundActivities);
+        for (String backgroundActivity : backgroundActivities) {
+            mBackGroundActivities
+                    .add(ComponentName.unflattenFromString(backgroundActivity));
+        }
         mAnimationController = new CarDisplayAreaAnimationController(mContext);
         mHandlerForAnimation = mContext.getMainThreadHandler();
 

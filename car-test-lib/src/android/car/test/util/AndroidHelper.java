@@ -60,7 +60,7 @@ public final class AndroidHelper {
     }
 
     /**
-     * Asserts that the {@code intentFilter} has the {@code actions}.
+     * Asserts that the {@code intentFilter} has the {@code action}.
      */
     public static void assertFilterHasActions(IntentFilter intentFilter, String... actions) {
         for (String action : actions) {

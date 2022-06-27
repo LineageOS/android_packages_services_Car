@@ -20,18 +20,19 @@ import android.annotation.NonNull;
 import android.automotive.telemetry.internal.CarDataInternal;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
+import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.util.Slogf;
 import android.car.telemetry.TelemetryProto;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 
 import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -68,11 +69,20 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
             // TODO(b/189142577): Create custom Handler and post message to improve performance
             mTelemetryHandler.post(() -> onCarDataListReceived(dataList));
         }
+        @Override
+        public String getInterfaceHash() {
+            return ICarDataListener.HASH;
+        }
+
+        @Override
+        public int getInterfaceVersion() {
+            return ICarDataListener.VERSION;
+        }
     };
 
     CarTelemetrydPublisher(
-            @NonNull PublisherFailureListener failureListener, @NonNull Handler telemetryHandler) {
-        super(failureListener);
+            @NonNull PublisherListener listener, @NonNull Handler telemetryHandler) {
+        super(listener);
         this.mTelemetryHandler = telemetryHandler;
     }
 
@@ -95,7 +105,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         if (mCarTelemetryInternal != null) {
             return;
         }
-        IBinder binder = ServiceManager.checkService(SERVICE_NAME);
+        IBinder binder = ServiceManagerHelper.checkService(SERVICE_NAME);
         if (binder == null) {
             onPublisherFailure(
                     getMetricsConfigs(),
@@ -205,4 +215,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     private void onCarDataListReceived(@NonNull CarDataInternal[] dataList) {
         // TODO(b/189142577): implement
     }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 }

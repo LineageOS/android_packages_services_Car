@@ -39,6 +39,7 @@ import java.util.concurrent.TimeUnit;
 public class ResultStoreTest {
     private static final PersistableBundle TEST_INTERIM_BUNDLE = new PersistableBundle();
     private static final PersistableBundle TEST_FINAL_BUNDLE = new PersistableBundle();
+    private static final PersistableBundle TEST_PUBLISHER_BUNDLE = new PersistableBundle();
     private static final TelemetryProto.TelemetryError TEST_TELEMETRY_ERROR =
             TelemetryProto.TelemetryError.newBuilder().setMessage("test error").build();
 
@@ -46,17 +47,20 @@ public class ResultStoreTest {
     private File mTestInterimResultDir;
     private File mTestErrorResultDir;
     private File mTestFinalResultDir;
+    private File mTestPublisherDataDir;
     private ResultStore mResultStore;
 
     @Before
     public void setUp() throws Exception {
         TEST_INTERIM_BUNDLE.putString("test key", "interim value");
         TEST_FINAL_BUNDLE.putString("test key", "final value");
+        TEST_PUBLISHER_BUNDLE.putString("test key", "publisher provided string");
 
         mTestRootDir = Files.createTempDirectory("car_telemetry_test").toFile();
         mTestInterimResultDir = new File(mTestRootDir, ResultStore.INTERIM_RESULT_DIR);
         mTestErrorResultDir = new File(mTestRootDir, ResultStore.ERROR_RESULT_DIR);
         mTestFinalResultDir = new File(mTestRootDir, ResultStore.FINAL_RESULT_DIR);
+        mTestPublisherDataDir = new File(mTestRootDir, ResultStore.PUBLISHER_STORAGE_DIR);
 
         mResultStore = new ResultStore(mTestRootDir);
     }
@@ -66,6 +70,8 @@ public class ResultStoreTest {
         // constructor is called in setUp()
         assertThat(mTestInterimResultDir.exists()).isTrue();
         assertThat(mTestFinalResultDir.exists()).isTrue();
+        assertThat(mTestErrorResultDir.exists()).isTrue();
+        assertThat(mTestPublisherDataDir.exists()).isTrue();
     }
 
     @Test
@@ -242,7 +248,7 @@ public class ResultStoreTest {
         writeErrorToFile(metricsConfigName, TEST_TELEMETRY_ERROR);
 
         assertThat(mResultStore.getAllErrorResults().get("my_metrics_config"))
-            .isEqualTo(TEST_TELEMETRY_ERROR);
+                .isEqualTo(TEST_TELEMETRY_ERROR);
     }
 
     @Test
@@ -293,6 +299,17 @@ public class ResultStoreTest {
     }
 
     @Test
+    public void testRemovePublisherData_shouldDelete() throws Exception {
+        String publisherName = "publisher 1";
+        writeBundleToFile(mTestPublisherDataDir, publisherName, TEST_PUBLISHER_BUNDLE);
+        mResultStore = new ResultStore(mTestRootDir); // reload data
+
+        mResultStore.removePublisherData(publisherName);
+
+        assertThat(mResultStore.getPublisherData(publisherName, true)).isNull();
+    }
+
+    @Test
     public void testRemoveResult_whenInterimResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
@@ -327,6 +344,7 @@ public class ResultStoreTest {
         mResultStore.putInterimResult("config 1", TEST_INTERIM_BUNDLE);
         mResultStore.putFinalResult("config 2", TEST_FINAL_BUNDLE);
         mResultStore.putErrorResult("config 3", TEST_TELEMETRY_ERROR);
+        mResultStore.putPublisherData("publisher 1", TEST_PUBLISHER_BUNDLE);
         mResultStore.flushToDisk();
 
         mResultStore.removeAllResults();
@@ -334,6 +352,7 @@ public class ResultStoreTest {
         assertThat(mTestInterimResultDir.listFiles()).isEmpty();
         assertThat(mTestFinalResultDir.listFiles()).isEmpty();
         assertThat(mTestErrorResultDir.listFiles()).isEmpty();
+        assertThat(mTestPublisherDataDir.listFiles()).isEmpty();
     }
 
     @Test
