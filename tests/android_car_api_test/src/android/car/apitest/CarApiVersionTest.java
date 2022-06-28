@@ -17,20 +17,23 @@ package android.car.apitest;
 
 import static android.car.CarApiVersion.TIRAMISU_0;
 import static android.car.CarApiVersion.TIRAMISU_1;
+import static android.car.CarApiVersion.UPSIDE_DOWN_CAKE_0;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
+import static android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.CarApiVersion;
+import android.car.test.AbstractExpectableTestCase;
 import android.os.Parcel;
 
 import org.junit.Test;
 
-public final class CarApiVersionTest {
+public final class CarApiVersionTest extends AbstractExpectableTestCase {
 
     @Test
     public void testTiramisu_0() {
-        expectWithMessage("TIRAMISU_0").that(TIRAMISU_1).isNotNull();
+        assertWithMessage("TIRAMISU_0").that(TIRAMISU_1).isNotNull();
         expectWithMessage("TIRAMISU_0.major").that(TIRAMISU_0.getMajorVersion())
                 .isEqualTo(TIRAMISU);
         expectWithMessage("TIRAMISU_0.minor").that(TIRAMISU_0.getMinorVersion())
@@ -39,11 +42,20 @@ public final class CarApiVersionTest {
 
     @Test
     public void testTiramisu_1() {
-        expectWithMessage("TIRAMISU_1").that(TIRAMISU_1).isNotNull();
+        assertWithMessage("TIRAMISU_1").that(TIRAMISU_1).isNotNull();
         expectWithMessage("TIRAMISU_1.major").that(TIRAMISU_1.getMajorVersion())
                 .isEqualTo(TIRAMISU);
         expectWithMessage("TIRAMISU_1.minor").that(TIRAMISU_1.getMinorVersion())
                 .isEqualTo(1);
+    }
+
+    @Test
+    public void testUpsideDownCake_0() {
+        assertWithMessage("UPSIDE_DOWN_CAKE_0").that(UPSIDE_DOWN_CAKE_0).isNotNull();
+        expectWithMessage("UPSIDE_DOWN_CAKE_0.major").that(UPSIDE_DOWN_CAKE_0.getMajorVersion())
+                .isEqualTo(UPSIDE_DOWN_CAKE);
+        expectWithMessage("UPSIDE_DOWN_CAKE_0.minor").that(UPSIDE_DOWN_CAKE_0.getMinorVersion())
+                .isEqualTo(0);
     }
 
     @Test
@@ -69,16 +81,7 @@ public final class CarApiVersionTest {
     public void testNewArray() {
         CarApiVersion[] array = CarApiVersion.CREATOR.newArray(42);
 
-        expectWithMessage("CREATOR.newArray()").that(array).isNotNull();
+        assertWithMessage("CREATOR.newArray()").that(array).isNotNull();
         expectWithMessage("CREATOR.newArray()").that(array).hasLength(42);
-    }
-
-    // TODO(b/228506662): extend AbstractExpectableTestCase and remove members below (on master)
-
-    @org.junit.Rule
-    public final com.google.common.truth.Expect mExpect = com.google.common.truth.Expect.create();
-
-    protected com.google.common.truth.StandardSubjectBuilder expectWithMessage(String msg) {
-        return mExpect.withMessage(msg);
     }
 }

@@ -44,6 +44,7 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
@@ -65,12 +66,12 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
- * Abstraction for vehicle HAL. This class handles interface with native HAL and do basic parsing of
- * received data (type check). Then each event is sent to corresponding {@link HalServiceBase}
- * implementation. It is responsibility of {@link HalServiceBase} to convert data to corresponding
- * Car*Service for Car*Manager API.
+ * Abstraction for vehicle HAL. This class handles interface with native HAL and does basic parsing
+ * of received data (type check). Then each event is sent to corresponding {@link HalServiceBase}
+ * implementation. It is the responsibility of {@link HalServiceBase} to convert data to
+ * corresponding Car*Service for Car*Manager API.
  */
-public class VehicleHal implements HalClientCallback {
+public class VehicleHal implements HalClientCallback, CarServiceBase {
 
     private static final boolean DBG = false;
 
@@ -217,6 +218,7 @@ public class VehicleHal implements HalClientCallback {
      * <p><Note that {@link #getIfAvailableOrFailForEarlyStage(int, int)}
      * can be called before {@code init()}.
      */
+    @Override
     public void init() {
         fetchAllPropConfigs();
 
@@ -263,6 +265,7 @@ public class VehicleHal implements HalClientCallback {
     /**
      * Releases all connected services (power management service, input service, etc).
      */
+    @Override
     public void release() {
         ArrayList<Integer> subscribedProperties = new ArrayList<>();
         synchronized (mLock) {
@@ -755,11 +758,23 @@ public class VehicleHal implements HalClientCallback {
         }
     }
 
+    @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
+    public void dump(IndentingPrintWriter writer) {
+      // TODO(b/232550251): Remove this hack by having all services except for VehicleHal
+      // and CarStatsService implement an extension of the interface VehicleHal and CarStatsService
+      // implement. That way, we can special case VehicleHal and CarStatsService in a more
+      // generic way.
+
+      // Dump nothing when this is called by looping through all services in ICarImpl.
+      // Other dump methods below will called for VHal specific commands.
+    }
+
     /**
      * Dumps HAL service info using the print writer passed as parameter.
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dump(PrintWriter writer) {
+    public void dumpAllHals(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("**dump HAL services**");
             for (int i = 0; i < mAllServices.size(); i++) {

@@ -47,6 +47,15 @@ public final class CarApiVersion extends ApiVersion<CarApiVersion> implements Pa
     public static final CarApiVersion TIRAMISU_1 =
             forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 1);
 
+
+    /**
+     * Helper object for main version of Android 14.
+     */
+    @AddedIn(majorVersion = 10000)    // TODO(b/230004170): STOPSHIP: replace by real value
+    @NonNull
+    public static final CarApiVersion UPSIDE_DOWN_CAKE_0 =
+            forMajorAndMinorVersions(Build.VERSION_CODES.UPSIDE_DOWN_CAKE, 0);
+
     /**
      * Creates a new instance with the given major and minor versions.
      */

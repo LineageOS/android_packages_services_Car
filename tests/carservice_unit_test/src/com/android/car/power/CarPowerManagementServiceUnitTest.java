@@ -96,6 +96,9 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTestCase {
     private static final String TAG = CarPowerManagementServiceUnitTest.class.getSimpleName();
+
+    private static final Object sLock = new Object();
+
     private static final long WAIT_TIMEOUT_MS = 2000;
     private static final long WAIT_TIMEOUT_LONG_MS = 5000;
     private static final int WAKE_UP_DELAY = 100;
@@ -902,8 +905,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private static final class MockDisplayInterface implements DisplayInterface {
-        private final Object mLock = new Object();
-        @GuardedBy("mLock")
+        @GuardedBy("sLock")
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
@@ -916,7 +918,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         @Override
         public void setDisplayState(boolean on) {
-            synchronized (mLock) {
+            synchronized (sLock) {
                 mDisplayOn = on;
             }
             mDisplayStateWait.release();
@@ -933,7 +935,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         private void waitForDisplayState(boolean desiredState, long timeoutMs) throws Exception {
             int nTries = 0;
             while (true) {
-                synchronized (mLock) {
+                synchronized (sLock) {
                     if (mDisplayOn == desiredState) {
                         break;
                     }
@@ -955,7 +957,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         @Override
         public boolean isDisplayEnabled() {
-            synchronized (mLock) {
+            synchronized (sLock) {
                 return mDisplayOn;
             }
         }
@@ -965,6 +967,8 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         private final Semaphore mShutdownWait = new Semaphore(0);
         private final Semaphore mSleepWait = new Semaphore(0);
         private final Semaphore mSleepExitWait = new Semaphore(0);
+
+        @GuardedBy("sLock")
         private boolean mWakeupCausedByTimer = false;
 
         @Override
@@ -1005,12 +1009,16 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
 
         @Override
         public boolean isWakeupCausedByTimer() {
-            Log.i(TAG, "isWakeupCausedByTimer:" + mWakeupCausedByTimer);
-            return mWakeupCausedByTimer;
+            synchronized (sLock) {
+                Log.i(TAG, "isWakeupCausedByTimer:" + mWakeupCausedByTimer);
+                return mWakeupCausedByTimer;
+            }
         }
 
-        public synchronized void setWakeupCausedByTimer(boolean set) {
-            mWakeupCausedByTimer = set;
+        public void setWakeupCausedByTimer(boolean set) {
+            synchronized (sLock) {
+                mWakeupCausedByTimer = set;
+            }
         }
 
         @Override

@@ -208,8 +208,9 @@ public class ICarImpl extends ICar.Stub {
 
         mSystemInterface = systemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
+
         mHal = constructWithTrace(t, VehicleHal.class,
-                () -> new VehicleHal(serviceContext, vehicle));
+                () -> new VehicleHal(serviceContext, vehicle), allServices);
 
         t.traceBegin("VHAL.earlyInit");
         // Do this before any other service components to allow feature check. It should work
@@ -368,6 +369,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarWatchdogService = carWatchdogService;
             allServices.add(mCarWatchdogService);
+            CarLocalServices.addService(CarWatchdogService.class, mCarWatchdogService);
         }
         if (carPerformanceService == null) {
             mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
@@ -375,6 +377,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarPerformanceService = carPerformanceService;
             allServices.add(mCarPerformanceService);
+            CarLocalServices.addService(CarPerformanceService.class, mCarPerformanceService);
         }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
@@ -438,10 +441,6 @@ public class ICarImpl extends ICar.Stub {
 
         t.traceBegin("ICarImpl.init");
 
-        t.traceBegin("VHAL.init");
-        mHal.init();
-        t.traceEnd();
-
         t.traceBegin("CarService.initAllServices");
         for (CarServiceBase service : mAllServices) {
             t.traceBegin(service.getClass().getSimpleName());
@@ -458,7 +457,6 @@ public class ICarImpl extends ICar.Stub {
         for (int i = mAllServices.length - 1; i >= 0; i--) {
             mAllServices[i].release();
         }
-        mHal.release();
     }
 
     @Override
@@ -760,7 +758,7 @@ public class ICarImpl extends ICar.Stub {
         writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
         try {
             // TODO dump all feature flags by creating a dumpable interface
-            mHal.dump(writer);
+            mHal.dumpAllHals(writer);
         } catch (Exception e) {
             writer.println("Failed dumping: " + mHal.getClass().getName());
             e.printStackTrace(writer);
@@ -878,7 +876,7 @@ public class ICarImpl extends ICar.Stub {
         newCarShellCommand().exec(args, writer);
     }
 
-    // TODO(b/232550251): Remove this once VehicleHal and CarStatsService use the overload.
+    // TODO(b/232550251): Remove this once CarStatsService uses the overload.
 
     /**
      * @deprecated to use the overload that adds the service to allServices right after

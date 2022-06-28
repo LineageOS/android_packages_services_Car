@@ -68,7 +68,6 @@ import java.util.List;
 @RequiresDevice
 @RunWith(MockitoJUnitRunner.class)
 public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetoothTestCase {
-    private static final int CONNECT_LATENCY_MS = 100;
     private static final int CONNECT_TIMEOUT_MS = 8000;
     private static final int ADAPTER_STATE_ANY = 0;
     private static final int ADAPTER_STATE_OFF = 1;
@@ -182,8 +181,7 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
 
     private String getSettingsDeviceList() {
         String devices = Settings.Secure.getString(mMockContext.getContentResolver(), mSettingsKey);
-        if (devices == null) devices = "";
-        return devices;
+        return devices == null ? "" : devices;
     }
 
     private ArrayList<BluetoothDevice> makeDeviceList(List<String> addresses) {
@@ -264,7 +262,7 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
         mMockContext.sendBroadcast(intent);
     }
 
-    private synchronized void assertSettingsContains(String expected) {
+    private void assertSettingsContains(String expected) {
         Assert.assertTrue(expected != null);
         String settings = getSettingsDeviceList();
         if (settings == null) settings = "";

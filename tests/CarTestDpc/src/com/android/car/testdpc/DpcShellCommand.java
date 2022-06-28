@@ -22,7 +22,11 @@ import android.os.Process;
 import android.util.Log;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
 
 final class DpcShellCommand {
 
@@ -33,6 +37,9 @@ final class DpcShellCommand {
     private final PrintWriter mWriter;
     private final String[] mArgs;
 
+    private static final String CMD_GET_AFFILIATION_IDS = "get-affiliation-ids";
+    private static final String CMD_SET_AFFILIATION_IDS = "set-affiliation-ids";
+    private static final String CMD_IS_USER_AFFILIATED = "is-user-affiliated";
     private static final String CMD_ADD_USER_RESTRICTION = "add-user-restriction";
     private static final String CMD_CLR_USER_RESTRICTION = "clear-user-restriction";
     private static final String CMD_HELP = "help";
@@ -63,6 +70,15 @@ final class DpcShellCommand {
                 case CMD_CLR_USER_RESTRICTION:
                     runClearUserRestriction();
                     break;
+                case CMD_IS_USER_AFFILIATED:
+                    runIsUserAffiliated();
+                    break;
+                case CMD_GET_AFFILIATION_IDS:
+                    runGetAffiliationIds();
+                    break;
+                case CMD_SET_AFFILIATION_IDS:
+                    runSetAffiliationIds();
+                    break;
                 default:
                     mWriter.println("Invalid command: " + cmd);
                     runHelp();
@@ -82,6 +98,14 @@ final class DpcShellCommand {
         mWriter.println("\tSet a user restriction specified by the key.");
         mWriter.printf("%s <key>\n", CMD_CLR_USER_RESTRICTION);
         mWriter.println("\tClear a user restriction specified by the key.");
+        mWriter.printf("%s (<affiliation-ids>)\n", CMD_SET_AFFILIATION_IDS);
+        mWriter.println("\tSet affiliation ids (space separated list of strings)");
+        mWriter.println("\tfor a specified user. An empty list clears the ids.");
+        mWriter.printf("%s\n", CMD_GET_AFFILIATION_IDS);
+        mWriter.println("\tGet affiliation id(s) for a specified user.");
+        mWriter.printf("%s\n", CMD_IS_USER_AFFILIATED);
+        mWriter.println("\tReturns whether this user is affiliated with the device.");
+
     }
 
     private void runAddUserRestriction() {
@@ -94,5 +118,36 @@ final class DpcShellCommand {
         String restriction = mArgs[1];
         Log.i(TAG, "Calling clearUserRestriction(" + restriction + ")");
         mDpm.clearUserRestriction(mAdmin, restriction);
+    }
+
+    private void runGetAffiliationIds() {
+        Set<String> ids = mDpm.getAffiliationIds(mAdmin);
+        List<String> idsList = new ArrayList<String>(ids);
+        mWriter.printf("%d affiliation ids: ", ids.size());
+        for (int i = 0; i < idsList.size(); i++) {
+            if (i == idsList.size() - 1) {
+                mWriter.printf("%s", idsList.get(i));
+            } else {
+                mWriter.printf("%s, ", idsList.get(i));
+            }
+        }
+        mWriter.printf("\n");
+    }
+
+    private void runSetAffiliationIds() {
+        Set<String> idSet = new LinkedHashSet<String>();
+        if (mArgs.length > 1) {
+            for (int i = 1; i < mArgs.length; i++) {
+                idSet.add(mArgs[i]);
+            }
+        }
+        Log.i(TAG, "setAffiliationIds(): ids=" + idSet);
+        mDpm.setAffiliationIds(mAdmin, idSet);
+
+        runGetAffiliationIds();
+    }
+
+    private void runIsUserAffiliated() {
+        mWriter.println(mDpm.isAffiliatedUser());
     }
 }
