@@ -24,6 +24,7 @@ import static android.view.InsetsState.ITYPE_STATUS_BAR;
 import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -175,9 +176,8 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         }
 
         @Override
-        public void topFocusedWindowChanged(String packageName,
+        public void topFocusedWindowChanged(ComponentName component,
                 InsetsVisibilities requestedVisibilities) {
-
             boolean requestedVisibilitiesChanged = false;
             if (requestedVisibilities != null) {
                 if (!requestedVisibilities.equals(mWindowRequestedVisibilities)) {
@@ -185,18 +185,18 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                     boolean immersive = !mWindowRequestedVisibilities.getVisibility(
                             ITYPE_STATUS_BAR) && !mWindowRequestedVisibilities.getVisibility(
                             ITYPE_NAVIGATION_BAR);
-                    notifyOnImmersiveRequestedChanged(packageName, immersive);
+                    notifyOnImmersiveRequestedChanged(component, immersive);
                     if (!immersive) {
                         mImmersiveOverride = false;
                         requestedVisibilitiesChanged = true;
                     }
                 }
-            } else if (mRequestedVisibilities != null) {
-                mRequestedVisibilities = null;
-                notifyOnImmersiveRequestedChanged(packageName, false);
+            } else if (mWindowRequestedVisibilities != null) {
+                mWindowRequestedVisibilities = null;
+                notifyOnImmersiveRequestedChanged(component, false);
                 requestedVisibilitiesChanged = true;
             }
-
+            String packageName = component != null ? component.getPackageName() : null;
             if (Objects.equals(mPackageName, packageName) && !requestedVisibilitiesChanged) {
                 return;
             }
@@ -268,9 +268,9 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             }
         }
 
-        void notifyOnImmersiveRequestedChanged(String pkg, boolean requested) {
+        void notifyOnImmersiveRequestedChanged(ComponentName component, boolean requested) {
             for (Callback callback : mCallbacks) {
-                callback.onImmersiveRequestedChanged(pkg, requested);
+                callback.onImmersiveRequestedChanged(component, requested);
             }
         }
 
@@ -290,7 +290,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
          * Callback triggered when the current package's requested visibilities change has caused
          * an immersive request change.
          */
-        void onImmersiveRequestedChanged(String pkg, boolean requested);
+        void onImmersiveRequestedChanged(ComponentName component, boolean requested);
 
         /**
          * Callback triggered when the immersive override state changes.
