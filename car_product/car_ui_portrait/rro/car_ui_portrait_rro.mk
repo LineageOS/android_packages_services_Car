@@ -42,3 +42,6 @@ ifneq ($(filter $(TARGET_PRODUCT), gcar_ui_portrait_suw),)
 PRODUCT_PACKAGES += \
     CarUiPortraitSettingsProviderEmuRRO
 endif
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.boot.vendor.overlay.theme=com.android.car.carlauncher.caruiportrait.rro
