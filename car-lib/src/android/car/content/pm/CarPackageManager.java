@@ -54,7 +54,6 @@ import java.util.List;
 public final class CarPackageManager extends CarManagerBase {
 
     private static final String TAG = CarPackageManager.class.getSimpleName();
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     /**
      * Flag for {@link #setAppBlockingPolicy(String, CarAppBlockingPolicy, int)}. When this
