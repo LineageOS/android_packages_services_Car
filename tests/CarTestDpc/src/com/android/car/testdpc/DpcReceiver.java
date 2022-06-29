@@ -16,6 +16,7 @@
 package com.android.car.testdpc;
 
 import android.app.admin.DeviceAdminReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -29,5 +30,12 @@ public final class DpcReceiver extends DeviceAdminReceiver {
         Log.d(TAG, "onReceive(): " + intent);
 
         super.onReceive(context, intent);
+    }
+
+    /**
+     * Returns the component name of the application.
+     */
+    public static ComponentName getComponentName(Context context) {
+        return new ComponentName(context.getApplicationContext(), DpcReceiver.class);
     }
 }
