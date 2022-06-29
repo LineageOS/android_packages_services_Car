@@ -29,7 +29,6 @@ import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
@@ -240,7 +239,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                         mTelemetryThreadTraceLog);
             }
             mDataBroker.setDataBrokerListener(mDataBrokerListener);
-            ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
             // TODO(b/233973826): Re-enable once SystemMonitor tune-up is complete.
             // mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
             // mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
