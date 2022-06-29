@@ -42,7 +42,8 @@ public:
 
     nsecs_t now() override { return mTimer.count(); }
     // No-op when mShouldPoll is false. Otherwise, sends messages (in a non-empty CacheEntry from
-    // the front of |mCache|) to the underlying looper and polls the looper immediately.
+    // the front of |mCache|) to the underlying looper and polls the looper immediately. This
+    // method is called internally by the underlying looper.
     int pollAll(int timeoutMillis) override;
 
     // Updates the front of |mCache| with the given message so the next pollAll call to the
