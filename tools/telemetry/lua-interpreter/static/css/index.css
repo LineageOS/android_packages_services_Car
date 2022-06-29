@@ -1,0 +1,9 @@
+:root {
+  --mdc-theme-primary: #8ab4f8;
+  --mdc-theme-on-primary: #202124;
+  --mdc-theme-secondary: #8ab4f83d;
+  --mdc-theme-on-secondary: #d2e3fc;
+  --mdc-theme-surface: #202124;
+  --mdc-theme-on-surface: #e8eaed;
+  --mdc-theme-background: #202124;
+}
