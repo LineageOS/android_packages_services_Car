@@ -42,11 +42,6 @@ public final class CarPreProvisioningActivity extends PreProvisioningActivity {
 
     private static final String TAG = CarPreProvisioningActivity.class.getSimpleName();
 
-    private final AccessibilityContextMenuMaker mContextMenuMaker;
-    private PreProvisioningActivityBridge mBridge;
-
-    private static final String ERROR_DIALOG_RESET = "ErrorDialogReset";
-
     public CarPreProvisioningActivity() {
         this(activity ->
                 new PreProvisioningActivityController(activity, activity),
@@ -65,9 +60,6 @@ public final class CarPreProvisioningActivity extends PreProvisioningActivity {
             SettingsFacade settingsFacade, ThemeHelper themeHelper) {
         super(controllerProvider, contextMenuMaker, utils, settingsFacade, themeHelper,
                 RoleHolderProvider.DEFAULT, RoleHolderUpdaterProvider.DEFAULT);
-        mContextMenuMaker =
-                contextMenuMaker != null ? contextMenuMaker : new AccessibilityContextMenuMaker(
-                        this);
     }
 
     @Override

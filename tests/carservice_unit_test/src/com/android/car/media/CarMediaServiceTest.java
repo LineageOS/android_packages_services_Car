@@ -60,10 +60,8 @@ import com.android.car.CarLog;
 import com.android.car.CarMediaService;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
-import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -93,8 +91,6 @@ public final class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private UserManager mUserManager;
     @Mock private PackageManager mPackageManager;
     @Mock private MediaSessionManager mMediaSessionManager;
-    @Mock private SystemInterface mMockSystemInterface;
-    @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private UserHandleHelper mUserHandleHelper;
     @Mock private SharedPreferences mMockSharedPreferences;

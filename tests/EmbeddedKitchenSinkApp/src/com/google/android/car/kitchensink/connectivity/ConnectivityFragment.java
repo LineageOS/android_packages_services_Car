@@ -33,7 +33,6 @@ import android.net.NetworkRequest;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.Log;
@@ -60,7 +59,6 @@ import java.util.TimerTask;
 @SuppressLint("SetTextI18n")
 public class ConnectivityFragment extends Fragment {
     private static final String TAG = ConnectivityFragment.class.getSimpleName();
-    private final Handler mHandler = new Handler();
 
     private ConnectivityManager mConnectivityManager;
     private WifiManager mWifiManager;

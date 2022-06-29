@@ -96,7 +96,6 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     private Handler mTelemetryHandler;
     private MetricsConfigStore mMetricsConfigStore;
     private ResultStore mResultStore;
-    private SystemMonitor.SystemMonitorCallback mSystemMonitorCallback;
 
     @Mock private ActivityManager mMockActivityManager;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
@@ -110,7 +109,6 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     @Mock private ResultReceiver mMockAddMetricsConfigCallback;
     @Mock private SessionController mMockSessionController;
     @Mock private SystemInterface mMockSystemInterface;
-    @Mock private SystemMonitor mMockSystemMonitor;
     @Mock private UidPackageMapper mMockUidMapper;
 
 
