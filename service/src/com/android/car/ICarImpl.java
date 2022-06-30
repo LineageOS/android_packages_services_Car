@@ -329,12 +329,10 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mInstrumentClusterService = null;
         }
-        mCarStatsService = constructWithTrace(t, CarStatsService.class, () -> {
-            // This service should be initialized here.
-            CarStatsService service = new CarStatsService(serviceContext);
-            service.init();
-            return service;
-        });
+
+        mCarStatsService = constructWithTrace(t, CarStatsService.class,
+                () -> new CarStatsService(serviceContext), allServices);
+
         if (mFeatureController.isFeatureEnabled(Car.VEHICLE_MAP_SERVICE)) {
             mVmsBrokerService = constructWithTrace(t, VmsBrokerService.class,
                     () -> new VmsBrokerService(mContext, mCarStatsService), allServices);
@@ -874,27 +872,6 @@ public class ICarImpl extends ICar.Stub {
 
     void execShellCmd(String[] args, IndentingPrintWriter writer) {
         newCarShellCommand().exec(args, writer);
-    }
-
-    // TODO(b/232550251): Remove this once CarStatsService uses the overload.
-
-    /**
-     * @deprecated to use the overload that adds the service to allServices right after
-     * construction.
-     */
-    @Deprecated
-    private <T> T constructWithTrace(LimitedTimingsTraceLog t, Class<T> cls, Callable<T> callable) {
-        t.traceBegin(cls.getSimpleName());
-        T constructed;
-        try {
-            constructed = callable.call();
-            CarLocalServices.addService(cls, constructed);
-        } catch (Exception e) {
-            throw new RuntimeException("Crash while constructing:" + cls.getSimpleName(), e);
-        } finally {
-            t.traceEnd();
-        }
-        return constructed;
     }
 
     private <T extends CarServiceBase> T constructWithTrace(LimitedTimingsTraceLog t, Class<T> cls,
