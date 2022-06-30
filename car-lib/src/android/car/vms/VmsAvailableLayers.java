@@ -61,7 +61,7 @@ public final class VmsAvailableLayers implements Parcelable {
         mAssociatedLayers = Collections.unmodifiableSet(mAssociatedLayers);
     }
 
-    private void parcelAssociatedLayers(Parcel dest, int flags) {
+    private void parcelAssociatedLayers(Parcel dest) {
         ParcelHelper.writeArraySet(dest, new ArraySet<>(mAssociatedLayers));
     }
 
@@ -180,7 +180,7 @@ public final class VmsAvailableLayers implements Parcelable {
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
         dest.writeInt(mSequenceNumber);
-        parcelAssociatedLayers(dest, flags);
+        parcelAssociatedLayers(dest);
     }
 
     @Override
