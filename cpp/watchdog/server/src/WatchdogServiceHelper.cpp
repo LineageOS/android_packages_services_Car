@@ -15,6 +15,7 @@
  */
 
 #define LOG_TAG "carwatchdogd"
+#define DEBUG false  // STOPSHIP if true.
 
 #include "WatchdogServiceHelper.h"
 
@@ -79,32 +80,41 @@ ScopedAStatus WatchdogServiceHelper::registerService(
     if (service == nullptr) {
         return fromExceptionCodeWithMessage(EX_ILLEGAL_ARGUMENT, "Must provide non-null service");
     }
-    std::unique_lock writeLock(mRWMutex);
-    if (mWatchdogProcessService == nullptr) {
-        return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                            "Must initialize watchdog service helper before "
-                                            "registering car watchdog service");
-    }
     const auto binder = service->asBinder();
-    if (mService != nullptr && mService->asBinder() == binder) {
-        return ScopedAStatus::ok();
-    }
     AIBinder* aiBinder = binder.get();
+    {
+        std::unique_lock writeLock(mRWMutex);
+        if (mWatchdogProcessService == nullptr) {
+            return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                "Must initialize watchdog service helper before "
+                                                "registering car watchdog service");
+        }
+        if (mService != nullptr && mService->asBinder() == binder) {
+            return ScopedAStatus::ok();
+        }
+        unregisterServiceLocked();
+        if (auto status = mWatchdogProcessService->registerCarWatchdogService(binder);
+            !status.isOk()) {
+            return status;
+        }
+        mService = service;
+    }
     auto ret =
             mDeathRegistrationWrapper->linkToDeath(aiBinder, mWatchdogServiceDeathRecipient.get(),
                                                    static_cast<void*>(aiBinder));
     if (!ret.isOk()) {
+        std::unique_lock writeLock(mRWMutex);
+        if (mService != nullptr && mService->asBinder() == binder) {
+            mWatchdogProcessService->unregisterCarWatchdogService(binder);
+            mService.reset();
+        }
         return fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
                                             "Failed to register car watchdog service as it is "
                                             "dead");
     }
-    unregisterServiceLocked();
-    if (auto status = mWatchdogProcessService->registerCarWatchdogService(binder); !status.isOk()) {
-        mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mWatchdogServiceDeathRecipient.get(),
-                                                 static_cast<void*>(aiBinder));
-        return status;
+    if (DEBUG) {
+        ALOGW("CarWatchdogService is registered");
     }
-    mService = service;
     return ScopedAStatus::ok();
 }
 
@@ -121,6 +131,10 @@ ScopedAStatus WatchdogServiceHelper::unregisterService(
                                             "not registered");
     }
     unregisterServiceLocked();
+
+    if (DEBUG) {
+        ALOGW("CarWatchdogService is unregistered");
+    }
     return ScopedAStatus::ok();
 }
 

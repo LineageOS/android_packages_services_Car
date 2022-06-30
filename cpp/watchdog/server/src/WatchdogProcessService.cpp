@@ -200,9 +200,7 @@ ScopedAStatus WatchdogProcessService::registerClient(
 
     ClientInfo clientInfo(client, callingPid, callingUid, mGetStartTimeForPidFunc(callingPid),
                           *this);
-
-    Mutex::Autolock lock(mMutex);
-    return registerClientLocked(clientInfo, timeout);
+    return registerClient(clientInfo, timeout);
 }
 
 ScopedAStatus WatchdogProcessService::unregisterClient(
@@ -219,15 +217,19 @@ ScopedAStatus WatchdogProcessService::registerCarWatchdogService(const SpAIBinde
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
 
-    Mutex::Autolock lock(mMutex);
-    if (mWatchdogServiceHelper == nullptr) {
-        return ScopedAStatus::
-                fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
-                                             "Watchdog service helper instance is null");
+    android::sp<WatchdogServiceHelperInterface> helper;
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mWatchdogServiceHelper == nullptr) {
+            return ScopedAStatus::
+                    fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                 "Watchdog service helper instance is null");
+        }
+        helper = mWatchdogServiceHelper;
     }
-    ClientInfo clientInfo(mWatchdogServiceHelper, binder, callingPid, callingUid,
+    ClientInfo clientInfo(helper, binder, callingPid, callingUid,
                           mGetStartTimeForPidFunc(callingPid), *this);
-    return registerClientLocked(clientInfo, TimeoutLength::TIMEOUT_CRITICAL);
+    return registerClient(clientInfo, TimeoutLength::TIMEOUT_CRITICAL);
 }
 
 void WatchdogProcessService::unregisterCarWatchdogService(const SpAIBinder& binder) {
@@ -244,20 +246,33 @@ ScopedAStatus WatchdogProcessService::registerMonitor(
                                                            "Must provide non-null monitor");
     }
     const auto binder = monitor->asBinder();
-    Mutex::Autolock lock(mMutex);
-    if (mMonitor != nullptr && mMonitor->asBinder() == binder) {
-        return ScopedAStatus::ok();
+    {
+        Mutex::Autolock lock(mMutex);
+        if (mMonitor != nullptr) {
+            if (mMonitor->asBinder() == binder) {
+                return ScopedAStatus::ok();
+            }
+            AIBinder* aiBinder = mMonitor->asBinder().get();
+            mDeathRegistrationWrapper->unlinkToDeath(aiBinder, mBinderDeathRecipient.get(),
+                                                     static_cast<void*>(aiBinder));
+        }
+        mMonitor = monitor;
     }
 
     AIBinder* aiBinder = binder.get();
     auto status = mDeathRegistrationWrapper->linkToDeath(aiBinder, mBinderDeathRecipient.get(),
                                                          static_cast<void*>(aiBinder));
     if (!status.isOk()) {
+        {
+            Mutex::Autolock lock(mMutex);
+            if (mMonitor != nullptr && mMonitor->asBinder() == binder) {
+                mMonitor.reset();
+            }
+        }
         ALOGW("Failed to register the monitor as it is dead.");
         return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
                                                            "The monitor is dead.");
     }
-    mMonitor = monitor;
     if (DEBUG) {
         ALOGD("Car watchdog monitor is registered");
     }
@@ -504,29 +519,40 @@ void WatchdogProcessService::terminate() {
     mVhalService.reset();
 }
 
-ScopedAStatus WatchdogProcessService::registerClientLocked(const ClientInfo& clientInfo,
-                                                           TimeoutLength timeout) {
-    if (findClientAndProcessLocked(kTimeouts, clientInfo.getAIBinder(), nullptr)) {
-        ALOGW("Failed to register (%s) as it is already registered.",
-              clientInfo.toString().c_str());
-        return ScopedAStatus::ok();
+ScopedAStatus WatchdogProcessService::registerClient(const ClientInfo& clientInfo,
+                                                     TimeoutLength timeout) {
+    uintptr_t cookieId = reinterpret_cast<uintptr_t>(clientInfo.getAIBinder());
+    {
+        Mutex::Autolock lock(mMutex);
+        if (findClientAndProcessLocked(kTimeouts, clientInfo.getAIBinder(), nullptr)) {
+            ALOGW("Failed to register (%s) as it is already registered.",
+                  clientInfo.toString().c_str());
+            return ScopedAStatus::ok();
+        }
+
+        ClientInfoMap& clients = mClientsByTimeout[timeout];
+        clients.insert(std::make_pair(cookieId, clientInfo));
     }
     if (auto status = clientInfo.linkToDeath(mBinderDeathRecipient.get()); !status.isOk()) {
+        Mutex::Autolock lock(mMutex);
+        if (auto it = mClientsByTimeout.find(timeout); it != mClientsByTimeout.end()) {
+            if (const auto& clientIt = it->second.find(cookieId); clientIt != it->second.end()) {
+                it->second.erase(clientIt);
+            }
+        }
         ALOGW("Failed to register (%s) as it is dead", clientInfo.toString().c_str());
         std::string errorStr = StringPrintf("(%s) is dead", clientInfo.toString().c_str());
         return ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE, errorStr.c_str());
     }
-    ClientInfoMap& clients = mClientsByTimeout[timeout];
-    clients.insert(
-            std::make_pair(reinterpret_cast<uintptr_t>(clientInfo.getAIBinder()), clientInfo));
-
-    // If the client array becomes non-empty, start health checking.
-    if (clients.size() == 1) {
-        startHealthCheckingLocked(timeout);
-    }
     if (DEBUG) {
         ALOGD("Car watchdog client (%s, timeout = %d) is registered", clientInfo.toString().c_str(),
               timeout);
+    }
+    Mutex::Autolock lock(mMutex);
+    // If the client array becomes non-empty, start health checking.
+    if (mClientsByTimeout[timeout].size() == 1) {
+        startHealthCheckingLocked(timeout);
+        ALOGI("Starting health checking for timeout = %d", timeout);
     }
     return ScopedAStatus::ok();
 }

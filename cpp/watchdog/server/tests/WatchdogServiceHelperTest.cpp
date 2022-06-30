@@ -245,23 +245,41 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
-    expectLinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(),
+    auto binder = mMockCarWatchdogServiceForSystem->asBinder();
+    expectLinkToDeath(binder.get(),
                       std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
-    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(binder)).Times(1);
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on register service with dead binder";
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessServiceError) {
     auto binder = mMockCarWatchdogServiceForSystem->asBinder();
-    expectLinkToDeath(binder.get(), std::move(ScopedAStatus::ok()));
-    expectUnlinkToDeath(binder.get(), std::move(ScopedAStatus::ok()));
+    expectNoLinkToDeath(binder.get());
+    expectNoUnlinkToDeath(binder.get());
     EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
             .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE))));
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on error from watchdog process service";
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+}
+
+TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithDeadBinder) {
+    auto binder = mMockCarWatchdogServiceForSystem->asBinder();
+    expectLinkToDeath(binder.get(),
+                      std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
+    EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(binder))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+    EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(binder)).Times(1);
+
+    ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
+            << "Failed to return error on register service with dead binder";
+    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
 }
 
 TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
