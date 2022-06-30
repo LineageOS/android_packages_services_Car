@@ -72,4 +72,5 @@
     <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED" />
     <uses-permission android:name="android.car.permission.CAR_MILEAGE" />
     <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
 </manifest>
