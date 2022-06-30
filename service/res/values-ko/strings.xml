@@ -172,10 +172,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"템플릿 렌더링"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"애플리케이션 실행을 제어합니다."</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"애플리케이션 실행을 제어합니다."</string>
-    <!-- no translation found for car_permission_label_manage_thread_priority (6775846409863509575) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_thread_priority (3833845502119615929) -->
-    <skip />
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"대화목록 우선순위 관리"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"대화목록 우선순위를 관리합니다."</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 버스가 응답하지 않습니다. 헤드유닛 박스를 분리한 후 다시 연결한 다음 시동을 다시 걸어 보세요."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"내 기기"</string>

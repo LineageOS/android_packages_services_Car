@@ -172,10 +172,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"渲染模板。"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"控制应用启动"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"控制应用启动。"</string>
-    <!-- no translation found for car_permission_label_manage_thread_priority (6775846409863509575) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_thread_priority (3833845502119615929) -->
-    <skip />
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"管理会话优先级"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"管理会话优先级。"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 总线故障"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 总线没有响应。请将主机盒插头拔下并插回，然后重新启动汽车"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的设备"</string>
