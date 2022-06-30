@@ -172,10 +172,8 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"បំប្លែង​ទម្រង់គំរូ។"</string>
     <string name="car_permission_label_control_car_app_launch" msgid="214632389637409226">"គ្រប់គ្រង​ការចាប់ផ្ដើម​កម្មវិធី"</string>
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"គ្រប់គ្រង​ការចាប់ផ្ដើម​កម្មវិធី។"</string>
-    <!-- no translation found for car_permission_label_manage_thread_priority (6775846409863509575) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_manage_thread_priority (3833845502119615929) -->
-    <skip />
+    <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"គ្រប់គ្រង​អាទិភាព​កម្រងសារ"</string>
+    <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"គ្រប់គ្រង​អាទិភាព​កម្រងសារ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"មិនអាច​ដំណើរការ CAN bus បានទេ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus មិនឆ្លើយតបទេ។ សូមផ្ដាច់ រួចភ្ជាប់​ប្រអប់​ឧបករណ៍ចាក់តន្ត្រី​ម្តងទៀត បន្ទាប់មក​បញ្ឆេះ​រថយន្ត​ឡើងវិញ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ឧបករណ៍របស់ខ្ញុំ"</string>
