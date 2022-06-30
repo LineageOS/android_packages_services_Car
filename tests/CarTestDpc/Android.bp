@@ -18,7 +18,10 @@ package {
 
 android_app {
     name: "CarTestDpc",
-    srcs: ["src/**/*.java"],
+    srcs: [
+        "src/**/*.java",
+        "src/**/*.aidl",
+    ],
     resource_dirs: ["res"],
     platform_apis: true,
     privileged: true,
