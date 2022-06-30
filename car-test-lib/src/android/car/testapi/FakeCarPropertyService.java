@@ -28,6 +28,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.hardware.property.ICarPropertyServiceCallback;
 import android.os.RemoteException;
 
 import com.android.car.internal.PropertyPermissionMapping;
@@ -96,6 +97,13 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
             }
         }
         return configs;
+    }
+
+    @Override
+    public void getPropertiesAsync(List<android.car.hardware.property.GetPropertyServiceRequest>
+            getPropertyServiceRequests, ICarPropertyServiceCallback carPropertyServiceCallback)
+            throws RemoteException {
+        // TODO(b/238472067): implement the logic
     }
 
     @Override
