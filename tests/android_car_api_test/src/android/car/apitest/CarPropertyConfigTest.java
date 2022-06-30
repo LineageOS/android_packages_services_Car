@@ -164,7 +164,8 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
 
         // Wrote float, attempted to read integer.
         assertThrows(ClassCastException.class, () -> {
-            Integer value = integerConfig.getMinValue(WINDOW_PASSENGER);
+            // Need to keep this unused variable for the test to pass.
+            Integer unusedMinValue = integerConfig.getMinValue(WINDOW_PASSENGER);
         });
 
         // Type casting from raw CarPropertyConfig should be fine, just confidence check.
@@ -173,7 +174,8 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
 
         // Wrote float, attempted to read integer.
         assertThrows(ClassCastException.class, () -> {
-            int value = (Integer) rawTypeConfig.getMinValue(WINDOW_PASSENGER);
+            // Need to keep this unused variable for the test to pass.
+            int unusedMinValue = (Integer) rawTypeConfig.getMinValue(WINDOW_PASSENGER);
         });
     }
 
