@@ -18,6 +18,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="ongoing_call_duration_text_separator" msgid="8114003660685159096">" • "</string>
-    <!-- no translation found for default_media_song_title (3026746987263220891) -->
-    <skip />
+    <string name="default_media_song_title" msgid="3026746987263220891">"मीडिया चुनें"</string>
 </resources>
