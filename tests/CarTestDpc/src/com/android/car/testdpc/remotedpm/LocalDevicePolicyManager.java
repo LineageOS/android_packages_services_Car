@@ -13,29 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.testdpc;
 
-import android.app.admin.DeviceAdminReceiver;
+package com.android.car.testdpc.remotedpm;
+
+import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
 
-public final class DpcReceiver extends DeviceAdminReceiver {
+public final class LocalDevicePolicyManager implements DevicePolicyManagerInterface {
 
-    private static final String TAG = DpcReceiver.class.getSimpleName();
+    private final DevicePolicyManager mDpm;
 
-    @Override
-    public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, "onReceive(): " + intent);
-
-        super.onReceive(context, intent);
+    /* Constructor for local dpm implementation of DPM Factory */
+    LocalDevicePolicyManager(Context context) {
+        mDpm = context.getSystemService(DevicePolicyManager.class);
     }
 
-    /**
-     * Returns the component name of the application.
-     */
-    public static ComponentName getComponentName(Context context) {
-        return new ComponentName(context.getApplicationContext(), DpcReceiver.class);
+    @Override
+    public void reboot(ComponentName admin) {
+        mDpm.reboot(admin);
     }
 }

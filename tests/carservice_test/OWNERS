@@ -1,0 +1,22 @@
+# Audio
+per-file src/com/android/car/CarAudioManagerTest.java = oscarazu@google.com
+per-file src/com/android/car/audio/* = oscarazu@google.com
+
+# Cluster
+per-file src/com/android/car/cluster/* = ycheo@google.com
+
+# Input
+per-file src/com/android/car/input/* = ycheo@google.com
+
+# HAL
+per-file src/com/android/car/hal/test/*MockedVehiclHal.java = ericjeong@google.com
+
+# Power
+per-file src/com/android/car/garagemode/* = ericjeong@google.com
+per-file src/com/android/car/power/* = ericjeong@google.com
+
+# StorageMonitoring
+per-file src/com/android/car/CarStorageMonitoringTest.java = lakshmana@google.com
+
+# Watchdog
+per-file src/com/android/car/watchdog/* = lakshmana@google.com

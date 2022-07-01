@@ -19,20 +19,6 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-soong_config_module_type_import {
-    from: "packages/services/Car/cpp/telemetry/cartelemetryd/products/soong/Android.bp",
-    module_types: ["cartelemetry_cc_defaults"],
-}
-
-cartelemetry_cc_defaults {
-    name: "cartelemetry_defaults",
-    soong_config_variables: {
-        enabled: {
-            cflags: ["-DUSE_CARTELEMETRY"],
-        },
-    },
-}
-
 cc_binary {
     name: "evs_app",
 
@@ -55,6 +41,7 @@ cc_binary {
 
     shared_libs: [
         "libbase",
+        "libbinder",
         "libbinder_ndk",
         "libcutils",
         "libutils",
@@ -88,7 +75,7 @@ cc_binary {
 
     init_rc: ["evs_app.rc"],
 
-    defaults: ["vhalclient_defaults", "cartelemetry_defaults"],
+    defaults: ["vhalclient_defaults"],
 
     cflags: ["-DLOG_TAG=\"EvsApp\""] + [
         "-DGL_GLEXT_PROTOTYPES",
