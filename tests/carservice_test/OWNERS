@@ -1,6 +1,10 @@
+# AppFocus
+per-file src/com/android/car/AppFocusTest.java = ycheo@google.com
+
 # Audio
-per-file src/com/android/car/CarAudioManagerTest.java = oscarazu@google.com
-per-file src/com/android/car/audio/* = oscarazu@google.com
+per-file src/android/media/tests/AudioPolicyTest.java = oscarazu@google.com, ericjeong@google.com
+per-file src/com/android/car/CarAudioManagerTest.java = oscarazu@google.com, ericjeong@google.com
+per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 
 # Cluster
 per-file src/com/android/car/cluster/* = ycheo@google.com
@@ -10,6 +14,10 @@ per-file src/com/android/car/input/* = ycheo@google.com
 
 # HAL
 per-file src/com/android/car/hal/test/*MockedVehiclHal.java = ericjeong@google.com
+
+# PackageManager
+per-file src/com/android/car/CarPackageManagerTest.java = ycheo@google.com
+per-file src/com/android/car/pm/* = ycheo@google.com
 
 # Power
 per-file src/com/android/car/garagemode/* = ericjeong@google.com
