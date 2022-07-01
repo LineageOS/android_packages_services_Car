@@ -87,4 +87,13 @@ public final class ThreadPolicyWithPriorityUnitTest {
         assertWithMessage("thrown exception has expected message").that(thrown).hasMessageThat()
                 .contains("invalid priority");
     }
+
+    @Test
+    public void testDefaultThreadPolicy() {
+        ThreadPolicyWithPriority gotPolicyPriority = new ThreadPolicyWithPriority(
+                ThreadPolicyWithPriority.SCHED_DEFAULT, /* priority= */ 1);
+
+        assertThat(gotPolicyPriority.getPolicy()).isEqualTo(ThreadPolicyWithPriority.SCHED_DEFAULT);
+        assertThat(gotPolicyPriority.getPriority()).isEqualTo(0);
+    }
 }

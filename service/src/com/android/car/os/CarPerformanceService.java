@@ -140,14 +140,15 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
      *
      * The thread must belong to the calling process.
      *
+     * @throws IllegalArgumentException If the given policy/priority is not valid.
+     * @throws IllegalStateException If the provided tid does not belong to the calling process.
+     * @throws RemoteException If binder error happens.
      * @throws SecurityException If permission check failed.
      * @throws ServiceSpecificException If the operation failed.
-     * @throws IllegalArgumentException If the provided tid does not belong to the calling process
-     *         or the policy/priority is not valid.
      * @throws UnsupportedOperationException If the current android release doesn't support the API.
      */
     @Override
-    public void setThreadPriority(int tid, int policy, int priority) {
+    public void setThreadPriority(int tid, ThreadPolicyWithPriority threadPolicyWithPriority) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
         // int pid = Binder.getCallingPid();
         // TODO(b/156400843): Use CarWatchdogDaemonHelper to set priority. Check input.
@@ -158,9 +159,10 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
      *
      * The thread must belong to the calling process.
      *
+     * @throws IllegalStateException If the operation failed or the provided tid does not belong to
+     *         the calling process.
+     * @throws RemoteException If binder error happens.
      * @throws SecurityException If permission check failed.
-     * @throws ServiceSpecificException If the scheduling policy is not a real-time policy or the
-     *         operation failed.
      * @throws UnsupportedOperationException If the current android release doesn't support the API.
      */
     @Override
