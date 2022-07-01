@@ -359,7 +359,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     @Test
     public void testCreateUser_success() throws Exception {
         expectServiceCreateUserSucceeds("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42,
-                UserCreationResult.STATUS_SUCCESSFUL, 108);
+                UserCreationResult.STATUS_SUCCESSFUL);
 
         AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
         assertThat(future).isNotNull();
@@ -407,7 +407,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     @Test
     public void testCreateGuest_success() throws Exception {
         expectServiceCreateUserSucceeds("dudeGuest", UserManager.USER_TYPE_FULL_GUEST, 0,
-                UserCreationResult.STATUS_SUCCESSFUL, 108);
+                UserCreationResult.STATUS_SUCCESSFUL);
 
         AsyncFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
         assertThat(future).isNotNull();
@@ -655,7 +655,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     private void expectServiceCreateUserSucceeds(@Nullable String name,
             @NonNull String userType, @UserInfoFlag int flags,
-            @UserCreationResult.Status int status, @UserIdInt int userId) throws RemoteException {
+            @UserCreationResult.Status int status) throws RemoteException {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
             AndroidFuture<UserCreationResult> future =

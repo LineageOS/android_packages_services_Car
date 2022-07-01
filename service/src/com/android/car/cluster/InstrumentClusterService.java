@@ -111,8 +111,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     @Override
     public void onNavigationStateChanged(Bundle bundle) {
         // No retry here as new events will be sent later.
-        IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
-                /* retryOnFail= */ false);
+        IInstrumentClusterNavigation navigationBinder = getNavigationBinder();
         if (navigationBinder == null) {
             Slogf.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:" + bundle);
             return;
@@ -129,8 +128,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         // Failure in this call leads into an issue in the client, so throw exception
         // when it cannot be recovered / retried.
         for (int i = 0; i < RENDERER_WAIT_MAX_RETRY; i++) {
-            IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
-                    /* retryOnFail= */ true);
+            IInstrumentClusterNavigation navigationBinder = getNavigationBinder();
             if (navigationBinder == null) {
                 continue;
             }
@@ -235,7 +233,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         return mRendererService;
     }
 
-    private IInstrumentClusterNavigation getNavigationBinder(boolean retryOnFail) {
+    private IInstrumentClusterNavigation getNavigationBinder() {
         IInstrumentCluster renderer;
         synchronized (mLock) {
             if (mIInstrumentClusterNavigationFromRenderer != null) {

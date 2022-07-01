@@ -211,12 +211,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             new ExperimentalCarUserService.PassengerCallback() {
                 @Override
                 public void onPassengerStarted(@UserIdInt int passengerId, int zoneId) {
-                    handlePassengerStarted(passengerId, zoneId);
+                    handlePassengerStarted();
                 }
 
                 @Override
                 public void onPassengerStopped(@UserIdInt int passengerId) {
-                    handlePassengerStopped(passengerId);
+                    handlePassengerStopped();
                 }
             };
 
@@ -1252,11 +1252,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
     }
 
-    private void handlePassengerStarted(@UserIdInt int passengerId, int zoneId) {
+    private void handlePassengerStarted() {
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
     }
 
-    private void handlePassengerStopped(@UserIdInt int passengerId) {
+    private void handlePassengerStopped() {
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
     }
 
