@@ -47,7 +47,10 @@ const int kEvsFirstFrameLatencyId = 1;
 // static
 EvsStats EvsStats::build() {
     // No need to enable stats if ICarTelemetry is not available.
-    bool enabled = ::AServiceManager_isDeclared(kCarTelemetryServiceName);
+    bool enabled = false;
+#ifdef USE_CARTELEMETRY
+    enabled = ::AServiceManager_isDeclared(kCarTelemetryServiceName);
+#endif
     return EvsStats(enabled);
 }
 
