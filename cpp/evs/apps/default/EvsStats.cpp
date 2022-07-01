@@ -21,6 +21,7 @@
 #include <aidl/android/frameworks/automotive/telemetry/ICarTelemetry.h>
 #include <android-base/logging.h>
 #include <android/binder_manager.h>
+#include <binder/IServiceManager.h>
 #include <utils/SystemClock.h>
 
 #include <vector>
@@ -47,7 +48,17 @@ const int kEvsFirstFrameLatencyId = 1;
 // static
 EvsStats EvsStats::build() {
     // No need to enable stats if ICarTelemetry is not available.
-    bool enabled = ::AServiceManager_isDeclared(kCarTelemetryServiceName);
+    bool enabled = false;
+    android::sp<android::IServiceManager> mgr = android::defaultServiceManager();
+    if (mgr) {
+        android::Vector<android::String16> services = mgr->listServices();
+        enabled = std::find(services.begin(), services.end(),
+                            android::String16(kCarTelemetryServiceName)) != services.end();
+    }
+
+    if (!enabled) {
+        LOG(DEBUG) << "Telemetry service is not available.";
+    }
     return EvsStats(enabled);
 }
 
