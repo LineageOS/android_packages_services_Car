@@ -27,6 +27,7 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -1164,14 +1165,15 @@ package android.car.os {
   }
 
   public final class ThreadPolicyWithPriority implements android.os.Parcelable {
-    ctor public ThreadPolicyWithPriority(int, @IntRange(from=1, to=99) int);
+    ctor public ThreadPolicyWithPriority(int, @IntRange(from=0, to=99) int);
     method public int describeContents();
     method public int getPolicy();
-    method @IntRange(from=1, to=99) public int getPriority();
+    method @IntRange(from=0, to=99) public int getPriority();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.os.ThreadPolicyWithPriority> CREATOR;
     field public static final int PRIORITY_MAX = 99; // 0x63
     field public static final int PRIORITY_MIN = 1; // 0x1
+    field public static final int SCHED_DEFAULT = 0; // 0x0
     field public static final int SCHED_FIFO = 1; // 0x1
     field public static final int SCHED_RR = 2; // 0x2
   }
