@@ -20,7 +20,6 @@ import static java.util.Objects.requireNonNull;
 import android.annotation.DrawableRes;
 import android.app.Activity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -102,12 +101,6 @@ public final class CarConsentUiHelper implements ConsentUiHelper {
     private void setupImageView(@DrawableRes int imageResId) {
         ImageView illustration = mActivity.findViewById(R.id.illustration);
         illustration.setImageResource(imageResId);
-    }
-
-    /** Set the primary toolbar button text and have it scroll to the next section when clicked. */
-    private void setupAcceptAndContinueButton(Button button) {
-        button.setText(mActivity.getString(R.string.accept_and_continue));
-        button.setOnClickListener(v -> onTermsAccepted());
     }
 
     private void onTermsAccepted() {
