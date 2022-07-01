@@ -36,7 +36,7 @@ interface ICarPerformanceService {
      * @throws ServiceSpecificException If the operation failed.
      * @throws IllegalArgumentException If the provided tid does not belong to the calling process.
      */
-    void setThreadPriority(int tid, int policy, int priority);
+    void setThreadPriority(int tid, in ThreadPolicyWithPriority policyWithPriority);
 
     /**
      * Gets the thread priority for a specific thread.

@@ -419,6 +419,7 @@ public final class Car {
      * @hide
      */
     @MandatoryFeature
+    @SystemApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
 
