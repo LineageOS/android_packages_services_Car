@@ -18,6 +18,7 @@ package android.car.os;
 
 import android.annotation.IntDef;
 import android.annotation.IntRange;
+import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.annotation.AddedIn;
 import android.os.Parcelable;
@@ -31,10 +32,10 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Defines the thread scheduling policy and priority.
  *
- * <p>Only threads scheduled under one of the real-time policies
- * ({@code SCHED_FIFO}, {@code SCHED_RR}) have a {@code sched_priority} value in the range within
- * [{@link PRIORITY_MIN}, {@link PRIORITY_MAX}]. Thus, this API supports only these real-time
- * policies.
+ * <p>This API supports real-time scheduling polices:
+ * ({@code SCHED_FIFO}, {@code SCHED_RR}) with a {@code sched_priority} value in the range within
+ * [{@link PRIORITY_MIN}, {@link PRIORITY_MAX}]. This API also supports the default round-robin
+ * time-sharing scheduling algorithm: {@code SCHED_DEFAULT}.
  *
  * @hide
  */
@@ -54,9 +55,16 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     public static final int PRIORITY_MAX = 99;
 
     /** @hide */
-    @IntDef({SCHED_FIFO, SCHED_RR})
+    @IntDef({SCHED_DEFAULT, SCHED_FIFO, SCHED_RR})
     @Retention(RetentionPolicy.SOURCE)
     public @interface SchedPolicy {}
+
+    /**
+     * Default round-robin time-sharing scheduling policy.
+     *
+     * <p> Same as {@code SCHED_OTHER} defined in {@code /include/uapi/linux/sched.h}.
+     */
+    public static final int SCHED_DEFAULT = 0;
 
     /**
      * First-in-first-out scheduling policy. See definition for Linux {@code sched(7)}.
@@ -75,7 +83,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     @SchedPolicy
     private final int mPolicy;
 
-    @IntRange(from = 1, to = 99)
+    @IntRange(from = 0, to = 99)
     private final int mPriority;
 
     /**
@@ -85,11 +93,14 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      * @param priority The priority, must be within [{@link PRIORITY_MIN}, {@link PRIORITY_MAX}].
      */
     public ThreadPolicyWithPriority(
-            @SchedPolicy int policy, @IntRange(from = 1, to = 99) int priority) {
-        if (policy != SCHED_FIFO && policy != SCHED_RR) {
+            @SchedPolicy int policy, @IntRange(from = 0, to = 99) int priority) {
+        if (policy != SCHED_FIFO && policy != SCHED_RR && policy != SCHED_DEFAULT) {
             throw new IllegalArgumentException("invalid policy");
         }
-        if (priority < PRIORITY_MIN || priority > PRIORITY_MAX) {
+        // priority is ignored for SCHED_DEFAULT
+        if (policy == SCHED_DEFAULT) {
+            priority = 0;
+        } else if (priority < PRIORITY_MIN || priority > PRIORITY_MAX) {
             throw new IllegalArgumentException("invalid priority");
         }
         mPolicy = policy;
@@ -134,6 +145,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
 
     /** @hide */
     @IntDef(prefix = "SCHED_", value = {
+        SCHED_DEFAULT,
         SCHED_FIFO,
         SCHED_RR
     })
@@ -145,6 +157,8 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     @DataClass.Generated.Member
     public static String schedToString(@Sched int value) {
         switch (value) {
+            case SCHED_DEFAULT:
+                    return "SCHED_DEFAULT";
             case SCHED_FIFO:
                     return "SCHED_FIFO";
             case SCHED_RR:
@@ -159,13 +173,13 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    public @IntRange(from = 1, to = 99) int getPriority() {
+    public @IntRange(from = 0, to = 99) int getPriority() {
         return mPriority;
     }
 
     @Override
     @DataClass.Generated.Member
-    public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
+    public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
@@ -180,7 +194,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     /** @hide */
     @SuppressWarnings({"unchecked", "RedundantCast"})
     @DataClass.Generated.Member
-    /* package-private */ ThreadPolicyWithPriority(@android.annotation.NonNull android.os.Parcel in) {
+    /* package-private */ ThreadPolicyWithPriority(@NonNull android.os.Parcel in) {
         // You can override field unparcelling by defining methods like:
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
@@ -193,14 +207,14 @@ public final class ThreadPolicyWithPriority implements Parcelable {
         this.mPriority = priority;
         AnnotationValidations.validate(
                 IntRange.class, null, mPriority,
-                "from", 1,
+                "from", 0,
                 "to", 99);
 
         // onConstructed(); // You can define this method to get a callback
     }
 
     @DataClass.Generated.Member
-    public static final @android.annotation.NonNull Parcelable.Creator<ThreadPolicyWithPriority> CREATOR
+    public static final @NonNull Parcelable.Creator<ThreadPolicyWithPriority> CREATOR
             = new Parcelable.Creator<ThreadPolicyWithPriority>() {
         @Override
         public ThreadPolicyWithPriority[] newArray(int size) {
@@ -208,16 +222,16 @@ public final class ThreadPolicyWithPriority implements Parcelable {
         }
 
         @Override
-        public ThreadPolicyWithPriority createFromParcel(@android.annotation.NonNull android.os.Parcel in) {
+        public ThreadPolicyWithPriority createFromParcel(@NonNull android.os.Parcel in) {
             return new ThreadPolicyWithPriority(in);
         }
     };
 
     @DataClass.Generated(
-            time = 1653702446858L,
+            time = 1656372358427L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/os/ThreadPolicyWithPriority.java",
-            inputSignatures = "public static final  int PRIORITY_MIN\npublic static final  int PRIORITY_MAX\npublic static final  int SCHED_FIFO\npublic static final  int SCHED_RR\nprivate final @android.car.os.ThreadPolicyWithPriority.SchedPolicy int mPolicy\nprivate final @android.annotation.IntRange int mPriority\nclass ThreadPolicyWithPriority extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int PRIORITY_MIN\npublic static final  int PRIORITY_MAX\npublic static final  int SCHED_DEFAULT\npublic static final  int SCHED_FIFO\npublic static final  int SCHED_RR\nprivate final @android.car.os.ThreadPolicyWithPriority.SchedPolicy int mPolicy\nprivate final @android.annotation.IntRange int mPriority\nclass ThreadPolicyWithPriority extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 
