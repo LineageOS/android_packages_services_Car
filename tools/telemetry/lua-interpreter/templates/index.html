@@ -8,10 +8,30 @@
   <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
   <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+  <script src="{{ url_for('static', filename='js/index.bundle.js') }}"></script>
 </head>
 
 <body class="mdc-theme--background mdc-typography">
-  <p class="mdc-theme--primary mdc-typography--headline1">Hello World!</p>
+  <form action="{{ url_for('execute_script') }}" method="post">
+    <textarea class="cm-editor script-input" id="script-input" placeholder="Input script here..." spellcheck="false"
+      name="script">{{ script }}</textarea>
+    <button type="submit" class="mdc-button mdc-button--raised ripple">
+      <span class="mdc-button__ripple"></span>
+      <span class="mdc-button__label">Run</span>
+    </button>
+  </form>
+
+  <div class="mdc-theme--on-surface script-output" id="script-output">
+    {% for item in output %}
+      {% if item == "\n" %}
+        <br>
+      {% elif item == "\t" %}
+        <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      {% else %}
+        <span>{{ item }}</span>
+      {% endif %}
+    {% endfor %}
+  </div>
 </body>
 
 </html>
