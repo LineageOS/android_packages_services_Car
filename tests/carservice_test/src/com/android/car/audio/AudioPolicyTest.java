@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.media.tests;
+package com.android.car.audio;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
