@@ -122,6 +122,8 @@ public:
 
     static android::base::Result<PidStat> readStatFileForPid(pid_t pid);
 
+    static android::base::Result<std::tuple<uid_t, pid_t>> readPidStatusFileForPid(pid_t pid);
+
 private:
     android::base::Result<std::unordered_map<uid_t, UidProcStats>> readUidProcStatsLocked() const;
 
