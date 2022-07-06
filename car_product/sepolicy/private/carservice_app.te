@@ -25,6 +25,7 @@ allow carservice_app {
     audioserver_service
     autofill_service
     bluetooth_manager_service
+    cartelemetryd_service
     connectivity_service
     content_service
     device_policy_service
@@ -74,6 +75,9 @@ allow carservice_app procfsinspector:binder call;
 
 # Allow binder calls with statsd
 allow carservice_app statsd:binder call;
+
+# Allow binder calls with cartelemetryd
+allow carservice_app cartelemetryd:binder call;
 
 # To access /sys/fs/<type>/<partition>/lifetime_write_kbytes
 allow carservice_app sysfs:dir { open read search };
