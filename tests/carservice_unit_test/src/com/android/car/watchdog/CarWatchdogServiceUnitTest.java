@@ -5136,13 +5136,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         return packageInfo;
     }
 
-    private static ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
-        ApplicationInfo applicationInfo = new ApplicationInfo();
-        applicationInfo.flags = flags;
-        applicationInfo.privateFlags = privateFlags;
-        return applicationInfo;
-    }
-
     private static String toPackageInfosString(List<PackageInfo> packageInfos) {
         StringBuilder builder = new StringBuilder();
         for (PackageInfo packageInfo : packageInfos) {
