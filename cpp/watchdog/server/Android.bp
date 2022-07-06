@@ -38,7 +38,7 @@ cc_defaults {
         "packagemanager_aidl-cpp",
     ],
     static_libs: [
-        "android.automotive.watchdog.internal-V1-cpp",
+        "android.automotive.watchdog.internal-V2-cpp",
         "android.automotive.watchdog-V3-cpp",
         "libvhalclient",
     ],
@@ -194,6 +194,7 @@ cc_library {
         "libwatchdog_process_service_defaults",
     ],
     srcs: [
+        "src/ThreadPriorityController.cpp",
         "src/WatchdogBinderMediator.cpp",
         "src/WatchdogInternalHandler.cpp",
         "src/WatchdogServiceHelper.cpp",
