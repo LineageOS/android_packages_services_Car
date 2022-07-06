@@ -72,7 +72,7 @@ java_defaults {
     ],
 
     static_libs: [
-        "android.automotive.telemetry.internal-V1-java",  // ICarTelemetryInternal
+        "android.automotive.telemetry.internal-V2-java",  // ICarTelemetryInternal
         "android.automotive.watchdog.internal-V2-java",
         "android.frameworks.automotive.powerpolicy.internal-V1-java",
         "android.hidl.base-V1.0-java",

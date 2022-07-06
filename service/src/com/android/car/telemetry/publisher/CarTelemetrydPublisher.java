@@ -57,6 +57,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
 
     // All the methods in this class are expected to be called on this handler's thread.
     private final Handler mTelemetryHandler;
+    private final IBinder.DeathRecipient mDeathRecipient = this::onBinderDied;
 
     private final ICarDataListener mListener = new ICarDataListener.Stub() {
         @Override
@@ -91,7 +92,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         // TODO(b/189142577): Create custom Handler and post message to improve performance
         mTelemetryHandler.post(() -> {
             if (mCarTelemetryInternal != null) {
-                mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
+                mCarTelemetryInternal.asBinder().unlinkToDeath(mDeathRecipient, BINDER_FLAGS);
                 mCarTelemetryInternal = null;
             }
             onPublisherFailure(
@@ -100,10 +101,14 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         });
     }
 
-    /** Connects to ICarTelemetryInternal service and starts listening for CarData. */
-    private void connectToCarTelemetryd() {
+    /**
+     * Connects to ICarTelemetryInternal service and starts listening for CarData.
+     *
+     * @return true for success or if cartelemetryd is already connected, false otherwise.
+     */
+    private boolean connectToCarTelemetryd() {
         if (mCarTelemetryInternal != null) {
-            return;
+            return true;
         }
         IBinder binder = ServiceManagerHelper.checkService(SERVICE_NAME);
         if (binder == null) {
@@ -112,30 +117,32 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
                     new IllegalStateException(
                             "Failed to connect to the ICarTelemetryInternal: service is not "
                                     + "ready"));
-            return;
+            return false;
         }
         try {
-            binder.linkToDeath(this::onBinderDied, BINDER_FLAGS);
+            binder.linkToDeath(mDeathRecipient, BINDER_FLAGS);
         } catch (RemoteException e) {
             onPublisherFailure(
                     getMetricsConfigs(),
                     new IllegalStateException(
                             "Failed to connect to the ICarTelemetryInternal: linkToDeath failed",
                             e));
-            return;
+            return false;
         }
         mCarTelemetryInternal = ICarTelemetryInternal.Stub.asInterface(binder);
         try {
             mCarTelemetryInternal.setListener(mListener);
         } catch (RemoteException e) {
-            binder.unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
+            binder.unlinkToDeath(mDeathRecipient, BINDER_FLAGS);
             mCarTelemetryInternal = null;
             onPublisherFailure(
                     getMetricsConfigs(),
                     new IllegalStateException(
                             "Failed to connect to the ICarTelemetryInternal: Cannot set CarData "
                                     + "listener", e));
+            return false;
         }
+        return true;
     }
 
     @NonNull
@@ -158,7 +165,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         } catch (RemoteException e) {
             Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove ICarTelemetryInternal listener", e);
         }
-        mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
+        mCarTelemetryInternal.asBinder().unlinkToDeath(mDeathRecipient, BINDER_FLAGS);
         mCarTelemetryInternal = null;
     }
 
@@ -185,9 +192,20 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
 
         mSubscribers.add(subscriber);
 
-        connectToCarTelemetryd();
-
+        if (!connectToCarTelemetryd()) {
+            // logging is done in connectToCarTelemetryd, do not double log here
+            return;
+        }
         Slogf.d(CarLog.TAG_TELEMETRY, "Subscribing to CarDat.id=%d", carDataId);
+        try {
+            mCarTelemetryInternal.addCarDataIds(new int[]{carDataId});
+        } catch (RemoteException e) {
+            onPublisherFailure(
+                    getMetricsConfigs(),
+                    new IllegalStateException(
+                            "Failed to make binder calls to ICarTelemetryInternal", e));
+            return;
+        }
     }
 
     @Override
