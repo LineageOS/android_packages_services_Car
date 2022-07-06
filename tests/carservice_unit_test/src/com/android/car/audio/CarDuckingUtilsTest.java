@@ -38,6 +38,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
 
@@ -59,6 +60,8 @@ public class CarDuckingUtilsTest {
     private static final String EMERGENCY_ADDRESS = "emergency";
     private static final String CALL_ADDRESS = "call";
     private static final String NAVIGATION_ADDRESS = "navigation";
+
+    private static final int ZONE_ID = 0;
 
     @Test
     public void sContextsToDuck_verifyNoCycles() {
@@ -222,6 +225,77 @@ public class CarDuckingUtilsTest {
         assertThat(result).isEmpty();
     }
 
+    @Test
+    public void generateDuckingInfo_succeed() {
+        CarAudioZone mockZone = generateAudioZoneMock();
+
+        List<AudioFocusInfo> focusHolders =
+                List.of(
+                        generateAudioFocusInfoForUsage(USAGE_MEDIA),
+                        generateAudioFocusInfoForUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE),
+                        generateAudioFocusInfoForSystemUsage(USAGE_SAFETY));
+        List<PlaybackTrackMetadata> playbackTrackMetadataHoldingFocus =
+                CarHalAudioUtils.usagesToMetadatas(
+                        new int[] {USAGE_MEDIA, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, USAGE_SAFETY},
+                        mockZone);
+
+        CarDuckingInfo duckingInfo =
+                CarDuckingUtils.generateDuckingInfo(
+                        getEmptyCarDuckingInfo(), focusHolders, mockZone);
+
+        assertThat(duckingInfo.getZoneId()).isEqualTo(ZONE_ID);
+        assertThat(duckingInfo.getAddressesToDuck())
+                .containsExactly(MEDIA_ADDRESS, NAVIGATION_ADDRESS);
+        assertThat(duckingInfo.getAddressesToUnduck()).isEmpty();
+        assertThat(duckingInfo.getPlaybackMetaDataHoldingFocus())
+                .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
+
+        // Then decimate safety
+        focusHolders =
+                List.of(
+                        generateAudioFocusInfoForUsage(USAGE_MEDIA),
+                        generateAudioFocusInfoForUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+        playbackTrackMetadataHoldingFocus =
+                CarHalAudioUtils.usagesToMetadatas(
+                        new int[] {USAGE_MEDIA, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}, mockZone);
+
+        CarDuckingInfo duckingInfo1 =
+                CarDuckingUtils.generateDuckingInfo(duckingInfo, focusHolders, mockZone);
+
+        assertThat(duckingInfo1.getZoneId()).isEqualTo(ZONE_ID);
+        assertThat(duckingInfo1.getAddressesToDuck()).containsExactly(MEDIA_ADDRESS);
+        assertThat(duckingInfo1.getAddressesToUnduck()).containsExactly(NAVIGATION_ADDRESS);
+        assertThat(duckingInfo1.getPlaybackMetaDataHoldingFocus())
+                .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
+
+        // Then decimate nav
+        focusHolders = List.of(generateAudioFocusInfoForUsage(USAGE_MEDIA));
+        playbackTrackMetadataHoldingFocus =
+                CarHalAudioUtils.usagesToMetadatas(new int[] {USAGE_MEDIA}, mockZone);
+
+        CarDuckingInfo duckingInfo2 =
+                CarDuckingUtils.generateDuckingInfo(duckingInfo1, focusHolders, mockZone);
+
+        assertThat(duckingInfo2.getZoneId()).isEqualTo(ZONE_ID);
+        assertThat(duckingInfo2.getAddressesToDuck()).isEmpty();
+        assertThat(duckingInfo2.getAddressesToUnduck()).containsExactly(MEDIA_ADDRESS);
+        assertThat(duckingInfo2.getPlaybackMetaDataHoldingFocus())
+                .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
+
+        // back to none holding focus
+        focusHolders = new ArrayList<AudioFocusInfo>();
+        playbackTrackMetadataHoldingFocus =
+                CarHalAudioUtils.usagesToMetadatas(new int[] {USAGE_MEDIA}, mockZone);
+
+        CarDuckingInfo duckingInfo3 =
+                CarDuckingUtils.generateDuckingInfo(duckingInfo2, focusHolders, mockZone);
+
+        assertThat(duckingInfo3.getZoneId()).isEqualTo(ZONE_ID);
+        assertThat(duckingInfo3.getAddressesToDuck()).isEmpty();
+        assertThat(duckingInfo3.getAddressesToUnduck()).isEmpty();
+        assertThat(duckingInfo3.getPlaybackMetaDataHoldingFocus()).isEmpty();
+    }
+
     private static AudioFocusInfo generateAudioFocusInfoForUsage(int usage) {
         AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
         return new AudioFocusInfo(attributes, 0, "client_id", "package.name",
@@ -242,7 +316,16 @@ public class CarDuckingUtilsTest {
         when(mockZone.getAddressForContext(CALL)).thenReturn(CALL_ADDRESS);
         when(mockZone.getAddressForContext(NAVIGATION)).thenReturn(NAVIGATION_ADDRESS);
         when(mockZone.getAddressForContext(INVALID)).thenThrow(new IllegalArgumentException());
+        when(mockZone.getAddressForContext(NAVIGATION)).thenReturn(NAVIGATION_ADDRESS);
 
         return mockZone;
+    }
+
+    private CarDuckingInfo getEmptyCarDuckingInfo() {
+        return new CarDuckingInfo(
+                ZONE_ID,
+                new ArrayList<String>(),
+                new ArrayList<String>(),
+                new ArrayList<PlaybackTrackMetadata>());
     }
 }
