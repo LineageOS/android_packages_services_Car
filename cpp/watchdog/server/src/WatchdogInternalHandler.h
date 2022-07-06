@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGINTERNALHANDLER_H_
 
 #include "IoOveruseMonitor.h"
+#include "ThreadPriorityController.h"
 #include "WatchdogPerfService.h"
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
@@ -41,11 +42,12 @@ namespace watchdog {
 
 class WatchdogBinderMediatorInterface;
 class WatchdogBinderMediator;
+class WatchdogInternalHandlerTestPeer;
 
 class WatchdogInternalHandler final :
       public android::automotive::watchdog::internal::BnCarWatchdog {
 public:
-    explicit WatchdogInternalHandler(
+    WatchdogInternalHandler(
             const android::sp<WatchdogBinderMediatorInterface>& watchdogBinderMediator,
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
             const android::sp<WatchdogProcessServiceInterface>& watchdogProcessService,
@@ -55,7 +57,8 @@ public:
           mWatchdogServiceHelper(watchdogServiceHelper),
           mWatchdogProcessService(watchdogProcessService),
           mWatchdogPerfService(watchdogPerfService),
-          mIoOveruseMonitor(ioOveruseMonitor) {}
+          mIoOveruseMonitor(ioOveruseMonitor),
+          mThreadPriorityController(std::make_unique<ThreadPriorityController>()) {}
     ~WatchdogInternalHandler() { terminate(); }
 
     status_t dump(int fd, const Vector<android::String16>& args) override;
@@ -95,6 +98,11 @@ public:
             std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     configs) override;
     android::binder::Status controlProcessHealthCheck(bool enable) override;
+    android::binder::Status setThreadPriority(int pid, int tid, int uid, int policy,
+                                              int priority) override;
+    android::binder::Status getThreadPriority(
+            int pid, int tid, int uid,
+            android::automotive::watchdog::internal::ThreadPolicyWithPriority* result) override;
 
 protected:
     void terminate() {
@@ -114,13 +122,17 @@ private:
     android::binder::Status handleUserStateChange(
             userid_t userId, android::automotive::watchdog::internal::UserState userState);
 
+    void setThreadPriorityController(std::unique_ptr<ThreadPriorityController> controller);
+
     android::sp<WatchdogBinderMediatorInterface> mWatchdogBinderMediator;
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
     android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
+    std::unique_ptr<ThreadPriorityController> mThreadPriorityController;
 
     friend class WatchdogBinderMediator;
+    friend class WatchdogInternalHandlerTestPeer;
 
     FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
 };

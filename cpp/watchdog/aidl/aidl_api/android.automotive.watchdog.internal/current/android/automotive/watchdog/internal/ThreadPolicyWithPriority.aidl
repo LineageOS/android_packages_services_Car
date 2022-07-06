@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,17 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.automotive.watchdog.internal;
-interface ICarWatchdog {
-  void registerCarWatchdogService(in android.automotive.watchdog.internal.ICarWatchdogServiceForSystem service);
-  void unregisterCarWatchdogService(in android.automotive.watchdog.internal.ICarWatchdogServiceForSystem service);
-  void registerMonitor(in android.automotive.watchdog.internal.ICarWatchdogMonitor monitor);
-  void unregisterMonitor(in android.automotive.watchdog.internal.ICarWatchdogMonitor monitor);
-  void tellCarWatchdogServiceAlive(in android.automotive.watchdog.internal.ICarWatchdogServiceForSystem service, in List<android.automotive.watchdog.internal.ProcessIdentifier> processIdentifiers, in int sessionId);
-  void tellDumpFinished(in android.automotive.watchdog.internal.ICarWatchdogMonitor monitor, in android.automotive.watchdog.internal.ProcessIdentifier processIdentifier);
-  void notifySystemStateChange(in android.automotive.watchdog.internal.StateType type, in int arg1, in int arg2);
-  void updateResourceOveruseConfigurations(in List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs);
-  List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> getResourceOveruseConfigurations();
-  void controlProcessHealthCheck(in boolean enable);
-  void setThreadPriority(int pid, int tid, int uid, int policy, int priority);
-  android.automotive.watchdog.internal.ThreadPolicyWithPriority getThreadPriority(int pid, int tid, int uid);
+parcelable ThreadPolicyWithPriority {
+  int policy;
+  int priority;
 }

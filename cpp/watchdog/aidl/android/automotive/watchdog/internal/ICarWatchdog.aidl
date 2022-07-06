@@ -22,6 +22,7 @@ import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.ProcessIdentifier;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
+import android.automotive.watchdog.internal.ThreadPolicyWithPriority;
 
 /**
  * ICarWatchdog is an interface implemented by the watchdog server. This interface is used only by
@@ -132,4 +133,40 @@ interface ICarWatchdog {
    *                          Otherwise, it is disabled.
    */
   void controlProcessHealthCheck(in boolean enable);
+
+  /**
+   * Set thread scheduling policy and priority.
+   *
+   * <p> This function would check whether the {@code tid} belongs to {@code pid} and {@code uid}.
+   * If so, it sets the scheduling policy and priority. Otherwise, it returns errors.
+   *
+   * <p>This function may return one of the following error codes:
+   * <ul>
+   * <li> {@code EX_ILLEGAL_STATE} If failed to set the policy and priority or if the given
+   * {@code tid} does not belong to {@code pid} and {@code uid}.
+   * <li> {@code EX_INVALID_ARGUMENT} If the provided policy or priority is not valid.
+   *
+   * @param pid The process id.
+   * @param tid The thread id.
+   * @param uid The package uid (aka linux real user ID).
+   * @param policy The scheduling policy.
+   * @param priority The scheduling priority.
+   */
+  void setThreadPriority(int pid, int tid, int uid, int policy, int priority);
+
+  /**
+   * Get thread scheduling policy and priority.
+   *
+   * <p> This function would check whether the {@code tid} belongs to {@code pid} and {@code uid}.
+   * If so, it gets the scheduling policy and priority. Otherwise, it returns error.
+   *
+   * This function returns {@code EX_ILLEGAL_STATE} if failed to get the policy and priority or if
+   * the given {@code tid} does not belong to {@code pid} and {@code uid}.
+   *
+   * @param pid The process id.
+   * @param tid The thread id.
+   * @param uid The package uid (aka linux real user ID).
+   * @return The policy with priority.
+   */
+   ThreadPolicyWithPriority getThreadPriority(int pid, int tid, int uid);
 }
