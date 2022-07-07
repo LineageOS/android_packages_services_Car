@@ -113,15 +113,29 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
         }
     }
 
+    @Override
+    public UserHandle getUser() {
+        return mTargetUserHandle;
+    }
+
     /**
      * Reboots the device
      *
      * <p>Only works when bound with device owner and the users are affiliated </p>
      */
+    @Override
     public void reboot(ComponentName admin) {
         IRemoteDevicePolicyManager remoteDpm;
         remoteDpm = getBoundRemoteDpmLocked();
         run(() -> remoteDpm.reboot(admin), "reboot(%s)", admin);
+    }
+
+    @Override
+    public void addUserRestriction(ComponentName admin, String key) {
+        IRemoteDevicePolicyManager remoteDpm;
+        remoteDpm = getBoundRemoteDpmLocked();
+        run(() -> remoteDpm.addUserRestriction(admin, key),
+                "reboot(%s, %s)", admin, key);
     }
 
     @FormatMethod

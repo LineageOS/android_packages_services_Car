@@ -17,7 +17,13 @@
 package com.android.car.testdpc.remotedpm;
 
 import android.content.ComponentName;
+import android.os.UserHandle;
 
 public interface DevicePolicyManagerInterface {
+
+    UserHandle getUser();
+
     void reboot(ComponentName admin);
+
+    void addUserRestriction(ComponentName admin, String key);
 }
