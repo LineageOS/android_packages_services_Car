@@ -319,7 +319,7 @@ public class CarEvsCameraPreviewActivity extends Activity {
             // Request to stop current service and unregister a status listener
             synchronized (mLock) {
                 if (mEvsManager != null) {
-                    mEvsManager.stopActivity();
+                    handleVideoStreamLocked(STREAM_STATE_STOPPED);
                     mEvsManager.clearStatusListener();
                 }
                 if (mCar != null) {
