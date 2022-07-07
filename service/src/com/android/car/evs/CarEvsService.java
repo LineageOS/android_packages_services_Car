@@ -999,7 +999,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public void stopActivity() {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
 
-        mStateEngine.execute(REQUEST_PRIORITY_NORMAL, SERVICE_STATE_INACTIVE);
+        mStateEngine.execute(REQUEST_PRIORITY_NORMAL, SERVICE_STATE_INACTIVE, mStreamCallback);
     }
 
     /**
