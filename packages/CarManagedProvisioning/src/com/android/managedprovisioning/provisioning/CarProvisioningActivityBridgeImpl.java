@@ -84,8 +84,7 @@ abstract class CarProvisioningActivityBridgeImpl implements ProvisioningActivity
 
         CarSetupWizardLayoutHelper layoutHelper = setupBasicLayout(activity, subLayoutId);
 
-        setupEducationViews(layoutHelper.getBaseLayout(), activity,
-                getShouldSkipEducationScreens(), getProgressLabelResId());
+        setupEducationViews(getShouldSkipEducationScreens(), getProgressLabelResId());
     }
 
     @Override
@@ -219,8 +218,6 @@ abstract class CarProvisioningActivityBridgeImpl implements ProvisioningActivity
     }
 
     private void setupEducationViews(
-            CarSetupWizardCompatLayout layout,
-            Activity activity,
             boolean shouldSkipEducationScreens,
             @StringRes int progressLabelResId) {
 

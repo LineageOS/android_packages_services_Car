@@ -67,7 +67,7 @@ public final class VmsSubscriptionState implements Parcelable {
         mAssociatedLayers = Collections.unmodifiableSet(mAssociatedLayers);
     }
 
-    private void parcelLayers(Parcel dest, int flags) {
+    private void parcelLayers(Parcel dest) {
         ParcelHelper.writeArraySet(dest, new ArraySet<>(mLayers));
     }
 
@@ -76,7 +76,7 @@ public final class VmsSubscriptionState implements Parcelable {
         return (Set<VmsLayer>) ParcelHelper.readArraySet(in, VmsLayer.class.getClassLoader());
     }
 
-    private void parcelAssociatedLayers(Parcel dest, int flags) {
+    private void parcelAssociatedLayers(Parcel dest) {
         ParcelHelper.writeArraySet(dest, new ArraySet<>(mAssociatedLayers));
     }
 
@@ -186,8 +186,8 @@ public final class VmsSubscriptionState implements Parcelable {
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
         dest.writeInt(mSequenceNumber);
-        parcelLayers(dest, flags);
-        parcelAssociatedLayers(dest, flags);
+        parcelLayers(dest);
+        parcelAssociatedLayers(dest);
     }
 
     @Override
