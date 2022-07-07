@@ -19,6 +19,7 @@ package android.car.evs;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.NonNull;
+import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.annotation.AddedInOrBefore;
@@ -39,7 +40,7 @@ import java.util.Objects;
  */
 @SystemApi
 @RequiredFeature(Car.CAR_EVS_SERVICE)
-public final class CarEvsBufferDescriptor implements Parcelable {
+public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     @AddedInOrBefore(majorVersion = 33)
     public static final @NonNull Parcelable.Creator<CarEvsBufferDescriptor> CREATOR =
             new Parcelable.Creator<CarEvsBufferDescriptor>() {
@@ -99,6 +100,25 @@ public final class CarEvsBufferDescriptor implements Parcelable {
     @AddedInOrBefore(majorVersion = 33)
     public String toString() {
         return "CarEvsBufferDescriptor: id = " + mId + ", buffer = " + mHardwareBuffer;
+    }
+
+    @Override
+    @SuppressLint("GenericException")
+    @AddedInOrBefore(majorVersion = 34)
+    protected void finalize() throws Throwable {
+        try {
+            close();
+        } finally {
+            super.finalize();
+        }
+    }
+
+    @Override
+    @AddedInOrBefore(majorVersion = 34)
+    public void close() {
+        if (!mHardwareBuffer.isClosed()) {
+            mHardwareBuffer.close();
+        }
     }
 
     /**
