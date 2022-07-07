@@ -158,6 +158,8 @@ Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
 }
 
 /**
+ * Returns UID and TGID from the given pid status file.
+ *
  * /proc/PID/status file format:
  * Tgid:    <Thread group ID of the process>
  * Uid:     <Read UID>   <Effective UID>   <Saved set UID>   <Filesystem UID>
@@ -233,12 +235,6 @@ Result<void> UidProcStatsCollector::collect() {
     if (!uidProcStatsByUid.ok()) {
         return Error() << uidProcStatsByUid.error();
     }
-
-    // TODO(b/235881079): At this point the UID CPU time will be the sum of all
-    //  the PID CPU times associated with the UID. This value should be replaced
-    //  with the CPU time reported in /proc/uid_cputime/show_uid_stat file. If
-    //  the UID is not in /proc/uid_cputime/show_uid_stat, then do not override
-    //  the CPU time in the UidProcStat.
 
     mDeltaStats.clear();
     for (const auto& [uid, currStats] : *uidProcStatsByUid) {
