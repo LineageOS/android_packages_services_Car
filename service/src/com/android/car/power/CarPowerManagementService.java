@@ -98,6 +98,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
 
 /**
  * Power Management service class for cars. Controls the power states and interacts with other
@@ -376,7 +377,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mBinderHandler.unlinkToDeath();
         }
         synchronized (mLock) {
-            clearWaitingForCompletion(/* clearQueue= */ false);
+            clearWaitingForCompletion(/*clearQueue=*/false);
             mCurrentState = null;
             mCarPowerPolicyDaemon = null;
             mHandler.cancelAll();
@@ -452,13 +453,36 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             @CarPowerManager.CarPowerState int carPowerStateListenerState) {
         CpmsState newState = new CpmsState(apState, carPowerStateListenerState,
                 /* canPostpone= */ false);
+        BiFunction<CpmsState, CpmsState, Boolean> eventFilter = null;
+
+        // We are ready to shut down. Suppress this transition if
+        // there is a request to cancel the shutdown (WAIT_FOR_VHAL).
+        // Completely ignore this WAIT_FOR_FINISH
+        if (newState.mState == CpmsState.WAIT_FOR_FINISH) {
+            eventFilter = (stateToAdd, pendingSate) ->
+                    stateToAdd.mState == CpmsState.WAIT_FOR_FINISH
+                    && pendingSate.mState == CpmsState.WAIT_FOR_VHAL;
+        }
+
+        // Check if there is another pending SHUTDOWN_PREPARE.
+        // This could happen, when another SHUTDOWN_PREPARE request is received from VHAL
+        // while notifying PRE_SHUTDOWN_PREPARE.
+        // If SHUTDOWN_PREPARE request already exist in the queue, and it skips Garage Mode,
+        // then newState is ignored .
+        if (newState.mState == CpmsState.SHUTDOWN_PREPARE) {
+            eventFilter = (stateToAdd, pendingState) ->
+                    pendingState.mState == CpmsState.SHUTDOWN_PREPARE
+                            && !pendingState.mCanPostpone
+                            && pendingState.mCarPowerStateListenerState
+                            == STATE_PRE_SHUTDOWN_PREPARE;
+        }
+
         synchronized (mLock) {
-            if (newState.mState == CpmsState.WAIT_FOR_FINISH) {
-                // We are ready to shut down. Suppress this transition if
-                // there is a request to cancel the shutdown (WAIT_FOR_VHAL).
+            // If eventFilter exists, lets check if event that satisfies filter is in queue.
+            if (eventFilter != null) {
                 for (int idx = 0; idx < mPendingPowerStates.size(); idx++) {
-                    if (mPendingPowerStates.get(idx).mState == CpmsState.WAIT_FOR_VHAL) {
-                        // Completely ignore this WAIT_FOR_FINISH
+                    CpmsState pendingState = mPendingPowerStates.get(idx);
+                    if (eventFilter.apply(newState, pendingState)) {
                         return;
                     }
                 }
@@ -501,7 +525,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     && newState.mCarPowerStateListenerState == STATE_PRE_SHUTDOWN_PREPARE) {
                 // Nothing to do here, skipping clearing completion queue
             } else {
-                clearWaitingForCompletion(/* clearQueue= */ false);
+                clearWaitingForCompletion(/*clearQueue=*/false);
             }
 
             mCurrentState = newState;
@@ -691,11 +715,19 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     synchronized (mLock) {
                         mCurrentState = currentState;
                     }
-                    clearWaitingForCompletion(/* clearQueue= */ true);
+                    clearWaitingForCompletion(/*clearQueue=*/true);
                 } else if (prevState.mCarPowerStateListenerState == STATE_PRE_SHUTDOWN_PREPARE) {
                     // Update of state occurred while in PRE_SHUTDOWN_PREPARE
-                    // shutdown target was updated above, nothing to do here
-                    break;
+                    boolean areListenersEmpty;
+                    synchronized (mLock) {
+                        areListenersEmpty = mListenersWeAreWaitingFor.isEmpty();
+                    }
+                    if (areListenersEmpty) {
+                        handleCoreShutdownPrepare();
+                    } else {
+                        // PRE_SHUTDOWN_PREPARE is still being processed, no actions required
+                        return;
+                    }
                 } else {
                     handlePreShutdownPrepare();
                 }
@@ -1224,7 +1256,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void doHandleProcessingComplete() {
         int listenerState = CarPowerManager.STATE_SHUTDOWN_ENTER;
         synchronized (mLock) {
-            clearWaitingForCompletion(/* clearQueue= */ false);
+            clearWaitingForCompletion(/*clearQueue=*/false);
             boolean shutdownOnFinish = (mActionOnFinish == ACTION_ON_FINISH_SHUTDOWN);
             if (!shutdownOnFinish && mLastSleepEntryTime > mShutdownStartTime) {
                 // entered sleep after processing start. So this could be duplicate request.
