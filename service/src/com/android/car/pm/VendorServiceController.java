@@ -20,7 +20,9 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNL
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
 import static android.content.Context.BIND_AUTO_CREATE;
+import static android.os.Process.INVALID_UID;
 
+import static com.android.car.CarLog.TAG_AM;
 import static com.android.car.util.Utils.isEventAnyOfTypes;
 
 import android.annotation.Nullable;
@@ -30,11 +32,14 @@ import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -53,6 +58,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -70,6 +76,7 @@ final class VendorServiceController implements UserLifecycleListener {
     static final String TAG = CarLog.tagFor(VendorServiceController.class);
 
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    private static final String PACKAGE_DATA_SCHEME = "package";
 
     private final List<VendorServiceInfo> mVendorServiceInfos = new ArrayList<>();
     private final HashMap<ConnectionKey, VendorServiceConnection> mConnections =
@@ -79,6 +86,44 @@ final class VendorServiceController implements UserLifecycleListener {
     private final Handler mHandler;
     private CarUserService mCarUserService;
 
+    private final BroadcastReceiver mPackageChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (DBG) {
+                Slogf.d(TAG_AM, "Package change received with action = %s", action);
+            }
+
+            Uri packageData = intent.getData();
+            if (packageData == null) {
+                Slogf.wtf(TAG_AM, "null packageData");
+                return;
+            }
+            String packageName = packageData.getSchemeSpecificPart();
+            if (packageName == null) {
+                Slogf.w(TAG_AM, "null packageName");
+                return;
+            }
+            int uid = intent.getIntExtra(Intent.EXTRA_UID, INVALID_UID);
+            int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
+
+            switch (action) {
+                case Intent.ACTION_PACKAGE_CHANGED:
+                    // Fall through
+                case Intent.ACTION_PACKAGE_REPLACED:
+                    // Fall through
+                case Intent.ACTION_PACKAGE_ADDED:
+                    tryToRebindConnectionsForUser(userId);
+                    break;
+                case Intent.ACTION_PACKAGE_REMOVED:
+                    stopOrUnbindService(packageName, userId);
+                    break;
+                default:
+                    Slogf.w(TAG_AM, "This package change event (%s) can't be handled.",
+                            action);
+            }
+        }
+    };
 
     VendorServiceController(Context context, Looper looper) {
         mContext = context;
@@ -100,13 +145,19 @@ final class VendorServiceController implements UserLifecycleListener {
         mCarUserService.addUserLifecycleListener(userSwitchingOrUnlockingEventFilter, this);
 
         startOrBindServicesIfNeeded();
+        registerPackageChangeReceiver();
     }
 
     void release() {
+        if (mVendorServiceInfos.isEmpty()) {
+            Slogf.d(TAG_AM, "Releasing VendorServiceController without deep cleaning as no vendor "
+                    + "service info present. ");
+            return;
+        }
         if (mCarUserService != null) {
             mCarUserService.removeUserLifecycleListener(this);
         }
-
+        unregisterPackageChangeReceiver();
         for (ConnectionKey key : mConnections.keySet()) {
             stopOrUnbindService(key.mVendorServiceInfo, key.mUserHandle);
         }
@@ -137,6 +188,33 @@ final class VendorServiceController implements UserLifecycleListener {
             default:
                 // Shouldn't happen as listener was registered with filter
                 Slogf.wtf(TAG, "Invalid event: %s", event);
+        }
+    }
+
+    private void registerPackageChangeReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_PACKAGE_CHANGED);
+        filter.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        filter.addAction(Intent.ACTION_PACKAGE_ADDED);
+        filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        filter.addDataScheme(PACKAGE_DATA_SCHEME);
+        mContext.registerReceiverForAllUsers(mPackageChangeReceiver, filter,
+                /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
+    }
+
+    private void unregisterPackageChangeReceiver() {
+        mContext.unregisterReceiver(mPackageChangeReceiver);
+    }
+
+    private void tryToRebindConnectionsForUser(@UserIdInt int userId) {
+        for (Map.Entry<ConnectionKey, VendorServiceConnection> entry : mConnections.entrySet()) {
+            VendorServiceConnection connection = entry.getValue();
+            if (connection.isUser(userId)) {
+                Slogf.d(TAG, "Trying to rebind connection to %s",
+                        connection.mVendorServiceInfo);
+                connection.tryToRebind();
+            }
         }
     }
 
@@ -217,6 +295,23 @@ final class VendorServiceController implements UserLifecycleListener {
         }
     }
 
+    /**
+     * Unbinds the VendorServiceController from all the services with the given {@code packageName}
+     * and running as {@code userId}.
+     */
+    private void stopOrUnbindService(String packageName, @UserIdInt int userId) {
+        for (Map.Entry<ConnectionKey, VendorServiceConnection> entry : mConnections.entrySet()) {
+            VendorServiceConnection connection = entry.getValue();
+            if (connection.isUser(userId)
+                    && packageName.equals(connection.mVendorServiceInfo.getIntent().getComponent()
+                    .getPackageName())) {
+                Slogf.d(TAG, "Stopping the connection to service %s",
+                         connection.mVendorServiceInfo);
+                connection.stopOrUnbindService();
+            }
+        }
+    }
+
     private VendorServiceConnection getOrCreateConnection(ConnectionKey key) {
         VendorServiceConnection connection = mConnections.get(key);
         if (connection == null) {
@@ -250,7 +345,8 @@ final class VendorServiceController implements UserLifecycleListener {
     /**
      * Represents connection to the vendor service.
      */
-    private static final class VendorServiceConnection implements ServiceConnection, Executor {
+    @VisibleForTesting
+    public static final class VendorServiceConnection implements ServiceConnection, Executor {
         private static final int REBIND_DELAY_MS = 5000;
         private static final int MAX_RECENT_FAILURES = 5;
         private static final int FAILURE_COUNTER_RESET_TIMEOUT = 5 * 60 * 1000; // 5 min.
@@ -282,10 +378,19 @@ final class VendorServiceController implements UserLifecycleListener {
             };
         }
 
+        @VisibleForTesting
+        public boolean isPendingRebind() {
+            return mFailureHandler.hasMessages(MSG_REBIND);
+        }
+
         @Override
         public String toString() {
             return "VendorServiceConnection[user=" + mUser
                     + ", service=" + mVendorServiceInfo + "]";
+        }
+
+        private boolean isUser(@UserIdInt int userId) {
+            return mUser.getIdentifier() == userId;
         }
 
         boolean startOrBindService() {
