@@ -50,6 +50,8 @@
         <permission name="android.car.permission.CAR_TIRES"/>
         <permission name="android.car.permission.CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+        <permission name="android.car.permission.CONTROL_CAR_ENERGY"/>
+        <permission name="android.car.permission.CONTROL_CAR_ENERGY_PORTS"/>
         <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
     </privapp-permissions>
 </permissions>

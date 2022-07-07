@@ -75,6 +75,8 @@
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
     <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_DOORS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_ENERGY" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_ENERGY_PORTS" />
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
 </manifest>
