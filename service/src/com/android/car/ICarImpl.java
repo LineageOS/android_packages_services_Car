@@ -369,12 +369,14 @@ public class ICarImpl extends ICar.Stub {
                     () -> new CarWatchdogService(serviceContext, mCarServiceBuiltinPackageContext));
         } else {
             mCarWatchdogService = carWatchdogService;
+            CarLocalServices.addService(CarWatchdogService.class, mCarWatchdogService);
         }
         if (carPerformanceService == null) {
             mCarPerformanceService = constructWithTrace(t, CarPerformanceService.class,
                     () -> new CarPerformanceService(serviceContext));
         } else {
             mCarPerformanceService = carPerformanceService;
+            CarLocalServices.addService(CarPerformanceService.class, mCarPerformanceService);
         }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
