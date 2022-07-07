@@ -21,7 +21,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
-import android.annotation.TestApi;
 import android.app.ActivityManager;
 import android.car.annotation.AddedInOrBefore;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -51,7 +50,6 @@ import java.util.Objects;
         genConstructor = false,
         genEqualsHashCode = true)
 @SystemApi
-@TestApi
 public final class UserLifecycleEventFilter implements Parcelable {
 
     private static final int USER_CURRENT = UserHandle.CURRENT.getIdentifier();

@@ -20,7 +20,6 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
-import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -48,7 +47,6 @@ import java.lang.annotation.Target;
  * @hide
  */
 @SystemApi
-@TestApi
 public final class CarActivityManager extends CarManagerBase {
     private static final String TAG = CarUserManager.class.getSimpleName();
 
