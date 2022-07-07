@@ -48,6 +48,7 @@
         <permission name="android.car.permission.CAR_MILEAGE"/>
         <permission name="android.car.permission.CAR_TIRES"/>
         <permission name="android.car.permission.CAR_EXTERIOR_LIGHTS"/>
+        <permission name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CAR_VENDOR_EXTENSION"/>
     </privapp-permissions>
 </permissions>
