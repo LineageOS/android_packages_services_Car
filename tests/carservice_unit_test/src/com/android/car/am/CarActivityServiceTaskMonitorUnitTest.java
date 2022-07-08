@@ -102,7 +102,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     private void setUpTaskOrganizer() throws Exception {
         Context context = getContext();
         HandlerExecutor mExecutor = new HandlerExecutor(context.getMainThreadHandler());
-        mTaskOrganizer = new ShellTaskOrganizer(mExecutor, context);
+        mTaskOrganizer = new ShellTaskOrganizer(mExecutor);
         TransactionPool transactionPool = new TransactionPool();
         SyncTransactionQueue syncQueue = new SyncTransactionQueue(transactionPool, mExecutor);
         mFullscreenTaskListener = new TestTaskListener(syncQueue);
