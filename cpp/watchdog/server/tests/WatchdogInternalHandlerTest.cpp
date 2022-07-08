@@ -62,22 +62,11 @@ using ::ndk::SharedRefBase;
 using ::ndk::SpAIBinder;
 using ::testing::_;
 using ::testing::ByMove;
+using ::testing::DoAll;
 using ::testing::Eq;
 using ::testing::Pointer;
 using ::testing::Return;
-
-class WatchdogInternalHandlerTestPeer final {
-public:
-    explicit WatchdogInternalHandlerTestPeer(WatchdogInternalHandler* handler) :
-          mHandler(handler) {}
-
-    void setThreadPriorityController(std::unique_ptr<ThreadPriorityController> controller) {
-        mHandler->setThreadPriorityController(std::move(controller));
-    }
-
-private:
-    WatchdogInternalHandler* mHandler;
-};
+using ::testing::SaveArg;
 
 namespace {
 
@@ -127,6 +116,22 @@ MATCHER_P(PriorityEq, priority, "") {
 
 }  // namespace
 
+namespace internal {
+
+class WatchdogInternalHandlerPeer final {
+public:
+    explicit WatchdogInternalHandlerPeer(WatchdogInternalHandler* handler) : mHandler(handler) {}
+
+    void setThreadPriorityController(std::unique_ptr<ThreadPriorityController> controller) {
+        mHandler->setThreadPriorityController(std::move(controller));
+    }
+
+private:
+    WatchdogInternalHandler* mHandler;
+};
+
+}  // namespace internal
+
 class WatchdogInternalHandlerTest : public ::testing::Test {
 protected:
     static constexpr pid_t TEST_PID = 1;
@@ -143,7 +148,7 @@ protected:
                                                              mMockWatchdogProcessService,
                                                              mMockWatchdogPerfService,
                                                              mMockIoOveruseMonitor);
-        WatchdogInternalHandlerTestPeer peer(mWatchdogInternalHandler.get());
+        internal::WatchdogInternalHandlerPeer peer(mWatchdogInternalHandler.get());
         std::unique_ptr<MockSystemCalls> mockSystemCalls =
                 std::make_unique<MockSystemCalls>(TEST_TID, TEST_UID, TEST_PID);
         mMockSystemCalls = mockSystemCalls.get();
@@ -766,6 +771,59 @@ TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityGetParamFailed) {
 
     EXPECT_FALSE(status.isOk());
     EXPECT_EQ(status.getExceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestDumpWithEmptyArgs) {
+    EXPECT_CALL(*mMockWatchdogProcessService, onDump(-1)).Times(1);
+    EXPECT_CALL(*mMockWatchdogPerfService, onDump(-1)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockIoOveruseMonitor, onDump(-1)).WillOnce(Return(Result<void>()));
+
+    ASSERT_EQ(mWatchdogInternalHandler->dump(-1, /*args=*/nullptr, /*numArgs=*/0), OK);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestDumpWithStartCustomPerfCollection) {
+    const char* args[] = {kStartCustomCollectionFlag};
+    EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, args, /*numArgs=*/1))
+            .WillOnce(Return(Result<void>()));
+
+    ASSERT_EQ(mWatchdogInternalHandler->dump(-1, args, /*numArgs=*/1), OK);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestDumpWithStopCustomPerfCollection) {
+    const char* args[] = {kEndCustomCollectionFlag};
+    EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, args, /*numArgs=*/1))
+            .WillOnce(Return(Result<void>()));
+
+    ASSERT_EQ(mWatchdogInternalHandler->dump(-1, args, /*numArgs=*/1), OK);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestDumpWithResetResourceOveruseStats) {
+    std::vector<std::string> actualPackages;
+    EXPECT_CALL(*mMockIoOveruseMonitor, resetIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualPackages), Return(Result<void>())));
+
+    const char* args[] = {kResetResourceOveruseStatsFlag, "packageA,packageB"};
+    ASSERT_EQ(mWatchdogInternalHandler->dump(-1, args, /*numArgs=*/2), OK);
+    ASSERT_EQ(actualPackages, std::vector<std::string>({"packageA", "packageB"}));
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestFailsDumpWithInvalidResetResourceOveruseStatsArg) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, resetIoOveruseStats(_)).Times(0);
+
+    const char* args[] = {kResetResourceOveruseStatsFlag, ""};
+    ASSERT_EQ(mWatchdogInternalHandler->dump(-1, args, /*numArgs=*/2), BAD_VALUE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestDumpWithInvalidDumpArgs) {
+    const char* args[] = {"--invalid_option"};
+    int nullFd = open("/dev/null", O_RDONLY);
+    EXPECT_CALL(*mMockWatchdogProcessService, onDump(nullFd)).Times(1);
+    EXPECT_CALL(*mMockWatchdogPerfService, onDump(nullFd)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockIoOveruseMonitor, onDump(nullFd)).WillOnce(Return(Result<void>()));
+
+    EXPECT_EQ(mWatchdogInternalHandler->dump(nullFd, args, /*numArgs=*/1), OK)
+            << "Error returned on invalid args";
+    close(nullFd);
 }
 
 }  // namespace watchdog

@@ -58,7 +58,6 @@ using ::aidl::android::hardware::automotive::vehicle::VehiclePropConfig;
 using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropertyStatus;
 using ::aidl::android::hardware::automotive::vehicle::VehiclePropValue;
-using ::android::IBinder;
 using ::android::sp;
 using ::android::String16;
 using ::android::base::Error;
