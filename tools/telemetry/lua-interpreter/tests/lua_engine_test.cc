@@ -38,10 +38,11 @@ class LuaEngineTest : public testing::Test {
     }
     return output.str();
   }
+
   std::string ConvertArrayToString(char** array, int size) {
     std::stringstream output;
     for (int i = 0; i < size; i++) {
-        output << array[i];
+      output << array[i];
     }
     return output.str();
   }
@@ -77,7 +78,148 @@ TEST_F(LuaEngineTest, ExecuteScriptReturnsOutput) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
       "function add(a, b) return a + b end return add(10, 5)");
   std::string actual = ConvertVectorToString(output);
-  EXPECT_EQ("15\t\n", actual);
+  EXPECT_TRUE(actual.find("15") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptLogCallback) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("log('Logging here')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("LUA: Logging here") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnSuccessMoreArguments) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_success({}, {})");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("on_success can push only a single parameter from "
+                          "Lua - a Lua table") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnSuccessNonTable) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_success('Success!')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("on_success can push only a single parameter from "
+                          "Lua - a Lua table") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnSuccessWithTable) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "tbl = {}; tbl['sessionId'] = 1; on_success(tbl)");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find('{"sessionId":1}') != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedMoreArguments) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_script_finished({}, {})");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("on_script_finished can push only a single parameter "
+                          "from Lua - a Lua "
+                          "table") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedNonTable) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_script_finished('Script finished')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("on_script_finished can push only a single parameter "
+                          "from Lua - a Lua "
+                          "table") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedWithTable) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "tbl = {}; tbl['sessionId'] = 1; on_script_finished(tbl)");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find('{"sessionId":1}') != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnErrorMoreArguments) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_error('ERROR ONE', 'ERROR TWO')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(
+      actual.find(
+          "on_error can push only a single string parameter from Lua") !=
+      std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnErrorNonString) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript("on_error({})");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(
+      actual.find(
+          "on_error can push only a single string parameter from Lua") !=
+      std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnErrorWithSingleString) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_error('ERROR: 2')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find('ERROR: 2') != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportMoreArguments) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_metrics_report({}, {}, {})");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(
+      actual.find(
+          "on_metrics_report should push 1 to 2 parameters of Lua table type. "
+          "The first table is a metrics report and the second is an optional "
+          "state to save") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportNonTable) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_metrics_report('Incoming metrics report')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(
+      actual.find(
+          "on_metrics_report should push 1 to 2 parameters of Lua table type. "
+          "The first table is a metrics report and the second is an optional "
+          "state to save") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportNonTableWithTable) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "on_metrics_report('Incoming metrics report', {})");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(
+      actual.find(
+          "on_metrics_report should push 1 to 2 parameters of Lua table type. "
+          "The first table is a metrics report and the second is an optional "
+          "state to save") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportTableWithNonTable) {
+  std::vector<std::string> output =
+      lua_engine_.ExecuteScript("on_metrics_report({}, 'Saved state here')");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(
+      actual.find(
+          "on_metrics_report should push 1 to 2 parameters of Lua table "
+          "type. "
+          "The first table is a metrics report and the second is an optional "
+          "state to save") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportSingleTable) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "tbl = {}; tbl['sessionId'] = 1; on_metrics_report(tbl)");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find('{"sessionId":1}') != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportMultipleTable) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "tbl = {}; tbl['sessionId'] = 1; on_metrics_report(tbl, tbl)");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find('{"sessionId":1}\n{"sessionId":1}') !=
+              std::string::npos);
 }
 
 TEST_F(LuaEngineTest, StringVectorToArrayEmpty) {
