@@ -57,7 +57,7 @@ public final class VmsLayerDependency implements Parcelable {
         mDependencies = Collections.unmodifiableSet(mDependencies);
     }
 
-    private void parcelDependencies(Parcel dest, int flags) {
+    private void parcelDependencies(Parcel dest) {
         ParcelHelper.writeArraySet(dest, new ArraySet<>(mDependencies));
     }
 
@@ -161,7 +161,7 @@ public final class VmsLayerDependency implements Parcelable {
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
         dest.writeTypedObject(mLayer, flags);
-        parcelDependencies(dest, flags);
+        parcelDependencies(dest);
     }
 
     @Override

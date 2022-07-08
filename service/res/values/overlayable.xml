@@ -60,6 +60,7 @@
           <item type="integer" name="acceptableWrittenKBytesPerSample"/>
           <item type="integer" name="acceptableFsyncCallsPerSample"/>
           <item type="integer" name="maxExcessiveIoSamplesInWindow"/>
+          <item type="integer" name="watchdogUserPackageSettingsResetDays" />
           <item type="integer" name="recurringResourceOverusePeriodInDays"/>
           <item type="integer" name="recurringResourceOveruseTimes"/>
           <item type="integer" name="uidIoUsageSummaryTopCount"/>

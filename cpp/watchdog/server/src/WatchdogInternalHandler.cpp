@@ -18,6 +18,7 @@
 
 #include "WatchdogInternalHandler.h"
 
+#include "UidProcStatsCollector.h"
 #include "WatchdogBinderMediator.h"
 
 #include <android/automotive/watchdog/internal/BootPhase.h>
@@ -39,6 +40,7 @@ using aawi::ICarWatchdogServiceForSystem;
 using aawi::PowerCycle;
 using aawi::ProcessIdentifier;
 using aawi::ResourceOveruseConfiguration;
+using aawi::ThreadPolicyWithPriority;
 using ::android::sp;
 using ::android::String16;
 using ::android::binder::Status;
@@ -287,6 +289,29 @@ Status WatchdogInternalHandler::controlProcessHealthCheck(bool enable) {
     }
     mWatchdogProcessService->setEnabled(enable);
     return Status::ok();
+}
+
+Status WatchdogInternalHandler::setThreadPriority(int pid, int tid, int uid, int policy,
+                                                  int priority) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    return mThreadPriorityController->setThreadPriority(pid, tid, uid, policy, priority);
+}
+
+Status WatchdogInternalHandler::getThreadPriority(int pid, int tid, int uid,
+                                                  ThreadPolicyWithPriority* result) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    return mThreadPriorityController->getThreadPriority(pid, tid, uid, result);
+}
+
+void WatchdogInternalHandler::setThreadPriorityController(
+        std::unique_ptr<ThreadPriorityController> threadPriorityController) {
+    mThreadPriorityController = std::move(threadPriorityController);
 }
 
 }  // namespace watchdog

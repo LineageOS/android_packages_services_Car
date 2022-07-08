@@ -18,6 +18,7 @@
 #include "MockWatchdogPerfService.h"
 #include "MockWatchdogProcessService.h"
 #include "MockWatchdogServiceHelper.h"
+#include "ThreadPriorityController.h"
 #include "WatchdogBinderMediator.h"
 #include "WatchdogInternalHandler.h"
 #include "WatchdogServiceHelper.h"
@@ -35,6 +36,8 @@
 #include <utils/RefBase.h>
 
 #include <errno.h>
+#include <sched.h>
+#include <unistd.h>
 
 namespace android {
 namespace automotive {
@@ -48,6 +51,7 @@ using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PowerCycle;
 using aawi::ProcessIdentifier;
 using aawi::ResourceOveruseConfiguration;
+using aawi::ThreadPolicyWithPriority;
 using ::android::sp;
 using ::android::String16;
 using ::android::base::Result;
@@ -55,6 +59,19 @@ using ::android::binder::Status;
 using ::testing::_;
 using ::testing::Pointer;
 using ::testing::Return;
+
+class WatchdogInternalHandlerTestPeer final {
+public:
+    explicit WatchdogInternalHandlerTestPeer(WatchdogInternalHandler* handler) :
+          mHandler(handler) {}
+
+    void setThreadPriorityController(std::unique_ptr<ThreadPriorityController> controller) {
+        mHandler->setThreadPriorityController(std::move(controller));
+    }
+
+private:
+    WatchdogInternalHandler* mHandler;
+};
 
 namespace {
 
@@ -89,6 +106,20 @@ public:
     MOCK_METHOD(Status, notifySystemStateChange, (StateType, int32_t, int32_t), (override));
 };
 
+class MockSystemCalls : public ThreadPriorityController::SystemCallsInterface {
+public:
+    MockSystemCalls(int tid, int uid, int pid) {
+        ON_CALL(*this, readPidStatusFileForPid(tid))
+                .WillByDefault(Return(std::make_tuple(uid, pid)));
+    }
+
+    MOCK_METHOD(int, setScheduler, (pid_t tid, int policy, const sched_param* param), (override));
+    MOCK_METHOD(int, getScheduler, (pid_t tid), (override));
+    MOCK_METHOD(int, getParam, (pid_t tid, sched_param* param), (override));
+    MOCK_METHOD((Result<std::tuple<uid_t, pid_t>>), readPidStatusFileForPid, (pid_t pid),
+                (override));
+};
+
 class ScopedChangeCallingUid final : public RefBase {
 public:
     explicit ScopedChangeCallingUid(uid_t uid) {
@@ -115,10 +146,18 @@ private:
     pid_t mCallingPid;
 };
 
+MATCHER_P(PriorityEq, priority, "") {
+    return (arg->sched_priority) == priority;
+}
+
 }  // namespace
 
 class WatchdogInternalHandlerTest : public ::testing::Test {
 protected:
+    static constexpr pid_t TEST_PID = 1;
+    static constexpr pid_t TEST_TID = 2;
+    static constexpr uid_t TEST_UID = 3;
+
     virtual void SetUp() {
         mMockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
         mMockWatchdogPerfService = sp<MockWatchdogPerfService>::make();
@@ -130,6 +169,12 @@ protected:
                                                   mMockWatchdogServiceHelper,
                                                   mMockWatchdogProcessService,
                                                   mMockWatchdogPerfService, mMockIoOveruseMonitor);
+        WatchdogInternalHandlerTestPeer peer(mWatchdogInternalHandler.get());
+        std::unique_ptr<MockSystemCalls> mockSystemCalls =
+                std::make_unique<MockSystemCalls>(TEST_TID, TEST_UID, TEST_PID);
+        mMockSystemCalls = mockSystemCalls.get();
+        peer.setThreadPriorityController(
+                std::make_unique<ThreadPriorityController>(std::move(mockSystemCalls)));
     }
     virtual void TearDown() {
         mMockWatchdogBinderMediator.clear();
@@ -153,6 +198,7 @@ protected:
     sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     sp<WatchdogInternalHandler> mWatchdogInternalHandler;
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
+    MockSystemCalls* mMockSystemCalls;
 };
 
 TEST_F(WatchdogInternalHandlerTest, TestTerminate) {
@@ -507,6 +553,155 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnControlProcessHealthCheckWithNonS
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
     Status status = mWatchdogInternalHandler->controlProcessHealthCheck(false);
     ASSERT_FALSE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriority) {
+    setSystemCallingUid();
+    int policy = SCHED_FIFO;
+    int priority = 1;
+    EXPECT_CALL(*mMockSystemCalls, setScheduler(TEST_TID, policy, PriorityEq(priority)))
+            .WillOnce(Return(0));
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID, TEST_UID,
+                                                                policy, priority);
+
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityDefaultPolicy) {
+    setSystemCallingUid();
+    int policy = SCHED_OTHER;
+    int setPriority = 1;
+    // Default policy should ignore the provided priority.
+    int expectedPriority = 0;
+    EXPECT_CALL(*mMockSystemCalls, setScheduler(TEST_TID, policy, PriorityEq(expectedPriority)))
+            .WillOnce(Return(0));
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID, TEST_UID,
+                                                                policy, setPriority);
+
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityInvalidPid) {
+    setSystemCallingUid();
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID + 1, TEST_TID, TEST_UID,
+                                                                SCHED_FIFO, 1);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityInvalidTid) {
+    setSystemCallingUid();
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID + 1, TEST_UID,
+                                                                SCHED_FIFO, 1);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityInvalidUid) {
+    setSystemCallingUid();
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID, TEST_UID + 1,
+                                                                SCHED_FIFO, 1);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityInvalidPolicy) {
+    setSystemCallingUid();
+
+    Status status =
+            mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID, TEST_UID, -1, 1);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_ARGUMENT);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityInvalidPriority) {
+    setSystemCallingUid();
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID, TEST_UID,
+                                                                SCHED_FIFO, 0);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_ARGUMENT);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityFailed) {
+    setSystemCallingUid();
+    int expectedPolicy = SCHED_FIFO;
+    int expectedPriority = 1;
+    EXPECT_CALL(*mMockSystemCalls,
+                setScheduler(TEST_TID, expectedPolicy, PriorityEq(expectedPriority)))
+            .WillOnce(Return(-1));
+
+    Status status = mWatchdogInternalHandler->setThreadPriority(TEST_PID, TEST_TID, TEST_UID,
+                                                                expectedPolicy, expectedPriority);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriority) {
+    setSystemCallingUid();
+    int expectedPolicy = SCHED_FIFO;
+    int expectedPriority = 1;
+    EXPECT_CALL(*mMockSystemCalls, getScheduler(TEST_TID)).WillOnce(Return(expectedPolicy));
+    EXPECT_CALL(*mMockSystemCalls, getParam(TEST_TID, _))
+            .WillOnce([expectedPriority](pid_t, sched_param* param) {
+                param->sched_priority = expectedPriority;
+                return 0;
+            });
+
+    ThreadPolicyWithPriority actual;
+    Status status =
+            mWatchdogInternalHandler->getThreadPriority(TEST_PID, TEST_TID, TEST_UID, &actual);
+
+    ASSERT_TRUE(status.isOk()) << status;
+    EXPECT_EQ(actual.policy, expectedPolicy);
+    EXPECT_EQ(actual.priority, expectedPriority);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityInvalidPid) {
+    setSystemCallingUid();
+
+    ThreadPolicyWithPriority actual;
+    Status status =
+            mWatchdogInternalHandler->getThreadPriority(TEST_PID + 1, TEST_TID, TEST_UID, &actual);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityGetSchedulerFailed) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockSystemCalls, getScheduler(TEST_TID)).WillOnce(Return(-1));
+
+    ThreadPolicyWithPriority actual;
+    Status status =
+            mWatchdogInternalHandler->getThreadPriority(TEST_PID, TEST_TID, TEST_UID, &actual);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityGetParamFailed) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockSystemCalls, getScheduler(TEST_TID)).WillOnce(Return(0));
+    EXPECT_CALL(*mMockSystemCalls, getParam(TEST_TID, _)).WillOnce(Return(-1));
+
+    ThreadPolicyWithPriority actual;
+    Status status =
+            mWatchdogInternalHandler->getThreadPriority(TEST_PID, TEST_TID, TEST_UID, &actual);
+
+    EXPECT_FALSE(status.isOk());
+    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
 }
 
 }  // namespace watchdog

@@ -396,6 +396,13 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             }
         }
 
+        if (!delayFocusForCurrentRequest) {
+            // If the entry is replacing an existing one, and if a delayed Request is pending
+            // this replaced entry is not a blocker of the delayed.
+            // So add it before reconsidering the delayed.
+            mFocusHolders.put(afi.getClientId(), newEntry);
+        }
+
         // Now that all new blockers have been added, clear out any other requests that have been
         // permanently lost as a result of this request. Treat them as abandoned - if they're on
         // any blocker lists, remove them. If any focus requests become unblocked as a result,
@@ -410,8 +417,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             swapDelayedAudioFocusRequestLocked(afi);
             return AUDIOFOCUS_REQUEST_DELAYED;
         }
-
-        mFocusHolders.put(afi.getClientId(), newEntry);
 
         Slogf.i(TAG, "AUDIOFOCUS_REQUEST_GRANTED");
         return AUDIOFOCUS_REQUEST_GRANTED;
@@ -527,11 +532,14 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         if (mDelayedRequest == null) {
             return;
         }
-
-        int delayedFocusRequestResults = evaluateFocusRequestLocked(mDelayedRequest);
+        // Prevent cleanup of permanent lost to recall attemptToGainFocusForDelayedAudioFocusRequest
+        // Whatever granted / denied / delayed again, no need to restore, mDelayedRequest restored
+        // if delayed again.
+        AudioFocusInfo delayedFocusInfo = mDelayedRequest;
+        mDelayedRequest = null;
+        int delayedFocusRequestResults = evaluateFocusRequestLocked(delayedFocusInfo);
         if (delayedFocusRequestResults == AUDIOFOCUS_REQUEST_GRANTED) {
-            FocusEntry focusEntry = mFocusHolders.get(mDelayedRequest.getClientId());
-            mDelayedRequest = null;
+            FocusEntry focusEntry = mFocusHolders.get(delayedFocusInfo.getClientId());
             if (dispatchFocusGainedLocked(focusEntry.getAudioFocusInfo())
                     == AUDIOFOCUS_REQUEST_FAILED) {
                 Slogf.e(TAG, "Failure to signal gain of audio focus gain for "
@@ -543,6 +551,12 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                 logFocusEvent("Did not gained delayed audio focus for "
                         + focusEntry.getClientId());
             }
+        } else if (delayedFocusRequestResults == AUDIOFOCUS_REQUEST_FAILED) {
+            // Delayed request has permanently be denied
+            logFocusEvent("Delayed audio focus retry failed for " + delayedFocusInfo.getClientId());
+            sendFocusLossLocked(delayedFocusInfo, AUDIOFOCUS_LOSS);
+        } else {
+            assert mDelayedRequest.equals(delayedFocusInfo);
         }
     }
 

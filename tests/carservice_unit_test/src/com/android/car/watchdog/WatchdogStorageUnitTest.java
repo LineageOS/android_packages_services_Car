@@ -20,6 +20,20 @@ import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_NEVER;
 import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_NO;
 import static android.car.watchdog.PackageKillableState.KILLABLE_STATE_YES;
 
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_DATE_EPOCH;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_FORGIVEN_BACKGROUND_WRITE_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_FORGIVEN_FOREGROUND_WRITE_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_FORGIVEN_GARAGE_MODE_WRITE_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_NUM_FORGIVEN_OVERUSES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_NUM_OVERUSES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_NUM_TIMES_KILLED;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_REMAINING_BACKGROUND_WRITE_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_REMAINING_FOREGROUND_WRITE_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_REMAINING_GARAGE_MODE_WRITE_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_USER_PACKAGE_ID;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_WRITTEN_BACKGROUND_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_WRITTEN_FOREGROUND_BYTES;
+import static com.android.car.watchdog.WatchdogStorage.IoUsageStatsTable.COLUMN_WRITTEN_GARAGE_MODE_BYTES;
 import static com.android.car.watchdog.WatchdogStorage.RETENTION_PERIOD;
 import static com.android.car.watchdog.WatchdogStorage.STATS_TEMPORAL_UNIT;
 import static com.android.car.watchdog.WatchdogStorage.WatchdogDbHelper.DATABASE_NAME;
@@ -30,6 +44,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.automotive.watchdog.PerStateBytes;
 import android.car.builtin.util.Slogf;
 import android.car.watchdog.IoOveruseStats;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -147,17 +162,21 @@ public final class WatchdogStorageUnitTest {
     public void testOverwriteUserPackageSettings() throws Exception {
         List<WatchdogStorage.UserPackageSettingsEntry> expected = Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_YES),
+                        /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_YES,
+                        /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO));
+                        /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO,
+                        /* lastModifiedKillableStateEpoch= */ 123456789));
 
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
 
         expected = Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_NEVER),
+                        /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_NEVER,
+                        /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO));
+                        /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO,
+                        /* lastModifiedKillableStateEpoch= */ 123456789));
 
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
 
@@ -759,38 +778,98 @@ public final class WatchdogStorageUnitTest {
 
     @Test
     public void testUserPackageSettingsAfterUpgradeToVersion2() throws Exception {
-        SQLiteDatabase db = createDatabaseAndUpgradeToVersion2();
+        SQLiteDatabase db = createDatabaseAndUpgradeToVersion(/* version= */ 2);
 
         List<WatchdogStorage.UserPackageSettingsEntry> actual = new ArrayList<>();
         try (Cursor cursor = db.rawQuery("SELECT user_id, package_name, killable_state FROM "
                 + WatchdogStorage.UserPackageSettingsTable.TABLE_NAME, null, null)) {
             while (cursor.moveToNext()) {
                 actual.add(new WatchdogStorage.UserPackageSettingsEntry(cursor.getInt(0),
-                        cursor.getString(1), cursor.getInt(2)));
+                        cursor.getString(1), cursor.getInt(2),
+                        /* lastModifiedKillableStateEpoch= */ 123456789));
             }
         }
 
         List<WatchdogStorage.UserPackageSettingsEntry> expected =
-                Arrays.asList(new WatchdogStorage.UserPackageSettingsEntry(100, "package_A", 1),
-                        new WatchdogStorage.UserPackageSettingsEntry(101, "package_B", 2));
+                Arrays.asList(new WatchdogStorage.UserPackageSettingsEntry(100, "package_A",
+                                1, /* lastModifiedKillableStateEpoch= */ 123456789),
+                        new WatchdogStorage.UserPackageSettingsEntry(101, "package_B",
+                                2, /* lastModifiedKillableStateEpoch= */ 123456789));
 
         assertWithMessage("User package settings").that(actual).containsExactlyElementsIn(expected);
     }
 
     @Test
-    public void testTablesAfterUpgradeToVersion2() throws Exception {
-        SQLiteDatabase db = createDatabaseAndUpgradeToVersion2();
+    public void testTableExistenceAfterUpgradeToVersion2() throws Exception {
+        SQLiteDatabase db = createDatabaseAndUpgradeToVersion(/* version= */ 2);
 
-        List<String> actual = new ArrayList<>();
-        try (Cursor cursor = db.query(/* table= */ "sqlite_master",
-                /* columns= */ new String[]{"name"},
-                /* selection= */ "name != ? and name not like ?",
-                /* selectionArgs= */ new String[]{"android_metadata", "sqlite_%"},
-                /* groupBy= */ null, /* having= */ null, /* orderBy= */null)) {
+        List<String> actual = getDatabaseTableNames(db);
+
+        assertWithMessage("Table names").that(actual).containsExactlyElementsIn(
+                Arrays.asList(WatchdogStorage.UserPackageSettingsTable.TABLE_NAME,
+                        WatchdogStorage.IoUsageStatsTable.TABLE_NAME));
+    }
+
+    @Test
+    public void testDatabaseTablesAfterUpgradeToVersion3() throws Exception {
+        SQLiteDatabase db = createDatabaseAndUpgradeToVersion(/* version= */ 3);
+
+        List<WatchdogStorage.UserPackageSettingsEntry> actualUserPackages = new ArrayList<>();
+        try (Cursor cursor = db.rawQuery("SELECT user_id, package_name, killable_state, "
+                + "killable_state_last_modified_epoch FROM "
+                + WatchdogStorage.UserPackageSettingsTable.TABLE_NAME, null, null)) {
             while (cursor.moveToNext()) {
-                actual.add(cursor.getString(0));
+                actualUserPackages.add(new WatchdogStorage.UserPackageSettingsEntry(
+                        cursor.getInt(0), cursor.getString(1), cursor.getInt(2),
+                        cursor.getLong(3)));
             }
         }
+
+        List<WatchdogStorage.UserPackageSettingsEntry> expectedUserPackages =
+                Arrays.asList(new WatchdogStorage.UserPackageSettingsEntry(100, "package_A",
+                                1, mTimeSource.now().getEpochSecond()),
+                        new WatchdogStorage.UserPackageSettingsEntry(101, "package_B",
+                                2, mTimeSource.now().getEpochSecond()));
+
+        assertWithMessage("User package settings").that(actualUserPackages)
+                .containsExactlyElementsIn(expectedUserPackages);
+
+        try (Cursor cursor = db.rawQuery("SELECT * FROM "
+                + WatchdogStorage.IoUsageStatsTable.TABLE_NAME, null, null)) {
+
+            assertWithMessage("I/O usage rows").that(cursor.getCount()).isEqualTo(1);
+
+            cursor.moveToNext();
+
+            assertWithMessage("User package id").that(cursor.getInt(0)).isEqualTo(1);
+            assertWithMessage("Start time").that(cursor.getInt(1))
+                    .isEqualTo(mTimeSource.now().getEpochSecond());
+            assertWithMessage("Total overuses").that(cursor.getInt(2)).isEqualTo(3);
+            assertWithMessage("Forgiven overuses").that(cursor.getInt(3)).isEqualTo(2);
+            assertWithMessage("Total times killed").that(cursor.getInt(4)).isEqualTo(1);
+            assertWithMessage("Written foreground bytes").that(cursor.getInt(5)).isEqualTo(100);
+            assertWithMessage("Written background bytes").that(cursor.getInt(6)).isEqualTo(100);
+            assertWithMessage("Written garage mode bytes").that(cursor.getInt(7)).isEqualTo(100);
+            assertWithMessage("Remaining foreground write bytes").that(cursor.getInt(8))
+                    .isEqualTo(200);
+            assertWithMessage("Remaining background write bytes").that(cursor.getInt(9))
+                    .isEqualTo(200);
+            assertWithMessage("Remaining garage mode write bytes")
+                    .that(cursor.getInt(10)).isEqualTo(200);
+            assertWithMessage("Forgiven foreground write bytes").that(cursor.getInt(11))
+                    .isEqualTo(300);
+            assertWithMessage("Forgiven background write bytes").that(cursor.getInt(12))
+                    .isEqualTo(300);
+            assertWithMessage("Forgiven garage mode write bytes").that(cursor.getInt(13))
+                    .isEqualTo(300);
+        }
+    }
+
+    @Test
+    public void testTableExistenceAfterUpgradeToVersion3() throws Exception {
+        SQLiteDatabase db = createDatabaseAndUpgradeToVersion(/* version= */ 3);
+
+        List<String> actual = getDatabaseTableNames(db);
 
         assertWithMessage("Table names").that(actual).containsExactlyElementsIn(
                 Arrays.asList(WatchdogStorage.UserPackageSettingsTable.TABLE_NAME,
@@ -806,17 +885,23 @@ public final class WatchdogStorageUnitTest {
     private static ArrayList<WatchdogStorage.UserPackageSettingsEntry> sampleSettings() {
         return new ArrayList<>(Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_YES),
+                        /* userId= */ 100, "system_package.non_critical.A",
+                        KILLABLE_STATE_YES, /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "system_package.non_critical.B", KILLABLE_STATE_NO),
+                        /* userId= */ 100, "system_package.non_critical.B",
+                        KILLABLE_STATE_NO, /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 100, "vendor_package.critical.C", KILLABLE_STATE_NEVER),
+                        /* userId= */ 100, "vendor_package.critical.C",
+                        KILLABLE_STATE_NEVER, /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 101, "system_package.non_critical.A", KILLABLE_STATE_NO),
+                        /* userId= */ 101, "system_package.non_critical.A",
+                        KILLABLE_STATE_NO, /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 101, "system_package.non_critical.B", KILLABLE_STATE_YES),
+                        /* userId= */ 101, "system_package.non_critical.B",
+                        KILLABLE_STATE_YES, /* lastModifiedKillableStateEpoch= */ 123456789),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 101, "vendor_package.critical.C", KILLABLE_STATE_NEVER)));
+                        /* userId= */ 101, "vendor_package.critical.C",
+                        KILLABLE_STATE_NEVER, /* lastModifiedKillableStateEpoch= */ 123456789)));
     }
 
     private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsBetweenDates(
@@ -905,7 +990,7 @@ public final class WatchdogStorageUnitTest {
         return stats;
     }
 
-    private SQLiteDatabase createDatabaseAndUpgradeToVersion2() {
+    private SQLiteDatabase createDatabaseAndUpgradeToVersion(int version) {
         SQLiteDatabase db = SQLiteDatabase.create(null);
         assertWithMessage("Create database version 1").that(DatabaseVersion1.create(db)).isTrue();
 
@@ -914,7 +999,79 @@ public final class WatchdogStorageUnitTest {
                         mTimeSource);
         dbHelper.onUpgrade(db, /*oldVersion=*/ 1, /*newVersion=*/ 2);
 
+        if (version < 3) {
+            return db;
+        }
+
+        PerStateBytes writtenBytes = new PerStateBytes();
+        writtenBytes.foregroundBytes = 100;
+        writtenBytes.backgroundBytes = 100;
+        writtenBytes.garageModeBytes = 100;
+        PerStateBytes remainingWriteBytes = new PerStateBytes();
+        remainingWriteBytes.foregroundBytes = 200;
+        remainingWriteBytes.backgroundBytes = 200;
+        remainingWriteBytes.garageModeBytes = 200;
+        PerStateBytes forgivenWriteBytes = new PerStateBytes();
+        forgivenWriteBytes.foregroundBytes = 300;
+        forgivenWriteBytes.backgroundBytes = 300;
+        forgivenWriteBytes.garageModeBytes = 300;
+
+        // |userPackageId| refers to primary key of user package (100, package_A) inserted into
+        // UserPackageSettingsTable while creating database version 1.
+        insertIoUsageStats(db, /*userPackageId=*/ 1, /*overuses=*/ 3, /*forgivenOveruses=*/ 2,
+                /*timesKilled=*/ 1, writtenBytes, remainingWriteBytes, forgivenWriteBytes);
+
+        dbHelper.onUpgrade(db, /* oldVersion= */ 2, /* newVersion= */ 3);
+
         return db;
+    }
+
+    private List<String> getDatabaseTableNames(SQLiteDatabase db) {
+        List<String> tableNames = new ArrayList<>();
+        try (Cursor cursor = db.query(/* table= */ "sqlite_master",
+                /* columns= */ new String[]{"name"},
+                /* selection= */ "name != ? and name not like ?",
+                /* selectionArgs= */ new String[]{"android_metadata", "sqlite_%"},
+                /* groupBy= */ null, /* having= */ null, /* orderBy= */null)) {
+            while (cursor.moveToNext()) {
+                tableNames.add(cursor.getString(0));
+            }
+        }
+        return tableNames;
+    }
+
+    private void insertIoUsageStats(SQLiteDatabase db, int userPackageId, int overuses,
+            int forgivenOveruses, int timesKilled, PerStateBytes writtenBytes,
+            PerStateBytes remainingWriteBytes, PerStateBytes forgivenWriteBytes) {
+        ContentValues ioUsageStatsContentValues = new ContentValues();
+        ioUsageStatsContentValues.put(COLUMN_USER_PACKAGE_ID, userPackageId);
+        ioUsageStatsContentValues.put(COLUMN_DATE_EPOCH, mTimeSource.now().getEpochSecond());
+        ioUsageStatsContentValues.put(COLUMN_NUM_OVERUSES, overuses);
+        ioUsageStatsContentValues.put(COLUMN_NUM_FORGIVEN_OVERUSES, forgivenOveruses);
+        ioUsageStatsContentValues.put(COLUMN_NUM_TIMES_KILLED, timesKilled);
+        ioUsageStatsContentValues.put(COLUMN_WRITTEN_FOREGROUND_BYTES,
+                writtenBytes.foregroundBytes);
+        ioUsageStatsContentValues.put(COLUMN_WRITTEN_BACKGROUND_BYTES,
+                writtenBytes.backgroundBytes);
+        ioUsageStatsContentValues.put(COLUMN_WRITTEN_GARAGE_MODE_BYTES,
+                writtenBytes.garageModeBytes);
+        ioUsageStatsContentValues.put(COLUMN_REMAINING_FOREGROUND_WRITE_BYTES,
+                remainingWriteBytes.foregroundBytes);
+        ioUsageStatsContentValues.put(COLUMN_REMAINING_BACKGROUND_WRITE_BYTES,
+                remainingWriteBytes.backgroundBytes);
+        ioUsageStatsContentValues.put(COLUMN_REMAINING_GARAGE_MODE_WRITE_BYTES,
+                remainingWriteBytes.garageModeBytes);
+        ioUsageStatsContentValues.put(COLUMN_FORGIVEN_FOREGROUND_WRITE_BYTES,
+                forgivenWriteBytes.foregroundBytes);
+        ioUsageStatsContentValues.put(COLUMN_FORGIVEN_BACKGROUND_WRITE_BYTES,
+                forgivenWriteBytes.backgroundBytes);
+        ioUsageStatsContentValues.put(COLUMN_FORGIVEN_GARAGE_MODE_WRITE_BYTES,
+                forgivenWriteBytes.garageModeBytes);
+
+        long rowId = db.insert(WatchdogStorage.IoUsageStatsTable.TABLE_NAME,
+                /*nullColumnHack=*/ null, ioUsageStatsContentValues);
+
+        assertThat(rowId).isGreaterThan(-1);
     }
 
     private static final class TestTimeSource extends TimeSource {
@@ -948,9 +1105,9 @@ public final class WatchdogStorageUnitTest {
 
         private static final String[] INSERT_SQLS = new String[] {
                 "INSERT INTO user_package_settings (user_id, package_name, killable_state) "
-                + "VALUES (100, \"package_A\", 1)",
+                        + "VALUES (100, \"package_A\", 1)",
                 "INSERT INTO user_package_settings (user_id, package_name, killable_state) "
-                + "VALUES (101, \"package_B\", 2)"};
+                        + "VALUES (101, \"package_B\", 2)"};
 
         public static boolean create(SQLiteDatabase db) {
             boolean isSuccessful = false;

@@ -142,6 +142,7 @@ import java.io.OutputStreamWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -226,6 +227,7 @@ public final class WatchdogPerfHandler {
     private final OveruseConfigurationCache mOveruseConfigurationCache;
     private final int mUidIoUsageSummaryTopCount;
     private final int mIoUsageSummaryMinSystemTotalWrittenBytes;
+    private final int mPackageKillableStateResetDays;
     private final int mRecurringOverusePeriodInDays;
     private final int mRecurringOveruseTimes;
     private final int mResourceOveruseNotificationBaseId;
@@ -249,6 +251,10 @@ public final class WatchdogPerfHandler {
      * When cache is updated, call {@link WatchdogStorage#markDirty} to notify database is out of
      * sync.
      */
+    // TODO(b/235615155): Update database when a default not killable package is set to killable
+    //  Also, changes to mDefaultNotKillableGenericPackages should be tracked by the last modified
+    //  date. This date should be copied to any new user package settings that take the default
+    //  value. When this date is beyond reset days, the settings here should be reset.
     @GuardedBy("mLock")
     private final ArraySet<String> mDefaultNotKillableGenericPackages = new ArraySet<>();
     /** Keys in {@link mUsageByUserPackage} for user notification on resource overuse. */
@@ -321,10 +327,12 @@ public final class WatchdogPerfHandler {
         mTimeSource = timeSource;
         Resources resources = mContext.getResources();
         mUidIoUsageSummaryTopCount = resources.getInteger(R.integer.uidIoUsageSummaryTopCount);
-        mIoUsageSummaryMinSystemTotalWrittenBytes = resources
-                .getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
-        mRecurringOverusePeriodInDays = resources
-                .getInteger(R.integer.recurringResourceOverusePeriodInDays);
+        mIoUsageSummaryMinSystemTotalWrittenBytes =
+                resources.getInteger(R.integer.ioUsageSummaryMinSystemTotalWrittenBytes);
+        mPackageKillableStateResetDays =
+                resources.getInteger(R.integer.watchdogUserPackageSettingsResetDays);
+        mRecurringOverusePeriodInDays =
+                resources.getInteger(R.integer.recurringResourceOverusePeriodInDays);
         mRecurringOveruseTimes = resources.getInteger(R.integer.recurringResourceOveruseTimes);
         mResourceOveruseNotificationBaseId =
                 NotificationHelperBase.RESOURCE_OVERUSE_NOTIFICATION_BASE_ID;
@@ -603,7 +611,7 @@ public final class WatchdogPerfHandler {
                 usage = new PackageResourceUsage(userId, genericPackageName,
                         getDefaultKillableStateLocked(genericPackageName));
             }
-            if (!usage.verifyAndSetKillableState(isKillable)) {
+            if (!usage.verifyAndSetKillableState(isKillable, mTimeSource.getCurrentDate())) {
                 Slogf.e(TAG, "User %d cannot set killable state for package '%s'",
                         userHandle.getIdentifier(), genericPackageName);
                 throw new IllegalArgumentException("Package killable state is not updatable");
@@ -637,7 +645,7 @@ public final class WatchdogPerfHandler {
                 if (usage == null) {
                     continue;
                 }
-                if (!usage.verifyAndSetKillableState(isKillable)) {
+                if (!usage.verifyAndSetKillableState(isKillable, mTimeSource.getCurrentDate())) {
                     Slogf.e(TAG, "Cannot set killable state for package '%s'", packageName);
                     throw new IllegalArgumentException(
                             "Package killable state is not updatable");
@@ -885,7 +893,8 @@ public final class WatchdogPerfHandler {
                     continue;
                 }
                 usage.resetStats();
-                usage.verifyAndSetKillableState(/* isKillable= */ true);
+                usage.verifyAndSetKillableState(/* isKillable= */ true,
+                        mTimeSource.getCurrentDate());
                 mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
                 mActionableUserPackages.remove(usage.getUniqueId());
                 Slogf.i(TAG,
@@ -1171,11 +1180,13 @@ public final class WatchdogPerfHandler {
         // call to database and caching of the date, future calls to |latestIoOveruseStats| will
         // catch the change and sync the database with the in-memory cache.
         ZonedDateTime curReportDate = mTimeSource.getCurrentDate();
+        Instant killableStateResetDate =
+                curReportDate.minusDays(mPackageKillableStateResetDays).toInstant();
         List<WatchdogStorage.IoUsageStatsEntry> ioStatsEntries =
                 mWatchdogStorage.getTodayIoUsageStats();
         Slogf.i(TAG, "Read %d I/O usage stats from database", ioStatsEntries.size());
         synchronized (mLock) {
-            for (int i = 0; i < settingsEntries.size(); ++i) {
+            for (int i = 0; i < settingsEntries.size(); i++) {
                 WatchdogStorage.UserPackageSettingsEntry entry = settingsEntries.get(i);
                 if (entry.userId == UserHandle.ALL.getIdentifier()) {
                     if (entry.killableState != KILLABLE_STATE_YES) {
@@ -1189,7 +1200,19 @@ public final class WatchdogPerfHandler {
                     usage = new PackageResourceUsage(entry.userId, entry.packageName,
                             getDefaultKillableStateLocked(entry.packageName));
                 }
-                usage.setKillableState(entry.killableState);
+                int killableState = entry.killableState;
+                Instant lastModifiedDate =
+                        Instant.ofEpochSecond(entry.killableStateLastModifiedEpochSeconds);
+                ZonedDateTime usageModifiedDate = lastModifiedDate.atZone(ZONE_OFFSET);
+                if (killableState == KILLABLE_STATE_NO
+                        && lastModifiedDate.compareTo(killableStateResetDate) <= 0) {
+                    killableState = KILLABLE_STATE_YES;
+                    usageModifiedDate = curReportDate;
+                    mWatchdogStorage.markDirty();
+                    Slogf.i(TAG, "Reset killable state for package %s for user %d",
+                            entry.packageName, entry.userId);
+                }
+                usage.setKillableState(killableState, usageModifiedDate);
                 mUsageByUserPackage.put(key, usage);
             }
             for (int i = 0; i < ioStatsEntries.size(); ++i) {
@@ -1250,7 +1273,8 @@ public final class WatchdogPerfHandler {
                 for (int i = 0; i < mUsageByUserPackage.size(); i++) {
                     PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
                     userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                            usage.userId, usage.genericPackageName, usage.getKillableState()));
+                            usage.userId, usage.genericPackageName, usage.getKillableState(),
+                            usage.getKillableStateLastModifiedDate().toEpochSecond()));
                     if (!usage.ioUsage.hasUsage()) {
                         continue;
                     }
@@ -1266,8 +1290,13 @@ public final class WatchdogPerfHandler {
                             usage.genericPackageName, usage.ioUsage));
                 }
                 for (String packageName : mDefaultNotKillableGenericPackages) {
+                    // TODO(b/235615155): Update database when a default not killable package is
+                    //  set to killable. Also, changes to mDefaultNotKillableGenericPackages should
+                    //  be tracked by the last modified date and the date should be written to the
+                    //  database.
                     userPackageSettingsEntries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                            UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO));
+                            UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO,
+                            mTimeSource.getCurrentDate().toEpochSecond()));
                 }
             }
             boolean userPackageSettingResult =
@@ -1348,6 +1377,26 @@ public final class WatchdogPerfHandler {
     }
 
     @GuardedBy("mLock")
+    private void checkAndResetUserPackageKillableStatesLocked() {
+        ZonedDateTime currentDate = mTimeSource.getCurrentDate();
+        Instant killableStateResetDate =
+                currentDate.minusDays(mPackageKillableStateResetDays).toInstant();
+        for (int i = 0; i < mUsageByUserPackage.size(); i++) {
+            PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
+            Instant lastModifiedDate =
+                    usage.getKillableStateLastModifiedDate().toInstant();
+            if (usage.getKillableState() != KILLABLE_STATE_NO
+                    || lastModifiedDate.compareTo(killableStateResetDate) > 0) {
+                continue;
+            }
+            usage.verifyAndSetKillableState(/* isKillable= */ true, currentDate);
+            mWatchdogStorage.markDirty();
+            Slogf.i(TAG, "Reset killable state for package %s for user %d",
+                    usage.genericPackageName, usage.userId);
+        }
+    }
+
+    @GuardedBy("mLock")
     private void notifyResourceOveruseStatsLocked(int uid,
             ResourceOveruseStats resourceOveruseStats) {
         String genericPackageName = resourceOveruseStats.getPackageName();
@@ -1378,6 +1427,7 @@ public final class WatchdogPerfHandler {
                 return;
             }
             mLatestStatsReportDate = currentDate;
+            checkAndResetUserPackageKillableStatesLocked();
         }
         writeToDatabase();
         synchronized (mLock) {
@@ -2600,6 +2650,7 @@ public final class WatchdogPerfHandler {
         public @UserIdInt final int userId;
         public final PackageIoUsage ioUsage = new PackageIoUsage();
         private @KillableState int mKillableState;
+        public ZonedDateTime mKillableStateLastModifiedDate;
         private int mUid;
 
         /** Must be called only after acquiring {@link mLock} */
@@ -2608,6 +2659,7 @@ public final class WatchdogPerfHandler {
             this.genericPackageName = genericPackageName;
             this.userId = userId;
             this.mKillableState = defaultKillableState;
+            this.mKillableStateLastModifiedDate = mTimeSource.getCurrentDate();
             this.mUid = INVALID_UID;
         }
 
@@ -2663,15 +2715,17 @@ public final class WatchdogPerfHandler {
             return mKillableState;
         }
 
-        public void setKillableState(@KillableState int killableState) {
+        public void setKillableState(@KillableState int killableState, ZonedDateTime modifiedDate) {
             mKillableState = killableState;
+            mKillableStateLastModifiedDate = modifiedDate;
         }
 
-        public boolean verifyAndSetKillableState(boolean isKillable) {
+        public boolean verifyAndSetKillableState(boolean isKillable, ZonedDateTime modifiedDate) {
             if (mKillableState == KILLABLE_STATE_NEVER) {
                 return false;
             }
             mKillableState = isKillable ? KILLABLE_STATE_YES : KILLABLE_STATE_NO;
+            mKillableStateLastModifiedDate = modifiedDate;
             return true;
         }
 
@@ -2690,6 +2744,10 @@ public final class WatchdogPerfHandler {
                 mKillableState = defaultKillableState;
             }
             return mKillableState;
+        }
+
+        public ZonedDateTime getKillableStateLastModifiedDate() {
+            return mKillableStateLastModifiedDate;
         }
 
         public void resetStats() {
