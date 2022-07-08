@@ -640,6 +640,13 @@ class FastPairGattServer {
         if (mBluetoothGattServer == null) {
             return;
         }
+        if (isConnected()) {
+            mBluetoothGattServer.cancelConnection(mRemoteGattDevice);
+            mRemoteGattDevice = null;
+            mCallbacks.onPairingCompleted(false);
+        }
+        mPairingPasskey = -1;
+        mSharedSecretKey = null;
         mBluetoothGattServer.removeService(mFastPairService);
         mContext.unregisterReceiver(mPairingAttemptsReceiver);
     }
