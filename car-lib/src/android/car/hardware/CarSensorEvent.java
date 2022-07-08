@@ -253,13 +253,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining an {@link EnvironmentData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param outData an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return an EnvironmentData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public EnvironmentData getEnvironmentData(EnvironmentData data) {
+    public EnvironmentData getEnvironmentData(EnvironmentData outData) {
+        EnvironmentData data = outData;
         checkType(CarSensorManager.SENSOR_TYPE_ENV_OUTSIDE_TEMPERATURE);
         if (data == null) {
             data = new EnvironmentData();
@@ -284,13 +285,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link IgnitionStateData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_IGNITION_STATE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a IgnitionStateData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public IgnitionStateData getIgnitionStateData(IgnitionStateData data) {
+    public IgnitionStateData getIgnitionStateData(IgnitionStateData dataParam) {
+        IgnitionStateData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_IGNITION_STATE);
         if (data == null) {
             data = new IgnitionStateData();
@@ -315,13 +317,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link NightData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_NIGHT}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a NightData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public NightData getNightData(NightData data) {
+    public NightData getNightData(NightData dataParam) {
+        NightData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_NIGHT);
         if (data == null) {
             data = new NightData();
@@ -346,13 +349,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link GearData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_GEAR}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a GearData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public GearData getGearData(GearData data) {
+    public GearData getGearData(GearData dataParam) {
+        GearData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_GEAR);
         if (data == null) {
             data = new GearData();
@@ -377,13 +381,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link ParkingBrakeData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_PARKING_BRAKE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a ParkingBreakData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public ParkingBrakeData getParkingBrakeData(ParkingBrakeData data) {
+    public ParkingBrakeData getParkingBrakeData(ParkingBrakeData dataParam) {
+        ParkingBrakeData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_PARKING_BRAKE);
         if (data == null) {
             data = new ParkingBrakeData();
@@ -409,13 +414,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link FuelLevelData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_FUEL_LEVEL}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a FuelLevel object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public FuelLevelData getFuelLevelData(FuelLevelData data) {
+    public FuelLevelData getFuelLevelData(FuelLevelData dataParam) {
+        FuelLevelData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_FUEL_LEVEL);
         if (data == null) {
             data = new FuelLevelData();
@@ -448,13 +454,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining an {@link OdometerData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ODOMETER}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return an OdometerData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public OdometerData getOdometerData(OdometerData data) {
+    public OdometerData getOdometerData(OdometerData dataParam) {
+        OdometerData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_ODOMETER);
         if (data == null) {
             data = new OdometerData();
@@ -479,13 +486,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link RpmData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_RPM}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a RpmData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public RpmData getRpmData(RpmData data) {
+    public RpmData getRpmData(RpmData dataParam) {
+        RpmData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_RPM);
         if (data == null) {
             data = new RpmData();
@@ -510,13 +518,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarSpeedData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_CAR_SPEED}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarSpeedData object corresponding to the data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarSpeedData getCarSpeedData(CarSpeedData data) {
+    public CarSpeedData getCarSpeedData(CarSpeedData dataParam) {
+        CarSpeedData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_CAR_SPEED);
         if (data == null) {
             data = new CarSpeedData();
@@ -549,13 +558,15 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarWheelTickDistanceData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_WHEEL_TICK_DISTANCE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return CarWheelTickDistanceData object corresponding to data contained in the CarSensorEvent
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarWheelTickDistanceData getCarWheelTickDistanceData(CarWheelTickDistanceData data) {
+    public CarWheelTickDistanceData getCarWheelTickDistanceData(
+            CarWheelTickDistanceData dataParam) {
+        CarWheelTickDistanceData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_WHEEL_TICK_DISTANCE);
         if (data == null) {
             data = new CarWheelTickDistanceData();
@@ -584,13 +595,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarAbsActiveData} object from a CarSensorEvent
      * object with type {@link CarSensorManager#SENSOR_TYPE_ABS_ACTIVE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarAbsActiveData object corresponding to data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarAbsActiveData getCarAbsActiveData(CarAbsActiveData data) {
+    public CarAbsActiveData getCarAbsActiveData(CarAbsActiveData dataParam) {
+        CarAbsActiveData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_ABS_ACTIVE);
         if (data == null) {
             data = new CarAbsActiveData();
@@ -615,7 +627,7 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarTractionControlActiveData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_TRACTION_CONTROL_ACTIVE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarTractionControlActiveData object corresponding to data contained in the
      *     CarSensorEvent.
@@ -623,7 +635,8 @@ public class CarSensorEvent implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public CarTractionControlActiveData getCarTractionControlActiveData(
-            CarTractionControlActiveData data) {
+            CarTractionControlActiveData dataParam) {
+        CarTractionControlActiveData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_TRACTION_CONTROL_ACTIVE);
         if (data == null) {
             data = new CarTractionControlActiveData();
@@ -648,14 +661,15 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarFuelDoorOpenData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_FUEL_DOOR_OPEN}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarFuelDoorOpenData object corresponding to data contained in the
      *     CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarFuelDoorOpenData getCarFuelDoorOpenData(CarFuelDoorOpenData data) {
+    public CarFuelDoorOpenData getCarFuelDoorOpenData(CarFuelDoorOpenData dataParam) {
+        CarFuelDoorOpenData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_FUEL_DOOR_OPEN);
         if (data == null) {
             data = new CarFuelDoorOpenData();
@@ -681,14 +695,15 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarEvBatteryLevelData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_BATTERY_LEVEL}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarEvBatteryLevelData object corresponding to data contained in the
      *     CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarEvBatteryLevelData getCarEvBatteryLevelData(CarEvBatteryLevelData data) {
+    public CarEvBatteryLevelData getCarEvBatteryLevelData(CarEvBatteryLevelData dataParam) {
+        CarEvBatteryLevelData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_EV_BATTERY_LEVEL);
         if (data == null) {
             data = new CarEvBatteryLevelData();
@@ -721,14 +736,15 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarEvChargePortOpenData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_CHARGE_PORT_OPEN}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarEvChargePortOpenData object corresponding to data contained in the
      *     CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarEvChargePortOpenData getCarEvChargePortOpenData(CarEvChargePortOpenData data) {
+    public CarEvChargePortOpenData getCarEvChargePortOpenData(CarEvChargePortOpenData dataParam) {
+        CarEvChargePortOpenData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_OPEN);
         if (data == null) {
             data = new CarEvChargePortOpenData();
@@ -753,7 +769,7 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarEvChargePortConnectedData} object from a
      * CarSensorEvent with type {@link CarSensorManager#SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarEvChargePortConnectedData object corresponding to data contained in the
      *     CarSensorEvent.
@@ -761,7 +777,8 @@ public class CarSensorEvent implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public CarEvChargePortConnectedData getCarEvChargePortConnectedData(
-            CarEvChargePortConnectedData data) {
+            CarEvChargePortConnectedData dataParam) {
+        CarEvChargePortConnectedData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_EV_CHARGE_PORT_CONNECTED);
         if (data == null) {
             data = new CarEvChargePortConnectedData();
@@ -788,7 +805,7 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarEvBatteryChargeRateData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_EV_BATTERY_CHARGE_RATE}.
      *
-     * @param data an optional output parameter which, if non-null, will be used by this method
+     * @param dataParam an optional output parameter which, if non-null, will be used by this method
      *     instead of a newly created object.
      * @return a CarEvBatteryChargeRateData object corresponding to data contained in the
      *     CarSensorEvent.
@@ -796,7 +813,8 @@ public class CarSensorEvent implements Parcelable {
      */
     @AddedInOrBefore(majorVersion = 33)
     public CarEvBatteryChargeRateData getCarEvBatteryChargeRateData(
-            CarEvBatteryChargeRateData data) {
+            CarEvBatteryChargeRateData dataParam) {
+        CarEvBatteryChargeRateData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_EV_BATTERY_CHARGE_RATE);
         if (data == null) {
             data = new CarEvBatteryChargeRateData();
@@ -821,13 +839,14 @@ public class CarSensorEvent implements Parcelable {
      * Convenience method for obtaining a {@link CarEngineOilLevelData} object from a
      * CarSensorEvent object with type {@link CarSensorManager#SENSOR_TYPE_ENGINE_OIL_LEVEL}.
      *
-     * @param data an optional output parameter, which, if non-null, will be used by this method
-     *      instead of a newly created object.
+     * @param dataParam an optional output parameter, which, if non-null, will be used by this
+     *      method instead of a newly created object.
      * @return a CarEngineOilLEvelData object corresponding to data contained in the CarSensorEvent.
      * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
-    public CarEngineOilLevelData getCarEngineOilLevelData(CarEngineOilLevelData data) {
+    public CarEngineOilLevelData getCarEngineOilLevelData(CarEngineOilLevelData dataParam) {
+        CarEngineOilLevelData data = dataParam;
         checkType(CarSensorManager.SENSOR_TYPE_ENGINE_OIL_LEVEL);
         if (data == null) {
             data = new CarEngineOilLevelData();
