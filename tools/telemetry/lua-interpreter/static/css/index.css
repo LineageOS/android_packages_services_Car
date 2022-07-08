@@ -10,50 +10,86 @@
   --mdc-theme-surface: #202124;
 }
 
-/**
- * cm prefix indicates classes of the CodeMirror editor.
- * See https: //codemirror.net/examples/styling/.
- */
-.cm-editor {
-  border-radius: 4px;
-  height: 400px;
-  margin: 0 0 10px;
-  padding: 0px;
-  width: 100%;
-}
-
-.cm-scroller {
-  overflow: auto;
-}
-
-.script-input {
+.hide {
   display: none;
+}
+
+.input-container {
+  display: flex;
+  flex-direction: row;
+  height: 500px;
+}
+
+.script-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 7px 0 0;
+  width: 50%;
+}
+
+.data-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 0 0 7px;
+  width: 50%;
+}
+
+.function-name {
+  background-color: transparent;
+  border: 1px solid var(--mdc-theme-on-surface);
+  color: var(--mdc-theme-on-surface);
+  height: auto;
+  margin: 10px 0 0;
+  padding: 10px;
+  resize: none;
+  width: auto;
+}
+
+/**
+ * The CodeMirrors are configured to fill up whatever container they are in so these
+ * specify the actual size of them.
+ */
+.script-input-container {
+  height: 90%;
+  width: auto;
+}
+
+.published-data-input-container {
+  height: 50%;
+  margin: 0 0 5px;
+  width: auto;
+}
+
+.saved-state-input-container {
+  height: 50%;
+  margin: 5px 0 0;
+  width: auto;
+}
+
+.submit {
+  margin: 10px 0 10px;
 }
 
 .script-output {
   box-sizing: border-box;
   font-family: monospace;
   height: 300px;
-  margin: 20px 0 0;
   overflow: auto;
 }
 
-/** webkit-scrollbar modifies the appearence of the scrollbar, particularly in the output div */
-.script-output::-webkit-scrollbar {
+/** webkit-scrollbar modifies the appearence of the scrollbar. */
+::-webkit-scrollbar {
   width: 10px;
 }
 
-/* Track */
-.script-output::-webkit-scrollbar-track {
+/* Modifies scrollbar track */
+::-webkit-scrollbar-track {
   background: transparent
 }
 
-/* Handle */
-.script-output::-webkit-scrollbar-thumb {
-  background: #3c4043;
-}
-
-/* Handle on hover */
-.script-output::-webkit-scrollbar-thumb:hover {
-  background: #3c4043;
+/* Modifies scrollbar handle */
+::-webkit-scrollbar-thumb {
+  background: #434c5e;
 }

@@ -48,72 +48,52 @@ class LuaEngineTest : public testing::Test {
   }
 };
 
-TEST_F(LuaEngineTest, ExecuteScriptEmptyScriptSendsNoOutput) {
-  std::vector<std::string> output = lua_engine_.ExecuteScript("");
-  EXPECT_EQ(0, output.size());
-}
-
-TEST_F(LuaEngineTest, ExecuteScriptNoExplicitReturnSendsNoOutput) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("function two() return 2 end");
-  EXPECT_EQ(0, output.size());
-}
-
-TEST_F(LuaEngineTest, ExecuteScriptSyntaxError) {
-  std::vector<std::string> output = lua_engine_.ExecuteScript("f");
-  std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find("Error encountered while loading the script.") !=
-              std::string::npos);
-}
-
-TEST_F(LuaEngineTest, ExecuteScriptRuntimeError) {
-  std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "function add(a, b) return a + b end return add(10)");
-  std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find("Error encountered while running the script.") !=
-              std::string::npos);
-}
-
-TEST_F(LuaEngineTest, ExecuteScriptReturnsOutput) {
-  std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "function add(a, b) return a + b end return add(10, 5)");
-  std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find("15") != std::string::npos);
-}
-
 TEST_F(LuaEngineTest, ExecuteScriptLogCallback) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("log('Logging here')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) log('Logging here') end", "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(actual.find("LUA: Logging here") != std::string::npos);
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnSuccessMoreArguments) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_success({}, {})");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_success({}, {}) end", "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(actual.find("on_success can push only a single parameter from "
                           "Lua - a Lua table") != std::string::npos);
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnSuccessNonTable) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_success('Success!')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_success('Success!') end", "test", "{}",
+      "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(actual.find("on_success can push only a single parameter from "
                           "Lua - a Lua table") != std::string::npos);
 }
 
-TEST_F(LuaEngineTest, ExecuteScriptOnSuccessWithTable) {
+TEST_F(LuaEngineTest, ExecuteScriptOnSuccessWithPopulatedTable) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "tbl = {}; tbl['sessionId'] = 1; on_success(tbl)");
+      "function test(data, state) tbl = {}; tbl['sessionId'] = 1; "
+      "on_success(tbl) end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find('{"sessionId":1}') != std::string::npos);
+  EXPECT_TRUE(actual.find("{\"sessionId\":1}") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptOnSuccessWithEmptyTable) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) tbl = {}; "
+      "on_success(tbl) end",
+      "test", "{}", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("[]") != std::string::npos);
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedMoreArguments) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_script_finished({}, {})");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_script_finished({}, {}) end", "test", "{}",
+      "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(actual.find("on_script_finished can push only a single parameter "
                           "from Lua - a Lua "
@@ -121,8 +101,9 @@ TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedMoreArguments) {
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedNonTable) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_script_finished('Script finished')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_script_finished('Script finished') end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(actual.find("on_script_finished can push only a single parameter "
                           "from Lua - a Lua "
@@ -131,14 +112,18 @@ TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedNonTable) {
 
 TEST_F(LuaEngineTest, ExecuteScriptOnScriptFinishedWithTable) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "tbl = {}; tbl['sessionId'] = 1; on_script_finished(tbl)");
+      "function test(data, state) tbl = {}; tbl['sessionId'] = 1; "
+      "on_script_finished(tbl) "
+      "end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find('{"sessionId":1}') != std::string::npos);
+  EXPECT_TRUE(actual.find("{\"sessionId\":1}") != std::string::npos);
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnErrorMoreArguments) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_error('ERROR ONE', 'ERROR TWO')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_error('ERROR ONE', 'ERROR TWO') end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(
       actual.find(
@@ -147,7 +132,8 @@ TEST_F(LuaEngineTest, ExecuteScriptOnErrorMoreArguments) {
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnErrorNonString) {
-  std::vector<std::string> output = lua_engine_.ExecuteScript("on_error({})");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_error({}) end", "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(
       actual.find(
@@ -156,15 +142,17 @@ TEST_F(LuaEngineTest, ExecuteScriptOnErrorNonString) {
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnErrorWithSingleString) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_error('ERROR: 2')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_error('ERROR: 2') end", "test", "{}",
+      "{}");
   std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find('ERROR: 2') != std::string::npos);
+  EXPECT_TRUE(actual.find("ERROR: 2") != std::string::npos);
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportMoreArguments) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_metrics_report({}, {}, {})");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_metrics_report({}, {}, {}) end", "test",
+      "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(
       actual.find(
@@ -174,8 +162,10 @@ TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportMoreArguments) {
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportNonTable) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_metrics_report('Incoming metrics report')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_metrics_report('Incoming metrics report') "
+      "end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(
       actual.find(
@@ -186,7 +176,9 @@ TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportNonTable) {
 
 TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportNonTableWithTable) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "on_metrics_report('Incoming metrics report', {})");
+      "function test(data, state) on_metrics_report('Incoming metrics report', "
+      "{}) end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(
       actual.find(
@@ -196,8 +188,10 @@ TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportNonTableWithTable) {
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportTableWithNonTable) {
-  std::vector<std::string> output =
-      lua_engine_.ExecuteScript("on_metrics_report({}, 'Saved state here')");
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) on_metrics_report({}, 'Saved state here') "
+      "end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
   EXPECT_TRUE(
       actual.find(
@@ -209,16 +203,79 @@ TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportTableWithNonTable) {
 
 TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportSingleTable) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "tbl = {}; tbl['sessionId'] = 1; on_metrics_report(tbl)");
+      "function test(data, state) tbl = {}; tbl['sessionId'] = 1; "
+      "on_metrics_report(tbl) "
+      "end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find('{"sessionId":1}') != std::string::npos);
+  EXPECT_TRUE(actual.find("{\"sessionId\":1}") != std::string::npos);
 }
 
 TEST_F(LuaEngineTest, ExecuteScriptOnMetricsReportMultipleTable) {
   std::vector<std::string> output = lua_engine_.ExecuteScript(
-      "tbl = {}; tbl['sessionId'] = 1; on_metrics_report(tbl, tbl)");
+      "function test(data, state) tbl = {}; tbl['sessionId'] = 1; "
+      "on_metrics_report(tbl, "
+      "tbl) end",
+      "test", "{}", "{}");
   std::string actual = ConvertVectorToString(output);
-  EXPECT_TRUE(actual.find('{"sessionId":1}\n{"sessionId":1}') !=
+  EXPECT_TRUE(actual.find("{\"sessionId\":1}\n{\"sessionId\":1}") !=
+              std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptWithPreviousState) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) tbl = {}; tbl['result'] = state.data + 1; "
+      "on_success(tbl) end",
+      "test", "{}", "{\"data\": 1}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("{\"result\":2}") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptWrongFunctionName) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) end", "tesT", "{}", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("Wrong function name.") != std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptSyntaxError) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) end f", "test", "{}", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("Error encountered while loading the script.") !=
+              std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptSyntaxErrorInsideFunction) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) x == 1 end", "test", "{}", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("Error encountered while loading the script.") !=
+              std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptRuntimeError) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) unknown_function(data, state) end", "test",
+      "{}", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("Error encountered while running the script.") !=
+              std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptInvalidPublishedData) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) end", "test", "invalid", "{}");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("Error from parsing published data") !=
+              std::string::npos);
+}
+
+TEST_F(LuaEngineTest, ExecuteScriptInvalidSavedState) {
+  std::vector<std::string> output = lua_engine_.ExecuteScript(
+      "function test(data, state) end", "test", "{}", "invalid");
+  std::string actual = ConvertVectorToString(output);
+  EXPECT_TRUE(actual.find("Error from parsing saved state") !=
               std::string::npos);
 }
 
