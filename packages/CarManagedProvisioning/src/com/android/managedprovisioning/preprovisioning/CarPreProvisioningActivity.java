@@ -17,7 +17,6 @@
 package com.android.managedprovisioning.preprovisioning;
 
 import android.annotation.Nullable;
-import android.os.Bundle;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -68,11 +67,6 @@ public final class CarPreProvisioningActivity extends PreProvisioningActivity {
         mContextMenuMaker =
                 contextMenuMaker != null ? contextMenuMaker : new AccessibilityContextMenuMaker(
                         this);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

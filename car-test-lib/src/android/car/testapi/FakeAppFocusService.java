@@ -19,7 +19,6 @@ package android.car.testapi;
 import android.car.CarAppFocusManager;
 import android.car.IAppFocus;
 import android.content.Context;
-import android.os.Looper;
 
 import com.android.car.AppFocusService;
 
@@ -62,10 +61,5 @@ public class FakeAppFocusService extends AppFocusService implements CarAppFocusC
     @Override
     public void resetForegroundPid() {
         mSystemActivityMonitoringService.resetForegroundPid();
-    }
-
-    @Override
-    public Looper getLooper() {
-        return super.getLooper();
     }
 }

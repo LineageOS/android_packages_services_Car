@@ -190,13 +190,6 @@ public class HvacTestFragment extends Fragment {
             };
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-
-        super.onCreate(savedInstanceState);
-
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
         mCarHvacManager.unregisterCallback(mHvacCallback);
