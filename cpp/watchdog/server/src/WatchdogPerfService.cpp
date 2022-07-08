@@ -39,7 +39,7 @@ namespace watchdog {
 using ::android::sp;
 using ::android::String16;
 using ::android::String8;
-using ::android::automotive::watchdog::internal::PowerCycle;
+using ::android::base::EqualsIgnoreCase;
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::ParseUint;
@@ -75,16 +75,15 @@ constexpr const char* kHelpText =
         "behavior is to list the results for the top N packages.\n"
         "%s: Stops custom performance data collection and generates a dump of "
         "the collection report.\n\n"
-        "When no options are specified, the carwatchdog report contains the performance data "
+        "When no options are specified, the car watchdog report contains the performance data "
         "collected during boot-time and over the last few minutes before the report generation.\n";
 
-Result<std::chrono::seconds> parseSecondsFlag(const Vector<String16>& args, size_t pos) {
-    if (args.size() <= pos) {
+Result<std::chrono::seconds> parseSecondsFlag(const char** args, uint32_t numArgs, size_t pos) {
+    if (numArgs <= pos) {
         return Error() << "Value not provided";
     }
     uint64_t value;
-    if (std::string strValue = std::string(String8(args[pos]).string());
-        !ParseUint(strValue, &value)) {
+    if (std::string strValue = std::string(args[pos]); !ParseUint(strValue, &value)) {
         return Error() << "Invalid value " << strValue << ", must be an integer";
     }
     return std::chrono::seconds(value);
@@ -246,7 +245,7 @@ void WatchdogPerfService::terminate() {
             ALOGE("%s was terminated already", kServiceName);
             return;
         }
-        ALOGE("Terminating %s as carwatchdog is terminating", kServiceName);
+        ALOGE("Terminating %s as car watchdog is terminating", kServiceName);
         if (mCurrCollectionEvent != EventType::INIT) {
             /*
              * Looper runs only after EventType::TNIT has completed so remove looper messages
@@ -300,22 +299,22 @@ Result<void> WatchdogPerfService::onBootFinished() {
     return {};
 }
 
-Result<void> WatchdogPerfService::onCustomCollection(int fd, const Vector<String16>& args) {
-    if (args.empty()) {
+Result<void> WatchdogPerfService::onCustomCollection(int fd, const char** args, uint32_t numArgs) {
+    if (numArgs == 0) {
         return Error(BAD_VALUE) << "No custom collection dump arguments";
     }
 
-    if (args[0] == String16(kStartCustomCollectionFlag)) {
-        if (args.size() > 7) {
+    if (EqualsIgnoreCase(args[0], kStartCustomCollectionFlag)) {
+        if (numArgs > 7) {
             return Error(BAD_VALUE) << "Number of arguments to start custom performance data "
                                     << "collection cannot exceed 7";
         }
         std::chrono::nanoseconds interval = kCustomCollectionInterval;
         std::chrono::nanoseconds maxDuration = kCustomCollectionDuration;
         std::unordered_set<std::string> filterPackages;
-        for (size_t i = 1; i < args.size(); ++i) {
-            if (args[i] == String16(kIntervalFlag)) {
-                const auto& result = parseSecondsFlag(args, i + 1);
+        for (uint32_t i = 1; i < numArgs; ++i) {
+            if (EqualsIgnoreCase(args[i], kIntervalFlag)) {
+                const auto& result = parseSecondsFlag(args, numArgs, i + 1);
                 if (!result.ok()) {
                     return Error(BAD_VALUE)
                             << "Failed to parse " << kIntervalFlag << ": " << result.error();
@@ -324,8 +323,8 @@ Result<void> WatchdogPerfService::onCustomCollection(int fd, const Vector<String
                 ++i;
                 continue;
             }
-            if (args[i] == String16(kMaxDurationFlag)) {
-                const auto& result = parseSecondsFlag(args, i + 1);
+            if (EqualsIgnoreCase(args[i], kMaxDurationFlag)) {
+                const auto& result = parseSecondsFlag(args, numArgs, i + 1);
                 if (!result.ok()) {
                     return Error(BAD_VALUE)
                             << "Failed to parse " << kMaxDurationFlag << ": " << result.error();
@@ -334,21 +333,19 @@ Result<void> WatchdogPerfService::onCustomCollection(int fd, const Vector<String
                 ++i;
                 continue;
             }
-            if (args[i] == String16(kFilterPackagesFlag)) {
-                if (args.size() < i + 1) {
+            if (EqualsIgnoreCase(args[i], kFilterPackagesFlag)) {
+                if (numArgs < i + 1) {
                     return Error(BAD_VALUE)
                             << "Must provide value for '" << kFilterPackagesFlag << "' flag";
                 }
-                std::vector<std::string> packages =
-                        Split(std::string(String8(args[i + 1]).string()), ",");
+                std::vector<std::string> packages = Split(std::string(args[i + 1]), ",");
                 std::copy(packages.begin(), packages.end(),
                           std::inserter(filterPackages, filterPackages.end()));
                 ++i;
                 continue;
             }
-            ALOGW("Unknown flag %s provided to start custom performance data collection",
-                  String8(args[i]).string());
-            return Error(BAD_VALUE) << "Unknown flag " << String8(args[i]).string()
+            ALOGW("Unknown flag %s provided to start custom performance data collection", args[i]);
+            return Error(BAD_VALUE) << "Unknown flag " << args[i]
                                     << " provided to start custom performance data collection";
         }
         if (const auto& result = startCustomCollection(interval, maxDuration, filterPackages);
@@ -359,8 +356,8 @@ Result<void> WatchdogPerfService::onCustomCollection(int fd, const Vector<String
         return {};
     }
 
-    if (args[0] == String16(kEndCustomCollectionFlag)) {
-        if (args.size() != 1) {
+    if (EqualsIgnoreCase(args[0], kEndCustomCollectionFlag)) {
+        if (numArgs != 1) {
             ALOGW("Number of arguments to stop custom performance data collection cannot exceed 1. "
                   "Stopping the data collection.");
             WriteStringToFd("Number of arguments to stop custom performance data collection "

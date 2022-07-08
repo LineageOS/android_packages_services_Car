@@ -20,10 +20,10 @@
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
 
+#include <aidl/android/automotive/watchdog/TimeoutLength.h>
+#include <aidl/android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
+#include <aidl/android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <android-base/result.h>
-#include <android/automotive/watchdog/TimeoutLength.h>
-#include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
-#include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <binder/Status.h>
 #include <gmock/gmock.h>
 #include <utils/StrongPointer.h>
@@ -39,31 +39,37 @@ public:
 
     MOCK_METHOD(android::base::Result<void>, init,
                 (const android::sp<WatchdogProcessServiceInterface>&), (override));
-    MOCK_METHOD(android::binder::Status, registerService,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&),
+    MOCK_METHOD(
+            ndk::ScopedAStatus, registerService,
+            (const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&),
+            (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, unregisterService,
+            (const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&),
+            (override));
+    MOCK_METHOD(void, handleBinderDeath, (void*), (override));
+    MOCK_METHOD(ndk::ScopedAStatus, checkIfAlive,
+                (const ndk::SpAIBinder&, int32_t,
+                 aidl::android::automotive::watchdog::TimeoutLength),
+                (const, override));
+    MOCK_METHOD(ndk::ScopedAStatus, prepareProcessTermination, (const ndk::SpAIBinder&),
                 (override));
-    MOCK_METHOD(android::binder::Status, unregisterService,
-                (const sp<android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&),
-                (override));
-    MOCK_METHOD(void, binderDied, (const android::wp<android::IBinder>&), (override));
-
-    MOCK_METHOD(android::binder::Status, checkIfAlive,
-                (const android::wp<android::IBinder>&, int32_t, TimeoutLength), (const, override));
-    MOCK_METHOD(android::binder::Status, prepareProcessTermination,
-                (const android::wp<android::IBinder>&), (override));
-    MOCK_METHOD(android::binder::Status, getPackageInfosForUids,
+    MOCK_METHOD(ndk::ScopedAStatus, getPackageInfosForUids,
                 (const std::vector<int32_t>&, const std::vector<std::string>&,
-                 std::vector<android::automotive::watchdog::internal::PackageInfo>*),
+                 std::vector<aidl::android::automotive::watchdog::internal::PackageInfo>*),
+                (override));
+    MOCK_METHOD(ndk::ScopedAStatus, latestIoOveruseStats,
+                (const std::vector<
+                        aidl::android::automotive::watchdog::internal::PackageIoOveruseStats>&),
+                (override));
+    MOCK_METHOD(ndk::ScopedAStatus, resetResourceOveruseStats, (const std::vector<std::string>&),
                 (override));
     MOCK_METHOD(
-            android::binder::Status, latestIoOveruseStats,
-            (const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&),
+            ndk::ScopedAStatus, getTodayIoUsageStats,
+            (std::vector<aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats>*),
             (override));
-    MOCK_METHOD(android::binder::Status, resetResourceOveruseStats,
-                (const std::vector<std::string>&), (override));
-    MOCK_METHOD(android::binder::Status, getTodayIoUsageStats,
-                (std::vector<android::automotive::watchdog::internal::UserPackageIoUsageStats>*),
-                (override));
     MOCK_METHOD(void, terminate, (), (override));
 };
 

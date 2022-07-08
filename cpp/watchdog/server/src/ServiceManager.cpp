@@ -21,6 +21,8 @@
 #include "IoPerfCollection.h"
 #include "PackageInfoResolver.h"
 
+#include <android/binder_interface_utils.h>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -28,8 +30,9 @@ namespace watchdog {
 using ::android::sp;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::ndk::SharedRefBase;
 
-Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
+Result<void> ServiceManager::startServices(const sp<Looper>& mainLooper) {
     if (mWatchdogBinderMediator != nullptr || mWatchdogServiceHelper != nullptr ||
         mWatchdogProcessService != nullptr || mWatchdogPerfService != nullptr) {
         return Error(INVALID_OPERATION) << "Cannot start services more than once";
@@ -41,7 +44,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
      * PackageInfoResolver's instance during initialization.
      */
     sp<PackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
-    if (auto result = startWatchdogProcessService(looper); !result.ok()) {
+    if (auto result = startWatchdogProcessService(mainLooper); !result.ok()) {
         return result;
     }
     if (auto result = startWatchdogPerfService(); !result.ok()) {
@@ -55,9 +58,11 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
         !result.ok()) {
         return Error() << "Failed to initialize package name resolver: " << result.error();
     }
+    mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mWatchdogServiceHelper);
     mWatchdogBinderMediator =
-            sp<WatchdogBinderMediator>::make(mWatchdogProcessService, mWatchdogPerfService,
-                                             mWatchdogServiceHelper);
+            SharedRefBase::make<WatchdogBinderMediator>(mWatchdogProcessService,
+                                                        mWatchdogPerfService,
+                                                        mWatchdogServiceHelper, mIoOveruseMonitor);
     if (auto result = mWatchdogBinderMediator->init(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to initialize watchdog binder mediator: " << result.error();
@@ -76,20 +81,21 @@ void ServiceManager::terminateServices() {
     }
     if (mWatchdogBinderMediator != nullptr) {
         mWatchdogBinderMediator->terminate();
-        mWatchdogBinderMediator.clear();
+        mWatchdogBinderMediator.reset();
     }
     if (mWatchdogServiceHelper != nullptr) {
         mWatchdogServiceHelper->terminate();
         mWatchdogServiceHelper.clear();
     }
+    mIoOveruseMonitor.clear();
     PackageInfoResolver::terminate();
 }
 
-Result<void> ServiceManager::startWatchdogProcessService(const sp<Looper>& looper) {
-    mWatchdogProcessService = sp<WatchdogProcessService>::make(looper);
+Result<void> ServiceManager::startWatchdogProcessService(const sp<Looper>& mainLooper) {
+    mWatchdogProcessService = sp<WatchdogProcessService>::make(mainLooper);
     if (auto result = mWatchdogProcessService->start(); !result.ok()) {
         return Error(result.error().code())
-                << "Failed to start watchdog process monitoring: " << result.error();
+                << "Failed to start watchdog process monitoring service: " << result.error();
     }
     return {};
 }

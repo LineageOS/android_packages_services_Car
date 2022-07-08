@@ -18,10 +18,10 @@
 #include "PackageInfoResolver.h"
 #include "PackageInfoTestUtils.h"
 
+#include <aidl/android/automotive/watchdog/internal/ApplicationCategoryType.h>
+#include <aidl/android/automotive/watchdog/internal/ComponentType.h>
+#include <aidl/android/automotive/watchdog/internal/UidType.h>
 #include <android-base/stringprintf.h>
-#include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
-#include <android/automotive/watchdog/internal/ComponentType.h>
-#include <android/automotive/watchdog/internal/UidType.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -29,13 +29,15 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::aidl::android::automotive::watchdog::internal::ApplicationCategoryType;
+using ::aidl::android::automotive::watchdog::internal::ComponentType;
+using ::aidl::android::automotive::watchdog::internal::PackageInfo;
+using ::aidl::android::automotive::watchdog::internal::UidType;
 using ::android::sp;
-using ::android::automotive::watchdog::internal::ApplicationCategoryType;
-using ::android::automotive::watchdog::internal::ComponentType;
-using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::StringAppendF;
+using ::ndk::ScopedAStatus;
 using ::testing::_;
+using ::testing::ByMove;
 using ::testing::DoAll;
 using ::testing::NotNull;
 using ::testing::Pair;
@@ -48,7 +50,7 @@ namespace {
 
 using PackageToAppCategoryMap =
         std::unordered_map<std::string,
-                           android::automotive::watchdog::internal::ApplicationCategoryType>;
+                           aidl::android::automotive::watchdog::internal::ApplicationCategoryType>;
 
 std::string toString(const std::unordered_map<uid_t, PackageInfo>& mappings) {
     std::string buffer = "{";
@@ -232,7 +234,8 @@ TEST(PackageInfoResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
 
     EXPECT_CALL(*peer.mockWatchdogServiceHelper,
                 getPackageInfosForUids(expectedUids, expectedPrefixes, _))
-            .WillOnce(DoAll(SetArgPointee<2>(injectPackageInfos), Return(binder::Status::ok())));
+            .WillOnce(DoAll(SetArgPointee<2>(injectPackageInfos),
+                            Return(ByMove(ScopedAStatus::ok()))));
 
     auto actualMappings =
             packageInfoResolver->getPackageInfosForUids({6100, 7700, 15100, 16700, 18100, 19100});

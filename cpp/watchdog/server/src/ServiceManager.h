@@ -39,7 +39,8 @@ public:
           mWatchdogProcessService(nullptr),
           mWatchdogPerfService(nullptr),
           mWatchdogBinderMediator(nullptr),
-          mWatchdogServiceHelper(nullptr) {}
+          mWatchdogServiceHelper(nullptr),
+          mIoOveruseMonitor(nullptr) {}
 
     static android::sp<ServiceManager> getInstance() {
         if (sServiceManager == nullptr) {
@@ -56,7 +57,23 @@ public:
         sServiceManager.clear();
     }
 
+    // Starts early-init services.
     android::base::Result<void> startServices(const android::sp<Looper>& mainLooper);
+
+    // Returns the WatchdogProcessService instance.
+    const android::sp<WatchdogProcessServiceInterface>& getWatchdogProcessService() {
+        return mWatchdogProcessService;
+    }
+
+    // Returns the WatchdogServiceHelper instance.
+    const android::sp<WatchdogServiceHelperInterface>& getWatchdogServiceHelper() {
+        return mWatchdogServiceHelper;
+    }
+
+    // Returns the IoOveruseMonitor instance.
+    const android::sp<IoOveruseMonitorInterface>& getIoOveruseMonitor() {
+        return mIoOveruseMonitor;
+    }
 
 private:
     inline static android::sp<ServiceManager> sServiceManager = nullptr;
@@ -67,8 +84,9 @@ private:
 
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
-    android::sp<WatchdogBinderMediatorInterface> mWatchdogBinderMediator;
+    std::shared_ptr<WatchdogBinderMediatorInterface> mWatchdogBinderMediator;
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
+    android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
 };
 
 }  // namespace watchdog
