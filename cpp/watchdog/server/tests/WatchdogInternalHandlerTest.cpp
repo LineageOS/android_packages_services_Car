@@ -645,7 +645,7 @@ TEST_F(WatchdogInternalHandlerTest, TestSetThreadPriorityFailed) {
                                                                 expectedPolicy, expectedPriority);
 
     EXPECT_FALSE(status.isOk());
-    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+    EXPECT_EQ(status.exceptionCode(), EX_SERVICE_SPECIFIC);
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriority) {
@@ -688,7 +688,7 @@ TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityGetSchedulerFailed) {
             mWatchdogInternalHandler->getThreadPriority(TEST_PID, TEST_TID, TEST_UID, &actual);
 
     EXPECT_FALSE(status.isOk());
-    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+    EXPECT_EQ(status.exceptionCode(), EX_SERVICE_SPECIFIC);
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityGetParamFailed) {
@@ -701,7 +701,7 @@ TEST_F(WatchdogInternalHandlerTest, TestGetThreadPriorityGetParamFailed) {
             mWatchdogInternalHandler->getThreadPriority(TEST_PID, TEST_TID, TEST_UID, &actual);
 
     EXPECT_FALSE(status.isOk());
-    EXPECT_EQ(status.exceptionCode(), EX_ILLEGAL_STATE);
+    EXPECT_EQ(status.exceptionCode(), EX_SERVICE_SPECIFIC);
 }
 
 }  // namespace watchdog
