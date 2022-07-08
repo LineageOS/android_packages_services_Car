@@ -16,6 +16,7 @@ service carwatchdogd /system/bin/carwatchdogd
     class core
     user system
     group system readproc
+    capabilities SYS_NICE
     disabled
 
 on early-init && property:ro.build.type=userdebug

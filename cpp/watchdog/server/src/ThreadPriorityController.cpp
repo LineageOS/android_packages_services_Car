@@ -33,6 +33,11 @@ Status fromExceptionCode(int32_t exceptionCode, const std::string& message) {
     return Status::fromExceptionCode(exceptionCode, message.c_str());
 }
 
+Status fromServiceSpecificError(const std::string& message) {
+    ALOGW("%s", message.c_str());
+    return Status::fromServiceSpecificError(/*exceptionCode=*/0, message.c_str());
+}
+
 constexpr int PRIORITY_MIN = 1;
 constexpr int PRIORITY_MAX = 99;
 
@@ -86,8 +91,8 @@ Status ThreadPriorityController::setThreadPriority(int pid, int tid, int uid, in
     sched_param param{.sched_priority = priority};
     errno = 0;
     if (mSystemCallsInterface->setScheduler(tpid, policy, &param) != 0) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("sched_setscheduler failed, errno: %d", errno));
+        return fromServiceSpecificError(
+                StringPrintf("sched_setscheduler failed, errno: %d", errno));
     }
     return Status::ok();
 }
@@ -105,16 +110,15 @@ Status ThreadPriorityController::getThreadPriority(int pid, int tid, int uid,
     errno = 0;
     int policy = mSystemCallsInterface->getScheduler(tpid);
     if (policy < 0) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("sched_getscheduler failed, errno: %d", errno));
+        return fromServiceSpecificError(
+                StringPrintf("sched_getscheduler failed, errno: %d", errno));
     }
 
     sched_param param = {};
     errno = 0;
     int callResult = mSystemCallsInterface->getParam(tpid, &param);
     if (callResult != 0) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("sched_getparam failed, errno: %d", errno));
+        return fromServiceSpecificError(StringPrintf("sched_getparam failed, errno: %d", errno));
     }
 
     result->policy = policy;
