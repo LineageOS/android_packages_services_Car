@@ -122,7 +122,6 @@ bool VideoTex::refresh() {
         // The user of this texture may very well want to set their own filtering, but we're going
         // to pay the (minor) price of setting this up for them to avoid the dreaded "black image"
         // if they forget.
-        // TODO:  Can we do this once for the texture ID rather than ever refresh?
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);

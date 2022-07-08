@@ -159,8 +159,7 @@ bool RenderTopView::activate() {
         if (!cam.tex) {
             LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId
                        << " (" << cam.info.function << ")";
-// TODO:  For production use, we may actually want to fail in this case, but not yet...
-//            return false;
+            // TODO(b/237904870): We may want to return false here.
         }
     }
 
@@ -171,8 +170,6 @@ bool RenderTopView::activate() {
 void RenderTopView::deactivate() {
     // Release our video textures
     // We can't hold onto it because some other Render object might need the same camera
-    // TODO(b/131492626):  investigate whether sharing video textures can save
-    // the time.
     for (auto&& cam: mActiveCameras) {
         cam.tex = nullptr;
     }
@@ -198,8 +195,6 @@ bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
 
     // We can use a simple, unrotated ortho view since the screen and car space axis are
     // naturally aligned in the top down view.
-    // TODO:  Not sure if flipping top/bottom here is "correct" or a double reverse...
-//    orthoMatrix = android::mat4::ortho(left, right, bottom, top, near, far);
     orthoMatrix = android::mat4::ortho(left, right, top, bottom, near, far);
 
 
@@ -296,7 +291,6 @@ void RenderTopView::renderCameraOntoGroundPlane(const ActiveCamera& cam) {
     const float maxRange = (visibleSizeH > visibleSizeV) ? visibleSizeH : visibleSizeV;
 
     // Construct the projection matrix (View + Projection) associated with this sensor
-    // TODO:  Consider just hard coding the far plane distance as it likely doesn't matter
     const android::mat4 V = cameraLookMatrix(cam.info);
     const android::mat4 P = perspective(cam.info.hfov, cam.info.vfov, cam.info.position[Z], maxRange);
     const android::mat4 projectionMatix = P*V;

@@ -51,7 +51,6 @@ static bool isSfReady() {
     return ::ndk::SpAIBinder(::AServiceManager_getService("SurfaceFlinger")).get() != nullptr;
 }
 
-// TODO:  Seems like it'd be nice if the Vehicle HAL provided such helpers (but how & where?)
 inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
     return static_cast<VehiclePropertyType>(
             static_cast<int32_t>(prop)
@@ -283,7 +282,6 @@ bool EvsStateControl::selectStateForCurrentConditions() {
     }
 
     // Choose our desired EVS state based on the current car state
-    // TODO:  Update this logic, and consider user input when choosing if a view should be presented
     State desiredState = OFF;
     if (mGearValue.value.int32Values[0] == int32_t(VehicleGear::GEAR_REVERSE)) {
         desiredState = REVERSE;
