@@ -24,6 +24,9 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.Application;
 import android.app.WallpaperManager;
+import android.car.Car;
+import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -61,6 +64,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -91,6 +95,34 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Car.createCar(/* context= */ this, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
+                (car, ready) -> {
+                    if (!ready) {
+                        Log.w(TAG, "CarService looks crashed");
+                        finish();  // ATM will restart 2nd Home again.
+                        return;
+                    }
+                    CarOccupantZoneManager occupantZoneManager = (CarOccupantZoneManager)
+                            car.getCarManager(Car.CAR_OCCUPANT_ZONE_SERVICE);
+                    int mainDisplayId = getDisplay().getDisplayId();
+                    int assignedUserId = getAssignedUserIdForMainDisplay(
+                            occupantZoneManager, mainDisplayId);
+                    if (assignedUserId == getUserId()) {
+                        Log.i(TAG, "User" + getUserId() + " is assigned to Display"
+                                + mainDisplayId);
+                        return;
+                    }
+                    // TODO(b/236182833): Show the profile user selection UI if no user is assigned
+                    // to the current display.
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivityAsUser(intent, UserHandle.of(assignedUserId));
+                    Log.i(TAG, "Start HOME for User" + assignedUserId + " in Display"
+                            + mainDisplayId);
+                    finish();
+                });
 
         WallpaperManager wallpaperMgr = getSystemService(WallpaperManager.class);
         mIsWallpaperSupported = wallpaperMgr != null && wallpaperMgr.isWallpaperSupported();
@@ -173,6 +205,21 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
             }
             popup.show();
         });
+    }
+
+    private static int getAssignedUserIdForMainDisplay(
+            CarOccupantZoneManager occupantZoneManager, int mainDisplayId) {
+        List<OccupantZoneInfo> allOccupantZones = occupantZoneManager.getAllOccupantZones();
+        for (int i = allOccupantZones.size() - 1; i >= 0; --i) {
+            OccupantZoneInfo occupantZone = allOccupantZones.get(i);
+            // Assumes each occupant has a single main display.
+            Display mainDisplay = occupantZoneManager.getDisplayForOccupant(
+                    occupantZone, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+            if (mainDisplay != null && mainDisplay.getDisplayId() == mainDisplayId) {
+                return occupantZoneManager.getUserForOccupant(occupantZone);
+            }
+        }
+        return UserHandle.USER_NULL;
     }
 
     @Override
