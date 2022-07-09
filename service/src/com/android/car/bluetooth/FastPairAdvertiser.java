@@ -16,6 +16,7 @@
 
 package com.android.car.bluetooth;
 
+import static com.android.car.bluetooth.FastPairAccountKeyStorage.AccountKey;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.bluetooth.BluetoothAdapter;
@@ -40,6 +41,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * The FastPairAdvertiser is responsible for the BLE advertisement of either the model ID while
@@ -162,7 +164,7 @@ class FastPairAdvertiser {
     /**
      * Advertise the stored account keys while not in pairing mode
      */
-    void advertiseAccountKeys() {
+    void advertiseAccountKeys(List<AccountKey> keys) {
         if (DBG) {
             Slogf.d(TAG, "AdvertiseAccountKeys");
         }
@@ -175,7 +177,7 @@ class FastPairAdvertiser {
         mData = new AdvertiseData.Builder()
                 .addServiceUuid(FastPairServiceUuid)
                 .addServiceData(FastPairServiceUuid,
-                        FastPairUtils.getAccountKeyAdvertisement(mContext))
+                        FastPairUtils.getAccountKeyAdvertisement(keys))
                 .setIncludeTxPowerLevel(true)
                 .build();
         startAdvertising();
