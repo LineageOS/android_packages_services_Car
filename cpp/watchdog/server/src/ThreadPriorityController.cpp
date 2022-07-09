@@ -76,7 +76,7 @@ Result<void> ThreadPriorityController::setThreadPriority(int pid, int tid, int u
     sched_param param{.sched_priority = priority};
     errno = 0;
     if (mSystemCallsInterface->setScheduler(tpid, policy, &param) != 0) {
-        return Error(EX_ILLEGAL_STATE) << "sched_setscheduler failed, errno: " << errno;
+        return Error(EX_SERVICE_SPECIFIC) << "sched_setscheduler failed, errno: " << errno;
     }
     return {};
 }
@@ -93,14 +93,14 @@ Result<void> ThreadPriorityController::getThreadPriority(int pid, int tid, int u
     errno = 0;
     int policy = mSystemCallsInterface->getScheduler(tpid);
     if (policy < 0) {
-        return Error(EX_ILLEGAL_STATE) << "sched_getscheduler failed, errno: " << errno;
+        return Error(EX_SERVICE_SPECIFIC) << "sched_getscheduler failed, errno: " << errno;
     }
 
     sched_param param = {};
     errno = 0;
     int callResult = mSystemCallsInterface->getParam(tpid, &param);
     if (callResult != 0) {
-        return Error(EX_ILLEGAL_STATE) << "sched_getparam failed, errno: " << errno;
+        return Error(EX_SERVICE_SPECIFIC) << "sched_getparam failed, errno: " << errno;
     }
 
     result->policy = policy;

@@ -16,24 +16,74 @@
 package com.android.car.os;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.expectThrows;
 
 import android.car.Car;
 import android.car.os.CarPerformanceManager;
+import android.car.os.CarPerformanceManager.SetSchedulerFailedException;
 import android.car.os.ThreadPolicyWithPriority;
+import android.car.watchdoglib.CarWatchdogDaemonHelper;
+import android.content.Context;
+import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.MockedCarTestBase;
+import com.android.car.watchdog.CarWatchdogService;
+import com.android.car.watchdog.TimeSource;
+import com.android.car.watchdog.WatchdogStorage;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
+
+import java.time.Instant;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarPerformanceManagerTest extends MockedCarTestBase {
-
     private CarPerformanceManager mCarPerformanceManager;
+    private CarWatchdogService mCarWatchdogService;
+    @Mock private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
+    @Mock private Context mMockBuiltinPackageContext;
+    @Mock private WatchdogStorage mMockWatchdogStorage;
+    private final TestTimeSource mTimeSource = new TestTimeSource();
+
+    private static final class TestTimeSource extends TimeSource {
+        private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
+        private Instant mNow;
+        TestTimeSource() {
+            mNow = TEST_DATE_TIME;
+        }
+
+        @Override
+        public Instant now() {
+            /* Return the same time, so the tests are deterministic. */
+            return mNow;
+        }
+
+        @Override
+        public String toString() {
+            return "Mocked date to " + now();
+        }
+    }
+
+    @Override
+    public void configureMockedHal() {
+        mCarWatchdogService = new CarWatchdogService(
+                getContext(), mMockBuiltinPackageContext, mMockWatchdogStorage, mTimeSource);
+        mCarWatchdogService.setCarWatchdogDaemonHelper(mCarWatchdogDaemonHelper);
+        setCarWatchDogService(mCarWatchdogService);
+    }
 
     @Override
     public void setUp() throws Exception {
@@ -48,6 +98,127 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
                 ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
         mCarPerformanceManager.setThreadPriority(p);
-        // TODO(b/156400843): getThreadPriority and verify the set operation succeeded.
+
+        verify(mCarWatchdogDaemonHelper).setThreadPriority(anyInt(), anyInt(), anyInt(),
+                eq(ThreadPolicyWithPriority.SCHED_FIFO), eq(1));
+    }
+
+    @Test
+    public void testSetThreadPriorityIllegalArgumentException() throws Exception {
+        doThrow(new IllegalArgumentException("test")).when(mCarWatchdogDaemonHelper)
+                .setThreadPriority(anyInt(), anyInt(), anyInt(), anyInt(), anyInt());
+        ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
+                ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+                () -> mCarPerformanceManager.setThreadPriority(p));
+
+        assertWithMessage("exception on illegal set thread priority argument").that(thrown)
+                .hasMessageThat().contains("test");
+    }
+
+    @Test
+    public void testSetThreadPriorityIllegalStateException() throws Exception {
+        doThrow(new IllegalStateException("test")).when(mCarWatchdogDaemonHelper).setThreadPriority(
+                anyInt(), anyInt(), anyInt(), anyInt(), anyInt());
+        ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
+                ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
+
+        IllegalStateException thrown = expectThrows(IllegalStateException.class,
+                () -> mCarPerformanceManager.setThreadPriority(p));
+
+        assertWithMessage("exception on illegal state exception").that(thrown).hasMessageThat()
+                .contains("test");
+    }
+
+    @Test
+    public void testSetThreadPriorityRemoteException() throws Exception {
+        doThrow(new RemoteException("test")).when(mCarWatchdogDaemonHelper).setThreadPriority(
+                anyInt(), anyInt(), anyInt(), anyInt(), anyInt());
+        ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
+                ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
+
+        // Nothing must be thrown. Remote exception is just logged.
+        mCarPerformanceManager.setThreadPriority(p);
+    }
+
+    @Test
+    public void testSetThreadPriorityServiceSpecificException() throws Exception {
+        doThrow(new ServiceSpecificException(0)).when(mCarWatchdogDaemonHelper).setThreadPriority(
+                anyInt(), anyInt(), anyInt(), anyInt(), anyInt());
+        ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
+                ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
+
+        expectThrows(SetSchedulerFailedException.class,
+                () -> mCarPerformanceManager.setThreadPriority(p));
+    }
+
+    @Test
+    public void testGetThreadPriority() throws Exception {
+        int[] p = new int[]{ThreadPolicyWithPriority.SCHED_FIFO, 1};
+        when(mCarWatchdogDaemonHelper.getThreadPriority(
+                anyInt(), anyInt(), anyInt())).thenReturn(p);
+
+        ThreadPolicyWithPriority result = mCarPerformanceManager.getThreadPriority();
+
+        assertThat(result.getPolicy()).isEqualTo(ThreadPolicyWithPriority.SCHED_FIFO);
+        assertThat(result.getPriority()).isEqualTo(1);
+    }
+
+    @Test
+    public void testGetThreadPriorityDefaultPolicy() throws Exception {
+        int[] p = new int[]{ThreadPolicyWithPriority.SCHED_DEFAULT, 0};
+        when(mCarWatchdogDaemonHelper.getThreadPriority(
+                anyInt(), anyInt(), anyInt())).thenReturn(p);
+
+        ThreadPolicyWithPriority result = mCarPerformanceManager.getThreadPriority();
+
+        assertThat(result.getPolicy()).isEqualTo(ThreadPolicyWithPriority.SCHED_DEFAULT);
+        assertThat(result.getPriority()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetThreadPriorityInvalidPolicy() throws Exception {
+        int[] p = new int[]{-1, 1};
+        when(mCarWatchdogDaemonHelper.getThreadPriority(
+                anyInt(), anyInt(), anyInt())).thenReturn(p);
+
+        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+    }
+
+    @Test
+    public void testGetThreadPriorityInvalidPriority() throws Exception {
+        int[] p = new int[]{ThreadPolicyWithPriority.SCHED_FIFO, 0};
+        when(mCarWatchdogDaemonHelper.getThreadPriority(
+                anyInt(), anyInt(), anyInt())).thenReturn(p);
+
+        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+    }
+
+    @Test
+    public void testGetThreadPriorityRemoteException() throws Exception {
+        when(mCarWatchdogDaemonHelper.getThreadPriority(anyInt(), anyInt(), anyInt())).thenThrow(
+                new RemoteException(""));
+
+        ThreadPolicyWithPriority result = mCarPerformanceManager.getThreadPriority();
+
+        assertThat(result.getPolicy()).isEqualTo(ThreadPolicyWithPriority.SCHED_DEFAULT);
+        assertThat(result.getPriority()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetThreadPriorityIllegalStateException() throws Exception {
+        when(mCarWatchdogDaemonHelper.getThreadPriority(anyInt(), anyInt(), anyInt())).thenThrow(
+                new IllegalStateException(""));
+
+        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+    }
+
+    @Test
+    public void testGetThreadPriorityServiceSpecificException() throws Exception {
+        when(mCarWatchdogDaemonHelper.getThreadPriority(anyInt(), anyInt(), anyInt())).thenThrow(
+                new ServiceSpecificException(0));
+
+        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
     }
 }
