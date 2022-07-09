@@ -340,12 +340,12 @@ public final class CarEvsManagerUnitTest extends AbstractExtendedMockitoTestCase
 
         mManager.returnFrameBuffer(buffer);
 
-        verify(mMockICarEvsService, atLeastOnce()).returnFrameBuffer(bufferId);
+        verify(mMockICarEvsService, atLeastOnce()).returnFrameBuffer(buffer);
     }
 
     @Test
     public void testReturnFrameBufferRemoteExceptionThrown() throws Exception {
-        doThrow(new RemoteException()).when(mMockICarEvsService).returnFrameBuffer(anyInt());
+        doThrow(new RemoteException()).when(mMockICarEvsService).returnFrameBuffer(any());
         int bufferId = 1;
         HardwareBuffer hwbuffer =
                 HardwareBuffer.create(/* width= */ 64, /* height= */ 32,

@@ -135,8 +135,7 @@ bool RenderDirectView::activate() {
                                       mConfig.getExternalMemoryFormat()));
     if (!mTexture) {
         LOG(ERROR) << "Failed to set up video texture for " << mCameraDesc.v1.cameraId;
-// TODO:  For production use, we may actually want to fail in this case, but not yet...
-//       return false;
+        // TODO(b/237904870): We may want to return false here.
     }
 
     return true;
@@ -146,9 +145,7 @@ bool RenderDirectView::activate() {
 void RenderDirectView::deactivate() {
     // Release our video texture
     // We can't hold onto it because some other Render object might need the same camera
-    // TODO(b/131492626):  investigate whether sharing video textures can save
-    // the time.
-  mTexture = nullptr;
+    mTexture = nullptr;
 }
 
 

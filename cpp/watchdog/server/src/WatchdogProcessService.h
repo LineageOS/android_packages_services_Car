@@ -17,19 +17,20 @@
 #ifndef CPP_WATCHDOG_SERVER_SRC_WATCHDOGPROCESSSERVICE_H_
 #define CPP_WATCHDOG_SERVER_SRC_WATCHDOGPROCESSSERVICE_H_
 
+#include "AIBinderDeathRegistrationWrapper.h"
+
+#include <aidl/android/automotive/watchdog/ICarWatchdogClient.h>
+#include <aidl/android/automotive/watchdog/TimeoutLength.h>
+#include <aidl/android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
+#include <aidl/android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
+#include <aidl/android/automotive/watchdog/internal/ProcessIdentifier.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
-#include <android/automotive/watchdog/ICarWatchdogClient.h>
-#include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
-#include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
-#include <android/automotive/watchdog/internal/PowerCycle.h>
-#include <android/automotive/watchdog/internal/ProcessIdentifier.h>
-#include <android/automotive/watchdog/internal/UserState.h>
-#include <binder/IBinder.h>
-#include <binder/Status.h>
+#include <android/binder_auto_utils.h>
 #include <cutils/multiuser.h>
 #include <utils/Looper.h>
 #include <utils/Mutex.h>
+#include <utils/RefBase.h>
 #include <utils/String16.h>
 #include <utils/StrongPointer.h>
 #include <utils/Vector.h>
@@ -54,42 +55,45 @@ class WatchdogProcessServicePeer;
 
 class WatchdogServiceHelperInterface;
 
-class WatchdogProcessServiceInterface : public android::RefBase {
+class WatchdogProcessServiceInterface : virtual public android::RefBase {
 public:
     virtual android::base::Result<void> start() = 0;
     virtual void terminate() = 0;
-    virtual android::base::Result<void> dump(int fd,
-                                             const android::Vector<android::String16>& args) = 0;
+    virtual void onDump(int fd) = 0;
     virtual void doHealthCheck(int what) = 0;
-
     virtual android::base::Result<void> registerWatchdogServiceHelper(
             const android::sp<WatchdogServiceHelperInterface>& helper) = 0;
-
-    virtual android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
-                                                   TimeoutLength timeout) = 0;
-    virtual android::binder::Status unregisterClient(
-            const android::sp<ICarWatchdogClient>& client) = 0;
-    virtual android::binder::Status registerCarWatchdogService(
-            const android::sp<IBinder>& binder) = 0;
-    virtual void unregisterCarWatchdogService(const android::sp<IBinder>& binder) = 0;
-    virtual android::binder::Status registerMonitor(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
+    virtual void handleBinderDeath(void* cookie) = 0;
+    virtual ndk::ScopedAStatus registerClient(
+            const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
+            aidl::android::automotive::watchdog::TimeoutLength timeout) = 0;
+    virtual ndk::ScopedAStatus unregisterClient(
+            const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
+                    client) = 0;
+    virtual ndk::ScopedAStatus registerCarWatchdogService(const ndk::SpAIBinder& binder) = 0;
+    virtual void unregisterCarWatchdogService(const ndk::SpAIBinder& binder) = 0;
+    virtual ndk::ScopedAStatus registerMonitor(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor) = 0;
-    virtual android::binder::Status unregisterMonitor(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
+    virtual ndk::ScopedAStatus unregisterMonitor(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor) = 0;
-    virtual android::binder::Status tellClientAlive(const android::sp<ICarWatchdogClient>& client,
-                                                    int32_t sessionId) = 0;
-    virtual android::binder::Status tellCarWatchdogServiceAlive(
-            const android::sp<
-                    android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service,
-            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+    virtual ndk::ScopedAStatus tellClientAlive(
+            const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
+            int32_t sessionId) = 0;
+    virtual ndk::ScopedAStatus tellCarWatchdogServiceAlive(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
+                    service,
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
                     clientsNotResponding,
             int32_t sessionId) = 0;
-    virtual android::binder::Status tellDumpFinished(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
-                    monitor,
-            const android::automotive::watchdog::internal::ProcessIdentifier&
+    virtual ndk::ScopedAStatus tellDumpFinished(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor,
+            const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
                     processIdentifier) = 0;
     virtual void setEnabled(bool isEnabled) = 0;
     virtual void notifyUserStateChange(userid_t userId, bool isStarted) = 0;
@@ -100,40 +104,46 @@ public:
     explicit WatchdogProcessService(const android::sp<Looper>& handlerLooper);
     ~WatchdogProcessService() { terminate(); }
 
-    android::base::Result<void> start();
-    void terminate();
-    virtual android::base::Result<void> dump(int fd,
-                                             const android::Vector<android::String16>& args);
-    void doHealthCheck(int what);
-
-    virtual android::base::Result<void> registerWatchdogServiceHelper(
-            const android::sp<WatchdogServiceHelperInterface>& helper);
-
-    virtual android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
-                                                   TimeoutLength timeout);
-    virtual android::binder::Status unregisterClient(const android::sp<ICarWatchdogClient>& client);
-    virtual android::binder::Status registerCarWatchdogService(const android::sp<IBinder>& binder);
-    virtual void unregisterCarWatchdogService(const android::sp<IBinder>& binder);
-    virtual android::binder::Status registerMonitor(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
-                    monitor);
-    virtual android::binder::Status unregisterMonitor(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
-                    monitor);
-    virtual android::binder::Status tellClientAlive(const android::sp<ICarWatchdogClient>& client,
-                                                    int32_t sessionId);
-    virtual android::binder::Status tellCarWatchdogServiceAlive(
-            const android::sp<
-                    android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service,
-            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+    android::base::Result<void> start() override;
+    void terminate() override;
+    void onDump(int fd) override;
+    void doHealthCheck(int what) override;
+    android::base::Result<void> registerWatchdogServiceHelper(
+            const android::sp<WatchdogServiceHelperInterface>& helper) override;
+    void handleBinderDeath(void* cookie) override;
+    ndk::ScopedAStatus registerClient(
+            const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
+            aidl::android::automotive::watchdog::TimeoutLength timeout) override;
+    ndk::ScopedAStatus unregisterClient(
+            const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client)
+            override;
+    ndk::ScopedAStatus registerCarWatchdogService(const ndk::SpAIBinder& binder) override;
+    void unregisterCarWatchdogService(const ndk::SpAIBinder& binder) override;
+    ndk::ScopedAStatus registerMonitor(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor)
+            override;
+    ndk::ScopedAStatus unregisterMonitor(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor)
+            override;
+    ndk::ScopedAStatus tellClientAlive(
+            const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>& client,
+            int32_t sessionId) override;
+    ndk::ScopedAStatus tellCarWatchdogServiceAlive(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
+                    service,
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
                     clientsNotResponding,
-            int32_t sessionId);
-    virtual android::binder::Status tellDumpFinished(
-            const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
-                    monitor,
-            const android::automotive::watchdog::internal::ProcessIdentifier& processIdentifier);
-    virtual void setEnabled(bool isEnabled);
-    virtual void notifyUserStateChange(userid_t userId, bool isStarted);
+            int32_t sessionId) override;
+    ndk::ScopedAStatus tellDumpFinished(
+            const std::shared_ptr<
+                    aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor>& monitor,
+            const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
+                    processIdentifier) override;
+    void setEnabled(bool isEnabled) override;
+    void notifyUserStateChange(userid_t userId, bool isStarted) override;
 
 private:
     enum ClientType {
@@ -141,36 +151,36 @@ private:
         Service,
     };
 
-    struct ClientInfo {
-        ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId,
-                   uint64_t startTimeMillis) :
+    class ClientInfo {
+    public:
+        ClientInfo(const std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient>&
+                           client,
+                   pid_t pid, userid_t userId, uint64_t startTimeMillis,
+                   const WatchdogProcessService& service) :
               pid(pid),
               userId(userId),
               startTimeMillis(startTimeMillis),
+              service(service),
               type(ClientType::Regular),
               client(client) {}
         ClientInfo(const android::sp<WatchdogServiceHelperInterface>& helper,
-                   const android::sp<android::IBinder>& binder, pid_t pid, userid_t userId,
-                   uint64_t startTimeMillis) :
+                   const ndk::SpAIBinder& binder, pid_t pid, userid_t userId,
+                   uint64_t startTimeMillis, const WatchdogProcessService& service) :
               pid(pid),
               userId(userId),
               startTimeMillis(startTimeMillis),
+              service(service),
               type(ClientType::Service),
               watchdogServiceHelper(helper),
               watchdogServiceBinder(binder) {}
 
         std::string toString() const;
-        status_t linkToDeath(const android::sp<android::IBinder::DeathRecipient>& recipient) const;
-        status_t unlinkToDeath(
-                const android::wp<android::IBinder::DeathRecipient>& recipient) const;
-        android::binder::Status checkIfAlive(TimeoutLength timeout) const;
-        android::binder::Status prepareProcessTermination() const;
-        bool operator!=(const ClientInfo& clientInfo) const {
-            return getBinder() != clientInfo.getBinder() || type != clientInfo.type;
-        }
-        bool matchesBinder(const android::sp<android::IBinder>& binder) const {
-            return binder == getBinder();
-        }
+        AIBinder* getAIBinder() const;
+        ndk::ScopedAStatus linkToDeath(AIBinder_DeathRecipient* recipient) const;
+        ndk::ScopedAStatus unlinkToDeath(AIBinder_DeathRecipient* recipient) const;
+        ndk::ScopedAStatus checkIfAlive(
+                aidl::android::automotive::watchdog::TimeoutLength timeout) const;
+        ndk::ScopedAStatus prepareProcessTermination() const;
 
         pid_t pid;
         userid_t userId;
@@ -178,12 +188,11 @@ private:
         int sessionId;
 
     private:
-        android::sp<android::IBinder> getBinder() const;
-
+        const WatchdogProcessService& service;
         ClientType type;
-        android::sp<ICarWatchdogClient> client = nullptr;
+        std::shared_ptr<aidl::android::automotive::watchdog::ICarWatchdogClient> client = nullptr;
         android::sp<WatchdogServiceHelperInterface> watchdogServiceHelper = nullptr;
-        android::sp<IBinder> watchdogServiceBinder = nullptr;
+        ndk::SpAIBinder watchdogServiceBinder = nullptr;
     };
 
     struct HeartBeat {
@@ -192,16 +201,6 @@ private:
     };
 
     typedef std::unordered_map<int, ClientInfo> PingedClientMap;
-
-    class BinderDeathRecipient final : public android::IBinder::DeathRecipient {
-    public:
-        explicit BinderDeathRecipient(const android::sp<WatchdogProcessService>& service);
-
-        void binderDied(const android::wp<android::IBinder>& who) override;
-
-    private:
-        android::sp<WatchdogProcessService> mService;
-    };
 
     class PropertyChangeListener final :
           public android::frameworks::automotive::vhal::ISubscriptionCallback {
@@ -231,17 +230,19 @@ private:
     };
 
 private:
-    android::binder::Status registerClientLocked(const ClientInfo& clientInfo,
-                                                 TimeoutLength timeout);
-    android::binder::Status unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
-                                                   android::sp<IBinder> binder,
-                                                   ClientType clientType);
-    android::binder::Status tellClientAliveLocked(const android::sp<android::IBinder>& binder,
-                                                  int32_t sessionId);
-    android::base::Result<void> startHealthCheckingLocked(TimeoutLength timeout);
-    android::base::Result<void> dumpAndKillClientsIfNotResponding(TimeoutLength timeout);
+    ndk::ScopedAStatus registerClientLocked(
+            const ClientInfo& clientInfo,
+            aidl::android::automotive::watchdog::TimeoutLength timeout);
+    ndk::ScopedAStatus unregisterClientLocked(
+            const std::vector<aidl::android::automotive::watchdog::TimeoutLength>& timeouts,
+            const ndk::SpAIBinder& binder, ClientType clientType);
+    ndk::ScopedAStatus tellClientAliveLocked(const ndk::SpAIBinder& binder, int32_t sessionId);
+    android::base::Result<void> startHealthCheckingLocked(
+            aidl::android::automotive::watchdog::TimeoutLength timeout);
+    android::base::Result<void> dumpAndKillClientsIfNotResponding(
+            aidl::android::automotive::watchdog::TimeoutLength timeout);
     android::base::Result<void> dumpAndKillAllProcesses(
-            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
                     processesNotResponding,
             bool reportToVhal);
     int32_t getNewSessionId();
@@ -251,10 +252,9 @@ private:
     void subscribeToVhalHeartBeatLocked();
     void reportWatchdogAliveToVhal();
     void reportTerminatedProcessToVhal(
-            const std::vector<android::automotive::watchdog::internal::ProcessIdentifier>&
+            const std::vector<aidl::android::automotive::watchdog::internal::ProcessIdentifier>&
                     processesNotResponding);
     android::base::Result<std::string> readProcCmdLine(int32_t pid);
-    void handleBinderDeath(const android::wp<android::IBinder>& who);
     void handleVhalDeath();
     void queryVhalPropertiesLocked();
     bool isVhalPropertySupportedLocked(
@@ -263,19 +263,21 @@ private:
     void checkVhalHealth();
     void terminateVhal();
 
-    using Processor =
-            std::function<void(std::vector<ClientInfo>&, std::vector<ClientInfo>::const_iterator)>;
-    bool findClientAndProcessLocked(const std::vector<TimeoutLength> timeouts,
-                                    const ClientInfo& clientInfo, const Processor& processor);
-    bool findClientAndProcessLocked(const std::vector<TimeoutLength> timeouts,
-                                    const android::sp<android::IBinder> binder,
-                                    const Processor& processor);
-    std::chrono::nanoseconds getTimeoutDurationNs(const TimeoutLength& timeout);
+    using ClientInfoMap = std::unordered_map<uintptr_t, ClientInfo>;
+    using Processor = std::function<void(ClientInfoMap&, ClientInfoMap::const_iterator)>;
+    bool findClientAndProcessLocked(
+            const std::vector<aidl::android::automotive::watchdog::TimeoutLength>& timeouts,
+            AIBinder* binder, const Processor& processor);
+    bool findClientAndProcessLocked(
+            const std::vector<aidl::android::automotive::watchdog::TimeoutLength>& timeouts,
+            uintptr_t binderPtrId, const Processor& processor);
+    std::chrono::nanoseconds getTimeoutDurationNs(
+            const aidl::android::automotive::watchdog::TimeoutLength& timeout);
 
 private:
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
     std::unordered_set<aidl::android::hardware::automotive::vehicle::VehicleProperty>
             mNotSupportedVhalProperties;
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
@@ -287,12 +289,16 @@ private:
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient::OnBinderDiedCallbackFunc>
             mOnBinderDiedCallback;
     std::function<int64_t(pid_t)> mGetStartTimeForPidFunc;
+    android::sp<AIBinderDeathRegistrationWrapperInterface> mDeathRegistrationWrapper;
 
     android::Mutex mMutex;
-    std::unordered_map<TimeoutLength, std::vector<ClientInfo>> mClients GUARDED_BY(mMutex);
-    std::unordered_map<TimeoutLength, PingedClientMap> mPingedClients GUARDED_BY(mMutex);
+
+    std::unordered_map<aidl::android::automotive::watchdog::TimeoutLength, ClientInfoMap>
+            mClientsByTimeout GUARDED_BY(mMutex);
+    std::unordered_map<aidl::android::automotive::watchdog::TimeoutLength, PingedClientMap>
+            mPingedClients GUARDED_BY(mMutex);
     std::unordered_set<userid_t> mStoppedUserIds GUARDED_BY(mMutex);
-    android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor> mMonitor
+    std::shared_ptr<aidl::android::automotive::watchdog::internal::ICarWatchdogMonitor> mMonitor
             GUARDED_BY(mMutex);
     bool mIsEnabled GUARDED_BY(mMutex);
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVhalService

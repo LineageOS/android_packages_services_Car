@@ -25,6 +25,7 @@
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
+#include <android/binder_interface_utils.h>
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>
 
@@ -325,14 +326,14 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
             << "Invalid collection event";
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
+    std::string customCollectionIntervalStr = std::to_string(kTestCustomCollectionInterval.count());
+    std::string customCollectionDurationStr = std::to_string(kTestCustomCollectionDuration.count());
     // #7 Custom collection
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionInterval.count()).c_str()));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-    ASSERT_RESULT_OK(mService->onCustomCollection(-1, args));
+    const char* firstArgs[] = {kStartCustomCollectionFlag, kIntervalFlag,
+                               customCollectionIntervalStr.c_str(), kMaxDurationFlag,
+                               customCollectionDurationStr.c_str()};
+
+    ASSERT_RESULT_OK(mService->onCustomCollection(-1, firstArgs, /*numArgs=*/5));
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
@@ -373,9 +374,8 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
         EXPECT_CALL(*mMockDataProcessor, onCustomCollectionDump(-1)).Times(1);
     }
 
-    args.clear();
-    args.push_back(String16(kEndCustomCollectionFlag));
-    ASSERT_RESULT_OK(mService->onCustomCollection(customDump.fd, args));
+    const char* secondArgs[] = {kEndCustomCollectionFlag};
+    ASSERT_RESULT_OK(mService->onCustomCollection(customDump.fd, secondArgs, /*numArgs=*/1));
     ASSERT_RESULT_OK(mLooperStub->pollCache());
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
@@ -466,16 +466,15 @@ TEST_F(WatchdogPerfServiceTest, TestCustomCollection) {
 
     ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
 
+    std::string customCollectionIntervalStr = std::to_string(kTestCustomCollectionInterval.count());
+    std::string customCollectionDurationStr = std::to_string(kTestCustomCollectionDuration.count());
     // Start custom collection with filter packages option.
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionInterval.count()).c_str()));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-    args.push_back(String16(kFilterPackagesFlag));
-    args.push_back(String16("android.car.cts,system_server"));
-    ASSERT_RESULT_OK(mService->onCustomCollection(-1, args));
+    const char* args[] = {kStartCustomCollectionFlag,          kIntervalFlag,
+                          customCollectionIntervalStr.c_str(), kMaxDurationFlag,
+                          customCollectionDurationStr.c_str(), kFilterPackagesFlag,
+                          "android.car.cts,system_server"};
+
+    ASSERT_RESULT_OK(mService->onCustomCollection(-1, args, /*numArgs=*/7));
 
     // Poll until custom collection auto terminates.
     int maxIterations = static_cast<int>(kTestCustomCollectionDuration.count() /
@@ -597,33 +596,25 @@ TEST_F(WatchdogPerfServiceTest, TestHandlesInvalidDumpArguments) {
 
     ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
 
-    Vector<String16> args;
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16("Invalid flag"));
-    args.push_back(String16("Invalid value"));
-    ASSERT_FALSE(mService->onCustomCollection(-1, args).ok());
+    const char* firstArgs[] = {kStartCustomCollectionFlag, "Invalid flag", "Invalid value"};
 
-    args.clear();
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kIntervalFlag));
-    args.push_back(String16("Invalid interval"));
-    ASSERT_FALSE(mService->onCustomCollection(-1, args).ok());
+    ASSERT_FALSE(mService->onCustomCollection(-1, firstArgs, /*numArgs=*/3).ok());
 
-    args.clear();
-    args.push_back(String16(kStartCustomCollectionFlag));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16("Invalid duration"));
-    ASSERT_FALSE(mService->onCustomCollection(-1, args).ok());
+    const char* secondArgs[] = {kStartCustomCollectionFlag, kIntervalFlag, "Invalid interval"};
 
-    args.clear();
-    args.push_back(String16(kEndCustomCollectionFlag));
-    args.push_back(String16(kMaxDurationFlag));
-    args.push_back(String16(std::to_string(kTestCustomCollectionDuration.count()).c_str()));
-    ASSERT_FALSE(mService->onCustomCollection(-1, args).ok());
+    ASSERT_FALSE(mService->onCustomCollection(-1, secondArgs, /*numArgs=*/3).ok());
 
-    args.clear();
-    args.push_back(String16("Invalid flag"));
-    ASSERT_FALSE(mService->onCustomCollection(-1, args).ok());
+    const char* thirdArgs[] = {kStartCustomCollectionFlag, kMaxDurationFlag, "Invalid duration"};
+
+    ASSERT_FALSE(mService->onCustomCollection(-1, thirdArgs, /*numArgs=*/3).ok());
+
+    const char* fourthArgs[] = {kEndCustomCollectionFlag, kMaxDurationFlag, "10"};
+
+    ASSERT_FALSE(mService->onCustomCollection(-1, fourthArgs, /*numArgs=*/3).ok());
+
+    const char* fifthArgs[] = {"Invalid flag"};
+
+    ASSERT_FALSE(mService->onCustomCollection(-1, fifthArgs, /*numArgs=*/1).ok());
 }
 
 }  // namespace watchdog

@@ -18,10 +18,10 @@
 
 #include "PackageInfoResolver.h"
 
+#include <aidl/android/automotive/watchdog/internal/ApplicationCategoryType.h>
+#include <aidl/android/automotive/watchdog/internal/ComponentType.h>
+#include <aidl/android/automotive/watchdog/internal/UidType.h>
 #include <android-base/strings.h>
-#include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
-#include <android/automotive/watchdog/internal/ComponentType.h>
-#include <android/automotive/watchdog/internal/UidType.h>
 #include <cutils/android_filesystem_config.h>
 
 #include <inttypes.h>
@@ -33,21 +33,17 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using ::android::IBinder;
+using ::aidl::android::automotive::watchdog::internal::ApplicationCategoryType;
+using ::aidl::android::automotive::watchdog::internal::ComponentType;
+using ::aidl::android::automotive::watchdog::internal::PackageInfo;
+using ::aidl::android::automotive::watchdog::internal::UidType;
 using ::android::sp;
-using ::android::automotive::watchdog::internal::ApplicationCategoryType;
-using ::android::automotive::watchdog::internal::ComponentType;
-using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StartsWith;
-using ::android::binder::Status;
 
 using GetpwuidFunction = std::function<struct passwd*(uid_t)>;
-using PackageToAppCategoryMap =
-        std::unordered_map<std::string,
-                           android::automotive::watchdog::internal::ApplicationCategoryType>;
+using PackageToAppCategoryMap = std::unordered_map<std::string, ApplicationCategoryType>;
 
 namespace {
 
@@ -166,12 +162,11 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
     }
 
     std::vector<PackageInfo> packageInfos;
-    Status status =
+    auto status =
             mWatchdogServiceHelper->getPackageInfosForUids(missingUids, mVendorPackagePrefixes,
                                                            &packageInfos);
     if (!status.isOk()) {
-        ALOGE("Failed to fetch package infos from car watchdog service: %s",
-              status.exceptionMessage().c_str());
+        ALOGE("Failed to fetch package infos from car watchdog service: %s", status.getMessage());
         return;
     }
     for (auto& packageInfo : packageInfos) {

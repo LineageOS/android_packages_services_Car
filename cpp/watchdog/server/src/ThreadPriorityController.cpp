@@ -24,102 +24,88 @@ namespace watchdog {
 
 namespace {
 
-using ::android::automotive::watchdog::internal::ThreadPolicyWithPriority;
+using ::aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority;
+using ::android::base::Error;
 using ::android::base::Result;
-using ::android::binder::Status;
-
-Status fromExceptionCode(int32_t exceptionCode, const std::string& message) {
-    ALOGW("%s", message.c_str());
-    return Status::fromExceptionCode(exceptionCode, message.c_str());
-}
 
 constexpr int PRIORITY_MIN = 1;
 constexpr int PRIORITY_MAX = 99;
 
 }  // namespace
 
-Status ThreadPriorityController::checkPidTidUid(pid_t pid, pid_t tid, uid_t uid) {
+Result<void> ThreadPriorityController::checkPidTidUid(pid_t pid, pid_t tid, uid_t uid) {
     auto tidStatus = mSystemCallsInterface->readPidStatusFileForPid(tid);
     if (!tidStatus.ok()) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("invalid thread ID: %d", tid));
+        return Error(EX_ILLEGAL_STATE) << "Invalid thread ID: " << tid;
     }
     uid_t uidForThread = std::get<0>(*tidStatus);
     pid_t tgid = std::get<1>(*tidStatus);
     if (pid != tgid) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("invalid process ID: %d", pid));
+        return Error(EX_ILLEGAL_STATE) << "Invalid process ID: " << pid;
     }
     if (uid != uidForThread) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("invalid user ID: %d", uid));
+        return Error(EX_ILLEGAL_STATE) << "Invalid user ID: " << uid;
     }
-    return Status::ok();
+    return {};
 }
 
-Status ThreadPriorityController::setThreadPriority(int pid, int tid, int uid, int policy,
-                                                   int priority) {
+Result<void> ThreadPriorityController::setThreadPriority(int pid, int tid, int uid, int policy,
+                                                         int priority) {
     pid_t tpid = static_cast<pid_t>(tid);
     pid_t ppid = static_cast<pid_t>(pid);
     uid_t uuid = static_cast<uid_t>(uid);
-    Status status = checkPidTidUid(ppid, tpid, uuid);
-    if (!status.isOk()) {
-        return status;
+    if (auto result = checkPidTidUid(ppid, tpid, uuid); !result.ok()) {
+        return result;
     }
 
     if (policy != SCHED_FIFO && policy != SCHED_RR && policy != SCHED_OTHER) {
-        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                 StringPrintf("invalid policy: %d, only support SCHED_OTHER(%d)"
-                                              ", SCHED_FIFO(%d) and SCHED_RR(%d)",
-                                              policy, SCHED_OTHER, SCHED_FIFO, SCHED_RR));
+        return Error(EX_ILLEGAL_ARGUMENT)
+                << "Invalid policy: " << policy << ". Supported policies are SCHED_OTHER("
+                << SCHED_OTHER << ") , SCHED_FIFO(" << SCHED_FIFO << ") and SCHED_RR(" << SCHED_RR
+                << ")";
     }
 
     if (policy == SCHED_OTHER) {
         priority = 0;
     } else if (priority < PRIORITY_MIN || priority > PRIORITY_MAX) {
-        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                 StringPrintf("invalid priority: %d for policy: (%d), "
-                                              "must be within %d and %d",
-                                              priority, policy, PRIORITY_MIN, PRIORITY_MAX));
+        return Error(EX_ILLEGAL_ARGUMENT)
+                << "Invalid priority: " << priority << ". For policy: (" << policy
+                << "), priority must be within " << PRIORITY_MIN << " and " << PRIORITY_MAX;
     }
 
     sched_param param{.sched_priority = priority};
     errno = 0;
     if (mSystemCallsInterface->setScheduler(tpid, policy, &param) != 0) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("sched_setscheduler failed, errno: %d", errno));
+        return Error(EX_ILLEGAL_STATE) << "sched_setscheduler failed, errno: " << errno;
     }
-    return Status::ok();
+    return {};
 }
 
-Status ThreadPriorityController::getThreadPriority(int pid, int tid, int uid,
-                                                   ThreadPolicyWithPriority* result) {
+Result<void> ThreadPriorityController::getThreadPriority(int pid, int tid, int uid,
+                                                         ThreadPolicyWithPriority* result) {
     pid_t tpid = static_cast<pid_t>(tid);
     pid_t ppid = static_cast<pid_t>(pid);
     uid_t uuid = static_cast<uid_t>(uid);
-    Status status = checkPidTidUid(ppid, tpid, uuid);
-    if (!status.isOk()) {
-        return status;
+    if (auto result = checkPidTidUid(ppid, tpid, uuid); !result.ok()) {
+        return result;
     }
 
     errno = 0;
     int policy = mSystemCallsInterface->getScheduler(tpid);
     if (policy < 0) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("sched_getscheduler failed, errno: %d", errno));
+        return Error(EX_ILLEGAL_STATE) << "sched_getscheduler failed, errno: " << errno;
     }
 
     sched_param param = {};
     errno = 0;
     int callResult = mSystemCallsInterface->getParam(tpid, &param);
     if (callResult != 0) {
-        return fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                 StringPrintf("sched_getparam failed, errno: %d", errno));
+        return Error(EX_ILLEGAL_STATE) << "sched_getparam failed, errno: " << errno;
     }
 
     result->policy = policy;
     result->priority = param.sched_priority;
-    return Status::ok();
+    return {};
 }
 
 int ThreadPriorityController::SystemCalls::setScheduler(pid_t tid, int policy,

@@ -15,6 +15,7 @@
  */
 
 #include "IoOveruseMonitor.h"
+#include "MockAIBinderDeathRegistrationWrapper.h"
 #include "MockIoOveruseConfigs.h"
 #include "MockPackageInfoResolver.h"
 #include "MockProcDiskStatsCollector.h"
@@ -24,7 +25,6 @@
 #include "PackageInfoTestUtils.h"
 
 #include <binder/IPCThreadState.h>
-#include <binder/Status.h>
 #include <utils/RefBase.h>
 
 #include <functional>
@@ -35,21 +35,26 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::aidl::android::automotive::watchdog::IoOveruseStats;
+using ::aidl::android::automotive::watchdog::PerStateBytes;
+using ::aidl::android::automotive::watchdog::ResourceOveruseStats;
+using ::aidl::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
+using ::aidl::android::automotive::watchdog::internal::PackageIdentifier;
+using ::aidl::android::automotive::watchdog::internal::PackageInfo;
+using ::aidl::android::automotive::watchdog::internal::PackageIoOveruseStats;
+using ::aidl::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
+using ::aidl::android::automotive::watchdog::internal::UidType;
+using ::aidl::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::IPCThreadState;
 using ::android::RefBase;
 using ::android::sp;
-using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
-using ::android::automotive::watchdog::internal::PackageIdentifier;
-using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
-using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
-using ::android::automotive::watchdog::internal::UidType;
-using ::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
-using ::android::binder::Status;
+using ::ndk::ScopedAStatus;
+using ::ndk::SharedRefBase;
 using ::testing::_;
+using ::testing::ByMove;
 using ::testing::DoAll;
 using ::testing::Eq;
 using ::testing::Return;
@@ -183,7 +188,8 @@ public:
     explicit IoOveruseMonitorPeer(const sp<IoOveruseMonitor>& ioOveruseMonitor) :
           mIoOveruseMonitor(ioOveruseMonitor) {}
 
-    Result<void> init(const sp<IoOveruseConfigsInterface>& ioOveruseConfigs,
+    Result<void> init(const sp<AIBinderDeathRegistrationWrapperInterface>& deathRegistrationWrapper,
+                      const sp<IoOveruseConfigsInterface>& ioOveruseConfigs,
                       const sp<PackageInfoResolverInterface>& packageInfoResolver) {
         if (const auto result = mIoOveruseMonitor->init(); !result.ok()) {
             return result;
@@ -191,6 +197,7 @@ public:
         mIoOveruseMonitor->mMinSyncWrittenBytes = KTestMinSyncWrittenBytes;
         mIoOveruseMonitor->mPeriodicMonitorBufferSize = kTestMonitorBufferSize;
         mIoOveruseMonitor->mIoOveruseWarnPercentage = kTestIoOveruseWarnPercentage;
+        mIoOveruseMonitor->mDeathRegistrationWrapper = deathRegistrationWrapper;
         mIoOveruseMonitor->mIoOveruseConfigs = ioOveruseConfigs;
         mIoOveruseMonitor->mPackageInfoResolver = packageInfoResolver;
         return {};
@@ -206,17 +213,20 @@ class IoOveruseMonitorTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
         mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
+        mMockDeathRegistrationWrapper = sp<MockAIBinderDeathRegistrationWrapper>::make();
         mMockIoOveruseConfigs = sp<MockIoOveruseConfigs>::make();
         mMockPackageInfoResolver = sp<MockPackageInfoResolver>::make();
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
         mIoOveruseMonitor = sp<IoOveruseMonitor>::make(mMockWatchdogServiceHelper);
         mIoOveruseMonitorPeer = sp<internal::IoOveruseMonitorPeer>::make(mIoOveruseMonitor);
-        mIoOveruseMonitorPeer->init(mMockIoOveruseConfigs, mMockPackageInfoResolver);
+        mIoOveruseMonitorPeer->init(mMockDeathRegistrationWrapper, mMockIoOveruseConfigs,
+                                    mMockPackageInfoResolver);
         setUpPackagesAndConfigurations();
     }
 
     virtual void TearDown() {
         mMockWatchdogServiceHelper.clear();
+        mMockDeathRegistrationWrapper.clear();
         mMockIoOveruseConfigs.clear();
         mMockPackageInfoResolver.clear();
         mMockUidStatsCollector.clear();
@@ -268,7 +278,26 @@ protected:
         ASSERT_NO_FATAL_FAILURE(func());
     }
 
+    void expectLinkToDeath(AIBinder* aiBinder, ndk::ScopedAStatus expectedStatus) {
+        EXPECT_CALL(*mMockDeathRegistrationWrapper,
+                    linkToDeath(Eq(aiBinder), _, static_cast<void*>(aiBinder)))
+                .WillOnce(Return(ByMove(std::move(expectedStatus))));
+    }
+
+    void expectUnlinkToDeath(AIBinder* aiBinder, ndk::ScopedAStatus expectedStatus) {
+        EXPECT_CALL(*mMockDeathRegistrationWrapper,
+                    unlinkToDeath(Eq(aiBinder), _, static_cast<void*>(aiBinder)))
+                .WillOnce(Return(ByMove(std::move(expectedStatus))));
+    }
+
+    void expectNoUnlinkToDeath(AIBinder* aiBinder) {
+        EXPECT_CALL(*mMockDeathRegistrationWrapper,
+                    unlinkToDeath(Eq(aiBinder), _, static_cast<void*>(aiBinder)))
+                .Times(0);
+    }
+
     sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
+    sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
     sp<MockIoOveruseConfigs> mMockIoOveruseConfigs;
     sp<MockPackageInfoResolver> mMockPackageInfoResolver;
     sp<MockUidStatsCollector> mMockUidStatsCollector;
@@ -305,11 +334,14 @@ const std::unordered_map<uid_t, PackageInfo> IoOveruseMonitorTest::kPackageInfos
                   /*uid=*/1312345, UidType::APPLICATION)}};
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
-    sp<MockResourceOveruseListener> mockResourceOveruseListener =
-            sp<MockResourceOveruseListener>::make();
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
     ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
         ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
     }));
+
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     /*
      * Package "system.daemon" (UID: 1001000) exceeds warn threshold percentage of 80% but no
@@ -323,7 +355,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
 
     std::vector<PackageIoOveruseStats> actualIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -365,9 +398,11 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
                                        {1212345, {/*fgWrBytes=*/20'000, /*bgWrBytes=*/30'000}}})));
     actualIoOveruseStats.clear();
     EXPECT_CALL(*mockResourceOveruseListener, onOveruse(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualOverusingNativeStats), Return(Status::ok())));
+            .WillOnce(DoAll(SaveArg<0>(&actualOverusingNativeStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr));
@@ -421,7 +456,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
                                        {1212345, {/*fgWrBytes=*/55'000, /*bgWrBytes=*/23'000}}})));
     actualIoOveruseStats.clear();
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     currentTime += (24 * 60 * 60);  // Change collection time to next day.
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
@@ -455,11 +491,14 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
-    sp<MockResourceOveruseListener> mockResourceOveruseListener =
-            sp<MockResourceOveruseListener>::make();
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
     ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
         ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
     }));
+
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     /*
      * Package "system.daemon" (UID: 1001000) exceeds warn threshold percentage of 80% but no
@@ -473,10 +512,12 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
 
     ResourceOveruseStats actualOverusingNativeStats;
     EXPECT_CALL(*mockResourceOveruseListener, onOveruse(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualOverusingNativeStats), Return(Status::ok())));
+            .WillOnce(DoAll(SaveArg<0>(&actualOverusingNativeStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
     std::vector<PackageIoOveruseStats> actualIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -520,6 +561,9 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithGarageMode) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(constructUidStats({{1001000, {/*fgWrBytes=*/0, /*bgWrBytes=*/0}},
                                                 {1112345, {/*fgWrBytes=*/0, /*bgWrBytes=*/0}},
@@ -538,6 +582,9 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{1001000, {/*fgWrBytes=*/190'000, /*bgWrBytes=*/42'000}},
@@ -548,7 +595,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
 
     std::vector<PackageIoOveruseStats> actualPackageIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualPackageIoOveruseStats), Return(Status::ok())));
+            .WillOnce(DoAll(SaveArg<0>(&actualPackageIoOveruseStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr));
@@ -573,6 +621,9 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruse) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageMode) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{1001000, {/*fgWrBytes=*/190'000, /*bgWrBytes=*/42'000}},
@@ -583,7 +634,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageM
 
     std::vector<PackageIoOveruseStats> actualPackageIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualPackageIoOveruseStats), Return(Status::ok())));
+            .WillOnce(DoAll(SaveArg<0>(&actualPackageIoOveruseStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
                                                              mMockUidStatsCollector, nullptr));
@@ -608,6 +660,9 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithExtremeOveruseInGarageM
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
     /*
      * UID 1212345 current written bytes < |KTestMinSyncWrittenBytes| so the UID's stats are not
      * synced.
@@ -621,7 +676,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
 
     std::vector<PackageIoOveruseStats> actualIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -654,10 +710,6 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
             << "Expected: " << toString(expectedIoOveruseStats)
             << "\nActual: " << toString(actualIoOveruseStats);
 
-    actualIoOveruseStats.clear();
-    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
-
     /*
      * UID 1001000 current written bytes is < |kTestMinSyncWrittenBytes| but exceeds warn threshold
      * but not killable so the UID's stats are not synced.
@@ -674,6 +726,11 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
                      {1112345, {/*fgWrBytes=*/0, /*bgWrBytes=*/KTestMinSyncWrittenBytes - 100}},
                      {1212345, {/*fgWrBytes=*/KTestMinSyncWrittenBytes - 300, /*bgWrBytes=*/0}},
                      {1312345, {/*fgWrBytes=*/KTestMinSyncWrittenBytes - 100, /*bgWrBytes=*/0}}})));
+
+    actualIoOveruseStats.clear();
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr));
@@ -704,6 +761,9 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithNoPackageInfo) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
+
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{2301000, {/*fgWrBytes=*/70'000, /*bgWrBytes=*/20'000}},
@@ -734,7 +794,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
                      /*forgivenWriteBytes=*/constructPerStateBytes(30'000, 30'000, 30'000),
                      /*totalOveruses=*/6)};
     EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
-            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats), Return(Status::ok())));
+            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
@@ -743,7 +804,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
 
     std::vector<PackageIoOveruseStats> actualIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -775,7 +837,8 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
 
     actualIoOveruseStats.clear();
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
                                                              mMockUidStatsCollector, nullptr));
@@ -799,11 +862,15 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootStats) {
     EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
-            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCodeWithMessage(EX_ILLEGAL_STATE,
+                                                                                "Illegal state"))));
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{1112345, {/*fgWrBytes=*/15'000, /*bgWrBytes=*/15'000}}})));
+
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -817,15 +884,17 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootSt
             /*forgivenWriteBytes=*/constructPerStateBytes(70'000, 60'000, 100'000),
             /*totalOveruses=*/3)};
     EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
-            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats), Return(Status::ok())));
-
-    std::vector<PackageIoOveruseStats> actualIoOveruseStats;
-    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{1112345, {/*fgWrBytes=*/20'000, /*bgWrBytes=*/40'000}}})));
+
+    std::vector<PackageIoOveruseStats> actualIoOveruseStats;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
                                                              mMockUidStatsCollector, nullptr));
@@ -921,8 +990,11 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicMonitor) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestRegisterResourceOveruseListener) {
-    sp<MockResourceOveruseListener> mockResourceOveruseListener =
-            sp<MockResourceOveruseListener>::make();
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
+
+    expectLinkToDeath(mockResourceOveruseListener->asBinder().get(),
+                      std::move(ScopedAStatus::ok()));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
 
@@ -930,19 +1002,24 @@ TEST_F(IoOveruseMonitorTest, TestRegisterResourceOveruseListener) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestErrorsRegisterResourceOveruseListenerOnLinkToDeathError) {
-    sp<MockResourceOveruseListener> mockResourceOveruseListener =
-            sp<MockResourceOveruseListener>::make();
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
 
-    mockResourceOveruseListener->injectLinkToDeathFailure();
+    ASSERT_NO_FATAL_FAILURE(
+            expectLinkToDeath(mockResourceOveruseListener->asBinder().get(),
+                              std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED))));
 
     ASSERT_FALSE(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener).ok());
 }
 
-TEST_F(IoOveruseMonitorTest, TestUnaddIoOveruseListener) {
-    sp<MockResourceOveruseListener> mockResourceOveruseListener =
-            sp<MockResourceOveruseListener>::make();
+TEST_F(IoOveruseMonitorTest, TestDuplicateRemoveIoOveruseListener) {
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
+
+    expectUnlinkToDeath(mockResourceOveruseListener->asBinder().get(),
+                        std::move(ScopedAStatus::ok()));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->removeIoOveruseListener(mockResourceOveruseListener));
 
@@ -950,21 +1027,41 @@ TEST_F(IoOveruseMonitorTest, TestUnaddIoOveruseListener) {
             << "Should error on duplicate unregister";
 }
 
-TEST_F(IoOveruseMonitorTest, TestUnaddIoOveruseListenerOnUnlinkToDeathError) {
-    sp<MockResourceOveruseListener> mockResourceOveruseListener =
-            sp<MockResourceOveruseListener>::make();
+TEST_F(IoOveruseMonitorTest, TestRemoveIoOveruseListenerOnUnlinkToDeathError) {
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
 
-    mockResourceOveruseListener->injectUnlinkToDeathFailure();
+    expectUnlinkToDeath(mockResourceOveruseListener->asBinder().get(),
+                        std::move(ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED)));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->removeIoOveruseListener(mockResourceOveruseListener));
 }
 
+TEST_F(IoOveruseMonitorTest, TestRemoveDeadIoOveruseListener) {
+    std::shared_ptr<MockResourceOveruseListener> mockResourceOveruseListener =
+            SharedRefBase::make<MockResourceOveruseListener>();
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
+
+    AIBinder* binder = mockResourceOveruseListener->asBinder().get();
+    mIoOveruseMonitor->handleBinderDeath(static_cast<void*>(binder));
+
+    ASSERT_NO_FATAL_FAILURE(expectNoUnlinkToDeath(binder));
+
+    ASSERT_FALSE(mIoOveruseMonitor->removeIoOveruseListener(mockResourceOveruseListener).ok())
+            << "Should error on removing dead listener";
+}
+
 TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{1001000, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/20'000}}})));
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -988,9 +1085,13 @@ TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
                     constructUidStats({{1001000, {/*fgWrBytes=*/90'000, /*bgWrBytes=*/20'000}}})));
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     ASSERT_RESULT_OK(
             mIoOveruseMonitor->onPeriodicCollection(std::chrono::system_clock::to_time_t(
@@ -1009,7 +1110,7 @@ TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
 
     std::vector<std::string> packageNames = {"system.daemon"};
     EXPECT_CALL(*mMockWatchdogServiceHelper, resetResourceOveruseStats(packageNames))
-            .WillOnce(Return(Status::ok()));
+            .WillOnce(Return(ByMove(ScopedAStatus::ok())));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->resetIoOveruseStats(packageNames));
 
@@ -1025,7 +1126,7 @@ TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
 TEST_F(IoOveruseMonitorTest, TestErrorsResetIoOveruseStatsOnWatchdogServiceHelperError) {
     std::vector<std::string> packageNames = {"system.daemon"};
     EXPECT_CALL(*mMockWatchdogServiceHelper, resetResourceOveruseStats(packageNames))
-            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE)));
+            .WillOnce(Return(ByMove(ScopedAStatus::fromExceptionCode(EX_ILLEGAL_STATE))));
 
     ASSERT_FALSE(mIoOveruseMonitor->resetIoOveruseStats(packageNames).ok())
             << "Must return error when WatchdogServiceHelper fails to reset stats";
@@ -1052,7 +1153,6 @@ TEST_F(IoOveruseMonitorTest, TestErrorsGetIoOveruseStatsOnNoStats) {
 
 TEST_F(IoOveruseMonitorTest, TestUpdateResourceOveruseConfigurations) {
     EXPECT_CALL(*mMockIoOveruseConfigs, update(_)).WillOnce(Return(Result<void>{}));
-    EXPECT_CALL(*mMockIoOveruseConfigs, writeToDisk()).WillOnce(Return(Result<void>{}));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->updateResourceOveruseConfigurations({}));
 }
@@ -1061,7 +1161,6 @@ TEST_F(IoOveruseMonitorTest, TestFailsUpdateResourceOveruseConfigurations) {
     EXPECT_CALL(*mMockIoOveruseConfigs, update(_))
             .WillOnce([&]([[maybe_unused]] const std::vector<ResourceOveruseConfiguration>& configs)
                               -> Result<void> { return Error() << "Failed to update"; });
-    EXPECT_CALL(*mMockIoOveruseConfigs, writeToDisk()).Times(0);
 
     ASSERT_FALSE(mIoOveruseMonitor->updateResourceOveruseConfigurations({}).ok());
 }
@@ -1079,7 +1178,8 @@ TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
                      /*forgivenWriteBytes=*/constructPerStateBytes(30'000, 30'000, 30'000),
                      /*totalOveruses=*/6)};
     EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
-            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats), Return(Status::ok())));
+            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats),
+                            Return(ByMove(ScopedAStatus::ok()))));
 
     EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
             .WillOnce(Return(
@@ -1088,7 +1188,8 @@ TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
 
     std::vector<PackageIoOveruseStats> actualIoOveruseStats;
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
@@ -1123,7 +1224,8 @@ TEST_F(IoOveruseMonitorTest, TestRemoveUser) {
 
     actualIoOveruseStats.clear();
     EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+            .WillOnce(
+                    DoAll(SaveArg<0>(&actualIoOveruseStats), Return(ByMove(ScopedAStatus::ok()))));
 
     ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
                                                              mMockUidStatsCollector, nullptr));

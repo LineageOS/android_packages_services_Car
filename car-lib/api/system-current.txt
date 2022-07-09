@@ -671,8 +671,9 @@ package android.car.drivingstate {
 
 package android.car.evs {
 
-  public final class CarEvsBufferDescriptor implements android.os.Parcelable {
+  public final class CarEvsBufferDescriptor implements java.lang.AutoCloseable android.os.Parcelable {
     ctor public CarEvsBufferDescriptor(int, @NonNull android.hardware.HardwareBuffer);
+    method public void close();
     method public int describeContents();
     method @NonNull public android.hardware.HardwareBuffer getHardwareBuffer();
     method public int getId();

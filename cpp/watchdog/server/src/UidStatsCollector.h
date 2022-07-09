@@ -21,8 +21,8 @@
 #include "UidIoStatsCollector.h"
 #include "UidProcStatsCollector.h"
 
+#include <aidl/android/automotive/watchdog/internal/PackageInfo.h>
 #include <android-base/result.h>
-#include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
 #include <utils/StrongPointer.h>
@@ -42,7 +42,7 @@ class UidStatsCollectorPeer;
 }  // namespace internal
 
 struct UidStats {
-    android::automotive::watchdog::internal::PackageInfo packageInfo;
+    aidl::android::automotive::watchdog::internal::PackageInfo packageInfo;
     UidIoStats ioStats = {};
     UidProcStats procStats = {};
     // Returns true when package info is available.

@@ -33,8 +33,8 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::UidType;
+using ::aidl::android::automotive::watchdog::internal::PackageInfo;
+using ::aidl::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
@@ -139,6 +139,7 @@ namespace internal {
 class UidStatsCollectorPeer final : public RefBase {
 public:
     explicit UidStatsCollectorPeer(sp<UidStatsCollector> collector) : mCollector(collector) {}
+    ~UidStatsCollectorPeer() { mCollector.clear(); }
 
     void setPackageInfoResolver(sp<PackageInfoResolverInterface> packageInfoResolver) {
         mCollector->mPackageInfoResolver = packageInfoResolver;

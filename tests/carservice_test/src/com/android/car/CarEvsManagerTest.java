@@ -63,6 +63,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private static final int FRAME_TIMEOUT_MS = 1000;
     private static final int SMALL_NAP_MS = 500;
     private static final int ACTIVITY_REQUEST_TIMEOUT_SEC = 3;
+    private static final int STREAM_REQUEST_TIMEOUT_SEC = 1;
 
     // Will return frame buffers in the order they arrived.
     private static final int INDEX_TO_FIRST_ELEM = 0;
@@ -70,14 +71,14 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     private final ArrayList<CarEvsBufferDescriptor> mReceivedBuffers = new ArrayList<>();
     private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
     private final Semaphore mFrameReceivedSignal = new Semaphore(0);
+    private final Semaphore mServiceInRequestedState = new Semaphore(0);
+    private final Semaphore mServiceInActiveState = new Semaphore(0);
 
     private final Car mCar = Car.createCar(ApplicationProvider.getApplicationContext());
     private final CarEvsManager mEvsManager =
             (CarEvsManager) mCar.getCarManager(Car.CAR_EVS_SERVICE);
     private final EvsStreamCallbackImpl mStreamCallback = new EvsStreamCallbackImpl();
     private final EvsStatusListenerImpl mStatusListener = new EvsStatusListenerImpl();
-
-    private CountDownLatch mActivityRequested;
 
     @Before
     public void setUp() {
@@ -86,6 +87,11 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         assumeTrue(mEvsManager.isSupported(CarEvsManager.SERVICE_TYPE_REARVIEW));
         assertThat(mStreamCallback).isNotNull();
         assertThat(mStatusListener).isNotNull();
+
+        // Drains all permits
+        mFrameReceivedSignal.drainPermits();
+        mServiceInRequestedState.drainPermits();
+        mServiceInActiveState.drainPermits();
 
         // Ensures no stream is active
         mEvsManager.stopVideoStream();
@@ -105,42 +111,52 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
 
     @Test
     public void testSetStatusListener() throws Exception {
-        // Set a status listener
+        // Registers a status listener and start monitoring the CarEvsService's state changes.
         mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
 
-        // Request to start a service
+        // Requests to start the rearview activity.
         assertThat(
                 mEvsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW)
         ).isEqualTo(CarEvsManager.ERROR_NONE);
 
-        // Wait for a notification
-        mActivityRequested = new CountDownLatch(1);
-        assertThat(mActivityRequested.await(ACTIVITY_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS))
-                .isTrue();
+        // Waits until the CarEvsService enters the REQUESTED state.
+        assertThat(
+                mServiceInRequestedState.tryAcquire(ACTIVITY_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        ).isTrue();
 
-        // Then, requests to stop a video stream started upon a receipt of STATE_REQUESTED
-        // transition notification.
-        mEvsManager.stopVideoStream();
+        // Waits until the CarEvsService starts a video stream; it enters the ACTIVE state.
+        assertThat(
+                mServiceInActiveState.tryAcquire(STREAM_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        ).isTrue();
 
-        // Unregister a listener
+        // Requests to stop the rearview activity.
+        mEvsManager.stopActivity();
+
+        // Unregisters a status listener.
         mEvsManager.clearStatusListener();
     }
 
     @Ignore("b/233636131:STOPSHIP if not re-enabled")
     @Test
     public void testStartAndStopVideoStream() throws Exception {
-        // Requests to start a video stream.  We're intentionally using the listener that
-        // is registered during the test setup.
+        // Registers a status listener and start monitoring the CarEvsService's state changes.
+        mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
+
+        // Requests to start a video stream.
         assertThat(
                 mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
                         /* token = */ null, mCallbackExecutor, mStreamCallback)
         ).isEqualTo(CarEvsManager.ERROR_NONE);
 
-        // Waits for a few frames frame buffers
+        // Waits until the service starts the video stream.
+        assertThat(
+                mServiceInActiveState.tryAcquire(STREAM_REQUEST_TIMEOUT_SEC, TimeUnit.SECONDS)
+        ).isTrue();
+
+        // Then, waits for a few frames frame buffers
         for (int i = 0; i < NUMBER_OF_FRAMES_TO_WAIT; ++i) {
             assertThat(
-                    mFrameReceivedSignal.tryAcquire(
-                            FRAME_TIMEOUT_MS, TimeUnit.MILLISECONDS)
+                    mFrameReceivedSignal.tryAcquire(FRAME_TIMEOUT_MS, TimeUnit.MILLISECONDS)
             ).isTrue();
 
             // Nothing to do; returns a buffer immediately
@@ -186,16 +202,11 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         public void onStatusChanged(CarEvsStatus status) {
             switch (status.getState()) {
                 case CarEvsManager.SERVICE_STATE_REQUESTED:
-                    // Request to start a video stream
-                    assertThat(
-                            mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
-                                    /* token = */ null, mCallbackExecutor, mStreamCallback)
-                    ).isEqualTo(CarEvsManager.ERROR_NONE);
-                    mActivityRequested.countDown();
+                    mServiceInRequestedState.release();
                     break;
 
                 case CarEvsManager.SERVICE_STATE_ACTIVE:
-                    // Nothing to do
+                    mServiceInActiveState.release();
                     break;
 
                 case CarEvsManager.SERVICE_STATE_UNAVAILABLE:
