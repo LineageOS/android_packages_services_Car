@@ -142,8 +142,9 @@ interface ICarWatchdog {
    *
    * <p>This function may return one of the following error codes:
    * <ul>
-   * <li> {@code EX_ILLEGAL_STATE} If failed to set the policy and priority or if the given
-   * {@code tid} does not belong to {@code pid} and {@code uid}.
+   * <li> {@code EX_ILLEGAL_STATE} If the given {@code tid} does not belong to {@code pid} and
+   * {@code uid}.
+   * <li> {@code EX_SERVICE_SPECIFIC} if failed to set thread scheduling policy and priority.
    * <li> {@code EX_INVALID_ARGUMENT} If the provided policy or priority is not valid.
    *
    * @param pid The process id.
@@ -160,8 +161,11 @@ interface ICarWatchdog {
    * <p> This function would check whether the {@code tid} belongs to {@code pid} and {@code uid}.
    * If so, it gets the scheduling policy and priority. Otherwise, it returns error.
    *
-   * This function returns {@code EX_ILLEGAL_STATE} if failed to get the policy and priority or if
-   * the given {@code tid} does not belong to {@code pid} and {@code uid}.
+   * <p>This function may return one of the following error codes:
+   * <ul>
+   * <li> {@code EX_ILLEGAL_STATE} If the given {@code tid} does not belong to {@code pid} and
+   * {@code uid}.
+   * <li> {@code EX_SERVICE_SPECIFIC} if failed to get thread scheduling policy and priority.
    *
    * @param pid The process id.
    * @param tid The thread id.

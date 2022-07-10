@@ -59,6 +59,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArraySet;
@@ -124,8 +125,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogStorage mWatchdogStorage;
     private final WatchdogProcessHandler mWatchdogProcessHandler;
     private final WatchdogPerfHandler mWatchdogPerfHandler;
-    private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
+
+    private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
+
     /*
      * TODO(b/192481350): Listen for GarageMode change notification rather than depending on the
      *  system_server broadcast when the CarService internal API for listening GarageMode change is
@@ -266,7 +269,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @VisibleForTesting
-    CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
+    public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
@@ -286,6 +289,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         };
         mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
         mIsDisplayEnabled = true;
+    }
+
+    @VisibleForTesting
+    public void setCarWatchdogDaemonHelper(CarWatchdogDaemonHelper helper) {
+        mCarWatchdogDaemonHelper = helper;
     }
 
     @Override
@@ -496,6 +504,41 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public boolean performResourceOveruseKill(String packageName, @UserIdInt int userId) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
+    }
+
+    /**
+     * Sets the thread priority for a specific thread.
+     *
+     * The thread must belong to the calling process.
+     *
+     * @throws IllegalArgumentException If the policy/priority is not valid.
+     * @throws IllegalStateException If the provided tid does not belong to the calling process.
+     * @throws RemoteException If binder error happens.
+     * @throws ServiceSpecificException If car watchdog daemon failed to set the thread priority.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     */
+    public void setThreadPriority(int pid, int tid, int uid, int policy, int priority)
+            throws RemoteException {
+        mCarWatchdogDaemonHelper.setThreadPriority(pid, tid, uid, policy, priority);
+    }
+
+    /**
+     * Gets the thread scheduling policy and priority for the specified thread.
+     *
+     * The thread must belong to the calling process.
+     *
+     * @throws IllegalStateException If the provided tid does not belong to the calling process or
+     *         car watchdog daemon failed to get the priority.
+     * @throws RemoteException If binder error happens.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     */
+    public int[] getThreadPriority(int pid, int tid, int uid) throws RemoteException {
+        try {
+            return mCarWatchdogDaemonHelper.getThreadPriority(pid, tid, uid);
+        } catch (ServiceSpecificException e) {
+            // Car watchdog daemon failed to get the priority.
+            throw new IllegalStateException(e);
+        }
     }
 
     @VisibleForTesting

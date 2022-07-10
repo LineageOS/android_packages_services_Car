@@ -37,13 +37,16 @@ import android.car.os.ThreadPolicyWithPriority;
 import android.content.Context;
 import android.os.Binder;
 import android.os.RemoteCallbackList;
+import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 
 import java.util.Objects;
@@ -57,6 +60,7 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
 
     private static final boolean DEBUG = Slogf.isLoggable(TAG, Log.DEBUG);
 
+    private CarWatchdogService mCarWatchdogService;
     private final Context mContext;
     private final RemoteCallbackList<ICpuAvailabilityChangeListener>
             mCpuAvailabilityChangeListeners = new RemoteCallbackList<>();
@@ -67,9 +71,7 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
 
     @Override
     public void init() {
-        // TODO(b/156400843): Connect to the watchdog daemon helper instance for the thread priority
-        // API. CarPerformanceService and CarWatchdogService must use the same watchdog daemon
-        // helper instance.
+        mCarWatchdogService = CarLocalServices.getService(CarWatchdogService.class);
         // TODO(b/217422127): Start performance monitoring on a looper handler.
         if (DEBUG) {
             Slogf.d(TAG, "CarPerformanceService is initialized");
@@ -148,10 +150,14 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
      * @throws UnsupportedOperationException If the current android release doesn't support the API.
      */
     @Override
-    public void setThreadPriority(int tid, ThreadPolicyWithPriority threadPolicyWithPriority) {
+    public void setThreadPriority(int tid, ThreadPolicyWithPriority threadPolicyWithPriority)
+            throws RemoteException {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
-        // int pid = Binder.getCallingPid();
-        // TODO(b/156400843): Use CarWatchdogDaemonHelper to set priority. Check input.
+
+        int pid = Binder.getCallingPid();
+        int uid = Binder.getCallingUid();
+        mCarWatchdogService.setThreadPriority(pid, tid, uid, threadPolicyWithPriority.getPolicy(),
+                threadPolicyWithPriority.getPriority());
     }
 
     /**
@@ -166,10 +172,18 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
      * @throws UnsupportedOperationException If the current android release doesn't support the API.
      */
     @Override
-    public ThreadPolicyWithPriority getThreadPriority(int tid) {
+    public ThreadPolicyWithPriority getThreadPriority(int tid) throws RemoteException {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
-        // TODO(b/156400843): Use CarWatchdogDaemonHelper to set priority.
-        return new ThreadPolicyWithPriority(ThreadPolicyWithPriority.SCHED_FIFO, 1);
+
+        int pid = Binder.getCallingPid();
+        int uid = Binder.getCallingUid();
+        try {
+            int[] result = mCarWatchdogService.getThreadPriority(pid, tid, uid);
+            return new ThreadPolicyWithPriority(result[0], result[1]);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalStateException(
+                    "current scheduling policy doesn't support getting priority, error: ", e);
+        }
     }
 
     private void verifyCpuAvailabilityMonitoringConfig(CpuAvailabilityMonitoringConfig config) {
