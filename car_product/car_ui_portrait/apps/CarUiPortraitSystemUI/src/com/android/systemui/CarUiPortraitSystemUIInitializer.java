@@ -16,6 +16,7 @@
 
 package com.android.systemui;
 
+import android.content.Context;
 import android.os.UserHandle;
 
 import com.android.systemui.dagger.GlobalRootComponent;
@@ -29,7 +30,11 @@ import java.util.Optional;
 /**
  * Class factory to provide AAECarSystemUI specific SystemUI components.
  */
-public class CarUiPortraitSystemUIFactory extends CarSystemUIFactory {
+public class CarUiPortraitSystemUIInitializer extends CarSystemUIInitializer {
+    public CarUiPortraitSystemUIInitializer(Context context) {
+        super(context);
+    }
+
     @Override
     protected GlobalRootComponent.Builder getGlobalRootComponentBuilder() {
         return DaggerCarUiPortraitGlobalRootComponent.builder();
