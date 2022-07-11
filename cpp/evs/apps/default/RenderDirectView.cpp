@@ -29,7 +29,6 @@
 using ::android::hardware::camera::device::V3_2::Stream;
 using ::android::hardware::graphics::common::V1_0::PixelFormat;
 
-
 typedef struct {
     int32_t id;
     int32_t width;
@@ -41,13 +40,9 @@ typedef struct {
 
 const size_t kStreamCfgSz = sizeof(RawStreamConfig) / sizeof(int32_t);
 
-
-RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,
-                                   const CameraDesc& camDesc,
-                                   const ConfigManager& config) :
-    mEnumerator(enumerator),
-    mCameraDesc(camDesc),
-    mConfig(config) {
+RenderDirectView::RenderDirectView(android::sp<IEvsEnumerator> enumerator,
+                                   const CameraDesc& camDesc, const ConfigManager& config) :
+      mEnumerator(enumerator), mCameraDesc(camDesc), mConfig(config) {
     // Find and store the target camera configuration
     const auto& camList = mConfig.getCameras();
     const auto target = std::find_if(camList.begin(), camList.end(),
@@ -65,7 +60,6 @@ RenderDirectView::RenderDirectView(sp<IEvsEnumerator> enumerator,
     }
 }
 
-
 bool RenderDirectView::activate() {
     // Ensure GL is ready to go...
     if (!prepareGL()) {
@@ -75,8 +69,7 @@ bool RenderDirectView::activate() {
 
     // Load our shader program if we don't have it already
     if (!mShaderProgram) {
-        mShaderProgram = buildShaderProgram(vtxShader_simpleTexture,
-                                            pixShader_simpleTexture,
+        mShaderProgram = buildShaderProgram(vtxShader_simpleTexture, pixShader_simpleTexture,
                                             "simpleTexture");
         if (!mShaderProgram) {
             LOG(ERROR) << "Error building shader program";
@@ -93,18 +86,16 @@ bool RenderDirectView::activate() {
         const int32_t minReqFps = 15;
         int32_t maxArea = 0;
         camera_metadata_entry_t streamCfgs;
-        if (!find_camera_metadata_entry(
-                 reinterpret_cast<camera_metadata_t *>(mCameraDesc.metadata.data()),
-                 ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
-                 &streamCfgs)) {
+        if (!find_camera_metadata_entry(reinterpret_cast<camera_metadata_t*>(
+                                                mCameraDesc.metadata.data()),
+                                        ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
+                                        &streamCfgs)) {
             // Stream configurations are found in metadata
-            RawStreamConfig *ptr = reinterpret_cast<RawStreamConfig *>(streamCfgs.data.i32);
+            RawStreamConfig* ptr = reinterpret_cast<RawStreamConfig*>(streamCfgs.data.i32);
             for (unsigned idx = 0; idx < streamCfgs.count; idx += kStreamCfgSz) {
                 if (ptr->direction == ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS_OUTPUT &&
                     ptr->format == HAL_PIXEL_FORMAT_RGBA_8888) {
-
-                    if (ptr->framerate >= minReqFps &&
-                        ptr->width * ptr->height > maxArea) {
+                    if (ptr->framerate >= minReqFps && ptr->width * ptr->height > maxArea) {
                         targetCfg->id = ptr->id;
                         targetCfg->width = ptr->width;
                         targetCfg->height = ptr->height;
@@ -123,14 +114,11 @@ bool RenderDirectView::activate() {
     }
 
     // This client always wants below input data format
-    targetCfg->format =
-        static_cast<PixelFormat>(HAL_PIXEL_FORMAT_RGBA_8888);
+    targetCfg->format = static_cast<PixelFormat>(HAL_PIXEL_FORMAT_RGBA_8888);
 
     // Construct our video texture
-    mTexture.reset(createVideoTexture(mEnumerator,
-                                      mCameraDesc.v1.cameraId.c_str(),
-                                      foundCfg ? std::move(targetCfg) : nullptr,
-                                      sDisplay,
+    mTexture.reset(createVideoTexture(mEnumerator, mCameraDesc.v1.cameraId.c_str(),
+                                      foundCfg ? std::move(targetCfg) : nullptr, sDisplay,
                                       mConfig.getUseExternalMemory(),
                                       mConfig.getExternalMemoryFormat()));
     if (!mTexture) {
@@ -141,13 +129,11 @@ bool RenderDirectView::activate() {
     return true;
 }
 
-
 void RenderDirectView::deactivate() {
     // Release our video texture
     // We can't hold onto it because some other Render object might need the same camera
     mTexture = nullptr;
 }
-
 
 bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
     // Tell GL to render to the given buffer
@@ -173,9 +159,9 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
         glUniformMatrix4fv(loc, 1, false, identityMatrix.asArray());
 
         // Rotate the preview
-        leftTop     = mRotationMat * leftTop;
-        leftBottom  = mRotationMat * leftBottom;
-        rightTop    = mRotationMat * rightTop;
+        leftTop = mRotationMat * leftTop;
+        leftBottom = mRotationMat * leftBottom;
+        rightTop = mRotationMat * rightTop;
         rightBottom = mRotationMat * rightBottom;
     }
 
@@ -183,7 +169,6 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
     mTexture->refresh();
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, mTexture->glId());
-
 
     GLint sampler = glGetUniformLocation(mShaderProgram, "tex");
     if (sampler < 0) {
@@ -197,12 +182,12 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
     // We want our image to show up opaque regardless of alpha values
     glDisable(GL_BLEND);
 
-
     // Draw a rectangle on the screen
-    GLfloat vertsCarPos[] = { -1.0,  1.0, 0.0f,   // left top in window space
-                               1.0,  1.0, 0.0f,   // right top
-                              -1.0, -1.0, 0.0f,   // left bottom
-                               1.0, -1.0, 0.0f    // right bottom
+    GLfloat vertsCarPos[] = {
+            -1.0, 1.0,  0.0f,  // left top in window space
+            1.0,  1.0,  0.0f,  // right top
+            -1.0, -1.0, 0.0f,  // left bottom
+            1.0,  -1.0, 0.0f   // right bottom
     };
 
     // Flip the preview if needed
@@ -216,11 +201,9 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
         std::swap(rightTop.y, rightBottom.y);
     }
 
-    GLfloat vertsCarTex[] = { leftTop.x + 0.5f, leftTop.y + 0.5f,
-                              rightTop.x + 0.5f, rightTop.y + 0.5f,
-                              leftBottom.x + 0.5f, leftBottom.y + 0.5f,
-                              rightBottom.x + 0.5f, rightBottom.y + 0.5f
-    };
+    GLfloat vertsCarTex[] = {leftTop.x + 0.5f,     leftTop.y + 0.5f,    rightTop.x + 0.5f,
+                             rightTop.y + 0.5f,    leftBottom.x + 0.5f, leftBottom.y + 0.5f,
+                             rightBottom.x + 0.5f, rightBottom.y + 0.5f};
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertsCarPos);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, vertsCarTex);
     glEnableVertexAttribArray(0);
@@ -230,7 +213,6 @@ bool RenderDirectView::drawFrame(const BufferDesc& tgtBuffer) {
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
-
 
     // Now that everything is submitted, release our hold on the texture resource
     detachRenderTarget();

@@ -28,6 +28,7 @@ using ::android::automotive::evs::V1_1::implementation::Enumerator;
 using ::android::automotive::evs::V1_1::implementation::NiceMockPermissionsChecker;
 using ::android::automotive::evs::V1_1::implementation::NiceMockServiceFactory;
 using ::android::automotive::evs::V1_1::implementation::NiceMockStatsCollector;
+using ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Construction Tests.
@@ -71,5 +72,5 @@ TEST(Enumerator, PreventsGettingDisplayWithNoPermissions) {
                               std::make_unique<NiceMockStatsCollector>(),
                               std::move(mockPermissionsChecker));
 
-    android::sp<IEvsDisplay_1_1> evs_display{enumerator->openDisplay_1_1(-1)};
+    android::sp<IEvsDisplay> evs_display{enumerator->openDisplay_1_1(-1)};
 }

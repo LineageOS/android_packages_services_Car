@@ -27,15 +27,17 @@
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
-using ::android::hardware::automotive::evs::V1_0::DisplayState;
-
 using ::android::hardware::hidl_handle;
 using ::android::hardware::hidl_string;
 using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
+using ::android::hardware::automotive::evs::V1_0::DisplayState;
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using ::android::hardware::automotive::evs::V1_0::IEvsDisplay;
+using ::android::hardware::automotive::evs::V1_1::EvsEventDesc;
+using ::android::hardware::automotive::evs::V1_1::EvsEventType;
+
 using BufferDesc_1_0 = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1 = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 using IEvsCamera_1_0 = ::android::hardware::automotive::evs::V1_0::IEvsCamera;
@@ -149,8 +151,7 @@ bool VirtualCamera::deliverFrame(const BufferDesc_1_1& bufDesc) {
     }
     if (dropFrame) {
         // Indicate that we declined to send the frame to the client because they're at quota
-        LOG(INFO) << "Skipping new frame as we hold " << framesHeld
-                  << " of " << mFramesAllowed;
+        LOG(INFO) << "Skipping new frame as we hold " << framesHeld << " of " << mFramesAllowed;
 
         if (mStream_1_1 != nullptr) {
             // Report a frame drop to v1.1 client.

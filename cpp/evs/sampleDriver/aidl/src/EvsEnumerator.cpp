@@ -506,7 +506,7 @@ void EvsEnumerator::notifyDeviceStatusChange(const std::string_view& deviceName,
         return;
     }
 
-    std::vector<DeviceStatus> status {{ .id = std::string(deviceName), .status = type }};
+    std::vector<DeviceStatus> status{{.id = std::string(deviceName), .status = type}};
     if (!mCallback->deviceStatusChanged(status).isOk()) {
         LOG(WARNING) << "Failed to notify a device status change, name = " << deviceName
                      << ", type = " << static_cast<int>(type);
