@@ -3,21 +3,46 @@ Lua Interpreter
 
 The Lua Interpreter is a web-based IDE tool that can run Lua scripts with the specific Android Auto telemetry callbacks.
 
-Installation
-----------
-Install the required dependencies to run the local Flask server using [pip in a virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/).
+## Prerequisites
+***
+Install the required node dependencies using npm with
+```
+sudo apt install nodejs
+npm install
+```
 
-Running
-----------
-Make sure to follow the steps under installation above. Then, run the following command on the command line to start the server:
+Install Bazel with
 ```
-python3 app.py
+sudo apt install bazel
 ```
+
+Change the LUA_SRC inside the WORKSPACE file to point to the directory containing the headers
+of the Lua C API which should be in $ANDROID_BUILD_TOP/external/lua/src.
+
+## Running
+***
+In your virtual environment run the following commands on the command line to start the server:
+```
+npm run build; bazel run :server
+```
+
 Open the link provided from starting the server to access the tool (the link is accessible from the terminal window).
 
-Testing
-----------
-Make sure to follow the steps under installation above. To run the tests for the server, make sure to be outside the tool's directory. Run the following command on the command line:
+## Testing
+***
+The following commands assume you are at the root directory.
+
+To test everything, run:
 ```
-python3 -m lua-interpreter.tests.app_test
+bazel test --test_output=all //tests:lua_interpreter_tests
+```
+
+To test the server, run:
+```
+bazel test --test_output=all //tests:app_test
+```
+
+To test the Lua Engine, run:
+```
+bazel test --test_output=all //tests:lua_engine_test
 ```

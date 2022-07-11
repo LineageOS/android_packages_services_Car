@@ -1,9 +1,55 @@
 :root {
-  --mdc-theme-primary: #8ab4f8;
-  --mdc-theme-on-primary: #202124;
-  --mdc-theme-secondary: #8ab4f83d;
-  --mdc-theme-on-secondary: #d2e3fc;
-  --mdc-theme-surface: #202124;
-  --mdc-theme-on-surface: #e8eaed;
   --mdc-theme-background: #202124;
+  --mdc-theme-error: #f28b82;
+  --mdc-theme-on-error: black;
+  --mdc-theme-on-primary: #202124;
+  --mdc-theme-on-secondary: #d2e3fc;
+  --mdc-theme-on-surface: #e8eaed;
+  --mdc-theme-primary: #8ab4f8;
+  --mdc-theme-secondary: #8ab4f83d;
+  --mdc-theme-surface: #202124;
+}
+
+.cm-editor {
+  border-radius: 4px;
+  height: 400px;
+  margin: 0 0 10px;
+  padding: 0px;
+  width: 100%;
+}
+
+.cm-scroller {
+  overflow: auto;
+}
+
+.script-input {
+  visibility: hidden;
+}
+
+.script-output {
+  box-sizing: border-box;
+  font-family: monospace;
+  height: 300px;
+  margin: 20px 0 0;
+  overflow: auto;
+}
+
+/** webkit-scrollbar modifies the appearence of the scrollbar, particularly in the output div */
+.script-output::-webkit-scrollbar {
+  width: 10px;
+}
+
+/* Track */
+.script-output::-webkit-scrollbar-track {
+  background: transparent
+}
+
+/* Handle */
+.script-output::-webkit-scrollbar-thumb {
+  background: #3c4043;
+}
+
+/* Handle on hover */
+.script-output::-webkit-scrollbar-thumb:hover {
+  background: #3c4043;
 }
