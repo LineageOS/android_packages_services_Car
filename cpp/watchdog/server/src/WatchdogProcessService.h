@@ -230,9 +230,8 @@ private:
     };
 
 private:
-    ndk::ScopedAStatus registerClientLocked(
-            const ClientInfo& clientInfo,
-            aidl::android::automotive::watchdog::TimeoutLength timeout);
+    ndk::ScopedAStatus registerClient(const ClientInfo& clientInfo,
+                                      aidl::android::automotive::watchdog::TimeoutLength timeout);
     ndk::ScopedAStatus unregisterClientLocked(
             const std::vector<aidl::android::automotive::watchdog::TimeoutLength>& timeouts,
             const ndk::SpAIBinder& binder, ClientType clientType);

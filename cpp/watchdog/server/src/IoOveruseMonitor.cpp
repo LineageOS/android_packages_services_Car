@@ -540,29 +540,35 @@ Result<void> IoOveruseMonitor::addIoOveruseListener(
     if (listener == nullptr) {
         return Error(EX_ILLEGAL_ARGUMENT) << "Must provide non-null listener";
     }
+    auto binder = listener->asBinder();
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
-    std::unique_lock writeLock(mRwMutex);
-    if (!isInitializedLocked()) {
-        // mBinderDeathRecipient is initialized inside init.
-        return Error(EX_ILLEGAL_STATE) << "Service is not initialized";
+    {
+        std::unique_lock writeLock(mRwMutex);
+        if (!isInitializedLocked()) {
+            // mBinderDeathRecipient is initialized inside init.
+            return Error(EX_ILLEGAL_STATE) << "Service is not initialized";
+        }
+        if (findListenerAndProcessLocked(reinterpret_cast<uintptr_t>(binder.get()), nullptr)) {
+            ALOGW("Failed to register the I/O overuse listener (pid: %d, uid: %d) as it is already "
+                  "registered",
+                  callingPid, callingUid);
+            return {};
+        }
+        mOveruseListenersByUid[callingUid] = listener;
     }
-    auto binder = listener->asBinder();
-    if (findListenerAndProcessLocked(reinterpret_cast<uintptr_t>(binder.get()), nullptr)) {
-        ALOGW("Failed to register the I/O overuse listener (pid: %d, uid: %d) as it is already "
-              "registered",
-              callingPid, callingUid);
-        return {};
-    }
-
     AIBinder* aiBinder = binder.get();
     auto status = mDeathRegistrationWrapper->linkToDeath(aiBinder, mBinderDeathRecipient.get(),
                                                          static_cast<void*>(aiBinder));
     if (!status.isOk()) {
+        std::unique_lock writeLock(mRwMutex);
+        if (const auto& it = mOveruseListenersByUid.find(callingUid);
+            it != mOveruseListenersByUid.end() && it->second->asBinder() == binder) {
+            mOveruseListenersByUid.erase(it);
+        }
         return Error(EX_ILLEGAL_STATE) << "Failed to add I/O overuse listener: (pid " << callingPid
                                        << ", uid: " << callingUid << ") is dead";
     }
-    mOveruseListenersByUid[callingUid] = listener;
     if (DEBUG) {
         ALOGD("Added I/O overuse listener for uid: %d", callingUid);
     }
