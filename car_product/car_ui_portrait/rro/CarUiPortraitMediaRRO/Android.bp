@@ -24,7 +24,8 @@ android_app {
     ],
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
+        "androidx-constraintlayout_constraintlayout-solver",
         "car-apps-common",
-
+        "car-ui-lib",
     ],
 }
