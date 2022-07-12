@@ -20,5 +20,6 @@
     <overlay android:priority="20"
              android:targetPackage="com.android.car"
              android:resourcesMap="@xml/overlays"
-             android:isStatic="true" />
+             android:category="caruiportrait.car"
+             android:isStatic="false" />
 </manifest>
