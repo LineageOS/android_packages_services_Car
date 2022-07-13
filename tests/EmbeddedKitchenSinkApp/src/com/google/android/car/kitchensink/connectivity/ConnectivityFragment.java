@@ -16,12 +16,12 @@
 
 package com.google.android.car.kitchensink.connectivity;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
 import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.ConnectivityManager.NetworkCallback;
@@ -54,6 +54,7 @@ import com.google.android.car.kitchensink.SimplePagerAdapter;
 
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -85,8 +86,8 @@ public class ConnectivityFragment extends Fragment {
     public class NetworkByIdCallback extends NetworkCallback {
         private final Network mNetwork;
 
-        NetworkByIdCallback(Network n) {
-            mNetwork = n;
+        NetworkByIdCallback(@NonNull Network n) {
+            mNetwork = Objects.requireNonNull(n);
         }
 
         @Override
@@ -589,10 +590,7 @@ public class ConnectivityFragment extends Fragment {
     }
 
     public void showToast(String text) {
-        Toast toast = Toast.makeText(getContext(), text, Toast.LENGTH_SHORT);
-        TextView v = (TextView) toast.getView().findViewById(android.R.id.message);
-        v.setTextColor(Color.WHITE);
-        toast.show();
+        Toast.makeText(getContext(), text, Toast.LENGTH_SHORT).show();
     }
 
     private static boolean sameNetworkId(Network net1, Network net2) {
