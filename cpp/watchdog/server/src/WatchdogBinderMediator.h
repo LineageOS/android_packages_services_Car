@@ -56,13 +56,10 @@ class WatchdogBinderMediatorPeer;
 
 }  // namespace internal
 
-class WatchdogBinderMediatorInterface :
-      public aidl::android::automotive::watchdog::BnCarWatchdog,
-      public virtual android::RefBase {
+class WatchdogBinderMediatorInterface : public aidl::android::automotive::watchdog::BnCarWatchdog {
 public:
     virtual android::base::Result<void> init() = 0;
     virtual void terminate() = 0;
-    virtual binder_status_t dump(int fd, const char** args, uint32_t numArgs) = 0;
 };
 
 // WatchdogBinderMediator implements the public carwatchdog binder APIs such that it forwards
@@ -139,14 +136,11 @@ protected:
     }
 
 private:
-    status_t dumpServices(int fd);
-    status_t dumpHelpText(const int fd, const std::string& errorMsg);
-
     android::sp<WatchdogProcessServiceInterface> mWatchdogProcessService;
     android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
-    std::shared_ptr<WatchdogInternalHandler> mWatchdogInternalHandler;
+    std::shared_ptr<WatchdogInternalHandlerInterface> mWatchdogInternalHandler;
 
     // Used by tests to stub the call to IServiceManager.
     std::function<android::base::Result<void>(ndk::ICInterface*, const char*)> mAddServiceHandler;
