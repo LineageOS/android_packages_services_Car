@@ -578,13 +578,14 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         assertThat(status).isEqualTo(PolicyOperationStatus.OK);
         assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
 
-        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUTTOOTH"},
+        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
                 new String[]{"WIFI", "NFC"});
-        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY);
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID);
 
+        policyId = "policy_id_for_invalid_component";
         status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "INVALID_COMPONENT"},
                 new String[]{"WIFI"});
-        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY);
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT);
     }
 
     @Test
