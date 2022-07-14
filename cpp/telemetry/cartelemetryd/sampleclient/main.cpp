@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
+#include <memory>
 #define LOG_TAG "cartelemetryd_sample"
 
+#include <aidl/android/frameworks/automotive/telemetry/BnCarTelemetryCallback.h>
 #include <aidl/android/frameworks/automotive/telemetry/ICarTelemetry.h>
 #include <android-base/logging.h>
 #include <android-base/stringprintf.h>
 #include <android/binder_manager.h>
 #include <utils/SystemClock.h>
 
+using ::aidl::android::frameworks::automotive::telemetry::CallbackConfig;
 using ::aidl::android::frameworks::automotive::telemetry::CarData;
 using ::aidl::android::frameworks::automotive::telemetry::ICarTelemetry;
 using ::android::base::StringPrintf;
+
+class CarTelemetryCallbackImpl :
+      public aidl::android::frameworks::automotive::telemetry::BnCarTelemetryCallback {
+public:
+    ndk::ScopedAStatus onChange(const std::vector<int32_t>& carDataIds) {
+        for (int32_t id : carDataIds) {
+            LOG(INFO) << "CarTelemetryCallbackImpl: CarData ID=" << id << " is active";
+        }
+        return ndk::ScopedAStatus::ok();
+    }
+};
 
 int main(int argc, char* argv[]) {
     const auto started_at_millis = android::elapsedRealtime();
@@ -40,13 +54,24 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
+    // Add a ICarTelemetryCallback and listen for changes in CarData IDs 1, 2, and 3
+    std::shared_ptr<CarTelemetryCallbackImpl> callback =
+            ndk::SharedRefBase::make<CarTelemetryCallbackImpl>();
+    CallbackConfig config;
+    config.carDataIds = {1, 2, 3};
+    LOG(INFO) << "Adding a CarTelemetryCallback";
+    ndk::ScopedAStatus addStatus = service->addCallback(config, callback);
+    if (!addStatus.isOk()) {
+        LOG(WARNING) << "Failed to add CarTelemetryCallback: " << addStatus.getMessage();
+    }
+
     LOG(INFO) << "Building a CarData message, delta_since_start: "
               << android::elapsedRealtime() - started_at_millis << " millis";
 
     // Build a CarData message
     // TODO(b/174608802): set a correct data ID and content
     CarData msg;
-    msg.id = 101;
+    msg.id = 1;
     msg.content = {1, 0, 1, 0};
 
     LOG(INFO) << "Sending the car data, delta_since_start: "
@@ -61,8 +86,15 @@ int main(int argc, char* argv[]) {
 
     // Note: On a device the delta_since_start was between 1ms to 4ms
     //      (service side was not fully implemented yet during the test).
-    LOG(INFO) << "Finished, delta_since_start: " << android::elapsedRealtime() - started_at_millis
-              << " millis";
+    LOG(INFO) << "Finished sending the car data, delta_since_start: "
+              << android::elapsedRealtime() - started_at_millis << " millis";
+
+    // Remove the ICarTelemetryCallback to prevent a dead reference
+    LOG(INFO) << "Removing a CarTelemetryCallback";
+    ndk::ScopedAStatus removeStatus = service->removeCallback(callback);
+    if (!removeStatus.isOk()) {
+        LOG(WARNING) << "Failed to remove CarTelemetryCallback: " << removeStatus.getMessage();
+    }
 
     return 0;
 }

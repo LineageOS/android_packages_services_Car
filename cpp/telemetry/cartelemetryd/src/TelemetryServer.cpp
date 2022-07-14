@@ -36,6 +36,7 @@ namespace {
 using ::aidl::android::automotive::telemetry::internal::CarDataInternal;
 using ::aidl::android::automotive::telemetry::internal::ICarDataListener;
 using ::aidl::android::frameworks::automotive::telemetry::CarData;
+using ::aidl::android::frameworks::automotive::telemetry::ICarTelemetryCallback;
 using ::android::base::Error;
 using ::android::base::Result;
 
@@ -57,7 +58,7 @@ TelemetryServer::TelemetryServer(LooperWrapper* looper,
 Result<void> TelemetryServer::setListener(const std::shared_ptr<ICarDataListener>& listener) {
     const std::scoped_lock<std::mutex> lock(mMutex);
     if (mCarDataListener != nullptr) {
-        return Error(::EX_ILLEGAL_STATE) << "ICarDataListener is already set";
+        return Error(EX_ILLEGAL_STATE) << "ICarDataListener is already set";
     }
     mCarDataListener = listener;
     mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
@@ -74,15 +75,73 @@ void TelemetryServer::clearListener() {
     mLooper->removeMessages(mMessageHandler, kMsgPushCarDataToListener);
 }
 
+std::vector<int32_t> TelemetryServer::findCarDataIdsIntersection(const std::vector<int32_t>& ids) {
+    std::vector<int32_t> interestedIds;
+    for (int32_t id : ids) {
+        if (mCarDataIds.find(id) != mCarDataIds.end()) {
+            interestedIds.push_back(id);
+        }
+    }
+    return interestedIds;
+}
+
 void TelemetryServer::addCarDataIds(const std::vector<int32_t>& ids) {
     const std::scoped_lock<std::mutex> lock(mMutex);
     mCarDataIds.insert(ids.cbegin(), ids.cend());
+    std::unordered_set<TelemetryCallback, TelemetryCallback::HashFunction> invokedCallbacks;
+    LOG(VERBOSE) << "Received addCarDataIds call from CarTelemetryService, notifying callbacks";
+    for (int32_t id : ids) {
+        if (mIdToCallbacksMap.find(id) == mIdToCallbacksMap.end()) {
+            // prevent out of range exception when calling unordered_map.at()
+            continue;
+        }
+        const auto& callbacksForId = mIdToCallbacksMap.at(id);
+        LOG(VERBOSE) << "Invoking " << callbacksForId.size() << " callbacks for ID=" << id;
+        for (const TelemetryCallback& tc : callbacksForId) {
+            if (invokedCallbacks.find(tc) != invokedCallbacks.end()) {
+                // skipping already invoked callbacks
+                continue;
+            }
+            invokedCallbacks.insert(tc);
+            ndk::ScopedAStatus status =
+                    tc.callback->onChange(findCarDataIdsIntersection(tc.config.carDataIds));
+            if (status.getExceptionCode() == EX_TRANSACTION_FAILED &&
+                status.getStatus() == STATUS_DEAD_OBJECT) {
+                LOG(WARNING) << "Failed to invoke onChange() on a dead object, removing callback";
+                removeCallback(tc.callback);
+            }
+        }
+    }
 }
 
 void TelemetryServer::removeCarDataIds(const std::vector<int32_t>& ids) {
     const std::scoped_lock<std::mutex> lock(mMutex);
     for (int32_t id : ids) {
         mCarDataIds.erase(id);
+    }
+    std::unordered_set<TelemetryCallback, TelemetryCallback::HashFunction> invokedCallbacks;
+    LOG(VERBOSE) << "Received removeCarDataIds call from CarTelemetryService, notifying callbacks";
+    for (int32_t id : ids) {
+        if (mIdToCallbacksMap.find(id) == mIdToCallbacksMap.end()) {
+            // prevent out of range exception when calling unordered_map.at()
+            continue;
+        }
+        const auto& callbacksForId = mIdToCallbacksMap.at(id);
+        LOG(VERBOSE) << "Invoking " << callbacksForId.size() << " callbacks for ID=" << id;
+        for (const TelemetryCallback& tc : callbacksForId) {
+            if (invokedCallbacks.find(tc) != invokedCallbacks.end()) {
+                // skipping already invoked callbacks
+                continue;
+            }
+            invokedCallbacks.insert(tc);
+            ndk::ScopedAStatus status =
+                    tc.callback->onChange(findCarDataIdsIntersection(tc.config.carDataIds));
+            if (status.getExceptionCode() == EX_TRANSACTION_FAILED &&
+                status.getStatus() == STATUS_DEAD_OBJECT) {
+                LOG(WARNING) << "Failed to invoke onChange() on a dead object, removing callback";
+                removeCallback(tc.callback);
+            }
+        }
     }
 }
 
@@ -97,7 +156,82 @@ void TelemetryServer::dump(int fd) {
     mRingBuffer.dump(fd);
 }
 
-// TODO(b/174608802): Add 10kb size check for the `dataList`, see the AIDL for the limits
+Result<void> TelemetryServer::addCallback(const CallbackConfig& config,
+                                          const std::shared_ptr<ICarTelemetryCallback>& callback) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    TelemetryCallback cb(config, callback);
+    if (mCallbacks.find(cb) != mCallbacks.end()) {
+        const std::string msg = "The ICarTelemetryCallback already exists. "
+                                "Use removeCarTelemetryCallback() to remove it first";
+        LOG(WARNING) << msg;
+        return Error(EX_ILLEGAL_ARGUMENT) << msg;
+    }
+
+    mCallbacks.insert(cb);
+
+    // link each interested CarData ID with the new callback
+    for (int32_t id : config.carDataIds) {
+        if (mIdToCallbacksMap.find(id) == mIdToCallbacksMap.end()) {
+            mIdToCallbacksMap[id] =
+                    std::unordered_set<TelemetryCallback, TelemetryCallback::HashFunction>{cb};
+        } else {
+            mIdToCallbacksMap.at(id).insert(cb);
+        }
+        LOG(VERBOSE) << "CarData ID=" << id << " has " << mIdToCallbacksMap.at(id).size()
+                     << " associated callbacks";
+    }
+
+    std::vector<int32_t> interestedIds = findCarDataIdsIntersection(config.carDataIds);
+    if (interestedIds.size() == 0) {
+        return {};
+    }
+    LOG(VERBOSE) << "Notifying new callback with active CarData IDs";
+    ndk::ScopedAStatus status = callback->onChange(interestedIds);
+    if (status.getExceptionCode() == EX_TRANSACTION_FAILED &&
+        status.getStatus() == STATUS_DEAD_OBJECT) {
+        removeCallback(callback);
+        return Error(EX_ILLEGAL_ARGUMENT)
+                << "Failed to invoke onChange() on a dead object, removing callback";
+    }
+    return {};
+}
+
+Result<void> TelemetryServer::removeCallback(
+        const std::shared_ptr<ICarTelemetryCallback>& callback) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    auto it = mCallbacks.find(TelemetryCallback(callback));
+    if (it == mCallbacks.end()) {
+        constexpr char msg[] = "Attempting to remove a CarTelemetryCallback that does not exist";
+        LOG(WARNING) << msg;
+        return Error(EX_ILLEGAL_ARGUMENT) << msg;
+    }
+
+    const TelemetryCallback& tc = *it;
+    // unlink callback from ID in the mIdToCallbacksMap
+    for (int32_t id : tc.config.carDataIds) {
+        if (mIdToCallbacksMap.find(id) == mIdToCallbacksMap.end()) {
+            LOG(ERROR) << "The callback is not linked to its interested IDs.";
+            continue;
+        }
+        auto& associatedCallbacks = mIdToCallbacksMap.at(id);
+        auto associatedCallbackIterator = associatedCallbacks.find(tc);
+        if (associatedCallbackIterator == associatedCallbacks.end()) {
+            continue;
+        }
+        associatedCallbacks.erase(associatedCallbackIterator);
+        LOG(VERBOSE) << "After unlinking a callback from ID=" << id << ", the ID has "
+                     << mIdToCallbacksMap.at(id).size() << " associated callbacks";
+        if (associatedCallbacks.size() == 0) {
+            mIdToCallbacksMap.erase(id);
+        }
+    }
+
+    mCallbacks.erase(it);
+    LOG(VERBOSE) << "After removeCallback, there are " << mCallbacks.size()
+                 << " callbacks in cartelemetryd";
+    return {};
+}
+
 void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t publisherUid) {
     const std::scoped_lock<std::mutex> lock(mMutex);
     bool bufferWasEmptyBefore = mRingBuffer.size() == 0;
