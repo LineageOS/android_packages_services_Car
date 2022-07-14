@@ -15,9 +15,11 @@
  */
 package com.android.car.testdpc;
 
+import android.annotation.NonNull;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Bundle;
 import android.os.Process;
 import android.util.Log;
 
@@ -42,6 +44,7 @@ final class DpcShellCommand {
     private static final String CMD_IS_USER_AFFILIATED = "is-user-affiliated";
     private static final String CMD_ADD_USER_RESTRICTION = "add-user-restriction";
     private static final String CMD_CLR_USER_RESTRICTION = "clear-user-restriction";
+    private static final String CMD_GET_USER_RESTRICTIONS = "get-user-restrictions";
     private static final String CMD_HELP = "help";
 
     DpcShellCommand(Context context, PrintWriter writer, String[] args) {
@@ -69,6 +72,9 @@ final class DpcShellCommand {
                     break;
                 case CMD_CLR_USER_RESTRICTION:
                     runClearUserRestriction();
+                    break;
+                case CMD_GET_USER_RESTRICTIONS:
+                    runGetUserRestrictions();
                     break;
                 case CMD_IS_USER_AFFILIATED:
                     runIsUserAffiliated();
@@ -98,6 +104,8 @@ final class DpcShellCommand {
         mWriter.println("\tSet a user restriction specified by the key.");
         mWriter.printf("%s <key>\n", CMD_CLR_USER_RESTRICTION);
         mWriter.println("\tClear a user restriction specified by the key.");
+        mWriter.printf("%s <key>\n", CMD_GET_USER_RESTRICTIONS);
+        mWriter.println("\tDisplay all active user restrictions.");
         mWriter.printf("%s (<affiliation-ids>)\n", CMD_SET_AFFILIATION_IDS);
         mWriter.println("\tSet affiliation ids (space separated list of strings)");
         mWriter.println("\tfor a specified user. An empty list clears the ids.");
@@ -118,6 +126,15 @@ final class DpcShellCommand {
         String restriction = mArgs[1];
         Log.i(TAG, "Calling clearUserRestriction(" + restriction + ")");
         mDpm.clearUserRestriction(mAdmin, restriction);
+    }
+
+    private void runGetUserRestrictions() {
+        Bundle restrictions = mDpm.getUserRestrictions(mAdmin);
+        if (restrictions == null || restrictions.isEmpty()) {
+            mWriter.println("No restrictions.");
+        } else {
+            mWriter.println(bundleToString(restrictions));
+        }
     }
 
     private void runGetAffiliationIds() {
@@ -149,5 +166,25 @@ final class DpcShellCommand {
 
     private void runIsUserAffiliated() {
         mWriter.println(mDpm.isAffiliatedUser());
+    }
+
+    /**
+     * See {@link android.apps.gsa.shared.util.Util#bundleToString(Bundle)}
+     */
+    @NonNull
+    private static String bundleToString(@NonNull Bundle bundle) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('{');
+        boolean first = true;
+        for (String key : bundle.keySet()) {
+            if (!first) {
+                sb.append(", ");
+            }
+            first = false;
+            Object value = bundle.get(key);
+            sb.append(key).append("=").append(value);
+        }
+        sb.append('}');
+        return sb.toString();
     }
 }

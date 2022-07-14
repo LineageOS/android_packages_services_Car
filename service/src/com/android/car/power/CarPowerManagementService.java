@@ -2151,9 +2151,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int status = mPolicyReader.definePowerPolicy(powerPolicyId,
                 enabledComponents, disabledComponents);
         if (status != PolicyOperationStatus.OK) {
-            int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
-            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error));
-            return error;
+            return status;
         }
         ICarPowerPolicySystemNotification daemon;
         synchronized (mLock) {

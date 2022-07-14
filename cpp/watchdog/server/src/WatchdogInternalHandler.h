@@ -43,12 +43,20 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class WatchdogBinderMediatorInterface;
-class WatchdogBinderMediator;
-class WatchdogInternalHandlerTestPeer;
+// Forward declaration for testing use only.
+namespace internal {
 
-class WatchdogInternalHandler final :
+class WatchdogInternalHandlerPeer;
+
+}  // namespace internal
+
+class WatchdogInternalHandlerInterface :
       public aidl::android::automotive::watchdog::internal::BnCarWatchdog {
+public:
+    virtual void terminate() = 0;
+};
+
+class WatchdogInternalHandler final : public WatchdogInternalHandlerInterface {
 public:
     WatchdogInternalHandler(
             const android::sp<WatchdogServiceHelperInterface>& watchdogServiceHelper,
@@ -110,7 +118,7 @@ public:
             aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority*
                     threadPolicyWithPriority) override;
 
-    void terminate() {
+    void terminate() override {
         mWatchdogServiceHelper.clear();
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
@@ -118,14 +126,13 @@ public:
     }
 
 private:
+    status_t dumpServices(int fd);
+    status_t dumpHelpText(const int fd, const std::string& errorMsg);
     void checkAndRegisterIoOveruseMonitor();
-
     ndk::ScopedAStatus handlePowerCycleChange(
             aidl::android::automotive::watchdog::internal::PowerCycle powerCycle);
-
     ndk::ScopedAStatus handleUserStateChange(
             userid_t userId, aidl::android::automotive::watchdog::internal::UserState userState);
-
     void setThreadPriorityController(std::unique_ptr<ThreadPriorityController> controller);
 
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;
@@ -134,9 +141,8 @@ private:
     android::sp<IoOveruseMonitorInterface> mIoOveruseMonitor;
     std::unique_ptr<ThreadPriorityController> mThreadPriorityController;
 
-    friend class WatchdogBinderMediator;
-    friend class WatchdogInternalHandlerTestPeer;
-
+    // For unit tests.
+    friend class internal::WatchdogInternalHandlerPeer;
     FRIEND_TEST(WatchdogInternalHandlerTest, TestTerminate);
 };
 

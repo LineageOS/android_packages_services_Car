@@ -22,6 +22,7 @@
 
 #include <aidl/android/automotive/watchdog/internal/BootPhase.h>
 #include <aidl/android/automotive/watchdog/internal/GarageMode.h>
+#include <android-base/file.h>
 #include <binder/IPCThreadState.h>
 #include <private/android_filesystem_config.h>
 
@@ -42,11 +43,24 @@ using ::aidl::android::automotive::watchdog::internal::ThreadPolicyWithPriority;
 using ::aidl::android::automotive::watchdog::internal::UserState;
 using ::android::sp;
 using ::android::String16;
+using ::android::base::EqualsIgnoreCase;
+using ::android::base::Join;
 using ::android::base::Result;
+using ::android::base::Split;
+using ::android::base::StringPrintf;
+using ::android::base::WriteStringToFd;
 using ::ndk::ScopedAStatus;
 
 namespace {
 
+constexpr const char* kDumpAllFlag = "-a";
+constexpr const char* kHelpFlag = "--help";
+constexpr const char* kHelpShortFlag = "-h";
+constexpr const char* kHelpText =
+        "Car watchdog daemon dumpsys help page:\n"
+        "Format: dumpsys android.automotive.watchdog.ICarWatchdog/default [options]\n\n"
+        "%s or %s: Displays this help text.\n"
+        "When no options are specified, car watchdog report is generated.\n";
 constexpr const char* kNullCarWatchdogServiceError =
         "Must provide a non-null car watchdog service instance";
 constexpr const char* kNullCarWatchdogMonitorError =
@@ -73,12 +87,81 @@ ScopedAStatus checkSystemUser(const std::string& methodName) {
 
 }  // namespace
 
-binder_status_t WatchdogInternalHandler::dump([[maybe_unused]] int fd,
-                                              [[maybe_unused]] const char** args,
-                                              [[maybe_unused]] uint32_t numArgs) {
-    // TODO(b/203809044): Move the dump processing from WatchdogBinderMediator to here, so
-    //  the cyclic dependency between the WatchdogBinderMediator and WatchdogInternalHandler
-    //  can be removed.
+binder_status_t WatchdogInternalHandler::dump(int fd, const char** args, uint32_t numArgs) {
+    if (numArgs == 0 || strcmp(args[0], kDumpAllFlag) == 0) {
+        return dumpServices(fd);
+    }
+    if (numArgs == 1 &&
+        (EqualsIgnoreCase(args[0], kHelpFlag) || EqualsIgnoreCase(args[0], kHelpShortFlag))) {
+        return dumpHelpText(fd, "");
+    }
+    if (EqualsIgnoreCase(args[0], kStartCustomCollectionFlag) ||
+        EqualsIgnoreCase(args[0], kEndCustomCollectionFlag)) {
+        if (auto result = mWatchdogPerfService->onCustomCollection(fd, args, numArgs);
+            !result.ok()) {
+            std::string mode =
+                    EqualsIgnoreCase(args[0], kStartCustomCollectionFlag) ? "start" : "end";
+            std::string errorMsg = StringPrintf("Failed to %s custom I/O perf collection: %s",
+                                                mode.c_str(), result.error().message().c_str());
+            if (result.error().code() == BAD_VALUE) {
+                dumpHelpText(fd, errorMsg);
+            } else {
+                ALOGW("%s", errorMsg.c_str());
+            }
+            return result.error().code();
+        }
+        return OK;
+    }
+    if (numArgs == 2 && EqualsIgnoreCase(args[0], kResetResourceOveruseStatsFlag)) {
+        std::string value = std::string(args[1]);
+        std::vector<std::string> packageNames = Split(value, ",");
+        if (value.empty() || packageNames.empty()) {
+            dumpHelpText(fd,
+                         StringPrintf("Must provide valid package names: [%s]\n", value.c_str()));
+            return BAD_VALUE;
+        }
+        if (auto result = mIoOveruseMonitor->resetIoOveruseStats(packageNames); !result.ok()) {
+            ALOGW("Failed to reset stats for packages: [%s]", value.c_str());
+            return FAILED_TRANSACTION;
+        }
+        return OK;
+    }
+    std::vector<const char*> argsVector;
+    for (uint32_t i = 0; i < numArgs; ++i) {
+        argsVector.push_back(args[i]);
+    }
+    dumpHelpText(fd,
+                 StringPrintf("Invalid car watchdog dumpsys options: [%s]\n",
+                              Join(argsVector, " ").c_str()));
+    return dumpServices(fd);
+}
+
+status_t WatchdogInternalHandler::dumpServices(int fd) {
+    mWatchdogProcessService->onDump(fd);
+    if (auto result = mWatchdogPerfService->onDump(fd); !result.ok()) {
+        ALOGW("Failed to dump car watchdog perf service: %s", result.error().message().c_str());
+        return result.error().code();
+    }
+    if (auto result = mIoOveruseMonitor->onDump(fd); !result.ok()) {
+        ALOGW("Failed to dump I/O overuse monitor: %s", result.error().message().c_str());
+        return result.error().code();
+    }
+    return OK;
+}
+
+status_t WatchdogInternalHandler::dumpHelpText(const int fd, const std::string& errorMsg) {
+    if (!errorMsg.empty()) {
+        ALOGW("Error: %s", errorMsg.c_str());
+        if (!WriteStringToFd(StringPrintf("Error: %s\n\n", errorMsg.c_str()), fd)) {
+            ALOGW("Failed to write error message to fd");
+            return FAILED_TRANSACTION;
+        }
+    }
+    if (!WriteStringToFd(StringPrintf(kHelpText, kHelpFlag, kHelpShortFlag), fd) ||
+        !mWatchdogPerfService->dumpHelpText(fd) || !mIoOveruseMonitor->dumpHelpText(fd)) {
+        ALOGW("Failed to write help text to fd");
+        return FAILED_TRANSACTION;
+    }
     return OK;
 }
 

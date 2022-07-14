@@ -16,6 +16,7 @@
 
 #include "MockIoOveruseMonitor.h"
 #include "MockResourceOveruseListener.h"
+#include "MockWatchdogInternalHandler.h"
 #include "MockWatchdogPerfService.h"
 #include "MockWatchdogProcessService.h"
 #include "MockWatchdogServiceHelper.h"
@@ -52,7 +53,6 @@ using ::testing::_;
 using ::testing::ByMove;
 using ::testing::DoAll;
 using ::testing::Return;
-using ::testing::SaveArg;
 using ::testing::SetArgPointee;
 using ::testing::UnorderedElementsAreArray;
 
@@ -72,6 +72,23 @@ std::string toString(const std::vector<ResourceOveruseStats>& resourceOveruseSta
 
 }  // namespace
 
+namespace internal {
+
+class WatchdogBinderMediatorPeer final {
+public:
+    explicit WatchdogBinderMediatorPeer(WatchdogBinderMediator* mediator) : mMediator(mediator) {}
+
+    void setWatchdogInternalHandler(
+            const std::shared_ptr<WatchdogInternalHandlerInterface>& watchdogInternalHandler) {
+        mMediator->mWatchdogInternalHandler = watchdogInternalHandler;
+    }
+
+private:
+    WatchdogBinderMediator* mMediator;
+};
+
+};  // namespace internal
+
 class WatchdogBinderMediatorTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
@@ -84,6 +101,9 @@ protected:
                                                             sp<MockWatchdogServiceHelper>::make(),
                                                             mMockIoOveruseMonitor,
                                                             kAddServiceFunctionStub);
+        mMockWatchdogInternalHandler = SharedRefBase::make<MockWatchdogInternalHandler>();
+        internal::WatchdogBinderMediatorPeer peer(mWatchdogBinderMediator.get());
+        peer.setWatchdogInternalHandler(mMockWatchdogInternalHandler);
     }
 
     virtual void TearDown() {
@@ -96,6 +116,7 @@ protected:
     sp<MockWatchdogProcessService> mMockWatchdogProcessService;
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
     sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
+    std::shared_ptr<MockWatchdogInternalHandler> mMockWatchdogInternalHandler;
     std::shared_ptr<WatchdogBinderMediator> mWatchdogBinderMediator;
 };
 
@@ -160,57 +181,11 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
     mediator.reset();
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestDumpWithEmptyArgs) {
-    EXPECT_CALL(*mMockWatchdogProcessService, onDump(-1)).Times(1);
-    EXPECT_CALL(*mMockWatchdogPerfService, onDump(-1)).WillOnce(Return(Result<void>()));
-    EXPECT_CALL(*mMockIoOveruseMonitor, onDump(-1)).WillOnce(Return(Result<void>()));
+TEST_F(WatchdogBinderMediatorTest, TestDump) {
+    const char* args[] = {kStartCustomCollectionFlag, kIntervalFlag, "10", kMaxDurationFlag, "200"};
+    EXPECT_CALL(*mMockWatchdogInternalHandler, dump(-1, args, /*numArgs=*/5)).WillOnce(Return(OK));
 
-    mWatchdogBinderMediator->dump(-1, /*args=*/nullptr, /*numArgs=*/0);
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestDumpWithStartCustomPerfCollection) {
-    const char* args[] = {kStartCustomCollectionFlag};
-    EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, args, /*numArgs=*/1))
-            .WillOnce(Return(Result<void>()));
-
-    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args, /*numArgs=*/1), OK);
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestDumpWithStopCustomPerfCollection) {
-    const char* args[] = {kEndCustomCollectionFlag};
-    EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, args, /*numArgs=*/1))
-            .WillOnce(Return(Result<void>()));
-
-    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args, /*numArgs=*/1), OK);
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestDumpWithResetResourceOveruseStats) {
-    std::vector<std::string> actualPackages;
-    EXPECT_CALL(*mMockIoOveruseMonitor, resetIoOveruseStats(_))
-            .WillOnce(DoAll(SaveArg<0>(&actualPackages), Return(Result<void>())));
-
-    const char* args[] = {kResetResourceOveruseStatsFlag, "packageA,packageB"};
-    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args, /*numArgs=*/2), OK);
-    ASSERT_EQ(actualPackages, std::vector<std::string>({"packageA", "packageB"}));
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestFailsDumpWithInvalidResetResourceOveruseStatsArg) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, resetIoOveruseStats(_)).Times(0);
-
-    const char* args[] = {kResetResourceOveruseStatsFlag, ""};
-    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args, /*numArgs=*/2), BAD_VALUE);
-}
-
-TEST_F(WatchdogBinderMediatorTest, TestDumpWithInvalidDumpArgs) {
-    const char* args[] = {"--invalid_option"};
-    int nullFd = open("/dev/null", O_RDONLY);
-    EXPECT_CALL(*mMockWatchdogProcessService, onDump(nullFd)).Times(1);
-    EXPECT_CALL(*mMockWatchdogPerfService, onDump(nullFd)).WillOnce(Return(Result<void>()));
-    EXPECT_CALL(*mMockIoOveruseMonitor, onDump(nullFd)).WillOnce(Return(Result<void>()));
-
-    EXPECT_EQ(mWatchdogBinderMediator->dump(nullFd, args, /*numArgs=*/1), OK)
-            << "Error returned on invalid args";
-    close(nullFd);
+    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args, /*numArgs=*/5), OK);
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestRegisterClient) {
