@@ -13,7 +13,7 @@
 
 <body class="mdc-theme--background mdc-typography">
   <form action="{{ url_for('execute_script') }}" method="post">
-    <textarea class="cm-editor script-input" id="script-input" placeholder="Input script here..." spellcheck="false"
+    <textarea class="script-input" id="script-input" placeholder="Input script here..." spellcheck="false"
       name="script">{{ script }}</textarea>
     <button type="submit" class="mdc-button mdc-button--raised ripple">
       <span class="mdc-button__ripple"></span>
@@ -23,12 +23,10 @@
 
   <div class="mdc-theme--on-surface script-output" id="script-output">
     {% for item in output %}
-      {% if item == "\n" %}
-        <br>
-      {% elif item == "\t" %}
+      {% if item == "\t" %}
         <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
       {% else %}
-        <span>{{ item }}</span>
+        <span>{{ item|replace('\n', '<br>'|safe) }}</span>
       {% endif %}
     {% endfor %}
   </div>

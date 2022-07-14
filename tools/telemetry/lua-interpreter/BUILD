@@ -14,6 +14,7 @@ cc_binary(
         "-Wextra",
         "-O2",
     ],
+    data = ["json.lua"],
     linkopts = ["-ldl"],
     linkshared = True,
     deps = ["@lua//:lua_library"],
@@ -23,6 +24,7 @@ cc_library(
     name = "lua_engine_library",
     srcs = ["lua_engine.cc"],
     hdrs = ["lua_engine.h"],
+    data = ["json.lua"],
     deps = ["@lua//:lua_library"],
 )
 
