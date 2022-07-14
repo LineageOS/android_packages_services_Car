@@ -37,6 +37,7 @@
     <item target="attr/layout_goneMarginTop" value="@attr/layout_goneMarginTop"/>
     <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
 
+    <item target="bool/car_ui_preference_two_action_switch_widget_focusable" value="@bool/car_ui_preference_two_action_switch_widget_focusable" />
     <item target="bool/car_ui_toolbar_logo_fills_nav_icon_space" value="@bool/car_ui_toolbar_logo_fills_nav_icon_space" />
     <item target="bool/car_ui_toolbar_menuitem_individual_click_listeners" value="@bool/car_ui_toolbar_menuitem_individual_click_listeners" />
     <item target="bool/car_ui_toolbar_nav_icon_reserve_space" value="@bool/car_ui_toolbar_nav_icon_reserve_space" />
