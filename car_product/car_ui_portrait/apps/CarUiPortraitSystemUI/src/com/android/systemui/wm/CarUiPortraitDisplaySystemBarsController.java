@@ -37,7 +37,6 @@ import android.widget.Toast;
 import com.android.car.ui.R;
 import com.android.wm.shell.common.DisplayController;
 import com.android.wm.shell.common.DisplayInsetsController;
-import com.android.wm.shell.common.TransactionPool;
 import com.android.wm.shell.dagger.WMSingleton;
 
 import java.util.ArrayList;
@@ -62,10 +61,8 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
             IWindowManager wmService,
             DisplayController displayController,
             DisplayInsetsController displayInsetsController,
-            Handler mainHandler,
-            TransactionPool transactionPool) {
-        super(context, wmService, displayController, displayInsetsController, mainHandler,
-                transactionPool);
+            Handler mainHandler) {
+        super(context, wmService, displayController, displayInsetsController, mainHandler);
 
         Car car = Car.createCar(context);
         if (car != null) {
@@ -99,11 +96,8 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
 
     @Override
     public void onDisplayRemoved(int displayId) {
-        try {
-            mWmService.setDisplayWindowInsetsController(displayId, null);
-        } catch (RemoteException e) {
-            Slog.w(TAG, "Unable to remove insets controller on display " + displayId);
-        }
+        CarUiPortraitPerDisplay pd = mCarUiPerDisplaySparseArray.get(displayId);
+        pd.unregister();
         mCarUiPerDisplaySparseArray.remove(displayId);
     }
 
