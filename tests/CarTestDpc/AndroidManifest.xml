@@ -34,5 +34,11 @@
             </intent-filter>
         </service>
 
+        <service
+            android:name=".remotedpm.RemoteDevicePolicyManagerService"
+            android:exported="true"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+        />
+
     </application>
 </manifest>
