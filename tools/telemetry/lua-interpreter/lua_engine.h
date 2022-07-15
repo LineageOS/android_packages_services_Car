@@ -17,9 +17,10 @@
 #ifndef TOOLS_TELEMETRY_LUA_INTERPRETER_LUA_ENGINE_H_
 #define TOOLS_TELEMETRY_LUA_INTERPRETER_LUA_ENGINE_H_
 
-#include <lua.hpp>
 #include <string>
 #include <vector>
+
+#include "lua.hpp"
 
 namespace lua_interpreter {
 
@@ -58,6 +59,74 @@ class LuaEngine {
   // stack according to Lua C function calling convention. More info:
   // https://www.lua.org/manual/5.4/manual.html#lua_CFunction
   static int DumpStack(lua_State* lua_state);
+
+  // Invoked by a running Lua script to produce a log to the output. This is
+  // useful for debugging.
+  //
+  // This method returns 0 to indicate that no results were pushed to Lua stack
+  // according to Lua C function calling convention. More info:
+  // https://www.lua.org/manual/5.3/manual.html#lua_CFunction Usage in lua
+  // script:
+  //   log("selected gear: ", g)
+  static int ScriptLog(lua_State* lua);
+
+  // Invoked by a running Lua script to store intermediate results.
+  // The script will provide the results as a Lua table. The result pushed by
+  // Lua is then forwarded to the output.
+  //
+  // The IDE supports nested fields in the table, but the actual ScriptExecutor
+  // currently supports boolean, number, integer, string, and their arrays.
+  // Refer to packages/services/Car/packages/ScriptExecutor/src/LuaEngine.h for
+  // the most up to date documentation on the supported types.
+  //
+  // This method returns 0 to indicate that no results were pushed to Lua stack
+  // according to Lua C function calling convention. More info:
+  // https://www.lua.org/manual/5.4/manual.html#lua_CFunction
+  static int OnSuccess(lua_State* lua);
+
+  // Invoked by a running Lua script to effectively mark the completion of the
+  // script's lifecycle. The script will provide the final results as a Lua
+  // table. The result pushed by Lua is then forwarded to the
+  // output.
+  //
+  // The IDE supports nested fields in the table, but the actual ScriptExecutor
+  // currently supports boolean, number, integer, string, and their arrays.
+  // Refer to packages/services/Car/packages/ScriptExecutor/src/LuaEngine.h for
+  // the most up to date documentation on the supported types.
+  //
+  // This method returns 0 to indicate that no results were pushed to Lua stack
+  // according to Lua C function calling convention. More info:
+  // https://www.lua.org/manual/5.4/manual.html#lua_CFunction
+  static int OnScriptFinished(lua_State* lua);
+
+  // Invoked by a running Lua script to indicate that an error occurred. This is
+  // the mechanism for a script author to receive error logs. The caller
+  // script encapsulates all the information about the error that the author
+  // wants to provide in a single string parameter. The error is
+  // then forwarded to the output.
+  //
+  // This method returns 0 to indicate that no results were pushed to Lua stack
+  // according to Lua C function calling convention. More info:
+  // https://www.lua.org/manual/5.4/manual.html#lua_CFunction
+  static int OnError(lua_State* lua);
+
+  // Invoked by a running Lua script to produce a metrics report without
+  // completing the script's lifecycle, The script will provide the
+  // report as a Lua table. The result pushed by Lua is then forwarded to the
+  // output.
+  //
+  // The IDE supports nested fields in the table, but the actual ScriptExecutor
+  // currently supports boolean, number, integer, string, and their arrays.
+  // Refer to packages/services/Car/packages/ScriptExecutor/src/LuaEngine.h for
+  // the most up to date documentation on the supported types.
+  //
+  // This method returns 0 to indicate that no results were pushed to
+  // Lua stack according to Lua C function calling convention. More info:
+  // https://www.lua.org/manual/5.4/manual.html#lua_CFunction Usage in lua
+  // script:
+  //   on_metrics_report(report_as_a_table)
+  //   on_metrics_report(report_as_a_table, saved_state_as_a_table)
+  static int OnMetricsReport(lua_State* lua);
 
   // Maintains the state of Lua.
   lua_State* lua_state_;

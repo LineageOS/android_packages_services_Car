@@ -10,6 +10,10 @@
   --mdc-theme-surface: #202124;
 }
 
+/**
+ * cm prefix indicates classes of the CodeMirror editor.
+ * See https: //codemirror.net/examples/styling/.
+ */
 .cm-editor {
   border-radius: 4px;
   height: 400px;
@@ -23,7 +27,7 @@
 }
 
 .script-input {
-  visibility: hidden;
+  display: none;
 }
 
 .script-output {
