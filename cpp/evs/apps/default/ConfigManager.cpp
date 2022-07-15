@@ -17,24 +17,20 @@
 
 #include "json/json.h"
 
-#include <fstream>
-#include <math.h>
 #include <assert.h>
+#include <math.h>
 
+#include <fstream>
 
 static const float kDegreesToRadians = M_PI / 180.0f;
 
-
 static float normalizeToPlusMinus180degrees(float theta) {
-    const float wraps = floor((theta+180.0f) / 360.0f);
-    return theta - wraps*360.0f;
+    const float wraps = floor((theta + 180.0f) / 360.0f);
+    return theta - wraps * 360.0f;
 }
 
-
-static bool readChildNodeAsFloat(const char* groupName,
-                                 const Json::Value& parentNode,
-                                 const char* childName,
-                                 float* value) {
+static bool readChildNodeAsFloat(const char* groupName, const Json::Value& parentNode,
+                                 const char* childName, float* value) {
     // Must have a place to put the value!
     assert(value);
 
@@ -48,9 +44,7 @@ static bool readChildNodeAsFloat(const char* groupName,
     return true;
 }
 
-
-bool ConfigManager::initialize(const char* configFileName)
-{
+bool ConfigManager::initialize(const char* configFileName) {
     bool complete = true;
 
     // Set up a stream to read in the input file
@@ -68,7 +62,6 @@ bool ConfigManager::initialize(const char* configFileName)
         return false;
     }
 
-
     //
     // Read car information
     //
@@ -78,12 +71,11 @@ bool ConfigManager::initialize(const char* configFileName)
             printf("Invalid configuration format -- we expect a car description\n");
             return false;
         }
-        complete &= readChildNodeAsFloat("car", car, "width",       &mCarWidth);
-        complete &= readChildNodeAsFloat("car", car, "wheelBase",   &mWheelBase);
+        complete &= readChildNodeAsFloat("car", car, "width", &mCarWidth);
+        complete &= readChildNodeAsFloat("car", car, "wheelBase", &mWheelBase);
         complete &= readChildNodeAsFloat("car", car, "frontExtent", &mFrontExtent);
-        complete &= readChildNodeAsFloat("car", car, "rearExtent",  &mRearExtent);
+        complete &= readChildNodeAsFloat("car", car, "rearExtent", &mRearExtent);
     }
-
 
     //
     // Read display layout information
@@ -107,7 +99,6 @@ bool ConfigManager::initialize(const char* configFileName)
         }
     }
 
-
     //
     // Car top view texture properties for top down view
     //
@@ -117,10 +108,11 @@ bool ConfigManager::initialize(const char* configFileName)
             printf("Invalid configuration format -- we expect a graphic description\n");
             return false;
         }
-        complete &= readChildNodeAsFloat("graphic", graphicNode, "frontPixel", &mCarGraphicFrontPixel);
-        complete &= readChildNodeAsFloat("display", graphicNode, "rearPixel",  &mCarGraphicRearPixel);
+        complete &=
+                readChildNodeAsFloat("graphic", graphicNode, "frontPixel", &mCarGraphicFrontPixel);
+        complete &=
+                readChildNodeAsFloat("display", graphicNode, "rearPixel", &mCarGraphicRearPixel);
     }
-
 
     //
     // Read camera information
@@ -134,21 +126,21 @@ bool ConfigManager::initialize(const char* configFileName)
         }
 
         mCameras.reserve(cameraArray.size());
-        for (auto&& node: cameraArray) {
+        for (auto&& node : cameraArray) {
             // Get data from the configuration file
             Json::Value nameNode = node.get("cameraId", "MISSING");
-            const char *cameraId = nameNode.asCString();
+            const char* cameraId = nameNode.asCString();
 
             Json::Value usageNode = node.get("function", "");
-            const char *function = usageNode.asCString();
+            const char* function = usageNode.asCString();
 
-            float yaw   = node.get("yaw", 0).asFloat();
+            float yaw = node.get("yaw", 0).asFloat();
             float pitch = node.get("pitch", 0).asFloat();
-            float roll  = node.get("roll", 0).asFloat();
-            float hfov  = node.get("hfov", 0).asFloat();
-            float vfov  = node.get("vfov", 0).asFloat();
-            bool  hflip = node.get("hflip", false).asBool();
-            bool  vflip = node.get("vflip", false).asBool();
+            float roll = node.get("roll", 0).asFloat();
+            float hfov = node.get("hfov", 0).asFloat();
+            float vfov = node.get("vfov", 0).asFloat();
+            bool hflip = node.get("hflip", false).asBool();
+            bool vflip = node.get("vflip", false).asBool();
 
             // Wrap the direction angles to be in the 180deg to -180deg range
             // Rotate 180 in yaw if necessary to flip the pitch into the +/-90degree range
@@ -187,15 +179,15 @@ bool ConfigManager::initialize(const char* configFileName)
             info.position[0] = node.get("x", 0).asFloat();
             info.position[1] = node.get("y", 0).asFloat();
             info.position[2] = node.get("z", 0).asFloat();
-            info.yaw         = yaw   * kDegreesToRadians;
-            info.pitch       = pitch * kDegreesToRadians;
-            info.roll        = roll  * kDegreesToRadians;
-            info.hfov        = hfov  * kDegreesToRadians;
-            info.vfov        = vfov  * kDegreesToRadians;
-            info.hflip       = hflip;
-            info.vflip       = vflip;
-            info.cameraId    = cameraId;
-            info.function    = function;
+            info.yaw = yaw * kDegreesToRadians;
+            info.pitch = pitch * kDegreesToRadians;
+            info.roll = roll * kDegreesToRadians;
+            info.hfov = hfov * kDegreesToRadians;
+            info.vfov = vfov * kDegreesToRadians;
+            info.hflip = hflip;
+            info.vflip = vflip;
+            info.cameraId = cameraId;
+            info.function = function;
 
             mCameras.emplace_back(info);
         }

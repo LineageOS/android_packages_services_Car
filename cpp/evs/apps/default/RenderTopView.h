@@ -1,4 +1,3 @@
-
 /*
  * Copyright (C) 2017 The Android Open Source Project
  *
@@ -18,24 +17,21 @@
 #ifndef CAR_EVS_APP_RENDERTOPVIEW_H
 #define CAR_EVS_APP_RENDERTOPVIEW_H
 
-
+#include "ConfigManager.h"
 #include "RenderBase.h"
+#include "VideoTex.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
-#include "ConfigManager.h"
-#include "VideoTex.h"
 #include <math/mat4.h>
 
-
-using namespace ::android::hardware::automotive::evs::V1_1;
-
+using ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 /*
  * Combines the views from all available cameras into one reprojected top down view.
  */
-class RenderTopView: public RenderBase {
+class RenderTopView : public RenderBase {
 public:
-    RenderTopView(sp<IEvsEnumerator> enumerator,
+    RenderTopView(android::sp<IEvsEnumerator> enumerator,
                   const std::vector<ConfigManager::CameraInfo>& camList,
                   const ConfigManager& config);
 
@@ -46,18 +42,18 @@ public:
 
 protected:
     struct ActiveCamera {
-        const ConfigManager::CameraInfo&    info;
-        std::unique_ptr<VideoTex>           tex;
+        const ConfigManager::CameraInfo& info;
+        std::unique_ptr<VideoTex> tex;
 
-        ActiveCamera(const ConfigManager::CameraInfo& c) : info(c) {};
+        ActiveCamera(const ConfigManager::CameraInfo& c) : info(c){};
     };
 
     void renderCarTopView();
     void renderCameraOntoGroundPlane(const ActiveCamera& cam);
 
-    sp<IEvsEnumerator>              mEnumerator;
-    const ConfigManager&            mConfig;
-    std::vector<ActiveCamera>       mActiveCameras;
+    android::sp<IEvsEnumerator> mEnumerator;
+    const ConfigManager& mConfig;
+    std::vector<ActiveCamera> mActiveCameras;
 
     struct {
         std::unique_ptr<TexWrapper> checkerBoard;
@@ -69,8 +65,7 @@ protected:
         GLuint projectedTexture;
     } mPgmAssets;
 
-    android::mat4   orthoMatrix;
+    android::mat4 orthoMatrix;
 };
 
-
-#endif //CAR_EVS_APP_RENDERTOPVIEW_H
+#endif  // CAR_EVS_APP_RENDERTOPVIEW_H

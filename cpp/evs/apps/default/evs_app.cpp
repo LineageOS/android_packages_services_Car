@@ -54,7 +54,7 @@ const char* CONFIG_OVERRIDE_PATH = "/system/etc/automotive/evs/config_override.j
 
 android::sp<IEvsEnumerator> pEvs;
 android::sp<IEvsDisplay> pDisplay;
-EvsStateControl *pStateController;
+EvsStateControl* pStateController;
 
 }  // namespace
 
@@ -97,10 +97,8 @@ static bool convertStringToFormat(const char* str, android_pixel_format_t* outpu
     return result;
 }
 
-
 // Main entry point
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv) {
     LOG(INFO) << "EVS app starting";
 
     // Set up default behavior, then check for command line options
@@ -111,7 +109,7 @@ int main(int argc, char** argv)
     bool useExternalMemory = false;
     android_pixel_format_t extMemoryFormat = HAL_PIXEL_FORMAT_RGBA_8888;
     int32_t mockGearSignal = static_cast<int32_t>(VehicleGear::GEAR_REVERSE);
-    for (int i=1; i< argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--test") == 0) {
             useVehicleHal = false;
         } else if (strcmp(argv[i], "--hw") == 0) {
@@ -144,7 +142,7 @@ int main(int argc, char** argv)
                           << "Reverse signal will be used.";
                 continue;
             }
-            i += 1; // increase an index to next argument
+            i += 1;  // increase an index to next argument
             if (strcasecmp(argv[i], "Park") == 0) {
                 mockGearSignal = static_cast<int32_t>(VehicleGear::GEAR_PARK);
             } else if (strcasecmp(argv[i], "Reverse") != 0) {
@@ -165,7 +163,7 @@ int main(int argc, char** argv)
         printf("  --hw\n\tBypass EvsManager by connecting directly to EvsEnumeratorHw\n");
         printf("  --mock\n\tConnect directly to EvsEnumeratorHw-Mock\n");
         printf("  --display\n\tSpecify the display to use.  If this is not set, the first"
-                              "display in config.json's list will be used.\n");
+               "display in config.json's list will be used.\n");
         printf("  --extmem  <format>\n\t"
                "Application allocates buffers to capture camera frames.  "
                "Available format strings are (case insensitive):\n");
@@ -203,8 +201,7 @@ int main(int argc, char** argv)
     LOG(INFO) << "Acquiring EVS Enumerator";
     pEvs = IEvsEnumerator::getService(evsServiceName);
     if (pEvs.get() == nullptr) {
-        LOG(ERROR) << "getService(" << evsServiceName
-                   << ") returned NULL.  Exiting.";
+        LOG(ERROR) << "getService(" << evsServiceName << ") returned NULL.  Exiting.";
         return EXIT_FAILURE;
     }
 

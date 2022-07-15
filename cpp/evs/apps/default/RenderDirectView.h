@@ -24,17 +24,16 @@
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <math/mat2.h>
 
-using namespace ::android::hardware::automotive::evs::V1_1;
-using ::android::hardware::camera::device::V3_2::Stream;
-
+using ::android::hardware::automotive::evs::V1_1::BufferDesc;
+using ::android::hardware::automotive::evs::V1_1::CameraDesc;
+using ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 
 /*
  * Renders the view from a single specified camera directly to the full display.
  */
-class RenderDirectView: public RenderBase {
+class RenderDirectView : public RenderBase {
 public:
-    RenderDirectView(sp<IEvsEnumerator> enumerator,
-                     const CameraDesc& camDesc,
+    RenderDirectView(android::sp<IEvsEnumerator> enumerator, const CameraDesc& camDesc,
                      const ConfigManager& config);
 
     virtual bool activate() override;
@@ -43,17 +42,16 @@ public:
     virtual bool drawFrame(const BufferDesc& tgtBuffer);
 
 protected:
-    sp<IEvsEnumerator>              mEnumerator;
-    ConfigManager::CameraInfo       mCameraInfo;
-    CameraDesc                      mCameraDesc;
-    const ConfigManager&            mConfig;
+    android::sp<IEvsEnumerator> mEnumerator;
+    ConfigManager::CameraInfo mCameraInfo;
+    CameraDesc mCameraDesc;
+    const ConfigManager& mConfig;
 
-    std::unique_ptr<VideoTex>       mTexture;
+    std::unique_ptr<VideoTex> mTexture;
 
-    GLuint                          mShaderProgram = 0;
+    GLuint mShaderProgram = 0;
 
-    android::mat2                   mRotationMat;
+    android::mat2 mRotationMat;
 };
 
-
-#endif //CAR_EVS_APP_RENDERDIRECTVIEW_H
+#endif  // CAR_EVS_APP_RENDERDIRECTVIEW_H
