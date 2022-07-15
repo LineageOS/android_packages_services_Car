@@ -405,7 +405,7 @@ ScopedAStatus WatchdogInternalHandler::getThreadPriority(
 }
 
 void WatchdogInternalHandler::setThreadPriorityController(
-        std::unique_ptr<ThreadPriorityController> threadPriorityController) {
+        std::unique_ptr<ThreadPriorityControllerInterface> threadPriorityController) {
     mThreadPriorityController = std::move(threadPriorityController);
 }
 
