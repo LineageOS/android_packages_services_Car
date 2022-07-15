@@ -37,9 +37,9 @@
     <string name="fully_managed_device_with_permission_control_provisioning_summary" msgid="2503568673345133100">"ଆପଣଙ୍କ ୱାର୍କ ଆପଗୁଡ଼ିକୁ ସହଜରେ ଆକ୍ସେସ କରିବା ପାଇଁ ଏହି ଗାଡ଼ିର ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମକୁ ବ୍ୟବହାର କରନ୍ତୁ। ଏହି ଗାଡ଼ି ବ୍ୟକ୍ତିଗତ ନୁହେଁ, ତେଣୁ ସଂସ୍ଥାର ପରିଚାଳକ ଆପଣଙ୍କ କାର୍ଯ୍ୟକଳାପ ଏବଂ ଡାଟା ଦେଖିବାକୁ ସକ୍ଷମ ହୋଇପାରନ୍ତି। ସଂସ୍ଥାର ପରିଚାଳକ ମାଇକ୍ରୋଫୋନ ଏବଂ ଲୋକେସନ ଅନୁମତି ପରି ଏହି ଗାଡ଼ିରେ ଥିବା ଆପଗୁଡ଼ିକ ପାଇଁ ଅନୁମତିଗୁଡ଼ିକୁ ମଧ୍ୟ ସେଟ କରିପାରିବେ।"</string>
     <string name="fully_managed_device_provisioning_summary" msgid="4323948058344613817">"ଆପଣଙ୍କ ୱାର୍କ ଆପଗୁଡ଼ିକୁ ସହଜରେ ଆକ୍ସେସ କରିବା ପାଇଁ ଏହି ଗାଡ଼ିର ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମକୁ ବ୍ୟବହାର କରନ୍ତୁ। ଏହି ଗାଡ଼ି ବ୍ୟକ୍ତିଗତ ନୁହେଁ, ତେଣୁ ସଂସ୍ଥାର ପରିଚାଳକ ଆପଣଙ୍କ ଡାଟା ଏବଂ କାର୍ଯ୍ୟକଳାପ ଦେଖିବାକୁ ସକ୍ଷମ ହୋଇପାରନ୍ତି।"</string>
     <string name="fully_managed_device_provisioning_progress_label" msgid="988594700479673633">"ପରିଚାଳିତ ଗାଡ଼ି ସେଟ ଅପ କରାଯାଉଛି"</string>
-    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"ସେଟଅପ କରିବା ବାତିଲ୍ କରି ଗାଡ଼ି ଫେରାନ୍ତୁ"</string>
+    <string name="fully_managed_device_provisioning_return_device_title" msgid="1578111657911434819">"ସେଟଅପ କରିବା ବାତିଲ କରି ଗାଡ଼ି ଫେରାନ୍ତୁ"</string>
     <string name="fully_managed_device_provisioning_return_device_subheader" msgid="5809488930429106172">"ଏହି ଗାଡ଼ିକୁ ରିସେଟ କରି ସଂସ୍ଥାର ପରିଚାଳକଙ୍କୁ ଫେରାନ୍ତୁ କିମ୍ବା ସେଟଅପ କରିବା ଜାରି ରଖିବା ପାଇଁ ପୂର୍ବବର୍ତ୍ତୀ ସ୍କ୍ରିନକୁ ଫେରନ୍ତୁ।"</string>
-    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"ସେଟଅପ୍ ବାତିଲ୍ କରନ୍ତୁ"</string>
+    <string name="fully_managed_device_cancel_setup_button" msgid="4113790677940440998">"ସେଟଅପ୍ ବାତିଲ କରନ୍ତୁ"</string>
     <string name="fully_managed_device_reset_and_return_button" msgid="4951274590516561428">"ରିସେଟ କରି ଫେରାନ୍ତୁ"</string>
     <string name="fully_managed_device_provisioning_privacy_title" msgid="4789425994893472324">"ଗୋପନୀୟତା ନୋଟିସ"</string>
     <string name="fully_managed_device_provisioning_privacy_body" msgid="5549745709511179391">"ସଂସ୍ଥାର ପରିଚାଳକ ଏହି ଗାଡ଼ିରେ ଥିବା ଆପଣଙ୍କ ଡାଟା ଏବଂ କାର୍ଯ୍ୟକଳାପ ଦେଖିବାକୁ ସକ୍ଷମ ହୋଇପାରନ୍ତି।"</string>
