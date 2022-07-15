@@ -34,6 +34,7 @@ import static com.android.systemui.car.displayarea.DisplayAreaComponent.FOREGROU
 import static com.android.systemui.car.displayarea.DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT;
 import static com.android.systemui.car.displayarea.DisplayAreaComponent.INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE;
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FULLSCREEN;
+import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_MULTI_WINDOW;
 
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
@@ -659,6 +660,11 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor,
                 mApplicationContext);
         taskOrganizer.addListenerForType(mCarFullscreenTaskListener, TASK_LISTENER_TYPE_FULLSCREEN);
+        // Use the same TaskListener for MULTI_WINDOW windowing mode as there is nothing that has
+        // to be done differently. This is because the tasks are still running in 'fullscreen'
+        // within a DisplayArea.
+        taskOrganizer.addListenerForType(mCarFullscreenTaskListener,
+                TASK_LISTENER_TYPE_MULTI_WINDOW);
 
         taskOrganizer.registerOrganizer();
         // Register DA organizer.
