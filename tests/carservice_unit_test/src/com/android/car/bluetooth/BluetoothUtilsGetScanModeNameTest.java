@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright (C) 2022 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,21 +28,20 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class BluetoothUtilsGetAdapterStateNameTest {
+public final class BluetoothUtilsGetScanModeNameTest {
 
-    private final int mState;
+    private final int mMode;
     private final String mName;
 
-    public BluetoothUtilsGetAdapterStateNameTest(int state, String name) {
-        mState = state;
+    public BluetoothUtilsGetScanModeNameTest(int mode, String name) {
+        mMode = mode;
         mName = name;
     }
 
     @Test
-    public void testGetAdapterStateName() {
-        String result = BluetoothUtils.getAdapterStateName(mState);
-
-        assertThat(result).contains(String.valueOf(mState));
+    public void testGetScanModeName() {
+        String result = BluetoothUtils.getScanModeName(mMode);
+        assertThat(result).contains(String.valueOf(mMode));
         assertThat(result).ignoringCase().contains(mName);
     }
 
@@ -50,13 +49,12 @@ public final class BluetoothUtilsGetAdapterStateNameTest {
     public static Collection provideParams() {
         return Arrays.asList(
             new Object[][] {
-                {BluetoothAdapter.STATE_ON, "on"},
-                {BluetoothAdapter.STATE_OFF, "off"},
-                {BluetoothAdapter.STATE_TURNING_ON, "turning on"},
-                {BluetoothAdapter.STATE_TURNING_OFF, "turning off"},
-                {BluetoothAdapter.ERROR, "error"},
-                {9, "unknown"},
-                {14, "unknown"}
+                {BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE, "Connectable/Discoverable"},
+                {BluetoothAdapter.SCAN_MODE_CONNECTABLE, "Connectable"},
+                {BluetoothAdapter.SCAN_MODE_NONE, "None"},
+                {BluetoothAdapter.ERROR, "Error"},
+                {9, "Unknown"},
+                {13, "Unknown"}
             });
     }
 }

@@ -76,6 +76,9 @@ import java.util.stream.Collectors;
 public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = CarBluetoothUserServiceTest.class.getSimpleName();
 
+    static final String DEVICE_NAME = "name";
+    static final String DEVICE_ADDRESS_STRING = "11:22:33:44:55:66";
+
     private static final String DEFAULT_DEVICE = "00:11:22:33:44:55";
     private static final List<String> DEVICE_LIST_WITHOUT_DEFAULT = Arrays.asList(
             "DE:AD:BE:EF:00:00",
@@ -119,6 +122,8 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         when(mMockPerUserCarServiceImpl.getApplicationContext()).thenReturn(mMockContext);
         mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getName()).thenReturn(DEVICE_NAME);
+        when(mMockBluetoothAdapter.getAddress()).thenReturn(DEVICE_ADDRESS_STRING);
 
         // for testing BVRA
         mMockContext.addMockedSystemService(TelecomManager.class, mMockTelecomManager);
