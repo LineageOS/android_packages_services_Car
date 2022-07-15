@@ -115,16 +115,21 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                                 .CarDisplayAreaTransitionAnimator animator) {
 
                     mIsDisplayAreaAnimating = true;
-                    SurfaceControl.Transaction tx = new SurfaceControl.Transaction();
-                    // Update the foreground panel layer index to animate on top of the
-                    // background DA.
-                    tx.setLayer(mBackgroundApplicationDisplay.getLeash(),
-                            BACKGROUND_LAYER_INDEX);
-                    tx.setLayer(mForegroundApplicationDisplay.getLeash(),
-                            BACKGROUND_LAYER_INDEX + 1);
-                    tx.setLayer(mControlBarDisplay.getLeash(),
-                            CONTROL_BAR_LAYER_INDEX);
-                    tx.apply(true);
+
+                    WindowContainerTransaction wct = new WindowContainerTransaction();
+                    wct.setAlwaysOnTop(mForegroundDisplayToken, true);
+                    mTransactionQueue.queue(wct);
+
+                    mTransactionQueue.runInSync(tx -> {
+                        // Update the foreground panel layer index to animate on top of the
+                        // background DA.
+                        tx.setLayer(mBackgroundApplicationDisplay.getLeash(),
+                                BACKGROUND_LAYER_INDEX);
+                        tx.setLayer(mForegroundApplicationDisplay.getLeash(),
+                                BACKGROUND_LAYER_INDEX + 1);
+                        tx.setLayer(mControlBarDisplay.getLeash(),
+                                CONTROL_BAR_LAYER_INDEX);
+                    });
                 }
 
                 @Override
@@ -137,11 +142,17 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                         WindowContainerTransaction wct = new WindowContainerTransaction();
                         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.DEFAULT) {
                             // Foreground DA opens to default height.
+                            wct.setAlwaysOnTop(mForegroundDisplayToken, true);
                             updateBackgroundDisplayBounds(wct);
                         } else if (mToState
                                 == DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT) {
                             updateForegroundDisplayBounds(wct);
                             updateBackgroundDisplayBounds(wct);
+                        } else if (mToState
+                                == DisplayAreaComponent.FOREGROUND_DA_STATE.CONTROL_BAR) {
+                            wct = new WindowContainerTransaction();
+                            wct.setAlwaysOnTop(mForegroundDisplayToken, false);
+                            mTransactionQueue.queue(wct);
                         }
                     }
                 }
