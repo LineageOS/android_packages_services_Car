@@ -116,6 +116,21 @@ public final class BluetoothUtils {
         sProfileActions.put(PBAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.PBAP_CLIENT);
     }
 
+    static byte[] getBytesFromAddress(String address) {
+        int i, j = 0;
+        byte[] output = new byte[6]; // 6 byte Bluetooth Address
+
+        for (i = 0; i < address.length(); i++) {
+            if (address.charAt(i) != ':') {
+                output[j] = (byte) Integer.parseInt(address.substring(i, i + 2), 16 /* base 16 */);
+                j++;
+                i++;
+            }
+        }
+        return output;
+    }
+
+
     static String getDeviceDebugInfo(BluetoothDevice device) {
         if (device == null) {
             return "(null)";
