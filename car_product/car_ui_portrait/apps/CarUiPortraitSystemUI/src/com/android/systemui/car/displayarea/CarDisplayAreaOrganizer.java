@@ -231,9 +231,8 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         mTransactionQueue.queue(wct);
 
         mTransactionQueue.runInSync(t -> {
-            t.setWindowCrop(mBackgroundApplicationDisplay.getLeash(),
-                    backgroundApplicationDisplayBound.width(),
-                    backgroundApplicationDisplayBound.height());
+            // Do not set window crop on backgroundApplicationDisplay. Its windowCrop should remain
+            // full screen so that IME doesn't get cropped.
             t.setPosition(mBackgroundApplicationDisplay.getLeash(),
                     backgroundApplicationDisplayBound.left,
                     backgroundApplicationDisplayBound.top);

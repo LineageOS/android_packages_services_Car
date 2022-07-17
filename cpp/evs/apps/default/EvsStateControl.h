@@ -31,16 +31,14 @@
 
 #include <thread>
 
-using namespace ::android::hardware::automotive::evs::V1_1;
+using ::android::hardware::hidl_handle;
+using ::android::hardware::hidl_vec;
 using ::android::hardware::Return;
 using ::android::hardware::Void;
-using ::android::hardware::hidl_vec;
-using ::android::hardware::hidl_handle;
-using ::android::sp;
-using ::android::wp;
+using ::android::hardware::automotive::evs::V1_1::CameraDesc;
 using ::android::hardware::automotive::evs::V1_1::IEvsDisplay;
+using ::android::hardware::automotive::evs::V1_1::IEvsEnumerator;
 using ::android::hardware::camera::device::V3_2::Stream;
-
 
 /*
  * This class runs the main update loop for the EVS application.  It will sleep when it has
@@ -69,9 +67,9 @@ public:
     };
 
     struct Command {
-        Op          operation;
-        uint32_t    arg1;
-        uint32_t    arg2;
+        Op operation;
+        uint32_t arg1;
+        uint32_t arg2;
     };
 
     // This spawns a new thread that is expected to run continuously
@@ -91,36 +89,35 @@ private:
     bool configureEvsPipeline(State desiredState);  // Only call from one thread!
 
     std::shared_ptr<android::frameworks::automotive::vhal::IVhalClient> mVehicle;
-    sp<IEvsEnumerator>          mEvs;
-    wp<IEvsDisplay>             mDisplay;
-    const ConfigManager&        mConfig;
+    android::sp<IEvsEnumerator> mEvs;
+    android::wp<IEvsDisplay> mDisplay;
+    const ConfigManager& mConfig;
 
     aidl::android::hardware::automotive::vehicle::VehiclePropValue mGearValue;
     aidl::android::hardware::automotive::vehicle::VehiclePropValue mTurnSignalValue;
 
-    State                       mCurrentState = OFF;
+    State mCurrentState = OFF;
 
     // mCameraList is a redundant storage for camera device info, which is also
     // stored in mCameraDescList and, however, not removed for backward
     // compatibility.
-    std::vector<ConfigManager::CameraInfo>  mCameraList[NUM_STATES];
+    std::vector<ConfigManager::CameraInfo> mCameraList[NUM_STATES];
     std::unique_ptr<RenderBase> mCurrentRenderer;
     std::unique_ptr<RenderBase> mDesiredRenderer;
-    std::vector<CameraDesc>     mCameraDescList[NUM_STATES];
+    std::vector<CameraDesc> mCameraDescList[NUM_STATES];
 
-    std::thread                 mRenderThread;  // The thread that runs the main rendering loop
+    std::thread mRenderThread;  // The thread that runs the main rendering loop
 
     // Other threads may want to spur us into action, so we provide a thread safe way to do that
-    std::mutex                  mLock;
-    std::condition_variable     mWakeSignal;
-    std::queue<Command>         mCommandQueue;
+    std::mutex mLock;
+    std::condition_variable mWakeSignal;
+    std::queue<Command> mCommandQueue;
 
-    EvsStats                    mEvsStats;  // Not thread-safe
+    EvsStats mEvsStats;  // Not thread-safe
 
     // True if the first frame displayed on the mCurrentRenderer. Resets to false when
     // mCurrentRenderer changes.
-    bool                        mFirstFrameIsDisplayed;
+    bool mFirstFrameIsDisplayed;
 };
 
-
-#endif //CAR_EVS_APP_EVSSTATECONTROL_H
+#endif  // CAR_EVS_APP_EVSSTATECONTROL_H

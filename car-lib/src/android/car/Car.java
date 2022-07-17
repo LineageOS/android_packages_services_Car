@@ -26,7 +26,6 @@ import android.annotation.SdkConstant;
 import android.annotation.SdkConstant.SdkConstantType;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
-import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
@@ -235,7 +234,6 @@ public final class Car {
      */
     @MandatoryFeature
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_USER_SERVICE = "car_user_service";
 
@@ -255,7 +253,6 @@ public final class Car {
      */
     @MandatoryFeature
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
 
@@ -465,7 +462,6 @@ public final class Car {
      */
     @OptionalFeature
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
 

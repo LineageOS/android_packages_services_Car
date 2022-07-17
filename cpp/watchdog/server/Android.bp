@@ -153,6 +153,7 @@ cc_test {
         "tests/ProcDiskStatsCollectorTest.cpp",
         "tests/ProcPidDir.cpp",
         "tests/ProcStatCollectorTest.cpp",
+        "tests/ThreadPriorityControllerTest.cpp",
         "tests/UidIoStatsCollectorTest.cpp",
         "tests/UidProcStatsCollectorTest.cpp",
         "tests/UidStatsCollectorTest.cpp",
@@ -161,6 +162,7 @@ cc_test {
         "tests/WatchdogPerfServiceTest.cpp",
         "tests/WatchdogProcessServiceTest.cpp",
         "tests/WatchdogServiceHelperTest.cpp",
+
     ],
     static_libs: [
         "android.hardware.automotive.vehicle@2.0",

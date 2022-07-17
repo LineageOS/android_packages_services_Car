@@ -18,7 +18,6 @@ package android.car.admin;
 
 import android.annotation.IntDef;
 import android.annotation.SystemApi;
-import android.annotation.TestApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.user.UserRemovalResult;
 
@@ -34,7 +33,6 @@ import java.lang.annotation.RetentionPolicy;
  * @hide
  */
 @SystemApi
-@TestApi
 public final class RemoveUserResult {
 
     /**

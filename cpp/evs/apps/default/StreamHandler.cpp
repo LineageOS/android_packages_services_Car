@@ -16,25 +16,22 @@
 
 #include "StreamHandler.h"
 
-#include <stdio.h>
-#include <string.h>
-
 #include <android-base/logging.h>
 #include <cutils/native_handle.h>
 #include <ui/GraphicBufferAllocator.h>
 
-using ::android::hardware::automotive::evs::V1_0::EvsResult;
+#include <stdio.h>
+#include <string.h>
 
+using ::android::hardware::automotive::evs::V1_0::EvsResult;
+using ::android::hardware::automotive::evs::V1_1::EvsEventType;
+using ::android::hardware::automotive::evs::V1_1::IEvsCameraStream;
 
 buffer_handle_t memHandle = nullptr;
-StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera,
-                             uint32_t numBuffers,
-                             bool useOwnBuffers,
-                             android_pixel_format_t format,
-                             int32_t width,
-                             int32_t height)
-    : mCamera(pCamera),
-      mUseOwnBuffers(useOwnBuffers) {
+StreamHandler::StreamHandler(android::sp<IEvsCamera> pCamera, uint32_t numBuffers,
+                             bool useOwnBuffers, android_pixel_format_t format, int32_t width,
+                             int32_t height) :
+      mCamera(pCamera), mUseOwnBuffers(useOwnBuffers) {
     if (!useOwnBuffers) {
         // We rely on the camera having at least two buffers available since we'll hold one and
         // expect the camera to be able to capture a new image in the background.
@@ -43,56 +40,44 @@ StreamHandler::StreamHandler(android::sp <IEvsCamera> pCamera,
         mOwnBuffers.resize(numBuffers);
 
         // Acquire the graphics buffer allocator
-        android::GraphicBufferAllocator &alloc(android::GraphicBufferAllocator::get());
-        const auto usage = GRALLOC_USAGE_HW_TEXTURE |
-                           GRALLOC_USAGE_SW_READ_RARELY |
-                           GRALLOC_USAGE_SW_WRITE_OFTEN;
+        android::GraphicBufferAllocator& alloc(android::GraphicBufferAllocator::get());
+        const auto usage = GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY |
+                GRALLOC_USAGE_SW_WRITE_OFTEN;
         for (size_t i = 0; i < numBuffers; ++i) {
             unsigned pixelsPerLine;
-            android::status_t result = alloc.allocate(width,
-                                                      height,
-                                                      format,
-                                                      1,
-                                                      usage,
-                                                      &memHandle,
-                                                      &pixelsPerLine,
-                                                      0,
-                                                      "EvsApp");
+            android::status_t result = alloc.allocate(width, height, format, 1, usage, &memHandle,
+                                                      &pixelsPerLine, 0, "EvsApp");
             if (result != android::NO_ERROR) {
                 LOG(ERROR) << __FUNCTION__ << " failed to allocate memory.";
             } else {
                 BufferDesc_1_1 buf;
                 AHardwareBuffer_Desc* pDesc =
-                    reinterpret_cast<AHardwareBuffer_Desc *>(&buf.buffer.description);
+                        reinterpret_cast<AHardwareBuffer_Desc*>(&buf.buffer.description);
                 pDesc->width = width;
                 pDesc->height = height;
                 pDesc->layers = 1;
                 pDesc->format = format;
-                pDesc->usage = GRALLOC_USAGE_HW_TEXTURE |
-                               GRALLOC_USAGE_SW_READ_RARELY |
-                               GRALLOC_USAGE_SW_WRITE_OFTEN;
+                pDesc->usage = GRALLOC_USAGE_HW_TEXTURE | GRALLOC_USAGE_SW_READ_RARELY |
+                        GRALLOC_USAGE_SW_WRITE_OFTEN;
                 pDesc->stride = pixelsPerLine;
                 buf.buffer.nativeHandle = memHandle;
-                buf.bufferId = i;   // Unique number to identify this buffer
+                buf.bufferId = i;  // Unique number to identify this buffer
                 mOwnBuffers[i] = buf;
             }
         }
 
         int delta = 0;
         EvsResult result = EvsResult::OK;
-        pCamera->importExternalBuffers(mOwnBuffers,
-                                       [&](auto _result, auto _delta) {
-                                           result = _result;
-                                           delta = _delta;
-                                       });
+        pCamera->importExternalBuffers(mOwnBuffers, [&](auto _result, auto _delta) {
+            result = _result;
+            delta = _delta;
+        });
 
         LOG(INFO) << delta << " buffers are imported by EVS.";
     }
 }
 
-
-void StreamHandler::shutdown()
-{
+void StreamHandler::shutdown() {
     // Make sure we're not still streaming
     blockingStopStream();
 
@@ -101,7 +86,7 @@ void StreamHandler::shutdown()
     mCamera = nullptr;
 
     if (mUseOwnBuffers) {
-        android::GraphicBufferAllocator &alloc(android::GraphicBufferAllocator::get());
+        android::GraphicBufferAllocator& alloc(android::GraphicBufferAllocator::get());
         for (auto& b : mOwnBuffers) {
             alloc.free(b.buffer.nativeHandle);
         }
@@ -110,13 +95,12 @@ void StreamHandler::shutdown()
     }
 }
 
-
 bool StreamHandler::startStream() {
     std::unique_lock<std::mutex> lock(mLock);
 
     if (!mRunning) {
         // Tell the camera to start streaming
-        Return <EvsResult> result = mCamera->startVideoStream(this);
+        Return<EvsResult> result = mCamera->startVideoStream(this);
         if (result != EvsResult::OK) {
             return false;
         }
@@ -128,13 +112,11 @@ bool StreamHandler::startStream() {
     return true;
 }
 
-
 void StreamHandler::asyncStopStream() {
     // Tell the camera to stop streaming.
     // This will result in a null frame being delivered when the stream actually stops.
     mCamera->stopVideoStream();
 }
-
 
 void StreamHandler::blockingStopStream() {
     // Tell the stream to stop
@@ -147,18 +129,15 @@ void StreamHandler::blockingStopStream() {
     }
 }
 
-
 bool StreamHandler::isRunning() {
     std::unique_lock<std::mutex> lock(mLock);
     return mRunning;
 }
 
-
 bool StreamHandler::newFrameAvailable() {
     std::unique_lock<std::mutex> lock(mLock);
     return (mReadyBuffer >= 0);
 }
-
 
 const BufferDesc_1_1& StreamHandler::getNewFrame() {
     std::unique_lock<std::mutex> lock(mLock);
@@ -169,7 +148,7 @@ const BufferDesc_1_1& StreamHandler::getNewFrame() {
         if (mReadyBuffer < 0) {
             LOG(ERROR) << "Returning invalid buffer because we don't have any.  "
                        << "Call newFrameAvailable first?";
-            mReadyBuffer = 0;   // This is a lie!
+            mReadyBuffer = 0;  // This is a lie!
         }
 
         // Move the ready buffer into the held position, and clear the ready position
@@ -179,7 +158,6 @@ const BufferDesc_1_1& StreamHandler::getNewFrame() {
 
     return mBuffers[mHeldBuffer];
 }
-
 
 void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
     std::unique_lock<std::mutex> lock(mLock);
@@ -202,7 +180,6 @@ void StreamHandler::doneWithFrame(const BufferDesc_1_1& bufDesc_1_1) {
     mHeldBuffer = -1;
 }
 
-
 Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
     LOG(INFO) << "Ignores a frame delivered from v1.0 EVS service.";
     auto ret = mCamera->doneWithFrame(bufDesc_1_0);
@@ -213,12 +190,11 @@ Return<void> StreamHandler::deliverFrame(const BufferDesc_1_0& bufDesc_1_0) {
     return Void();
 }
 
-
 Return<void> StreamHandler::deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buffers) {
     LOG(DEBUG) << "Received frames from the camera";
 
     // Take the lock to protect our frame slots and running state variable
-    std::unique_lock <std::mutex> lock(mLock);
+    std::unique_lock<std::mutex> lock(mLock);
     BufferDesc_1_1 bufDesc = buffers[0];
     if (bufDesc.buffer.nativeHandle.getNativeHandle() == nullptr) {
         // Signal that the last frame has been received and the stream is stopped
@@ -256,11 +232,9 @@ Return<void> StreamHandler::deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buf
     return Void();
 }
 
-
 Return<void> StreamHandler::notify(const EvsEventDesc& event) {
-    switch(event.aType) {
-        case EvsEventType::STREAM_STOPPED:
-        {
+    switch (event.aType) {
+        case EvsEventType::STREAM_STOPPED: {
             {
                 std::lock_guard<std::mutex> lock(mLock);
 
@@ -272,15 +246,15 @@ Return<void> StreamHandler::notify(const EvsEventDesc& event) {
         }
 
         case EvsEventType::PARAMETER_CHANGED:
-            LOG(INFO) << "Camera parameter " << std::hex << event.payload[0]
-                      << " is set to " << event.payload[1];
+            LOG(INFO) << "Camera parameter " << std::hex << event.payload[0] << " is set to "
+                      << event.payload[1];
             break;
 
         // Below events are ignored in reference implementation.
         case EvsEventType::STREAM_STARTED:
-        [[fallthrough]];
+            [[fallthrough]];
         case EvsEventType::FRAME_DROPPED:
-        [[fallthrough]];
+            [[fallthrough]];
         case EvsEventType::TIMEOUT:
             LOG(INFO) << "Event " << std::hex << static_cast<unsigned>(event.aType)
                       << "is received but ignored.";
@@ -292,4 +266,3 @@ Return<void> StreamHandler::notify(const EvsEventDesc& event) {
 
     return Void();
 }
-

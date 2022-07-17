@@ -62,7 +62,6 @@ import java.util.concurrent.TimeoutException;
  * @hide
  */
 @SystemApi
-@TestApi
 public final class CarDevicePolicyManager extends CarManagerBase {
 
     /**
@@ -143,7 +142,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull
@@ -189,7 +187,6 @@ public final class CarDevicePolicyManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     @NonNull

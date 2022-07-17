@@ -532,10 +532,11 @@ ScopedAStatus VirtualCamera::startVideoStream(const std::shared_ptr<IEvsCameraSt
 
         LOG(DEBUG) << "Exiting a capture thread";
         if (status != EvsResult::OK && mStream) {
-            EvsEventDesc event {
-                    .aType = status == EvsResult::RESOURCE_NOT_AVAILABLE ?
-                            EvsEventType::STREAM_ERROR : EvsEventType::TIMEOUT,
-                    .payload = { static_cast<int32_t>(status) },
+            EvsEventDesc event{
+                    .aType = status == EvsResult::RESOURCE_NOT_AVAILABLE
+                            ? EvsEventType::STREAM_ERROR
+                            : EvsEventType::TIMEOUT,
+                    .payload = {static_cast<int32_t>(status)},
             };
             if (!mStream->notify(std::move(event)).isOk()) {
                 LOG(WARNING) << "Error delivering a stream event"

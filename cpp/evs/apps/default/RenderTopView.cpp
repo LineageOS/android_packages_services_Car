@@ -15,26 +15,25 @@
  */
 
 #include "RenderTopView.h"
+
 #include "VideoTex.h"
 #include "glError.h"
 #include "shader.h"
-#include "shader_simpleTex.h"
 #include "shader_projectedTex.h"
+#include "shader_simpleTex.h"
 
+#include <android-base/logging.h>
+#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <math/mat4.h>
 #include <math/vec3.h>
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
-#include <android-base/logging.h>
 
 using ::android::hardware::camera::device::V3_2::Stream;
-
 
 // Simple aliases to make geometric math using vectors more readable
 static const unsigned X = 0;
 static const unsigned Y = 1;
 static const unsigned Z = 2;
-//static const unsigned W = 3;
-
+// static const unsigned W = 3;
 
 // Since we assume no roll in these views, we can simplify the required math
 static android::vec3 unitVectorFromPitchAndYaw(float pitch, float yaw) {
@@ -42,11 +41,8 @@ static android::vec3 unitVectorFromPitchAndYaw(float pitch, float yaw) {
     sincosf(pitch, &sinPitch, &cosPitch);
     float sinYaw, cosYaw;
     sincosf(yaw, &sinYaw, &cosYaw);
-    return android::vec3(cosPitch * -sinYaw,
-                         cosPitch * cosYaw,
-                         sinPitch);
+    return android::vec3(cosPitch * -sinYaw, cosPitch * cosYaw, sinPitch);
 }
-
 
 // Helper function to set up a perspective matrix with independent horizontal and vertical
 // angles of view.
@@ -57,12 +53,11 @@ static android::mat4 perspective(float hfov, float vfov, float near, float far) 
     android::mat4 p(0.0f);
     p[0][0] = 1.0f / tanHalfFovX;
     p[1][1] = 1.0f / tanHalfFovY;
-    p[2][2] = - (far + near) / (far - near);
+    p[2][2] = -(far + near) / (far - near);
     p[2][3] = -1.0f;
-    p[3][2] = - (2.0f * far * near) / (far - near);
+    p[3][2] = -(2.0f * far * near) / (far - near);
     return p;
 }
-
 
 // Helper function to set up a view matrix for a camera given it's yaw & pitch & location
 // Yes, with a bit of work, we could use lookAt, but it does a lot of extra work
@@ -84,30 +79,26 @@ static android::mat4 cameraLookMatrix(const ConfigManager::CameraInfo& cam) {
     Result[0][1] = vUp.x;
     Result[1][1] = vUp.y;
     Result[2][1] = vUp.z;
-    Result[0][2] =-vAt.x;
-    Result[1][2] =-vAt.y;
-    Result[2][2] =-vAt.z;
-    Result[3][0] =-dot(vRt, eye);
-    Result[3][1] =-dot(vUp, eye);
+    Result[0][2] = -vAt.x;
+    Result[1][2] = -vAt.y;
+    Result[2][2] = -vAt.z;
+    Result[3][0] = -dot(vRt, eye);
+    Result[3][1] = -dot(vUp, eye);
     Result[3][2] = dot(vAt, eye);
     return Result;
 }
 
-
-RenderTopView::RenderTopView(sp<IEvsEnumerator> enumerator,
+RenderTopView::RenderTopView(android::sp<IEvsEnumerator> enumerator,
                              const std::vector<ConfigManager::CameraInfo>& camList,
                              const ConfigManager& mConfig) :
-    mEnumerator(enumerator),
-    mConfig(mConfig) {
-
+      mEnumerator(enumerator), mConfig(mConfig) {
     // Copy the list of cameras we're to employ into our local storage.  We'll create and
     // associate a streaming video texture when we are activated.
     mActiveCameras.reserve(camList.size());
-    for (unsigned i=0; i<camList.size(); i++) {
+    for (unsigned i = 0; i < camList.size(); i++) {
         mActiveCameras.emplace_back(camList[i]);
     }
 }
-
 
 bool RenderTopView::activate() {
     // Ensure GL is ready to go...
@@ -117,48 +108,42 @@ bool RenderTopView::activate() {
     }
 
     // Load our shader programs
-    mPgmAssets.simpleTexture = buildShaderProgram(vtxShader_simpleTexture,
-                                                 pixShader_simpleTexture,
-                                                 "simpleTexture");
+    mPgmAssets.simpleTexture =
+            buildShaderProgram(vtxShader_simpleTexture, pixShader_simpleTexture, "simpleTexture");
     if (!mPgmAssets.simpleTexture) {
         LOG(ERROR) << "Failed to build shader program";
         return false;
     }
-    mPgmAssets.projectedTexture = buildShaderProgram(vtxShader_projectedTexture,
-                                                    pixShader_projectedTexture,
-                                                    "projectedTexture");
+    mPgmAssets.projectedTexture =
+            buildShaderProgram(vtxShader_projectedTexture, pixShader_projectedTexture,
+                               "projectedTexture");
     if (!mPgmAssets.projectedTexture) {
         LOG(ERROR) << "Failed to build shader program";
         return false;
     }
 
-
     // Load the checkerboard text image
-    mTexAssets.checkerBoard.reset(createTextureFromPng(
-                                  "/system/etc/automotive/evs/LabeledChecker.png"));
+    mTexAssets.checkerBoard.reset(
+            createTextureFromPng("/system/etc/automotive/evs/LabeledChecker.png"));
     if (!mTexAssets.checkerBoard) {
         LOG(ERROR) << "Failed to load checkerboard texture";
         return false;
     }
 
     // Load the car image
-    mTexAssets.carTopView.reset(createTextureFromPng(
-                                "/system/etc/automotive/evs/CarFromTop.png"));
+    mTexAssets.carTopView.reset(createTextureFromPng("/system/etc/automotive/evs/CarFromTop.png"));
     if (!mTexAssets.carTopView) {
         LOG(ERROR) << "Failed to load carTopView texture";
         return false;
     }
 
-
     // Set up streaming video textures for our associated cameras
-    for (auto&& cam: mActiveCameras) {
-        cam.tex.reset(createVideoTexture(mEnumerator,
-                                         cam.info.cameraId.c_str(),
-                                         nullptr,
-                                         sDisplay));
+    for (auto&& cam : mActiveCameras) {
+        cam.tex.reset(
+                createVideoTexture(mEnumerator, cam.info.cameraId.c_str(), nullptr, sDisplay));
         if (!cam.tex) {
-            LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId
-                       << " (" << cam.info.function << ")";
+            LOG(ERROR) << "Failed to set up video texture for " << cam.info.cameraId << " ("
+                       << cam.info.function << ")";
             // TODO(b/237904870): We may want to return false here.
         }
     }
@@ -166,15 +151,13 @@ bool RenderTopView::activate() {
     return true;
 }
 
-
 void RenderTopView::deactivate() {
     // Release our video textures
     // We can't hold onto it because some other Render object might need the same camera
-    for (auto&& cam: mActiveCameras) {
+    for (auto&& cam : mActiveCameras) {
         cam.tex = nullptr;
     }
 }
-
 
 bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
     // Tell GL to render to the given buffer
@@ -185,29 +168,28 @@ bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
 
     // Set up our top down projection matrix from car space (world units, Xfwd, Yright, Zup)
     // to view space (-1 to 1)
-    const float top    = mConfig.getDisplayTopLocation();
+    const float top = mConfig.getDisplayTopLocation();
     const float bottom = mConfig.getDisplayBottomLocation();
-    const float right  = mConfig.getDisplayRightLocation(sAspectRatio);
-    const float left   = mConfig.getDisplayLeftLocation(sAspectRatio);
+    const float right = mConfig.getDisplayRightLocation(sAspectRatio);
+    const float left = mConfig.getDisplayLeftLocation(sAspectRatio);
 
-    const float near = 10.0f;   // arbitrary top of view volume
-    const float far = 0.0f;     // ground plane is at zero
+    const float near = 10.0f;  // arbitrary top of view volume
+    const float far = 0.0f;    // ground plane is at zero
 
     // We can use a simple, unrotated ortho view since the screen and car space axis are
     // naturally aligned in the top down view.
     orthoMatrix = android::mat4::ortho(left, right, top, bottom, near, far);
 
-
     // Refresh our video texture contents.  We do it all at once in hopes of getting
     // better coherence among images.  This does not guarantee synchronization, of course...
-    for (auto&& cam: mActiveCameras) {
+    for (auto&& cam : mActiveCameras) {
         if (cam.tex) {
             cam.tex->refresh();
         }
     }
 
     // Iterate over all the cameras and project their images onto the ground plane
-    for (auto&& cam: mActiveCameras) {
+    for (auto&& cam : mActiveCameras) {
         renderCameraOntoGroundPlane(cam);
     }
 
@@ -223,7 +205,6 @@ bool RenderTopView::drawFrame(const BufferDesc& tgtBuffer) {
     return true;
 }
 
-
 //
 // Responsible for drawing the car's self image in the top down view.
 // Draws in car model space (units of meters with origin at center of rear axel)
@@ -234,10 +215,10 @@ void RenderTopView::renderCarTopView() {
     const float carLengthInTexels = mConfig.carGraphicRearPixel() - mConfig.carGraphicFrontPixel();
     const float carSpaceUnitsPerTexel = mConfig.getCarLength() / carLengthInTexels;
     const float textureHeightInCarSpace = mTexAssets.carTopView->height() * carSpaceUnitsPerTexel;
-    const float textureAspectRatio = (float)mTexAssets.carTopView->width() /
-                                            mTexAssets.carTopView->height();
-    const float pixelsBehindCarInImage = mTexAssets.carTopView->height() -
-                                         mConfig.carGraphicRearPixel();
+    const float textureAspectRatio =
+            (float)mTexAssets.carTopView->width() / mTexAssets.carTopView->height();
+    const float pixelsBehindCarInImage =
+            mTexAssets.carTopView->height() - mConfig.carGraphicRearPixel();
     const float textureExtentBehindCarInCarSpace = pixelsBehindCarInImage * carSpaceUnitsPerTexel;
 
     const float btCS = mConfig.getRearLocation() - textureExtentBehindCarInCarSpace;
@@ -245,22 +226,23 @@ void RenderTopView::renderCarTopView() {
     const float ltCS = 0.5f * textureHeightInCarSpace * textureAspectRatio;
     const float rtCS = -ltCS;
 
-    GLfloat vertsCarPos[] = { ltCS, tpCS, 0.0f,   // left top in car space
-                              rtCS, tpCS, 0.0f,   // right top
-                              ltCS, btCS, 0.0f,   // left bottom
-                              rtCS, btCS, 0.0f    // right bottom
+    GLfloat vertsCarPos[] = {
+            ltCS, tpCS, 0.0f,  // left top in car space
+            rtCS, tpCS, 0.0f,  // right top
+            ltCS, btCS, 0.0f,  // left bottom
+            rtCS, btCS, 0.0f   // right bottom
     };
     // NOTE:  We didn't flip the image in the texture, so V=0 is actually the top of the image
-    GLfloat vertsCarTex[] = { 0.0f, 0.0f,   // left top
-                              1.0f, 0.0f,   // right top
-                              0.0f, 1.0f,   // left bottom
-                              1.0f, 1.0f    // right bottom
+    GLfloat vertsCarTex[] = {
+            0.0f, 0.0f,  // left top
+            1.0f, 0.0f,  // right top
+            0.0f, 1.0f,  // left bottom
+            1.0f, 1.0f   // right bottom
     };
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertsCarPos);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, vertsCarTex);
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
-
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -272,13 +254,11 @@ void RenderTopView::renderCarTopView() {
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
-
     glDisable(GL_BLEND);
 
     glDisableVertexAttribArray(0);
     glDisableVertexAttribArray(1);
 }
-
 
 // NOTE:  Might be worth reviewing the ideas at
 // http://math.stackexchange.com/questions/1691895/inverse-of-perspective-matrix
@@ -292,8 +272,9 @@ void RenderTopView::renderCameraOntoGroundPlane(const ActiveCamera& cam) {
 
     // Construct the projection matrix (View + Projection) associated with this sensor
     const android::mat4 V = cameraLookMatrix(cam.info);
-    const android::mat4 P = perspective(cam.info.hfov, cam.info.vfov, cam.info.position[Z], maxRange);
-    const android::mat4 projectionMatix = P*V;
+    const android::mat4 P =
+            perspective(cam.info.hfov, cam.info.vfov, cam.info.position[Z], maxRange);
+    const android::mat4 projectionMatix = P * V;
 
     // Just draw the whole darn ground plane for now -- we're wasting fill rate, but so what?
     // A 2x optimization would be to draw only the 1/2 space of the window in the direction
@@ -303,7 +284,7 @@ void RenderTopView::renderCameraOntoGroundPlane(const ActiveCamera& cam) {
     const float bottom = mConfig.getDisplayBottomLocation();
     const float wsHeight = top - bottom;
     const float wsWidth = wsHeight * sAspectRatio;
-    const float right =  wsWidth * 0.5f;
+    const float right = wsWidth * 0.5f;
     const float left = -right;
 
     const android::vec3 topLeft(left, top, 0.0f);
@@ -311,14 +292,12 @@ void RenderTopView::renderCameraOntoGroundPlane(const ActiveCamera& cam) {
     const android::vec3 botLeft(left, bottom, 0.0f);
     const android::vec3 botRight(right, bottom, 0.0f);
 
-    GLfloat vertsPos[] = { topLeft[X],  topLeft[Y],  topLeft[Z],
-                           topRight[X], topRight[Y], topRight[Z],
-                           botLeft[X],  botLeft[Y],  botLeft[Z],
-                           botRight[X], botRight[Y], botRight[Z],
+    GLfloat vertsPos[] = {
+            topLeft[X], topLeft[Y], topLeft[Z], topRight[X], topRight[Y], topRight[Z],
+            botLeft[X], botLeft[Y], botLeft[Z], botRight[X], botRight[Y], botRight[Z],
     };
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertsPos);
     glEnableVertexAttribArray(0);
-
 
     glDisable(GL_BLEND);
 
@@ -337,7 +316,6 @@ void RenderTopView::renderCameraOntoGroundPlane(const ActiveCamera& cam) {
     glBindTexture(GL_TEXTURE_2D, texId);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
 
     glDisableVertexAttribArray(0);
 }

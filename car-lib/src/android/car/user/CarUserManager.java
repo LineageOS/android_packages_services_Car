@@ -78,7 +78,6 @@ import java.util.stream.Collectors;
  * @hide
  */
 @SystemApi
-@TestApi
 public final class CarUserManager extends CarManagerBase {
 
     /** @hide */
@@ -98,7 +97,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STARTING;
@@ -115,7 +113,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
@@ -132,7 +129,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
@@ -143,7 +139,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
@@ -175,7 +170,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
@@ -188,7 +182,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
@@ -606,7 +599,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     @AddedInOrBefore(majorVersion = 33)
     public void addListener(@NonNull @CallbackExecutor Executor executor,
@@ -623,7 +615,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     @AddedInOrBefore(majorVersion = 33)
     public void addListener(@NonNull @CallbackExecutor Executor executor,
@@ -689,7 +680,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     @RequiresPermission(anyOf = {INTERACT_ACROSS_USERS, INTERACT_ACROSS_USERS_FULL})
     @AddedInOrBefore(majorVersion = 33)
     public void removeListener(@NonNull UserLifecycleListener listener) {
@@ -1038,7 +1028,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     public static final class UserLifecycleEvent {
         private final @UserLifecycleEventType int mEventType;
         private final @UserIdInt int mUserId;
@@ -1168,7 +1157,6 @@ public final class CarUserManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @TestApi
     public interface UserLifecycleListener {
 
         /**

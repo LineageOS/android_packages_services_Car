@@ -33,7 +33,6 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -136,7 +135,6 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         mEvsManager.clearStatusListener();
     }
 
-    @Ignore("b/233636131:STOPSHIP if not re-enabled")
     @Test
     public void testStartAndStopVideoStream() throws Exception {
         // Registers a status listener and start monitoring the CarEvsService's state changes.
