@@ -45,7 +45,6 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.time.Clock;
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Class that interacts with JobScheduler through JobSchedulerHelper, controls system idleness and
@@ -92,8 +91,6 @@ class GarageMode {
     private int mAdditionalChecksToDo = ADDITIONAL_CHECKS_TO_DO;
     @GuardedBy("mLock")
     private boolean mIdleCheckerIsRunning;
-    @GuardedBy("mLock")
-    private List<String> mPendingJobs = new ArrayList<>();
 
     private final GarageModeRecorder mGarageModeRecorder;
 

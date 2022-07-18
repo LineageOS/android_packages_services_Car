@@ -84,7 +84,6 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Constructor;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * A service that listens to the Extended View System across a HAL boundary and exposes the data to
@@ -114,12 +113,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         EvsHalWrapper.HalEventCallback {
 
     private static final boolean DBG = Slogf.isLoggable(TAG_EVS, Log.DEBUG);
-
-    // Integer value to indicate no buffer with a given id exists
-    private static final int BUFFER_NOT_EXIST = -1;
-
-    // Timeout for a stream-stopped confirmation
-    private static final int STREAM_STOPPED_WAIT_TIMEOUT_MS = 500;
 
     // Timeout for a request to start a video stream with a valid token
     private static final int STREAM_START_REQUEST_TIMEOUT_MS = 3000;
@@ -676,9 +669,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return token != null && token == mSessionToken;
         }
     }
-
-    // Synchronization object for a stream-stopped confirmation
-    private CountDownLatch mStreamStoppedEvent = new CountDownLatch(0);
 
     // The last event EvsHalService reported.  This will be set to null when a related service
     // request is handled.

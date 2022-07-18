@@ -20,7 +20,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.builtin.util.Slogf;
-import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -42,8 +41,7 @@ import java.util.Set;
  * Service to monitor AMS for new Activity or Service launching.
  */
 public class SystemActivityMonitoringService implements CarServiceBase {
-    private static final int INVALID_STACK_ID = -1;
-    private final Context mContext;
+
     private final ProcessObserverCallback mProcessObserver = new ProcessObserver();
 
     private final HandlerThread mMonitorHandlerThread = CarServiceUtils.getHandlerThread(
@@ -55,10 +53,6 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     @GuardedBy("mLock")
     private final Map<Integer, Set<Integer>> mForegroundUidPids = new ArrayMap<>();
-
-    public SystemActivityMonitoringService(Context context) {
-        mContext = context;
-    }
 
     @Override
     public void init() {

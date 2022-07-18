@@ -47,7 +47,6 @@ public class Controller extends ICarPowerStateListener.Stub {
 
     private final GarageMode mGarageMode;
     private final Handler mHandler;
-    private final Context mContext;
     private CarPowerManagementService mCarPowerService;
 
     public Controller(Context context, Looper looper) {
@@ -55,7 +54,6 @@ public class Controller extends ICarPowerStateListener.Stub {
     }
 
     public Controller(Context context, Looper looper, Handler handler, GarageMode garageMode) {
-        mContext = context;
         mHandler = (handler == null) ? new Handler(looper) : handler;
         mGarageMode = (garageMode == null) ? new GarageMode(context, this) : garageMode;
     }

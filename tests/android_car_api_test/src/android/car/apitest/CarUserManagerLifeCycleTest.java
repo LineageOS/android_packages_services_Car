@@ -49,8 +49,6 @@ public final class CarUserManagerLifeCycleTest extends CarMultiUserTestBase {
 
     private static final String TAG = CarUserManagerLifeCycleTest.class.getSimpleName();
 
-    private static final int PIN = 2345;
-
     private static final int SWITCH_TIMEOUT_MS = 70_000;
     // A large stop timeout is required as sometimes stop user broadcast takes a significantly
     // long time to complete. This happen when there are multiple users starting/stopping in

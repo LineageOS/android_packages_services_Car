@@ -39,7 +39,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.os.UserManager;
 import android.util.Log;
 
 import com.android.car.CarDrivingStateService;
@@ -65,7 +64,6 @@ public class BluetoothDeviceConnectionPolicy {
     private final BluetoothAdapter mBluetoothAdapter;
     private final CarBluetoothService mCarBluetoothService;
     private final CarServicesHelper mCarHelper;
-    private final UserManager mUserManager;
 
     @Nullable
     private Context mUserContext;
@@ -286,7 +284,6 @@ public class BluetoothDeviceConnectionPolicy {
                 Objects.requireNonNull(mContext.getSystemService(BluetoothManager.class));
         mBluetoothAdapter = Objects.requireNonNull(bluetoothManager.getAdapter());
         mCarHelper = new CarServicesHelper();
-        mUserManager = mContext.getSystemService(UserManager.class);
     }
 
     /**

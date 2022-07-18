@@ -85,14 +85,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarUxRestrictionsManagerServiceTest {
 
     private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
-    private static final long TEST_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);
 
     private CarUxRestrictionsManagerService mService;
 
