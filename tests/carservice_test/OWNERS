@@ -2,8 +2,6 @@
 per-file src/com/android/car/AppFocusTest.java = ycheo@google.com
 
 # Audio
-per-file src/android/media/tests/AudioPolicyTest.java = oscarazu@google.com, ericjeong@google.com
-per-file src/com/android/car/CarAudioManagerTest.java = oscarazu@google.com, ericjeong@google.com
 per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 
 # Cluster
