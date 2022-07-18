@@ -45,10 +45,12 @@ constexpr const char kTaskDirFormat[] = "/%" PRIu32 "/task";
 constexpr const char kStatusFileFormat[] = "/%" PRIu32 "/status";
 
 // Per-pid/tid stats.
+// The int64_t type is used due to AIDL limitations representing long field values.
 struct PidStat {
     std::string comm = "";
     std::string state = "";
     int64_t startTimeMillis = 0;
+    int64_t cpuTimeMillis = 0;
     uint64_t majorFaults = 0;
 };
 
@@ -56,6 +58,7 @@ struct PidStat {
 struct ProcessStats {
     std::string comm = "";
     int64_t startTimeMillis = 0;  // Useful when identifying PID reuse
+    int64_t cpuTimeMillis = 0;
     uint64_t totalMajorFaults = 0;
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
@@ -64,6 +67,7 @@ struct ProcessStats {
 
 // Per-UID stats.
 struct UidProcStats {
+    int64_t cpuTimeMillis = 0;
     uint64_t totalMajorFaults = 0;
     int totalTasksCount = 0;
     int ioBlockedTasksCount = 0;
@@ -92,7 +96,7 @@ public:
 class UidProcStatsCollector final : public UidProcStatsCollectorInterface {
 public:
     explicit UidProcStatsCollector(const std::string& path = kProcDirPath) :
-          kMillisPerJiffies(1000 / sysconf(_SC_CLK_TCK)),
+          mMillisPerClockTick(1000 / sysconf(_SC_CLK_TCK)),
           mPath(path),
           mLatestStats({}),
           mDeltaStats({}) {}
@@ -134,7 +138,7 @@ private:
     android::base::Result<std::tuple<uid_t, ProcessStats>> readProcessStatsLocked(pid_t pid) const;
 
     // Number of milliseconds per clock cycle.
-    int32_t kMillisPerJiffies;
+    int32_t mMillisPerClockTick;
 
     // Proc directory path. Default value is |kProcDirPath|.
     // Updated by tests to point to a different location when needed.
