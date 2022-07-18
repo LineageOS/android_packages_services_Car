@@ -89,9 +89,9 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testRegisterCallbackNormalRate() {
-        List<CarPropertyConfig> configs = new ArrayList<>(1);
-        configs.add(CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
+        List<CarPropertyConfig> configs = List.of(
+                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mService.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(configs);
 
         // Check for HVAC_TEMPERATURE_SET
@@ -103,9 +103,9 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testRegisterCallbackHigherRate() {
-        List<CarPropertyConfig> configs = new ArrayList<>(1);
-        configs.add(CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
+        List<CarPropertyConfig> configs = List.of(
+                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mService.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(configs);
 
         // Check for HVAC_TEMPERATURE_SET
@@ -123,9 +123,9 @@ public final class CarPropertyManagerUnitTest {
 
     @Test
     public void testRegisterCallbackSameRate() {
-        List<CarPropertyConfig> configs = new ArrayList<>(1);
-        configs.add(CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
+        List<CarPropertyConfig> configs = List.of(
+                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mService.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(configs);
 
         // Check for HVAC_TEMPERATURE_SET
@@ -170,17 +170,15 @@ public final class CarPropertyManagerUnitTest {
         CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
                 CarPropertyEvent.PROPERTY_EVENT_ERROR, value,
                 CarPropertyManager.CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN);
-        List<CarPropertyEvent> eventList = new ArrayList<>();
-        eventList.add(carPropertyEvent);
-        return eventList;
+        return List.of(carPropertyEvent);
     }
 
     @Test
     public void testOnErrorEventCallback() throws RemoteException {
         List<CarPropertyEvent> eventList = createErrorCarPropertyEventList();
-        List<CarPropertyConfig> configs = new ArrayList<>(1);
-        configs.add(CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
+        List<CarPropertyConfig> configs = List.of(
+                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mService.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(configs);
         ICarPropertyEventListener listener = getCarPropertyEventListener();
 
@@ -195,17 +193,15 @@ public final class CarPropertyManagerUnitTest {
         CarPropertyValue<Float> value = new CarPropertyValue<>(HVAC_TEMPERATURE_SET, 0, 17.0f);
         CarPropertyEvent carPropertyEvent = new CarPropertyEvent(
                 CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
-        List<CarPropertyEvent> eventList = new ArrayList<>();
-        eventList.add(carPropertyEvent);
-        return eventList;
+        return List.of(carPropertyEvent);
     }
 
     @Test
     public void testOnChangeEventCallback() throws RemoteException {
         List<CarPropertyEvent> eventList = createCarPropertyEventList();
-        List<CarPropertyConfig> configs = new ArrayList<>(1);
-        configs.add(CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
-                VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
+        List<CarPropertyConfig> configs = List.of(
+                CarPropertyConfig.newBuilder(Float.class, HVAC_TEMPERATURE_SET,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).build());
         when(mService.getPropertyConfigList(new int[]{HVAC_TEMPERATURE_SET})).thenReturn(configs);
         ICarPropertyEventListener listener = getCarPropertyEventListener();
         ArgumentCaptor<CarPropertyValue> value = ArgumentCaptor.forClass(CarPropertyValue.class);
