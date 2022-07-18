@@ -266,10 +266,17 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
             Log.d(TAG, "Start ringtone for zone " + mZoneId + " and usage "
                     + AudioAttributes.usageToString(usage));
         }
-        AudioAttributes attributes = new AudioAttributes.Builder()
-                .setUsage(usage)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build();
+
+        AudioAttributes.Builder builder = new AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION);
+
+        if (AudioAttributes.isSystemUsage(usage)) {
+            builder.setSystemUsage(usage);
+        } else {
+            builder.setUsage(usage);
+        }
+
+        AudioAttributes attributes = builder.build();
 
         Uri uri = RingtoneManager.getActualDefaultRingtoneUri(getContext(),
                 AudioAttributes.toLegacyStreamType(attributes));
