@@ -52,12 +52,6 @@ public final class BuiltinPackageDependency {
     public static final String NOTIFICATION_HELPER_CLASS =
             "com.android.car.admin.NotificationHelper";
 
-    /** {@code com.android.car.CarService} class. */
-    private static final String CAR_SERVICE_CLASS = "com.android.car.CarService";
-
-    /** {@code com.android.car.CarService#VERSION_MINOR_INT} */
-    private static final String CAR_SERVICE_VERSION_MINOR_INT = "VERSION_MINOR_INT";
-
     /** Returns {@code ComponentName} string for builtin package component */
     public static String getComponentName(String className) {
         return new StringBuilder()

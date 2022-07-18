@@ -18,7 +18,6 @@ package com.google.android.car.kitchensink;
 
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.CarAppFocusManager;
 import android.car.CarProjectionManager;
 import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
@@ -257,7 +256,6 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarPowerManager mPowerManager;
     private CarPropertyManager mPropertyManager;
     private CarSensorManager mSensorManager;
-    private CarAppFocusManager mCarAppFocusManager;
     private CarProjectionManager mCarProjectionManager;
     private CarTelemetryManager mCarTelemetryManager;
     private CarWatchdogManager mCarWatchdogManager;
@@ -531,8 +529,6 @@ public class KitchenSinkActivity extends FragmentActivity {
                     android.car.Car.PROPERTY_SERVICE);
             mSensorManager = (CarSensorManager) car.getCarManager(
                     android.car.Car.SENSOR_SERVICE);
-            mCarAppFocusManager =
-                    (CarAppFocusManager) car.getCarManager(Car.APP_FOCUS_SERVICE);
             mCarProjectionManager =
                     (CarProjectionManager) car.getCarManager(Car.PROJECTION_SERVICE);
             mCarTelemetryManager =

@@ -27,9 +27,7 @@ import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
-import android.app.ActivityTaskManager;
 import android.app.AlertDialog;
-import android.app.IActivityTaskManager;
 import android.app.UiAutomation;
 import android.car.Car;
 import android.car.content.pm.CarPackageManager;
@@ -77,7 +75,6 @@ public class CarPackageManagerServiceTest {
 
     private CarDrivingStateManager mCarDrivingStateManager;
     private CarPackageManager mCarPackageManager;
-    private IActivityTaskManager mAtm;
 
     private UiDevice mDevice;
 
@@ -86,7 +83,6 @@ public class CarPackageManagerServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        mAtm = ActivityTaskManager.getService();
         Car car = Car.createCar(getContext());
         mCarDrivingStateManager = (CarDrivingStateManager)
                 car.getCarManager(Car.CAR_DRIVING_STATE_SERVICE);

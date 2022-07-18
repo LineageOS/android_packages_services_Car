@@ -65,9 +65,6 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
     private boolean mReleased;
 
     @GuardedBy("mLock")
-    private IExperimentalCarHelper mHelper;
-
-    @GuardedBy("mLock")
     private ArrayList<CarServiceBase> mRunningServices = new ArrayList<>();
 
     public IExperimentalCarImpl(Context context) {
@@ -120,7 +117,6 @@ public final class IExperimentalCarImpl extends IExperimentalCar.Stub {
                 // will be destroyed soon. Just continue and register services for possible cleanup.
             }
             synchronized (mLock) {
-                mHelper = helper;
                 mRunningServices.addAll(services);
             }
         });
