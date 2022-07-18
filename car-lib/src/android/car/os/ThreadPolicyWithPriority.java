@@ -47,16 +47,21 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     /**
      * Min supported thread priority.
      */
+    @Priority
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static final int PRIORITY_MIN = 1;
 
     /**
      * Max supported thread priority.
      */
+    @Priority
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static final int PRIORITY_MAX = 99;
 
     /** @hide */
     @IntDef({SCHED_DEFAULT, SCHED_FIFO, SCHED_RR})
     @Retention(RetentionPolicy.SOURCE)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public @interface SchedPolicy {}
 
     /**
@@ -64,6 +69,8 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      *
      * <p> Same as {@code SCHED_OTHER} defined in {@code /include/uapi/linux/sched.h}.
      */
+    @Sched
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static final int SCHED_DEFAULT = 0;
 
     /**
@@ -71,6 +78,8 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      *
      * <p>Same as {@code SCHED_FIFO} defined in {@code /include/uapi/linux/sched.h}.
      */
+    @Sched
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static final int SCHED_FIFO = 1;
 
     /**
@@ -78,6 +87,8 @@ public final class ThreadPolicyWithPriority implements Parcelable {
      *
      * <p>Same as {@code SCHED_RR} defined in {@code /include/uapi/linux/sched.h}.
      */
+    @Sched
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static final int SCHED_RR = 2;
 
     @SchedPolicy
@@ -114,6 +125,9 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     // DO NOT MODIFY!
     // CHECKSTYLE:OFF Generated code
     //
+    // The generated code is patched with adding "AddedIn" annotation to all public
+    // methods/interfaces.
+    //
     // To regenerate run:
     // $ codegen $ANDROID_BUILD_TOP/packages/services/Car/car-lib/src/android/car/os/ThreadPolicyWithPriority.java
     //
@@ -129,6 +143,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     })
     @Retention(RetentionPolicy.SOURCE)
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public @interface Priority {}
 
     /** @hide */
@@ -151,10 +166,12 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     })
     @Retention(RetentionPolicy.SOURCE)
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public @interface Sched {}
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static String schedToString(@Sched int value) {
         switch (value) {
             case SCHED_DEFAULT:
@@ -168,17 +185,20 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public @SchedPolicy int getPolicy() {
         return mPolicy;
     }
 
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public @IntRange(from = 0, to = 99) int getPriority() {
         return mPriority;
     }
 
     @Override
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public void writeToParcel(@NonNull android.os.Parcel dest, int flags) {
         // You can override field parcelling by defining methods like:
         // void parcelFieldName(Parcel dest, int flags) { ... }
@@ -189,6 +209,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -214,6 +235,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     }
 
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static final @NonNull Parcelable.Creator<ThreadPolicyWithPriority> CREATOR
             = new Parcelable.Creator<ThreadPolicyWithPriority>() {
         @Override
@@ -228,10 +250,10 @@ public final class ThreadPolicyWithPriority implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1656372358427L,
+            time = 1657845707744L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/os/ThreadPolicyWithPriority.java",
-            inputSignatures = "public static final  int PRIORITY_MIN\npublic static final  int PRIORITY_MAX\npublic static final  int SCHED_DEFAULT\npublic static final  int SCHED_FIFO\npublic static final  int SCHED_RR\nprivate final @android.car.os.ThreadPolicyWithPriority.SchedPolicy int mPolicy\nprivate final @android.annotation.IntRange int mPriority\nclass ThreadPolicyWithPriority extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genHiddenConstDefs=true)")
+            inputSignatures = "public static final @android.car.os.ThreadPolicyWithPriority.Priority @android.car.annotation.AddedIn int PRIORITY_MIN\npublic static final @android.car.os.ThreadPolicyWithPriority.Priority @android.car.annotation.AddedIn int PRIORITY_MAX\npublic static final @android.car.os.ThreadPolicyWithPriority.Sched @android.car.annotation.AddedIn int SCHED_DEFAULT\npublic static final @android.car.os.ThreadPolicyWithPriority.Sched @android.car.annotation.AddedIn int SCHED_FIFO\npublic static final @android.car.os.ThreadPolicyWithPriority.Sched @android.car.annotation.AddedIn int SCHED_RR\nprivate final @android.car.os.ThreadPolicyWithPriority.SchedPolicy int mPolicy\nprivate final @android.annotation.IntRange int mPriority\nclass ThreadPolicyWithPriority extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 
