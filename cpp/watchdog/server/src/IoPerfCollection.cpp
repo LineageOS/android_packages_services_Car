@@ -474,6 +474,8 @@ void IoPerfCollection::processUidStatsLocked(
     if (uidStats.empty()) {
         return;
     }
+    // TODO(b/235881079): Retrieve the CPU time from uidStats and store in
+    //  userPackageSummaryStats. Dump the CPU stat for bugreport.
     if (filterPackages.empty()) {
         userPackageSummaryStats->topNIoReads.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoWrites.resize(mTopNStatsPerCategory);
