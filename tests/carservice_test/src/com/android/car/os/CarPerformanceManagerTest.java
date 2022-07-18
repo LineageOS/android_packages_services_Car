@@ -46,6 +46,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 
+import java.time.Instant;
+
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class CarPerformanceManagerTest extends MockedCarTestBase {
@@ -54,12 +56,31 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
     @Mock private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     @Mock private Context mMockBuiltinPackageContext;
     @Mock private WatchdogStorage mMockWatchdogStorage;
-    @Mock private TimeSource mMockTimeSource;
+    private final TestTimeSource mTimeSource = new TestTimeSource();
+
+    private static final class TestTimeSource extends TimeSource {
+        private static final Instant TEST_DATE_TIME = Instant.parse("2021-11-12T13:14:15.16Z");
+        private Instant mNow;
+        TestTimeSource() {
+            mNow = TEST_DATE_TIME;
+        }
+
+        @Override
+        public Instant now() {
+            /* Return the same time, so the tests are deterministic. */
+            return mNow;
+        }
+
+        @Override
+        public String toString() {
+            return "Mocked date to " + now();
+        }
+    }
 
     @Override
     public void configureMockedHal() {
         mCarWatchdogService = new CarWatchdogService(
-                getContext(), mMockBuiltinPackageContext, mMockWatchdogStorage, mMockTimeSource);
+                getContext(), mMockBuiltinPackageContext, mMockWatchdogStorage, mTimeSource);
         mCarWatchdogService.setCarWatchdogDaemonHelper(mCarWatchdogDaemonHelper);
         setCarWatchDogService(mCarWatchdogService);
     }
