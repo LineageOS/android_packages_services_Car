@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+
 import static com.android.car.hal.HalPropValueMatcher.isProperty;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -41,10 +43,12 @@ import com.android.car.VehicleStub.SubscriptionClient;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
 
@@ -60,6 +64,8 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
     @Mock VehicleStub mIVehicle;
     @Mock HalClientCallback mHalClientCallback;
     @Mock SubscriptionClient mSubscriptionClient;
+    @Mock
+    VehicleStub.GetAsyncVehicleStubCallback mGetAsyncVehicleStubCallback;
 
     private HalClient mClient;
     private TestLooper mLooper = new TestLooper();
@@ -73,6 +79,27 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         when(mIVehicle.newSubscriptionClient(any())).thenReturn(mSubscriptionClient);
         mClient = new HalClient(mIVehicle, mLooper.getLooper(), mHalClientCallback,
                 WAIT_CAP_FOR_RETRIABLE_RESULT_MS, SLEEP_BETWEEN_RETRIABLE_INVOKES_MS);
+    }
+
+    @Test
+    public void testGetValuesAsync() {
+        HalPropValue halPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, /* areaId= */ 0);
+        int serviceRequestId = 1;
+
+        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                new VehicleStub.GetVehicleStubAsyncRequest(serviceRequestId, halPropValue);
+
+        mClient.getValuesAsync(List.of(getVehicleStubAsyncRequest), mGetAsyncVehicleStubCallback);
+
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncRequest>> captor =
+                ArgumentCaptor.forClass(List.class);
+        HalPropValue testHalPropValue = mPropValueBuilder.build(HVAC_TEMPERATURE_SET, /* areaId= */
+                0);
+
+        verify(mIVehicle).getAsync(captor.capture(),
+                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+        assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(serviceRequestId);
+        assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(testHalPropValue);
     }
 
     @Test

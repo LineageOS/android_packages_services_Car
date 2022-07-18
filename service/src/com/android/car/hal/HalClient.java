@@ -62,30 +62,6 @@ final class HalClient {
     private final int mSleepMs;
 
     /**
-     * A request for {@link HalClient#getValuesAsync}
-     */
-    public static class GetHalClientRequest {
-        private final int mServiceRequestId;
-        private final HalPropValue mHalPropValue;
-
-        public int getServiceRequestId() {
-            return mServiceRequestId;
-        }
-
-        public HalPropValue getHalPropValue() {
-            return mHalPropValue;
-        }
-
-        /**
-         * Get an instance for GetHalClientRequest.
-         */
-        GetHalClientRequest(int serviceRequestId, HalPropValue halPropValue) {
-            mServiceRequestId = serviceRequestId;
-            mHalPropValue = halPropValue;
-        }
-    }
-
-    /**
      * Create HalClient object
      *
      * @param vehicle interface to the vehicle HAL
@@ -309,11 +285,13 @@ final class HalClient {
     }
 
     /**
-     * Query a list of {@link HalPropValue} with a list of {@link GetHalClientRequest}
-     * asynchronously.
+     * Query a list of {@link HalPropValue} with a list of
+     * {@link VehicleStub.GetVehicleStubAsyncRequest} asynchronously.
      */
-    public void getValuesAsync(List<GetHalClientRequest> getHalClientRequests,
-            VehicleHal.VehicleHalCallback vehicleHalCallback) {
-        // TODO(b/238472106): implement the logic
+    public void getValuesAsync(
+            List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+        // TODO(b/239744386): implement retry logic
+        mVehicle.getAsync(getVehicleStubAsyncRequests, getAsyncVehicleStubCallback);
     }
 }

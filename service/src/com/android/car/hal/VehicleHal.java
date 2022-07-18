@@ -122,17 +122,6 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
     private static final String DATA_DELIMITER = ",";
 
     /**
-     * A callback for async {@link VehicleHal#getAsync} when successful.
-     */
-    public abstract static class VehicleHalCallback {
-        /**
-         * Method called when {@link VehicleHal.GetHalPropValueResult} returns a result.
-         */
-        public abstract void onGetHalPropValueResult(
-                List<GetHalPropValueResult> getHalPropValueResults);
-    }
-
-    /**
      * A request for {@link VehicleHal#getAsync}.
      */
     public static class GetVehicleHalRequest {
@@ -166,43 +155,6 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
             mServiceRequestId = serviceRequestId;
             mHalPropertyId = halPropertyId;
             mAreaId = areaId;
-        }
-    }
-
-    /**
-     * A request for {@link VehicleHal#getAsync}.
-     */
-    public static final class GetHalPropValueResult {
-        private final int mServiceRequestId;
-        private HalPropValue mHalPropValue = null;
-        private int mErrorCode = CarPropertyManager.STATUS_OK;
-
-        public int getServiceRequestId() {
-            return mServiceRequestId;
-        }
-
-        public HalPropValue getHalPropValue() {
-            return mHalPropValue;
-        }
-
-        public int getErrorCode() {
-            return mErrorCode;
-        }
-
-        /**
-         * Get an instance for GetHalPropValueResult when result returned successfully.
-         */
-        public GetHalPropValueResult(int serviceRequestId, HalPropValue halPropValue) {
-            mServiceRequestId = serviceRequestId;
-            mHalPropValue = halPropValue;
-        }
-
-        /**
-         * Get an instance for GetHalPropValueResult when error.
-         */
-        public GetHalPropValueResult(int serviceRequestId, int errorCode) {
-            mServiceRequestId = serviceRequestId;
-            mErrorCode = errorCode;
         }
     }
 
@@ -1267,7 +1219,21 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      * <p>This method gets the HalPropValue using async methods.
      */
     public void getAsync(List<GetVehicleHalRequest> getVehicleHalRequests,
-            VehicleHalCallback vehicleHalCallback) {
-        // TODO(b/238472105): implement the logic
+            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+        List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests =
+                new ArrayList<>();
+        for (int i = 0; i < getVehicleHalRequests.size(); i++) {
+            GetVehicleHalRequest getVehicleHalRequest = getVehicleHalRequests.get(i);
+            int halPropertyId = getVehicleHalRequest.getHalPropertyId();
+            int areaId = getVehicleHalRequest.getAreaId();
+            if (DBG) {
+                Slogf.d(CarLog.TAG_HAL, "get, %s%s", toCarPropertyLog(halPropertyId),
+                        toCarAreaLog(areaId));
+            }
+            getVehicleStubAsyncRequests.add(new VehicleStub.GetVehicleStubAsyncRequest(
+                    getVehicleHalRequest.getServiceRequestId(),
+                    mPropValueBuilder.build(halPropertyId, areaId)));
+        }
+        mHalClient.getValuesAsync(getVehicleStubAsyncRequests, getAsyncVehicleStubCallback);
     }
 }
