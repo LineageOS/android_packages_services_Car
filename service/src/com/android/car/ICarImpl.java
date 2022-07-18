@@ -75,6 +75,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.oem.CarOemProxyService;
 import com.android.car.os.CarPerformanceService;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
@@ -117,6 +118,7 @@ public class ICarImpl extends ICar.Stub {
 
     private final SystemInterface mSystemInterface;
 
+    private final CarOemProxyService mCarOemService;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final CarPowerManagementService mCarPowerManagementService;
     private final CarPackageManagerService mCarPackageManagerService;
@@ -205,6 +207,8 @@ public class ICarImpl extends ICar.Stub {
 
         // Currently there are ~35 services, hence using 40 as the initial capacity.
         List<CarSystemService> allServices = new ArrayList<>(40);
+        mCarOemService = constructWithTrace(t, CarOemProxyService.class,
+                () -> new CarOemProxyService(serviceContext), allServices);
 
         mSystemInterface = systemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
@@ -447,8 +451,10 @@ public class ICarImpl extends ICar.Stub {
             service.init();
             t.traceEnd();
         }
+        t.traceBegin("CarOemService.initComplete");
+        mCarOemService.onInitComplete();
+        t.traceEnd();
         t.traceEnd(); // "CarService.initAllServices"
-
         t.traceEnd(); // "ICarImpl.init"
     }
 
