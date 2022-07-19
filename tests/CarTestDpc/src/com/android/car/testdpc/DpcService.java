@@ -40,8 +40,8 @@ import java.util.stream.Collectors;
  *
  * <p>This service handles binding of remote device policy managers to the current user
  * by checking if current user is device or profile owner. If it is either then it accordingly
- * binds and assigns all affiliated users to the appropriate {@Code DevicePolicyManagerInterface}
- * implementation ({@Code RemoteDevicePolicyManager}/{@Code LocalDevicePolicyManager})
+ * binds and assigns all affiliated users to the appropriate {@code DevicePolicyManagerInterface}
+ * implementation ({@code RemoteDevicePolicyManager}/{@code LocalDevicePolicyManager})
  */
 
 public final class DpcService extends DeviceAdminService {

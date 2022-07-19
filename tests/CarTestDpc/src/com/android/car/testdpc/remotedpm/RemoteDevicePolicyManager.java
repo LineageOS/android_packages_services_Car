@@ -30,11 +30,17 @@ import android.util.Log;
 import com.android.car.testdpc.DpcReceiver;
 import com.android.internal.annotations.GuardedBy;
 
+import com.google.errorprone.annotations.FormatMethod;
+
 /**
- * Provides an application interface to make cross-user calls to device policy managers on other,
- * bound users.
- * The class implements DevicePolicyManagerInterface so that it can be interchanged with
- * LocalDevicePolicyManager that is a mirror class which makes local calls to the same methods.
+ {@code DevicePolicyManagerInterface} implementation that executes the device policies in another
+ user, using a custom binder service for IPC.
+
+ <p>In a "real world" app, it would be used by the device owner user running on background to apply
+ policies on other users, while in a "test concept" app it could be used by the UI (running in the
+ current user) to apply policies in the device owner user or for managed profile owner users to send
+ commands to the device owner user.
+
  */
 public final class RemoteDevicePolicyManager implements DevicePolicyManagerInterface {
     private static final String TAG = RemoteDevicePolicyManager.class.getSimpleName();
@@ -42,9 +48,10 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
 
     private final Context mContext;
     private final DevicePolicyManager mDpm;
+    private final Object mLock = new Object();
+
     private boolean mBound;
     private UserHandle mTargetUserHandle;
-    private final Object mLock = new Object();
 
     /**
      * Service used to call cross-user calls to other user device policy managers
@@ -53,13 +60,11 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
     @GuardedBy("mLock")
     private IRemoteDevicePolicyManager mRemoteDpm;
 
-
-
     private ServiceConnection mServiceConnection =
             new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-                    Log.i(TAG, "onServiceConnected(ComponentName: " + componentName
+                    Log.i(TAG, "onServiceConnected(ComponentName: " + componentName.toShortString()
                             + ", Binder: " + iBinder + ")");
                     synchronized (mLock) {
                         mRemoteDpm = IRemoteDevicePolicyManager.Stub.asInterface(iBinder);
@@ -68,7 +73,8 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
 
                 @Override
                 public void onServiceDisconnected(ComponentName componentName) {
-                    Log.i(TAG, "onServiceDisconnected(ComponentName: " + componentName + ")");
+                    Log.i(TAG, "onServiceDisconnected(ComponentName: "
+                            + componentName.toShortString() + ")");
                     synchronized (mLock) {
                         mRemoteDpm = null;
                     }
@@ -92,7 +98,6 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
     }
 
     private boolean bindRemoteDpm() {
-
         try {
             boolean success =
                     mDpm.bindDeviceAdminServiceAsUser(
@@ -103,7 +108,7 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
                             mTargetUserHandle);
             return success;
         } catch (SecurityException | IllegalArgumentException e) {
-            Log.e(TAG, "Cannot bind to user " + mTargetUserHandle, e);
+            Log.e(TAG, "Cannot bind to user mTargetUserHandle: " + mTargetUserHandle, e);
             return false;
         }
     }
@@ -111,19 +116,32 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
     /**
      * Reboots the device
      *
-     * <p> Only works when bound with device owner and the users are affiliated </p>
+     * <p>Only works when bound with device owner and the users are affiliated </p>
      */
     public void reboot(ComponentName admin) {
-        synchronized (mLock) {
-            if (mRemoteDpm == null) {
-                Log.i(TAG, "Unable to call reboot() as RemoteDpm object is null");
-            }
+        IRemoteDevicePolicyManager remoteDpm;
+        remoteDpm = getBoundRemoteDpmLocked();
+        run(() -> remoteDpm.reboot(admin), "reboot(%s)", admin);
+    }
 
-            try {
-                mRemoteDpm.reboot(admin);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Remote exception when calling reboot", e);
+    @FormatMethod
+    private void run(RemoteRunnable cmd, String cmdFormat, Object... cmdArgs) {
+        String cmdString = String.format(cmdFormat, cmdArgs);
+        Log.i(TAG, "running " + cmdString + " on user " + mTargetUserHandle);
+        try {
+            cmd.run();
+        } catch (RuntimeException | RemoteException e) {
+            Log.e(TAG, "Failure running " + cmdString, e);
+            throw new RuntimeException("Failed to run " + cmdString, e);
+        }
+    }
+
+    private IRemoteDevicePolicyManager getBoundRemoteDpmLocked() {
+        synchronized (this.mLock) {
+            if (mRemoteDpm == null) {
+                throw new IllegalStateException("RemoteDpm was not bound");
             }
+            return mRemoteDpm;
         }
     }
 }
