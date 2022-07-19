@@ -99,7 +99,6 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
             new ClusterNavigationStateListenerImpl();
     private ClusterState mState;
     private int mChanges = 0;
-    private byte[] mNavigationState;
 
     private FixedActivityService mFixedActivityService;
     @Captor private ArgumentCaptor<Intent> mIntentCaptor;
@@ -467,8 +466,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private class ClusterNavigationStateListenerImpl implements
             ClusterHomeManager.ClusterNavigationStateListener {
         @Override
-        public void onNavigationState(byte[] navigationState) {
-            mNavigationState = navigationState;
+        public void onNavigationState(byte[] unusedNavigationState) {
             mClusterNavigationStateListenerCalled.countDown();
         }
     }

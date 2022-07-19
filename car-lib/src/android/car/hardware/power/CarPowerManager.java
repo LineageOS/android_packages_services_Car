@@ -49,14 +49,10 @@ import java.util.concurrent.Executor;
  * API to receive power policy change notifications.
  */
 public class CarPowerManager extends CarManagerBase {
-    private static final boolean DBG = false;
 
     /** @hide */
     @AddedInOrBefore(majorVersion = 33)
     public static final String TAG = CarPowerManager.class.getSimpleName();
-
-    private static final int FIRST_POWER_COMPONENT = PowerComponentUtil.FIRST_POWER_COMPONENT;
-    private static final int LAST_POWER_COMPONENT = PowerComponentUtil.LAST_POWER_COMPONENT;
 
     private final Object mLock = new Object();
     private final ICarPower mService;

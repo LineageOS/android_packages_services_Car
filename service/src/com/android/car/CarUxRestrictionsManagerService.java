@@ -32,6 +32,7 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.VehicleAreaType;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
@@ -47,7 +48,6 @@ import android.car.drivingstate.ICarUxRestrictionsManager;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.VehicleAreaType;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -129,7 +129,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private static final String JSON_NAME_SCHEMA_VERSION = "schema_version";
     private static final String JSON_NAME_RESTRICTIONS = "restrictions";
-    private static final int DEFAULT_PORT = 0;
 
     @VisibleForTesting
     static final String CONFIG_FILENAME_PRODUCTION = "ux_restrictions_prod_config.json";

@@ -45,8 +45,6 @@ public final class CarConsentUiHelper implements ConsentUiHelper {
     private final Utils mUtils;
     private final PreProvisioningActivityBridgeCallbacks mBridgeCallbacks;
 
-    private CarSetupWizardCompatLayout mLayout;
-
     public CarConsentUiHelper(Activity activity, ConsentUiHelperCallback callback, Utils utils,
                 PreProvisioningActivityBridgeCallbacks bridgeCallbacks) {
         Slogf.d(TAG, "created new instance..");

@@ -31,7 +31,6 @@ import android.os.UserHandle;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.android.car.scriptexecutor.ScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
@@ -48,7 +47,6 @@ import java.util.concurrent.TimeUnit;
 public final class ScriptExecutorFunctionalTest {
 
     private IScriptExecutor mScriptExecutor;
-    private ScriptExecutor mInstance;
     private Context mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 
     private static final class ScriptExecutorListener extends IScriptExecutorListener.Stub {

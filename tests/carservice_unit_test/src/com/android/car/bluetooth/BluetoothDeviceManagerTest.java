@@ -246,14 +246,6 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
         mMockContext.sendBroadcast(intent);
     }
 
-    private void sendDeviceUuids(BluetoothDevice device, ParcelUuid[] uuids) {
-        Assert.assertTrue(mMockContext != null);
-        Intent intent = new Intent(BluetoothDevice.ACTION_UUID);
-        intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
-        intent.putExtra(BluetoothDevice.EXTRA_UUID, uuids);
-        mMockContext.sendBroadcast(intent);
-    }
-
     private void sendConnectionStateChanged(BluetoothDevice device, int newState) {
         Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(mConnectionAction);

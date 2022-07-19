@@ -23,8 +23,6 @@ import android.car.VehiclePropertyIds;
 import android.car.VehiclePropertyType;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -64,12 +62,6 @@ public class PropertyTestFragment extends Fragment implements OnItemSelectedList
     private Spinner mPropertyId;
     private ScrollView mScrollView;
     private EditText mSetValue;
-
-    private final OnClickListener mNopOnClickListener = new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-        }
-    };
 
     @Nullable
     @Override

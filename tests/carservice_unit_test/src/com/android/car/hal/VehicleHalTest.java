@@ -176,16 +176,6 @@ public class VehicleHalTest {
         };
     }
 
-    private static Answer<Void> checkHidlConfigs(
-                ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig> configs) {
-        return new Answer<Void>() {
-            public Void answer(InvocationOnMock invocation) {
-                assertThat(configs).isEqualTo(invocation.getArguments()[0]);
-                return null;
-            }
-        };
-    }
-
     private static HalPropConfig[] toHalPropConfigs(List<VehiclePropConfig> configs) {
         HalPropConfig[] halConfigs = new HalPropConfig[configs.size()];
         for (int i = 0; i < configs.size(); i++) {
