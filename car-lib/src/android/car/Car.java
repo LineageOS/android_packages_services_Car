@@ -32,6 +32,7 @@ import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.MandatoryFeature;
+import android.car.annotation.MinimumPlatformSdkVersion;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
 import android.car.builtin.os.ServiceManagerHelper;
@@ -79,6 +80,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemProperties;
 import android.os.TransactionTooLargeException;
+import android.util.ArrayMap;
 import android.util.Log;
 
 import com.android.car.internal.VisibleForHiddenApiCheck;
@@ -95,6 +97,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -141,6 +144,11 @@ public final class Car {
 
     private static final PlatformApiVersion PLATFORM_API_VERSION = PlatformApiVersion
             .forMajorAndMinorVersions(Build.VERSION.SDK_INT, PLATFORM_VERSION_MINOR_INT);
+
+    // Car service registry information.
+    // This information never changes after the static initialization completes.
+    private static final Map<Class<?>, String> CAR_SERVICE_NAMES =
+            new ArrayMap<Class<?>, String>(34);
 
     /**
      * Binder service name of car service registered to service manager.
@@ -280,6 +288,7 @@ public final class Car {
     public static final String CABIN_SERVICE = "cabin";
 
     /**
+     * Service name for {@link android.car.diagnostic.CarDiagnosticManager}.
      * @hide
      */
     @OptionalFeature
@@ -306,6 +315,7 @@ public final class Car {
     public static final String POWER_SERVICE = "power";
 
     /**
+     * Service name for {@link android.car.CarProjectionManager}
      * @hide
      */
     @MandatoryFeature
@@ -370,7 +380,10 @@ public final class Car {
     @AddedInOrBefore(majorVersion = 33)
     public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
 
-    /** @hide */
+    /**
+     * Service name for {@link android.car.occupantawareness.OccupantAwarenessManager}
+     * @hide
+     */
     @OptionalFeature
     @SystemApi
     @AddedInOrBefore(majorVersion = 33)
@@ -386,7 +399,6 @@ public final class Car {
     public static final String CAR_MEDIA_SERVICE = "car_media";
 
     /**
-     *
      * Service name for {@link android.car.CarBugreportManager}
      * @hide
      */
@@ -396,6 +408,7 @@ public final class Car {
     public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
 
     /**
+     * Service name for {@link android.car.storagemonitoring.CarStorageMonitoringManager}
      * @hide
      */
     @OptionalFeature
@@ -421,6 +434,7 @@ public final class Car {
     public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
 
     /**
+     * Service name for {@link android.car.input.CarInputManager}
      * @hide
      */
     @MandatoryFeature
@@ -429,6 +443,7 @@ public final class Car {
     public static final String CAR_INPUT_SERVICE = "android.car.input";
 
     /**
+     * Service name for {@link android.car.cluster.ClusterHomeManager}
      * @hide
      */
     @OptionalFeature
@@ -1385,6 +1400,45 @@ public final class Car {
 
     private final CarFeatures mFeatures = new CarFeatures();
 
+    static {
+        CAR_SERVICE_NAMES.put(CarSensorManager.class, SENSOR_SERVICE);
+        CAR_SERVICE_NAMES.put(CarInfoManager.class, INFO_SERVICE);
+        CAR_SERVICE_NAMES.put(CarAppFocusManager.class, APP_FOCUS_SERVICE);
+        CAR_SERVICE_NAMES.put(CarPackageManager.class, PACKAGE_SERVICE);
+        CAR_SERVICE_NAMES.put(CarAudioManager.class, AUDIO_SERVICE);
+        CAR_SERVICE_NAMES.put(CarNavigationStatusManager.class, CAR_NAVIGATION_SERVICE);
+        CAR_SERVICE_NAMES.put(CarOccupantZoneManager.class, CAR_OCCUPANT_ZONE_SERVICE);
+        CAR_SERVICE_NAMES.put(CarUserManager.class, CAR_USER_SERVICE);
+        CAR_SERVICE_NAMES.put(ExperimentalCarUserManager.class, EXPERIMENTAL_CAR_USER_SERVICE);
+        CAR_SERVICE_NAMES.put(CarDevicePolicyManager.class, CAR_DEVICE_POLICY_SERVICE);
+        CAR_SERVICE_NAMES.put(CarInstrumentClusterManager.class, CAR_INSTRUMENT_CLUSTER_SERVICE);
+        CAR_SERVICE_NAMES.put(CarCabinManager.class, CABIN_SERVICE);
+        CAR_SERVICE_NAMES.put(CarDiagnosticManager.class, DIAGNOSTIC_SERVICE);
+        CAR_SERVICE_NAMES.put(CarHvacManager.class, HVAC_SERVICE);
+        CAR_SERVICE_NAMES.put(CarPowerManager.class, POWER_SERVICE);
+        CAR_SERVICE_NAMES.put(CarProjectionManager.class, PROJECTION_SERVICE);
+        CAR_SERVICE_NAMES.put(CarPropertyManager.class, PROPERTY_SERVICE);
+        CAR_SERVICE_NAMES.put(CarVendorExtensionManager.class, VENDOR_EXTENSION_SERVICE);
+        CAR_SERVICE_NAMES.put(VmsClientManager.class, VEHICLE_MAP_SERVICE);
+        CAR_SERVICE_NAMES.put(VmsSubscriberManager.class, VMS_SUBSCRIBER_SERVICE);
+        CAR_SERVICE_NAMES.put(CarDrivingStateManager.class, CAR_DRIVING_STATE_SERVICE);
+        CAR_SERVICE_NAMES.put(CarUxRestrictionsManager.class, CAR_UX_RESTRICTION_SERVICE);
+        CAR_SERVICE_NAMES.put(OccupantAwarenessManager.class, OCCUPANT_AWARENESS_SERVICE);
+        CAR_SERVICE_NAMES.put(CarMediaManager.class, CAR_MEDIA_SERVICE);
+        CAR_SERVICE_NAMES.put(CarBugreportManager.class, CAR_BUGREPORT_SERVICE);
+        CAR_SERVICE_NAMES.put(CarStorageMonitoringManager.class, STORAGE_MONITORING_SERVICE);
+        CAR_SERVICE_NAMES.put(CarWatchdogManager.class, CAR_WATCHDOG_SERVICE);
+        CAR_SERVICE_NAMES.put(CarPerformanceManager.class, CAR_PERFORMANCE_SERVICE);
+        CAR_SERVICE_NAMES.put(CarInputManager.class, CAR_INPUT_SERVICE);
+        CAR_SERVICE_NAMES.put(ClusterHomeManager.class, CLUSTER_HOME_SERVICE);
+        CAR_SERVICE_NAMES.put(CarTestManager.class, TEST_SERVICE);
+        CAR_SERVICE_NAMES.put(CarEvsManager.class, CAR_EVS_SERVICE);
+        CAR_SERVICE_NAMES.put(CarTelemetryManager.class, CAR_TELEMETRY_SERVICE);
+        CAR_SERVICE_NAMES.put(CarActivityManager.class, CAR_ACTIVITY_SERVICE);
+        // Note: if a new entry is added here, the capacity of CAR_SERVICE_NAMES should be increased
+        // as well.
+    }
+
     /**
      * Defines the {@link CarApiVersion version} of the {@code Car} APIs in the device.
      *
@@ -1835,8 +1889,9 @@ public final class Car {
 
     /**
      * Disconnect from car service. This can be called while disconnected. Once disconnect is
-     * called, all Car*Managers from this instance becomes invalid, and
-     * {@link Car#getCarManager(String)} will return different instance if it is connected again.
+     * called, all Car*Managers from this instance become invalid, and
+     * {@link Car#getCarManager(String)} or {@link Car#getCarManager(Class<T>)} will return a
+     * different instance if it is connected again.
      */
     @AddedInOrBefore(majorVersion = 33)
     public void disconnect() {
@@ -1880,10 +1935,14 @@ public final class Car {
     }
 
     /**
-     * Get car specific service as in {@link Context#getSystemService(String)}. Returned
-     * {@link Object} should be type-casted to the desired service.
-     * For example, to get sensor service,
-     * SensorManagerService sensorManagerService = car.getCarManager(Car.SENSOR_SERVICE);
+     * Get car specific service manager as in {@link Context#getSystemService(String)}. Returned
+     * {@link Object} should be type-casted to the desired service manager.
+     *
+     * <p>For example, to get the manager for sensor service,
+     * <code>
+     * CarSensorManager carSensorManager = (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);
+     * </code>
+     *
      * @param serviceName Name of service that should be created like {@link #SENSOR_SERVICE}.
      * @return Matching service manager or null if there is no such service.
      */
@@ -1918,6 +1977,24 @@ public final class Car {
             }
         }
         return manager;
+    }
+
+    /**
+     * Get car specific service manager by class as in {@link Context#getSystemService(Class<T>)}.
+     * Returns the desired service. No type casting is needed.
+     *
+     * <p>For example, to get the manager for sensor service,
+     * <code>CarSensorManager carSensorManager = car.getCarManager(CarSensorManager.class);</code>
+     *
+     * @param serviceClass The class of the desired service.
+     * @return Matching service manager or {@code null} if there is no such service.
+     */
+    @Nullable
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 0)
+    public <T> T getCarManager(@NonNull Class<T> serviceClass) {
+        String serviceName = CAR_SERVICE_NAMES.get(serviceClass);
+        return serviceName != null ? (T) getCarManager(serviceName) : null;
     }
 
     /**
