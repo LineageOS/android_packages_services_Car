@@ -21,12 +21,13 @@ import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.CarApiVersion;
+import android.car.test.AbstractExpectableTestCase;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 
 import org.junit.Test;
 
-public final class CarApiVersionParserTest {
+public final class CarApiVersionParserTest extends AbstractExpectableTestCase {
 
     @Test
     public void testGetTargetCarApiVersion_noMetadata() {
@@ -55,19 +56,5 @@ public final class CarApiVersionParserTest {
                 .that(apiVersion.getMajorVersion()).isEqualTo(108);
         expectWithMessage("getTargetCarApiVersion(%s).minor", info)
                 .that(apiVersion.getMinorVersion()).isEqualTo(42);
-    }
-
-    // TODO(b/228506662): extend AbstractExpectableTestCase and remove members below (on master)
-
-    @org.junit.Rule
-    public final com.google.common.truth.Expect mExpect = com.google.common.truth.Expect.create();
-
-    protected com.google.common.truth.StandardSubjectBuilder expectWithMessage(String msg) {
-        return mExpect.withMessage(msg);
-    }
-
-    protected com.google.common.truth.StandardSubjectBuilder expectWithMessage(String fmt,
-            Object...args) {
-        return mExpect.withMessage(fmt, args);
     }
 }
