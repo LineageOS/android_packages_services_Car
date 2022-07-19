@@ -293,7 +293,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
     }
 
     private boolean topTasksHasComponent(ComponentName component) {
-        for (TaskInfo topTaskInfoContainer : mService.getTopTasks()) {
+        for (TaskInfo topTaskInfoContainer : mService.getVisibleTasks()) {
             if (topTaskInfoContainer.topActivity.equals(component)) {
                 return true;
             }

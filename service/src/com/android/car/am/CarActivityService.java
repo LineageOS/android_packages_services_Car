@@ -44,7 +44,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Display;
 
 import com.android.car.CarLog;
@@ -58,6 +57,8 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,8 +78,12 @@ public final class CarActivityService extends ICarActivityService.Stub
     @GuardedBy("mLock")
     ICarServiceHelper mICarServiceHelper;
 
+    // LinkedHashMap is used instead of SparseXXX because a predictable iteration order is needed.
+    // The tasks here need be ordered as per their stack order. The stack order is maintained
+    // using a combination of onTaskAppeared and onTaskInfoChanged callbacks.
     @GuardedBy("mLock")
-    private final SparseArray<TaskInfo> mTasks = new SparseArray<>();
+    private final LinkedHashMap<Integer, ActivityManager.RunningTaskInfo> mTasks =
+            new LinkedHashMap<>();
     @GuardedBy("mLock")
     private final ArrayMap<IBinder, IBinder.DeathRecipient> mTokens = new ArrayMap<>();
     @GuardedBy("mLock")
@@ -261,14 +266,10 @@ public final class CarActivityService extends ICarActivityService.Stub
             if (!isAllowedToUpdateLocked(token)) {
                 return;
             }
-            TaskInfo oldTaskInfo = null;
-            int index = mTasks.indexOfKey(taskInfo.taskId);
-            if (index >= 0) {
-                oldTaskInfo = mTasks.valueAt(index);
-                mTasks.setValueAt(index, taskInfo);
-            } else {
-                mTasks.put(taskInfo.taskId, taskInfo);
-            }
+            // The key should be removed and added again so that it jumps to the front of the
+            // LinkedHashMap.
+            TaskInfo oldTaskInfo = mTasks.remove(taskInfo.taskId);
+            mTasks.put(taskInfo.taskId, taskInfo);
             if ((oldTaskInfo == null || !TaskInfoHelper.isVisible(oldTaskInfo)
                     || !Objects.equals(oldTaskInfo.topActivity, taskInfo.topActivity))
                     && TaskInfoHelper.isVisible(taskInfo)) {
@@ -284,19 +285,21 @@ public final class CarActivityService extends ICarActivityService.Stub
         cleanUpToken(token);
     }
 
-    public List<TaskInfo> getTopTasks() {
-        ArrayList<TaskInfo> tasks = new ArrayList<>();
+    @Override
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
+        ArrayList<ActivityManager.RunningTaskInfo> tasksToReturn = new ArrayList<>();
         synchronized (mLock) {
-            for (int i = 0, n = mTasks.size(); i < n; ++i) {
-                TaskInfo taskInfo = mTasks.valueAt(i);
+            for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
                 // Activities launched in the private display or non-focusable display can't be
                 // focusable. So we just monitor all visible Activities/Tasks.
                 if (TaskInfoHelper.isVisible(taskInfo)) {
-                    tasks.add(taskInfo);
+                    tasksToReturn.add(taskInfo);
                 }
             }
         }
-        return tasks;
+        // Reverse the order so that the resultant order is top to bottom.
+        Collections.reverse(tasksToReturn);
+        return tasksToReturn;
     }
 
     /**
@@ -333,8 +336,7 @@ public final class CarActivityService extends ICarActivityService.Stub
 
     public TaskInfo getTaskInfoForTopActivity(ComponentName activity) {
         synchronized (mLock) {
-            for (int i = 0, size = mTasks.size(); i < size; ++i) {
-                TaskInfo info = mTasks.valueAt(i);
+            for (ActivityManager.RunningTaskInfo info : mTasks.values()) {
                 if (activity.equals(info.topActivity)) {
                     return info;
                 }
@@ -386,8 +388,8 @@ public final class CarActivityService extends ICarActivityService.Stub
         writer.println("*CarActivityService*");
         writer.println(" Tasks:");
         synchronized (mLock) {
-            for (int i = 0; i < mTasks.size(); i++) {
-                writer.println("  " + TaskInfoHelper.toString(mTasks.valueAt(i)));
+            for (ActivityManager.RunningTaskInfo taskInfo : mTasks.values()) {
+                writer.println("  " + TaskInfoHelper.toString(taskInfo));
             }
         }
     }
