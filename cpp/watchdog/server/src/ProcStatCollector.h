@@ -59,9 +59,14 @@ struct CpuStats {
 class ProcStatInfo {
 public:
     ProcStatInfo() : cpuStats({}), runnableProcessCount(0), ioBlockedProcessCount(0) {}
-    ProcStatInfo(CpuStats stats, uint32_t runnableCnt, uint32_t ioBlockedCnt) :
-          cpuStats(stats), runnableProcessCount(runnableCnt), ioBlockedProcessCount(ioBlockedCnt) {}
+    ProcStatInfo(CpuStats stats, uint64_t ctxtSwitches, uint32_t runnableCnt,
+                 uint32_t ioBlockedCnt) :
+          cpuStats(stats),
+          contextSwitchesCount(ctxtSwitches),
+          runnableProcessCount(runnableCnt),
+          ioBlockedProcessCount(ioBlockedCnt) {}
     CpuStats cpuStats;
+    uint64_t contextSwitchesCount;
     uint32_t runnableProcessCount;
     uint32_t ioBlockedProcessCount;
 
