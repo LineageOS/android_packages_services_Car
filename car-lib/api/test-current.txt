@@ -968,6 +968,13 @@ package android.car.hardware.power {
 
 package android.car.hardware.property {
 
+  public final class VehicleTurnSignal {
+    method @NonNull public static String toString(int);
+    field public static final int STATE_LEFT = 2; // 0x2
+    field public static final int STATE_NONE = 0; // 0x0
+    field public static final int STATE_RIGHT = 1; // 0x1
+  }
+
   public final class VehicleVendorPermission {
     field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_1 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_1";
     field public static final String PERMISSION_GET_CAR_VENDOR_CATEGORY_10 = "android.car.permission.GET_CAR_VENDOR_CATEGORY_10";

@@ -747,8 +747,23 @@ public final class VehiclePropertyIds {
     public static final int NIGHT_MODE = 287310855;
     /**
      * State of the vehicles turn signals
-     * The property is protected by the signature permission:
-     * android.car.permission.CAR_EXTERIOR_LIGHTS .
+     *
+     * <p>See {@link android.car.hardware.property.VehicleTurnSignal} for possible values for
+     * {@code TURN_SIGNAL_STATE}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>Signature permission {@link Car#PERMISSION_EXTERIOR_LIGHTS} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     @AddedInOrBefore(majorVersion = 33)
