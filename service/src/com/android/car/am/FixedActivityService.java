@@ -348,7 +348,7 @@ public final class FixedActivityService implements CarServiceBase {
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
     private boolean launchIfNecessary(int displayId) {
-        List<TaskInfo> infos = mActivityService.getTopTasks();
+        List<? extends TaskInfo> infos = mActivityService.getVisibleTasks();
         if (infos == null) {
             Slogf.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;

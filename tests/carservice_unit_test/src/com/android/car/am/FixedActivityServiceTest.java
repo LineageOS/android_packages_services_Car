@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.TaskInfo;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -424,7 +423,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         ActivityOptions options = new ActivityOptions(new Bundle());
         Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
         mockAmGetCurrentUser(userId);
-        List<TaskInfo> rootTaskInfo = createRootTaskInfo(intent, userId,
+        List<ActivityManager.RunningTaskInfo> rootTaskInfo = createRootTaskInfo(intent, userId,
                 mValidDisplayId, taskId);
         expectRootTaskInfo(rootTaskInfo);
 
@@ -514,30 +513,30 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     }
 
     private void expectNoActivityStack() throws Exception {
-        when(mActivityService.getTopTasks()).thenReturn(createEmptyTaskInfo());
+        when(mActivityService.getVisibleTasks()).thenReturn(createEmptyTaskInfo());
     }
 
-    private void expectRootTaskInfo(List<TaskInfo>... taskInfos)
+    private void expectRootTaskInfo(List<ActivityManager.RunningTaskInfo>... taskInfos)
             throws Exception {
-        OngoingStubbing<List<TaskInfo>> stub = when(
-                mActivityService.getTopTasks());
-        for (List<TaskInfo> taskInfo : taskInfos) {
+        OngoingStubbing<List<ActivityManager.RunningTaskInfo>> stub = when(
+                mActivityService.getVisibleTasks());
+        for (List<ActivityManager.RunningTaskInfo> taskInfo : taskInfos) {
             stub = stub.thenReturn(taskInfo);
         }
     }
 
-    private List<TaskInfo> createEmptyTaskInfo() {
+    private List<ActivityManager.RunningTaskInfo> createEmptyTaskInfo() {
         return new ArrayList<>();
     }
 
-    private List<TaskInfo> createRootTaskInfo(Intent intent,
+    private List<ActivityManager.RunningTaskInfo> createRootTaskInfo(Intent intent,
             @UserIdInt int userId, int displayId, int taskId) {
-        TaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
+        ActivityManager.RunningTaskInfo taskInfo = new ActivityManager.RunningTaskInfo();
         taskInfo.topActivity = intent.getComponent().clone();
         taskInfo.taskId = taskId;
         taskInfo.userId = userId;
         taskInfo.displayId = displayId;
-        List<TaskInfo> topTasks = new ArrayList<>();
+        List<ActivityManager.RunningTaskInfo> topTasks = new ArrayList<>();
         topTasks.add(taskInfo);
         return topTasks;
     }
