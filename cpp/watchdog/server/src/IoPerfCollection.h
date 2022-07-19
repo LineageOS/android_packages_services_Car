@@ -101,7 +101,9 @@ struct UserPackageSummaryStats {
 // System performance stats collected from the `/proc/stats` file.
 struct SystemSummaryStats {
     uint64_t cpuIoWaitTime = 0;
+    uint64_t cpuIdleTime = 0;
     uint64_t totalCpuTime = 0;
+    uint64_t contextSwitchesCount = 0;
     uint32_t ioBlockedProcessCount = 0;
     uint32_t totalProcessCount = 0;
     std::string toString() const;
