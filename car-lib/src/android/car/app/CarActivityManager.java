@@ -40,6 +40,8 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * API to manage {@link android.app.Activity} in Car.
@@ -230,6 +232,22 @@ public final class CarActivityManager extends CarManagerBase {
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
+    }
+
+    /**
+     * Returns all the visible tasks ordered in top to bottom manner.
+     * @hide
+     */
+    @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
+    @AddedInOrBefore(majorVersion = 33, minorVersion = 1)
+    @NonNull
+    public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
+        try {
+            return mService.getVisibleTasks();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+        return Collections.emptyList();
     }
 
     private boolean hasValidToken() {
