@@ -31,11 +31,11 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::base::Error;
+using ::android::base::ParseUint;
 using ::android::base::ReadFileToString;
 using ::android::base::Result;
+using ::android::base::Split;
 using ::android::base::StartsWith;
-using base::ParseUint;
-using base::Split;
 
 namespace {
 
@@ -61,6 +61,15 @@ bool parseCpuStats(const std::string& data, CpuStats* cpuStats) {
     return true;
 }
 
+bool parseContextSwitches(const std::string& data, uint64_t* out) {
+    std::vector<std::string> fields = Split(data, " ");
+    if (fields.size() != 2 || !StartsWith(fields[0], "ctxt") || !ParseUint(fields[1], out)) {
+        ALOGW("Invalid ctxt line: \"%s\"", data.c_str());
+        return false;
+    }
+    return true;
+}
+
 bool parseProcsCount(const std::string& data, uint32_t* out) {
     std::vector<std::string> fields = Split(data, " ");
     if (fields.size() != 2 || !StartsWith(fields[0], "procs_") || !ParseUint(fields[1], out)) {
@@ -74,7 +83,7 @@ bool parseProcsCount(const std::string& data, uint32_t* out) {
 
 Result<void> ProcStatCollector::collect() {
     if (!mEnabled) {
-        return Error() << "Can not access " << kPath;
+        return Error() << "Cannot access " << kPath;
     }
 
     Mutex::Autolock lock(mMutex);
@@ -98,6 +107,7 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
 
     std::vector<std::string> lines = Split(std::move(buffer), "\n");
     ProcStatInfo info;
+    bool didReadContextSwitches = false;
     bool didReadProcsRunning = false;
     bool didReadProcsBlocked = false;
     for (size_t i = 0; i < lines.size(); i++) {
@@ -111,6 +121,14 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
             if (!parseCpuStats(std::move(lines[i]), &info.cpuStats)) {
                 return Error() << "Failed to parse `cpu .*` line in " << kPath;
             }
+        } else if (!lines[i].compare(0, 4, "ctxt")) {
+            if (didReadContextSwitches) {
+                return Error() << "Duplicate `ctxt .*` line in " << kPath;
+            }
+            if (!parseContextSwitches(std::move(lines[i]), &info.contextSwitchesCount)) {
+                return Error() << "Failed to parse `ctxt .*` line in " << kPath;
+            }
+            didReadContextSwitches = true;
         } else if (!lines[i].compare(0, 6, "procs_")) {
             if (!lines[i].compare(0, 13, "procs_running")) {
                 if (didReadProcsRunning) {
@@ -134,7 +152,8 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
             return Error() << "Unknown procs_ line `" << lines[i] << "` in " << kPath;
         }
     }
-    if (info.totalCpuTime() == 0 || !didReadProcsRunning || !didReadProcsBlocked) {
+    if (info.totalCpuTime() == 0 || !didReadContextSwitches || !didReadProcsRunning ||
+        !didReadProcsBlocked) {
         return Error() << kPath << " is incomplete";
     }
     return info;

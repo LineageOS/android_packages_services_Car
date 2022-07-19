@@ -155,8 +155,13 @@ MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
 MATCHER_P(SystemSummaryStatsEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("cpuIoWaitTime", &SystemSummaryStats::cpuIoWaitTime,
                                           Eq(expected.cpuIoWaitTime)),
+                                    Field("cpuIdleTime", &SystemSummaryStats::cpuIdleTime,
+                                          Eq(expected.cpuIdleTime)),
                                     Field("totalCpuTime", &SystemSummaryStats::totalCpuTime,
                                           Eq(expected.totalCpuTime)),
+                                    Field("contextSwitchesCount",
+                                          &SystemSummaryStats::contextSwitchesCount,
+                                          Eq(expected.contextSwitchesCount)),
                                     Field("ioBlockedProcessCount",
                                           &SystemSummaryStats::ioBlockedProcessCount,
                                           Eq(expected.ioBlockedProcessCount)),
@@ -352,10 +357,13 @@ std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(int multiplier = 1) 
                                             /*ioWaitTime=*/uint64Multiplier(5'900),
                                             uint64Multiplier(6'966), uint64Multiplier(7'980), 0, 0,
                                             uint64Multiplier(2'930)},
+                              /*contextSwitches=*/uint64Multiplier(500),
                               /*runnableProcessCount=*/uint32Multiplier(100),
                               /*ioBlockedProcessCount=*/uint32Multiplier(57)};
     SystemSummaryStats systemSummaryStats{/*cpuIoWaitTime=*/uint64Multiplier(5'900),
+                                          /*cpuIdleTime=*/uint64Multiplier(8'900),
                                           /*totalCpuTime=*/uint64Multiplier(48'376),
+                                          /*contextSwitchesCount=*/uint64Multiplier(500),
                                           /*ioBlockedProcessCount=*/uint32Multiplier(57),
                                           /*totalProcessCount=*/uint32Multiplier(157)};
     return std::make_tuple(procStatInfo, systemSummaryStats);
