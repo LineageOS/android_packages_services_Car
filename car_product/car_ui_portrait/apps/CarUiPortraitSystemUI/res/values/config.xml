@@ -52,6 +52,7 @@
         <item>com.android.car.settings/.FallbackHome</item>
         <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
         <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
+        <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
         <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
         <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
     </string-array>

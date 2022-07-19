@@ -307,21 +307,20 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             mCarUiPortraitDisplaySystemBarsControllerCallback =
             new CarUiPortraitDisplaySystemBarsController.Callback() {
                 @Override
-                public void onImmersiveRequestedChanged(String pkg, boolean requested) {
+                public void onImmersiveRequestedChanged(ComponentName componentName,
+                        boolean requested) {
                     // If the requesting application is a voice plate, background, or ignored
                     // package, ignore immersive requests.
-                    if (mVoicePlateActivitySet != null && mVoicePlateActivitySet.stream().anyMatch(
-                            component -> component.getPackageName().equals(pkg))) {
+                    if (mVoicePlateActivitySet != null && mVoicePlateActivitySet.contains(
+                            componentName)) {
                         return;
                     }
                     if (mBackgroundActivityComponent != null
-                            && mBackgroundActivityComponent.stream().anyMatch(
-                                component -> component.getPackageName().equals(pkg))) {
+                            && mBackgroundActivityComponent.contains(componentName)) {
                         return;
                     }
                     if (mIgnoreOpeningForegroundDAComponentsSet != null
-                            && mIgnoreOpeningForegroundDAComponentsSet.stream().anyMatch(
-                                component -> component.getPackageName().equals(pkg))) {
+                            && mIgnoreOpeningForegroundDAComponentsSet.contains(componentName)) {
                         return;
                     }
 
