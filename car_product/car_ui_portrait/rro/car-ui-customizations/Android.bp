@@ -161,3 +161,11 @@ override_runtime_resource_overlay {
     package_name: "com.android.permissioncontroller.googlecaruiportrait.rro",
     target_package_name: "com.android.permissioncontroller",
 }
+
+override_runtime_resource_overlay {
+    name: "generated_caruiportrait_customization-com-google-android-car-portraitlauncher",
+    base: "GoogleCarUiPortraitBase",
+    package_name: "com.android.car.portraitlauncher.googlecaruiportrait.rro",
+    target_package_name: "com.android.car.portraitlauncher",
+}
+

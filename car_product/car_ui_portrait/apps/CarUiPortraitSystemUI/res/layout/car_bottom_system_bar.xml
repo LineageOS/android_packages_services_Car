@@ -52,11 +52,11 @@
                 android:id="@+id/grid_nav"
                 style="@style/SystemBarButton"
                 android:background="@drawable/nav_bar_app_grid_button_background"
-                systemui:componentNames="com.android.car.carlauncher/.AppGridActivity"
+                systemui:componentNames="com.android.car.portraitlauncher/com.android.car.carlauncher.AppGridActivity"
                 systemui:icon="@android:color/transparent"
                 systemui:highlightWhenSelected="true"
-                systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.carlauncher;launchFlags=0x24000000;end"
-                systemui:clearBackStack="true"/>
+                systemui:intent="intent:#Intent;action=com.android.car.carlauncher.ACTION_APP_GRID;package=com.android.car.portraitlauncher;launchFlags=0x24000000;end"
+                systemui:clearBackStack="false"/>
 
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/standalone_notifications"
@@ -65,6 +65,7 @@
                 systemui:packages="com.android.car.notification"
                 systemui:icon="@drawable/car_ic_notification"
                 systemui:highlightWhenSelected="true"
+                systemui:clearBackStack="false"
                 systemui:intent="intent:#Intent;component=com.android.car.notification/.CarNotificationCenterActivity;launchFlags=0x24000000;end"
                 systemui:longIntent="intent:#Intent;action=com.android.car.bugreport.action.START_AUDIO_FIRST;component=com.android.car.bugreport/.BugReportActivity;end"/>
 
