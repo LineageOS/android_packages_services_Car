@@ -23,6 +23,8 @@ import android.os.Bundle;
 import android.os.Process;
 import android.util.Log;
 
+import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
+
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,6 +41,10 @@ final class DpcShellCommand {
     private final PrintWriter mWriter;
     private final String[] mArgs;
 
+    // TODO(b/235235034): Uncomment this for future use cases such as set-user-resttion
+    // private final List<DevicePolicyManagerInterface> mPoInterfaces;
+    private final DevicePolicyManagerInterface mDoInterface;
+
     private static final String CMD_GET_AFFILIATION_IDS = "get-affiliation-ids";
     private static final String CMD_SET_AFFILIATION_IDS = "set-affiliation-ids";
     private static final String CMD_IS_USER_AFFILIATED = "is-user-affiliated";
@@ -46,14 +52,19 @@ final class DpcShellCommand {
     private static final String CMD_CLR_USER_RESTRICTION = "clear-user-restriction";
     private static final String CMD_GET_USER_RESTRICTIONS = "get-user-restrictions";
     private static final String CMD_HELP = "help";
+    private static final String CMD_REBOOT = "reboot";
 
-    DpcShellCommand(Context context, PrintWriter writer, String[] args) {
+    DpcShellCommand(Context context, PrintWriter writer, String[] args,
+            List<DevicePolicyManagerInterface> profileOwners,
+            DevicePolicyManagerInterface deviceOwner) {
+
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mAdmin = new ComponentName(context, DpcReceiver.class.getName());
         Log.d(TAG, "Created for user " + Process.myUserHandle() + " and component " + mAdmin
                 + " for command " + Arrays.toString(args));
         mWriter = writer;
         mArgs = args;
+        mDoInterface = deviceOwner;
     }
 
     void run() {
@@ -85,6 +96,9 @@ final class DpcShellCommand {
                 case CMD_SET_AFFILIATION_IDS:
                     runSetAffiliationIds();
                     break;
+                case CMD_REBOOT:
+                    runReboot();
+                    break;
                 default:
                     mWriter.println("Invalid command: " + cmd);
                     runHelp();
@@ -92,6 +106,7 @@ final class DpcShellCommand {
             }
         } catch (Exception e) {
             mWriter.println("Failed to execute " + Arrays.toString(mArgs) + ": " + e);
+            Log.e(TAG, "Failed to execute " + Arrays.toString(mArgs), e);
             return;
         }
     }
@@ -113,7 +128,8 @@ final class DpcShellCommand {
         mWriter.println("\tGet affiliation id(s) for a specified user.");
         mWriter.printf("%s\n", CMD_IS_USER_AFFILIATED);
         mWriter.println("\tReturns whether this user is affiliated with the device.");
-
+        mWriter.printf("%s\n", CMD_REBOOT);
+        mWriter.println("\tReboots the device.");
     }
 
     private void runAddUserRestriction() {
@@ -166,6 +182,11 @@ final class DpcShellCommand {
 
     private void runIsUserAffiliated() {
         mWriter.println(mDpm.isAffiliatedUser());
+    }
+
+    private void runReboot() {
+        Log.i(TAG, "Calling reboot()");
+        mDoInterface.reboot(mAdmin);
     }
 
     /**
