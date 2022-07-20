@@ -43,3 +43,16 @@ To find where the service was included, run this from `$ANDROID_BUILD_TOP`:
 grep -rH --color --exclude-dir='**/.*' --exclude-dir='out' --include='*.mk' \
     'cartelemetryd/products/telemetry.mk' device/ vendor/
 ```
+
+## Updating cartelemetryd
+
+If AIDL interface were updated, run `m -j` and re-flash.
+
+If implementation were updated, run:
+
+```
+m -j android.automotive.telemetryd@1.0
+adb root && adb remount && adb push $ANDROID_PRODUCT_OUT/system/bin/android.automotive.telemetryd@1.0 /system/bin && adb shell /system/bin/android.automotive.telemetryd@1.0
+Ctrl+C
+adb reboot
+```
