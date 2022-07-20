@@ -237,7 +237,7 @@ public class SystemInterface implements ActivityManagerInterface,
             builder.withWakeLockInterface(new WakeLockInterface.DefaultImpl(context));
             builder.withDisplayInterface(new DisplayInterface.DefaultImpl(context,
                     builder.mWakeLockInterface));
-            builder.withIOInterface(new IOInterface.DefaultImpl(context));
+            builder.withIOInterface(new IOInterface.DefaultImpl());
             builder.withStorageMonitoringInterface(new StorageMonitoringInterface.DefaultImpl());
             builder.withSystemStateInterface(new SystemStateInterface.DefaultImpl(context));
             return builder.withTimeInterface(new TimeInterface.DefaultImpl());

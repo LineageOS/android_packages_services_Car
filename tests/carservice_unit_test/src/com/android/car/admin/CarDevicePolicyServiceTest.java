@@ -191,7 +191,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
                 .thenReturn(true);
         BroadcastReceiver receiver = callInit();
 
-        sendShowNewUserDisclaimerBroadcast(receiver, userId);
+        sendShowNewUserDisclaimerBroadcast(receiver);
 
         verify(mNotificationHelper).showUserDisclaimerNotification(UserHandle.of(userId));
         assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT);
@@ -231,7 +231,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
         return receiver;
     }
 
-    private void sendShowNewUserDisclaimerBroadcast(BroadcastReceiver receiver, int userId) {
+    private void sendShowNewUserDisclaimerBroadcast(BroadcastReceiver receiver) {
         receiver.onReceive(mContext, new Intent(ACTION_SHOW_NEW_USER_DISCLAIMER));
     }
 
