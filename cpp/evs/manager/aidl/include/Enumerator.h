@@ -69,6 +69,12 @@ public:
     // Destructor
     virtual ~Enumerator();
 
+    // TODO(b/235110887): We may eventually want to remove below two methods and
+    //                    replace their functionality with other methods more
+    //                    elegant.
+    bool init(std::shared_ptr<aidlevs::IEvsEnumerator>& hwEnumerator, bool enableMonitor = false);
+    void enablePermissionCheck(bool enable);
+
 private:
     class EvsDeviceStatusCallbackImpl : public aidlevs::BnEvsEnumeratorStatusCallback {
     public:
@@ -130,6 +136,8 @@ private:
     // Clients to forward device status callback messages
     std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks
             GUARDED_BY(mLock);
+
+    bool mDisablePermissionCheck = false;
 };
 
 }  // namespace aidl::android::automotive::evs::implementation

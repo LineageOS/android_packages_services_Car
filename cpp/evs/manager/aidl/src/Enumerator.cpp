@@ -191,7 +191,7 @@ bool Enumerator::init(const std::string_view& hardwareServiceName) {
 
 bool Enumerator::checkPermission() const {
     const auto uid = AIBinder_getCallingUid();
-    if (kAllowedUids.find(uid) == kAllowedUids.end()) {
+    if (!mDisablePermissionCheck && kAllowedUids.find(uid) == kAllowedUids.end()) {
         LOG(ERROR) << "EVS access denied: "
                    << "pid = " << AIBinder_getCallingPid() << ", uid = " << uid;
         return false;
@@ -823,6 +823,49 @@ ScopedAStatus Enumerator::EvsDeviceStatusCallbackImpl::deviceStatusChanged(
         const std::vector<aidlevs::DeviceStatus>& list) {
     mEnumerator->broadcastDeviceStatusChange(list);
     return ScopedAStatus::ok();
+}
+
+bool Enumerator::init(std::shared_ptr<IEvsEnumerator>& hwEnumerator, bool enableMonitor) {
+    LOG(DEBUG) << __FUNCTION__;
+
+    // Get a list of available displays and identify the internal display
+    if (!hwEnumerator->getDisplayIdList(&mDisplayPorts).isOk() || mDisplayPorts.empty()) {
+        LOG(ERROR) << "Failed to get a list of available displays";
+        return false;
+    }
+
+    // The first element is the internal display
+    mInternalDisplayPort = mDisplayPorts.front();
+
+    auto it = std::find(mDisplayPorts.begin(), mDisplayPorts.end(), kExclusiveMainDisplayId);
+    if (it != mDisplayPorts.end()) {
+        LOG(WARNING) << kExclusiveMainDisplayId << " is reserved for the special purpose "
+                     << "so will not be available for EVS service.";
+        mDisplayPorts.erase(it);
+    }
+    mDisplayOwnedExclusively = false;
+    mHwEnumerator = hwEnumerator;
+
+    // Starts the statistics collection
+    mMonitorEnabled = false;
+    if (!enableMonitor) {
+        return true;
+    }
+
+    mClientsMonitor = new (std::nothrow) StatsCollector();
+    if (mClientsMonitor) {
+        if (auto result = mClientsMonitor->startCollection(); !result.ok()) {
+            LOG(ERROR) << "Failed to start the usage monitor: " << result.error();
+        } else {
+            mMonitorEnabled = true;
+        }
+    }
+
+    return true;
+}
+
+void Enumerator::enablePermissionCheck(bool enable) {
+    mDisablePermissionCheck = !enable;
 }
 
 }  // namespace aidl::android::automotive::evs::implementation
