@@ -132,7 +132,8 @@ class LuaEngine {
 
 // Adds compatibility with Python.
 // Since Python is written in C, the external functions must be C callable (so
-// C++ types must be converted, etc).
+// C++ types must be converted, etc). These are the functions that can be
+// directly called on by the Python ctypes library.
 extern "C" {
 
 // Holds information about the output of the execution.

@@ -269,10 +269,10 @@ int LuaEngine::ScriptLog(lua_State* lua_state) {
     // NIL lua type cannot be coerced to string so must be explicitly checked to
     // prevent errors.
     if (!lua_isstring(lua_state, i)) {
-      std::string error(
+      output_.push_back(
+          std::string(kLuaLogTag) +
           "One of the log arguments cannot be coerced to a string; make "
           "sure that this value exists\n");
-      output_.push_back(kLuaLogTag + error);
       return ZERO_RETURNED_RESULTS;
     }
     log << lua_tostring(lua_state, i);
@@ -341,12 +341,13 @@ int LuaEngine::OnMetricsReport(lua_State* lua_state) {
     return ZERO_RETURNED_RESULTS;
   }
 
-  output_.push_back(ConvertTableToJson(lua_state));
+  const auto first_table = ConvertTableToJson(lua_state);
 
   // If the script provided 1 argument, return now.
   // gettop would be zero since the single argument is popped off the stack
-  // from ConvertTableToJson
+  // from ConvertTableToJson.
   if (lua_gettop(lua_state) == 0) {
+    output_.push_back(first_table);
     return ZERO_RETURNED_RESULTS;
   }
 
@@ -358,7 +359,12 @@ int LuaEngine::OnMetricsReport(lua_State* lua_state) {
     return ZERO_RETURNED_RESULTS;
   }
 
-  output_.push_back(ConvertTableToJson(lua_state));
+  // If there are two tables, at index -1 would be the saved state table (since
+  // it's the second argument for on_metrics_report) so the report is pushed to
+  // output_ first so the console will display the report first.
+  const auto report = ConvertTableToJson(lua_state);
+  output_.push_back(report);
+  output_.push_back(first_table);
 
   return ZERO_RETURNED_RESULTS;
 }

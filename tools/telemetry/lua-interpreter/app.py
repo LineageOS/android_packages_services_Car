@@ -4,6 +4,7 @@
 
 import ctypes
 import json
+import os
 import flask
 
 app = flask.Flask(__name__)
@@ -30,19 +31,48 @@ def index():
   """Renders the main page of the tool.
 
   Returns:
-    A string of the rendered index.html page.
+    A JSON response with a string of the rendered index.html page.
   """
   return flask.render_template('index.html')
 
 
-@app.route('/execute-script', methods=['POST'])
+@app.route('/get_published_data_file_names_and_content', methods=['POST'])
+def get_published_data_file_names_and_content():
+  """Returns the list of all the JSON file names under the data
+  directory without their file extensions. Also returns the
+  JSON of each published data file under the data directory as a string.
+
+  Returns:
+    A JSON response with file names under the key "file_names" and each 
+    of the published data strings under the key of their file name.
+  """
+  file_path = os.path.join(os.path.dirname(__file__), "data")
+  all_json_files = filter(lambda file: file.endswith('.json'),
+                          os.listdir(file_path))
+  file_names = list(
+      # lamda function leverages splitext, which produces a tuple of
+      # the file name and the extension.
+      map(lambda file: os.path.splitext(file)[0], all_json_files))
+
+  response = {"file_names": file_names}
+
+  for file_name in file_names:
+    json_file_path = os.path.join(file_path, file_name + '.json')
+    json_file = open(json_file_path)
+    response[file_name] = json.dumps(json.load(json_file), indent=2)
+    json_file.close()
+
+  return response
+
+
+@app.route('/execute_script', methods=['POST'])
 def execute_script():
   """Executes the Lua script from the request
   re-rendering the home page with the output.
 
   Returns:
-    A string of the rendered index.html page with output, script, published data,
-    and the saved state specified.
+    A JSON response containing the string of the rendered index.html
+    page with output, script, published data, and the saved state specified.
   """
   script = flask.request.form['script']
   function_name = flask.request.form['function-name']
