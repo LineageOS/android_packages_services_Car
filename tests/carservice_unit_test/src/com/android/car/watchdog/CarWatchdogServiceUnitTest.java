@@ -3446,8 +3446,10 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .getApplicationEnabledSetting("vendor_package.critical.A", 100);
         verify(mSpiedPackageManager, times(2))
                 .getApplicationEnabledSetting("vendor_package.critical.B", 100);
-        verify(mSpiedPackageManager).getApplicationEnabledSetting("system_package.critical.A", 100);
-        verify(mSpiedPackageManager).getApplicationEnabledSetting("third_party_package.B", 100);
+        verify(mSpiedPackageManager, never())
+                .getApplicationEnabledSetting("system_package.critical.A", 100);
+        verify(mSpiedPackageManager, never())
+                .getApplicationEnabledSetting("third_party_package.B", 100);
 
         verify(mSpiedPackageManager).setApplicationEnabledSetting(eq("third_party_package.A"),
                 eq(COMPONENT_ENABLED_STATE_ENABLED), anyInt(), eq(100), anyString());

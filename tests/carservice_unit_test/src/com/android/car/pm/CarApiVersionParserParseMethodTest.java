@@ -19,6 +19,7 @@ package com.android.car.pm;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.car.CarApiVersion;
+import android.car.test.AbstractExpectableTestCase;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ import java.util.Collection;
 
 // Life would be so much easier if JUnit allowed parameterized per method (not whole class)...
 @RunWith(Parameterized.class)
-public final class CarApiVersionParserParseMethodTest {
+public final class CarApiVersionParserParseMethodTest extends AbstractExpectableTestCase {
 
     private static final String PGK_NAME = "bond.james.bond";
     private static final int TARGET_SDK = 108;
@@ -90,15 +91,5 @@ public final class CarApiVersionParserParseMethodTest {
                     { "42 666", TARGET_SDK, 0 },
                     { "forty-two", TARGET_SDK, 0 },
                 });
-    }
-
-    // TODO(b/228506662): extend AbstractExpectableTestCase and remove members below (on master)
-
-    @org.junit.Rule
-    public final com.google.common.truth.Expect mExpect = com.google.common.truth.Expect.create();
-
-    protected com.google.common.truth.StandardSubjectBuilder expectWithMessage(String fmt,
-            Object...args) {
-        return mExpect.withMessage(fmt, args);
     }
 }

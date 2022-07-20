@@ -362,6 +362,7 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             mCurrentUxRestrictions = uxRestrictions;
             applyCurrentUxRestrictionsLocked();
+            syncDisabledUserPackagesLocked();
         }
         carUxRestrictionsManagerService.registerUxRestrictionsChangeListener(
                 mCarUxRestrictionsChangeListener, Display.DEFAULT_DISPLAY);
@@ -383,6 +384,10 @@ public final class WatchdogPerfHandler {
         /*
          * TODO(b/183436216): Implement this method.
          */
+        synchronized (mLock) {
+            writer.println("List of disabled packages per user due to resource overuse: "
+                    + mDisabledUserPackagesByUserId);
+        }
         mOveruseConfigurationCache.dump(writer);
     }
 
@@ -1049,7 +1054,9 @@ public final class WatchdogPerfHandler {
             }
             removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
             disabledPackages.remove(packageName);
-            mDisabledUserPackagesByUserId.put(userId, disabledPackages);
+            if (disabledPackages.isEmpty()) {
+                mDisabledUserPackagesByUserId.remove(userId);
+            }
         }
         if (DEBUG) {
             Slogf.d(TAG, "Successfully enabled package due to package changed action");
@@ -1816,6 +1823,9 @@ public final class WatchdogPerfHandler {
                     }
                     removeFromDisabledPackagesSettingsStringLocked(packageName, userId);
                     disabledPackages.remove(packageName);
+                    if (disabledPackages.isEmpty()) {
+                        mDisabledUserPackagesByUserId.remove(userId);
+                    }
                 }
                 PackageManagerHelper.setApplicationEnabledSettingForUser(
                         packageName, COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ 0, userId,
@@ -1871,14 +1881,15 @@ public final class WatchdogPerfHandler {
     /**
      * Removes {@code packageName} from {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE}
      * {@code Settings} of the given user.
+     *
+     * <p> Appending and removing package names to/from the settings string
+     *     KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
+     *     these operations using the class wide lock.
      */
     @GuardedBy("mLock")
     private void removeFromDisabledPackagesSettingsStringLocked(String packageName,
             @UserIdInt int userId) {
         ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
-        // Appending and removing package names to/from the settings string
-        // KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
-        // these operations using the class wide lock.
         ArraySet<String> packages = extractPackages(
                 Settings.Secure.getString(contentResolverForUser,
                         KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
@@ -1891,6 +1902,34 @@ public final class WatchdogPerfHandler {
         if (DEBUG) {
             Slogf.d(TAG, "Removed %s from %s. New value is '%s'", packageName,
                     KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE, settingsString);
+        }
+    }
+
+    /**
+     * Syncs the {@link KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE} {@code Settings} of all users
+     * with the internal cache.
+     *
+     * <p> Appending and removing package names to/from the settings string
+     *     KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE is done only by this class. So, synchronize
+     *     these operations using the class wide lock.
+     */
+    @GuardedBy("mLock")
+    private void syncDisabledUserPackagesLocked() {
+        int[] userIds = getAliveUserIds();
+        for (int i = 0; i < userIds.length; i++) {
+            int userId = userIds[i];
+            ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
+            ArraySet<String> packages = extractPackages(
+                    Settings.Secure.getString(contentResolverForUser,
+                            KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE));
+            if (packages.isEmpty()) {
+                continue;
+            }
+            mDisabledUserPackagesByUserId.put(userId, packages);
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "Synced the %s settings to the disabled user packages cache.",
+                    KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE);
         }
     }
 
