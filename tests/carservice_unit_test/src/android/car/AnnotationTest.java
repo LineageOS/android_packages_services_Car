@@ -213,6 +213,7 @@ public final class AnnotationTest {
             "android.car.Car",
             "android.car.Car$CarServiceLifecycleListener",
             "android.car.PlatformApiVersion",
+            "android.car.PlatformVersionMismatchException",
             "android.car.telemetry.CarTelemetryManager",
             "android.car.telemetry.CarTelemetryManager$AddMetricsConfigCallback",
             "android.car.telemetry.CarTelemetryManager$MetricsReportCallback",
