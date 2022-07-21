@@ -69,7 +69,6 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.content.pm.Signature;
 import android.content.res.Resources;
-import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -151,7 +150,6 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private final CarActivityService mActivityService;
     private final PackageManager mPackageManager;
     private final ActivityManager mActivityManager;
-    private final DisplayManager mDisplayManager;
     private final IBinder mWindowManagerBinder;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -261,7 +259,6 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         mCarOccupantZoneService = carOccupantZoneService;
         mPackageManager = mContext.getPackageManager();
         mActivityManager = mContext.getSystemService(ActivityManager.class);
-        mDisplayManager = mContext.getSystemService(DisplayManager.class);
         mWindowManagerBinder = ServiceManagerHelper.getService(Context.WINDOW_SERVICE);
         Resources res = context.getResources();
         mEnableActivityBlocking = res.getBoolean(R.bool.enableActivityBlockingForSafety);

@@ -19,7 +19,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
 import android.car.IPerUserCarService;
 import android.car.builtin.os.UserManagerHelper;
@@ -39,7 +38,6 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -62,15 +60,6 @@ public class CarBluetoothService implements CarServiceBase {
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     static final String THREAD_NAME = "CarBluetoothService";
     private final Context mContext;
-
-    // The list of profiles we wish to manage
-    private static final List<Integer> sManagedProfiles = Arrays.asList(
-            BluetoothProfile.HEADSET_CLIENT,
-            BluetoothProfile.PBAP_CLIENT,
-            BluetoothProfile.A2DP_SINK,
-            BluetoothProfile.MAP_CLIENT,
-            BluetoothProfile.PAN
-    );
 
     // Each time PerUserCarService connects we need to get new Bluetooth profile proxies and refresh
     // all our internal objects to use them. When it disconnects we're to assume our proxies are

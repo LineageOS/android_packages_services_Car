@@ -61,7 +61,6 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
     private MockContext mMockContext;
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
     @Mock private BluetoothManager mMockBluetoothManager;
-    @Mock private CarBluetoothService mMockBluetoothService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
 
     private BluetoothPowerPolicy mPolicy;

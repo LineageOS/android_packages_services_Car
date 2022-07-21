@@ -139,8 +139,6 @@ public class AudioTestFragment extends Fragment {
     private Spinner mDeviceAddressSpinner;
     ArrayAdapter<CarAudioZoneDeviceInfo> mDeviceAddressAdapter;
     private LinearLayout mDeviceAddressLayout;
-    private ArrayAdapter<String> mCarSoundUsagesAdapter;
-    private Spinner mCarSoundUsagesSpinner;
 
     private TabLayout mPlayerTabLayout;
     private ViewPager mViewPager;

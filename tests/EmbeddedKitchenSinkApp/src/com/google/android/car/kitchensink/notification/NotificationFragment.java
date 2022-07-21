@@ -45,7 +45,6 @@ public class NotificationFragment extends Fragment {
     private NotificationManager mManager;
     private Context mContext;
     private Handler mHandler = new Handler();
-    private int mCount = 0;
     private HashMap<Integer, Runnable> mUpdateRunnables = new HashMap<>();
 
     @Override

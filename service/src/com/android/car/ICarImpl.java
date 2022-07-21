@@ -268,7 +268,7 @@ public class ICarImpl extends ICar.Stub {
         }
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
-                () -> new SystemActivityMonitoringService(serviceContext), allServices);
+                () -> new SystemActivityMonitoringService(), allServices);
         mCarPowerManagementService = constructWithTrace(
                 t, CarPowerManagementService.class,
                 () -> new CarPowerManagementService(mContext, mHal.getPowerHal(),
@@ -305,7 +305,7 @@ public class ICarImpl extends ICar.Stub {
                         mCarBluetoothService), allServices);
         if (garageModeService == null) {
             mGarageModeService = constructWithTrace(t, GarageModeService.class,
-                    () -> new GarageModeService(mContext), allServices);
+                    () -> new GarageModeService(serviceContext), allServices);
         } else {
             mGarageModeService = garageModeService;
             allServices.add(mGarageModeService);

@@ -93,9 +93,7 @@ public interface SystemStateInterface {
      */
     @VisibleForTesting
     class DefaultImpl implements SystemStateInterface {
-        private static final int MAX_WAIT_FOR_HELPER_SEC = 10;
         private static final Duration MIN_BOOT_COMPLETE_ACTION_DELAY = Duration.ofSeconds(10);
-        private static final int SUSPEND_TRY_TIMEOUT_MS = 1_000;
 
         private final Context mContext;
         private List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();

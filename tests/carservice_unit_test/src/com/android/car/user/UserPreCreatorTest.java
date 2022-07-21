@@ -35,7 +35,6 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.SyncAnswer;
-import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -59,8 +58,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
     private UserManager mUserManager;
-    @Mock
-    private Context mContext;
+
     @Mock
     private UserHandleHelper mUserHandleHelper;
 
@@ -77,7 +75,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUpMocks() {
-        mUserPreCreator = spy(new UserPreCreator(mContext, mUserManager, mUserHandleHelper));
+        mUserPreCreator = spy(new UserPreCreator(mUserManager, mUserHandleHelper));
     }
 
     @Test

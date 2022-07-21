@@ -106,8 +106,6 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private static final String NORMAL_BOOT = "reboot,shell";
 
     private static final int CURRENT_USER_ID = 42;
-    private static final int CURRENT_GUEST_ID = 108; // must be different than CURRENT_USER_ID;
-    private static final int NEW_GUEST_ID = 666;
     public static final String SYSTEM_POWER_POLICY_ALL_ON = "system_power_policy_all_on";
     public static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
             "system_power_policy_no_user_interaction";
