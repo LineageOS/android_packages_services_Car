@@ -44,4 +44,4 @@ PRODUCT_PACKAGES += \
 endif
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.boot.vendor.overlay.theme=com.android.car.carlauncher.caruiportrait.rro;com.android.car.dialer.caruiportrait.rro;com.google.android.car.evs.caruiportrait.rro;com.android.car.carlauncher.apps.caruiportrait.rro;com.android.car.caruiportrait.rro;com.android.car.carlauncher.media.caruiportrait.rro;com.android.car.media.common.caruiportrait.rro;com.android.car.media.caruiportrait.rro;com.android.car.notification.caruiportrait.rro
+    ro.boot.vendor.overlay.theme=com.android.car.carlauncher.caruiportrait.rro;com.android.car.dialer.caruiportrait.rro;com.google.android.car.evs.caruiportrait.rro;com.android.car.carlauncher.apps.caruiportrait.rro;com.android.car.caruiportrait.rro;com.android.car.carlauncher.media.caruiportrait.rro;com.android.car.media.common.caruiportrait.rro;com.android.car.media.caruiportrait.rro;com.android.car.notification.caruiportrait.rro;com.android.providers.settings.caruiportrait.emu.rro
