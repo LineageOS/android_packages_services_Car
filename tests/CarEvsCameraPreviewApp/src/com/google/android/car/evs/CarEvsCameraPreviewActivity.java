@@ -304,6 +304,17 @@ public class CarEvsCameraPreviewActivity extends Activity {
     protected void onStop() {
         Log.d(TAG, "onStop");
         try {
+            if (mUseSystemWindow) {
+                // When a new activity is launched, this activity will become the background
+                // activity and, however, likely still visible to the users if it is using the
+                // system window.  Therefore, we should not transition to the INVISIBLE state.
+                //
+                // Similarly, this activity continues previewing the camera when the user triggers
+                // the home button.  If the users want to manually close the preview window, they
+                // can trigger the close button at the bottom of the window.
+                return;
+            }
+
             synchronized (mLock) {
                 handleVideoStreamLocked(STREAM_STATE_INVISIBLE);
             }
