@@ -21,7 +21,11 @@ import static android.car.PlatformApiVersion.TIRAMISU_0;
 import static android.car.PlatformApiVersion.TIRAMISU_1;
 import static android.os.Build.VERSION_CODES.TIRAMISU;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import android.car.PlatformApiVersion;
 import android.car.test.AbstractExpectableTestCase;
+import android.os.Parcel;
 
 import org.junit.Test;
 
@@ -43,5 +47,32 @@ public final class PlatformApiVersionTest extends AbstractExpectableTestCase {
                 .isEqualTo(TIRAMISU);
         expectWithMessage("TIRAMISU_1.minor").that(TIRAMISU_1.getMinorVersion())
                 .isEqualTo(1);
+    }
+
+    @Test
+    public void testMarshalling() {
+        PlatformApiVersion original = PlatformApiVersion.forMajorAndMinorVersions(66, 6);
+        Parcel parcel =  Parcel.obtain();
+        try {
+            original.writeToParcel(parcel, /* flags= */ 0);
+            parcel.setDataPosition(0);
+
+            PlatformApiVersion clone = PlatformApiVersion.CREATOR.createFromParcel(parcel);
+
+            assertWithMessage("CREATOR.createFromParcel()").that(clone).isNotNull();
+            expectWithMessage("clone.major").that(clone.getMajorVersion()).isEqualTo(66);
+            expectWithMessage("clone.minor").that(clone.getMinorVersion()).isEqualTo(6);
+
+        } finally {
+            parcel.recycle();
+        }
+    }
+
+    @Test
+    public void testNewArray() {
+        PlatformApiVersion[] array = PlatformApiVersion.CREATOR.newArray(42);
+
+        assertWithMessage("CREATOR.newArray()").that(array).isNotNull();
+        expectWithMessage("CREATOR.newArray()").that(array).hasLength(42);
     }
 }
