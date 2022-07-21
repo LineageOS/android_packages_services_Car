@@ -18,6 +18,9 @@
 
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/public
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/private
+ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
+PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/cartelemetry
+endif
 
 PRODUCT_PACKAGES += \
     Bluetooth \
