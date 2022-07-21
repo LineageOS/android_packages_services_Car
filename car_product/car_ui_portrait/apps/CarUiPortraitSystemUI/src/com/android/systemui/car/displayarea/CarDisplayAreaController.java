@@ -81,6 +81,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.android.internal.app.AssistUtils;
 import com.android.systemui.R;
+import com.android.systemui.car.CarDeviceProvisionedController;
+import com.android.systemui.car.CarDeviceProvisionedListener;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.qs.QSHost;
 import com.android.systemui.statusbar.CommandQueue;
@@ -131,6 +133,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private final CarFullscreenTaskListener mCarFullscreenTaskListener;
     private final ComponentName mControlBarActivityComponent;
     private final CarUiPortraitDisplaySystemBarsController mCarUiDisplaySystemBarsController;
+    private final CarDeviceProvisionedController mCarDeviceProvisionedController;
     private final List<ComponentName> mBackgroundActivityComponent;
     private final HashMap<String, Boolean> mForegroundDAComponentsVisibilityMap;
     private final ArraySet<ComponentName> mIgnoreOpeningForegroundDAComponentsSet;
@@ -174,6 +177,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private boolean mIsForegroundDaFullScreen = false;
     private boolean mIsForegroundAppRequestingImmersiveMode = false;
     private boolean mIsUiModeNight = false;
+    private boolean mIsUserSetupInProgress;
     // contains the list of activities that will be displayed on feature {@link
     // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
     private final Set<ComponentName> mVoicePlateActivitySet;
@@ -339,6 +343,14 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 }
             };
 
+    private final CarDeviceProvisionedListener mCarDeviceProvisionedListener =
+            new CarDeviceProvisionedListener() {
+                @Override
+                public void onUserSetupInProgressChanged() {
+                    updateUserSetupState();
+                }
+    };
+
     private void relaunchBackgroundApp() {
         logIfDebuggable("relaunching background app...");
         Intent mapsIntent = new Intent();
@@ -366,7 +378,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             CarServiceProvider carServiceProvider,
             CarDisplayAreaOrganizer organizer,
             CarUiPortraitDisplaySystemBarsController carUiPortraitDisplaySystemBarsController,
-            CommandQueue commandQueue) {
+            CommandQueue commandQueue,
+            CarDeviceProvisionedController deviceProvisionedController) {
         mApplicationContext = applicationContext;
         mSyncQueue = syncQueue;
         mOrganizer = organizer;
@@ -375,6 +388,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mConfigurationController = configurationController;
         mCarServiceProvider = carServiceProvider;
         mCarUiDisplaySystemBarsController = carUiPortraitDisplaySystemBarsController;
+        mCarDeviceProvisionedController = deviceProvisionedController;
         mCarUiDisplaySystemBarsController.registerCallback(mApplicationContext.getDisplayId(),
                 mCarUiPortraitDisplaySystemBarsControllerCallback);
         mUiModeManager = host.getUserContext().getSystemService(UiModeManager.class);
@@ -719,6 +733,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 mOnActivityRestartAttemptListener);
         // add CarFullscreenTaskListener to control the foreground DA when the task appears.
         mCarFullscreenTaskListener.registerOnTaskChangeListener(mOnTaskChangeListener);
+
+        updateUserSetupState();
+        mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
     }
 
     void updateVoicePlateActivityMap() {
@@ -951,6 +968,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mCarDisplayAreaTouchHandler.enable(false);
         ActivityTaskManager.getInstance()
                 .unregisterTaskStackListener(mOnActivityRestartAttemptListener);
+        mCarDeviceProvisionedController.removeCallback(mCarDeviceProvisionedListener);
         mTitleBarView.setVisibility(View.GONE);
     }
 
@@ -961,6 +979,10 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
      * foreground DA hosting default applications will animate to the default set height.
      */
     public void startAnimation(DisplayAreaComponent.FOREGROUND_DA_STATE toState) {
+        if (mIsUserSetupInProgress) {
+            // No animations while in setup
+            return;
+        }
         // TODO: currently the animations are only bottom/up. Make it more generic animations here.
         int fromPos = 0;
         int toPos = 0;
@@ -1313,5 +1335,27 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         intent.putExtra(INTENT_EXTRA_IS_DISPLAY_AREA_VISIBLE, visible);
         LocalBroadcastManager.getInstance(mApplicationContext).sendBroadcast(
                 intent);
+    }
+
+    private void updateUserSetupState() {
+        boolean userSetupInProgress = mCarDeviceProvisionedController
+                .isCurrentUserSetupInProgress();
+        if (mIsUserSetupInProgress == userSetupInProgress) {
+            return;
+        }
+        mIsUserSetupInProgress = userSetupInProgress;
+        if (mIsUserSetupInProgress) {
+            if (!isForegroundDaVisible()) {
+                hideTitleBar();
+                makeForegroundDaVisible(true);
+            }
+            setControlBarVisibility(false);
+            immersiveForSUW(true);
+        } else {
+            makeForegroundDaVisible(false);
+            immersiveForSUW(false);
+            showTitleBar();
+            setControlBarVisibility(true);
+        }
     }
 }
