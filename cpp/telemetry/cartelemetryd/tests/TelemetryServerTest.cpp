@@ -35,6 +35,7 @@
 #include <unistd.h>
 
 #include <memory>
+#include <unordered_set>
 
 namespace android {
 namespace automotive {
@@ -115,6 +116,23 @@ TEST_F(TelemetryServerTest, WriteReturnsOk) {
     EXPECT_TRUE(status.isOk()) << status.getMessage();
 }
 
+TEST_F(TelemetryServerTest, addCarDataIdsReturnsOk) {
+    auto status = mTelemetryInternal->addCarDataIds({101});
+
+    EXPECT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(TelemetryServerTest, RemoveCarDataIdsReturnsOk) {
+    mTelemetryInternal->addCarDataIds({101, 102, 103});
+    EXPECT_EQ(3, mTelemetryServer.mCarDataIds.size());
+
+    auto status = mTelemetryInternal->removeCarDataIds({101, 103});
+
+    EXPECT_TRUE(status.isOk()) << status.getMessage();
+    EXPECT_EQ(1, mTelemetryServer.mCarDataIds.size());
+    EXPECT_NE(mTelemetryServer.mCarDataIds.end(), mTelemetryServer.mCarDataIds.find(102));
+}
+
 TEST_F(TelemetryServerTest, SetListenerReturnsOk) {
     auto status = mTelemetryInternal->setListener(mMockCarDataListener);
 
@@ -174,6 +192,7 @@ TEST_F(TelemetryServerTest, BuffersOnlyLimitedData) {
     std::vector<CarData> dataList1 = {buildCarData(10, {1, 2}), buildCarData(11, {2, 3})};
     std::vector<CarData> dataList2 = {buildCarData(101, {1, 2}), buildCarData(102, {2, 3}),
                                       buildCarData(103, {3, 4}), buildCarData(104, {4, 5})};
+    mTelemetryInternal->addCarDataIds({10, 11, 101, 102, 103, 104});
 
     mTelemetry->write(dataList1);
     mTelemetry->write(dataList2);
@@ -189,9 +208,22 @@ TEST_F(TelemetryServerTest, BuffersOnlyLimitedData) {
     mFakeLooper.poll();
 }
 
-// First sets the listener, then writes CarData.
-TEST_F(TelemetryServerTest, WhenListenerIsAlreadyItPushesData) {
+// Data is filtered out when mTelemetryInternal->addCarDataIds() is not called
+TEST_F(TelemetryServerTest, WriteFiltersDataBasedOnId) {
     std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->setListener(mMockCarDataListener);
+
+    mTelemetry->write(dataList);
+
+    expectMockListenerToReceive({buildCarDataInternal(101, {1})}).Times(0);
+
+    mFakeLooper.poll();
+}
+
+// First sets the listener, then writes CarData.
+TEST_F(TelemetryServerTest, WhenListenerIsAlreadySetItPushesData) {
+    std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->addCarDataIds({101});
 
     mTelemetryInternal->setListener(mMockCarDataListener);
     mTelemetry->write(dataList);
@@ -204,6 +236,7 @@ TEST_F(TelemetryServerTest, WhenListenerIsAlreadyItPushesData) {
 // First writes CarData, only then sets the listener.
 TEST_F(TelemetryServerTest, WhenListenerIsSetLaterItPushesData) {
     std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->addCarDataIds({101});
 
     mTelemetry->write(dataList);
     mTelemetryInternal->setListener(mMockCarDataListener);
@@ -214,6 +247,7 @@ TEST_F(TelemetryServerTest, WhenListenerIsSetLaterItPushesData) {
 }
 
 TEST_F(TelemetryServerTest, WriteDuringPushingDataToListener) {
+    mTelemetryInternal->addCarDataIds({101, 102, 103});
     std::vector<CarData> dataList = {buildCarData(101, {1}), buildCarData(102, {1})};
     std::vector<CarData> dataList2 = {buildCarData(103, {1})};
     mTelemetryInternal->setListener(mMockCarDataListener);
@@ -232,6 +266,7 @@ TEST_F(TelemetryServerTest, WriteDuringPushingDataToListener) {
 
 TEST_F(TelemetryServerTest, ClearListenerDuringPushingDataToListener) {
     std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->addCarDataIds({101});
     mTelemetryInternal->setListener(mMockCarDataListener);
     mTelemetry->write(dataList);
 
@@ -245,6 +280,7 @@ TEST_F(TelemetryServerTest, ClearListenerDuringPushingDataToListener) {
 
 TEST_F(TelemetryServerTest, RetriesPushAgainIfListenerFails) {
     std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->addCarDataIds({101});
     mTelemetryInternal->setListener(mMockCarDataListener);
     mTelemetry->write(dataList);
 
@@ -260,6 +296,7 @@ TEST_F(TelemetryServerTest, RetriesPushAgainIfListenerFails) {
 // is handled properly when transaction fails and clearListener() is called.
 TEST_F(TelemetryServerTest, ClearListenerDuringPushingDataAndSetListenerAgain) {
     std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->addCarDataIds({101});
     mTelemetryInternal->setListener(mMockCarDataListener);
     mTelemetry->write(dataList);
 
@@ -277,6 +314,7 @@ TEST_F(TelemetryServerTest, ClearListenerDuringPushingDataAndSetListenerAgain) {
 // Directly calls pushCarDataToListeners() to make sure it can handle edge-cases.
 TEST_F(TelemetryServerTest, NoListenerButMultiplePushes) {
     std::vector<CarData> dataList = {buildCarData(101, {1})};
+    mTelemetryInternal->addCarDataIds({101});
     mTelemetry->write(dataList);
 
     mTelemetryServer.pushCarDataToListeners();
