@@ -218,7 +218,7 @@ public class HvacTestFragment extends Fragment {
 
                 switch (propId) {
                     case CarHvacManager.ID_OUTSIDE_AIR_TEMP:
-                        configureOutsideTemp(mHvacView, prop);
+                        // Nothing is done in this case.
                         break;
                     case CarHvacManager.ID_ZONED_DUAL_ZONE_ON:
                         configureDualOn(mHvacView, prop);
@@ -284,10 +284,6 @@ public class HvacTestFragment extends Fragment {
         }
 
         return mHvacView;
-    }
-
-    private void configureOutsideTemp(View v, CarPropertyConfig prop) {
-        // Do nothing
     }
 
     private void configureDualOn(View v, CarPropertyConfig prop) {

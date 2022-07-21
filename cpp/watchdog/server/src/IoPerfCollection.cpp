@@ -47,10 +47,9 @@ namespace {
 
 constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
-constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time I/O performance report:\n%s\n";
-constexpr const char kPeriodicCollectionTitle[] =
-        "%s\nLast N minutes I/O performance report:\n%s\n";
-constexpr const char kCustomCollectionTitle[] = "%s\nCustom I/O performance data report:\n%s\n";
+constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time performance report:\n%s\n";
+constexpr const char kPeriodicCollectionTitle[] = "%s\nLast N minutes performance report:\n%s\n";
+constexpr const char kCustomCollectionTitle[] = "%s\nCustom performance data report:\n%s\n";
 constexpr const char kCollectionTitle[] =
         "Collection duration: %.f seconds\nNumber of collections: %zu\n";
 constexpr const char kRecordTitle[] = "\nCollection %zu: <%s>\n%s\n%s";
@@ -293,8 +292,12 @@ std::string UserPackageSummaryStats::toString() const {
 
 std::string SystemSummaryStats::toString() const {
     std::string buffer;
+    StringAppendF(&buffer, "Total CPU time: %" PRIu64 "\n", totalCpuTime);
+    StringAppendF(&buffer, "Total idle CPU time/percent: %" PRIu64 " / %.2f%%\n", cpuIdleTime,
+                  percentage(cpuIdleTime, totalCpuTime));
     StringAppendF(&buffer, "CPU I/O wait time/percent: %" PRIu64 " / %.2f%%\n", cpuIoWaitTime,
                   percentage(cpuIoWaitTime, totalCpuTime));
+    StringAppendF(&buffer, "Number of context switches: %" PRIu64 "\n", contextSwitchesCount);
     StringAppendF(&buffer, "Number of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
                   ioBlockedProcessCount, percentage(ioBlockedProcessCount, totalProcessCount));
     return buffer;
@@ -542,7 +545,9 @@ void IoPerfCollection::processProcStatLocked(
         SystemSummaryStats* systemSummaryStats) const {
     const ProcStatInfo& procStatInfo = procStatCollector->deltaStats();
     systemSummaryStats->cpuIoWaitTime = procStatInfo.cpuStats.ioWaitTime;
+    systemSummaryStats->cpuIdleTime = procStatInfo.cpuStats.idleTime;
     systemSummaryStats->totalCpuTime = procStatInfo.totalCpuTime();
+    systemSummaryStats->contextSwitchesCount = procStatInfo.contextSwitchesCount;
     systemSummaryStats->ioBlockedProcessCount = procStatInfo.ioBlockedProcessCount;
     systemSummaryStats->totalProcessCount = procStatInfo.totalProcessCount();
 }

@@ -81,6 +81,17 @@ ndk::ScopedAStatus CarTelemetryInternalImpl::clearListener() {
     return ndk::ScopedAStatus::ok();
 }
 
+ndk::ScopedAStatus CarTelemetryInternalImpl::addCarDataIds(const std::vector<int32_t>& ids) {
+    // TODO(b/238226979): implement
+    // status is ok because this function is called in CarTelemetrydPublisher
+    return ndk::ScopedAStatus::ok();
+}
+
+ndk::ScopedAStatus CarTelemetryInternalImpl::removeCarDataIds(const std::vector<int32_t>& ids) {
+    // TODO(b/238226979): implement
+    return ndk::ScopedAStatus::fromExceptionCode(EX_UNSUPPORTED_OPERATION);
+}
+
 binder_status_t CarTelemetryInternalImpl::dump(int fd, const char** args, uint32_t numArgs) {
     dprintf(fd, "ICarTelemetryInternal:\n");
     mTelemetryServer->dump(fd);

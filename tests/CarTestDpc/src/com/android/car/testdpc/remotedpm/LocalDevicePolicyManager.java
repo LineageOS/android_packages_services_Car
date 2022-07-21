@@ -25,7 +25,7 @@ public final class LocalDevicePolicyManager implements DevicePolicyManagerInterf
     private final DevicePolicyManager mDpm;
 
     /* Constructor for local dpm implementation of DPM Factory */
-    LocalDevicePolicyManager(Context context) {
+    public LocalDevicePolicyManager(Context context) {
         mDpm = context.getSystemService(DevicePolicyManager.class);
     }
 

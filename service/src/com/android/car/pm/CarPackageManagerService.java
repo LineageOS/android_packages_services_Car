@@ -1299,7 +1299,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     }
 
     private void blockTopActivitiesIfNecessary() {
-        List<TaskInfo> topTasks = mActivityService.getTopTasks();
+        List<? extends TaskInfo> topTasks = mActivityService.getVisibleTasks();
         for (TaskInfo topTask : topTasks) {
             if (topTask == null) {
                 Slogf.e(TAG, "Top tasks contains null.");

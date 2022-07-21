@@ -39,12 +39,11 @@ public class Watchdog {
 
     public Watchdog(Context context, TextView view) {
         this(
-                context,
                 view,
                 context.getSharedPreferences(PREFS_FILE_NAME, Context.MODE_PRIVATE));
     }
 
-    public Watchdog(Context context, TextView view, SharedPreferences prefs) {
+    public Watchdog(TextView view, SharedPreferences prefs) {
         mView = view;
         mSharedPrefs = prefs;
         mEvents = getEventsFromSharedPrefs(prefs);
