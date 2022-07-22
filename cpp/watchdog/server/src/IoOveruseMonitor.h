@@ -268,7 +268,7 @@ private:
             mLatestIoOveruseStats;
 
     ListenersByUidMap mOveruseListenersByUid GUARDED_BY(mRwMutex);
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient GUARDED_BY(mRwMutex);
 
     friend class WatchdogPerfService;
 

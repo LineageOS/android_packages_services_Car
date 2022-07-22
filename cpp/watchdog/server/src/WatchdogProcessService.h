@@ -141,7 +141,8 @@ private:
         Service,
     };
 
-    struct ClientInfo {
+    class ClientInfo {
+    public:
         ClientInfo(const android::sp<ICarWatchdogClient>& client, pid_t pid, userid_t userId,
                    uint64_t startTimeMillis) :
               pid(pid),
@@ -231,8 +232,7 @@ private:
     };
 
 private:
-    android::binder::Status registerClientLocked(const ClientInfo& clientInfo,
-                                                 TimeoutLength timeout);
+    android::binder::Status registerClient(const ClientInfo& clientInfo, TimeoutLength timeout);
     android::binder::Status unregisterClientLocked(const std::vector<TimeoutLength>& timeouts,
                                                    android::sp<IBinder> binder,
                                                    ClientType clientType);
@@ -275,7 +275,6 @@ private:
 private:
     android::sp<Looper> mHandlerLooper;
     android::sp<MessageHandlerImpl> mMessageHandler;
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
     std::unordered_set<aidl::android::hardware::automotive::vehicle::VehicleProperty>
             mNotSupportedVhalProperties;
     std::shared_ptr<PropertyChangeListener> mPropertyChangeListener;
@@ -299,6 +298,7 @@ private:
             GUARDED_BY(mMutex);
     HeartBeat mVhalHeartBeat GUARDED_BY(mMutex);
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mMutex);
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient GUARDED_BY(mMutex);
 
     // For unit tests.
     friend class internal::WatchdogProcessServicePeer;
