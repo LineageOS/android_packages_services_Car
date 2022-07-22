@@ -16,12 +16,14 @@
 
 #include "MockAIBinderDeathRegistrationWrapper.h"
 #include "MockCarWatchdogServiceForSystem.h"
+#include "MockHidlServiceManager.h"
 #include "MockVhalClient.h"
 #include "MockWatchdogServiceHelper.h"
 #include "WatchdogProcessService.h"
 #include "WatchdogServiceHelper.h"
 
 #include <android/binder_interface_utils.h>
+#include <android/hidl/manager/1.0/IServiceManager.h>
 #include <gmock/gmock.h>
 
 namespace android {
@@ -38,12 +40,15 @@ using ::aidl::android::hardware::automotive::vehicle::VehicleProperty;
 using ::android::IBinder;
 using ::android::sp;
 using ::android::frameworks::automotive::vhal::IVhalClient;
+using ::android::hidl::base::V1_0::DebugInfo;
+using ::android::hidl::manager::V1_0::IServiceManager;
 using ::ndk::ScopedAStatus;
 using ::ndk::SharedRefBase;
 using ::ndk::SpAIBinder;
 using ::testing::_;
 using ::testing::ByMove;
 using ::testing::Eq;
+using ::testing::Invoke;
 using ::testing::Return;
 
 namespace {
@@ -78,6 +83,14 @@ public:
         mWatchdogProcessService->mDeathRegistrationWrapper = wrapper;
     }
 
+    void setHidlServiceManager(const sp<IServiceManager>& hidlServiceManager) {
+        WatchdogProcessService::sHidlServiceManager = hidlServiceManager;
+    }
+
+    std::optional<ProcessIdentifier> cacheVhalProcessIdentifier() {
+        return mWatchdogProcessService->cacheVhalProcessIdentifier();
+    }
+
 private:
     sp<WatchdogProcessService> mWatchdogProcessService;
 };
@@ -91,18 +104,23 @@ protected:
         mWatchdogProcessService = sp<WatchdogProcessService>::make(looper);
         mMockVehicle = SharedRefBase::make<MockVehicle>();
         mMockVhalClient = std::make_shared<MockVhalClient>(mMockVehicle);
+        mMockHidlServiceManager = sp<MockHidlServiceManager>::make();
         mMockDeathRegistrationWrapper = sp<MockAIBinderDeathRegistrationWrapper>::make();
-        internal::WatchdogProcessServicePeer peer(mWatchdogProcessService);
-        peer.setVhalService(mMockVhalClient);
-        peer.setNotSupportedVhalProperties(
+        mWatchdogProcessServicePeer =
+                std::make_unique<internal::WatchdogProcessServicePeer>(mWatchdogProcessService);
+        mWatchdogProcessServicePeer->setVhalService(mMockVhalClient);
+        mWatchdogProcessServicePeer->setNotSupportedVhalProperties(
                 {VehicleProperty::WATCHDOG_ALIVE, VehicleProperty::WATCHDOG_TERMINATED_PROCESS});
-        peer.setDeathRegistrationWrapper(mMockDeathRegistrationWrapper);
+        mWatchdogProcessServicePeer->setDeathRegistrationWrapper(mMockDeathRegistrationWrapper);
+        mWatchdogProcessServicePeer->setHidlServiceManager(mMockHidlServiceManager);
         mWatchdogProcessService->start();
     }
 
     void TearDown() override {
+        mWatchdogProcessServicePeer.reset();
         mWatchdogProcessService->terminate();
         mWatchdogProcessService.clear();
+        mMockHidlServiceManager.clear();
         mMockVhalClient.reset();
         mMockVehicle.reset();
         mMockDeathRegistrationWrapper.clear();
@@ -129,7 +147,9 @@ protected:
     sp<WatchdogProcessService> mWatchdogProcessService;
     std::shared_ptr<MockVhalClient> mMockVhalClient;
     std::shared_ptr<MockVehicle> mMockVehicle;
+    sp<MockHidlServiceManager> mMockHidlServiceManager;
     sp<MockAIBinderDeathRegistrationWrapper> mMockDeathRegistrationWrapper;
+    std::unique_ptr<internal::WatchdogProcessServicePeer> mWatchdogProcessServicePeer;
 };
 
 TEST_F(WatchdogProcessServiceTest, TestTerminate) {
@@ -341,6 +361,59 @@ TEST_F(WatchdogProcessServiceTest, TestTellDumpFinished) {
                                                                         /* startTimeMillis= */ 0));
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
+}
+
+TEST_F(WatchdogProcessServiceTest, TestCacheVhalProcessIdentifierFromHidlServiceManager) {
+    using InstanceDebugInfo = IServiceManager::InstanceDebugInfo;
+    EXPECT_CALL(*mMockVhalClient, isAidlVhal()).WillOnce(Return(false));
+    EXPECT_CALL(*mMockHidlServiceManager, debugDump(_))
+            .WillOnce(Invoke([](IServiceManager::debugDump_cb cb) {
+                cb({InstanceDebugInfo{"android.hardware.automotive.evs@1.0::IEvsCamera",
+                                      "vehicle_hal_insts",
+                                      8058,
+                                      {},
+                                      DebugInfo::Architecture::IS_64BIT},
+                    InstanceDebugInfo{"android.hardware.automotive.vehicle@2.0::IVehicle",
+                                      "vehicle_hal_insts",
+                                      static_cast<int>(IServiceManager::PidConstant::NO_PID),
+                                      {},
+                                      DebugInfo::Architecture::IS_64BIT},
+                    InstanceDebugInfo{"android.hardware.automotive.vehicle@2.0::IVehicle",
+                                      "vehicle_hal_insts",
+                                      2034,
+                                      {},
+                                      DebugInfo::Architecture::IS_64BIT}});
+                return android::hardware::Void();
+            }));
+
+    auto processIdentifier = mWatchdogProcessServicePeer->cacheVhalProcessIdentifier();
+
+    ASSERT_TRUE(processIdentifier.has_value());
+    EXPECT_EQ(2034, processIdentifier->pid);
+    EXPECT_EQ(12356, processIdentifier->startTimeMillis);
+}
+
+TEST_F(WatchdogProcessServiceTest, TestFailsCacheVhalProcessIdentifierWithHidlVhal) {
+    using InstanceDebugInfo = IServiceManager::InstanceDebugInfo;
+    EXPECT_CALL(*mMockVhalClient, isAidlVhal()).WillOnce(Return(false));
+    EXPECT_CALL(*mMockHidlServiceManager, debugDump(_))
+            .WillOnce(Invoke([](IServiceManager::debugDump_cb cb) {
+                cb({InstanceDebugInfo{"android.hardware.automotive.evs@1.0::IEvsCamera",
+                                      "vehicle_hal_insts",
+                                      8058,
+                                      {},
+                                      DebugInfo::Architecture::IS_64BIT}});
+                return android::hardware::Void();
+            }));
+
+    EXPECT_FALSE(mWatchdogProcessServicePeer->cacheVhalProcessIdentifier().has_value());
+}
+
+TEST_F(WatchdogProcessServiceTest, TestFailsCacheVhalProcessIdentifierWithAidlVhal) {
+    EXPECT_CALL(*mMockVhalClient, isAidlVhal()).WillOnce(Return(true));
+    EXPECT_CALL(*mMockHidlServiceManager, debugDump(_)).Times(0);
+
+    EXPECT_FALSE(mWatchdogProcessServicePeer->cacheVhalProcessIdentifier().has_value());
 }
 
 }  // namespace watchdog
