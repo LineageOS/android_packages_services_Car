@@ -87,10 +87,6 @@ public:
         return mHelper->init(watchdogProcessService);
     }
 
-    const std::shared_ptr<ICarWatchdogServiceForSystem> getCarWatchdogServiceForSystem() {
-        return mHelper->mService;
-    }
-
     void terminate() { mHelper->terminate(); }
 
 private:
@@ -117,7 +113,7 @@ protected:
     }
 
     virtual void TearDown() {
-        if (mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem() != nullptr) {
+        if (mWatchdogServiceHelper->isServiceConnected()) {
             expectUnlinkToDeath(mMockCarWatchdogServiceForSystem->asBinder().get(),
                                 std::move(ScopedAStatus::ok()));
             EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(1);
@@ -141,7 +137,7 @@ protected:
         auto status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
 
         ASSERT_TRUE(status.isOk()) << status.getMessage();
-        ASSERT_NE(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+        ASSERT_TRUE(mWatchdogServiceHelper->isServiceConnected());
     }
 
     void* getCarWatchdogServiceForSystemCookie() {
@@ -234,14 +230,14 @@ TEST_F(WatchdogServiceHelperTest, TestRegisterService) {
 
     auto status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status.getMessage();
-    ASSERT_NE(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_TRUE(mWatchdogServiceHelper->isServiceConnected());
 
     expectNoLinkToDeath(binder.get());
     EXPECT_CALL(*mMockWatchdogProcessService, registerCarWatchdogService(_)).Times(0);
 
     status = mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem);
     ASSERT_TRUE(status.isOk()) << status.getMessage();
-    ASSERT_NE(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_TRUE(mWatchdogServiceHelper->isServiceConnected());
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
@@ -254,7 +250,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithBinderDied) {
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on register service with dead binder";
-    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessServiceError) {
@@ -266,7 +262,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithWatchdogProcessS
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on error from watchdog process service";
-    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
 }
 
 TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithDeadBinder) {
@@ -279,7 +275,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnRegisterServiceWithDeadBinder) {
 
     ASSERT_FALSE(mWatchdogServiceHelper->registerService(mMockCarWatchdogServiceForSystem).isOk())
             << "Failed to return error on register service with dead binder";
-    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
 }
 
 TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
@@ -292,7 +288,7 @@ TEST_F(WatchdogServiceHelperTest, TestUnregisterService) {
     auto status = mWatchdogServiceHelper->unregisterService(mMockCarWatchdogServiceForSystem);
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
-    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
 
     expectNoUnlinkToDeath(binder.get());
     EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
@@ -310,7 +306,7 @@ TEST_F(WatchdogServiceHelperTest, TestHandleBinderDeath) {
 
     mWatchdogServiceHelper->handleBinderDeath(static_cast<void*>(binder.get()));
 
-    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
 
     EXPECT_CALL(*mMockWatchdogProcessService, unregisterCarWatchdogService(_)).Times(0);
 
@@ -381,7 +377,7 @@ TEST_F(WatchdogServiceHelperTest, TestPrepareProcessTermination) {
 
     ASSERT_TRUE(status.isOk()) << status.getMessage();
 
-    ASSERT_EQ(mWatchdogServiceHelperPeer->getCarWatchdogServiceForSystem(), nullptr);
+    ASSERT_FALSE(mWatchdogServiceHelper->isServiceConnected());
 }
 
 TEST_F(WatchdogServiceHelperTest,

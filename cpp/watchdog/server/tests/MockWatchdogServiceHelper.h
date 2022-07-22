@@ -34,9 +34,12 @@ namespace watchdog {
 
 class MockWatchdogServiceHelper : public WatchdogServiceHelperInterface {
 public:
-    MockWatchdogServiceHelper() {}
+    MockWatchdogServiceHelper() {
+        ON_CALL(*this, isServiceConnected()).WillByDefault(::testing::Return(false));
+    }
     ~MockWatchdogServiceHelper() {}
 
+    MOCK_METHOD(bool, isServiceConnected, (), (override));
     MOCK_METHOD(android::base::Result<void>, init,
                 (const android::sp<WatchdogProcessServiceInterface>&), (override));
     MOCK_METHOD(

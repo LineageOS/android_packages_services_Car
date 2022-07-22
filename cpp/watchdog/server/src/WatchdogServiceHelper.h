@@ -48,6 +48,7 @@ class WatchdogServiceHelperPeer;
 
 class WatchdogServiceHelperInterface : virtual public android::RefBase {
 public:
+    virtual bool isServiceConnected() = 0;
     virtual ndk::ScopedAStatus registerService(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
@@ -92,6 +93,10 @@ class WatchdogServiceHelper final : public WatchdogServiceHelperInterface {
 public:
     WatchdogServiceHelper();
 
+    bool isServiceConnected() {
+        std::shared_lock readLock(mRWMutex);
+        return mService != nullptr;
+    }
     ndk::ScopedAStatus registerService(
             const std::shared_ptr<
                     aidl::android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>&
