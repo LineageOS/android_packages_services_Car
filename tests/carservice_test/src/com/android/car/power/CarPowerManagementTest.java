@@ -38,6 +38,8 @@ import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
@@ -183,6 +185,22 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY,
                 VehicleApPowerStateReport.SHUTDOWN_START);
+    }
+
+    @Test
+    public void testDeepSleepEntryAfterGarageMode() throws Exception {
+        assertWaitForVhal();
+
+        registerListenerToFakeGarageMode();
+
+        // Put device into SHUTDOWN_PREPARE
+        mPowerStateHandler.sendStateAndCheckResponse(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP,
+                VehicleApPowerStateReport.SHUTDOWN_PREPARE);
+
+        mPowerStateHandler.waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS,
+                VehicleApPowerStateReport.DEEP_SLEEP_ENTRY);
     }
 
     /**********************************************************************************************
@@ -445,6 +463,73 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReport.SHUTDOWN_START);
     }
 
+    @Test
+    public void testSleepShutdownFromPreShutdownPrepare() throws Exception {
+        assertWaitForVhal();
+
+        registerListenerToFakeGarageMode();
+
+        AtomicBoolean errorOccurred = new AtomicBoolean(false);
+
+        // Semaphore to signal receive of PRE_SHUTDOWN_PREPARE
+        Semaphore eventWaitSemaphore = new Semaphore(0);
+        // Semaphore to signal completion of PRE_SHUTDOWN_PREPARE
+        Semaphore completionSemaphore = new Semaphore(0);
+
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+        ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state, long expirationTimeMs) {
+                if (!CarPowerManagementService.isCompletionAllowed(state)) {
+                    return;
+                }
+
+                Handler handler = new Handler(Looper.getMainLooper());
+                ICarPowerStateListener cpmsListener = this;
+                Runnable completionRunnable = () -> cpms.completeHandlingPowerStateChange(state,
+                        cpmsListener);
+
+                if (state == CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE) {
+                    new Thread(() -> {
+                        try {
+                            eventWaitSemaphore.release();
+                            if (completionSemaphore.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS,
+                                    TimeUnit.MILLISECONDS)) {
+                                handler.post(completionRunnable);
+                            } else {
+                                errorOccurred.set(true);
+                            }
+                        } catch (InterruptedException e) {
+                            errorOccurred.set(true);
+                        }
+                        completionSemaphore.drainPermits();
+                    }).start();
+                } else {
+                    cpms.completeHandlingPowerStateChange(state, this);
+                }
+            }
+        };
+        cpms.registerInternalListener(listener);
+
+        mPowerStateHandler.sendPowerState(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP);
+
+        assertThat(eventWaitSemaphore.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS,
+                TimeUnit.MILLISECONDS)).isTrue();
+
+        mPowerStateHandler.sendPowerState(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+
+        completionSemaphore.release();
+
+        mPowerStateHandler.waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS,
+                VehicleApPowerStateReport.SHUTDOWN_START);
+        assertThat(errorOccurred.get()).isFalse();
+    }
+
     private void testShutdownPostponeWhileListenerPendingInState(final int targetState,
             int stateRequestParam, int finalPowerState) throws Exception {
         assertWaitForVhal();
@@ -461,6 +546,8 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 if (!CarPowerManagementService.isCompletionAllowed(state)) {
                     return;
                 }
+
+                ICarPowerStateListener cpmsListener = this;
                 if (state == targetState) {
                     new Thread(() -> {
                         try {
@@ -468,7 +555,7 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                                     TimeUnit.MILLISECONDS)) {
                                 errorOccurred.set(true);
                             }
-                            cpms.completeHandlingPowerStateChange(state, this);
+                            cpms.completeHandlingPowerStateChange(state, cpmsListener);
                         } catch (InterruptedException e) {
                             errorOccurred.set(true);
                         }
