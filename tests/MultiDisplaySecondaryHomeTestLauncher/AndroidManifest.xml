@@ -20,6 +20,8 @@
 
     <!-- for Context.startActivityAsUser() -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
+    <!-- System permission to query all installed packages -->
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"/>
 
     <uses-sdk android:minSdkVersion="17"/>
 
