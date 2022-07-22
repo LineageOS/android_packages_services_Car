@@ -89,11 +89,24 @@ ScopedAStatus AidlEnumerator::getStreamList(const CameraDesc& desc,
                                             std::vector<Stream>* _aidl_return) {
     LOG(DEBUG) << __FUNCTION__;
 
+    if (desc.metadata.empty()) {
+        LOG(DEBUG) << "Camera metadata is empty.";
+        return ScopedAStatus::ok();
+    }
+
     camera_metadata_t* pMetadata = const_cast<camera_metadata_t*>(
             reinterpret_cast<const camera_metadata_t*>(desc.metadata.data()));
+    const size_t expectedSize = desc.metadata.size();
+    if (validate_camera_metadata_structure(pMetadata, &expectedSize) != ::android::OK) {
+        LOG(WARNING) << "Camera metadata is invalid.";
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
+    }
+
     camera_metadata_entry_t streamConfig;
     if (find_camera_metadata_entry(pMetadata, ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS,
-                                   &streamConfig)) {
+                                   &streamConfig) != ::android::OK) {
+        LOG(DEBUG) << "ANDROID_SCALER_AVAILABLE_STREAM_CONFIGURATIONS does not exist in the camera "
+                      "metadata.";
         return ScopedAStatus::ok();
     }
 
