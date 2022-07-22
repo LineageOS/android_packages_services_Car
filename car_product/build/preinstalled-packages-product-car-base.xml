@@ -377,6 +377,7 @@
     </install-in-user-type>
     <install-in-user-type package="com.android.sdksandbox">
         <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
     </install-in-user-type>
     <!-- Mainline module -->
     <install-in-user-type package="com.android.adservices.api">
