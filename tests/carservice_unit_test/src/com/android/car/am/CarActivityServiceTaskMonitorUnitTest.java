@@ -117,7 +117,7 @@ public class CarActivityServiceTaskMonitorUnitTest {
 
     private class TestTaskListener extends FullscreenTaskListener {
         TestTaskListener(SyncTransactionQueue syncQueue) {
-            super(syncQueue, /* unfoldController= */ Optional.empty());
+            super(syncQueue);
         }
 
         @Override
