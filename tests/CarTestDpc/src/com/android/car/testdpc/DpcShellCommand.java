@@ -112,7 +112,6 @@ final class DpcShellCommand {
     }
 
     private void runHelp() {
-        mWriter.println("Commands: ");
         mWriter.printf("%s\n", CMD_HELP);
         mWriter.println("\tList all available commands for device policy.");
         mWriter.printf("%s <key>\n", CMD_ADD_USER_RESTRICTION);
