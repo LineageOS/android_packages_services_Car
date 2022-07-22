@@ -53,13 +53,13 @@
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"యాప్ బ్లాక్ చేయడం"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"డ్రైవింగ్‌లో ఉన్నప్పుడు అప్లికేషన్‌లను బ్లాక్ చేయండి"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"నావిగేషన్ మేనేజర్"</string>
-    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"పరికర గుంపుకు నావిగేషన్ డేటాని రిపోర్ట్ చేయండి"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"పరికర గుంపుకు నావిగేషన్ డేటాను రిపోర్ట్ చేయండి"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"పరికర గుంపుకు ప్రత్యక్ష రెండరింగ్"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"పరికర గుంపులో ప్రదర్శించాల్సిన కార్యకలాపలని తెలియచెప్పడానికి అప్లికేషన్‌ను అనుమతించండి."</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"పరికర గుంపు నియంత్రణ"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"పరికర గుంపు యాప్‌లను ప్రారంభించండి"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"పరికర గుంపు రెండరింగ్"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"పరికర గుంపు డేటాని పొందండి"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"పరికర గుంపు డేటాను పొందండి"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX పరిమితుల కాన్ఫిగరేషన్"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX పరిమితులను కాన్ఫిగర్ చేయండి"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ప్రైవేట్ డిస్‌ప్లే idకి చదివే యాక్సెస్"</string>
