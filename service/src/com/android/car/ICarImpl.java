@@ -468,6 +468,7 @@ public class ICarImpl extends ICar.Stub {
             mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
             mCarUserService.setCarServiceHelper(carServiceHelper);
             mCarActivityService.setICarServiceHelper(carServiceHelper);
+            CarLocalServices.addService(ICarServiceHelper.class, carServiceHelper);
 
             bundle = new Bundle();
             bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
