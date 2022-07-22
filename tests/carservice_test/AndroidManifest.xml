@@ -38,6 +38,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"/>
     <uses-permission android:name="android.car.permission.GET_CAR_VENDOR_CATEGORY_1"/>
     <uses-permission android:name="android.car.permission.SET_CAR_VENDOR_CATEGORY_1"/>
+    <uses-permission android:name="android.car.permission.CAR_TIRES"/>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
          android:targetPackage="com.android.car.test"
