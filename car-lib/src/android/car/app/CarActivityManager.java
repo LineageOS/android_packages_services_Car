@@ -24,6 +24,7 @@ import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.user.CarUserManager;
 import android.content.ActivityNotFoundException;
@@ -239,7 +240,7 @@ public final class CarActivityManager extends CarManagerBase {
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)
-    @AddedInOrBefore(majorVersion = 33, minorVersion = 1)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     @NonNull
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
         try {

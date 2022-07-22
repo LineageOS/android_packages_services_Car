@@ -201,11 +201,22 @@ package android.car {
     field public static final int GSR_COMPLIANCE_REQUIRED_V1 = 1; // 0x1
   }
 
-  public final class PlatformApiVersion extends android.car.ApiVersion<android.car.PlatformApiVersion> {
+  public final class PlatformApiVersion extends android.car.ApiVersion<android.car.PlatformApiVersion> implements android.os.Parcelable {
+    method public int describeContents();
     method @NonNull public static android.car.PlatformApiVersion forMajorAndMinorVersions(int, int);
     method @NonNull public static android.car.PlatformApiVersion forMajorVersion(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformApiVersion> CREATOR;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
+  }
+
+  public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
+    ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformApiVersion);
+    method public int describeContents();
+    method @NonNull public android.car.PlatformApiVersion getExpectedPlatformApiVersion();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersionMismatchException> CREATOR;
   }
 
   public final class PortLocationType {

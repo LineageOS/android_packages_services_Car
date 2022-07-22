@@ -24,6 +24,7 @@
 
 #include <inttypes.h>  // for PRIu64 and friends
 
+#include <cstdint>
 #include <memory>
 
 namespace android {
@@ -75,6 +76,18 @@ void TelemetryServer::clearListener() {
     mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
 }
 
+void TelemetryServer::addCarDataIds(const std::vector<int32_t>& ids) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    mCarDataIds.insert(ids.cbegin(), ids.cend());
+}
+
+void TelemetryServer::removeCarDataIds(const std::vector<int32_t>& ids) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    for (int32_t id : ids) {
+        mCarDataIds.erase(id);
+    }
+}
+
 std::shared_ptr<ICarDataListener> TelemetryServer::getListener() {
     const std::scoped_lock<std::mutex> lock(mMutex);
     return mCarDataListener;
@@ -91,6 +104,11 @@ void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t p
     const std::scoped_lock<std::mutex> lock(mMutex);
     bool bufferWasEmptyBefore = mRingBuffer.size() == 0;
     for (auto&& data : dataList) {
+        // ignore data that has no subscribers in CarTelemetryService
+        if (mCarDataIds.find(data.id) == mCarDataIds.end()) {
+            LOG(VERBOSE) << "Ignoring CarData with ID=" << data.id;
+            continue;
+        }
         mRingBuffer.push({.mId = data.id,
                           .mContent = std::move(data.content),
                           .mPublisherUid = publisherUid});
