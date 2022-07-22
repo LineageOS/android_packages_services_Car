@@ -16,7 +16,7 @@
 
 package com.android.car.os;
 
-
+import static android.car.PlatformApiVersion.VERSION_CODES;
 import static android.car.os.CpuAvailabilityMonitoringConfig.CPUSET_ALL;
 import static android.car.os.CpuAvailabilityMonitoringConfig.CPUSET_BACKGROUND;
 import static android.car.os.CpuAvailabilityMonitoringConfig.IGNORE_PERCENT_LOWER_BOUND;
@@ -25,6 +25,7 @@ import static android.car.os.CpuAvailabilityMonitoringConfig.TIMEOUT_ACTION_NOTI
 import static android.car.os.CpuAvailabilityMonitoringConfig.TIMEOUT_ACTION_REMOVE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.VersionUtils.assertPlatformApiVersionAtLeast;
 
 import android.annotation.NonNull;
 import android.car.Car;
@@ -152,6 +153,7 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
     @Override
     public void setThreadPriority(int tid, ThreadPolicyWithPriority threadPolicyWithPriority)
             throws RemoteException {
+        assertPlatformApiVersionAtLeast(VERSION_CODES.TIRAMISU_1);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
 
         int pid = Binder.getCallingPid();
@@ -173,6 +175,7 @@ public final class CarPerformanceService extends ICarPerformanceService.Stub
      */
     @Override
     public ThreadPolicyWithPriority getThreadPriority(int tid) throws RemoteException {
+        assertPlatformApiVersionAtLeast(VERSION_CODES.TIRAMISU_1);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MANAGE_THREAD_PRIORITY);
 
         int pid = Binder.getCallingPid();
