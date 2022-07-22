@@ -104,6 +104,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     void setRestrictFocus(boolean isFocusRestricted) {
+        logFocusEvent("setRestrictFocus: is focus restricted " + isFocusRestricted);
         synchronized (mLock) {
             mIsFocusRestricted = isFocusRestricted;
             if (mIsFocusRestricted) {
@@ -119,8 +120,14 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                     mDelayedRequest.getAttributes());
 
             if (!isCriticalAudioContext(audioContext)) {
+                logFocusEvent(
+                        "abandonNonCriticalFocusLocked abandoning non critical delayed request "
+                                + mDelayedRequest);
                 sendFocusLossLocked(mDelayedRequest, AUDIOFOCUS_LOSS);
                 mDelayedRequest = null;
+            } else {
+                logFocusEvent("abandonNonCriticalFocusLocked keeping critical delayed request "
+                                + mDelayedRequest);
             }
         }
 
@@ -133,6 +140,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         List<String> clientsToRemove = new ArrayList<>();
         for (FocusEntry holderEntry : entries.values()) {
             if (isCriticalAudioContext(holderEntry.getAudioContext())) {
+                Slogf.i(TAG, "abandonNonCriticalEntriesLocked keeping critical focus "
+                        + holderEntry);
                 continue;
             }
 
