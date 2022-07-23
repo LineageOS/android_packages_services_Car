@@ -38,7 +38,7 @@ public class FakeAppFocusService extends AppFocusService implements CarAppFocusC
     }
 
     public FakeAppFocusService(Context context) {
-        this(context, new FakeSystemActivityMonitoringService(context));
+        this(context, new FakeSystemActivityMonitoringService());
         super.init();
     }
 

@@ -341,8 +341,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mInitialUserSetter =
                 initialUserSetter == null ? new InitialUserSetter(context, this,
                         (u) -> setInitialUser(u), mUserHandleHelper) : initialUserSetter;
-        mUserPreCreator =
-                userPreCreator == null ? new UserPreCreator(context, mUserManager) : userPreCreator;
+        mUserPreCreator = userPreCreator == null
+                ? new UserPreCreator(context, mUserManager) : userPreCreator;
         Resources resources = context.getResources();
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);

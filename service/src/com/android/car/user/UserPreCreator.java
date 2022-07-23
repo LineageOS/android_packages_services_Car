@@ -46,17 +46,15 @@ public final class UserPreCreator {
     static final String TAG = CarLog.tagFor(UserPreCreator.class);
 
     private final UserManager mUserManager;
-    private final Context mContext;
     private final UserHandleHelper mUserHandleHelper;
 
     UserPreCreator(Context context, UserManager userManager) {
-        this(context, userManager, new UserHandleHelper(context, userManager));
+        this(userManager, new UserHandleHelper(context, userManager));
     }
 
     @VisibleForTesting
-    UserPreCreator(Context context, UserManager userManager, UserHandleHelper userHandleHelper) {
+    UserPreCreator(UserManager userManager, UserHandleHelper userHandleHelper) {
         mUserManager = userManager;
-        mContext = context;
         mUserHandleHelper = userHandleHelper;
     }
 

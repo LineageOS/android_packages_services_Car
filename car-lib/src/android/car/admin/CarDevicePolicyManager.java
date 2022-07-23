@@ -56,7 +56,7 @@ import java.util.concurrent.TimeoutException;
  *
  * <ol>
  *   <li>Its methods take in consideration driver-safety restrictions.
- *   <li>Callers doesn't need to be a {@code DPC}, but rather have the proper permissions.
+ *   <li>Callers don't need to be a {@code DPC}, but rather have the proper permissions.
  * </ol>
  *
  * @hide

@@ -45,7 +45,6 @@ import java.util.concurrent.Executors;
  * Service to interface with CarTelemetryManager.
  */
 public class CarMetricsCollectorService extends Service {
-    private static final String ASSETS_METRICS_CONFIG_FOLDER = "metricsconfigs";
     private static final int HISTORY_SIZE = 10;
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
     private final ReportListener mReportListener = new ReportListener();

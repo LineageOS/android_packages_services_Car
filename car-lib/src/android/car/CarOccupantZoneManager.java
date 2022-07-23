@@ -111,7 +111,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_DRIVER = 0;
 
-    /** Represents front passengers who sits in front side of car. Most cars will have only
+    /** Represents front passengers who sit in front side of car. Most cars will have only
      *  one passenger of this type but this can be multiple. */
     @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_FRONT_PASSENGER = 1;

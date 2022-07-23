@@ -102,7 +102,7 @@ public class SessionControllerUnitTest
             runnable.run();
             return true;
         });
-        mSessionController = new SessionController(mMockContext, mDirectHandler);
+        mSessionController = new SessionController(mDirectHandler);
         verify(mMockCarPowerManagementService).registerInternalListener(
                 mPowerStateListenerCaptor.capture());
     }

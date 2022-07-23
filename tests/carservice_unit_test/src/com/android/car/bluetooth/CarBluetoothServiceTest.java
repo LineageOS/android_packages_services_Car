@@ -37,7 +37,6 @@ import com.android.car.CarLocalServices;
 import com.android.car.PerUserCarServiceHelper;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -45,7 +44,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
@@ -77,7 +75,6 @@ public class CarBluetoothServiceTest {
     @Mock private PerUserCarServiceHelper mMockUserSwitchService;
     @Mock private IPerUserCarService mMockPerUserCarService;
     @Mock private CarBluetoothUserService mMockBluetoothUserService;
-    @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     private PerUserCarServiceHelper.ServiceCallback mUserSwitchCallback;
 
@@ -108,16 +105,13 @@ public class CarBluetoothServiceTest {
 
         // Make sure we grab and store CarBluetoothService's user switch callback so we can
         // invoke it at any time.
-        doAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Object[] arguments = invocation.getArguments();
-                if (arguments != null && arguments.length == 1 && arguments[0] != null) {
-                    mUserSwitchCallback =
-                            (PerUserCarServiceHelper.ServiceCallback) arguments[0];
-                }
-                return null;
+        doAnswer((Answer<Void>) invocation -> {
+            Object[] arguments = invocation.getArguments();
+            if (arguments != null && arguments.length == 1 && arguments[0] != null) {
+                mUserSwitchCallback =
+                        (PerUserCarServiceHelper.ServiceCallback) arguments[0];
             }
+            return null;
         }).when(mMockUserSwitchService).registerServiceCallback(any(
                 PerUserCarServiceHelper.ServiceCallback.class));
 

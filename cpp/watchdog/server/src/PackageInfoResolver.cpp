@@ -157,7 +157,8 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
      * There is delay between creating package manager instance and initializing watchdog service
      * helper. Thus check the watchdog service helper instance before proceeding further.
      */
-    if (missingUids.empty() || mWatchdogServiceHelper == nullptr) {
+    if (missingUids.empty() || mWatchdogServiceHelper == nullptr ||
+        !mWatchdogServiceHelper->isServiceConnected()) {
         return;
     }
 

@@ -105,10 +105,10 @@ public final class DpcService extends DeviceAdminService {
 
     /* TODO(b/239466708): Add an onDestroy() method to unbind the services */
 
-    /* TODO(b/239467077): Expand dump to add more metadata */
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         Log.d(TAG, "dump(): "  + Arrays.toString(args));
+        printInternalState(writer);
         if (args != null && args.length > 0) {
             switch (args[0]) {
                 case "cmd":
@@ -118,7 +118,14 @@ public final class DpcService extends DeviceAdminService {
                     return;
             }
         }
-        super.dump(fd, writer, args);
+    }
+
+    private void printInternalState(PrintWriter writer) {
+        writer.printf("Current User: %s\n", Process.myUserHandle());
+        writer.printf("mAdminComponentName: %s\n", mAdmin.flattenToShortString());
+        writer.printf("isProfileOwner()? %b\n", isPO());
+        writer.printf("isDeviceOwner()? %b\n", isDO());
+        writer.printf("AFFILIATION_IDS=%s\n\n", AFFILIATION_IDS);
     }
 
     public boolean isPO() {

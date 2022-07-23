@@ -237,3 +237,10 @@ prebuilt_etc {
     src: "com.android.car.messenger.xml",
     filename_from_src: true,
 }
+
+prebuilt_etc {
+    name: "allowed_privapp_com.android.car.multidisplay",
+    sub_dir: "permissions",
+    src: "com.android.car.multidisplay.xml",
+    filename_from_src: true,
+}

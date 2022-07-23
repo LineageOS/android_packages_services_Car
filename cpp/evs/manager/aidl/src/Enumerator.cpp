@@ -209,7 +209,7 @@ bool Enumerator::isLogicalCamera(const camera_metadata_t* metadata) const {
     camera_metadata_ro_entry_t entry;
     int rc =
             find_camera_metadata_ro_entry(metadata, ANDROID_REQUEST_AVAILABLE_CAPABILITIES, &entry);
-    if (rc != 0) {
+    if (rc != ::android::OK) {
         // No capabilities are found in metadata.
         LOG(DEBUG) << "No capability is found";
         return false;
@@ -244,7 +244,7 @@ std::unordered_set<std::string> Enumerator::getPhysicalCameraIds(const std::stri
     camera_metadata_ro_entry entry;
     int rc = find_camera_metadata_ro_entry(metadata, ANDROID_LOGICAL_MULTI_CAMERA_PHYSICAL_IDS,
                                            &entry);
-    if (rc != 0) {
+    if (rc != ::android::OK) {
         LOG(ERROR) << "No physical camera ID is found for a logical camera device " << id;
         return physicalCameras;
     }

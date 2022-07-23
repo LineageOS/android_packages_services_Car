@@ -33,4 +33,7 @@ android_app {
     libs: ["android.car-system-stubs"],
 
     sdk_version: "test_current",
+
+    privileged: true,
+    required: ["allowed_privapp_com.android.car.multidisplay"],
 }

@@ -14,14 +14,8 @@
 #
 
 car_ui_portrait_modules := \
-    apps/HideApps
-
-# TODO(b/199553899): temporarily exclude car_ui_portrait from coverage report.
-# Car API xmls files are not generated when including car_ui_portrait.
-ifneq (,$(filter %car_ui_portrait,$(TARGET_PRODUCT)))
-car_ui_portrait_modules += \
     rro/car-ui-customizations \
-    rro/car-ui-toolbar-customizations
-endif #car_ui_portrait
+    rro/car-ui-toolbar-customizations \
+    apps/HideApps
 
 include $(call all-named-subdir-makefiles,$(car_ui_portrait_modules))

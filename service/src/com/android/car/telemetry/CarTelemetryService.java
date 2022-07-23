@@ -230,7 +230,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(mContext, rootDirectory);
             if (mSessionController == null) {
-                mSessionController = new SessionController(mContext, mTelemetryHandler);
+                mSessionController = new SessionController(mTelemetryHandler);
             }
             mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
                     mTelemetryHandler, mContext, mSessionController, mResultStore, mUidMapper);

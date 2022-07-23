@@ -58,7 +58,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * When audio dynamic routing is enabled:
  * - Audio devices are grouped into zones
  * - There is at least one primary zone, and extra secondary zones such as RSE
- *   (Reat Seat Entertainment)
+ *   (Rear Seat Entertainment)
  * - Within each zone, audio devices are grouped into volume groups for volume control
  * - Audio is assigned to an audio device based on its AudioAttributes usage
  *
