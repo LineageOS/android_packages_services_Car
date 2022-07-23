@@ -1276,7 +1276,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     void setAudioEnabled(boolean isAudioEnabled) {
-        Slogf.d(TAG, "Setting isAudioEnabled to %b", isAudioEnabled);
+        Slogf.i(TAG, "Setting isAudioEnabled to %b", isAudioEnabled);
 
         mFocusHandler.setRestrictFocus(/* isFocusRestricted= */ !isAudioEnabled);
         if (mUseCarVolumeGroupMuting) {
