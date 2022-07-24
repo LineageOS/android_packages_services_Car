@@ -148,6 +148,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return mOn;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         public String toString() {
             return "ServiceType = " + mServiceType + ", mOn = " + mOn +
                     ", Timestamp = " + mTimestamp;
@@ -617,6 +618,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return ERROR_NONE;
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         private String stateToString(@CarEvsServiceState int state) {
             switch (state) {
                 case SERVICE_STATE_UNAVAILABLE:
@@ -632,6 +634,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             }
         }
 
+        @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
         public String toString() {
             synchronized (mLock) {
                 return stateToString(mState);
