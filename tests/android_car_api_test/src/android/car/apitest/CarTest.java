@@ -160,4 +160,26 @@ public final class CarTest extends AbstractExpectableTestCase {
         assertThat(platformVersion.getMajorVersion()).isEqualTo(Build.VERSION.SDK_INT);
         assertThat(platformVersion.getMinorVersion()).isAtLeast(0);
     }
+
+    @Test
+    public void testGetCarManager() throws Exception {
+        // TODO(217131789): create new test class to test all services using
+        // @Parameterized.Parameters.
+        Car car = Car.createCar(mContext);
+
+        Object noSuchService = car.getCarManager("No such service");
+        assertThat(noSuchService).isNull();
+
+        CarSensorManager carSensorManager =
+                (CarSensorManager) car.getCarManager(Car.SENSOR_SERVICE);
+        mExpect.that(carSensorManager).isNotNull();
+
+        CarSensorManager carSensorManagerByClass = car.getCarManager(CarSensorManager.class);
+        mExpect.that(carSensorManagerByClass).isNotNull();
+        mExpect.that(carSensorManagerByClass).isSameInstanceAs(carSensorManager);
+
+        CarSensorManager carSensorManagerByClass2 = car.getCarManager(CarSensorManager.class);
+        mExpect.that(carSensorManagerByClass2).isNotNull();
+        mExpect.that(carSensorManagerByClass2).isSameInstanceAs(carSensorManager);
+    }
 }

@@ -19,6 +19,7 @@ package android.car {
     method @NonNull public static android.car.CarApiVersion getCarApiVersion();
     method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
+    method @Nullable public <T> T getCarManager(@NonNull Class<T>);
     method @NonNull public static android.car.PlatformApiVersion getPlatformApiVersion();
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
