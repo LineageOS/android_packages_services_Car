@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "IoPerfCollection.h"
 #include "MockProcStatCollector.h"
 #include "MockUidStatsCollector.h"
 #include "MockWatchdogServiceHelper.h"
 #include "PackageInfoTestUtils.h"
+#include "PerformanceProfiler.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
@@ -372,12 +372,12 @@ std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(int multiplier = 1) 
 
 namespace internal {
 
-class IoPerfCollectionPeer final : public RefBase {
+class PerformanceProfilerPeer final : public RefBase {
 public:
-    explicit IoPerfCollectionPeer(sp<IoPerfCollection> collector) : mCollector(collector) {}
+    explicit PerformanceProfilerPeer(sp<PerformanceProfiler> collector) : mCollector(collector) {}
 
-    IoPerfCollectionPeer() = delete;
-    ~IoPerfCollectionPeer() {
+    PerformanceProfilerPeer() = delete;
+    ~PerformanceProfilerPeer() {
         mCollector->terminate();
         mCollector.clear();
     }
@@ -404,18 +404,18 @@ public:
     }
 
 private:
-    sp<IoPerfCollection> mCollector;
+    sp<PerformanceProfiler> mCollector;
 };
 
 }  // namespace internal
 
-class IoPerfCollectionTest : public Test {
+class PerformanceProfilerTest : public Test {
 protected:
     void SetUp() override {
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
         mMockProcStatCollector = sp<MockProcStatCollector>::make();
-        mCollector = sp<IoPerfCollection>::make();
-        mCollectorPeer = sp<internal::IoPerfCollectionPeer>::make(mCollector);
+        mCollector = sp<PerformanceProfiler>::make();
+        mCollectorPeer = sp<internal::PerformanceProfilerPeer>::make(mCollector);
         ASSERT_RESULT_OK(mCollectorPeer->init());
         mCollectorPeer->setTopNStatsPerCategory(5);
         mCollectorPeer->setTopNStatsPerSubcategory(5);
@@ -457,11 +457,11 @@ private:
 protected:
     sp<MockUidStatsCollector> mMockUidStatsCollector;
     sp<MockProcStatCollector> mMockProcStatCollector;
-    sp<IoPerfCollection> mCollector;
-    sp<internal::IoPerfCollectionPeer> mCollectorPeer;
+    sp<PerformanceProfiler> mCollector;
+    sp<internal::PerformanceProfilerPeer> mCollectorPeer;
 };
 
-TEST_F(IoPerfCollectionTest, TestOnBoottimeCollection) {
+TEST_F(PerformanceProfilerTest, TestOnBoottimeCollection) {
     const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
 
@@ -491,7 +491,7 @@ TEST_F(IoPerfCollectionTest, TestOnBoottimeCollection) {
             << "Periodic collection shouldn't be reported";
 }
 
-TEST_F(IoPerfCollectionTest, TestOnPeriodicCollection) {
+TEST_F(PerformanceProfilerTest, TestOnPeriodicCollection) {
     const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
 
@@ -523,7 +523,7 @@ TEST_F(IoPerfCollectionTest, TestOnPeriodicCollection) {
             << "Boot-time collection shouldn't be reported";
 }
 
-TEST_F(IoPerfCollectionTest, TestOnCustomCollectionWithoutPackageFilter) {
+TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithoutPackageFilter) {
     const auto [uidStats, userPackageSummaryStats] = sampleUidStats();
     const auto [procStatInfo, systemSummaryStats] = sampleProcStat();
 
@@ -564,7 +564,7 @@ TEST_F(IoPerfCollectionTest, TestOnCustomCollectionWithoutPackageFilter) {
             << "Custom collection should be cleared.";
 }
 
-TEST_F(IoPerfCollectionTest, TestOnCustomCollectionWithPackageFilter) {
+TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
     // Filter by package name should ignore this limit with package filter.
     mCollectorPeer->setTopNStatsPerCategory(1);
 
@@ -631,7 +631,7 @@ TEST_F(IoPerfCollectionTest, TestOnCustomCollectionWithPackageFilter) {
             << "Custom collection should be cleared.";
 }
 
-TEST_F(IoPerfCollectionTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTopN) {
+TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTopN) {
     mCollectorPeer->setTopNStatsPerCategory(1);
     mCollectorPeer->setTopNStatsPerSubcategory(1);
 
@@ -679,7 +679,7 @@ TEST_F(IoPerfCollectionTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTopN)
             << "Boot-time collection shouldn't be reported";
 }
 
-TEST_F(IoPerfCollectionTest, TestConsecutiveOnPeriodicCollection) {
+TEST_F(PerformanceProfilerTest, TestConsecutiveOnPeriodicCollection) {
     const auto [firstUidStats, firstUserPackageSummaryStats] = sampleUidStats();
     const auto [firstProcStatInfo, firstSystemSummaryStats] = sampleProcStat();
 

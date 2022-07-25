@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "IoPerfCollection.h"
+#include "PerformanceProfiler.h"
 
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
@@ -327,7 +327,7 @@ std::string CollectionInfo::toString() const {
     return buffer;
 }
 
-Result<void> IoPerfCollection::init() {
+Result<void> PerformanceProfiler::init() {
     Mutex::Autolock lock(mMutex);
     if (mTopNStatsPerCategory != 0 || mTopNStatsPerSubcategory != 0) {
         return Error() << "Cannot initialize " << name() << " more than once";
@@ -353,7 +353,7 @@ Result<void> IoPerfCollection::init() {
     return {};
 }
 
-void IoPerfCollection::terminate() {
+void PerformanceProfiler::terminate() {
     Mutex::Autolock lock(mMutex);
 
     ALOGW("Terminating %s", name().c_str());
@@ -368,7 +368,7 @@ void IoPerfCollection::terminate() {
     mCustomCollection = {};
 }
 
-Result<void> IoPerfCollection::onDump(int fd) const {
+Result<void> PerformanceProfiler::onDump(int fd) const {
     Mutex::Autolock lock(mMutex);
     if (!WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
@@ -384,7 +384,7 @@ Result<void> IoPerfCollection::onDump(int fd) const {
     return {};
 }
 
-Result<void> IoPerfCollection::onCustomCollectionDump(int fd) {
+Result<void> PerformanceProfiler::onCustomCollectionDump(int fd) {
     if (fd == -1) {
         // Custom collection ends so clear the cache.
         mCustomCollection.records.clear();
@@ -405,7 +405,7 @@ Result<void> IoPerfCollection::onCustomCollectionDump(int fd) {
     return {};
 }
 
-Result<void> IoPerfCollection::onBoottimeCollection(
+Result<void> PerformanceProfiler::onBoottimeCollection(
         time_t time, const wp<UidStatsCollectorInterface>& uidStatsCollector,
         const wp<ProcStatCollectorInterface>& procStatCollector) {
     const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
@@ -419,7 +419,7 @@ Result<void> IoPerfCollection::onBoottimeCollection(
                          procStatCollectorSp, &mBoottimeCollection);
 }
 
-Result<void> IoPerfCollection::onPeriodicCollection(
+Result<void> PerformanceProfiler::onPeriodicCollection(
         time_t time, [[maybe_unused]] SystemState systemState,
         const wp<UidStatsCollectorInterface>& uidStatsCollector,
         const wp<ProcStatCollectorInterface>& procStatCollector) {
@@ -434,7 +434,7 @@ Result<void> IoPerfCollection::onPeriodicCollection(
                          procStatCollectorSp, &mPeriodicCollection);
 }
 
-Result<void> IoPerfCollection::onCustomCollection(
+Result<void> PerformanceProfiler::onCustomCollection(
         time_t time, [[maybe_unused]] SystemState systemState,
         const std::unordered_set<std::string>& filterPackages,
         const wp<UidStatsCollectorInterface>& uidStatsCollector,
@@ -450,7 +450,7 @@ Result<void> IoPerfCollection::onCustomCollection(
                          &mCustomCollection);
 }
 
-Result<void> IoPerfCollection::processLocked(
+Result<void> PerformanceProfiler::processLocked(
         time_t time, const std::unordered_set<std::string>& filterPackages,
         const sp<UidStatsCollectorInterface>& uidStatsCollector,
         const sp<ProcStatCollectorInterface>& procStatCollector, CollectionInfo* collectionInfo) {
@@ -469,7 +469,7 @@ Result<void> IoPerfCollection::processLocked(
     return {};
 }
 
-void IoPerfCollection::processUidStatsLocked(
+void PerformanceProfiler::processUidStatsLocked(
         const std::unordered_set<std::string>& filterPackages,
         const sp<UidStatsCollectorInterface>& uidStatsCollector,
         UserPackageSummaryStats* userPackageSummaryStats) {
@@ -540,7 +540,7 @@ void IoPerfCollection::processUidStatsLocked(
     removeEmptyStats(userPackageSummaryStats->topNMajorFaults);
 }
 
-void IoPerfCollection::processProcStatLocked(
+void PerformanceProfiler::processProcStatLocked(
         const sp<ProcStatCollectorInterface>& procStatCollector,
         SystemSummaryStats* systemSummaryStats) const {
     const ProcStatInfo& procStatInfo = procStatCollector->deltaStats();
