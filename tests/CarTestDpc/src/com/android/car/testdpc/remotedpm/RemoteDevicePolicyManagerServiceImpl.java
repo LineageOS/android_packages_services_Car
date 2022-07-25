@@ -23,7 +23,9 @@ import android.util.Log;
 
 public final class RemoteDevicePolicyManagerServiceImpl extends
         IRemoteDevicePolicyManager.Stub {
+
     private static final String TAG = RemoteDevicePolicyManagerServiceImpl.class.getSimpleName();
+
     private final Context mContext;
     private final DevicePolicyManager mDpm;
 

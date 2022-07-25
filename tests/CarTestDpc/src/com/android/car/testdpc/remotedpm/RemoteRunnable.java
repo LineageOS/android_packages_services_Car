@@ -16,28 +16,8 @@
 
 package com.android.car.testdpc.remotedpm;
 
-import android.app.Service;
-import android.content.Intent;
-import android.os.Binder;
-import android.os.IBinder;
+import android.os.RemoteException;
 
-/**
- * A service to facilitate cross-user calls to the other user's DevicePolicyManager methods
- *
- * <p>implements an IPC that binds to the same application on a different user to make cross-user
- * calls
- */
-public final class RemoteDevicePolicyManagerService extends Service {
-
-    private Binder mBinder;
-
-    @Override
-    public void onCreate() {
-        mBinder = new RemoteDevicePolicyManagerServiceImpl(this);
-    }
-
-    @Override
-    public IBinder onBind(Intent intent) {
-        return mBinder;
-    }
+public interface RemoteRunnable {
+    void run() throws RemoteException;
 }
