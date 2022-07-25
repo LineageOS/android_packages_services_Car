@@ -126,14 +126,14 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
     @Override
     public void reboot(ComponentName admin) {
         IRemoteDevicePolicyManager remoteDpm;
-        remoteDpm = getBoundRemoteDpmLocked();
+        remoteDpm = getBoundRemoteDpm();
         run(() -> remoteDpm.reboot(admin), "reboot(%s)", admin);
     }
 
     @Override
     public void addUserRestriction(ComponentName admin, String key) {
         IRemoteDevicePolicyManager remoteDpm;
-        remoteDpm = getBoundRemoteDpmLocked();
+        remoteDpm = getBoundRemoteDpm();
         run(() -> remoteDpm.addUserRestriction(admin, key),
                 "reboot(%s, %s)", admin, key);
     }
@@ -150,8 +150,8 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
         }
     }
 
-    private IRemoteDevicePolicyManager getBoundRemoteDpmLocked() {
-        synchronized (this.mLock) {
+    private IRemoteDevicePolicyManager getBoundRemoteDpm() {
+        synchronized (mLock) {
             if (mRemoteDpm == null) {
                 throw new IllegalStateException("RemoteDpm was not bound");
             }
