@@ -19,9 +19,13 @@ package com.android.car.testdpc.remotedpm;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Process;
+import android.os.UserHandle;
+import android.util.Log;
 
 public final class LocalDevicePolicyManager implements DevicePolicyManagerInterface {
 
+    private static final String TAG = LocalDevicePolicyManager.class.getSimpleName();
     private final DevicePolicyManager mDpm;
 
     /* Constructor for local dpm implementation of DPM Factory */
@@ -30,7 +34,19 @@ public final class LocalDevicePolicyManager implements DevicePolicyManagerInterf
     }
 
     @Override
+    public UserHandle getUser() {
+        return Process.myUserHandle();
+    }
+
+    @Override
     public void reboot(ComponentName admin) {
+        Log.d(TAG, "Calling local reboot(" + admin + ")");
         mDpm.reboot(admin);
+    }
+
+    @Override
+    public void addUserRestriction(ComponentName admin, String key) {
+        Log.d(TAG, "Calling local addUserRestriction(" + admin + ", " + key + ")");
+        mDpm.addUserRestriction(admin, key);
     }
 }

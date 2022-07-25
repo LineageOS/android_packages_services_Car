@@ -43,4 +43,14 @@ public final class RemoteDevicePolicyManagerServiceImpl extends
             Log.e(TAG, "error rebooting", e);
         }
     }
+
+    @Override
+    public void addUserRestriction(ComponentName admin, String key) {
+        Log.d(TAG, "Cross User: addUserRestriction(admin, key)");
+        try {
+            mDpm.addUserRestriction(admin, key);
+        } catch (Exception e) {
+            Log.e(TAG, "error adding user restriction", e);
+        }
+    }
 }
