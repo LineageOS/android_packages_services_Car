@@ -156,7 +156,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarTelemetryService mCarTelemetryService;
     private final CarActivityService mCarActivityService;
 
-    private final CarServiceBase[] mAllServices;
+    private final CarSystemService[] mAllServices;
 
     private static final boolean DBG = true; // TODO(b/154033860): STOPSHIP if true
 
@@ -204,7 +204,7 @@ public class ICarImpl extends ICar.Stub {
         }
 
         // Currently there are ~35 services, hence using 40 as the initial capacity.
-        List<CarServiceBase> allServices = new ArrayList<>(40);
+        List<CarSystemService> allServices = new ArrayList<>(40);
 
         mSystemInterface = systemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
@@ -425,7 +425,7 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarExperimentalFeatureServiceController = null;
         }
-        mAllServices = allServices.toArray(new CarServiceBase[allServices.size()]);
+        mAllServices = allServices.toArray(new CarSystemService[allServices.size()]);
 
         mICarSystemServerClientImpl = new ICarSystemServerClientImpl();
 
@@ -440,7 +440,7 @@ public class ICarImpl extends ICar.Stub {
         t.traceBegin("ICarImpl.init");
 
         t.traceBegin("CarService.initAllServices");
-        for (CarServiceBase service : mAllServices) {
+        for (CarSystemService service : mAllServices) {
             t.traceBegin(service.getClass().getSimpleName());
             service.init();
             t.traceEnd();
@@ -681,8 +681,10 @@ public class ICarImpl extends ICar.Stub {
             return;
         } else if ("--metrics".equals(args[0])) {
             // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
-            // allowing for nested flag selection
-            mCarStatsService.dump(writer, Arrays.copyOfRange(args, 1, args.length));
+            // allowing for nested flag selection.
+            if (args.length == 1 || Arrays.asList(args).contains("--vms-client")) {
+                mCarStatsService.dump(writer);
+            }
         } else if ("--vms-hal".equals(args[0])) {
             mHal.getVmsHal().dumpMetrics(fd);
         } else if ("--hal".equals(args[0])) {
@@ -756,7 +758,7 @@ public class ICarImpl extends ICar.Stub {
         writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
         try {
             // TODO dump all feature flags by creating a dumpable interface
-            mHal.dumpAllHals(writer);
+            mHal.dump(writer);
         } catch (Exception e) {
             writer.println("Failed dumping: " + mHal.getClass().getName());
             e.printStackTrace(writer);
@@ -823,7 +825,7 @@ public class ICarImpl extends ICar.Stub {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpListOfServices(IndentingPrintWriter writer) {
-        for (CarServiceBase service : mAllServices) {
+        for (CarSystemService service : mAllServices) {
             writer.println(service.getClass().getName());
         }
     }
@@ -831,8 +833,10 @@ public class ICarImpl extends ICar.Stub {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAllServices(IndentingPrintWriter writer) {
         writer.println("*Dump all services*");
-        for (CarServiceBase service : mAllServices) {
-            dumpService(service, writer);
+        for (CarSystemService service : mAllServices) {
+            if (service instanceof CarServiceBase) {
+                dumpService(service, writer);
+            }
         }
         if (mCarTestService != null) {
             dumpService(mCarTestService, writer);
@@ -843,7 +847,7 @@ public class ICarImpl extends ICar.Stub {
     private void dumpIndividualServices(IndentingPrintWriter writer, String... serviceNames) {
         for (String serviceName : serviceNames) {
             writer.printf("** Dumping %s\n\n", serviceName);
-            CarServiceBase service = getCarServiceBySubstring(serviceName);
+            CarSystemService service = getCarServiceBySubstring(serviceName);
             if (service == null) {
                 writer.println("No such service!");
             } else {
@@ -854,14 +858,14 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Nullable
-    private CarServiceBase getCarServiceBySubstring(String className) {
+    private CarSystemService getCarServiceBySubstring(String className) {
         return Arrays.asList(mAllServices).stream()
                 .filter(s -> s.getClass().getSimpleName().equals(className))
                 .findFirst().orElse(null);
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    private void dumpService(CarServiceBase service, IndentingPrintWriter writer) {
+    private void dumpService(CarSystemService service, IndentingPrintWriter writer) {
         try {
             service.dump(writer);
         } catch (Exception e) {
@@ -874,8 +878,8 @@ public class ICarImpl extends ICar.Stub {
         newCarShellCommand().exec(args, writer);
     }
 
-    private <T extends CarServiceBase> T constructWithTrace(LimitedTimingsTraceLog t, Class<T> cls,
-            Callable<T> callable, List<CarServiceBase> allServices) {
+    private <T extends CarSystemService> T constructWithTrace(LimitedTimingsTraceLog t,
+            Class<T> cls, Callable<T> callable, List<CarSystemService> allServices) {
         t.traceBegin(cls.getSimpleName());
         T constructed;
         try {
