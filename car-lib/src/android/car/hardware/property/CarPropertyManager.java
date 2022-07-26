@@ -17,6 +17,7 @@
 package android.car.hardware.property;
 
 import static java.lang.Integer.toHexString;
+import static java.util.Objects.requireNonNull;
 
 import android.annotation.FloatRange;
 import android.annotation.IntDef;
@@ -37,8 +38,9 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseArray;
 
-import com.android.car.internal.CarRatedFloatListeners;
+import com.android.car.internal.CarPropertyEventCallbackController;
 import com.android.car.internal.SingleMessageHandler;
+import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -62,9 +64,37 @@ public class CarPropertyManager extends CarManagerBase {
     private final CarPropertyEventListenerToService mCarPropertyEventToService =
             new CarPropertyEventListenerToService(this);
 
-    /** Record of locally active properties. Key is propertyId */
-    private final SparseArray<CarPropertyListeners> mActivePropertyListener =
-            new SparseArray<>();
+    // This lock is shared with all CarPropertyEventCallbackController instances to prevent
+    // potential deadlock.
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private final SparseArray<CarPropertyEventCallbackController>
+            mPropertyIdToCarPropertyEventCallbackController = new SparseArray<>();
+
+    private final CarPropertyEventCallbackController.RegistrationUpdateCallback
+            mRegistrationUpdateCallback =
+            new CarPropertyEventCallbackController.RegistrationUpdateCallback() {
+                @Override
+                public boolean register(int propertyId, float updateRateHz) {
+                    try {
+                        mService.registerListener(propertyId, updateRateHz,
+                                mCarPropertyEventToService);
+                    } catch (RemoteException e) {
+                        handleRemoteExceptionFromCarService(e);
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void unregister(int propertyId) {
+                    try {
+                        mService.unregisterListener(propertyId, mCarPropertyEventToService);
+                    } catch (RemoteException e) {
+                        handleRemoteExceptionFromCarService(e);
+                    }
+                }
+            };
 
     /**
      * Application registers {@link CarPropertyEventCallback} object to receive updates and changes
@@ -192,33 +222,35 @@ public class CarPropertyManager extends CarManagerBase {
         mHandler = new SingleMessageHandler<CarPropertyEvent>(eventHandler.getLooper(),
             MSG_GENERIC_EVENT) {
             @Override
-            protected void handleEvent(CarPropertyEvent event) {
-                CarPropertyListeners listeners;
-                synchronized (mActivePropertyListener) {
-                    listeners = mActivePropertyListener.get(
-                        event.getCarPropertyValue().getPropertyId());
+            protected void handleEvent(CarPropertyEvent carPropertyEvent) {
+                CarPropertyEventCallbackController carPropertyEventCallbackController;
+                synchronized (mLock) {
+                    carPropertyEventCallbackController =
+                            mPropertyIdToCarPropertyEventCallbackController.get(
+                                    carPropertyEvent.getCarPropertyValue().getPropertyId());
                 }
-                if (listeners != null) {
-                    switch (event.getEventType()) {
-                        case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
-                            listeners.onPropertyChanged(event);
-                            break;
-                        case CarPropertyEvent.PROPERTY_EVENT_ERROR:
-                            listeners.onErrorEvent(event);
-                            break;
-                        default:
-                            throw new IllegalArgumentException();
-                    }
+                if (carPropertyEventCallbackController == null) {
+                    return;
+                }
+                switch (carPropertyEvent.getEventType()) {
+                    case CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE:
+                        carPropertyEventCallbackController.forwardPropertyChanged(carPropertyEvent);
+                        break;
+                    case CarPropertyEvent.PROPERTY_EVENT_ERROR:
+                        carPropertyEventCallbackController.forwardErrorEvent(carPropertyEvent);
+                        break;
+                    default:
+                        throw new IllegalArgumentException();
                 }
             }
         };
     }
 
     /**
-     * Register {@link CarPropertyEventCallback} to get property updates. Multiple listeners
-     * can be registered for a single property or the same listener can be used for different
-     * properties. If the same listener is registered again for the same property, it will be
-     * updated to new rate.
+     * Register {@link CarPropertyEventCallback} to get property updates. Multiple callbacks
+     * can be registered for a single property or the same callback can be used for different
+     * properties. If the same callback is registered again for the same property, it will be
+     * updated to new updateRateHz.
      * <p>Rate could be one of the following:
      * <ul>
      *   <li>{@link CarPropertyManager#SENSOR_RATE_ONCHANGE}</li>
@@ -237,56 +269,47 @@ public class CarPropertyManager extends CarManagerBase {
      * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} property, it will receive the
      * property's current value upon registration.
      * See {@link CarPropertyConfig#getChangeMode()} for details.
-     * If rate is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be registered
-     * with max sample rate.
-     * If rate is lower than {@link CarPropertyConfig#getMinSampleRate()}, it will be registered
-     * with min sample rate.
+     * If updateRateHz is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be
+     * registered with max sample updateRateHz.
+     * If updateRateHz is lower than {@link CarPropertyConfig#getMinSampleRate()}, it will be
+     * registered with min sample updateRateHz.
      *
-     * @param callback CarPropertyEventCallback to be registered.
-     * @param propertyId PropertyId to subscribe
-     * @param rate how fast the property events are delivered in Hz.
+     * @param carPropertyEventCallback CarPropertyEventCallback to be registered.
+     * @param propertyId               PropertyId to subscribe
+     * @param updateRateHz             how fast the property events are delivered in Hz.
      * @return true if the listener is successfully registered.
      * @throws SecurityException if missing the appropriate permission.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public boolean registerCallback(@NonNull CarPropertyEventCallback callback,
-            int propertyId, @FloatRange(from = 0.0, to = 100.0) float rate) {
-        synchronized (mActivePropertyListener) {
-            CarPropertyConfig config = getCarPropertyConfig(propertyId);
-            if (config == null) {
-                Log.e(TAG, "registerListener:  propId is not in config list:  " + propertyId);
-                return false;
-            }
-            if (config.getChangeMode() == CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE) {
-                rate = SENSOR_RATE_ONCHANGE;
-            }
-            boolean needsServerUpdate = false;
-            CarPropertyListeners listeners;
-            listeners = mActivePropertyListener.get(propertyId);
-            if (listeners == null) {
-                listeners = new CarPropertyListeners(rate);
-                mActivePropertyListener.put(propertyId, listeners);
-                needsServerUpdate = true;
-            }
-            if (listeners.addAndUpdateRate(callback, rate)) {
-                needsServerUpdate = true;
-            }
-            if (needsServerUpdate) {
-                if (!registerOrUpdatePropertyListener(propertyId, rate)) {
-                    return false;
-                }
+    public boolean registerCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
+            int propertyId, @FloatRange(from = 0.0, to = 100.0) float updateRateHz) {
+        requireNonNull(carPropertyEventCallback);
+        CarPropertyConfig<?> carPropertyConfig = getCarPropertyConfig(propertyId);
+        if (carPropertyConfig == null) {
+            Log.e(TAG, "registerListener:  propId is not in carPropertyConfig list:  "
+                    + VehiclePropertyIds.toString(propertyId));
+            return false;
+        }
+        if (carPropertyConfig.getChangeMode()
+                != CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS) {
+            updateRateHz = SENSOR_RATE_ONCHANGE;
+        } else if (updateRateHz > carPropertyConfig.getMaxSampleRate()) {
+            updateRateHz = carPropertyConfig.getMaxSampleRate();
+        } else if (updateRateHz < carPropertyConfig.getMinSampleRate()) {
+            updateRateHz = carPropertyConfig.getMinSampleRate();
+        }
+        CarPropertyEventCallbackController carPropertyEventCallbackController;
+        synchronized (mLock) {
+            carPropertyEventCallbackController =
+                    mPropertyIdToCarPropertyEventCallbackController.get(propertyId);
+            if (carPropertyEventCallbackController == null) {
+                carPropertyEventCallbackController = new CarPropertyEventCallbackController(
+                        propertyId, mLock, mRegistrationUpdateCallback);
+                mPropertyIdToCarPropertyEventCallbackController.put(propertyId,
+                        carPropertyEventCallbackController);
             }
         }
-        return true;
-    }
-
-    private boolean registerOrUpdatePropertyListener(int propertyId, float rate) {
-        try {
-            mService.registerListener(propertyId, rate, mCarPropertyEventToService);
-        } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, false);
-        }
-        return true;
+        return carPropertyEventCallbackController.add(carPropertyEventCallback, updateRateHz);
     }
 
     private static class CarPropertyEventListenerToService extends ICarPropertyEventListener.Stub {
@@ -312,54 +335,47 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * Stop getting property update for the given callback. If there are multiple registrations for
-     * this callback, all listening will be stopped.
-     * @param callback CarPropertyEventCallback to be unregistered.
+     * Stop getting property updates for the given {@link CarPropertyEventCallback}. If there are
+     * multiple registrations for this {@link CarPropertyEventCallback}, all listening will be
+     * stopped.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public void unregisterCallback(@NonNull CarPropertyEventCallback callback) {
-        synchronized (mActivePropertyListener) {
-            int [] propertyIds = new int[mActivePropertyListener.size()];
-            for (int i = 0; i < mActivePropertyListener.size(); i++) {
-                propertyIds[i] = mActivePropertyListener.keyAt(i);
+    public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback) {
+        requireNonNull(carPropertyEventCallback);
+        int[] propertyIds;
+        synchronized (mLock) {
+            propertyIds = new int[mPropertyIdToCarPropertyEventCallbackController.size()];
+            for (int i = 0; i < mPropertyIdToCarPropertyEventCallbackController.size(); i++) {
+                propertyIds[i] = mPropertyIdToCarPropertyEventCallbackController.keyAt(i);
             }
-            for (int prop : propertyIds) {
-                doUnregisterListenerLocked(callback, prop);
-            }
+        }
+        for (int propertyId : propertyIds) {
+            unregisterCallback(carPropertyEventCallback, propertyId);
         }
     }
 
     /**
-     * Stop getting property update for the given callback and property. If the same callback is
-     * used for other properties, those subscriptions will not be affected.
-     *
-     * @param callback CarPropertyEventCallback to be unregistered.
-     * @param propertyId PropertyId to be unregistered.
+     * Stop getting update for {@code propertyId} to the given {@link CarPropertyEventCallback}. If
+     * the same {@link CarPropertyEventCallback} is used for other properties, those subscriptions
+     * will not be affected.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public void unregisterCallback(@NonNull CarPropertyEventCallback callback, int propertyId) {
-        synchronized (mActivePropertyListener) {
-            doUnregisterListenerLocked(callback, propertyId);
+    public void unregisterCallback(@NonNull CarPropertyEventCallback carPropertyEventCallback,
+            int propertyId) {
+        requireNonNull(carPropertyEventCallback);
+        CarPropertyEventCallbackController carPropertyEventCallbackController;
+        synchronized (mLock) {
+            carPropertyEventCallbackController =
+                    mPropertyIdToCarPropertyEventCallbackController.get(propertyId);
         }
-    }
-
-    private void doUnregisterListenerLocked(CarPropertyEventCallback listener, int propertyId) {
-        CarPropertyListeners listeners = mActivePropertyListener.get(propertyId);
-        if (listeners != null) {
-            boolean needsServerUpdate = false;
-            if (listeners.contains(listener)) {
-                needsServerUpdate = listeners.remove(listener);
-            }
-            if (listeners.isEmpty()) {
-                try {
-                    mService.unregisterListener(propertyId, mCarPropertyEventToService);
-                } catch (RemoteException e) {
-                    handleRemoteExceptionFromCarService(e);
-                    // continue for local clean-up
-                }
-                mActivePropertyListener.remove(propertyId);
-            } else if (needsServerUpdate) {
-                registerOrUpdatePropertyListener(propertyId, listeners.getRate());
+        if (carPropertyEventCallbackController == null) {
+            return;
+        }
+        boolean allCallbacksRemoved = carPropertyEventCallbackController.remove(
+                carPropertyEventCallback);
+        if (allCallbacksRemoved) {
+            synchronized (mLock) {
+                mPropertyIdToCarPropertyEventCallbackController.remove(propertyId);
             }
         }
     }
@@ -982,61 +998,12 @@ public class CarPropertyManager extends CarManagerBase {
         }
     }
 
-    private final class CarPropertyListeners
-            extends CarRatedFloatListeners<CarPropertyEventCallback> {
-        CarPropertyListeners(float rate) {
-            super(rate);
-        }
-        void onPropertyChanged(final CarPropertyEvent event) {
-            // throw away old sensor data as oneway binder call can change order.
-            long updateTime = event.getCarPropertyValue().getTimestamp();
-            int areaId = event.getCarPropertyValue().getAreaId();
-            if (!needUpdateForAreaId(areaId, updateTime)) {
-                if (DBG) {
-                    Log.w(TAG, "Dropping a stale event: " + event.toString());
-                }
-                return;
-            }
-            List<CarPropertyEventCallback> listeners;
-            synchronized (mActivePropertyListener) {
-                listeners = new ArrayList<>(getListeners());
-            }
-            listeners.forEach(listener -> {
-                if (contains(listener)
-                        && needUpdateForSelectedListener(listener, updateTime)) {
-                    listener.onChangeEvent(event.getCarPropertyValue());
-                }
-            });
-        }
-
-        void onErrorEvent(final CarPropertyEvent event) {
-            List<CarPropertyEventCallback> listeners;
-            CarPropertyValue value = event.getCarPropertyValue();
-            synchronized (mActivePropertyListener) {
-                listeners = new ArrayList<>(getListeners());
-            }
-            listeners.forEach(listener -> {
-                if (contains(listener)) {
-                    if (DBG) {
-                        Log.d(TAG, new StringBuilder().append("onErrorEvent for ")
-                                .append("property: ").append(value.getPropertyId())
-                                .append(" areaId: ").append(value.getAreaId())
-                                .append(" errorCode: ").append(event.getErrorCode())
-                                .toString());
-                    }
-                    listener.onErrorEvent(value.getPropertyId(), value.getAreaId(),
-                            event.getErrorCode());
-                }
-            });
-        }
-    }
-
     /** @hide */
     @Override
     @AddedInOrBefore(majorVersion = 33)
     public void onCarDisconnected() {
-        synchronized (mActivePropertyListener) {
-            mActivePropertyListener.clear();
+        synchronized (mLock) {
+            mPropertyIdToCarPropertyEventCallbackController.clear();
         }
     }
 }
