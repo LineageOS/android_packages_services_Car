@@ -93,6 +93,11 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
         return mIsLargeData;
     }
 
+    /** Determines if the task is eligible to bypass script executor. */
+    public boolean bypassScriptExecutor() {
+        return getHandlerName().isEmpty();
+    }
+
     @Override
     public int compareTo(@NonNull ScriptExecutionTask other) {
         if (getPriority() < other.getPriority()) {
