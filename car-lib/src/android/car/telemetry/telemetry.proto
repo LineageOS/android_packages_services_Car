@@ -161,9 +161,11 @@ message Publisher {
 // Specifies publisher with its parameters and the handler function that's invoked
 // when data is received. The format of the data depends on the Publisher.
 message Subscriber {
-  // Required.
+  // Optional.
   // Name of the function that handles the published data. Must be defined
   // in the script.
+  // Leaving the field unset signals that the data from the specified publisher
+  // should bypass ScriptExecutor and be uploaded directly in its original form.
   optional string handler = 1;
 
   // Required.
