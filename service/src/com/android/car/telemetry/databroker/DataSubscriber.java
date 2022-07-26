@@ -28,6 +28,12 @@ import java.util.Objects;
  * All methods of this class must be accessed on telemetry thread.
  */
 public class DataSubscriber {
+    /**
+     * Binder transaction size limit is 1MB for all binders per process, so for large script input
+     * file pipe will be used to transfer the data to script executor instead of binder call. This
+     * is the input size threshold above which piping is used.
+     */
+    public static final int SCRIPT_INPUT_SIZE_THRESHOLD_BYTES = 20 * 1024; // 20 kb
 
     private final DataBroker mDataBroker;
     private final TelemetryProto.MetricsConfig mMetricsConfig;
