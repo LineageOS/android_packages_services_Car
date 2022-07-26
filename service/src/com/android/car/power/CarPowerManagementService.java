@@ -2329,8 +2329,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * SHUTDOWN_PREPARE.
      */
     public static boolean isCompletionAllowed(@CarPowerManager.CarPowerState int state) {
-        return CarPowerManager.isCompletionAllowed(state)
-                || state == CarPowerManager.STATE_SHUTDOWN_PREPARE;
+        return CarPowerManager.isCompletionAllowed(state);
     }
 
     /**
