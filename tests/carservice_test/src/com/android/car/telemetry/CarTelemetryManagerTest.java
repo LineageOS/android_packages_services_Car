@@ -50,6 +50,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Map;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 
 /**
@@ -63,7 +64,7 @@ import java.util.concurrent.Semaphore;
 @MediumTest
 public class CarTelemetryManagerTest extends MockedCarTestBase {
     private static final byte[] INVALID_METRICS_CONFIG = "bad config".getBytes();
-    private static final Executor DIRECT_EXECUTOR = Runnable::run;
+    private static final Executor CALLBACK_EXECUTOR = Executors.newSingleThreadExecutor();
     private static final String CONFIG_NAME = "my_metrics_config";
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_V1 =
             TelemetryProto.MetricsConfig.newBuilder()
@@ -95,36 +96,36 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
     @Test
     public void testAddMetricsConfig() throws Exception {
         // invalid config, should fail
-        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, INVALID_METRICS_CONFIG, DIRECT_EXECUTOR,
-                mAddMetricsConfigCallback);
+        mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, INVALID_METRICS_CONFIG,
+                CALLBACK_EXECUTOR, mAddMetricsConfigCallback);
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_PARSE_FAILED);
 
         // new valid config, should succeed
         mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
-                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
+                CALLBACK_EXECUTOR, mAddMetricsConfigCallback);
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_SUCCEEDED);
 
         // duplicate config, should fail
         mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
-                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
+                CALLBACK_EXECUTOR, mAddMetricsConfigCallback);
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_ALREADY_EXISTS);
 
         // newer version of the config should replace older version
         mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V2.toByteArray(),
-                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
+                CALLBACK_EXECUTOR, mAddMetricsConfigCallback);
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_SUCCEEDED);
 
         // older version of the config should not be accepted
         mCarTelemetryManager.addMetricsConfig(CONFIG_NAME, METRICS_CONFIG_V1.toByteArray(),
-                DIRECT_EXECUTOR, mAddMetricsConfigCallback);
+                CALLBACK_EXECUTOR, mAddMetricsConfigCallback);
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD);
@@ -144,7 +145,7 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
                 METRICS_CONFIG_V1.toBuilder().addSubscribers(badSubscriber).build();
 
         mCarTelemetryManager.addMetricsConfig(
-                CONFIG_NAME, config.toByteArray(), DIRECT_EXECUTOR, mAddMetricsConfigCallback);
+                CONFIG_NAME, config.toByteArray(), CALLBACK_EXECUTOR, mAddMetricsConfigCallback);
 
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
@@ -156,15 +157,15 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         CarTelemetryManager.ReportReadyListener listener = metricsConfigName -> { };
 
         // test clearReportReadyListener, should not error
-        mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener);
+        mCarTelemetryManager.setReportReadyListener(CALLBACK_EXECUTOR, listener);
 
         // setListener multiple times should fail
         assertThrows(IllegalStateException.class,
-                () -> mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener));
+                () -> mCarTelemetryManager.setReportReadyListener(CALLBACK_EXECUTOR, listener));
 
         // test clearReportReadyListener, should not error
         mCarTelemetryManager.clearReportReadyListener();
-        mCarTelemetryManager.setReportReadyListener(DIRECT_EXECUTOR, listener);
+        mCarTelemetryManager.setReportReadyListener(CALLBACK_EXECUTOR, listener);
     }
 
     @Test
@@ -177,7 +178,7 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
             return null;
         }).when(callback).onResult(any(), any(), any(), anyInt());
 
-        mCarTelemetryManager.getFinishedReport(CONFIG_NAME, DIRECT_EXECUTOR, callback);
+        mCarTelemetryManager.getFinishedReport(CONFIG_NAME, CALLBACK_EXECUTOR, callback);
 
         semaphore.acquire();
         verify(callback).onResult(
