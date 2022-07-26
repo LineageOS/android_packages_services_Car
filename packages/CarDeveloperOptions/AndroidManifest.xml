@@ -21,6 +21,10 @@
           package="com.android.car.developeroptions"
           android:sharedUserId="android.uid.system">
 
+    <!-- Removing unnecessary permissions inherited from phone settings. -->
+    <uses-permission android:name="android.permission.CONTROL_UI_TRACING"
+                     tools:node="remove" />
+
     <application android:label="@string/development_settings_title"
                  tools:node="merge"
                  tools:replace="android:label">
