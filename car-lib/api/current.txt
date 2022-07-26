@@ -338,6 +338,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_AUTO_RECIRC_ON = 354419986; // 0x15200512
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_DEFROSTER = 320865540; // 0x13200504
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_DUAL_ON = 354419977; // 0x15200509
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_FAN_DIRECTION = 356517121; // 0x15400501
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_FAN_DIRECTION_AVAILABLE = 356582673; // 0x15410511
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_FAN_SPEED = 356517120; // 0x15400500
