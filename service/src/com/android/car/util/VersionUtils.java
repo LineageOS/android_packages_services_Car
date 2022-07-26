@@ -37,4 +37,13 @@ public class VersionUtils {
             throw new PlatformVersionMismatchException(expectedPlatformApiVersion);
         }
     }
+
+    /**
+     * Checks if the current platform version is at least expected platform version.
+     */
+    public static boolean isPlatformApiVersionAtLeast(
+            PlatformApiVersion expectedPlatformApiVersion) {
+        PlatformApiVersion currentPlatformApiVersion = Car.getPlatformApiVersion();
+        return currentPlatformApiVersion.isAtLeast(expectedPlatformApiVersion);
+    }
 }
