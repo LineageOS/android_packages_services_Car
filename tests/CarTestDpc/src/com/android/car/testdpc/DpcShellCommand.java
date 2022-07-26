@@ -16,11 +16,13 @@
 package com.android.car.testdpc;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Process;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
@@ -30,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 final class DpcShellCommand {
@@ -41,10 +44,13 @@ final class DpcShellCommand {
     private final PrintWriter mWriter;
     private final String[] mArgs;
 
-    // TODO(b/235235034): Uncomment this for future use cases such as set-user-resttion
-    // private final List<DevicePolicyManagerInterface> mPoInterfaces;
+    private final List<DevicePolicyManagerInterface> mPoInterfaces;
     private final DevicePolicyManagerInterface mDoInterface;
 
+    /* Args has to be at least of size 4 to account for cmd, ARG_USER, userID, key */
+    private static final int ADD_USER_RESTRICTION_ARG_LEN = 4;
+
+    private static final String ARG_TARGET_USER = "--target-user";
     private static final String CMD_GET_AFFILIATION_IDS = "get-affiliation-ids";
     private static final String CMD_SET_AFFILIATION_IDS = "set-affiliation-ids";
     private static final String CMD_IS_USER_AFFILIATED = "is-user-affiliated";
@@ -57,14 +63,15 @@ final class DpcShellCommand {
     DpcShellCommand(Context context, PrintWriter writer, String[] args,
             List<DevicePolicyManagerInterface> profileOwners,
             DevicePolicyManagerInterface deviceOwner) {
-
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mAdmin = new ComponentName(context, DpcReceiver.class.getName());
         Log.d(TAG, "Created for user " + Process.myUserHandle() + " and component " + mAdmin
                 + " for command " + Arrays.toString(args));
         mWriter = writer;
         mArgs = args;
+
         mDoInterface = deviceOwner;
+        mPoInterfaces = profileOwners;
     }
 
     void run() {
@@ -114,11 +121,12 @@ final class DpcShellCommand {
     private void runHelp() {
         mWriter.printf("%s\n", CMD_HELP);
         mWriter.println("\tList all available commands for device policy.");
-        mWriter.printf("%s <key>\n", CMD_ADD_USER_RESTRICTION);
-        mWriter.println("\tSet a user restriction specified by the key.");
+        mWriter.printf("%s %s <user_id> <key>\n", CMD_ADD_USER_RESTRICTION, ARG_TARGET_USER);
+        mWriter.println("\tSet a user restriction on the user with specified user_id with the");
+        mWriter.println("\t given key.");
         mWriter.printf("%s <key>\n", CMD_CLR_USER_RESTRICTION);
         mWriter.println("\tClear a user restriction specified by the key.");
-        mWriter.printf("%s <key>\n", CMD_GET_USER_RESTRICTIONS);
+        mWriter.printf("%s\n", CMD_GET_USER_RESTRICTIONS);
         mWriter.println("\tDisplay all active user restrictions.");
         mWriter.printf("%s (<affiliation-ids>)\n", CMD_SET_AFFILIATION_IDS);
         mWriter.println("\tSet affiliation ids (space separated list of strings)");
@@ -132,9 +140,37 @@ final class DpcShellCommand {
     }
 
     private void runAddUserRestriction() {
-        String restriction = mArgs[1];
-        Log.i(TAG, "Calling addUserRestriction(" + restriction + ")");
-        mDpm.addUserRestriction(mAdmin, restriction);
+        Log.i(TAG, "Calling addUserRestriction()");
+
+        if (mArgs.length != ADD_USER_RESTRICTION_ARG_LEN || !(ARG_TARGET_USER.equals(mArgs[1]))) {
+            mWriter.println("Error: invalid argument format. Run help to see valid format.");
+            return;
+        }
+
+        UserHandle target = getUserHandleFromUserId(mArgs[2]);
+        if (target == null) {
+            mWriter.println("Could not find user");
+            return;
+        }
+
+        if (mDoInterface.getUser().equals(target)) {
+            Log.d(TAG, mDoInterface.getUser() + ": addUserRestriction("
+                    + mAdmin.flattenToShortString() + ", " + mArgs[3]);
+            mDoInterface.addUserRestriction(mAdmin, /* key= */ mArgs[3]);
+            return;
+        }
+
+        try {
+            DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
+                    .filter((dpm) -> dpm.getUser().equals(target))
+                    .findAny().get();
+            Log.d(TAG, profileOwner.getUser() + ": addUserRestriction("
+                    + mAdmin.flattenToShortString() + ", " + mArgs[3]);
+            profileOwner.addUserRestriction(mAdmin, /* key= */ mArgs[3]);
+        } catch (NoSuchElementException e) {
+            mWriter.println("User not found (see logs)");
+            Log.e(TAG, "User not found", e);
+        }
     }
 
     private void runClearUserRestriction() {
@@ -148,7 +184,8 @@ final class DpcShellCommand {
         if (restrictions == null || restrictions.isEmpty()) {
             mWriter.println("No restrictions.");
         } else {
-            mWriter.println(bundleToString(restrictions));
+            mWriter.printf("%d restriction(s): %s", restrictions.size(),
+                    bundleToString(restrictions));
         }
     }
 
@@ -206,5 +243,17 @@ final class DpcShellCommand {
         }
         sb.append('}');
         return sb.toString();
+    }
+
+    @Nullable
+    public UserHandle getUserHandleFromUserId(String userId) {
+        UserHandle targetUser = null;
+        try {
+            targetUser = new UserHandle(Integer.parseInt(userId));
+        } catch (NumberFormatException e) {
+            mWriter.println("Could not parse target user id (see logs)");
+            Log.e(TAG, "Could not parse target user id", e);
+        }
+        return targetUser;
     }
 }

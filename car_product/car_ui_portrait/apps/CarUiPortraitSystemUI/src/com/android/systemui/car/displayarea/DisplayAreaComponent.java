@@ -16,9 +16,6 @@
 
 package com.android.systemui.car.displayarea;
 
-import static android.car.settings.CarSettings.Secure.KEY_SETUP_WIZARD_IN_PROGRESS;
-
-import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -26,8 +23,6 @@ import android.content.IntentFilter;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.UserHandle;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.android.systemui.CoreStartable;
@@ -50,49 +45,7 @@ public class DisplayAreaComponent extends CoreStartable {
 
     private final CarDisplayAreaController mCarDisplayAreaController;
     private final Context mContext;
-    private boolean mIsDefaultTdaFullScreen;
     final Handler mHandler = new Handler(Looper.myLooper());
-    // When SUW is in progress, make foregroundDA fullscreen.
-    private final Runnable mUserSwitchedRunnable = new Runnable() {
-        @Override
-        public void run() {
-            try {
-                int currentUser = ActivityManager.getCurrentUser();
-                // ignore user 0 -> USER_SYSTEM and USER_ALL for suw
-                if (currentUser != UserHandle.USER_ALL
-                        && currentUser != UserHandle.USER_SYSTEM) {
-                    int res = Settings.Secure.getIntForUser(mContext.getContentResolver(),
-                            KEY_SETUP_WIZARD_IN_PROGRESS, currentUser);
-                    logIfDebuggable("SUW in progress: " + (res == 1));
-                    // res == 1 -> SUW in progress
-                    if (res == 1 && !mIsDefaultTdaFullScreen) {
-                        if (!mCarDisplayAreaController.isForegroundDaVisible()) {
-                            mCarDisplayAreaController.hideTitleBar();
-                            mCarDisplayAreaController.makeForegroundDaVisible(true);
-                        }
-                        mCarDisplayAreaController.setControlBarVisibility(false);
-                        mCarDisplayAreaController.immersiveForSUW(true);
-                        mIsDefaultTdaFullScreen = true;
-                    } else if (res == 0 && mIsDefaultTdaFullScreen) {
-                        // reset
-                        mCarDisplayAreaController.makeForegroundDaVisible(false);
-                        mCarDisplayAreaController.immersiveForSUW(false);
-                        mCarDisplayAreaController.showTitleBar();
-                        mCarDisplayAreaController.setControlBarVisibility(true);
-                        mIsDefaultTdaFullScreen = false;
-                    }
-                }
-            } catch (Exception e) {
-                Log.e(TAG, " error finding SETUP_WIZARD_IN_PROGRESS ", e);
-            } finally {
-                if (mIsDefaultTdaFullScreen) {
-                    // only poll this when default TDA is full screen. We want to check
-                    // the progress of suw every second until the user exits the suw.
-                    mHandler.postDelayed(this, 1000);
-                }
-            }
-        }
-    };
 
     @Inject
     public DisplayAreaComponent(Context context,
@@ -109,36 +62,6 @@ public class DisplayAreaComponent extends CoreStartable {
             // Register the DA's
             mCarDisplayAreaController.register();
 
-            IntentFilter filter = new IntentFilter();
-            // add a receiver to listen to ACTION_USER_SWITCHED when user is switching. We would
-            // make the default foreground DA full screen when SUW is being presented to the user.
-            filter.addAction(Intent.ACTION_USER_SWITCHED);
-            // add a receiver to listen to ACTION_BOOT_COMPLETED where we will perform tasks that
-            // require system to be ready. For example, search list of activities with a specific
-            // Intent. This cannot be done while the component is created as that is too early in
-            // the lifecycle of system starting and the results returned by package manager is
-            // not reliable. So we want to wait until system is ready before we query for list of
-            // activities.
-            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
-            mContext.registerReceiverForAllUsers(new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    if (Intent.ACTION_USER_SWITCHED.equals(intent.getAction())) {
-                        int user = intent.getIntExtra(Intent.EXTRA_USER_HANDLE,
-                                UserHandle.USER_ALL);
-                        logIfDebuggable(
-                                "ACTION_USER_SWITCHED received current user: " + user);
-                        mHandler.post(mUserSwitchedRunnable);
-                        return;
-                    }
-
-                    if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
-                        mCarDisplayAreaController.updateVoicePlateActivityMap();
-                        return;
-                    }
-                }
-            }, filter, /* broadcastPermission= */ null, /* scheduler= */ null);
-
             IntentFilter packageChangeFilter = new IntentFilter();
             // add a receiver to listen to ACTION_PACKAGE_ADDED to perform any action when a new
             // application is installed on the system.
@@ -151,7 +74,6 @@ public class DisplayAreaComponent extends CoreStartable {
                     mCarDisplayAreaController.updateVoicePlateActivityMap();
                 }
             }, packageChangeFilter, null, null);
-            mHandler.post(mUserSwitchedRunnable);
         }
     }
 

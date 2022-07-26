@@ -23,7 +23,9 @@ import android.util.Log;
 
 public final class RemoteDevicePolicyManagerServiceImpl extends
         IRemoteDevicePolicyManager.Stub {
+
     private static final String TAG = RemoteDevicePolicyManagerServiceImpl.class.getSimpleName();
+
     private final Context mContext;
     private final DevicePolicyManager mDpm;
 
@@ -39,6 +41,16 @@ public final class RemoteDevicePolicyManagerServiceImpl extends
             mDpm.reboot(admin);
         } catch (Exception e) {
             Log.e(TAG, "error rebooting", e);
+        }
+    }
+
+    @Override
+    public void addUserRestriction(ComponentName admin, String key) {
+        Log.d(TAG, "Cross User: addUserRestriction(admin, key)");
+        try {
+            mDpm.addUserRestriction(admin, key);
+        } catch (Exception e) {
+            Log.e(TAG, "error adding user restriction", e);
         }
     }
 }
