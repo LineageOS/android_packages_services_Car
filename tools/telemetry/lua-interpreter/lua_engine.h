@@ -35,11 +35,16 @@ class LuaEngine {
   LuaEngine();
   ~LuaEngine();
 
-  // Loads and invokes the Lua script provided as scriptBody string.
-  // Returns the output from executing the given script.
-  // If loading or invocation are unsuccessful, the errors are returned
-  // in the output.
-  std::vector<std::string> ExecuteScript(std::string script_body);
+  // Loads Lua script provided as script_body string and invokes the Lua
+  // function corresponding to function_name, passing in the corresponding
+  // published_data and saved_state arguments as Lua tables.
+  //
+  // Returns the output from executing the given script. If loading or
+  // invocation are unsuccessful, the errors are returned in the output.
+  std::vector<std::string> ExecuteScript(std::string script_body,
+                                         std::string function_name,
+                                         std::string published_data,
+                                         std::string saved_state);
 
   // Returns an allocated char** pointing to null-terminated equivalents
   // of the strings within the vector passed in.
@@ -50,16 +55,6 @@ class LuaEngine {
   static char** StringVectorToCharArray(std::vector<std::string> vector);
 
  private:
-  // Stores the current contents of the stack into output_.
-  // This method is invoked by a running Lua script when printing to the
-  // console.
-  // This method separates each element in the stack with tabs and supplies a
-  // newline (same as the print function in the base Lua library).
-  // This method returns 0 to indicate that no results were pushed to Lua
-  // stack according to Lua C function calling convention. More info:
-  // https://www.lua.org/manual/5.4/manual.html#lua_CFunction
-  static int DumpStack(lua_State* lua_state);
-
   // Invoked by a running Lua script to produce a log to the output. This is
   // useful for debugging.
   //
@@ -159,12 +154,15 @@ void FreeLuaOutput(LuaOutput* lua_output);
 // Creates a new instance of the LuaEngine.
 LuaEngine* NewLuaEngine();
 
-// Loads and invokes the Lua script provided as scriptBody string.
+// Loads Lua script provided as script_body string and invokes the Lua
+// function corresponding to function_name, passing in the corresponding
+// published_data and saved_state arguments as Lua tables.
+//
 // Allocates and returns the output from executing the given script in the
-// form of the LuaOutput struct.
-// If loading or invocation are unsuccessful, the errors are returned
-// in the output.
-LuaOutput* ExecuteScript(LuaEngine* l, char* script);
+// form of the LuaOutput struct. If loading or invocation are unsuccessful, the
+// errors are returned in the output.
+LuaOutput* ExecuteScript(LuaEngine* l, char* script, char* function_name,
+                         char* published_data, char* saved_state);
 }  // extern "C"
 }  // namespace lua_interpreter
 

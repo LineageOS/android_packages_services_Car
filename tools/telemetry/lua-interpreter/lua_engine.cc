@@ -16,7 +16,8 @@
 
 #include "lua_engine.h"
 
-#include <cstring>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -50,9 +51,108 @@ LuaEngine::LuaEngine() {
 
 LuaEngine::~LuaEngine() { lua_close(lua_state_); }
 
-std::vector<std::string> LuaEngine::ExecuteScript(std::string script_body) {
+// Converts the published_data and saved_state JSON strings to Lua tables
+// and pushes them onto the stack. If successful, the published_data table is at
+// -2, and the saved_state table at -1. If unsuccessful, nothing is added to the
+// stack.
+// Returns true if both strings are successfully converted, appending
+// any errors to output if not.
+bool ConvertJsonToLuaTable(lua_State* lua_state, std::string published_data,
+                           std::string saved_state,
+                           std::vector<std::string>* output) {
+  // After executing the file, the stack indices and its contents are:
+  // -1: the json.lua table
+  // the rest of the stack contents
+  luaL_dofile(lua_state, "json.lua");
+
+  // After obtaining "decode" function from the json.lua table, the stack
+  // indices and its contents are:
+  // -1: the decode function
+  // -2: the json.lua table
+  // the rest of the stack contents
+  lua_getfield(lua_state, /*index=*/-1, "decode");
+
+  // After pushing the published data argument, the stack indices and its
+  // contents are:
+  // -1: published_data string
+  // -2: the decode function
+  // -3: the json.lua table
+  // the rest of the stack contents
+  lua_pushstring(lua_state, published_data.c_str());
+
+  // After this pcall, the stack indices and its contents are:
+  // -1: converted published_data table
+  // -2: the json.lua table
+  // the rest of the stack contents
+  lua_pcall(lua_state, /*nargs=*/1, /*nresults=*/1, /*msgh=*/0);
+
+  // If the top element on the stack isn't a table, it's an error string from
+  // json.lua specifiyng any issues from decoding (e.g. syntax)
+  if (!lua_istable(lua_state, lua_gettop(lua_state))) {
+    std::string error =
+        std::string(lua_tostring(lua_state, lua_gettop(lua_state)));
+    lua_pop(lua_state, 2);
+    output->push_back("Error from parsing published data: " +
+                      error.substr(error.find(' ')) + "\n");
+    return false;
+  }
+
+  // After this insert, the stack indices and its contents are:
+  // -1: the json.lua table
+  // -2: converted published_data table
+  // the rest of the stack contents
+  lua_insert(lua_state, /*index=*/-2);
+
+  // After obtaining "decode" function from the json.lua table, the stack
+  // indices and its contents are:
+  // -1: the decode function
+  // -2: the json.lua table
+  // -3: converted published_data table
+  // the rest of the stack contents
+  lua_getfield(lua_state, /*index=*/-1, "decode");
+
+  // After pushing the saved state argument, the stack indices and its
+  // contents are:
+  // -1: saved_state string
+  // -2: the decode function
+  // -3: the json.lua table
+  // -4: converted published_data table
+  // the rest of the stack contents
+  lua_pushstring(lua_state, saved_state.c_str());
+
+  // After this pcall, the stack indices and its contents are:
+  // -1: converted saved_state table
+  // -2: the json.lua table
+  // -3: converted published_data table
+  // the rest of the stack contents
+  lua_pcall(lua_state, /*nargs=*/1, /*nresults=*/1, /*msgh=*/0);
+
+  // If the top element on the stack isn't a table, it's an error string from
+  // json.lua specifiyng any issues from decoding (e.g. syntax)
+  if (!lua_istable(lua_state, lua_gettop(lua_state))) {
+    std::string error =
+        std::string(lua_tostring(lua_state, lua_gettop(lua_state)));
+    lua_pop(lua_state, 3);
+    output->push_back("Error from parsing saved state: " +
+                      error.substr(error.find(' ')) + "\n");
+    return false;
+  }
+
+  // After this removal, the stack indices and its contents are:
+  // -1: converted saved_state table
+  // -2: converted published_data table
+  // the rest of the stack contents
+  lua_remove(lua_state, /*index=*/-2);
+
+  return true;
+}
+
+std::vector<std::string> LuaEngine::ExecuteScript(std::string script_body,
+                                                  std::string function_name,
+                                                  std::string published_data,
+                                                  std::string saved_state) {
   output_.clear();
-  const auto load_status = luaL_loadstring(lua_state_, script_body.data());
+  const int load_status = luaL_dostring(lua_state_, script_body.data());
   if (load_status != LUA_OK) {
     const char* error = lua_tostring(lua_state_, lua_gettop(lua_state_));
     lua_pop(lua_state_, lua_gettop(lua_state_));
@@ -63,24 +163,37 @@ std::vector<std::string> LuaEngine::ExecuteScript(std::string script_body) {
     return output_;
   }
 
-  const auto run_status =
-      lua_pcall(lua_state_, /*nargs=*/0, LUA_MULTRET, /*msgh=*/0);
-  if (run_status != LUA_OK) {
-    const char* error = lua_tostring(lua_state_, lua_gettop(lua_state_));
+  lua_getglobal(lua_state_, function_name.data());
+
+  const bool function_status =
+      lua_isfunction(lua_state_, lua_gettop(lua_state_));
+  if (!function_status) {
     lua_pop(lua_state_, lua_gettop(lua_state_));
-    output_.push_back(
-        std::string("Error encountered while running the script. The returned "
-                    "error code = ") +
-        std::to_string(run_status) +
-        std::string(". Refer to lua.h file of Lua C API library for error code "
-                    "definitions. Error: ") +
-        std::string(error));
+    output_.push_back(std::string(
+        "Wrong function name. Provided function_name = " + function_name +
+        " does not correspond to any function in the provided script"));
     return output_;
   }
 
-  if (lua_gettop(lua_state_) > 0) {
-    DumpStack(lua_state_);
-    lua_pop(lua_state_, lua_gettop(lua_state_));
+  if (ConvertJsonToLuaTable(lua_state_, published_data, saved_state,
+                            &output_)) {
+    // After preparing the arguments, the stack indices and its contents are:
+    // -1: converted saved_state table
+    // -2: converted published_data table
+    // -3: the function corresponding to the function_name in the script
+    const int run_status =
+        lua_pcall(lua_state_, /*nargs=*/2, /*nresults=*/0, /*msgh=*/0);
+    if (run_status != LUA_OK) {
+      const char* error = lua_tostring(lua_state_, lua_gettop(lua_state_));
+      lua_pop(lua_state_, lua_gettop(lua_state_));
+      output_.push_back(
+          std::string("Error encountered while running the script. "
+                      "The returned error code = ") +
+          std::to_string(run_status) +
+          std::string(". Refer to lua.h file of Lua C API library "
+                      "for error code definitions. Error: ") +
+          std::string(error));
+    }
   }
 
   return output_;
@@ -99,17 +212,6 @@ char** LuaEngine::StringVectorToCharArray(std::vector<std::string> vector) {
   }
 
   return array;
-}
-
-int LuaEngine::DumpStack(lua_State* lua_state) {
-  int num_args = lua_gettop(lua_state);
-  for (int i = 1; i <= num_args; i++) {
-    const char* string = lua_tostring(lua_state, i);
-    output_.push_back(string);
-    output_.push_back("\t");
-  }
-  output_.push_back("\n");
-  return ZERO_RETURNED_RESULTS;
 }
 
 // Converts the Lua table at the top of the stack to a JSON string.
@@ -147,7 +249,7 @@ std::string ConvertTableToJson(lua_State* lua_state) {
   lua_insert(lua_state, /*index=*/-2);
 
   // After this pcall, the stack indices and its contents are:
-  // -1: the converted JSON string
+  // -1: the converted JSON string / json.lua error if encoding fails
   // -2: the json.lua table
   // the rest of the stack contents
   lua_pcall(lua_state, /*nargs=*/1, /*nresults=*/1, /*msgh=*/0);
@@ -161,14 +263,22 @@ std::string ConvertTableToJson(lua_State* lua_state) {
 }
 
 int LuaEngine::ScriptLog(lua_State* lua_state) {
-  output_.push_back(kLuaLogTag);
-  int num_args = lua_gettop(lua_state);
-  for (int i = 1; i <= num_args; i++) {
-    const char* string = lua_tostring(lua_state, i);
-    output_.push_back(string);
-  }
-  output_.push_back("\n");
+  std::stringstream log;
 
+  for (int i = 1; i <= lua_gettop(lua_state); i++) {
+    // NIL lua type cannot be coerced to string so must be explicitly checked to
+    // prevent errors.
+    if (!lua_isstring(lua_state, i)) {
+      std::string error(
+          "One of the log arguments cannot be coerced to a string; make "
+          "sure that this value exists\n");
+      output_.push_back(kLuaLogTag + error);
+      return ZERO_RETURNED_RESULTS;
+    }
+    log << lua_tostring(lua_state, i);
+  }
+
+  output_.push_back(kLuaLogTag + log.str() + "\n");
   return ZERO_RETURNED_RESULTS;
 }
 
@@ -264,9 +374,11 @@ void FreeLuaOutput(LuaOutput* lua_output) {
 
 LuaEngine* NewLuaEngine() { return new LuaEngine(); }
 
-LuaOutput* ExecuteScript(LuaEngine* l, char* script) {
+LuaOutput* ExecuteScript(LuaEngine* l, char* script, char* function_name,
+                         char* published_data, char* saved_state) {
   LuaOutput* lua_engine_output = new LuaOutput();
-  std::vector<std::string> script_execution_output = l->ExecuteScript(script);
+  std::vector<std::string> script_execution_output =
+      l->ExecuteScript(script, function_name, published_data, saved_state);
   lua_engine_output->size = script_execution_output.size();
   lua_engine_output->output =
       LuaEngine::StringVectorToCharArray(script_execution_output);

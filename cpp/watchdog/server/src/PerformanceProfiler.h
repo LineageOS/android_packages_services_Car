@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
-#define CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_
+#define CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_
 
 #include "ProcDiskStatsCollector.h"
 #include "ProcStatCollector.h"
@@ -46,7 +46,7 @@ constexpr const char kEmptyCollectionMessage[] = "No collection recorded\n";
 // Forward declaration for testing use only.
 namespace internal {
 
-class IoPerfCollectionPeer;
+class PerformanceProfilerPeer;
 
 }  // namespace internal
 
@@ -124,10 +124,10 @@ struct CollectionInfo {
     std::string toString() const;
 };
 
-// IoPerfCollection implements the I/O performance data collection module.
-class IoPerfCollection final : public DataProcessorInterface {
+// PerformanceProfiler implements the I/O performance data collection module.
+class PerformanceProfiler final : public DataProcessorInterface {
 public:
-    IoPerfCollection() :
+    PerformanceProfiler() :
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
           mBoottimeCollection({}),
@@ -135,9 +135,9 @@ public:
           mCustomCollection({}),
           mLastMajorFaults(0) {}
 
-    ~IoPerfCollection() { terminate(); }
+    ~PerformanceProfiler() { terminate(); }
 
-    std::string name() const override { return "IoPerfCollection"; }
+    std::string name() const override { return "PerformanceProfiler"; }
 
     // Implements DataProcessorInterface.
     android::base::Result<void> onBoottimeCollection(
@@ -224,11 +224,11 @@ private:
     friend class WatchdogPerfService;
 
     // For unit tests.
-    friend class internal::IoPerfCollectionPeer;
+    friend class internal::PerformanceProfilerPeer;
 };
 
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_IOPERFCOLLECTION_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_PERFORMANCEPROFILER_H_

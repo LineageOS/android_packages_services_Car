@@ -18,6 +18,18 @@
           package="com.android.car.testdpc">
     <application android:testOnly="true" android:debuggable="true">
 
+        <activity
+            android:name=".DpcActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="stateUnchanged"
+            android:resizeableActivity="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <receiver android:name=".DpcReceiver"
                   android:permission="android.permission.BIND_DEVICE_ADMIN"
                   android:exported="true">

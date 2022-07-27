@@ -15,6 +15,8 @@
  */
 package com.android.car.util;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertThrows;
 
 import android.car.PlatformApiVersion;
@@ -37,4 +39,18 @@ public class VersionUtilsTest {
         VersionUtils.assertPlatformApiVersionAtLeast(
                 PlatformApiVersion.forMajorAndMinorVersions(33, 0));
     }
+
+    @Test
+    public void testIsPlatformApiVersionAtLeastSuccess() {
+        assertThat(VersionUtils.isPlatformApiVersionAtLeast(
+                PlatformApiVersion.forMajorAndMinorVersions(33, 0))).isTrue();
+    }
+
+    @Test
+    public void testIsPlatformApiVersionAtLeastFailure() {
+        assertThat(VersionUtils.isPlatformApiVersionAtLeast(
+                PlatformApiVersion.forMajorAndMinorVersions(Integer.MAX_VALUE, Integer.MAX_VALUE)))
+                        .isFalse();
+    }
+
 }

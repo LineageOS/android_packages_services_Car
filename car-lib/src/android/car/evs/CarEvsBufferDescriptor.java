@@ -17,6 +17,7 @@
 package android.car.evs;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
@@ -99,6 +100,7 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
 
     @Override
     @AddedInOrBefore(majorVersion = 33)
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public String toString() {
         return "CarEvsBufferDescriptor: id = " + mId + ", buffer = " + mHardwareBuffer;
     }

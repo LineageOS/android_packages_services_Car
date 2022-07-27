@@ -16,6 +16,8 @@
 
 package android.car.evs;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -33,6 +35,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -393,6 +396,7 @@ public final class CarEvsManager extends CarManagerBase {
          * @param event {@link #CarEvsStreamEvent}; e.g. a stream started
          */
         @AddedInOrBefore(majorVersion = 33)
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         default void onStreamEvent(@CarEvsStreamEvent int event) {}
 
         /**
@@ -401,6 +405,7 @@ public final class CarEvsManager extends CarManagerBase {
          * @param buffer {@link android.car.evs.CarEvsBufferDescriptor} contains a EVS frame
          */
         @AddedInOrBefore(majorVersion = 33)
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         default void onNewFrame(@NonNull CarEvsBufferDescriptor buffer) {}
     }
 
