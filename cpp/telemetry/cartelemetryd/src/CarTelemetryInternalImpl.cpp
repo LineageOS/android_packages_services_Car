@@ -81,6 +81,16 @@ ndk::ScopedAStatus CarTelemetryInternalImpl::clearListener() {
     return ndk::ScopedAStatus::ok();
 }
 
+ndk::ScopedAStatus CarTelemetryInternalImpl::addCarDataIds(const std::vector<int32_t>& ids) {
+    mTelemetryServer->addCarDataIds(ids);
+    return ndk::ScopedAStatus::ok();
+}
+
+ndk::ScopedAStatus CarTelemetryInternalImpl::removeCarDataIds(const std::vector<int32_t>& ids) {
+    mTelemetryServer->removeCarDataIds(ids);
+    return ndk::ScopedAStatus::ok();
+}
+
 binder_status_t CarTelemetryInternalImpl::dump(int fd, const char** args, uint32_t numArgs) {
     dprintf(fd, "ICarTelemetryInternal:\n");
     mTelemetryServer->dump(fd);
