@@ -66,28 +66,24 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
             0.0f, 0.0f, 0.0f, 1.0f };
 
     private final String mVertexShader =
-        "#version 300 es                    \n" +
-        "layout(location = 0) in vec4 pos;  \n" +
-        "layout(location = 1) in vec2 tex;  \n" +
-        "uniform mat4 cameraMat;            \n" +
-        "out vec2 uv;                       \n" +
-        "void main()                        \n" +
-        "{                                  \n" +
-        "   gl_Position = cameraMat * pos;  \n" +
-        "   uv = tex;                       \n" +
-        "}                                  \n";
+        "attribute vec4 pos;                    \n" +
+        "attribute vec2 tex;                    \n" +
+        "uniform mat4 cameraMat;                \n" +
+        "varying vec2 uv;                       \n" +
+        "void main()                            \n" +
+        "{                                      \n" +
+        "   gl_Position = cameraMat * pos;      \n" +
+        "   uv = tex;                           \n" +
+        "}                                      \n";
 
     private final String mFragmentShader =
-        "#version 300 es                    \n" +
-        "precision mediump float;           \n" +
-        "uniform sampler2D tex;             \n" +
-        "in vec2 uv;                        \n" +
-        "out vec4 color;                    \n" +
-        "void main()                        \n" +
-        "{                                  \n" +
-        "    vec4 texel = texture(tex, uv); \n" +
-        "    color = texel;                 \n" +
-        "}                                  \n";
+        "precision mediump float;               \n" +
+        "uniform sampler2D tex;                 \n" +
+        "varying vec2 uv;                       \n" +
+        "void main()                            \n" +
+        "{                                      \n" +
+        "    gl_FragColor = texture2D(tex, uv); \n" +
+        "}                                      \n";
 
     private final Object mLock = new Object();
 
@@ -342,6 +338,10 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         checkGlError("glAttachShader");
         GLES20.glAttachShader(program, fragmentShader);
         checkGlError("glAttachShader");
+
+        GLES20.glBindAttribLocation(program, 0, "pos");
+        GLES20.glBindAttribLocation(program, 1, "tex");
+
         GLES20.glLinkProgram(program);
         int[] linkStatus = new int[1];
         GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
