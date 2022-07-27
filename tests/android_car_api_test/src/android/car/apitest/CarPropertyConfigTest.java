@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.testng.Assert.assertThrows;
 
 import android.car.VehicleAreaType;
+import android.car.VehicleAreaWindow;
 import android.car.hardware.CarPropertyConfig;
 import android.test.suitebuilder.annotation.MediumTest;
 
@@ -198,5 +199,36 @@ public class CarPropertyConfigTest extends CarPropertyTestBase {
         assertThat(configRead.getPropertyType()).isEqualTo(Object.class);
         assertThat(configRead.getAreaCount()).isEqualTo(1);
         assertThat(configRead.getConfigArray()).containsExactlyElementsIn(configArray).inOrder();
+    }
+
+    @Test
+    public void getConfigString_returnsExpectedValue() {
+        String testConfigString = "testConfigString";
+        CarPropertyConfig<Integer> carPropertyConfig = CarPropertyConfig
+                .newBuilder(Integer.class, INT_PROPERTY_ID,
+                        VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).setConfigString(testConfigString)
+                .build();
+
+        assertThat(carPropertyConfig.getConfigString()).isEqualTo(testConfigString);
+    }
+
+    @Test
+    public void getFirstAndOnlyAreaId_returnsAreaId() {
+        CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
+                LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addArea(
+                VehicleAreaWindow.WINDOW_ROW_1_LEFT).build();
+
+        assertThat(carPropertyConfig.getFirstAndOnlyAreaId()).isEqualTo(
+                VehicleAreaWindow.WINDOW_ROW_1_LEFT);
+    }
+
+    @Test
+    public void getFirstAndOnlyAreaId_throwsIllegalStateException() {
+        CarPropertyConfig<Long> carPropertyConfig = CarPropertyConfig.newBuilder(Long.class,
+                LONG_PROPERTY_ID, VehicleAreaType.VEHICLE_AREA_TYPE_WINDOW).addArea(
+                VehicleAreaWindow.WINDOW_ROW_1_LEFT).addArea(
+                VehicleAreaWindow.WINDOW_ROW_1_RIGHT).build();
+
+        assertThrows(IllegalStateException.class, () -> carPropertyConfig.getFirstAndOnlyAreaId());
     }
 }
