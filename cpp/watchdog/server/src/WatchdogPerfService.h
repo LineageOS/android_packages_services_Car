@@ -22,6 +22,7 @@
 #include "ProcStatCollector.h"
 #include "UidStatsCollector.h"
 
+#include <WatchdogProperties.sysprop.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
 #include <cutils/multiuser.h>
@@ -51,6 +52,7 @@ class WatchdogPerfServicePeer;
 
 }  // namespace internal
 
+constexpr std::chrono::seconds kDefaultPostEventDurationSec = 30s;
 constexpr const char* kStartCustomCollectionFlag = "--start_perf";
 constexpr const char* kEndCustomCollectionFlag = "--stop_perf";
 constexpr const char* kIntervalFlag = "--interval";
@@ -177,6 +179,9 @@ public:
 class WatchdogPerfService final : public WatchdogPerfServiceInterface {
 public:
     WatchdogPerfService() :
+          mPostEventDurationNs(std::chrono::duration_cast<std::chrono::nanoseconds>(
+                  std::chrono::seconds(sysprop::postEventDuration().value_or(
+                          kDefaultPostEventDurationSec.count())))),
           mHandlerLooper(android::sp<LooperWrapper>::make()),
           mSystemState(NORMAL_MODE),
           mBoottimeCollection({}),
@@ -263,6 +268,9 @@ private:
      * nullptr on invalid collection event.
      */
     EventMetadata* currCollectionMetadataLocked();
+
+    // Duration of collection after the final signal is received.
+    std::chrono::nanoseconds mPostEventDurationNs;
 
     // Thread on which the actual collection happens.
     std::thread mCollectionThread;
