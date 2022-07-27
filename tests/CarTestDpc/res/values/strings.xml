@@ -15,6 +15,15 @@
   -->
 
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" translatable="false">CarTestDpc</string>
-    <string name="app_title" translatable="false">Test device admin spp for cars</string>
+    <string name="app_name" translatable="false"><b>CarTestDpc</b></string>
+    <string name="app_title" translatable="false"><b>Test device admin spp for cars</b></string>
+    <string name="current_user_title" translatable="false"><b>Current User: </b></string>
+    <string name="this_user" translatable="false"></string>
+    <string name="reboot" translatable="false">Reboot</string>
+    <string name="add_user_restriction" translatable="false">Add user restriction: </string>
+    <string name="user_id" translatable="false">user id (int)</string>
+    <string name="key" translatable="false">key (string)</string>
+    <string name="submit" translatable="false">Submit</string>
+    <string name="rebooting" translatable="false">rebooting...</string>
+    <string name="adding_user_restriction" translatable="false">adding user restriction (key) to (user)... </string>
 </resources>
