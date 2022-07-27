@@ -9,6 +9,7 @@ This is a sample vendor service that sends `CarData` to car telemetry service.
 ```
 m -j android.automotive.telemetryd-sampleclient
 
+adb root
 adb remount  # make sure run "adb disable-verity" before remounting
 adb push $ANDROID_PRODUCT_OUT/vendor/bin/android.automotive.telemetryd-sampleclient /system/bin/
 
