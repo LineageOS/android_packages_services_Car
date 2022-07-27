@@ -35,6 +35,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.util.ArraySet;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.databroker.DataSubscriber;
@@ -48,6 +49,10 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase {
@@ -98,6 +103,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(mFakeCarTelemetryInternal.mListener).isNotNull();
         assertThat(mPublisher.isConnectedToCarTelemetryd()).isTrue();
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        assertThat(mFakeCarTelemetryInternal.mCarDataIds).containsExactly(CAR_DATA_ID_1);
     }
 
     @Test
@@ -189,6 +195,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         int mSetListenerCallCount = 0;
         private final IBinder mBinder;
         @Nullable private RemoteException mApiFailure = null;
+        private Set<Integer> mCarDataIds = new ArraySet<>();
 
         FakeCarTelemetryInternal(IBinder binder) {
             mBinder = binder;
@@ -214,6 +221,16 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
                 throw mApiFailure;
             }
             mListener = null;
+        }
+
+        @Override
+        public void addCarDataIds(int[] ids) throws RemoteException {
+            mCarDataIds.addAll(Arrays.stream(ids).boxed().collect(Collectors.toList()));
+        }
+
+        @Override
+        public void removeCarDataIds(int[] ids) throws RemoteException {
+            mCarDataIds.removeAll(Arrays.stream(ids).boxed().collect(Collectors.toList()));
         }
 
         void setApiFailure(RemoteException e) {
