@@ -18,10 +18,21 @@ package com.android.car.fakevhal;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
+import android.hardware.automotive.vehicle.VehicleAreaDoor;
+import android.hardware.automotive.vehicle.VehicleAreaSeat;
+import android.hardware.automotive.vehicle.VehicleAreaWheel;
+import android.hardware.automotive.vehicle.VehicleAreaWindow;
+import android.hardware.automotive.vehicle.VehicleHvacFanDirection;
+import android.hardware.automotive.vehicle.VehicleLightState;
+import android.hardware.automotive.vehicle.VehicleLightSwitch;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyGroup;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -37,6 +48,7 @@ import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A JSON parser class to get configs and values from JSON config files.
@@ -44,6 +56,7 @@ import java.util.List;
 public final class FakeVhalConfigParser {
 
     private static final String TAG = CarLog.tagFor(FakeVhalConfigParser.class);
+    private static final String ENUM_CLASS_DIRECTORY = "android.hardware.automotive.vehicle.";
     private static final String JSON_FIELD_NAME_ROOT = "properties";
     private static final String JSON_FIELD_NAME_PROPERTY_ID = "property";
     private static final String JSON_FIELD_NAME_DEFAULT_VALUE = "defaultValue";
@@ -63,6 +76,123 @@ public final class FakeVhalConfigParser {
     private static final String JSON_FIELD_NAME_MAX_FLOAT_VALUE = "maxFloatValue";
     private static final String JSON_FIELD_NAME_ACCESS = "access";
     private static final String JSON_FIELD_NAME_CHANGE_MODE = "changeMode";
+    // Following values are defined in PropertyUtils.h file
+    // (hardware/interfaces/automotive/vehicle/aidl/impl/utils/common/include/PropertyUtils.h).
+    private static final int DOOR_1_RIGHT = VehicleAreaDoor.ROW_1_RIGHT;
+    private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
+    private static final int DOOR_2_RIGHT = VehicleAreaDoor.ROW_2_RIGHT;
+    private static final int DOOR_2_LEFT = VehicleAreaDoor.ROW_2_LEFT;
+    private static final int DOOR_REAR = VehicleAreaDoor.REAR;
+    private static final int VENDOR_EXTENSION_INT_PROPERTY = 0x103 | VehiclePropertyGroup.VENDOR
+                                | VehiclePropertyType.INT32 | VehicleArea.WINDOW;
+    private static final int VENDOR_EXTENSION_BOOLEAN_PROPERTY = 0x101 | VehiclePropertyGroup.VENDOR
+                                | VehiclePropertyType.BOOLEAN | VehicleArea.DOOR;
+    private static final int VENDOR_EXTENSION_STRING_PROPERTY = 0x104 | VehiclePropertyGroup.VENDOR
+                                | VehiclePropertyType.STRING | VehicleArea.GLOBAL;
+    private static final int VENDOR_EXTENSION_FLOAT_PROPERTY = 0x102 | VehiclePropertyGroup.VENDOR
+                                | VehiclePropertyType.FLOAT | VehicleArea.SEAT;
+    private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
+    private static final int WINDOW_1_RIGHT = VehicleAreaWindow.ROW_1_RIGHT;
+    private static final int WINDOW_2_LEFT = VehicleAreaWindow.ROW_2_LEFT;
+    private static final int WINDOW_2_RIGHT = VehicleAreaWindow.ROW_2_RIGHT;
+    private static final int WINDOW_ROOF_TOP_1 = VehicleAreaWindow.ROOF_TOP_1;
+    private static final int SEAT_1_RIGHT = VehicleAreaSeat.ROW_1_RIGHT;
+    private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
+    private static final int SEAT_2_RIGHT = VehicleAreaSeat.ROW_2_RIGHT;
+    private static final int SEAT_2_LEFT = VehicleAreaSeat.ROW_2_LEFT;
+    private static final int SEAT_2_CENTER = VehicleAreaSeat.ROW_2_CENTER;
+    private static final int WHEEL_REAR_RIGHT = VehicleAreaWheel.RIGHT_REAR;
+    private static final int WHEEL_REAR_LEFT = VehicleAreaWheel.LEFT_REAR;
+    private static final int WHEEL_FRONT_RIGHT = VehicleAreaWheel.RIGHT_FRONT;
+    private static final int WHEEL_FRONT_LEFT = VehicleAreaWheel.LEFT_FRONT;
+    private static final int CHARGE_PORT_FRONT_LEFT = PortLocationType.FRONT_LEFT;
+    private static final int CHARGE_PORT_REAR_LEFT = PortLocationType.REAR_LEFT;
+    private static final int FAN_DIRECTION_FLOOR = VehicleHvacFanDirection.FLOOR;
+    private static final int FAN_DIRECTION_FACE = VehicleHvacFanDirection.FACE;
+    private static final int FAN_DIRECTION_DEFROST = VehicleHvacFanDirection.DEFROST;
+    private static final int FUEL_DOOR_REAR_LEFT = PortLocationType.REAR_LEFT;
+    // TODO(b/241984846) Removed SEAT_2_CENTER from HVAC_LEFT here. May need to change the HVAC_LEFT
+    //  values in other places to make it consistent.
+    private static final int HVAC_LEFT = SEAT_1_LEFT | SEAT_2_LEFT;
+    private static final int HVAC_RIGHT = SEAT_1_RIGHT | SEAT_2_RIGHT;
+    private static final int HVAC_ALL = HVAC_LEFT | HVAC_RIGHT;
+    private static final int LIGHT_STATE_ON = VehicleLightState.ON;
+    private static final int LIGHT_SWITCH_AUTO = VehicleLightSwitch.AUTOMATIC;
+    // Following are the test properties whose values are copying from TestPropertyUtils.h file(
+    // hardware/interfaces/automotive/vehicle/aidl/impl/utils/test/include/TestPropertyUtils.h).
+    private static final int ECHO_REVERSE_BYTES = 0x2a12 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.BYTES;
+    private static final int K_MIXED_TYPE_PROPERTY_FOR_TEST = 0x1111 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.MIXED;
+    private static final int VENDOR_CLUSTER_NAVIGATION_STATE = toVendorProperty(
+                                VehicleProperty.CLUSTER_NAVIGATION_STATE);
+    private static final int VENDOR_CLUSTER_REQUEST_DISPLAY = toVendorProperty(
+                                VehicleProperty.CLUSTER_REQUEST_DISPLAY);
+    private static final int VENDOR_CLUSTER_SWITCH_UI = toVendorProperty(
+                                VehicleProperty.CLUSTER_SWITCH_UI);
+    private static final int VENDOR_CLUSTER_DISPLAY_STATE = toVendorProperty(
+                                VehicleProperty.CLUSTER_DISPLAY_STATE);
+    private static final int VENDOR_CLUSTER_REPORT_STATE = toVendorProperty(
+                                VehicleProperty.CLUSTER_REPORT_STATE);
+    private static final int PLACEHOLDER_PROPERTY_INT = 0x2a11 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.INT32;
+    private static final int PLACEHOLDER_PROPERTY_FLOAT = 0x2a11 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.FLOAT;
+    private static final int PLACEHOLDER_PROPERTY_BOOLEAN = 0x2a11 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.BOOLEAN;
+    private static final int PLACEHOLDER_PROPERTY_STRING = 0x2a11 | VehiclePropertyGroup.VENDOR
+                                | VehicleArea.GLOBAL | VehiclePropertyType.STRING;
+    private static final Map<String, Integer> CONSTANTS_BY_NAME = Map.ofEntries(
+            Map.entry("DOOR_1_RIGHT", DOOR_1_RIGHT),
+            Map.entry("DOOR_1_LEFT", DOOR_1_LEFT),
+            Map.entry("DOOR_2_RIGHT", DOOR_2_RIGHT),
+            Map.entry("DOOR_2_LEFT", DOOR_2_LEFT),
+            Map.entry("DOOR_REAR", DOOR_REAR),
+            Map.entry("HVAC_ALL", HVAC_ALL),
+            Map.entry("HVAC_LEFT", HVAC_LEFT),
+            Map.entry("HVAC_RIGHT", HVAC_RIGHT),
+            Map.entry("VENDOR_EXTENSION_INT_PROPERTY", VENDOR_EXTENSION_INT_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_BOOLEAN_PROPERTY", VENDOR_EXTENSION_BOOLEAN_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_STRING_PROPERTY", VENDOR_EXTENSION_STRING_PROPERTY),
+            Map.entry("VENDOR_EXTENSION_FLOAT_PROPERTY", VENDOR_EXTENSION_FLOAT_PROPERTY),
+            Map.entry("WINDOW_1_LEFT", WINDOW_1_LEFT),
+            Map.entry("WINDOW_1_RIGHT", WINDOW_1_RIGHT),
+            Map.entry("WINDOW_2_LEFT", WINDOW_2_LEFT),
+            Map.entry("WINDOW_2_RIGHT", WINDOW_2_RIGHT),
+            Map.entry("WINDOW_ROOF_TOP_1", WINDOW_ROOF_TOP_1),
+            Map.entry("WINDOW_1_RIGHT_2_LEFT_2_RIGHT", WINDOW_1_RIGHT | WINDOW_2_LEFT
+                    | WINDOW_2_RIGHT),
+            Map.entry("SEAT_1_RIGHT", SEAT_1_RIGHT),
+            Map.entry("SEAT_1_LEFT", SEAT_1_LEFT),
+            Map.entry("WHEEL_REAR_RIGHT", WHEEL_REAR_RIGHT),
+            Map.entry("WHEEL_REAR_LEFT", WHEEL_REAR_LEFT),
+            Map.entry("WHEEL_FRONT_RIGHT", WHEEL_FRONT_RIGHT),
+            Map.entry("WHEEL_FRONT_LEFT", WHEEL_FRONT_LEFT),
+            Map.entry("CHARGE_PORT_FRONT_LEFT", CHARGE_PORT_FRONT_LEFT),
+            Map.entry("CHARGE_PORT_REAR_LEFT", CHARGE_PORT_REAR_LEFT),
+            Map.entry("FAN_DIRECTION_FLOOR", FAN_DIRECTION_FLOOR),
+            Map.entry("FAN_DIRECTION_FACE", FAN_DIRECTION_FACE),
+            Map.entry("FAN_DIRECTION_DEFROST", FAN_DIRECTION_DEFROST),
+            Map.entry("FAN_DIRECTION_FACE_FLOOR", FAN_DIRECTION_FACE | FAN_DIRECTION_FLOOR),
+            Map.entry("FAN_DIRECTION_FACE_DEFROST", FAN_DIRECTION_FACE | FAN_DIRECTION_DEFROST),
+            Map.entry("FAN_DIRECTION_FLOOR_DEFROST", FAN_DIRECTION_FLOOR | FAN_DIRECTION_DEFROST),
+            Map.entry("FAN_DIRECTION_FLOOR_DEFROST_FACE", FAN_DIRECTION_FLOOR
+                    | FAN_DIRECTION_DEFROST | FAN_DIRECTION_FACE),
+            Map.entry("FUEL_DOOR_REAR_LEFT", FUEL_DOOR_REAR_LEFT),
+            Map.entry("LIGHT_STATE_ON", LIGHT_STATE_ON),
+            Map.entry("LIGHT_SWITCH_AUTO", LIGHT_SWITCH_AUTO),
+            Map.entry("ECHO_REVERSE_BYTES", ECHO_REVERSE_BYTES),
+            Map.entry("kMixedTypePropertyForTest", K_MIXED_TYPE_PROPERTY_FOR_TEST),
+            Map.entry("VENDOR_CLUSTER_NAVIGATION_STATE", VENDOR_CLUSTER_NAVIGATION_STATE),
+            Map.entry("VENDOR_CLUSTER_REQUEST_DISPLAY", VENDOR_CLUSTER_REQUEST_DISPLAY),
+            Map.entry("VENDOR_CLUSTER_SWITCH_UI", VENDOR_CLUSTER_SWITCH_UI),
+            Map.entry("VENDOR_CLUSTER_DISPLAY_STATE", VENDOR_CLUSTER_DISPLAY_STATE),
+            Map.entry("VENDOR_CLUSTER_REPORT_STATE", VENDOR_CLUSTER_REPORT_STATE),
+            Map.entry("PLACEHOLDER_PROPERTY_INT", PLACEHOLDER_PROPERTY_INT),
+            Map.entry("PLACEHOLDER_PROPERTY_FLOAT", PLACEHOLDER_PROPERTY_FLOAT),
+            Map.entry("PLACEHOLDER_PROPERTY_BOOLEAN", PLACEHOLDER_PROPERTY_BOOLEAN),
+            Map.entry("PLACEHOLDER_PROPERTY_STRING", PLACEHOLDER_PROPERTY_STRING)
+    );
 
     /**
      * Reads config file and parses the JSON root object whose field name is "properties".
@@ -449,11 +579,17 @@ public final class FakeVhalConfigParser {
             errors.add(stringValue + " must in the form of <EnumClassName>::<ConstantName>.");
             return 0;
         }
-        String enumClassName = propIdStrings[0];
+        String enumClassName = ENUM_CLASS_DIRECTORY + propIdStrings[0];
         String constantName = propIdStrings[1];
 
-        // TODO(b/238808998) Handle Constants enum class and add
-        //  Map<"DOOR_1_LEFT", VehicleAreaDoor::ROW_1_LEFT>
+        if (propIdStrings[0].equals("Constants")) {
+            if (CONSTANTS_BY_NAME.containsKey(constantName)) {
+                return CONSTANTS_BY_NAME.get(constantName);
+            }
+            errors.add(constantName + " is not a valid constant name.");
+            return 0;
+        }
+
         Class enumClass;
         try {
             enumClass = Class.forName(enumClassName);
@@ -462,15 +598,19 @@ public final class FakeVhalConfigParser {
             return 0;
         }
         Field[] fields = enumClass.getDeclaredFields();
-        List<String> constants = new ArrayList<>();
-        for (int i = 0; i < fields.length; i++) {
-            constants.add(fields[i].getName());
+        for (Field field : fields) {
+            if (constantName.equals(field.getName())) {
+                try {
+                    return field.getInt(enumClass);
+                } catch (Exception e) {
+                    errors.add("Failed to get int value of " + enumClass + "." + constantName
+                            + " " + e.getMessage());
+                    return 0;
+                }
+            }
         }
-        if (!constants.contains(constantName)) {
-            errors.add(constantName + " is not valid.");
-            return 0;
-        }
-        return Enum.valueOf(enumClass, constantName).ordinal();
+        errors.add(enumClass + " doesn't have a constant field with name " + constantName);
+        return 0;
     }
 
     /**
@@ -626,5 +766,15 @@ public final class FakeVhalConfigParser {
      */
     private boolean isFileValid(File configFile) {
         return configFile.exists() && configFile.isFile();
+    }
+
+    /**
+     * Converts system property to vendor property.
+     *
+     * @param property The property going to be converted.
+     * @return an int represents vendor property.
+     */
+    private static int toVendorProperty(int property) {
+        return (property & VehiclePropertyGroup.MASK) | VehiclePropertyGroup.VENDOR;
     }
 }
