@@ -19,7 +19,6 @@
 
 #include "WatchdogPerfService.h"
 
-#include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/stringprintf.h>
@@ -248,7 +247,7 @@ void WatchdogPerfService::terminate() {
         ALOGE("Terminating %s as car watchdog is terminating", kServiceName);
         if (mCurrCollectionEvent != EventType::INIT) {
             /*
-             * Looper runs only after EventType::TNIT has completed so remove looper messages
+             * Looper runs only after EventType::INIT has completed so remove looper messages
              * and wake the looper only when the current collection has changed from INIT.
              */
             mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
@@ -289,12 +288,12 @@ Result<void> WatchdogPerfService::onBootFinished() {
               toString(expected));
         return {};
     }
-    mBoottimeCollection.lastUptime = mHandlerLooper->now();
-    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
-    mHandlerLooper->removeMessages(thiz);
-    mHandlerLooper->sendMessage(thiz, SwitchMessage::END_BOOTTIME_COLLECTION);
+    nsecs_t endBootCollectionTime = mHandlerLooper->now() + mPostEventDurationNs.count();
+    mHandlerLooper->sendMessageAtTime(endBootCollectionTime,
+                                      sp<WatchdogPerfService>::fromExisting(this),
+                                      SwitchMessage::END_BOOTTIME_COLLECTION);
     if (DEBUG) {
-        ALOGD("Boot-time event finished");
+        ALOGD("Boot complete signal received.");
     }
     return {};
 }
@@ -534,6 +533,7 @@ void WatchdogPerfService::handleMessage(const Message& message) {
             result = processCollectionEvent(&mBoottimeCollection);
             break;
         case static_cast<int>(SwitchMessage::END_BOOTTIME_COLLECTION):
+            mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
             if (result = processCollectionEvent(&mBoottimeCollection); result.ok()) {
                 Mutex::Autolock lock(mMutex);
                 switchToPeriodicLocked(/*startNow=*/false);

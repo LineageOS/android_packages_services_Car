@@ -15,10 +15,10 @@
  */
 package android.car.apitest;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import android.car.VehicleAreaSeat;
 import android.test.suitebuilder.annotation.SmallTest;
-
-import static com.google.common.truth.Truth.assertThat;
 
 import org.junit.Test;
 
@@ -49,13 +49,6 @@ public class VehicleSeatTest {
 
     @Test
     public void testFromRowAndSide() {
-        assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
-                .isEqualTo(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_LEFT));
-        assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
-                .isEqualTo(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_CENTER));
-        assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
-                .isEqualTo(VehicleAreaSeat.fromRowAndSide(-1, VehicleAreaSeat.SIDE_RIGHT));
-
         assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
                 .isEqualTo(VehicleAreaSeat.fromRowAndSide(0, VehicleAreaSeat.SIDE_LEFT));
         assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
@@ -90,5 +83,12 @@ public class VehicleSeatTest {
                 .isEqualTo(VehicleAreaSeat.fromRowAndSide(4, VehicleAreaSeat.SIDE_CENTER));
         assertThat(VehicleAreaSeat.SEAT_UNKNOWN)
                 .isEqualTo(VehicleAreaSeat.fromRowAndSide(4, VehicleAreaSeat.SIDE_RIGHT));
+
+        int invalidLeftSide = -2;
+        assertThat(VehicleAreaSeat.fromRowAndSide(/*rowNumber=*/1, invalidLeftSide)).isEqualTo(
+                VehicleAreaSeat.SEAT_UNKNOWN);
+        int invalidRightSide = 2;
+        assertThat(VehicleAreaSeat.fromRowAndSide(/*rowNumber=*/1, invalidRightSide)).isEqualTo(
+                VehicleAreaSeat.SEAT_UNKNOWN);
     }
 }

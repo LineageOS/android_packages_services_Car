@@ -43,6 +43,9 @@ cc_defaults {
         "android.automotive.watchdog-V3-ndk",
         "libvhalclient",
     ],
+    whole_static_libs: [
+        "libwatchdog_properties",
+    ],
     header_libs: [
         "libgtest_prod_headers",
     ],
@@ -108,9 +111,6 @@ cc_library {
     static_libs: [
         "libwatchdog_binder_utils",
         "libwatchdog_package_info_resolver",
-    ],
-    whole_static_libs: [
-        "libwatchdog_properties",
     ],
     export_include_dirs: [
         "src",

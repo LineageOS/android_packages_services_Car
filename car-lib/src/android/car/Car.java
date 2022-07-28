@@ -1990,8 +1990,9 @@ public final class Car {
      * @return Matching service manager or {@code null} if there is no such service.
      */
     @Nullable
-    @AddedIn(majorVersion = 33, minorVersion = 1)
-    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 0)
+    // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @AddedIn(majorVersion = 10000, minorVersion = 0)
+    @MinimumPlatformSdkVersion(majorVersion = 10000, minorVersion = 0)
     public <T> T getCarManager(@NonNull Class<T> serviceClass) {
         String serviceName = CAR_SERVICE_NAMES.get(serviceClass);
         return serviceName != null ? (T) getCarManager(serviceName) : null;
