@@ -20,6 +20,8 @@ import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.util.SparseArray;
 
+import java.util.Objects;
+
 /**
  * ConfigDeclaration class contains both configs and initial values of a property.
  */
@@ -31,9 +33,37 @@ public final class ConfigDeclaration {
 
     public ConfigDeclaration(VehiclePropConfig config, RawPropValues initialValue,
             SparseArray<RawPropValues> initialAreaValuesByAreaId) {
-        this.mConfig = config;
-        this.mInitialValue = initialValue;
-        this.mInitialAreaValuesByAreaId = initialAreaValuesByAreaId;
+        this.mConfig = Objects.requireNonNull(config, "config cannot be null.");
+        this.mInitialValue = Objects.requireNonNull(initialValue, "initialValue cannot be"
+            + " null");
+        this.mInitialAreaValuesByAreaId = Objects.requireNonNull(initialAreaValuesByAreaId,
+            "initialAreaValueByAreaId cannot be null.");
+    }
+
+    @Override
+    public String toString() {
+        return new StringBuilder("ConfigDeclaration{ mConfig = ").append(mConfig)
+            .append(", mInitialValue = ").append(mInitialValue)
+            .append(", mInitialAreaValuesByAreaId = ").append(mInitialAreaValuesByAreaId)
+            .append(" }").toString();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof ConfigDeclaration)) {
+            return false;
+        }
+        ConfigDeclaration other = (ConfigDeclaration) obj;
+        return mConfig.equals(other.getConfig()) && mInitialValue.equals(other.getInitialValue())
+                && mInitialAreaValuesByAreaId.contentEquals(other.getInitialAreaValuesByAreaId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mConfig, mInitialValue, mInitialAreaValuesByAreaId.contentHashCode());
     }
 
     /**

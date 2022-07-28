@@ -20,8 +20,16 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.testng.Assert.expectThrows;
 
+import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
+import android.hardware.automotive.vehicle.VehicleAreaSeat;
+import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
+import android.hardware.automotive.vehicle.VehicleSeatOccupancyState;
+import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -131,13 +139,13 @@ public class FakeVhalConfigParserUnitTest {
 
     @Test
     public void testParsePropertyIdValueNull() throws Exception {
-        String jsonString = "{\"properties\": [{\"property\": null}]}";
+        String jsonString = "{\"properties\": [{\"property\": NULL}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
         IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
 
-        assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped int value.");
+        assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped value.");
     }
 
     @Test
@@ -145,11 +153,10 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 12.3f}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        // TODO(b/240578933) Current parseIntValue method accepts float value and auto converts it
-        //  to int. Will fix this bug in a separate CL.
-        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, false).get(0).getConfig().prop;
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
 
-        assertThat(propId).isEqualTo(12);
+        assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped int value.");
     }
 
     @Test
@@ -352,6 +359,241 @@ public class FakeVhalConfigParserUnitTest {
 
         assertThat(thrown).hasMessageThat().contains("configArray doesn't have a mapped JSONArray "
                 + "value.");
+    }
+
+    @Test
+    public void testParseConfigArrayValueWithNullElement() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"configArray\": "
+                + "[123, null]}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("[123,null] doesn't have a mapped int value "
+                + "at index 1");
+    }
+
+    @Test
+    public void testParseDefaultValueIsNull() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": null}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("defaultValue doesn't have a mapped value.");
+    }
+
+    @Test
+    public void testParseDefaultValueIsEmpty() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": {}}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
+    }
+
+    @Test
+    public void testParseDefaultValueIntValuesIsNull() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": "
+                + "{\"int32Values\": null}}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("Failed to parse the field name: int32Values "
+                + "for defaultValueObject: {\"int32Values\":null}");
+    }
+
+    @Test
+    public void testParseDefaultValueParseLongValues() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": "
+                + "{\"int64Values\": [0, 100000, 200000]}}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        long[] longValues = mFakeVhalConfigParser.parseJsonConfig(tempFile, false).get(0)
+                .getInitialValue().int64Values;
+        long[] expectLongValues = {0, 100000, 200000};
+        assertThat(longValues).isEqualTo(expectLongValues);
+    }
+
+    @Test
+    public void testParseDefaultValueFloat() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": "
+                + "{\"floatValues\": [2.3, \"VehicleUnit::FAHRENHEIT\"]}}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        RawPropValues rawPropValues = mFakeVhalConfigParser.parseJsonConfig(tempFile, false).get(0)
+                .getInitialValue();
+        RawPropValues expectRawPropertyValues = new RawPropValues();
+        expectRawPropertyValues.floatValues = new float[]{2.3f, 49.0f};
+        assertThat(rawPropValues).isEqualTo(expectRawPropertyValues);
+    }
+
+    @Test
+    public void testParseDefaultValueIntValuesString() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": "
+                + "{\"int32Values\": [\"VehicleSeatOccupancyState::VACANT\"]}}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+        RawPropValues expectRawPropertyValues = new RawPropValues();
+        expectRawPropertyValues.int32Values = new int[]{VehicleSeatOccupancyState.VACANT};
+
+        RawPropValues rawPropValues = mFakeVhalConfigParser.parseJsonConfig(tempFile, false).get(0)
+                .getInitialValue();
+
+        assertThat(rawPropValues).isEqualTo(expectRawPropertyValues);
+
+    }
+
+    @Test
+    public void testParseAreaConfigValueIsNotArray() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": {}}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("areas doesn't have a mapped array value.");
+    }
+
+    @Test
+    public void testParseAreaConfigValueWithNullElement() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": [null]}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("Unable to get a JSONObject element for areas "
+                + "at index 0");
+    }
+
+    @Test
+    public void testParseAreaConfigValueWithEmptyElement() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": [{}]}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
+    }
+
+    @Test
+    public void testParseAreaConfigValueElementHasNoAreaId() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
+                + "[{\"minInt32Value\": 0}]}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+
+        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile, false));
+
+        assertThat(thrown).hasMessageThat().contains("{\"minInt32Value\":0} doesn't have areaId. "
+                + "AreaId is required.");
+    }
+
+    @Test
+    public void testParseAreaConfigValue() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
+                + "[{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 10, "
+                + "\"defaultValue\": {\"int32Values\": [0]}}]}]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+        VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = 286261504;
+        VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
+        vehicleAreaConfig.areaId = 1;
+        vehicleAreaConfig.minInt32Value = 0;
+        vehicleAreaConfig.maxInt32Value = 10;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig};
+        RawPropValues areaRawPropValues = new RawPropValues();
+        areaRawPropValues.int32Values = new int[]{0};
+        SparseArray<RawPropValues> areaValuesByAreaId = new SparseArray<>();
+        areaValuesByAreaId.put(vehicleAreaConfig.areaId, areaRawPropValues);
+        ConfigDeclaration expectConfigDeclaration = new ConfigDeclaration(vehiclePropConfig,
+                new RawPropValues(), areaValuesByAreaId);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile, false)
+                .get(0);
+
+        assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
+    }
+
+    @Test
+    public void testParseJsonConfig() throws Exception {
+        // Create a JSON config object with all field values set.
+        String jsonString = "{\"properties\": [{"
+                + "             \"property\": "
+                + "               \"VehicleProperty::WHEEL_TICK\","
+                + "               \"defaultValue\": {"
+                + "                 \"int64Values\": [0, 100000, 200000, 300000, 400000]"
+                + "               },"
+                + "               \"areas\": [{"
+                + "                 \"defaultValue\": {"
+                + "                   \"int32Values\": [\"VehicleSeatOccupancyState::VACANT\"],"
+                + "                   \"floatValues\": [15000.0],"
+                + "                   \"stringValue\": \"Toy Vehicle\""
+                + "                 },"
+                + "                 \"minInt32Value\": 0,"
+                + "                 \"maxInt32Value\": 10,"
+                + "                 \"areaId\": \"Constants::SEAT_1_LEFT\""
+                + "               },{"
+                + "                 \"defaultValue\": {"
+                + "                   \"int32Values\": [0]"
+                + "                 },"
+                + "                   \"areaId\": \"Constants::SEAT_1_RIGHT\""
+                + "               }],"
+                + "            \"configArray\": [15, 50000, 50000, 50000, 50000],"
+                + "            \"configString\": \"configString\","
+                + "            \"maxSampleRate\": 10.0,"
+                + "            \"minSampleRate\": 1.0,"
+                + "            \"access\": \"VehiclePropertyAccess::READ\","
+                + "            \"changeMode\": \"VehiclePropertyChangeMode::STATIC\""
+                + "        }]}";
+        File tempFile = createTempFile(new JSONObject(jsonString).toString());
+        // Create prop config object
+        VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
+        vehiclePropConfig.prop = VehicleProperty.WHEEL_TICK;
+        // Create area config object
+        VehicleAreaConfig vehicleAreaConfig1 = new VehicleAreaConfig();
+        vehicleAreaConfig1.areaId = VehicleAreaSeat.ROW_1_LEFT;
+        vehicleAreaConfig1.minInt32Value = 0;
+        vehicleAreaConfig1.maxInt32Value = 10;
+        VehicleAreaConfig vehicleAreaConfig2 = new VehicleAreaConfig();
+        vehicleAreaConfig2.areaId = VehicleAreaSeat.ROW_1_RIGHT;
+        vehiclePropConfig.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig1,
+                vehicleAreaConfig2};
+        vehiclePropConfig.configString = "configString";
+        vehiclePropConfig.configArray = new int[]{15, 50000, 50000, 50000, 50000};
+        vehiclePropConfig.minSampleRate = 1.0f;
+        vehiclePropConfig.maxSampleRate = 10.0f;
+        vehiclePropConfig.access = VehiclePropertyAccess.READ;
+        vehiclePropConfig.changeMode = VehiclePropertyChangeMode.STATIC;
+        // Create default prop value object.
+        RawPropValues defaultRawPropValues = new RawPropValues();
+        defaultRawPropValues.int64Values = new long[]{0, 100000, 200000, 300000, 400000};
+        // Create area prop value objects.
+        RawPropValues areaRawPropValues1 = new RawPropValues();
+        areaRawPropValues1.int32Values = new int[]{VehicleSeatOccupancyState.VACANT};
+        areaRawPropValues1.floatValues = new float[]{15000.0f};
+        areaRawPropValues1.stringValue = "Toy Vehicle";
+        RawPropValues areaRawPropValues2 = new RawPropValues();
+        areaRawPropValues2.int32Values = new int[]{0};
+        // Create map from areaId to areaValue.
+        SparseArray<RawPropValues> areaValuesByAreaId = new SparseArray<>();
+        areaValuesByAreaId.put(vehicleAreaConfig1.areaId, areaRawPropValues1);
+        areaValuesByAreaId.put(vehicleAreaConfig2.areaId, areaRawPropValues2);
+        // Create expected ConfigDeclaration object.
+        ConfigDeclaration expectConfigDeclaration = new ConfigDeclaration(vehiclePropConfig,
+                defaultRawPropValues, areaValuesByAreaId);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile, false)
+                .get(0);
+
+        assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
     }
 
     private File createTempFile(String fileContent) throws Exception {

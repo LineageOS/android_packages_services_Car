@@ -317,7 +317,7 @@ public final class FakeVhalConfigParser {
                 case JSON_FIELD_NAME_DEFAULT_VALUE:
                     JSONObject defaultValueObject = propertyObject.optJSONObject(fieldName);
                     if (defaultValueObject == null) {
-                        errors.add(fieldName + " doesn't have a mapped value");
+                        errors.add(fieldName + " doesn't have a mapped value.");
                         continue;
                     }
                     rawPropValues = parseDefaultValue(defaultValueObject, errors);
@@ -347,7 +347,7 @@ public final class FakeVhalConfigParser {
                     vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
                     break;
                 default:
-                    Slogf.i(TAG, fieldName + " is an unknown field name. It didn't get parsed.");
+                    Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
             }
         }
 
@@ -408,8 +408,7 @@ public final class FakeVhalConfigParser {
                     defaultValue = parseDefaultValue(areaObject.optJSONObject(fieldName), errors);
                     break;
                 default:
-                    Slogf.i(TAG, fieldName + " is an unknown field name."
-                            + " It didn't get parsed.");
+                    Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
             }
         }
 
@@ -482,8 +481,7 @@ public final class FakeVhalConfigParser {
                     break;
                 }
                 default:
-                    Slogf.i(TAG, fieldName + " is an unknown field name. "
-                            + "It didn't get parsed.");
+                    Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
             }
         }
 
@@ -531,12 +529,16 @@ public final class FakeVhalConfigParser {
                 return 0;
             }
         }
-        try {
-            return parentObject.getInt(fieldName);
-        } catch (JSONException e) {
-            errors.add(fieldName + " doesn't have a mapped int value. " + e.getMessage());
+        Object value = parentObject.opt(fieldName);
+        if (value != JSONObject.NULL) {
+            if (value.getClass() == Integer.class) {
+                return parentObject.optInt(fieldName);
+            }
+            errors.add(fieldName + " doesn't have a mapped int value.");
             return 0;
         }
+        errors.add(fieldName + " doesn't have a mapped value.");
+        return 0;
     }
 
     /**
@@ -694,7 +696,7 @@ public final class FakeVhalConfigParser {
         for (int i = 0; i < values.length(); i++) {
             if (isString(values, i)) {
                 String stringValue = values.optString(i);
-                valueArray[i] = parseConstantValue(stringValue, errors);
+                valueArray[i] = (float) parseConstantValue(stringValue, errors);
             } else {
                 try {
                     valueArray[i] = (float) values.getDouble(i);
@@ -719,8 +721,8 @@ public final class FakeVhalConfigParser {
      * @return {@code true} if parent object contains this field and the value is string.
      */
     private boolean isString(JSONObject parentObject, String fieldName) {
-        return parentObject.opt(fieldName) != null && parentObject.opt(fieldName).getClass()
-                == String.class;
+        return parentObject.opt(fieldName) != JSONObject.NULL && parentObject.opt(fieldName)
+                .getClass() == String.class;
     }
 
     /**
@@ -731,7 +733,8 @@ public final class FakeVhalConfigParser {
      * @return {@code true} if the JSON array has value at index and the value is string.
      */
     private boolean isString(JSONArray jsonArray, int index) {
-        return jsonArray.opt(index) != null && jsonArray.opt(index).getClass() == String.class;
+        return jsonArray.opt(index) != JSONObject.NULL && jsonArray.opt(index).getClass()
+                == String.class;
     }
 
     /**
