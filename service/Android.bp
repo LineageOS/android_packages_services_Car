@@ -145,6 +145,7 @@ java_library {
         "src/com/android/car/CarServiceBase.java",
         "src/com/android/car/CarServiceUtils.java",
         "src/com/android/car/CarLog.java",
+        "src/com/android/car/CarSystemService.java",
         "src/com/android/car/util/TransitionLog.java",
     ],
 

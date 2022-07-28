@@ -45,8 +45,8 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.CarSystemService;
 import com.android.car.VehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -72,7 +72,7 @@ import java.util.stream.Collectors;
  * implementation. It is the responsibility of {@link HalServiceBase} to convert data to
  * corresponding Car*Service for Car*Manager API.
  */
-public class VehicleHal implements HalClientCallback, CarServiceBase {
+public class VehicleHal implements HalClientCallback, CarSystemService {
 
     private static final boolean DBG = false;
 
@@ -847,20 +847,6 @@ public class VehicleHal implements HalClientCallback, CarServiceBase {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-      // TODO(b/232550251): Remove this hack by having all services except for VehicleHal
-      // and CarStatsService implement an extension of the interface VehicleHal and CarStatsService
-      // implement. That way, we can special case VehicleHal and CarStatsService in a more
-      // generic way.
-
-      // Dump nothing when this is called by looping through all services in ICarImpl.
-      // Other dump methods below will called for VHal specific commands.
-    }
-
-    /**
-     * Dumps HAL service info using the print writer passed as parameter.
-     */
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpAllHals(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("**dump HAL services**");
             for (int i = 0; i < mAllServices.size(); i++) {
