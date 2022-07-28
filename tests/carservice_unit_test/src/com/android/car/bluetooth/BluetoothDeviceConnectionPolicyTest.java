@@ -57,15 +57,11 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.invocation.Invocation;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.stream.Collectors;
 
 /**
  * Unit tests for {@link BluetoothDeviceConnectionPolicy}
@@ -258,16 +254,6 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
     private void setDrivingState(int value) {
         when(mMockCarDrivingStateService.getCurrentDrivingState())
                 .thenReturn(new CarDrivingStateEvent(value, 0 /*timeStamp*/));
-    }
-
-    private int getNumberOfConnectDevicesCalls() {
-        Collection<Invocation> invocations =
-                Mockito.mockingDetails(mMockBluetoothService).getInvocations();
-
-        return invocations.stream()
-                .filter(inv -> "connectDevices".equals(inv.getMethod().getName()))
-                .collect(Collectors.toList())
-                .size();
     }
 
     //--------------------------------------------------------------------------------------------//

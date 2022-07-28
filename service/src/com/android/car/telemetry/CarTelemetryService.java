@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slogf;
@@ -87,6 +88,8 @@ import java.util.Set;
  * with a data upload service.
  */
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
+
+    private static final String TAG = CarTelemetryService.class.getSimpleName();
 
     public static final boolean DEBUG = false; // STOPSHIP if true
 
@@ -171,7 +174,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
     private SessionController mSessionController;
-    // private SystemMonitor mSystemMonitor;
+    private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
     static class Dependencies {
@@ -239,9 +242,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                         mTelemetryThreadTraceLog);
             }
             mDataBroker.setDataBrokerListener(mDataBrokerListener);
-            // TODO(b/233973826): Re-enable once SystemMonitor tune-up is complete.
-            // mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
-            // mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
+            // TODO (b/233973826): Re-enable once SystemMonitor tune-up is complete.
+            if (false) {
+                ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
+                mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
+                mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
+            } else {
+                Log.w(TAG, "Not creating mSystemMonitor due to bug 233973826");
+            }
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
             mOnShutdownReboot = new OnShutdownReboot(mContext);

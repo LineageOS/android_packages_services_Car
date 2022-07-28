@@ -286,15 +286,6 @@ public class ConnectivityPublisher extends AbstractPublisher {
         return result;
     }
 
-    private boolean isSubscribersEmpty() {
-        for (int i = 0; i < mSubscribers.size(); i++) {
-            if (!mSubscribers.valueAt(i).isEmpty()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * Parameters to query data from NetworkStatsService. Converts {@link Transport} and {@link
      * OemType} values into NetworkStatsService supported values.
