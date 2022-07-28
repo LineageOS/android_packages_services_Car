@@ -130,6 +130,22 @@ cc_fuzz {
     },
 }
 
+cc_test {
+    name: "evsmanagerd_test",
+    defaults: ["evsmanagerd_defaults"],
+    test_suites: ["general-tests"],
+    srcs: [
+        ":evsmanagerd_sources",
+        "tests/**/*.cpp"
+    ],
+    local_include_dirs: ["tests/include"],
+    shared_libs: ["libcamera_client"],
+    static_libs: [
+        "libgmock",
+        "libgtest",
+    ],
+}
+
 cc_library {
     name: "libstatslog_evsmanagerd",
     generated_sources: ["statslog_evsmanagerd.cpp"],
