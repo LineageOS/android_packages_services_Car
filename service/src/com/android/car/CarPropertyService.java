@@ -28,8 +28,10 @@ import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.car.hardware.property.ICarPropertyServiceCallback;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -695,5 +697,15 @@ public class CarPropertyService extends ICarProperty.Stub
                             + VehiclePropertyIds.toString(propertyId));
         }
         CarServiceUtils.assertPermission(mContext, writePermission);
+    }
+
+    /**
+     * Query CarPropertyValue with list of GetPropertyServiceRequest objects.
+     *
+     * <p>This method gets the CarPropertyValue using async methods. </p>
+     */
+    public void getPropertiesAsync(List<GetPropertyServiceRequest> getPropertyServiceRequests,
+            ICarPropertyServiceCallback carPropertyServiceCallback) {
+        // TODO(b/238323662): implement the logic
     }
 }
