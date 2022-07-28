@@ -67,4 +67,10 @@ interface ICarServiceHelper {
      * service would send back this information.
      */
     void sendInitialUser(in UserHandle user) = 6;
+
+    /** Check {@link android.os.Process#setProcessGroup(int, int)}. */
+    void setProcessGroup(int pid, int group) = 7;
+
+    /** Check {@link android.os.Process#getProcessGroup(int)}. */
+    int getProcessGroup(int pid) = 8;
 }

@@ -210,6 +210,7 @@ package android.car {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformApiVersion> CREATOR;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
+    field @NonNull public static final android.car.PlatformApiVersion UPSIDE_DOWN_CAKE_0;
   }
 
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {

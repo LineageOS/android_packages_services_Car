@@ -84,4 +84,16 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     public void sendInitialUser(UserHandle user) {
         Log.d(TAG, "sendInitialUser " + user);
     }
+
+    @Override
+    public void setProcessGroup(int pid, int group) {
+        Log.d(TAG, "setProcessGroup, pid=" + pid + ", group=" + group);
+    }
+
+    @Override
+    public int getProcessGroup(int pid) {
+        Log.d(TAG, "getProcessGroup, pid=" + pid);
+
+        return 0;
+    }
 }

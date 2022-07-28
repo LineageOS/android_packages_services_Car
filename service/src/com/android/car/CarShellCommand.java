@@ -120,6 +120,7 @@ import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
@@ -265,6 +266,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_TEST_ECHO_REVERSE_BYTES = "test-echo-reverse-bytes";
 
     private static final String COMMAND_GET_TARGET_CAR_API_VERSION = "get-target-car-api-version";
+
+    private static final String COMMAND_SET_PROCESS_GROUP = "set-process-group";
+    private static final String COMMAND_GET_PROCESS_GROUP = "get-process-group";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -769,6 +773,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_API_VERSION);
         pw.println("\t  Gets the target API version (major and minor) defined by the given apps "
                 + "for the given user (or current user when --user is not set).");
+
+        pw.printf("\t%s <PID> <CPU_GROUP_ID>", COMMAND_SET_PROCESS_GROUP);
+        pw.println("\t Change CPU group of a process. Check android.os.Process.setProcessGroup "
+                + "for details on the parameters.");
+        pw.printf("\t%s <PID>", COMMAND_GET_PROCESS_GROUP);
+        pw.println("\t Get the CPU group of a process. Check android.os.Process.getProcessGroup "
+                + "for details on the parameters.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1147,6 +1158,12 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_GET_TARGET_CAR_API_VERSION:
                 getTargetCarApiVersion(args, writer);
+                break;
+            case COMMAND_SET_PROCESS_GROUP:
+                setProcessGroup(args, writer);
+                break;
+            case COMMAND_GET_PROCESS_GROUP:
+                getProcessGroup(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -3273,6 +3290,52 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 continue;
             }
         }
+    }
+
+    private void setProcessGroup(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        int pid = Integer.parseInt(args[1]);
+        int group = Integer.parseInt(args[2]);
+        Slogf.d(TAG, "Setting process group for pid %d, group %d", pid, group);
+
+        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
+        if (helper == null) {
+            writer.printf("  CarServiceHelper not connected yet");
+            return;
+        }
+        try {
+            helper.setProcessGroup(pid, group);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+
+        writer.printf("  Successfully set pid %s to group %s\n", args[1], args[2]);
+    }
+
+    private void getProcessGroup(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        int pid = Integer.parseInt(args[1]);
+
+        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
+        if (helper == null) {
+            writer.printf("  CarServiceHelper not connected yet");
+            return;
+        }
+        int group;
+        try {
+            group = helper.getProcessGroup(pid);
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+        writer.printf("%d\n", group);
     }
 
     // Check if the given property is global
