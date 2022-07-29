@@ -43,7 +43,8 @@ import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 
 import com.google.common.collect.ImmutableList;
@@ -72,14 +73,16 @@ public final class CarPropertyManagerUnitTest {
     private static final float LARGER_UPDATE_RATE_HZ = 50.1f;
     private static final float SMALLER_UPDATE_RATE_HZ = 49.9f;
 
+    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+
+    @Mock
+    private Car mCar;
     @Mock
     private ApplicationInfo mApplicationInfo;
     @Mock
     private ICarProperty mICarProperty;
     @Mock
     private Context mContext;
-    @Mock
-    private PackageManager mPackageManager;
     @Mock
     private CarPropertyManager.CarPropertyEventCallback mCarPropertyEventCallback;
     @Mock
@@ -116,8 +119,8 @@ public final class CarPropertyManagerUnitTest {
 
     @Before
     public void setUp() throws RemoteException {
-        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_AUTOMOTIVE)).thenReturn(true);
-        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mCar.getContext()).thenReturn(mContext);
+        when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mContext.getApplicationInfo()).thenReturn(mApplicationInfo);
         when(mContinuousCarPropertyConfig.getChangeMode()).thenReturn(
                 CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS);
@@ -133,7 +136,7 @@ public final class CarPropertyManagerUnitTest {
                 ImmutableList.of(mOnChangeCarPropertyConfig));
         when(mICarProperty.getPropertyConfigList(new int[]{STATIC_PROPERTY})).thenReturn(
                 ImmutableList.of(mStaticCarPropertyConfig));
-        mCarPropertyManager = new CarPropertyManager(Car.createCar(mContext), mICarProperty);
+        mCarPropertyManager = new CarPropertyManager(mCar, mICarProperty);
     }
 
     @Test
