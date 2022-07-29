@@ -17,6 +17,7 @@ package android.car;
 
 import android.annotation.NonNull;
 import android.car.annotation.AddedIn;
+import android.os.Parcel;
 
 import java.util.Objects;
 
@@ -52,10 +53,17 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      *         {@code requiredVersion}'s major or if the {@link #getMajorVersion() major version} is
      *         the same as {@code requiredVersion}'s major with the {@link #getMinorVersion() minor
      *         version} the same or newer than {@code requiredVersion}'s minor.
+     * @throws IllegalArgumentException if {@code requiredVersion} is not an instance of the same
+     *         class as this object.
      */
     @AddedIn(majorVersion = 33, minorVersion = 1)
     public final boolean isAtLeast(@NonNull T requiredVersion) {
         Objects.requireNonNull(requiredVersion);
+
+        if (!this.getClass().isInstance(requiredVersion)) {
+            throw new IllegalArgumentException("Cannot compare " + this.getClass().getName()
+                    + " against " + requiredVersion.getClass().getName());
+        }
 
         int requiredApiVersionMajor = requiredVersion.getMajorVersion();
         int requiredApiVersionMinor = requiredVersion.getMinorVersion();
@@ -64,6 +72,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
                 || (mMajorVersion == requiredApiVersionMajor
                         && mMinorVersion >= requiredApiVersionMinor);
     }
+
     /**
      * Gets the major version of the API represented by this object.
      */
@@ -125,5 +134,29 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     public final String toString() {
         return getClass().getSimpleName()
                 + "[major=" + mMajorVersion + ", minor=" + mMinorVersion + "]";
+    }
+
+    /**
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    protected void writeToParcel(Parcel dest) {
+        dest.writeInt(getMajorVersion());
+        dest.writeInt(getMinorVersion());
+    }
+
+    /**
+     * @hide
+     */
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    protected static <T extends ApiVersion<?>> T readFromParcel(Parcel source,
+            ApiVersionFactory<T> factory) {
+        int major = source.readInt();
+        int minor = source.readInt();
+        return factory.forMajorAndMinor(major, minor);
+    }
+
+    interface ApiVersionFactory<T extends ApiVersion<?>> {
+        T forMajorAndMinor(int major, int minor);
     }
 }
