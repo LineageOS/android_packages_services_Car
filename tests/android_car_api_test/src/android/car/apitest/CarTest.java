@@ -21,9 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
-import android.car.CarApiVersion;
+import android.car.CarVersion;
 import android.car.ICar;
-import android.car.PlatformApiVersion;
+import android.car.PlatformVersion;
 import android.car.hardware.CarSensorManager;
 import android.car.test.AbstractExpectableTestCase;
 import android.content.ComponentName;
@@ -144,7 +144,7 @@ public final class CarTest extends AbstractExpectableTestCase {
 
     @Test
     public void testApiVersion_car() throws Exception {
-        CarApiVersion carVersion = Car.getCarApiVersion();
+        CarVersion carVersion = Car.getCarVersion();
 
         assertThat(carVersion).isNotNull();
         assertThat(carVersion.getMajorVersion()).isAtLeast(Build.VERSION.SDK_INT);
@@ -154,7 +154,7 @@ public final class CarTest extends AbstractExpectableTestCase {
 
     @Test
     public void testApiVersion_platform() throws Exception {
-        PlatformApiVersion platformVersion = Car.getPlatformApiVersion();
+        PlatformVersion platformVersion = Car.getPlatformVersion();
 
         assertThat(platformVersion).isNotNull();
         assertThat(platformVersion.getMajorVersion()).isEqualTo(Build.VERSION.SDK_INT);

@@ -16,24 +16,23 @@
 package com.android.car.util;
 
 import android.car.Car;
-import android.car.PlatformApiVersion;
+import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
 
 /**
  * Utility class for platform and car API version check.
  */
-public class VersionUtils {
+public final class VersionUtils {
+
     /**
      * Asserts if the current platform version is at least expected platform version.
      *
      * @throws PlatformVersionMismatchException if current platform version is not equal to or
      * greater than expected platform version.
      */
-    public static void assertPlatformApiVersionAtLeast(
-            PlatformApiVersion expectedPlatformApiVersion)
-            throws PlatformVersionMismatchException {
-        PlatformApiVersion currentPlatformApiVersion = Car.getPlatformApiVersion();
-        if (!currentPlatformApiVersion.isAtLeast(expectedPlatformApiVersion)) {
+    public static void assertPlatformVersionAtLeast(PlatformVersion expectedPlatformApiVersion) {
+        PlatformVersion currentPlatformVersion = Car.getPlatformVersion();
+        if (!currentPlatformVersion.isAtLeast(expectedPlatformApiVersion)) {
             throw new PlatformVersionMismatchException(expectedPlatformApiVersion);
         }
     }
@@ -41,9 +40,12 @@ public class VersionUtils {
     /**
      * Checks if the current platform version is at least expected platform version.
      */
-    public static boolean isPlatformApiVersionAtLeast(
-            PlatformApiVersion expectedPlatformApiVersion) {
-        PlatformApiVersion currentPlatformApiVersion = Car.getPlatformApiVersion();
-        return currentPlatformApiVersion.isAtLeast(expectedPlatformApiVersion);
+    public static boolean isPlatformVersionAtLeast(PlatformVersion expectedPlatformVersion) {
+        PlatformVersion currentPlatformVersion = Car.getPlatformVersion();
+        return currentPlatformVersion.isAtLeast(expectedPlatformVersion);
+    }
+
+    private VersionUtils() {
+        throw new UnsupportedOperationException("contains only static method methods");
     }
 }

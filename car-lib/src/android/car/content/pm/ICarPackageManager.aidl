@@ -17,7 +17,7 @@
 package android.car.content.pm;
 
 import android.app.PendingIntent;
-import android.car.CarApiVersion;
+import android.car.CarVersion;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.content.ComponentName;
 
@@ -35,6 +35,6 @@ interface ICarPackageManager {
             boolean bypass, int userId) = 8;
     List<String> getSupportedDrivingSafetyRegionsForActivityAsUser(String packageName,
             String activityClassName, int userId) = 9;
-    CarApiVersion getTargetCarApiVersion(String packageName) = 10;
-    CarApiVersion getSelfTargetCarApiVersion(in String packageName) = 11;
+    CarVersion getTargetCarVersion(String packageName) = 10;
+    CarVersion getSelfTargetCarVersion(in String packageName) = 11;
 }
