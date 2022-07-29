@@ -62,6 +62,23 @@ public class DisplayAreaComponent extends CoreStartable {
             // Register the DA's
             mCarDisplayAreaController.register();
 
+            IntentFilter filter = new IntentFilter();
+            // add a receiver to listen to ACTION_BOOT_COMPLETED where we will perform tasks that
+            // require system to be ready. For example, search list of activities with a specific
+            // Intent. This cannot be done while the component is created as that is too early in
+            // the lifecycle of system starting and the results returned by package manager is
+            // not reliable. So we want to wait until system is ready before we query for list of
+            // activities.
+            filter.addAction(Intent.ACTION_BOOT_COMPLETED);
+            mContext.registerReceiverForAllUsers(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (Intent.ACTION_BOOT_COMPLETED.equals(intent.getAction())) {
+                        mCarDisplayAreaController.updateVoicePlateActivityMap();
+                    }
+                }
+            }, filter, /* broadcastPermission= */ null, /* scheduler= */ null);
+
             IntentFilter packageChangeFilter = new IntentFilter();
             // add a receiver to listen to ACTION_PACKAGE_ADDED to perform any action when a new
             // application is installed on the system.
