@@ -56,10 +56,10 @@ import com.android.car.user.CarUserService;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 
 /**
@@ -79,8 +79,9 @@ final class VendorServiceController implements UserLifecycleListener {
     private static final String PACKAGE_DATA_SCHEME = "package";
 
     private final List<VendorServiceInfo> mVendorServiceInfos = new ArrayList<>();
-    private final HashMap<ConnectionKey, VendorServiceConnection> mConnections =
-            new HashMap<>();
+    // TODO(b/240607225): Synchronize access to mConnections. It can lead to unexpected behavior.
+    private final Map<ConnectionKey, VendorServiceConnection> mConnections =
+            new ConcurrentHashMap<>();
     private final Context mContext;
     private final UserManager mUserManager;
     private final Handler mHandler;
@@ -208,8 +209,7 @@ final class VendorServiceController implements UserLifecycleListener {
     }
 
     private void tryToRebindConnectionsForUser(@UserIdInt int userId) {
-        for (Map.Entry<ConnectionKey, VendorServiceConnection> entry : mConnections.entrySet()) {
-            VendorServiceConnection connection = entry.getValue();
+        for (VendorServiceConnection connection : mConnections.values()) {
             if (connection.isUser(userId)) {
                 Slogf.d(TAG, "Trying to rebind connection to %s",
                         connection.mVendorServiceInfo);
@@ -300,8 +300,7 @@ final class VendorServiceController implements UserLifecycleListener {
      * and running as {@code userId}.
      */
     private void stopOrUnbindService(String packageName, @UserIdInt int userId) {
-        for (Map.Entry<ConnectionKey, VendorServiceConnection> entry : mConnections.entrySet()) {
-            VendorServiceConnection connection = entry.getValue();
+        for (VendorServiceConnection connection : mConnections.values()) {
             if (connection.isUser(userId)
                     && packageName.equals(connection.mVendorServiceInfo.getIntent().getComponent()
                     .getPackageName())) {
