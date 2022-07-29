@@ -14,75 +14,80 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<RelativeLayout
+<com.android.car.ui.FocusArea
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/focus_area"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
-        android:layout_height="0dp">
-        <Space
-            android:id="@+id/ui_content_start_guideline"
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-        />
+            android:layout_height="0dp">
+            <Space
+                android:id="@+id/ui_content_start_guideline"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+            />
 
-        <Space
-            android:id="@+id/ui_content_top_guideline"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginTop="96dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-        />
+            <Space
+                android:id="@+id/ui_content_top_guideline"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="96dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+            />
 
-        <Space
-            android:id="@+id/ui_content_end_guideline"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="0dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-        />
+            <Space
+                android:id="@+id/ui_content_end_guideline"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginRight="0dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+            />
 
-        <Space
-            android:id="@+id/ui_content_bottom_guideline"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_marginBottom="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-        />
+            <Space
+                android:id="@+id/ui_content_bottom_guideline"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginBottom="0dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+            />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    <com.android.car.apps.common.UxrTextView
-        android:id="@+id/error_message"
-        android:layout_width="520dp"
-        android:layout_height="44dp"
-        android:gravity="center"
-        android:layout_marginTop="440dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"/>
+        <com.android.car.apps.common.UxrTextView
+            android:id="@+id/error_message"
+            android:layout_width="520dp"
+            android:layout_height="44dp"
+            android:gravity="center"
+            android:layout_marginTop="440dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"/>
 
-    <com.android.car.apps.common.UxrButton
-        android:id="@+id/error_button"
-        android:layout_width="760dp"
-        android:layout_height="88dp"
-        android:background="@color/button_background_color"
-        android:textAlignment="center"
-        android:gravity="center"
-        android:layout_marginTop="120dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/error_message"/>
-
-</RelativeLayout>
+        <com.android.car.apps.common.UxrButton
+            android:id="@+id/error_button"
+            android:layout_width="760dp"
+            android:layout_height="88dp"
+            android:background="@color/button_background_color"
+            android:textAlignment="center"
+            android:gravity="center"
+            android:layout_marginTop="120dp"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/error_message"/>
+    </RelativeLayout>
+</com.android.car.ui.FocusArea>
