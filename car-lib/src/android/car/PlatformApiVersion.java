@@ -15,15 +15,11 @@
  */
 package android.car;
 
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
-
 import android.annotation.NonNull;
 import android.car.annotation.AddedIn;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
-
-import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Represents the API version of the standard Android SDK.
@@ -69,7 +65,6 @@ public final class PlatformApiVersion extends ApiVersion<PlatformApiVersion> imp
         super(majorVersion, minorVersion);
     }
 
-    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @AddedIn(majorVersion = 33, minorVersion = 1)
     @Override
     public int describeContents() {
@@ -79,8 +74,7 @@ public final class PlatformApiVersion extends ApiVersion<PlatformApiVersion> imp
     @Override
     @AddedIn(majorVersion = 33, minorVersion = 1)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeInt(getMajorVersion());
-        dest.writeInt(getMinorVersion());
+        writeToParcel(dest);
     }
 
     @AddedIn(majorVersion = 33, minorVersion = 1)
@@ -90,9 +84,8 @@ public final class PlatformApiVersion extends ApiVersion<PlatformApiVersion> imp
 
         @Override
         public PlatformApiVersion createFromParcel(Parcel source) {
-            int major = source.readInt();
-            int minor = source.readInt();
-            return forMajorAndMinorVersions(major, minor);
+            return ApiVersion.readFromParcel(source,
+                    (major, minor) -> forMajorAndMinorVersions(major, minor));
         }
 
         @Override
