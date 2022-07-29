@@ -210,6 +210,7 @@ package android.car {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformApiVersion> CREATOR;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
+    field @NonNull public static final android.car.PlatformApiVersion UPSIDE_DOWN_CAKE_0;
   }
 
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
@@ -718,12 +719,15 @@ package android.car.hardware.property {
   }
 
   public class CarPropertyManager {
+    method @NonNull public android.car.hardware.property.CarPropertyManager.GetPropertyRequest generateGetPropertyRequest(int, int);
     method public int getAreaId(int, int);
     method public boolean getBooleanProperty(int, int);
     method @Nullable public android.car.hardware.CarPropertyConfig<?> getCarPropertyConfig(int);
     method public float getFloatProperty(int, int);
     method @NonNull public int[] getIntArrayProperty(int, int);
     method public int getIntProperty(int, int);
+    method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, long, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
+    method public void getPropertiesAsync(@NonNull java.util.List<android.car.hardware.property.CarPropertyManager.GetPropertyRequest>, @Nullable android.os.CancellationSignal, @Nullable java.util.concurrent.Executor, @NonNull android.car.hardware.property.CarPropertyManager.GetPropertyCallback);
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(@NonNull Class<E>, int, int);
     method @Nullable public <E> android.car.hardware.CarPropertyValue<E> getProperty(int, int);
     method @NonNull public java.util.List<android.car.hardware.CarPropertyConfig> getPropertyList();
@@ -736,6 +740,7 @@ package android.car.hardware.property {
     method public <E> void setProperty(@NonNull Class<E>, int, int, @NonNull E);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback);
     method public void unregisterCallback(@NonNull android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback, int);
+    field public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10000L; // 0x2710L
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED = 4; // 0x4
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG = 2; // 0x2
     field public static final int CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE = 3; // 0x3
@@ -746,12 +751,40 @@ package android.car.hardware.property {
     field public static final float SENSOR_RATE_NORMAL = 1.0f;
     field public static final float SENSOR_RATE_ONCHANGE = 0.0f;
     field public static final float SENSOR_RATE_UI = 5.0f;
+    field public static final int STATUS_ERROR_INTERNAL_ERROR = 1; // 0x1
+    field public static final int STATUS_ERROR_NOT_AVAILABLE = 2; // 0x2
+    field public static final int STATUS_ERROR_TIMEOUT = 3; // 0x3
   }
 
   public static interface CarPropertyManager.CarPropertyEventCallback {
     method public void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public void onErrorEvent(int, int);
     method public default void onErrorEvent(int, int, int);
+  }
+
+  public abstract static class CarPropertyManager.GetPropertyCallback {
+    ctor public CarPropertyManager.GetPropertyCallback();
+    method public abstract void onFailure(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyError);
+    method public abstract void onSuccess(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyResult);
+  }
+
+  public static final class CarPropertyManager.GetPropertyError {
+    ctor public CarPropertyManager.GetPropertyError(int, int);
+    method public int getErrorCode();
+    method public int getRequestId();
+  }
+
+  public static final class CarPropertyManager.GetPropertyRequest {
+    ctor public CarPropertyManager.GetPropertyRequest(int, int, int);
+    method public int getAreaId();
+    method public int getPropertyId();
+    method public int getRequestId();
+  }
+
+  public static final class CarPropertyManager.GetPropertyResult {
+    ctor public CarPropertyManager.GetPropertyResult(int, @NonNull android.car.hardware.CarPropertyValue);
+    method @NonNull public android.car.hardware.CarPropertyValue getCarPropertyValue();
+    method public int getRequestId();
   }
 
   public final class EvChargeState {
@@ -786,6 +819,44 @@ package android.car.hardware.property {
     field public static final int STATE_FULLY_ENABLED = 3; // 0x3
     field public static final int STATE_PARTIALLY_ENABLED = 2; // 0x2
     field public static final int STATE_UNKNOWN = 0; // 0x0
+  }
+
+  public final class GetPropertyServiceRequest implements android.os.Parcelable {
+    ctor public GetPropertyServiceRequest(int, int, int);
+    method public int describeContents();
+    method public int getAreaId();
+    method public int getPropId();
+    method public int getRequestId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetPropertyServiceRequest> CREATOR;
+  }
+
+  public final class GetValueResult implements android.os.Parcelable {
+    ctor public GetValueResult(int, @Nullable android.car.hardware.CarPropertyValue, int);
+    method public int describeContents();
+    method @Nullable public android.car.hardware.CarPropertyValue getCarPropertyValue();
+    method public int getErrorCode();
+    method public int getRequestId();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetValueResult> CREATOR;
+  }
+
+  public interface ICarPropertyServiceCallback extends android.os.IInterface {
+    method public void onGetValueResult(java.util.List<android.car.hardware.property.GetValueResult>) throws android.os.RemoteException;
+    field public static final String DESCRIPTOR = "android.car.hardware.property.ICarPropertyServiceCallback";
+  }
+
+  public static class ICarPropertyServiceCallback.Default implements android.car.hardware.property.ICarPropertyServiceCallback {
+    ctor public ICarPropertyServiceCallback.Default();
+    method public android.os.IBinder asBinder();
+    method public void onGetValueResult(java.util.List<android.car.hardware.property.GetValueResult>) throws android.os.RemoteException;
+  }
+
+  public abstract static class ICarPropertyServiceCallback.Stub extends android.os.Binder implements android.car.hardware.property.ICarPropertyServiceCallback {
+    ctor public ICarPropertyServiceCallback.Stub();
+    method public android.os.IBinder asBinder();
+    method public static android.car.hardware.property.ICarPropertyServiceCallback asInterface(android.os.IBinder);
+    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
   }
 
   public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {

@@ -27,15 +27,14 @@ import android.util.ArrayMap;
 import android.util.StatsEvent;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceBase;
 import com.android.car.CarStatsLog;
+import com.android.car.CarSystemService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
 import com.android.internal.annotations.GuardedBy;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -48,7 +47,7 @@ import java.util.function.Function;
  *
  * Also implements collection and dumpsys reporting of atoms in CSV format.
  */
-public class CarStatsService implements CarServiceBase {
+public class CarStatsService implements CarSystemService {
     private static final boolean DEBUG = false;
     private static final String TAG = CarLog.tagFor(CarStatsService.class);
     private static final String VMS_CONNECTION_STATS_DUMPSYS_HEADER =
@@ -137,30 +136,6 @@ public class CarStatsService implements CarServiceBase {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-      // Dump nothing when this is called by looping through all services in ICarImpl.
-      // Other dump methods below will called for metrics specific commands.
-
-      // TODO(b/232550251): Remove this hack by having all services except for VehicleHal
-      // and CarStatsService implement an extension of the interface VehicleHal and CarStatsService
-      // implement. That way, we can special case VehicleHal and CarStatsService in a more
-      // generic way.
-
-    }
-
-    /**
-     * Dump its state.
-     */
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dump(IndentingPrintWriter writer, String[] args) {
-        // TODO(b/232550251): Move the following logic to the callsite in ICarImpl and clean up
-        // this dump method.
-        List<String> flags = Arrays.asList(args);
-        if (args.length == 0 || flags.contains("--vms-client")) {
-            dumpVmsStats(writer);
-        }
-    }
-
-    private void dumpVmsStats(IndentingPrintWriter writer) {
         synchronized (mVmsClientStats) {
             writer.println(VMS_CONNECTION_STATS_DUMPSYS_HEADER);
             mVmsClientStats.values().stream()

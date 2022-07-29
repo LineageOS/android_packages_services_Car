@@ -27,10 +27,12 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Build;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -47,6 +49,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Provides an application interface for interacting with the Vehicle specific properties.
@@ -60,6 +64,9 @@ public class CarPropertyManager extends CarManagerBase {
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
     private final int mAppTargetSdk;
+    private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
+    @AddedIn(majorVersion = 34)
+    public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
 
     private final CarPropertyEventListenerToService mCarPropertyEventToService =
             new CarPropertyEventListenerToService(this);
@@ -142,6 +149,112 @@ public class CarPropertyManager extends CarManagerBase {
         }
     }
 
+    /**
+     * A callback {@link CarPropertyManager#getPropertiesAsync} when successful or failure.
+     */
+    @AddedIn(majorVersion = 34)
+    public abstract static class GetPropertyCallback {
+        /**
+         * Method called when {@link GetPropertyRequest} successfully gets a result.
+         */
+        public abstract void onSuccess(@NonNull GetPropertyResult getPropertyResult);
+
+        /**
+         * Method called when {@link GetPropertyRequest} returns an error.
+         */
+        public abstract void onFailure(@NonNull GetPropertyError getPropertyError);
+    }
+
+    /**
+     * A request for {@link CarPropertyManager#getPropertiesAsync(List, long, CancellationSignal,
+     * Executor, GetPropertyCallback)}.
+     */
+    @AddedIn(majorVersion = 34)
+    public static final class GetPropertyRequest {
+        /**
+         * The requestId to uniquely identify the request.
+         *
+         * <p>Each request must have a unique request ID so the responses can be differentiated.
+         */
+        private final int mRequestId;
+        /**
+         * The ID for the property.
+         *
+         * <p>Must be one of the {@link VehiclePropertyIds} or vendor property IDs.
+         */
+        private final int mPropertyId;
+        /**
+         * Optional ID for the area, default to 0. Ignored for global property.
+         */
+        private final int mAreaId;
+
+        public int getRequestId() {
+            return mRequestId;
+        }
+
+        public int getPropertyId() {
+            return mPropertyId;
+        }
+
+        public int getAreaId() {
+            return mAreaId;
+        }
+
+        /**
+         * Get an instance for GetPropertyRequest.
+         */
+        public GetPropertyRequest(int requestId, int propertyId, int areaId) {
+            mRequestId = requestId;
+            mPropertyId = propertyId;
+            mAreaId = areaId;
+        }
+    }
+
+    /**
+     * A successful result for {@link GetPropertyCallback}.
+     */
+    @AddedIn(majorVersion = 34)
+    public static final class GetPropertyResult {
+        private final int mRequestId;
+        private final CarPropertyValue mCarPropertyValue;
+
+        public int getRequestId() {
+            return mRequestId;
+        }
+
+        @NonNull
+        public CarPropertyValue getCarPropertyValue() {
+            return mCarPropertyValue;
+        }
+
+        public GetPropertyResult(int requestId, @NonNull CarPropertyValue carPropertyValue) {
+            mRequestId = requestId;
+            mCarPropertyValue = carPropertyValue;
+        }
+    }
+
+    /**
+     * An error result for {@link GetPropertyCallback}.
+     */
+    @AddedIn(majorVersion = 34)
+    public static final class GetPropertyError {
+        private final int mRequestId;
+        @ErrorCode int mErrorCode;
+
+        public int getRequestId() {
+            return mRequestId;
+        }
+
+        public int getErrorCode() {
+            return mErrorCode;
+        }
+
+        public GetPropertyError(int requestId, @ErrorCode int errorCode) {
+            mRequestId = requestId;
+            mErrorCode = errorCode;
+        }
+    }
+
     /** Read ONCHANGE sensors. */
     @AddedInOrBefore(majorVersion = 33)
     public static final float SENSOR_RATE_ONCHANGE = 0f;
@@ -190,6 +303,32 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN = 5;
 
+    /**
+     * Status indicating no error.
+     *
+     * <p>This is not exposed to the client as this will be used only for deciding
+     * {@link GetPropertyCallback#onSuccess} or {@link GetPropertyCallback#onFailure} is called.
+     *
+     * @hide
+     */
+    @AddedIn(majorVersion = 34)
+    public static final int STATUS_OK = 0;
+    /**
+     * Error indicating that there is an error detected in cars.
+     */
+    @AddedIn(majorVersion = 34)
+    public static final int STATUS_ERROR_INTERNAL_ERROR = 1;
+    /**
+     * Error indicating that the property is temporarily not available.
+     */
+    @AddedIn(majorVersion = 34)
+    public static final int STATUS_ERROR_NOT_AVAILABLE = 2;
+    /**
+     * Error indicating the operation has timed-out.
+     */
+    @AddedIn(majorVersion = 34)
+    public static final int STATUS_ERROR_TIMEOUT = 3;
+
     /** @hide */
     @IntDef(prefix = {"CAR_SET_PROPERTY_ERROR_CODE_"}, value = {
             CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN,
@@ -200,6 +339,16 @@ public class CarPropertyManager extends CarManagerBase {
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface CarSetPropertyErrorCode {}
+
+    /** @hide */
+    @IntDef(prefix = {"STATUS_"}, value = {
+            STATUS_OK,
+            STATUS_ERROR_INTERNAL_ERROR,
+            STATUS_ERROR_NOT_AVAILABLE,
+            STATUS_ERROR_TIMEOUT
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ErrorCode {}
 
     /**
      * Get an instance of the CarPropertyManager.
@@ -983,5 +1132,69 @@ public class CarPropertyManager extends CarManagerBase {
         synchronized (mLock) {
             mPropertyIdToCarPropertyEventCallbackController.clear();
         }
+    }
+
+    /**
+     * Generate unique request ID and return to the client.
+     *
+     * @param propertyId Property ID
+     * @param areaId area ID
+     * @return GetPropertyRequest object
+     */
+    @AddedIn(majorVersion = 34)
+    @NonNull
+    public GetPropertyRequest generateGetPropertyRequest(int propertyId, int areaId) {
+        int requestIdCounter = mRequestIdCounter.getAndIncrement();
+        return new GetPropertyRequest(requestIdCounter, propertyId, areaId);
+    }
+
+    /**
+     * Query a list of {@link CarPropertyValue} with property ID and area ID asynchronously.
+     *
+     * <p>This function would return immediately before the results are ready. For each request,
+     * the corresponding result would either be delivered through one
+     * {@code resultCallback.onSuccess} call if the request succeeded or through one
+     * {@code errorCallback.onFailure} call if failed. It is guaranteed that the total times the
+     * callback functions are called is equal to the number of requests if this function does not
+     * throw an exception. It is guaranteed that none of the callback functions are called if an
+     * exception is thrown. If the {@code callbackExecutor} is {@code null}, the callback will be
+     * executed on the main thread. If the callback is doing heavy work, it is recommended that
+     * the {@code callbackExecutor} is provided.
+     *
+     * @param getPropertyRequests The property ID and the optional area ID for the property to get.
+     * @param timeoutInMs The timeout for the operation, in milliseconds.
+     * @param cancellationSignal A signal that could be used to cancel the on-going operation.
+     * @param callbackExecutor The executor to execute the callback with.
+     * @param getPropertyCallback The callback function to deliver the result.
+     * @throws SecurityException if missing permission to read the specific property.
+     * @throws CarInternalErrorException when there is an error detected in cars.
+     * @throws IllegalArgumentException if the [property ID, area ID] is not supported.
+     */
+    // TODO(b/240446493): Remove suppress warnings when implemented.
+    @SuppressWarnings("unchecked")
+    @AddedIn(majorVersion = 34)
+    public void getPropertiesAsync(
+            @NonNull List<GetPropertyRequest> getPropertyRequests,
+            long timeoutInMs,
+            @Nullable CancellationSignal cancellationSignal,
+            @Nullable Executor callbackExecutor,
+            @NonNull GetPropertyCallback getPropertyCallback) {
+        // TODO(b/238323816): implement the logic
+    }
+
+    /**
+     * Query a list of {@link CarPropertyValue} with property Id and area Id asynchronously.
+     *
+     * Same as {@link CarPropertyManager#getPropertiesAsync(List, long, CancellationSignal,
+     * Executor, GetPropertyCallback)} with default timeout 10s.
+     */
+    @AddedIn(majorVersion = 34)
+    public void getPropertiesAsync(
+            @NonNull List<GetPropertyRequest> getPropertyRequests,
+            @Nullable CancellationSignal cancellationSignal,
+            @Nullable Executor callbackExecutor,
+            @NonNull GetPropertyCallback getPropertyCallback) {
+        getPropertiesAsync(getPropertyRequests, ASYNC_GET_DEFAULT_TIMEOUT_MS, cancellationSignal,
+                callbackExecutor, getPropertyCallback);
     }
 }

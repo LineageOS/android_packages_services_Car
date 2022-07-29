@@ -50,6 +50,7 @@ import android.os.SystemClock;
 import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.internal.util.ArrayUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -631,7 +632,8 @@ public class VehicleHalTest {
         // Assert
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
-        mVehicleHal.dumpAllHals(printWriter);
+        IndentingPrintWriter indentingPrintWriter = new IndentingPrintWriter(printWriter);
+        mVehicleHal.dump(indentingPrintWriter);
         String actual = writer.toString();
 
         // There should be 2 events.
@@ -950,9 +952,10 @@ public class VehicleHalTest {
         // Arrange
         StringWriter writer = new StringWriter();
         PrintWriter printWriter = new PrintWriter(writer);
+        IndentingPrintWriter indentingPrintWriter = new IndentingPrintWriter(printWriter);
 
         // Act
-        mVehicleHal.dumpAllHals(printWriter);
+        mVehicleHal.dump(indentingPrintWriter);
 
         // Assert
         String actual = writer.toString();

@@ -36,6 +36,7 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Vehicle HAL client. Interacts directly with Vehicle HAL interface {@link IVehicle}. Contains
@@ -59,6 +60,30 @@ final class HalClient {
     private final VehicleCallback mInternalCallback;
     private final int mWaitCapMs;
     private final int mSleepMs;
+
+    /**
+     * A request for {@link HalClient#getValuesAsync}
+     */
+    public static class GetHalClientRequest {
+        private final int mServiceRequestId;
+        private final HalPropValue mHalPropValue;
+
+        public int getServiceRequestId() {
+            return mServiceRequestId;
+        }
+
+        public HalPropValue getHalPropValue() {
+            return mHalPropValue;
+        }
+
+        /**
+         * Get an instance for GetHalClientRequest.
+         */
+        GetHalClientRequest(int serviceRequestId, HalPropValue halPropValue) {
+            mServiceRequestId = serviceRequestId;
+            mHalPropValue = halPropValue;
+        }
+    }
 
     /**
      * Create HalClient object
@@ -281,5 +306,14 @@ final class HalClient {
             mHandler.sendMessage(Message.obtain(
                         mHandler, CallbackHandler.MSG_ON_SET_ERROR, errors));
         }
+    }
+
+    /**
+     * Query a list of {@link HalPropValue} with a list of {@link GetHalClientRequest}
+     * asynchronously.
+     */
+    public void getValuesAsync(List<GetHalClientRequest> getHalClientRequests,
+            VehicleHal.VehicleHalCallback vehicleHalCallback) {
+        // TODO(b/238472106): implement the logic
     }
 }

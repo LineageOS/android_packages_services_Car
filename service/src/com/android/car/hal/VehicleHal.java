@@ -25,6 +25,7 @@ import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -44,8 +45,8 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
-import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.CarSystemService;
 import com.android.car.VehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -71,7 +72,7 @@ import java.util.stream.Collectors;
  * implementation. It is the responsibility of {@link HalServiceBase} to convert data to
  * corresponding Car*Service for Car*Manager API.
  */
-public class VehicleHal implements HalClientCallback, CarServiceBase {
+public class VehicleHal implements HalClientCallback, CarSystemService {
 
     private static final boolean DBG = false;
 
@@ -119,6 +120,91 @@ public class VehicleHal implements HalClientCallback, CarServiceBase {
 
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
+
+    /**
+     * A callback for async {@link VehicleHal#getAsync} when successful.
+     */
+    public abstract static class VehicleHalCallback {
+        /**
+         * Method called when {@link VehicleHal.GetHalPropValueResult} returns a result.
+         */
+        public abstract void onGetHalPropValueResult(
+                List<GetHalPropValueResult> getHalPropValueResults);
+    }
+
+    /**
+     * A request for {@link VehicleHal#getAsync}.
+     */
+    public static class GetVehicleHalRequest {
+        private final int mServiceRequestId;
+        /**
+         * {@link VehicleHal} property ID.
+         *
+         * <p> This may be different from the {@link CarPropertyManager} property ID. See
+         * {@link PropertyHalService#managerToHalPropId} and
+         * {@link PropertyHalService#halToManagerPropId} for conversion logic.
+         */
+        private final int mHalPropertyId;
+        private final int mAreaId;
+
+        public int getServiceRequestId() {
+            return mServiceRequestId;
+        }
+
+        public int getHalPropertyId() {
+            return mHalPropertyId;
+        }
+
+        public int getAreaId() {
+            return mAreaId;
+        }
+
+        /**
+         * Get an instance for GetVehicleHalRequest.
+         */
+        public GetVehicleHalRequest(int serviceRequestId, int halPropertyId, int areaId) {
+            mServiceRequestId = serviceRequestId;
+            mHalPropertyId = halPropertyId;
+            mAreaId = areaId;
+        }
+    }
+
+    /**
+     * A request for {@link VehicleHal#getAsync}.
+     */
+    public static final class GetHalPropValueResult {
+        private final int mServiceRequestId;
+        private HalPropValue mHalPropValue = null;
+        private int mErrorCode = CarPropertyManager.STATUS_OK;
+
+        public int getServiceRequestId() {
+            return mServiceRequestId;
+        }
+
+        public HalPropValue getHalPropValue() {
+            return mHalPropValue;
+        }
+
+        public int getErrorCode() {
+            return mErrorCode;
+        }
+
+        /**
+         * Get an instance for GetHalPropValueResult when result returned successfully.
+         */
+        public GetHalPropValueResult(int serviceRequestId, HalPropValue halPropValue) {
+            mServiceRequestId = serviceRequestId;
+            mHalPropValue = halPropValue;
+        }
+
+        /**
+         * Get an instance for GetHalPropValueResult when error.
+         */
+        public GetHalPropValueResult(int serviceRequestId, int errorCode) {
+            mServiceRequestId = serviceRequestId;
+            mErrorCode = errorCode;
+        }
+    }
 
     /**
      * Constructs a new {@link VehicleHal} object given the {@link Context} and {@link IVehicle}
@@ -761,20 +847,6 @@ public class VehicleHal implements HalClientCallback, CarServiceBase {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-      // TODO(b/232550251): Remove this hack by having all services except for VehicleHal
-      // and CarStatsService implement an extension of the interface VehicleHal and CarStatsService
-      // implement. That way, we can special case VehicleHal and CarStatsService in a more
-      // generic way.
-
-      // Dump nothing when this is called by looping through all services in ICarImpl.
-      // Other dump methods below will called for VHal specific commands.
-    }
-
-    /**
-     * Dumps HAL service info using the print writer passed as parameter.
-     */
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
-    public void dumpAllHals(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("**dump HAL services**");
             for (int i = 0; i < mAllServices.size(); i++) {
@@ -1179,5 +1251,15 @@ public class VehicleHal implements HalClientCallback, CarServiceBase {
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private static String toCarAreaLog(int areaId) {
         return String.format("areaId: %d // 0x%x", areaId, areaId);
+    }
+
+    /**
+     * Query HalPropValue with list of GetVehicleHalRequest objects.
+     *
+     * <p>This method gets the HalPropValue using async methods.
+     */
+    public void getAsync(List<GetVehicleHalRequest> getVehicleHalRequests,
+            VehicleHalCallback vehicleHalCallback) {
+        // TODO(b/238472105): implement the logic
     }
 }

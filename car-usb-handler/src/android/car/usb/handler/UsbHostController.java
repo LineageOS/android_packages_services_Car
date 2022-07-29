@@ -25,6 +25,7 @@ import android.hardware.usb.UsbManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Parcel;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -46,10 +47,13 @@ public final class UsbHostController
     public interface UsbHostControllerCallbacks {
         /** Host controller ready for shutdown */
         void shutdown();
+
         /** Change of processing state */
         void processingStarted();
+
         /** Title of processing changed */
         void titleChanged(String title);
+
         /** Options for USB device changed */
         void optionsUpdated(List<UsbDeviceSettings> options);
     }
@@ -82,7 +86,9 @@ public final class UsbHostController
         }
     };
 
-    @GuardedBy("this")
+    private final Object mLock = new Object();
+
+    @GuardedBy("mLock")
     private UsbDevice mActiveDevice;
 
     public UsbHostController(Context context, UsbHostControllerCallbacks callbacks) {
@@ -98,35 +104,52 @@ public final class UsbHostController
         context.registerReceiver(mUsbBroadcastReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
-    private synchronized void setActiveDeviceIfMatch(UsbDevice device) {
-        if (mActiveDevice != null && device != null
-                && UsbUtil.isDevicesMatching(device, mActiveDevice)) {
-            mActiveDevice = device;
+    private void setActiveDeviceIfMatch(UsbDevice device) {
+        synchronized (mLock) {
+            if (mActiveDevice != null && device != null
+                    && UsbUtil.isDevicesMatching(device, mActiveDevice)) {
+                mActiveDevice = device;
+            }
         }
     }
 
-    private synchronized void unsetActiveDeviceIfMatch(UsbDevice device) {
+    private void unsetActiveDeviceIfMatch(UsbDevice device) {
         mHandler.requestDeviceRemoved();
-        if (mActiveDevice != null && device != null
-                && UsbUtil.isDevicesMatching(device, mActiveDevice)) {
+        synchronized (mLock) {
+            if (mActiveDevice != null && device != null
+                    && UsbUtil.isDevicesMatching(device, mActiveDevice)) {
+                mActiveDevice = null;
+            }
+        }
+    }
+
+    private boolean startDeviceProcessingIfNull(UsbDevice device) {
+        synchronized (mLock) {
+            if (mActiveDevice == null) {
+                mActiveDevice = device;
+                return true;
+            }
+            return false;
+        }
+    }
+
+    private void stopDeviceProcessing() {
+        synchronized (mLock) {
             mActiveDevice = null;
         }
     }
 
-    private synchronized boolean startDeviceProcessingIfNull(UsbDevice device) {
-        if (mActiveDevice == null) {
-            mActiveDevice = device;
-            return true;
+    private UsbDevice getActiveDevice() {
+        synchronized (mLock) {
+            Parcel parcel = Parcel.obtain();
+            try {
+                parcel.writeParcelable(mActiveDevice, 0);
+                parcel.setDataPosition(0);
+                return parcel.readParcelable(UsbDevice.class.getClassLoader(), UsbDevice.class);
+            } finally {
+                parcel.recycle();
+            }
         }
-        return false;
-    }
-
-    private synchronized void stopDeviceProcessing() {
-        mActiveDevice = null;
-    }
-
-    private synchronized UsbDevice getActiveDevice() {
-        return mActiveDevice;
     }
 
     private boolean deviceMatchedActiveDevice(UsbDevice device) {

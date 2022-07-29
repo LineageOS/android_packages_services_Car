@@ -45,16 +45,11 @@ import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.Toast;
 
-import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -184,21 +179,6 @@ public class InstrumentClusterFragment extends Fragment {
                 .build();
 
         return navigationStateArray;
-    }
-
-    /**
-     * Loads a raw resource as a single string.
-     */
-    @NonNull
-    private String getRawResourceAsString(@IdRes int resId) throws IOException {
-        try (InputStream inputStream = getResources().openRawResource(resId)) {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder builder = new StringBuilder();
-            for (String line; (line = reader.readLine()) != null; ) {
-                builder.append(line).append("\n");
-            }
-            return builder.toString();
-        }
     }
 
     @Nullable

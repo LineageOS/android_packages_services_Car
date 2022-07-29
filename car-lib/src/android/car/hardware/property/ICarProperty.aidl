@@ -18,6 +18,8 @@ package android.car.hardware.property;
 
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.GetPropertyServiceRequest;
+import android.car.hardware.property.ICarPropertyServiceCallback;
 import android.car.hardware.property.ICarPropertyEventListener;
 
 /**
@@ -40,4 +42,12 @@ interface ICarProperty {
     String getWritePermission(int propId) = 6;
 
     List<CarPropertyConfig> getPropertyConfigList(in int[] propIds) = 7;
+
+    /**
+     * Query CarPropertyValues asynchronously with list of GetPropertyServiceRequest objects.
+     *
+     * <p>This method gets the CarPropertyValue using async methods.
+     */
+    void getPropertiesAsync(in List<GetPropertyServiceRequest> getPropertyServiceRequests,
+                in ICarPropertyServiceCallback carPropertyServiceCallback) = 8;
 }

@@ -48,7 +48,6 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -597,13 +596,5 @@ public class CarAudioZonesHelperTest {
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains(BUS_1000_ADDRESS_DOES_NOT_EXIST);
         }
-    }
-
-    private List<Integer> getListOfZoneIds(SparseArray<CarAudioZone> zones) {
-        List<Integer> zoneIds = new ArrayList<>();
-        for (int i = 0; i < zones.size(); i++) {
-            zoneIds.add(zones.keyAt(i));
-        }
-        return zoneIds;
     }
 }

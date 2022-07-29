@@ -739,11 +739,6 @@ public class CarPowerManagementTest extends MockedCarTestBase {
             //ignore
         }
 
-        private synchronized void setCurrentState(int state, int param) {
-            mPowerState = state;
-            mPowerParam = param;
-        }
-
         private void waitForSubscription(long timeoutMs) throws Exception {
             if (!mSubscriptionWaitSemaphore.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
                 fail("waitForSubscription timeout");
