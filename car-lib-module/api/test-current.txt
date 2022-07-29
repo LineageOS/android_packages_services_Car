@@ -89,13 +89,13 @@ package android.car.annotation {
   }
 
   public enum ApiRequirements.CarVersion {
-    method public android.car.CarApiVersion get();
+    method public android.car.CarVersion get();
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
   }
 
   public enum ApiRequirements.PlatformVersion {
-    method public android.car.PlatformApiVersion get();
+    method public android.car.PlatformVersion get();
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
   }

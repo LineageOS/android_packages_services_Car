@@ -32,21 +32,21 @@ import com.android.car.internal.util.DataClass;
  *
  * <p>Apps are expected to check the {@link MinimumPlatformSdkVersion} for each API. If the API is
  * not supported for the current platform, the API should not be called. Apps can use
- * {@link Car#getPlatformApiVersion()} to get the current platform version.
+ * {@link Car#getPlatformVersion()} to get the current platform version.
  */
 @DataClass()
 public final class PlatformVersionMismatchException extends UnsupportedOperationException
         implements Parcelable {
 
     @NonNull
-    private final PlatformApiVersion mExpectedPlatformApiVersion;
+    private final PlatformVersion mExpectedPlatformApiVersion;
 
     @Override
     @NonNull
     @AddedIn(majorVersion = 33, minorVersion = 1)
     public String getMessage() {
         return "Expected version: "
-                + mExpectedPlatformApiVersion + ", Current version: " + Car.getPlatformApiVersion();
+                + mExpectedPlatformApiVersion + ", Current version: " + Car.getPlatformVersion();
     }
 
 
@@ -65,7 +65,7 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
 
     @DataClass.Generated.Member
     public PlatformVersionMismatchException(
-            @NonNull PlatformApiVersion expectedPlatformApiVersion) {
+            @NonNull PlatformVersion expectedPlatformApiVersion) {
         this.mExpectedPlatformApiVersion = expectedPlatformApiVersion;
         AnnotationValidations.validate(
                 NonNull.class, null, mExpectedPlatformApiVersion);
@@ -78,7 +78,7 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
      */
     @DataClass.Generated.Member
     @AddedIn(majorVersion = 33, minorVersion = 1)
-    public @NonNull PlatformApiVersion getExpectedPlatformApiVersion() {
+    public @NonNull PlatformVersion getExpectedPlatformApiVersion() {
         return mExpectedPlatformApiVersion;
     }
 
@@ -105,8 +105,8 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
         // You can override field unparcelling by defining methods like:
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
-        PlatformApiVersion expectedPlatformApiVersion = (PlatformApiVersion) in
-                .readTypedObject(PlatformApiVersion.CREATOR);
+        PlatformVersion expectedPlatformApiVersion = (PlatformVersion) in
+                .readTypedObject(PlatformVersion.CREATOR);
 
         this.mExpectedPlatformApiVersion = expectedPlatformApiVersion;
         AnnotationValidations.validate(

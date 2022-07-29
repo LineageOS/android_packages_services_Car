@@ -16,8 +16,8 @@
 package com.google.android.car.kitchensink.mainline;
 
 import android.car.Car;
-import android.car.CarApiVersion;
-import android.car.PlatformApiVersion;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
 import android.car.content.pm.CarPackageManager;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -86,8 +86,8 @@ public class CarMainlineFragment extends Fragment {
         super.onStart();
 
         ApplicationInfo appInfo = getContext().getApplicationContext().getApplicationInfo();
-        CarApiVersion carApiVersion = Car.getCarApiVersion();
-        PlatformApiVersion platformApiVersion = Car.getPlatformApiVersion();
+        CarVersion carApiVersion = Car.getCarVersion();
+        PlatformVersion platformApiVersion = Car.getPlatformVersion();
 
         Car car = ((KitchenSinkActivity) getHost()).getCar();
         mCarPm = (CarPackageManager) car.getCarManager(Car.PACKAGE_SERVICE);
@@ -99,7 +99,7 @@ public class CarMainlineFragment extends Fragment {
         mCarMajorVersion.setText(String.valueOf(carApiVersion.getMajorVersion()));
         mCarMinorVersion.setText(String.valueOf(carApiVersion.getMinorVersion()));
 
-        boolean isCarApiTQpr = carApiVersion.isAtLeast(CarApiVersion.VERSION_CODES.TIRAMISU_1);
+        boolean isCarApiTQpr = carApiVersion.isAtLeast(CarVersion.VERSION_CODES.TIRAMISU_1);
         Log.v(TAG, "onStart(): isCarApiTQpr=" + isCarApiTQpr);
         if (isCarApiTQpr) {
             mPlatformVersion.setText(platformApiVersion.toString());
@@ -117,9 +117,9 @@ public class CarMainlineFragment extends Fragment {
 
     private void setTargetCarApiVersion() {
         String ksPkg = getContext().getPackageName();
-        CarApiVersion apiVersion;
+        CarVersion apiVersion;
         try {
-            apiVersion = mCarPm.getTargetCarApiVersion(ksPkg);
+            apiVersion = mCarPm.getTargetCarVersion(ksPkg);
         } catch (NameNotFoundException e) {
             Log.w(TAG, "Could not get target car version for " + ksPkg, e);
             String text = "N/A";

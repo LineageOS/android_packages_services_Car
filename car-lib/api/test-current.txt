@@ -302,13 +302,13 @@ package android.car.annotation {
   }
 
   public enum ApiRequirements.CarVersion {
-    method public android.car.CarApiVersion get();
+    method public android.car.CarVersion get();
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
   }
 
   public enum ApiRequirements.PlatformVersion {
-    method public android.car.PlatformApiVersion get();
+    method public android.car.PlatformVersion get();
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
     enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
   }
@@ -427,14 +427,14 @@ package android.car.content.pm {
   }
 
   public final class CarPackageManager {
-    method @NonNull @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public android.car.CarApiVersion getTargetCarApiVersion(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @NonNull @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public android.car.CarVersion getTargetCarVersion(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
     method @Deprecated public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
     method public void setEnableActivityBlocking(boolean);
     field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
     field @Deprecated public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
     field @Deprecated public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
-    field public static final String MANIFEST_METADATA_TARGET_CAR_API_VERSION = "android.car.targetCarApiVersion";
+    field public static final String MANIFEST_METADATA_TARGET_CAR_VERSION = "android.car.targetCarVersion";
   }
 
 }

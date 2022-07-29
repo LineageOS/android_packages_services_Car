@@ -16,10 +16,10 @@ package android.car {
     method @Nullable public static android.car.Car createCar(android.content.Context, @Nullable android.os.Handler);
     method @NonNull public static android.car.Car createCar(@NonNull android.content.Context, @Nullable android.os.Handler, long, @NonNull android.car.Car.CarServiceLifecycleListener);
     method public void disconnect();
-    method @NonNull public static android.car.CarApiVersion getCarApiVersion();
     method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
-    method @NonNull public static android.car.PlatformApiVersion getPlatformApiVersion();
+    method @NonNull public static android.car.CarVersion getCarVersion();
+    method @NonNull public static android.car.PlatformVersion getPlatformVersion();
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
     method @Deprecated public static boolean isApiVersionAtLeast(int);
@@ -71,19 +71,6 @@ package android.car {
 
   public static interface Car.CarServiceLifecycleListener {
     method public void onLifecycleChanged(@NonNull android.car.Car, boolean);
-  }
-
-  public final class CarApiVersion extends android.car.ApiVersion<android.car.CarApiVersion> implements android.os.Parcelable {
-    method public int describeContents();
-    method @NonNull public static android.car.CarApiVersion forMajorAndMinorVersions(int, int);
-    method @NonNull public static android.car.CarApiVersion forMajorVersion(int);
-    method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.CarApiVersion> CREATOR;
-  }
-
-  public static class CarApiVersion.VERSION_CODES {
-    field @NonNull public static final android.car.CarApiVersion TIRAMISU_0;
-    field @NonNull public static final android.car.CarApiVersion TIRAMISU_1;
   }
 
   public final class CarAppFocusManager {
@@ -166,6 +153,19 @@ package android.car {
     field public int zoneId;
   }
 
+  public final class CarVersion extends android.car.ApiVersion<android.car.CarVersion> implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public static android.car.CarVersion forMajorAndMinorVersions(int, int);
+    method @NonNull public static android.car.CarVersion forMajorVersion(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.CarVersion> CREATOR;
+  }
+
+  public static class CarVersion.VERSION_CODES {
+    field @NonNull public static final android.car.CarVersion TIRAMISU_0;
+    field @NonNull public static final android.car.CarVersion TIRAMISU_1;
+  }
+
   @Deprecated public final class EvConnectorType {
     field @Deprecated public static final int CHADEMO = 3; // 0x3
     field @Deprecated public static final int COMBO_1 = 4; // 0x4
@@ -198,23 +198,23 @@ package android.car {
     field public static final int UNLEADED = 1; // 0x1
   }
 
-  public final class PlatformApiVersion extends android.car.ApiVersion<android.car.PlatformApiVersion> implements android.os.Parcelable {
+  public final class PlatformVersion extends android.car.ApiVersion<android.car.PlatformVersion> implements android.os.Parcelable {
     method public int describeContents();
-    method @NonNull public static android.car.PlatformApiVersion forMajorAndMinorVersions(int, int);
-    method @NonNull public static android.car.PlatformApiVersion forMajorVersion(int);
+    method @NonNull public static android.car.PlatformVersion forMajorAndMinorVersions(int, int);
+    method @NonNull public static android.car.PlatformVersion forMajorVersion(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformApiVersion> CREATOR;
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersion> CREATOR;
   }
 
-  public static class PlatformApiVersion.VERSION_CODES {
-    field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
-    field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
+  public static class PlatformVersion.VERSION_CODES {
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_0;
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_1;
   }
 
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
-    ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformApiVersion);
+    ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformVersion);
     method public int describeContents();
-    method @NonNull public android.car.PlatformApiVersion getExpectedPlatformApiVersion();
+    method @NonNull public android.car.PlatformVersion getExpectedPlatformApiVersion();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersionMismatchException> CREATOR;
   }
@@ -470,7 +470,7 @@ package android.car {
 package android.car.content.pm {
 
   public final class CarPackageManager {
-    method @NonNull public android.car.CarApiVersion getTargetCarApiVersion();
+    method @NonNull public android.car.CarVersion getTargetCarVersion();
     method public boolean isActivityDistractionOptimized(String, String);
     method public boolean isPendingIntentDistractionOptimized(@NonNull android.app.PendingIntent);
     method public boolean isServiceDistractionOptimized(String, String);

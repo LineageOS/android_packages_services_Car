@@ -15,4 +15,4 @@
  */
 package android.car;
 
-parcelable CarApiVersion;
+parcelable CarVersion;
