@@ -91,6 +91,7 @@ import java.util.List;
 import javax.annotation.concurrent.GuardedBy;
 
 public class AudioTestFragment extends Fragment {
+    public static final String FRAGMENT_NAME = "audio";
     private static final String TAG = "CAR.AUDIO.KS";
     private static final boolean DBG = true;
 
