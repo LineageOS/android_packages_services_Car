@@ -7,6 +7,12 @@ props {
     prop_name: "ro.carwatchdog.boottime_collection_interval"
   }
   prop {
+    api_name: "postEventDuration"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.post_event_duration"
+  }
+  prop {
     api_name: "periodicCollectionBufferSize"
     type: Integer
     scope: Internal
