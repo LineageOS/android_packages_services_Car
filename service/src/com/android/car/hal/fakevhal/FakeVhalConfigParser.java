@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.fakevhal;
+package com.android.car.hal.fakevhal;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;

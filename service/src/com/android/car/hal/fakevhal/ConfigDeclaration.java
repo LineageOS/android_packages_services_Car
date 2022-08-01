@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.fakevhal;
+package com.android.car.hal.fakevhal;
 
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
