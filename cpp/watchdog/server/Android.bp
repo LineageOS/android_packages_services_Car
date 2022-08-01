@@ -120,6 +120,7 @@ cc_test {
         "carwatchdogd_defaults",
         "libwatchdog_perf_service_defaults",
         "libwatchdog_process_service_defaults",
+        "libwatchdog_service_manager_defaults",
     ],
     test_suites: ["general-tests"],
     tidy_disabled_srcs: [
@@ -152,15 +153,16 @@ cc_test {
         "tests/WatchdogServiceHelperTest.cpp",
     ],
     static_libs: [
+        "android.hardware.automotive.vehicle@2.0",
         "libgmock",
         "libgtest",
         "libwatchdog_binder_mediator",
         "libwatchdog_perf_service",
         "libwatchdog_process_service",
+        "libwatchdog_service_manager",
     ],
     whole_static_libs: [
         "libwatchdog_package_info_resolver",
-        "android.hardware.automotive.vehicle@2.0",
     ],
     data: [":watchdog_test_xml_files"],
 }
@@ -179,7 +181,7 @@ cc_library_static {
     ],
     defaults: [
         "carwatchdogd_defaults",
-        "libwatchdog_process_service_defaults"
+        "libwatchdog_process_service_defaults",
     ],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
@@ -211,28 +213,46 @@ cc_library {
     ],
 }
 
+cc_defaults {
+    name: "libwatchdog_service_manager_defaults",
+    defaults: [
+        "libwatchdog_perf_service_defaults",
+        "libwatchdog_process_service_defaults",
+    ],
+    static_libs: [
+        "libwatchdog_binder_mediator",
+        "libwatchdog_package_info_resolver",
+        "libwatchdog_perf_service",
+        "libwatchdog_process_service",
+    ],
+}
+
+cc_library {
+    name: "libwatchdog_service_manager",
+    defaults: [
+        "carwatchdogd_defaults",
+        "libwatchdog_service_manager_defaults",
+    ],
+    srcs: [
+        "src/ServiceManager.cpp",
+    ],
+}
+
 cc_binary {
     name: "carwatchdogd",
     defaults: [
         "carwatchdogd_defaults",
-        "libwatchdog_perf_service_defaults",
-        "libwatchdog_process_service_defaults",
+        "libwatchdog_service_manager_defaults",
     ],
     srcs: [
         "src/main.cpp",
-        "src/ServiceManager.cpp",
     ],
     init_rc: ["carwatchdogd.rc"],
     shared_libs: [
         "android.hardware.automotive.vehicle@2.0",
     ],
     static_libs: [
-        "libwatchdog_binder_mediator",
-        "libwatchdog_perf_service",
-        "libwatchdog_process_service",
-    ],
-    whole_static_libs: [
-        "libwatchdog_package_info_resolver",
+        "libwatchdog_service_manager",
     ],
     vintf_fragments: ["carwatchdogd.xml"],
     required: [

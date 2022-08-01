@@ -24,6 +24,15 @@ prop {
     prop_name: "ro.carwatchdog.boottime_collection_interval"
 }
 
+# Duration in seconds of data collection after final signal received for system event.
+prop {
+    api_name: "postEventDuration"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.post_event_duration"
+}
+
 # Maximum number of periodically collected records to be cached in memory.
 prop {
     api_name: "periodicCollectionBufferSize"
