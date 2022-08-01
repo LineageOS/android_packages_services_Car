@@ -18,6 +18,7 @@ package com.android.car.testdpc;
 
 import android.annotation.StringRes;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Process;
@@ -27,11 +28,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
+
 public final class DpcActivity extends Activity {
 
     private static final String TAG = DpcActivity.class.getSimpleName();
 
+    private ComponentName mAdmin;
     private Context mContext;
+    private DpcFactory mDevicePolicyPicker;
+
+    private DevicePolicyManagerInterface mDoInterface;
 
     private TextView mCurrentUserTitle;
     private TextView mThisUser;
@@ -44,6 +51,10 @@ public final class DpcActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         mContext = getApplicationContext();
+        mAdmin = DpcReceiver.getComponentName(mContext);
+
+        mDevicePolicyPicker = new DpcFactory(mContext);
+        mDoInterface = mDevicePolicyPicker.getDoInterface();
 
         setContentView(R.layout.activity_main);
 
@@ -65,7 +76,7 @@ public final class DpcActivity extends Activity {
 
     public void uiReboot(View v) {
         showToast(R.string.rebooting);
-        // TODO(b/235235034): Add call to reboot from device owner
+        mDoInterface.reboot(mAdmin);
     }
 
     public void uiAddUserRestriction(View v) {
