@@ -77,6 +77,8 @@ public class VehicleHalTest {
     private static final int SOME_INT32_VEC_PROPERTY = VehiclePropertyType.INT32_VEC | 0x05;
     private static final int SOME_FLOAT_PROPERTY = VehiclePropertyType.FLOAT | 0x06;
     private static final int SOME_FLOAT_VEC_PROPERTY = VehiclePropertyType.FLOAT_VEC | 0x07;
+    private static final int SOME_INT64_PROPERTY = VehiclePropertyType.INT32 | 0x10;
+    private static final int SOME_INT64_VEC_PROPERTY = VehiclePropertyType.INT64_VEC | 0x11;
     private static final int UNSUPPORTED_PROPERTY = -1;
 
     private static final float ANY_SAMPLING_RATE = 60f;
@@ -1287,6 +1289,47 @@ public class VehicleHalTest {
         assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
         assertThat(prop.getInt32Value(0)).isEqualTo(1);
         assertThat(prop.getInt32Value(1)).isEqualTo(2);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
+    }
+
+    @Test
+    public void testInjectVhalEvent_longProperty_skipSetupInit() throws Exception {
+        // Arrange
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
+        setupInjectEventTest(SOME_INT64_PROPERTY, values);
+        long time = SystemClock.elapsedRealtimeNanos();
+
+        // Act
+        mVehicleHal.injectVhalEvent(SOME_INT64_PROPERTY, VehicleHal.NO_AREA, "1", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
+
+        // Assert
+        assertThat(values.size()).isEqualTo(1);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_INT64_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getInt32Value(0)).isEqualTo(1);
+        assertThat(prop.getTimestamp()).isGreaterThan(time);
+    }
+
+    @Test
+    public void testInjectVhalEvent_longVecProperty_skipSetupInit() throws Exception {
+        // Arrange
+        List<HalPropValue> values = new ArrayList<HalPropValue>();
+        setupInjectEventTest(SOME_INT64_VEC_PROPERTY, values);
+        long time = SystemClock.elapsedRealtimeNanos();
+
+        // Act
+        mVehicleHal.injectVhalEvent(SOME_INT64_VEC_PROPERTY, VehicleHal.NO_AREA, "1,2", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
+
+        // Assert
+        assertThat(values.size()).isEqualTo(1);
+        HalPropValue prop = values.get(0);
+        assertThat(prop.getPropId()).isEqualTo(SOME_INT64_VEC_PROPERTY);
+        assertThat(prop.getAreaId()).isEqualTo(VehicleHal.NO_AREA);
+        assertThat(prop.getInt64Value(0)).isEqualTo(1);
+        assertThat(prop.getInt64Value(1)).isEqualTo(2);
         assertThat(prop.getTimestamp()).isGreaterThan(time);
     }
 
