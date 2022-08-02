@@ -1743,7 +1743,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         + " is allowed to make this call");
             }
         } catch (NameNotFoundException e) {
-            throw new IllegalStateException("Package " + systemUiPackageName + " not found.");
+            throw new IllegalStateException("Package " + systemUiPackageName + " not found", e);
         }
 
         mUserSwitchUiReceiver = receiver;

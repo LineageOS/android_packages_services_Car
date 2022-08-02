@@ -128,7 +128,7 @@ final class HidlVehicleStub extends VehicleStub {
     public void unlinkToDeath(IVehicleDeathRecipient recipient) {
         try {
             mHidlVehicle.unlinkToDeath(recipient);
-        } catch (RemoteException e) {
+        } catch (RemoteException ignored) {
             // Ignore errors on shutdown path.
         }
     }

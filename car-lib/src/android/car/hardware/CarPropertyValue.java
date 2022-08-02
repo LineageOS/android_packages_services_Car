@@ -150,7 +150,7 @@ public final class CarPropertyValue<T> implements Parcelable {
         try {
             valueClass = Class.forName(valueClassName);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Class not found: " + valueClassName);
+            throw new IllegalArgumentException("Class not found: " + valueClassName, e);
         }
 
         if (String.class.equals(valueClass)) {

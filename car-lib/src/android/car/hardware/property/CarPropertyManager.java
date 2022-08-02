@@ -509,7 +509,7 @@ public class CarPropertyManager extends CarManagerBase {
      * @param carPropertyEventCallback CarPropertyEventCallback to be registered.
      * @param propertyId               PropertyId to subscribe
      * @param updateRateHz             how fast the property events are delivered in Hz.
-     * @return true if the listener is successfully registered.
+     * @return {@code true} if the listener is successfully registered.
      * @throws SecurityException if missing the appropriate permission.
      */
     @AddedInOrBefore(majorVersion = 33)
@@ -613,7 +613,7 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
-     * @return List of properties implemented by this car that the application may access.
+     * @return List of properties implemented by this car that the application may access
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -631,7 +631,7 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * @param propertyIds property ID list
      * @return List of properties implemented by this car in given property ID list that application
-     *          may access.
+     *          may access
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -656,8 +656,8 @@ public class CarPropertyManager extends CarManagerBase {
      * Get CarPropertyConfig by property ID.
      *
      * @param propId Property ID
-     * @return {@link CarPropertyConfig} for the selected property.
-     * Null if the property is not available.
+     * @return {@link CarPropertyConfig} for the selected property, {@code null} if the property is
+     * not available.
      */
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
@@ -679,8 +679,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propId Property ID
      * @param area Area enum such as Enums in {@link android.car.VehicleAreaSeat}.
      * @throws IllegalArgumentException if the property is not available in the vehicle for
-     * the selected area.
-     * @return AreaId contains the selected area for the property.
+     * the selected area
+     * @return {@link AreaId} containing the selected area for the property
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getAreaId(int propId, int area) {
@@ -709,7 +709,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Return read permission string for given property ID.
      *
      * @param propId Property ID to query
-     * @return String Permission needed to read this property.  NULL if propId not available.
+     * @return Permission needed to read this property, {@code null} if propId not available
      * @hide
      */
     @Nullable
@@ -730,7 +730,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Return write permission string for given property ID.
      *
      * @param propId Property ID to query
-     * @return String Permission needed to write this property.  NULL if propId not available.
+     * @return Permission needed to write this property, {@code null} if propId not available
      * @hide
      */
     @Nullable
@@ -752,7 +752,7 @@ public class CarPropertyManager extends CarManagerBase {
      * Check whether a given property is available or disabled based on the car's current state.
      * @param propId Property ID
      * @param area AreaId of property
-     * @return true if STATUS_AVAILABLE, false otherwise (eg STATUS_UNAVAILABLE)
+     * @return {@code true} if STATUS_AVAILABLE, {@code false} otherwise (eg STATUS_UNAVAILABLE)
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isPropertyAvailable(int propId, int area) {
@@ -796,13 +796,13 @@ public class CarPropertyManager extends CarManagerBase {
      * @param prop Property ID to get
      * @param area Area of the property to get
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
+     * property
+     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * not available and likely that retrying will be successful
+     * @throws PropertyNotAvailableException when the property is temporarily not available
+     * @throws IllegalArgumentException when the property in the areaId is not supplied
      *
      * @return value of a bool property, {@code false} if unable to get value from car.
      */
@@ -823,13 +823,13 @@ public class CarPropertyManager extends CarManagerBase {
      * @param prop Property ID to get
      * @param area Area of the property to get
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
+     * property
+     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * not available and likely that retrying will be successful
+     * @throws PropertyNotAvailableException when the property is temporarily not available
+     * @throws IllegalArgumentException when the property in the areaId is not supplied
      *
      * @return value of a float property, 0 if unable to get value from the car.
      */
@@ -850,13 +850,13 @@ public class CarPropertyManager extends CarManagerBase {
      * @param prop Property ID to get
      * @param area Zone of the property to get
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property
+     * @throws PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful
+     * @throws PropertyNotAvailableException when the property is temporarily not available
+     * @throws IllegalArgumentException when the property in the areaId is not supplied
      *
      * @return value of an integer property, 0 if unable to get the value from car.
      */
@@ -877,16 +877,16 @@ public class CarPropertyManager extends CarManagerBase {
      * @param prop Property ID to get
      * @param area Zone of the property to get
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
+     * property
+     * @throws PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful
+     * @throws PropertyNotAvailableException} when the property is temporarily not available
+     * @throws IllegalArgumentException} when the property in the areaId is not supplied
      *
      * @return value of an integer array property, an empty integer array if unable to get the value
-     * from car.
+     * from car
      */
     @NonNull
     @AddedInOrBefore(majorVersion = 33)
@@ -957,15 +957,15 @@ public class CarPropertyManager extends CarManagerBase {
      * @param propId Property ID to get
      * @param areaId Zone of the property to get
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
+     * property
+     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * not available and likely that retrying will be successful
+     * @throws PropertyNotAvailableException when the property is temporarily not available
+     * @throws IllegalArgumentException when the property in the areaId is not supplied
      *
-     * @return CarPropertyValue. Null if property's id is invalid.
+     * @return {@link CarPropertyValue} or {@code null} if property's id is invalid
      */
     @SuppressWarnings("unchecked")
     @Nullable
@@ -1011,15 +1011,15 @@ public class CarPropertyManager extends CarManagerBase {
      * @param areaId areaId
      * @param <E> Value type of the property
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the
+     * property
+     * @throws PropertyNotAvailableAndRetryException when the property is temporarily
+     * not available and likely that retrying will be successful
+     * @throws PropertyNotAvailableException when the property is temporarily not available
+     * @throws IllegalArgumentException when the property in the areaId is not supplied
      *
-     * @return CarPropertyValue. Null if property's id is invalid.
+     * @return {@link CarPropertyValue} or {@code null} if property's id is invalid
      */
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
@@ -1040,7 +1040,7 @@ public class CarPropertyManager extends CarManagerBase {
                     return null;
                 } else {
                     throw new IllegalStateException(String.format("Failed to get property: 0x%x, "
-                            + "areaId: 0x%x", propId, areaId));
+                            + "areaId: 0x%x", propId, areaId), e);
                 }
             }
             handleCarServiceSpecificException(e, propId, areaId);
@@ -1085,14 +1085,13 @@ public class CarPropertyManager extends CarManagerBase {
      * defined as {@code VEHICLE_VALUE_TYPE_INT32} in vehicle HAL could be accessed using
      * {@code Integer.class}.
      *
-     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
-     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
-     * property.
-     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
-     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
-     * not available and likely that retrying will be successful.
-     * @throws {@link IllegalStateException} when get an unexpected error code.
-     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * @throws CarInternalErrorException when there is an error detected in cars
+     * @throws PropertyAccessDeniedSecurityException when cars denied the access of the property
+     * @throws PropertyNotAvailableException when the property is temporarily not available
+     * @throws PropertyNotAvailableAndRetryException when the property is temporarily not available
+     * and likely that retrying will be successful
+     * @throws IllegalStateException when get an unexpected error code
+     * @throws IllegalArgumentException when the property in the areaId is not supplied
      */
     @AddedInOrBefore(majorVersion = 33)
     public <E> void setProperty(@NonNull Class<E> clazz, int propId, int areaId, @NonNull E val) {
@@ -1110,10 +1109,10 @@ public class CarPropertyManager extends CarManagerBase {
             if (mAppTargetSdk < Build.VERSION_CODES.R) {
                 if (e.errorCode == VehicleHalStatusCode.STATUS_TRY_AGAIN) {
                     throw new RuntimeException(String.format("Failed to set property: 0x%x, "
-                            + "areaId: 0x%x", propId, areaId));
+                            + "areaId: 0x%x", propId, areaId), e);
                 } else {
                     throw new IllegalStateException(String.format("Failed to set property: 0x%x, "
-                            + "areaId: 0x%x", propId, areaId));
+                            + "areaId: 0x%x", propId, areaId), e);
                 }
             }
             handleCarServiceSpecificException(e, propId, areaId);
@@ -1194,7 +1193,7 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @param propId property to be checked
      *
-     * @throws IllegalArgumentException if the property is not supported.
+     * @throws IllegalArgumentException if the property is not supported
      */
     private void checkSupportedProperty(int propId) {
         switch (propId) {
@@ -1272,13 +1271,13 @@ public class CarPropertyManager extends CarManagerBase {
      * executed on the main thread. If the callback is doing heavy work, it is recommended that
      * the {@code callbackExecutor} is provided.
      *
-     * @param getPropertyRequests The property ID and the optional area ID for the property to get.
-     * @param timeoutInMs The timeout for the operation, in milliseconds.
-     * @param cancellationSignal A signal that could be used to cancel the on-going operation.
-     * @param callbackExecutor The executor to execute the callback with.
-     * @param getPropertyCallback The callback function to deliver the result.
-     * @throws SecurityException if missing permission to read the specific property.
-     * @throws IllegalArgumentException if the [property ID, area ID] is not supported.
+     * @param getPropertyRequests The property ID and the optional area ID for the property to get
+     * @param timeoutInMs The timeout for the operation, in milliseconds
+     * @param cancellationSignal A signal that could be used to cancel the on-going operation
+     * @param callbackExecutor The executor to execute the callback with
+     * @param getPropertyCallback The callback function to deliver the result
+     * @throws SecurityException if missing permission to read the specific property
+     * @throws IllegalArgumentException if the [property ID, area ID] is not supported
      */
     @AddedIn(majorVersion = 34)
     public void getPropertiesAsync(

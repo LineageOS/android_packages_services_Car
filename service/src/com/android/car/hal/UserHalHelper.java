@@ -115,7 +115,7 @@ public final class UserHalHelper {
                 try {
                     return Integer.parseInt(type);
                 } catch (NumberFormatException e) {
-                    throw new IllegalArgumentException("invalid type: " + type);
+                    throw new IllegalArgumentException("invalid type: " + type, e);
                 }
         }
     }

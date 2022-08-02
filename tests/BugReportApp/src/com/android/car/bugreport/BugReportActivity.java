@@ -372,7 +372,7 @@ public class BugReportActivity extends Activity {
         try {
             audioFile = File.createTempFile("audio", "mp3", getCacheDir());
         } catch (IOException e) {
-            throw new RuntimeException("failed to create temp audio file");
+            throw new RuntimeException("failed to create temp audio file", e);
         }
         startAudioMessageRecording(/* isNewBugReport= */ false, bug, audioFile);
     }
