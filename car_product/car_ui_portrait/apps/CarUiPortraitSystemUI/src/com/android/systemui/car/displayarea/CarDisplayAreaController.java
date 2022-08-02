@@ -657,8 +657,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     public void register() {
         logIfDebuggable("register organizer and set default bounds");
 
-        ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor,
-                mApplicationContext);
+        ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor);
         taskOrganizer.addListenerForType(mCarFullscreenTaskListener, TASK_LISTENER_TYPE_FULLSCREEN);
         // Use the same TaskListener for MULTI_WINDOW windowing mode as there is nothing that has
         // to be done differently. This is because the tasks are still running in 'fullscreen'
