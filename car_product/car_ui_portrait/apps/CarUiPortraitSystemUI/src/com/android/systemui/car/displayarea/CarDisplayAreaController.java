@@ -656,8 +656,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     public void register() {
         logIfDebuggable("register organizer and set default bounds");
 
-        ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor,
-                mApplicationContext);
+        ShellTaskOrganizer taskOrganizer = new ShellTaskOrganizer(mShellExecutor);
         taskOrganizer.addListenerForType(mCarFullscreenTaskListener, TASK_LISTENER_TYPE_FULLSCREEN);
 
         taskOrganizer.registerOrganizer();
