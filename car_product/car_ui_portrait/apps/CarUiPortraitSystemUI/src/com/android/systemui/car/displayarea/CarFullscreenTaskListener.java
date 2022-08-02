@@ -38,7 +38,7 @@ public class CarFullscreenTaskListener extends FullscreenTaskListener {
 
     @Inject
     public CarFullscreenTaskListener(SyncTransactionQueue syncQueue) {
-        super(syncQueue, Optional.empty());
+        super(syncQueue);
         mOnTaskChangeListeners = new ArrayList<>();
     }
 
