@@ -26,4 +26,6 @@
     <string name="submit" translatable="false">Submit</string>
     <string name="rebooting" translatable="false">rebooting...</string>
     <string name="adding_user_restriction" translatable="false">adding user restriction (key) to (user)... </string>
+    <string name="user_not_found" translatable="false">Error: could not find user</string>
+    <string name="target_user_not_found" translatable="false">Error: Could not parse target user id (see logs)</string>
 </resources>

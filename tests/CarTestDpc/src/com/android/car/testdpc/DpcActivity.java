@@ -16,19 +16,24 @@
 
 package com.android.car.testdpc;
 
+import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Process;
+import android.os.UserHandle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
+
+import java.util.List;
 
 public final class DpcActivity extends Activity {
 
@@ -39,7 +44,10 @@ public final class DpcActivity extends Activity {
     private DpcFactory mDevicePolicyPicker;
 
     private DevicePolicyManagerInterface mDoInterface;
+    private List<DevicePolicyManagerInterface> mPoInterfaces;
 
+    private EditText mUserId;
+    private EditText mKey;
     private TextView mCurrentUserTitle;
     private TextView mThisUser;
     private TextView mAddUserRestriction;
@@ -55,6 +63,7 @@ public final class DpcActivity extends Activity {
 
         mDevicePolicyPicker = new DpcFactory(mContext);
         mDoInterface = mDevicePolicyPicker.getDoInterface();
+        mPoInterfaces = mDevicePolicyPicker.getPoInterfaces();
 
         setContentView(R.layout.activity_main);
 
@@ -80,13 +89,77 @@ public final class DpcActivity extends Activity {
     }
 
     public void uiAddUserRestriction(View v) {
-        showToast(R.string.adding_user_restriction);
-        // TODO(b/235235034): Add call to addUserRestriction from this user
+        mUserId = findViewById(R.id.edit_user_id);
+        mKey = findViewById(R.id.edit_key);
+
+        // TODO(b/241449634) Modify this to use KitchenSink UserSpinner
+        String userId = mUserId.getText().toString();
+        String restriction = mKey.getText().toString();
+
+        UserHandle target = getUserHandleFromUserId(userId);
+        if (target == null) {
+            showToast(R.string.user_not_found);
+            return;
+        }
+
+        if (mDoInterface.getUser().equals(target)) {
+            try {
+                mDoInterface.addUserRestriction(mAdmin, restriction);
+                showToast("%s: addUserRestriction(%s, %s)",
+                        mDoInterface.getUser(), mAdmin.flattenToShortString(), restriction);
+            } catch (RuntimeException e) {
+                showToast("Exception when calling addUserRestriction(%s, %s)",
+                        mAdmin.flattenToShortString(), restriction);
+                return;
+            }
+
+            return;
+        }
+
+        DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
+                .filter((dpm) -> dpm.getUser().equals(target))
+                .findAny().get();
+        try {
+            profileOwner.addUserRestriction(mAdmin, restriction);
+            showToast("%s: addUserRestriction(%s, %s)",
+                    profileOwner.getUser(), mAdmin.flattenToShortString(), restriction);
+        } catch (RuntimeException e) {
+            showToast("Exception when calling addUserRestriction(%s, %s)",
+                    mAdmin.flattenToShortString(), restriction);
+            return;
+        }
+
+    }
+
+    // TODO(b/241449634) Replace this with KitchenSink UserSpinner
+    @Nullable
+    public UserHandle getUserHandleFromUserId(String userId) {
+        UserHandle targetUser = null;
+        try {
+            targetUser = UserHandle.of(Integer.parseInt(userId));
+        } catch (NumberFormatException e) {
+            showToast(e, R.string.target_user_not_found);
+        }
+        return targetUser;
     }
 
     public void showToast(@StringRes int text) {
-        Log.i(TAG, mContext.getString(text));
-        Toast showReboot = Toast.makeText(mContext, text, Toast.LENGTH_LONG);
-        showReboot.show();
+        Log.i(TAG, "Toast");
+        Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+    }
+
+    public void showToast(Exception e, @StringRes int text) {
+        Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+    }
+
+    public void showToast(String msgFormat, Object... msgArgs) {
+        String text = String.format(msgFormat, msgArgs);
+        Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+    }
+
+    public void showToast(Exception e, String msgFormat, Object... msgArgs) {
+        String text = String.format(msgFormat, msgArgs);
+        Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
+        Log.e(TAG, text, e);
     }
 }

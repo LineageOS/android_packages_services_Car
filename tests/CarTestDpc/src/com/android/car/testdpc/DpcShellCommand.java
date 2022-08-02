@@ -249,7 +249,7 @@ final class DpcShellCommand {
     public UserHandle getUserHandleFromUserId(String userId) {
         UserHandle targetUser = null;
         try {
-            targetUser = new UserHandle(Integer.parseInt(userId));
+            targetUser = UserHandle.of(Integer.parseInt(userId));
         } catch (NumberFormatException e) {
             mWriter.println("Could not parse target user id (see logs)");
             Log.e(TAG, "Could not parse target user id", e);

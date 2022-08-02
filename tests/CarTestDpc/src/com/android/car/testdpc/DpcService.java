@@ -62,6 +62,9 @@ public final class DpcService extends DeviceAdminService {
         mAdmin = DpcReceiver.getComponentName(mContext);
         mDpm = mContext.getSystemService(DevicePolicyManager.class);
 
+        mDpm.setAffiliationIds(mAdmin, AFFILIATION_IDS);
+        Log.i(TAG, "setAffiliationIds(" + mAdmin.flattenToShortString() + ", "
+                + AFFILIATION_IDS + ")");
 
         mDevicePolicyPicker = new DpcFactory(mContext);
         mDoInterface = mDevicePolicyPicker.getDoInterface();
