@@ -23,6 +23,7 @@ import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
+import android.hardware.automotive.vehicle.VehicleAreaMirror;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.VehicleAreaWheel;
 import android.hardware.automotive.vehicle.VehicleAreaWindow;
@@ -118,6 +119,8 @@ public final class FakeVhalConfigParser {
     private static final int HVAC_ALL = HVAC_LEFT | HVAC_RIGHT;
     private static final int LIGHT_STATE_ON = VehicleLightState.ON;
     private static final int LIGHT_SWITCH_AUTO = VehicleLightSwitch.AUTOMATIC;
+    private static final int MIRROR_DRIVER_LEFT_RIGHT = VehicleAreaMirror.DRIVER_LEFT
+                                | VehicleAreaMirror.DRIVER_RIGHT;
     // Following are the test properties whose values are copying from TestPropertyUtils.h file(
     // hardware/interfaces/automotive/vehicle/aidl/impl/utils/test/include/TestPropertyUtils.h).
     private static final int ECHO_REVERSE_BYTES = 0x2a12 | VehiclePropertyGroup.VENDOR
@@ -181,6 +184,7 @@ public final class FakeVhalConfigParser {
             Map.entry("FUEL_DOOR_REAR_LEFT", FUEL_DOOR_REAR_LEFT),
             Map.entry("LIGHT_STATE_ON", LIGHT_STATE_ON),
             Map.entry("LIGHT_SWITCH_AUTO", LIGHT_SWITCH_AUTO),
+            Map.entry("MIRROR_DRIVER_LEFT_RIGHT", MIRROR_DRIVER_LEFT_RIGHT),
             Map.entry("ECHO_REVERSE_BYTES", ECHO_REVERSE_BYTES),
             Map.entry("kMixedTypePropertyForTest", K_MIXED_TYPE_PROPERTY_FOR_TEST),
             Map.entry("VENDOR_CLUSTER_NAVIGATION_STATE", VENDOR_CLUSTER_NAVIGATION_STATE),
