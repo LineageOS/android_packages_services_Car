@@ -66,6 +66,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
     field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_CONTROL_REMOTE_ACCESS = "android.car.permission.CONTROL_REMOTE_ACCESS";
     field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
@@ -1266,6 +1267,18 @@ package android.car.projection {
     method @NonNull public android.car.projection.ProjectionStatus.MobileDevice build();
     method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setExtras(android.os.Bundle);
     method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setProjecting(boolean);
+  }
+
+}
+
+package android.car.remoteaccess {
+
+  public final class CarRemoteAccessManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_REMOTE_ACCESS) public void setPowerStatePostTaskExecution(int, boolean);
+    field public static final int NEXT_POWER_STATE_OFF = 2; // 0x2
+    field public static final int NEXT_POWER_STATE_ON = 1; // 0x1
+    field public static final int NEXT_POWER_STATE_SUSPEND_TO_DISK = 4; // 0x4
+    field public static final int NEXT_POWER_STATE_SUSPEND_TO_RAM = 3; // 0x3
   }
 
 }
