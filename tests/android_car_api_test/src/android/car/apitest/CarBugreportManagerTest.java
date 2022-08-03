@@ -17,8 +17,7 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.fail;
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.Manifest;
 import android.annotation.FloatRange;
@@ -104,7 +103,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
         dropPermissions();
 
         SecurityException expected =
-                expectThrows(SecurityException.class,
+                assertThrows(SecurityException.class,
                         () -> mManager.requestBugreportForTesting(
                             mOutput, mExtraOutput, mFakeCallback));
         assertThat(expected).hasMessageThat().contains(

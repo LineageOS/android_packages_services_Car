@@ -23,9 +23,9 @@ import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
-import static org.testng.Assert.assertThrows;
 
 import android.app.ActivityOptions;
 import android.car.Car;

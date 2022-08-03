@@ -27,12 +27,12 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.car.ICarBugreportCallback;
 import android.car.builtin.os.SystemPropertiesHelper;
@@ -107,7 +107,7 @@ public class CarBugreportManagerServiceTest {
                 R.string.config_car_bugreport_application)).thenReturn("current_app_name");
 
         SecurityException expected =
-                expectThrows(SecurityException.class,
+                assertThrows(SecurityException.class,
                         () -> mService.requestBugreport(mMockOutput, mMockExtraOutput,
                                 mMockCallback, DUMPSTATE_DRY_RUN));
 
@@ -238,7 +238,7 @@ public class CarBugreportManagerServiceTest {
         when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
 
         SecurityException expected =
-                expectThrows(SecurityException.class,
+                assertThrows(SecurityException.class,
                         () -> mService.requestBugreport(mMockOutput, mMockExtraOutput,
                                 mMockCallback, DUMPSTATE_DRY_RUN));
 
@@ -255,7 +255,7 @@ public class CarBugreportManagerServiceTest {
         when(mMockPackageManager.getNameForUid(anyInt())).thenReturn("current_app_name");
 
         SecurityException expected =
-                expectThrows(SecurityException.class, () -> mService.cancelBugreport());
+                assertThrows(SecurityException.class, () -> mService.cancelBugreport());
 
         assertThat(expected).hasMessageThat().contains(
                 "Caller current_app_name does not have the right signature");

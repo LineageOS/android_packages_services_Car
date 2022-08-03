@@ -19,7 +19,7 @@ package android.car.os;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +57,7 @@ public final class ThreadPolicyWithPriorityUnitTest {
         int policy = -1;
         int priority = ThreadPolicyWithPriority.PRIORITY_MIN;
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> new ThreadPolicyWithPriority(policy, priority));
 
         assertWithMessage("thrown exception has expected message").that(thrown).hasMessageThat()
@@ -69,7 +69,7 @@ public final class ThreadPolicyWithPriorityUnitTest {
         int policy = ThreadPolicyWithPriority.SCHED_FIFO;
         int priority = ThreadPolicyWithPriority.PRIORITY_MIN - 1;
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> new ThreadPolicyWithPriority(policy, priority));
 
         assertWithMessage("thrown exception has expected message").that(thrown).hasMessageThat()
@@ -81,7 +81,7 @@ public final class ThreadPolicyWithPriorityUnitTest {
         int policy = ThreadPolicyWithPriority.SCHED_FIFO;
         int priority = ThreadPolicyWithPriority.PRIORITY_MAX + 1;
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> new ThreadPolicyWithPriority(policy, priority));
 
         assertWithMessage("thrown exception has expected message").that(thrown).hasMessageThat()

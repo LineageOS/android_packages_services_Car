@@ -24,9 +24,9 @@ import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.content.Context;
 import android.media.AudioDeviceAttributes;
@@ -290,7 +290,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, v1NonLegacyContextStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
 
-            IllegalArgumentException exception = expectThrows(IllegalArgumentException.class,
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                     cazh::loadAudioZones);
 
             assertThat(exception).hasMessageThat().contains("Non-legacy audio contexts such as");
@@ -321,7 +321,7 @@ public class CarAudioZonesHelperTest {
                     versionOneAudioZoneIdStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("Invalid audio attribute audioZoneId");
         }
@@ -335,7 +335,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, versionOneOccupantIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("Invalid audio attribute occupantZoneId");
         }
@@ -406,7 +406,7 @@ public class CarAudioZonesHelperTest {
                     duplicateOccupantZoneIdStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("already associated with a zone");
         }
@@ -420,7 +420,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, duplicateAudioZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("already associated with a zone");
         }
@@ -435,7 +435,7 @@ public class CarAudioZonesHelperTest {
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
 
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("empty.");
         }
@@ -449,7 +449,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, nonNumericalStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("was \"primary\" instead.");
         }
@@ -463,7 +463,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, negativeAudioZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("but was \"-1\" instead.");
         }
@@ -478,7 +478,7 @@ public class CarAudioZonesHelperTest {
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
 
             NullPointerException thrown =
-                    expectThrows(NullPointerException.class,
+                    assertThrows(NullPointerException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("present.");
         }
@@ -492,7 +492,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, nonNumericalStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("was \"one\" instead.");
         }
@@ -506,7 +506,7 @@ public class CarAudioZonesHelperTest {
                     negativeOccupantZoneIdStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("was \"-1\" instead.");
         }
@@ -521,7 +521,7 @@ public class CarAudioZonesHelperTest {
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
 
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("does not exist");
         }
@@ -535,7 +535,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, emptyOccupantZoneIdStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("but was \"\" instead.");
         }
@@ -549,7 +549,7 @@ public class CarAudioZonesHelperTest {
                     new CarAudioZonesHelper(mCarAudioSettings, nonZeroForPrimaryStream,
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("it can be left empty.");
         }
@@ -563,7 +563,7 @@ public class CarAudioZonesHelperTest {
                     zeroZoneIdForSecondaryStream, mCarAudioOutputDeviceInfos,
                     mInputAudioDeviceInfos, false);
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains(PRIMARY_ZONE_NAME);
         }
@@ -578,7 +578,7 @@ public class CarAudioZonesHelperTest {
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
 
             IllegalArgumentException thrown =
-                    expectThrows(IllegalArgumentException.class,
+                    assertThrows(IllegalArgumentException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains("can not repeat.");
         }
@@ -593,7 +593,7 @@ public class CarAudioZonesHelperTest {
                             mCarAudioOutputDeviceInfos, mInputAudioDeviceInfos, false);
 
             IllegalStateException thrown =
-                    expectThrows(IllegalStateException.class,
+                    assertThrows(IllegalStateException.class,
                             () -> cazh.loadAudioZones());
             assertThat(thrown).hasMessageThat().contains(BUS_1000_ADDRESS_DOES_NOT_EXIST);
         }

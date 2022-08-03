@@ -18,7 +18,7 @@ package com.android.car.am;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.app.CarActivityManager;
@@ -57,7 +57,7 @@ public class CarActivityManagerPermissionTest {
     @Test
     public void testSetPersistentActivity_requiresPermission() {
         ComponentName activity = new ComponentName("testPkg", "testActivity");
-        SecurityException thrown = expectThrows(SecurityException.class,
+        SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarActivityManager.setPersistentActivity(activity, Display.DEFAULT_DISPLAY,
                         DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER));
 
@@ -66,7 +66,7 @@ public class CarActivityManagerPermissionTest {
 
     @Test
     public void testRegisterTaskMonitor_requiresPermission() {
-        SecurityException thrown = expectThrows(SecurityException.class,
+        SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarActivityManager.registerTaskMonitor());
 
         assertThat(thrown.getMessage()).contains(android.Manifest.permission.MANAGE_ACTIVITY_TASKS);

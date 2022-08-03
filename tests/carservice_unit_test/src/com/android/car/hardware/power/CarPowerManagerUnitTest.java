@@ -38,9 +38,9 @@ import static com.android.car.test.power.CarPowerPolicyUtil.assertPolicyIdentica
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.car.Car;
@@ -138,9 +138,9 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                 /*isHibernationAllowed=*/true,
                 /*isTimedWakeupAllowed=*/true);
         mSystemInterface = SystemInterface.Builder.defaultSystemInterface(mContext)
-            .withDisplayInterface(mDisplayInterface)
-            .withSystemStateInterface(mSystemStateInterface)
-            .build();
+                .withDisplayInterface(mDisplayInterface)
+                .withSystemStateInterface(mSystemStateInterface)
+                .build();
         setService();
         mCarPowerManager = new CarPowerManager(mCar, mService);
     }
@@ -255,7 +255,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
         // Request suspend
         setPowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
-                        VehicleApPowerStateShutdownParam.CAN_SLEEP);
+                VehicleApPowerStateShutdownParam.CAN_SLEEP);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
         assertThat(mCarPowerManager.getPowerState())
                 .isEqualTo(PowerHalService.SET_DEEP_SLEEP_ENTRY);
@@ -447,7 +447,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     /**
      * Helper to set the PowerHal state
      *
-     * @param stateEnum Requested state enum
+     * @param stateEnum  Requested state enum
      * @param stateParam Addition state parameter
      */
     private void setPowerState(int stateEnum, int stateParam) {

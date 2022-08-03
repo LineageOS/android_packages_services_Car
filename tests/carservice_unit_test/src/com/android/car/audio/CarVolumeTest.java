@@ -38,9 +38,8 @@ import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.media.AudioAttributes.AttributeUsage;
 
@@ -84,7 +83,7 @@ public class CarVolumeTest {
 
     @Test
     public void constructor_withVersionLessThanOne_failsTooLow() {
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             new CarVolume(mMockClock, VERSION_ZERO, KEY_EVENT_TIMEOUT_MS);
         });
 
@@ -94,7 +93,7 @@ public class CarVolumeTest {
 
     @Test
     public void constructor_withVersionGreaterThanTwo_failsTooHigh() {
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             new CarVolume(mMockClock, VERSION_THREE, KEY_EVENT_TIMEOUT_MS);
         });
 
@@ -104,7 +103,7 @@ public class CarVolumeTest {
 
     @Test
     public void constructor_withNullSystemClock_fails() {
-        NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarVolume(null, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
         });
 

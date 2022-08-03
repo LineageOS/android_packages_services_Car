@@ -18,10 +18,10 @@ package com.android.car.internal.user;
 
 import static android.car.test.util.UserTestingHelper.newUser;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;

@@ -21,9 +21,9 @@ import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
-import static org.testng.Assert.assertThrows;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.hardware.audio.common.PlaybackTrackMetadata;
