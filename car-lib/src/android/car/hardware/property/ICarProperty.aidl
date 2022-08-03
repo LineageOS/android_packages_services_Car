@@ -19,7 +19,7 @@ package android.car.hardware.property;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.GetPropertyServiceRequest;
-import android.car.hardware.property.ICarPropertyServiceCallback;
+import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.car.hardware.property.ICarPropertyEventListener;
 
 /**
@@ -49,5 +49,5 @@ interface ICarProperty {
      * <p>This method gets the CarPropertyValue using async methods.
      */
     void getPropertiesAsync(in List<GetPropertyServiceRequest> getPropertyServiceRequests,
-                in ICarPropertyServiceCallback carPropertyServiceCallback) = 8;
+                in IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) = 8;
 }

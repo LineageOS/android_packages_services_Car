@@ -21,7 +21,7 @@ import android.car.hardware.property.GetValueResult;
 /**
  * Callback interface for async {@link CarPropertyService#getPropertiesAsync} when successful.
  */
-oneway interface ICarPropertyServiceCallback {
+oneway interface IGetAsyncPropertyResultCallback {
     /**
      * Method called when {@link GetValueResult} returns a result.
      */

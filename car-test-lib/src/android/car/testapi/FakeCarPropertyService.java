@@ -26,9 +26,12 @@ import android.car.VehiclePropertyType;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.GetPropertyServiceRequest;
+import android.car.hardware.property.GetValueResult;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.hardware.property.ICarPropertyServiceCallback;
+import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.os.RemoteException;
 
 import com.android.car.internal.PropertyPermissionMapping;
@@ -101,9 +104,17 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
 
     @Override
     public void getPropertiesAsync(List<android.car.hardware.property.GetPropertyServiceRequest>
-            getPropertyServiceRequests, ICarPropertyServiceCallback carPropertyServiceCallback)
-            throws RemoteException {
-        // TODO(b/238472067): implement the logic
+            getPropertyServiceRequests, IGetAsyncPropertyResultCallback
+            getAsyncPropertyResultCallback) throws RemoteException {
+        List<GetValueResult> getValueResults = new ArrayList<>();
+        for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
+            GetPropertyServiceRequest getPropertyServiceRequest = getPropertyServiceRequests.get(i);
+            getValueResults.add(new GetValueResult(
+                    getPropertyServiceRequest.getRequestId(),
+                    getProperty(getPropertyServiceRequest.getPropertyId(),
+                            getPropertyServiceRequest.getAreaId()), CarPropertyManager.STATUS_OK));
+        }
+        getAsyncPropertyResultCallback.onGetValueResult(getValueResults);
     }
 
     @Override
