@@ -133,6 +133,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private final CarDisplayAreaOrganizer mOrganizer;
     private final CarFullscreenTaskListener mCarFullscreenTaskListener;
     private final ComponentName mControlBarActivityComponent;
+    private final ComponentName mHomeActivityComponent;
     private final CarUiPortraitDisplaySystemBarsController mCarUiDisplaySystemBarsController;
     private final CarDeviceProvisionedController mCarDeviceProvisionedController;
     private final List<ComponentName> mBackgroundActivityComponent;
@@ -179,6 +180,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private boolean mIsForegroundAppRequestingImmersiveMode = false;
     private boolean mIsUiModeNight = false;
     private boolean mIsUserSetupInProgress;
+    private DisplayAreaComponent.FOREGROUND_DA_STATE mCurrentForegroundDaState;
     // contains the list of activities that will be displayed on feature {@link
     // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
     private final Set<ComponentName> mVoicePlateActivitySet;
@@ -415,6 +417,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                         R.string.config_controlBarActivity));
         mNotificationCenterComponent = ComponentName.unflattenFromString(resources.getString(
                 R.string.config_notificationCenterActivity));
+        mHomeActivityComponent = ComponentName.unflattenFromString(resources.getString(
+                R.string.config_homeActivity));
         mBackgroundActivityComponent = new ArrayList<>();
         mVoicePlateActivitySet = new ArraySet<>();
         String[] backgroundActivities = mApplicationContext.getResources().getStringArray(
@@ -804,9 +808,17 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
         boolean isControlBar = componentName.equals(mControlBarActivityComponent);
         boolean isBackgroundApp = mBackgroundActivityComponent.contains(componentName);
+        boolean isHomeActivity = componentName.equals(mHomeActivityComponent);
+
         if (isBackgroundApp) {
             // we don't want to change the state of the foreground DA when background
             // apps are launched.
+            return;
+        }
+
+        if (isHomeActivity && (mCurrentForegroundDaState != CONTROL_BAR)) {
+            // close the foreground DA
+            startAnimation(CONTROL_BAR);
             return;
         }
 
@@ -833,10 +845,12 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         // 3. for the current user ONLY. System user launches some tasks on cluster that should
         //    not affect the state of the foreground DA
         // 4. any task that is manually defined to be ignored
+        // 5. home activity. We use this activity as the wallpaper.
         if (!(taskInfo.displayAreaFeatureId == FEATURE_DEFAULT_TASK_CONTAINER
                 && taskInfo.isVisible()
                 && taskInfo.userId == ActivityManager.getCurrentUser()
-                && !shouldIgnoreOpeningForegroundDA(taskInfo))) {
+                && !shouldIgnoreOpeningForegroundDA(taskInfo)
+                && !isHomeActivity)) {
             return;
         }
 
@@ -991,6 +1005,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         // TODO: currently the animations are only bottom/up. Make it more generic animations here.
         int fromPos = 0;
         int toPos = 0;
+        mCurrentForegroundDaState = toState;
 
         switch (toState) {
             case CONTROL_BAR:
