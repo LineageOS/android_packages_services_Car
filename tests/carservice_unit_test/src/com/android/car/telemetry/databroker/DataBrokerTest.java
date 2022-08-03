@@ -354,6 +354,33 @@ public final class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestC
     }
 
     @Test
+    public void testScheduleNextTask_whenScriptExecutorBypassed_shouldStoreFinalResult()
+            throws Exception {
+        mData.putBoolean("bypass successful", true);
+        mData.putDouble("value of pi", 3.14159265359);
+        TelemetryProto.Subscriber subscriberWithoutHandler =
+                TelemetryProto.Subscriber.newBuilder().setPublisher(
+                        PUBLISHER_CONFIGURATION).setPriority(PRIORITY_HIGH).build();
+        TelemetryProto.MetricsConfig metricConfigForBypass =
+                TelemetryProto.MetricsConfig.newBuilder().setName("Bypass").setVersion(
+                        1).addSubscribers(subscriberWithoutHandler).build();
+        ScriptExecutionTask bypassTask = new ScriptExecutionTask(
+                new DataSubscriber(mDataBroker, metricConfigForBypass, subscriberWithoutHandler),
+                mData,
+                SystemClock.elapsedRealtime(),
+                false,
+                TelemetryProto.Publisher.PublisherCase.STATS.getNumber());
+        mDataBroker.getTaskQueue().add(bypassTask);
+
+        mDataBroker.scheduleNextTask();
+        waitForTelemetryThreadToFinish();
+
+        assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(0);
+        verify(mMockDataBrokerListener).onMetricsReport(
+                eq(bypassTask.getMetricsConfig().getName()), eq(mData), isNull());
+    }
+
+    @Test
     public void testScheduleNextTask_whenInterimDataExists_shouldPassToScriptExecutor()
             throws Exception {
         mData.putDouble("value of golden ratio", 1.618033);

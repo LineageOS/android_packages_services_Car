@@ -1114,6 +1114,14 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
                 boolean boolValue = Boolean.parseBoolean(dataList.get(0));
                 return builder.build(propId, zoneId, timestamp, VehiclePropertyStatus.AVAILABLE,
                         boolValue ? 1 : 0);
+            case VehiclePropertyType.INT64:
+            case VehiclePropertyType.INT64_VEC:
+                long[] longValues = new long[dataList.size()];
+                for (int i = 0; i < dataList.size(); i++) {
+                    longValues[i] = Long.decode(dataList.get(i));
+                }
+                return builder.build(propId, zoneId, timestamp, VehiclePropertyStatus.AVAILABLE,
+                        longValues);
             case VehiclePropertyType.INT32:
             case VehiclePropertyType.INT32_VEC:
                 int[] intValues = new int[dataList.size()];

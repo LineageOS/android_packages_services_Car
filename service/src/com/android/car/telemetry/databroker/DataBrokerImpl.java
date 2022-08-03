@@ -466,6 +466,14 @@ public class DataBrokerImpl implements DataBroker {
         mPublisherCountArray.append(
                 task.getPublisherType(),
                 mPublisherCountArray.get(task.getPublisherType()) - 1);
+
+        if (task.bypassScriptExecutor()) {
+            // delegate to DataBrokerListener to handle storing data and scheduling next task
+            mDataBrokerListener.onMetricsReport(task.getMetricsConfig().getName(),
+                    task.getData(), /* state= */ null);
+            return;
+        }
+
         // update current config name because a script is currently running
         mCurrentMetricsConfigName = task.getMetricsConfig().getName();
         mScriptExecutionTraceLog.traceBegin(
