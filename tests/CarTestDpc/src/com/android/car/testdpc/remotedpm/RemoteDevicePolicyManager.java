@@ -135,7 +135,7 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
         IRemoteDevicePolicyManager remoteDpm;
         remoteDpm = getBoundRemoteDpm();
         run(() -> remoteDpm.addUserRestriction(admin, key),
-                "reboot(%s, %s)", admin, key);
+                "addUserRestriction(%s, %s)", admin, key);
     }
 
     @FormatMethod
