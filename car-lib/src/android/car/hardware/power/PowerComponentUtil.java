@@ -143,7 +143,8 @@ public final class PowerComponentUtil {
      * Matches the given string to {@link PowerComponent}.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public static int toPowerComponent(@Nullable String component, boolean prefix) {
+    public static int toPowerComponent(@Nullable String componentArg, boolean prefix) {
+        String component = componentArg;
         if (component == null) {
             return INVALID_POWER_COMPONENT;
         }
