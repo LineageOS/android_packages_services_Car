@@ -39,9 +39,7 @@ using ::aidl::android::frameworks::automotive::telemetry::CarData;
 using ::android::base::Error;
 using ::android::base::Result;
 
-enum {
-    MSG_PUSH_CAR_DATA_TO_LISTENER = 1,
-};
+constexpr int kMsgPushCarDataToListener = 1;
 
 // If ICarDataListener cannot accept data, the next push should be delayed little bit to allow
 // the listener to recover.
@@ -63,7 +61,7 @@ Result<void> TelemetryServer::setListener(const std::shared_ptr<ICarDataListener
     }
     mCarDataListener = listener;
     mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
-                                MSG_PUSH_CAR_DATA_TO_LISTENER);
+                                kMsgPushCarDataToListener);
     return {};
 }
 
@@ -73,7 +71,7 @@ void TelemetryServer::clearListener() {
         return;
     }
     mCarDataListener = nullptr;
-    mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
+    mLooper->removeMessages(mMessageHandler, kMsgPushCarDataToListener);
 }
 
 void TelemetryServer::addCarDataIds(const std::vector<int32_t>& ids) {
@@ -117,7 +115,7 @@ void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t p
     // too many unnecessary idendical messages in the looper.
     if (mCarDataListener != nullptr && bufferWasEmptyBefore && mRingBuffer.size() > 0) {
         mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
-                                    MSG_PUSH_CAR_DATA_TO_LISTENER);
+                                    kMsgPushCarDataToListener);
     }
 }
 
@@ -128,7 +126,7 @@ void TelemetryServer::pushCarDataToListeners() {
     {
         const std::scoped_lock<std::mutex> lock(mMutex);
         // Remove extra messages.
-        mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
+        mLooper->removeMessages(mMessageHandler, kMsgPushCarDataToListener);
         if (mCarDataListener == nullptr || mRingBuffer.size() == 0) {
             return;
         }
@@ -165,7 +163,7 @@ TelemetryServer::MessageHandlerImpl::MessageHandlerImpl(TelemetryServer* server)
 
 void TelemetryServer::MessageHandlerImpl::handleMessage(const Message& message) {
     switch (message.what) {
-        case MSG_PUSH_CAR_DATA_TO_LISTENER:
+        case kMsgPushCarDataToListener:
             mTelemetryServer->pushCarDataToListeners();
             break;
         default:
