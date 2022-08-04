@@ -994,11 +994,6 @@ public class CarTelemetryTestFragment extends Fragment {
                 + ", threshold=" + (info.threshold / 1024 / 1024) + "mb");
     }
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
     /**
      * Updates the view to show {@link CarTelemetryManager#addMetricsConfig(String, byte[],
      * Executor, CarTelemetryManager.AddMetricsConfigCallback)} status code. The callbacks are

@@ -17,7 +17,6 @@
 package com.android.managedprovisioning.preprovisioning;
 
 import android.annotation.Nullable;
-import android.os.Bundle;
 
 import androidx.annotation.VisibleForTesting;
 
@@ -60,11 +59,6 @@ public final class CarPreProvisioningActivity extends PreProvisioningActivity {
             SettingsFacade settingsFacade, ThemeHelper themeHelper) {
         super(controllerProvider, contextMenuMaker, utils, settingsFacade, themeHelper,
                 RoleHolderProvider.DEFAULT, RoleHolderUpdaterProvider.DEFAULT);
-    }
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
     }
 
     @Override

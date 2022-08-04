@@ -26,6 +26,7 @@ import android.car.Car;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
@@ -116,10 +117,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
 
                     mIsDisplayAreaAnimating = true;
 
-                    WindowContainerTransaction wct = new WindowContainerTransaction();
-                    wct.setAlwaysOnTop(mForegroundDisplayToken, true);
-                    mTransactionQueue.queue(wct);
-
                     mTransactionQueue.runInSync(tx -> {
                         // Update the foreground panel layer index to animate on top of the
                         // background DA.
@@ -142,17 +139,17 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                         WindowContainerTransaction wct = new WindowContainerTransaction();
                         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.DEFAULT) {
                             // Foreground DA opens to default height.
-                            wct.setAlwaysOnTop(mForegroundDisplayToken, true);
                             updateBackgroundDisplayBounds(wct);
                         } else if (mToState
                                 == DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT) {
                             updateForegroundDisplayBounds(wct);
                             updateBackgroundDisplayBounds(wct);
-                        } else if (mToState
-                                == DisplayAreaComponent.FOREGROUND_DA_STATE.CONTROL_BAR) {
-                            wct = new WindowContainerTransaction();
-                            wct.setAlwaysOnTop(mForegroundDisplayToken, false);
-                            mTransactionQueue.queue(wct);
+                        }
+                        else if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.CONTROL_BAR) {
+                            Intent homeActivityIntent = new Intent(Intent.ACTION_MAIN);
+                            homeActivityIntent.addCategory(Intent.CATEGORY_HOME);
+                            homeActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            mContext.startActivity(homeActivityIntent);
                         }
                     }
                 }
