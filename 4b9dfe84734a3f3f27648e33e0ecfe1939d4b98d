@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "unresolved": true,
+      "key": {
+        "uuid": "500ac596_03463952",
+        "filename": "/PATCHSET_LEVEL",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 26658
+      },
+      "writtenOn": "2022-08-04T16:40:29Z",
+      "side": 1,
+      "message": "Picking the topic fails with:\nApplying change number 334796...\nERROR: For 334796, could not determine the project path for project LineageOS/android_packages_services_Car",
+      "revId": "4b9dfe84734a3f3f27648e33e0ecfe1939d4b98d",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71"
+    }
+  ]
+}
