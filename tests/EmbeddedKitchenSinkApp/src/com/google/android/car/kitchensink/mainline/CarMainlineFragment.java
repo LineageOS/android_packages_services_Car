@@ -99,8 +99,7 @@ public class CarMainlineFragment extends Fragment {
         mCarMajorVersion.setText(String.valueOf(carApiVersion.getMajorVersion()));
         mCarMinorVersion.setText(String.valueOf(carApiVersion.getMinorVersion()));
 
-        boolean isCarApiTQpr = carApiVersion
-                .isAtLeast(CarApiVersion.VERSION_CODES.TIRAMISU_1);
+        boolean isCarApiTQpr = carApiVersion.isAtLeast(CarApiVersion.TIRAMISU_1);
         Log.v(TAG, "onStart(): isCarApiTQpr=" + isCarApiTQpr);
         if (isCarApiTQpr) {
             mPlatformVersion.setText(platformApiVersion.toString());

@@ -16,9 +16,7 @@
 package android.car;
 
 import android.annotation.NonNull;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
+import android.car.annotation.AddedIn;
 import android.os.Parcel;
 
 import java.util.Objects;
@@ -34,11 +32,8 @@ import java.util.Objects;
  * releases, but {@code Car} APIs can now (starting on
  * {@link android.os.Build.Build.VERSION_CODES#TIRAMISU Android 13}) be updated on minor releases
  * as well.
- *
- * @param <T> implementation type
  */
-@ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-        minPlatformVersion = PlatformVersion.TIRAMISU_0)
+@AddedIn(majorVersion = 33, minorVersion = 1)
 public abstract class ApiVersion<T extends ApiVersion<?>> {
 
     private final int mMajorVersion;
@@ -61,8 +56,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * @throws IllegalArgumentException if {@code requiredVersion} is not an instance of the same
      *         class as this object.
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public final boolean isAtLeast(@NonNull T requiredVersion) {
         Objects.requireNonNull(requiredVersion);
 
@@ -82,8 +76,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * Gets the major version of the API represented by this object.
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public final int getMajorVersion() {
         return mMajorVersion;
     }
@@ -98,8 +91,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * <p>Client should check this version to use APIs which were added in a minor-only version
      * update.
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public final int getMinorVersion() {
         return mMinorVersion;
     }
@@ -108,8 +100,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * @hide
      */
     @Override
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
@@ -125,8 +116,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * @hide
      */
     @Override
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public int hashCode() {
         int prime = 31;
         int result = 1;
@@ -140,8 +130,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      */
     @Override
     @NonNull
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public final String toString() {
         return getClass().getSimpleName()
                 + "[major=" + mMajorVersion + ", minor=" + mMinorVersion + "]";
@@ -150,8 +139,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * @hide
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     protected void writeToParcel(Parcel dest) {
         dest.writeInt(getMajorVersion());
         dest.writeInt(getMinorVersion());
@@ -160,8 +148,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * @hide
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     protected static <T extends ApiVersion<?>> T readFromParcel(Parcel source,
             ApiVersionFactory<T> factory) {
         int major = source.readInt();
@@ -169,11 +156,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
         return factory.forMajorAndMinor(major, minor);
     }
 
-    /**
-     * @hide
-     */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     interface ApiVersionFactory<T extends ApiVersion<?>> {
         T forMajorAndMinor(int major, int minor);
     }

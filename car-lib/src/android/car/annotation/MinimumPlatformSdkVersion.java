@@ -28,13 +28,10 @@ import java.lang.annotation.Target;
 /**
  * Minimum platform sdk version this method / type / field can be used.
  *
- * @deprecated use {@link ApiRequirements} instead.
- *
  * @hide
  */
 @Retention(SOURCE)
 @Target({ANNOTATION_TYPE, FIELD, TYPE, METHOD})
-@Deprecated
 public @interface MinimumPlatformSdkVersion {
 
     /**
