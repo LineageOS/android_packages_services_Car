@@ -74,10 +74,7 @@ TEST(UidCpuStatsCollectorTest, TestValidStatFile) {
                                       "100: 1266700 4565636\n"
                                       "1009: 700000 600000\n"
                                       "1001000: 40000 30000\n";
-    std::unordered_map<uid_t, int64_t> expectedSecondUsage = {{0, 500},
-                                                              {100, 30},
-                                                              {1009, 300},
-                                                              {1001000, 0}};
+    std::unordered_map<uid_t, int64_t> expectedSecondUsage = {{0, 500}, {100, 30}, {1009, 300}};
 
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     ASSERT_RESULT_OK(collector.collect());

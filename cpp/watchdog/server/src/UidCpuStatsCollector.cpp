@@ -120,6 +120,9 @@ Result<void> UidCpuStatsCollector::collect() {
         if (const auto& it = mLatestStats.find(uid);
             it != mLatestStats.end() && it->second <= deltaCpuTime) {
             deltaCpuTime -= it->second;
+            if (deltaCpuTime == 0) {
+                continue;
+            }
         }
         mDeltaStats[uid] = deltaCpuTime;
     }
