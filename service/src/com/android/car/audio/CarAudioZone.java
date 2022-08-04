@@ -234,8 +234,8 @@ import java.util.Set;
                 if (isAudioDeviceInfoValidForZone(configuration.getAudioDeviceInfo())) {
                     // Note that address's context and the context actually supplied could be
                     // different
-                    activeContexts.add(CarAudioContext.getContextForUsage(
-                            configuration.getAudioAttributes().getSystemUsage()));
+                    activeContexts.add(CarAudioContext.getContextForAudioAttribute(
+                            configuration.getAudioAttributes()));
                 }
             }
         }
