@@ -360,14 +360,15 @@ import java.util.Map;
         Preconditions.checkArgument(isValidGainIndex(gainIndex),
                 "Gain out of range (%d:%d) index %d", mMinGain, mMaxGain, gainIndex);
         synchronized (mLock) {
+            int currentgainIndex = gainIndex;
             if (isBlockedLocked()) {
                 // prevent any volume change while {@link IAudioGainCallback} reported block event.
                 // TODO(b/) callback mecanism to inform HMI/User of failure and reason why if needed
                 return;
             }
-            if (isOverLimitLocked(gainIndex)) {
+            if (isOverLimitLocked(currentgainIndex)) {
                 // TODO(b/) callback to inform if over limit index and why if needed.
-                gainIndex = mLimitedGainIndex;
+                currentgainIndex = mLimitedGainIndex;
             }
             if (isAttenuatedLocked()) {
                 resetAttenuationLocked();
@@ -377,7 +378,7 @@ import java.util.Map;
             }
             // In case of attenuation/Limitation, requested index is now the new reference for
             // cached current index.
-            mCurrentGainIndex = gainIndex;
+            mCurrentGainIndex = currentgainIndex;
 
             setCurrentGainIndexLocked(mCurrentGainIndex);
         }

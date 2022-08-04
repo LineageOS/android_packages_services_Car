@@ -444,10 +444,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void callbackGroupVolumeChange(int zoneId, int groupId, int flags) {
+        int callbackFlags = flags;
         if (mUseDynamicRouting && !isPlaybackOnVolumeGroupActive(zoneId, groupId)) {
-            flags |= FLAG_PLAY_SOUND;
+            callbackFlags |= FLAG_PLAY_SOUND;
         }
-        mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, flags);
+        mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, callbackFlags);
     }
 
     private void callbackGroupMuteChanged(int zoneId, int groupId, int flags) {
