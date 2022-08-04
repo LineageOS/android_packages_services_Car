@@ -67,18 +67,18 @@ struct UserPackageStats {
         }
     };
     struct ProcStats {
-        uint64_t count = 0;
-        struct ProcessCount {
+        uint64_t value = 0;
+        struct ProcessValue {
             std::string comm = "";
-            uint64_t count = 0;
+            uint64_t value = 0;
         };
-        std::vector<ProcessCount> topNProcesses = {};
+        std::vector<ProcessValue> topNProcesses = {};
     };
     uid_t uid = 0;
     std::string genericPackageName = "";
     std::variant<std::monostate, IoStats, ProcStats> stats;
     std::string toString(MetricType metricsType, const int64_t totalIoStats[][UID_STATES]) const;
-    std::string toString(int64_t count) const;
+    std::string toString(int64_t totalValue) const;
 };
 
 /**
@@ -86,12 +86,14 @@ struct UserPackageStats {
  * `/proc/[pid]/stat`, `/proc/[pid]/task/[tid]/stat`, and /proc/[pid]/status` files.
  */
 struct UserPackageSummaryStats {
+    std::vector<UserPackageStats> topNCpuTimes = {};
     std::vector<UserPackageStats> topNIoReads = {};
     std::vector<UserPackageStats> topNIoWrites = {};
     std::vector<UserPackageStats> topNIoBlocked = {};
     std::vector<UserPackageStats> topNMajorFaults = {};
     int64_t totalIoStats[METRIC_TYPES][UID_STATES] = {{0}};
     std::unordered_map<uid_t, uint64_t> taskCountByUid = {};
+    int64_t totalCpuTimeMillis = 0;
     uint64_t totalMajorFaults = 0;
     // Percentage of increase/decrease in the major page faults since last collection.
     double majorFaultsPercentChange = 0.0;
@@ -100,9 +102,9 @@ struct UserPackageSummaryStats {
 
 // System performance stats collected from the `/proc/stats` file.
 struct SystemSummaryStats {
-    uint64_t cpuIoWaitTime = 0;
-    uint64_t cpuIdleTime = 0;
-    uint64_t totalCpuTime = 0;
+    int64_t cpuIoWaitTimeMillis = 0;
+    int64_t cpuIdleTimeMillis = 0;
+    int64_t totalCpuTimeMillis = 0;
     uint64_t contextSwitchesCount = 0;
     uint32_t ioBlockedProcessCount = 0;
     uint32_t totalProcessCount = 0;
