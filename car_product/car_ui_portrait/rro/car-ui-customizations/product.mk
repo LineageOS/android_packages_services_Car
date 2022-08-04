@@ -36,6 +36,7 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_customization-com-android-managedprovisioning \
     generated_caruiportrait_customization-com-android-settings-intelligence \
     generated_caruiportrait_customization-com-android-htmlviewer \
+    generated_caruiportrait_customization-com-android-permissioncontroller \
 
 # This system property is used to enable the RROs on startup via
 # the requiredSystemPropertyName/Value attributes in the manifest
