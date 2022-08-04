@@ -24,9 +24,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.ApiRequirements;
-import android.car.annotation.ApiRequirements.CarVersion;
-import android.car.annotation.ApiRequirements.PlatformVersion;
+import android.car.annotation.MinimumPlatformSdkVersion;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
@@ -172,8 +170,8 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_1)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 1)
     @RequiresPermission(Car.PERMISSION_MANAGE_THREAD_PRIORITY)
     public void setThreadPriority(@NonNull ThreadPolicyWithPriority policyWithPriority)
             throws SetSchedulerFailedException {
@@ -202,8 +200,8 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_1)
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 1)
     @RequiresPermission(Car.PERMISSION_MANAGE_THREAD_PRIORITY)
     public @NonNull ThreadPolicyWithPriority getThreadPriority() {
         int tid = Process.myTid();

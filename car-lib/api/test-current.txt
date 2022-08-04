@@ -294,27 +294,6 @@ package android.car.admin {
 
 }
 
-package android.car.annotation {
-
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.RUNTIME) @java.lang.annotation.Target({java.lang.annotation.ElementType.ANNOTATION_TYPE, java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.METHOD}) public @interface ApiRequirements {
-    method public abstract android.car.annotation.ApiRequirements.CarVersion minCarVersion();
-    method public abstract android.car.annotation.ApiRequirements.PlatformVersion minPlatformVersion();
-  }
-
-  public enum ApiRequirements.CarVersion {
-    method public android.car.CarApiVersion get();
-    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_0;
-    enum_constant public static final android.car.annotation.ApiRequirements.CarVersion TIRAMISU_1;
-  }
-
-  public enum ApiRequirements.PlatformVersion {
-    method public android.car.PlatformApiVersion get();
-    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_0;
-    enum_constant public static final android.car.annotation.ApiRequirements.PlatformVersion TIRAMISU_1;
-  }
-
-}
-
 package android.car.app {
 
   public final class CarActivityManager {
@@ -1179,8 +1158,8 @@ package android.car.navigation {
 package android.car.os {
 
   public final class CarPerformanceManager {
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_1) @NonNull @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public android.car.os.ThreadPolicyWithPriority getThreadPriority();
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_1) @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public void setThreadPriority(@NonNull android.car.os.ThreadPolicyWithPriority) throws android.car.os.CarPerformanceManager.SetSchedulerFailedException;
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public android.car.os.ThreadPolicyWithPriority getThreadPriority();
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public void setThreadPriority(@NonNull android.car.os.ThreadPolicyWithPriority) throws android.car.os.CarPerformanceManager.SetSchedulerFailedException;
   }
 
   public static final class CarPerformanceManager.SetSchedulerFailedException extends java.lang.Exception {
