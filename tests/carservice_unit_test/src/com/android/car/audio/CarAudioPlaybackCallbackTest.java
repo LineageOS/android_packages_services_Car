@@ -27,9 +27,9 @@ import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
@@ -76,14 +76,14 @@ public final class CarAudioPlaybackCallbackTest {
 
     @Test
     public void createCarAudioPlaybackCallback_withNullCarAudioZones_fails() throws Exception {
-        expectThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new CarAudioPlaybackCallback(null, mClock, KEY_EVENT_TIMEOUT_MS);
         });
     }
 
     @Test
     public void createCarAudioPlaybackCallback_withNullSystemClockWrapper_fails() throws Exception {
-        expectThrows(NullPointerException.class, () -> {
+        assertThrows(NullPointerException.class, () -> {
             new CarAudioPlaybackCallback(mPrimaryZone, null, KEY_EVENT_TIMEOUT_MS);
         });
     }
@@ -91,7 +91,7 @@ public final class CarAudioPlaybackCallbackTest {
     @Test
     public void
             createCarAudioPlaybackCallback_withNegativeKeyEventTimeout_fails() throws Exception {
-        expectThrows(IllegalArgumentException.class, () -> {
+        assertThrows(IllegalArgumentException.class, () -> {
             new CarAudioPlaybackCallback(mPrimaryZone, mClock, -KEY_EVENT_TIMEOUT_MS);
         });
     }

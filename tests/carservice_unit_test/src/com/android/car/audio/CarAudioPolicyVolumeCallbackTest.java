@@ -28,12 +28,12 @@ import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy.Builder;

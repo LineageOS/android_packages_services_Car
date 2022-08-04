@@ -29,6 +29,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -37,8 +38,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -349,7 +348,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToMuteChange_withNullMutingInformation_Throws() {
-        NullPointerException thrown = expectThrows(NullPointerException.class,
+        NullPointerException thrown = assertThrows(NullPointerException.class,
                 () -> mAudioControlWrapperAidl.onDevicesToMuteChange(null));
 
         assertWithMessage("NullPointerException thrown by onDevicesToMuteChange")
@@ -358,7 +357,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToMuteChange_withEmptyMutingInformation_Throws() {
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> mAudioControlWrapperAidl.onDevicesToMuteChange(new ArrayList<>()));
 
         assertWithMessage("IllegalArgumentException thrown by onDevicesToMuteChange")
@@ -520,7 +519,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         doThrow(new RemoteException("D'OH!")).when(mAudioControl).registerGainCallback(any());
 
         IllegalStateException thrown =
-                expectThrows(
+                assertThrows(
                         IllegalStateException.class,
                         () ->
                                 mAudioControlWrapperAidl.registerAudioGainCallback(
@@ -535,7 +534,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
     @Test
     public void registerAudioGainCallback_nullcallback_Throws() {
         NullPointerException thrown =
-                expectThrows(
+                assertThrows(
                         NullPointerException.class,
                         () ->
                                 mAudioControlWrapperAidl.registerAudioGainCallback(

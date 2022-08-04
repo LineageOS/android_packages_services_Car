@@ -18,7 +18,7 @@ package com.android.car.telemetry;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.telemetry.CarTelemetryManager;
@@ -63,7 +63,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testAddMetricsConfig() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.addMetricsConfig("name", mMetricsConfigBytes, mExecutor,
                         (metricsConfigName, statusCode) -> { }));
 
@@ -72,7 +72,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testRemoveMetricsConfig() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.removeMetricsConfig(mMetricsConfigName));
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
@@ -80,7 +80,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testRemoveAllMetricsConfigs() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.removeAllMetricsConfigs());
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
@@ -88,7 +88,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testGetFinishedReport() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.getFinishedReport(mMetricsConfigName, mExecutor,
                         (metricsConfigName, report, telemetryError, status) -> { }));
 
@@ -97,7 +97,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testGetAllFinishedReports() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.getAllFinishedReports(mExecutor,
                         (metricsConfigName, report, telemetryError, status) -> { }));
 
@@ -106,7 +106,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testSetReportReadyListener() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.setReportReadyListener(
                         mExecutor, (metricsConfigName) -> { }));
 
@@ -115,7 +115,7 @@ public class CarTelemetryManagerPermissionTest {
 
     @Test
     public void testClearReportReadyListener() {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarTelemetryManager.clearReportReadyListener());
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);

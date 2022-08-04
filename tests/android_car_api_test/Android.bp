@@ -51,7 +51,6 @@ android_test {
 //      "guava-android-testlib",
         "compatibility-device-util-axt",
         "platform-test-annotations",
-        "testng",
         "truth-prebuilt",
     ],
 

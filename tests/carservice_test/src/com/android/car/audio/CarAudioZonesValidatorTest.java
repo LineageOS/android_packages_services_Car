@@ -22,9 +22,9 @@ import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.media.AudioDeviceAttributes;
 import android.util.SparseArray;
@@ -47,7 +47,7 @@ public class CarAudioZonesValidatorTest {
 
     @Test
     public void validate_thereIsAtLeastOneZone() {
-        RuntimeException exception = expectThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> CarAudioZonesValidator.validate(new SparseArray<CarAudioZone>()));
 
         assertThat(exception).hasMessageThat().contains("At least one zone should be defined");
@@ -60,7 +60,7 @@ public class CarAudioZonesValidatorTest {
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         zones.put(zone.getId(), zone);
 
-        IllegalArgumentException exception = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> CarAudioZonesValidator.validate(zones));
 
         assertThat(exception).hasMessageThat().contains("Primary Zone Input Devices");
@@ -72,7 +72,7 @@ public class CarAudioZonesValidatorTest {
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         zones.put(zone.getId(), zone);
 
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> CarAudioZonesValidator.validate(zones));
 
         assertThat(exception).hasMessageThat().contains("Primary Zone Input Devices");
@@ -86,7 +86,7 @@ public class CarAudioZonesValidatorTest {
         SparseArray<CarAudioZone> zones = new SparseArray<>();
         zones.put(zone.getId(), zone);
 
-        RuntimeException exception = expectThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> CarAudioZonesValidator.validate(zones));
 
         assertThat(exception).hasMessageThat().contains("Primary Zone must have");
@@ -101,7 +101,7 @@ public class CarAudioZonesValidatorTest {
                 .build();
         zones.put(zoneOne.getId(), zoneOne);
 
-        RuntimeException exception = expectThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> CarAudioZonesValidator.validate(zones));
 
         assertThat(exception).hasMessageThat()
@@ -127,7 +127,7 @@ public class CarAudioZonesValidatorTest {
         zones.put(primaryZone.getId(), primaryZone);
         zones.put(secondaryZone.getId(), secondaryZone);
 
-        RuntimeException exception = expectThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> CarAudioZonesValidator.validate(zones));
 
         assertThat(exception).hasMessageThat().contains(

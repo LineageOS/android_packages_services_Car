@@ -21,12 +21,11 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.annotation.UserIdInt;
 import android.car.Car;
@@ -567,7 +566,7 @@ public class CarOccupantZoneServiceTest {
         audioZoneIdToOccupantZoneMapping.put(SECONDARY_AUDIO_ZONE_ID,
                 INVALID_AUDIO_ZONE_ID_OCCUPANT);
         IllegalArgumentException thrown =
-                expectThrows(IllegalArgumentException.class,
+                assertThrows(IllegalArgumentException.class,
                         () -> mService.setAudioZoneIdsForOccupantZoneIds(
                                 audioZoneIdToOccupantZoneMapping));
         thrown.getMessage().contains("does not exist");
