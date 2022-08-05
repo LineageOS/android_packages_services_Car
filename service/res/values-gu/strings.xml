@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"કોઈ ઍપને કોઈ ફોનના ઇન્ટરફેસ પરથી કારના ડિસ્પ્લે પર પ્રોજેક્ટ કરવાની મંજૂરી આપે છે"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"પ્રોજેક્શનના સ્ટેટસને ઍક્સેસ કરો"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"કોઈ ઍપને કારના ડિસ્પ્લે પર પ્રોજેક્ટ કરતી અન્ય ઍપનો સ્ટેટસ મેળવવાની મંજૂરી આપે છે."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"પ્રોજેક્શન સેવા સાથે જોડાઓ"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ધારકને કોઈ પ્રોજેક્શન સેવાના ઉચ્ચ લેવલના ઇન્ટરફેસથી પ્રતિબદ્ધ થવાની મંજૂરી આપે છે. સામાન્ય ઍપ માટે ક્યારેય જરૂરી હોવું જોઈએ નહીં."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"કારના ઑડિયોનું વૉલ્યૂમ નિયંત્રિત કરો"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"કારના ઑડિયો સેટિંગ મેનેજ કરો"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"કારના HALનું અનુસરણ કરો"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરમાં ઍપ્લિકેશન લૉન્ચ કરો"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરનું નૅવિગેશન સ્ટેટસ"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરના નૅવિગેશન સ્ટેટસમાં થતા ફેરફારો માટે સાંભળો"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટર રેન્ડર કરી રહ્યું છે"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરનો ડેટા પ્રાપ્ત કરો"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX પ્રતિબંધોની ગોઠવણી"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX પ્રતિબંધોને ગોઠવણી કરો"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ખાનગી ડિસ્પ્લે id માટે વાંચવાનો ઍક્સેસ"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"\'કારમાં સવાર લોકોની જાગરૂકતા સંબંધિત સિસ્ટમ\'ના સ્ટેટસ અને તેની જાણકારીના ડેટાને વાંચવાની મંજૂરી આપે છે"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"\'કારમાં સવાર લોકોની જાગરૂકતા સંબંધિત સિસ્ટમ\'ના ગ્રાફને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"\'કારમાં સવાર લોકોની જાગરૂકતા સંબંધિત સિસ્ટમ\'ની જાણકારીના ગ્રાફનું નિયંત્રણ શરૂ કરવાની અને રોકવાની મંજૂરી આપે છે"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"કારની ઇનપુટ સેવા"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ઇનપુટ ઇવેન્ટ્સને હૅન્ડલ કરો"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"નિદાનનો ડેટા વાંચો"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"કારમાંથી નિદાનનો ડેટા વાંચો."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"નિદાનનો ડેટા સાફ કરો"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS સંદેશા પ્રકાશિત કરો"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS સબ્સ્ક્રાઇબર"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS સંદેશાને સબ્સ્ક્રાઇબ કરો"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ક્લાયન્ટ સેવા"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ક્લાયન્ટથી પ્રતિબદ્ધ થાઓ"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"પેન ડ્રાઇવના સ્ટોરેજનું નિરીક્ષણ કરવાની મંજૂરી આપો"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ફ્લૅશ સ્ટોરેજના વપરાશનું નિરીક્ષણ કરો"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ડ્રાઇવ કરવાની સ્થિતિ વિશે સાંભળો"</string>

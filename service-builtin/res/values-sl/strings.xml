@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"povezava s storitvijo projiciranja"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Imetniku omogoča povezovanje z vmesnikom storitve projiciranja najvišje ravni. Tega ni treba nikoli uporabiti za navadne aplikacije."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Storitev odjemalca VMS"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Povezovanje z odjemalci VMS"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Upodobitev instrumentne plošče"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Prejemanje podatkov instrumentne plošče"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Storitev za vhode avtomobila"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Obravnava dogodkov vnosa"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Te funkcije med vožnjo ne morete uporabljati"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Če želite začeti znova z varnimi funkcijami aplikacij, izberite <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Nazaj"</string>

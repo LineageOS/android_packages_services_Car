@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"允許應用程式將手機介面投射至汽車螢幕。"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"存取投射狀態"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"允許應用程式取得正在投射資訊至汽車螢幕的應用程式狀態。"</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"繫結至投射服務"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"允許應用程式繫結至投射服務的頂層介面 (不建議一般應用程式使用)。"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"控制汽車音響的音量"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"管理汽車的音響設定"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"模擬執行汽車 HAL"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"在儀表板啟動應用程式"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"儀器叢集導覽狀態"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"聆聽儀器叢集導覽狀態變更"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"正在輸出儀表板"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"接收儀表板資料"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"使用者體驗限制設定"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"設定使用者體驗限制"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"私人顯示 ID 的讀取權限"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"允許讀取 Occupant Awareness System 的狀態和偵測數據"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"控制 Occupant Awareness System 圖表"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"允許控制何時開始和停止 Occupant Awareness System 的偵測圖表"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"汽車輸入服務"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"處理輸入活動"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"讀取診斷資料"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"讀取來自汽車的診斷資料。"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"清除診斷資料"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"發佈交通訊息顯示屏訊息"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"交通訊息顯示屏訂閱應用程式"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"訂閱交通訊息顯示屏訊息"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"交通訊息顯示屏用戶端服務"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"繫結至交通訊息顯示屏用戶端"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"監控快閃儲存空間"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"監控快閃儲存空間使用狀態"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"聽取駕駛狀態"</string>
