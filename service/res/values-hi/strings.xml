@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"ऐप्लिकेशन कार की डिसप्ले पर, फ़ोन से किसी इंटरफ़ेस को प्रोजेक्ट कर सकता है."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"प्रोजेक्ट करने की स्थिति को ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"ऐप्लिकेशन, कार की डिसप्ले पर प्रोजेक्ट किए जा रहे दूसरे ऐप्लिकेशन की स्थिति देख सकता है."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"प्रोजेक्ट करने की सुविधा इस्तेमाल कर सकता है"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"उपोयगकर्ता को किसी प्रोजेक्ट करने की सुविधा के टॉप-लेवल इंटरफ़ेस से जोड़ता है. सामान्य ऐप्लिकेशन के लिए इसकी कभी ज़रूरत नहीं होती."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"कार में ऑडियो की आवाज़ नियंत्रित कर सकता है"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"कार में ऑडियो की सेटिंग मैनेज कर सकता है"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"वाहन एलएएल की तरह काम करना"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"इंस्ट्रूमेंट क्लस्टर में ऐप्लिकेशन लॉन्च करें"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"गाड़ी के इंस्ट्रुमेंट क्लस्टर के नेविगेशन की स्थिति"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"इंस्ट्रुमेंट क्लस्टर के नेविगेशन की स्थिति के बदलावों के लिए सुनें"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"इंस्ट्रूमेंट क्लस्टर रेंडर करने की सुविधा"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"इंस्ट्रूमेंट क्लस्टर का डेटा पाएं"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX पाबंदियों का कॉन्फ़िगरेशन"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX की पाबंदियां कॉन्फ़िगर करें"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"निजी डिसप्ले आईडी के लिए पढ़ने का ऐक्सेस"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"इससे Occupant Awareness System की स्थिति और डिटेक्शन सिस्टम के नतीजों को पढ़ने की अनुमति मिलती है. डिटेक्शन सिस्टम यह बताता है कि ड्राइवर कहां देख रहा है."</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"इससे ऐप्लिकेशन को Occupant Awareness System Graph कंट्रोल करने की अनुमति मिलती है"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"इससे Occupant Awareness System के डिटेक्शन ग्राफ़ को शुरू करने या रोकने की अनुमति मिलती है"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कार की इनपुट सेवा"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट से जुड़े इवेंट प्रबंधित कर सकता है"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"गड़बड़ी की पहचान का डेटा देख सकता है"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"कार की \'गड़बड़ी की पहचान का डेटा\' देख सकता है."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"गड़बड़ी की पहचान का डेटा मिटा सकता है"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"वीएमएस मैसेज भेज सकता है"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"वीएमएस का डेटा पा सकता है"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"वीएमएस मैसेज की सदस्यता ले सकता है"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"वीएमएस क्लाइंट सुविधा"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"वीएमएस क्लाइंट से जोड़ सकता है"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"फ़्लैश डिवाइस की मेमोरी पर नज़र रख सकता है"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ़्लैश डिवाइस की मेमोरी के इस्तेमाल की निगरानी कर सकता है"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"गाड़ी चलाते समय होने वाले बदलावों की स्थिति को सुन सकता है"</string>

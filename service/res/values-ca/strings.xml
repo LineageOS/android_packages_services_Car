@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"Permet que una aplicació projecti la interfície d\'un telèfon a la pantalla del cotxe"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"accedeix a l\'estat de la projecció"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Permet que una aplicació obtingui l\'estat d\'altres aplicacions que s\'estiguin projectant a la pantalla del cotxe"</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"vincula a un servei de projecció"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Permet que el titular vinculi a la interfície de nivell superior d\'un servei de projecció. No s\'hauria de necessitar mai per a les aplicacions normals"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"controla el volum de l\'àudio del cotxe"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"gestiona la configuració de l\'àudio del cotxe"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emula l\'API vehicle HAL"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Executar aplicacions al quadre de comandament"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Estat de navegació del quadre de comandament"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Escolta els canvis en l\'estat de navegació del quadre de comandament"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Renderització del quadre de comandament"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Rebre dades del quadre de comandament"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Configuració de les restriccions de l\'experiència d\'usuari"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Configurar les restriccions de l\'experiència d\'usuari"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Accés de lectura a l\'identificador de pantalla privat"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Permet llegir les dades de detecció i d\'estat del Sistema de detecció d\'ocupants"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Controlar el gràfic del Sistema de detecció d\'ocupants"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Permet controlar l\'inici i la pausa del gràfic de detecció del Sistema de detecció d\'ocupants"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servei d\'entrada del cotxe"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Gestionar els esdeveniments d\'entrada"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"llegeix les dades de diagnòstic"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Llegeix les dades de diagnòstic del cotxe."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"esborra les dades de diagnòstic"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Publicar missatges VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Subscriptor de VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Subscriure\'s als missatges VMS"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Servei de client de VMS"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Vincular a clients de VMS"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Supervisió de l\'emmagatzematge flaix"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Supervisar l\'ús d\'emmagatzematge flaix"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"escolta l\'estat de conducció"</string>

@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"အက်ပ်တစ်ခုက ဖုန်း၏အင်တာဖေ့စ်အား ကား၏ မျက်နှာပြင်ပြသမှုပေါ်တွင် ပုံရိပ်ပြသရန် ခွင့်ပြုသည်။"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ခန့်မှန်းမှုအခြေအနေကို ရယူပါမည်"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"အက်ပ်တစ်ခုက ကား၏ မျက်နှာပြင်ပြသမှုပေါ်တွင် အခြားအက်ပ်များ၏ အခြေအနေကို ပုံရိပ်ပြသရန် ခွင့်ပြုသည်။"</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ခန့်မှန်းခြင်းဆိုင်ရာ ဝန်ဆောင်မှုနှင့် ပူးပေါင်းပါမည်"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ဖုန်းကိုင်ထားသူနှင့် ပုံရိပ်ပြသသော ဝန်ဆောင်မှု၏ ထိပ်ပိုင်းအင်တာဖေ့စ် ကို ပူးပေါင်းခွင့်ပေးသည်။ ပုံမှန် အက်ပ်များအတွက် မည်သည့်အခါမျှ မလိုအပ်ပါ။"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ကား၏ အသံအတိုးအကျယ်ကို ထိန်းချုပ်ပါမည်"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ကား၏ အသံဆက်တင်များကို စီမံပါမည်"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ယာဉ်၏ \"HAL အလွှာ\" ကို အသွင်ယူလုပ်ဆောင်ရန်"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ကိရိယာအစုအဝေးအတွင်းရှိ အက်ပ်များကို စတင်ရန်"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"ကိရိယာအစုအဝေး လမ်းညွှန်အခြေအနေ"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ကိရိယာအစုအဝေး လမ်းညွှန်အခြေအနေ ပြောင်းလဲမှုများကို နားစွင့်ပါ"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ကိရိယာအစုအဝေးကို ပြင်ဆင်ခြင်း"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ကိရိယာအစုအဝေး ဒေတာကို လက်ခံရန်"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ကန့်သတ်ချက်များ စီစဉ်သတ်မှတ်မှု"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX ကန့်သတ်ချက်များကို စီစဉ်သတ်မှတ်ရန်"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"သီးသန့်ဖန်သားပြင်ပြသမှု id ကို ဖတ်ခွင့်"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"\'စီးနင်းသူ သတိရှိမှု စနစ်\' အတွက် အခြေအနေဖတ်ခြင်းနှင့် ဒေတာရှာဖွေခြင်းတို့ကို ခွင့်ပြုသည်"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"\'စီးနင်းသူ သတိရှိမှု စနစ် ဂရပ်ဖ်\' ကို ထိန်းချုပ်ရန်"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"\'စီးနင်းသူ သတိရှိမှု စနစ်\' သိရှိသည့်ဂရပ်ဖ် စတင်ခြင်းနှင့် ရပ်တန့်ခြင်းကို ထိန်းချုပ်ရန် ခွင့်ပြုသည်"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ကား၏ အချက်အလက်ထည့်သွင်းခြင်း ဝန်ဆောင်မှု"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"အချက်အလက်ထည့်သွင်းခြင်း အစီအစဉ်များကို စီမံပါမည်"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"အမှားရှာပြင်ခြင်းဒေတာများကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ကားအတွင်း အမှားရှာပြင်ခြင်းဒေတာကို ကြည့်ပါမည်။"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"အမှားရှာပြင်ခြင်းဒေတာများကို ရှင်းလင်းပါမည်"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS မက်ဆေ့ဂျ်များကို ထုတ်ဝေခြင်း"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS စာရင်းသွင်းသူ"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS မက်ဆေ့ဂျ်များ ရယူရန်အတွက် စာရင်းသွင်းရန်"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ကလိုင်းယင့် ဝန်ဆောင်မှု"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ကလိုင်းယင့်များနှင့် ပူးပေါင်းခြင်း"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"မြန်နှုန်းမြင့် သိုလှောင်မှုအား  စောင့်ကြည့်ခြင်း"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"မြန်နှုန်းမြင့်သိုလှောင်မှုအား အသုံးပြုခြင်းကို စောင့်ကြည့်ပါမည်"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ယာဉ်မောင်းနှင်မှုအခြေအနေကို စောင့်ကြည့်ပါမည်"</string>

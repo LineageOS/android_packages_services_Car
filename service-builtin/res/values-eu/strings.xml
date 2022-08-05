@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"lotu proiekzio-zerbitzu batekin"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Proiekzio-zerbitzu baten goi-mailako interfazeari lotzeko baimena ematen die titularrei. Aplikazio normalek ez lukete beharko."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS bezeroen zerbitzua"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Lotu VMS bezeroekin"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Instrumentu lukuaren errendatzea"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Jaso instrumentu lukuaren datuak"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Autoaren sarrerako zerbitzua"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Kudeatu sarrerako gertaerak"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Ezin duzu erabili eginbidea gidatu bitartean"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Berriro hasi nahi baduzu aplikazioaren eginbide seguruekin, hautatu <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Atzera"</string>
