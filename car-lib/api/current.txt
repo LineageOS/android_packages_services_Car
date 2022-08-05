@@ -79,6 +79,9 @@ package android.car {
     method @NonNull public static android.car.CarApiVersion forMajorVersion(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.CarApiVersion> CREATOR;
+  }
+
+  public static class CarApiVersion.VERSION_CODES {
     field @NonNull public static final android.car.CarApiVersion TIRAMISU_0;
     field @NonNull public static final android.car.CarApiVersion TIRAMISU_1;
   }
@@ -201,6 +204,9 @@ package android.car {
     method @NonNull public static android.car.PlatformApiVersion forMajorVersion(int);
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformApiVersion> CREATOR;
+  }
+
+  public static class PlatformApiVersion.VERSION_CODES {
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
     field @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
   }

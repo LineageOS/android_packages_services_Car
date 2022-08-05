@@ -16,7 +16,9 @@
 package android.car;
 
 import android.annotation.NonNull;
-import android.car.annotation.AddedIn;
+import android.car.annotation.ApiRequirements;
+import android.car.annotation.ApiRequirements.CarVersion;
+import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -24,29 +26,45 @@ import android.os.Parcelable;
 /**
  * Represents the API version of the {@code Car} SDK.
  */
-@AddedIn(majorVersion = 33, minorVersion = 1)
+@ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+        minPlatformVersion = PlatformVersion.TIRAMISU_0)
 public final class CarApiVersion extends ApiVersion<CarApiVersion> implements Parcelable {
 
     /**
-     * Helper object for main version of Android 13.
+     * Contains pre-defined versions matching Car releases.
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
-    @NonNull
-    public static final CarApiVersion TIRAMISU_0 =
-            forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 0);
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    public static class VERSION_CODES {
 
-    /**
-     * Helper object for first minor upgrade of Android 13.
-     */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
-    @NonNull
-    public static final CarApiVersion TIRAMISU_1 =
-            forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 1);
+        /**
+         * Helper object for main version of Android 13.
+         */
+        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final CarApiVersion TIRAMISU_0 =
+                forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 0);
+
+        /**
+         * Helper object for first minor upgrade of Android 13.
+         */
+        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
+        @NonNull
+        public static final CarApiVersion TIRAMISU_1 =
+                forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 1);
+
+        private VERSION_CODES() {
+            throw new UnsupportedOperationException("Only provide constants");
+        }
+    }
 
     /**
      * Creates a new instance with the given major and minor versions.
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @NonNull
     public static CarApiVersion forMajorAndMinorVersions(int majorVersion, int minorVersion) {
         return new CarApiVersion(majorVersion, minorVersion);
@@ -55,7 +73,8 @@ public final class CarApiVersion extends ApiVersion<CarApiVersion> implements Pa
     /**
      * Creates a new instance for a major version (i.e., the minor version will be {@code 0}.
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @NonNull
     public static CarApiVersion forMajorVersion(int majorVersion) {
         return new CarApiVersion(majorVersion, /* minorVersion= */ 0);
@@ -66,18 +85,21 @@ public final class CarApiVersion extends ApiVersion<CarApiVersion> implements Pa
     }
 
     @Override
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public int describeContents() {
         return 0;
     }
 
     @Override
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         writeToParcel(dest);
     }
 
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @NonNull
     public static final Parcelable.Creator<CarApiVersion> CREATOR =
             new Parcelable.Creator<CarApiVersion>() {
