@@ -80,6 +80,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
     <uses-permission android:name="android.car.permission.PRIVILEGED_CAR_INFO" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS" />
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
 </manifest>
