@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ଏକ ପ୍ରୋଜେକ୍ସନ୍ ସେବା ସହ ଯୋଡ଼ି ହୁଅନ୍ତୁ"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ଏକ ପ୍ରୋଜେକ୍ସନ୍ ସେବାର ଶୀର୍ଷ-ସ୍ତର ଇଣ୍ଟର୍‌ଫେସ୍‍କୁ ବାନ୍ଧିରଖିବା ପାଇଁ ଧାରକକୁ ଅନୁମତି ଦିଏ। ସାମାନ୍ୟ ଆପ୍‍‌ଗୁଡ଼ିକ ପାଇଁ ଏହା ଆବଶ୍ୟକ ନୁହେଁ।"</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ଗ୍ରାହକ ସେବା"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ଗ୍ରାହକମାନଙ୍କ ସହ ଯୋଡ଼ି ହୁଅନ୍ତୁ"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ଇନ୍‍ଷ୍ଟ୍ରୁମେଣ୍ଟ କ୍ଲଷ୍ଟର୍ ରେଣ୍ଡରିଂ"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ଇନ୍‍ଷ୍ଟ୍ରୁମେଣ୍ଟ କ୍ଲଷ୍ଟର୍‌ର ଡାଟା ପ୍ରାପ୍ତ କରନ୍ତୁ"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"କାର୍‍ର ଇନ୍‍ପୁଟ୍ ସେବା"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ଇନ୍‍ପୁଟ୍ ଇଭେଣ୍ଟଗୁଡ଼ିକ ପରିଚାଳନା କରିପାରେ"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"ଆପଣ ଡ୍ରାଇଭ୍‍ କରିବା ସମୟରେ ଏହି ଫିଚର୍‍ ବ୍ୟବହାର କରିପାରିବେ ନାହିଁ"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"ସୁରକ୍ଷିତ ଆପ୍ ବୈଶିଷ୍ଟ୍ୟଗୁଡ଼ିକୁ ନେ‍ଇ ପୁଣି ଆରମ୍ଭ କରିବା ପାଇଁ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ଚୟନ କରନ୍ତୁ।"</string>
     <string name="exit_button" msgid="3491899413031549265">"ପଛକୁ ଫେରନ୍ତୁ"</string>

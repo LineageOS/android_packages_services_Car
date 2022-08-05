@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"绑定到投影服务"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"允许应用绑定到投影服务的顶级接口。普通应用绝不需要此权限。"</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS 客户端服务"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"绑定到 VMS 客户端"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"仪表板呈现"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"接收仪表板数据"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"汽车输入服务"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"处理输入事件"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"您不能在驾车时使用此功能"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"要重新开始使用安全的应用功能，请选择<xliff:g id="EXIT_BUTTON">%s</xliff:g>。"</string>
     <string name="exit_button" msgid="3491899413031549265">"返回"</string>

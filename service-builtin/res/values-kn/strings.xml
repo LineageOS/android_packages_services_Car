@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಯ ಉನ್ನತ ಮಟ್ಟದ ಇಂಟರ್ ಫೇಸ್‌ಗೆ ಪ್ರತಿಬಂಧಿಸಲು ಮಾಲೀಕರಿಗೆ ಅವಕಾಶ ನೀಡುತ್ತದೆ. ಸಾಮಾನ್ಯ ಆ್ಯಪ್‌ಗಳಿಗೆ ಎಂದಿಗೂ ಅಗತ್ಯವಿರುವುದಿಲ್ಲ."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ಕ್ಲೈಂಟ್ ಸೇವೆ"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ಸಲಕರಣೆ ಸಂಚಯ ತೋರಿಸು"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ಕಾರಿನ ಇನ್‌ಪುಟ್ ಸೇವೆ"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ಊಡಿಕೆ ಘಟನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"ಡ್ರೈವ್ ಮಾಡುವಾಗ ನೀವು ಈ ಫೀಚರ್ ಅನ್ನು ಬಳಸಲಾಗುವುದಿಲ್ಲ"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"ಆಪ್‌ನ ಸುರಕ್ಷೆ ಗುಣಲಕ್ಷಣಗಳನ್ನು ಒಳಗೊಂಡು ಮತ್ತೆ ಪ್ರಾರಂಭಿಸಲು, <xliff:g id="EXIT_BUTTON">%s</xliff:g> ಆಯ್ಕೆ ಮಾಡಿ."</string>
     <string name="exit_button" msgid="3491899413031549265">"ಹಿಂದಕ್ಕೆ"</string>

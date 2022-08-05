@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"ਕਿਸੇ ਐਪ ਨੂੰ ਕਾਰ ਦੀ ਡਿਸਪਲੇ \'ਤੇ ਫ਼ੋਨ ਦਾ ਇੰਟਰਫੇਸ ਦਿਖਾਉਣ ਦਿੰਦੀ ਹੈ।"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ਯੋਜਨਾਬੰਦੀ ਸਥਿਤੀ ਤੱਕ ਪਹੁੰਚ"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"ਕਿਸੇ ਐਪ ਨੂੰ ਕਾਰ ਦੀ ਡਿਸਪਲੇ \'ਤੇ ਹੋਰ ਐਪਾਂ ਦੀ ਸਥਿਤੀ ਦੇਖਣ ਦਿਓ।"</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ਯੋਜਨਾਬੰਦੀ ਸੇਵਾ ਨਾਲ ਜੋੜੋ"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ਹੋਲਡਰ ਨੂੰ ਯੋਜਨਾਬੰਦੀ ਸੇਵਾ ਦੇ ਉੱਚ-ਪੱਧਰ ਦੇ ਇੰਟਰਫੇਸ ਨਾਲ ਜੋੜਨ ਦਿੰਦਾ ਹੈ। ਇਹ ਆਮ ਐਪਾਂ ਲਈ ਕਦੇ ਵੀ ਲੋੜੀਂਦਾ ਨਹੀਂ ਹੋਣਾ ਚਾਹੀਦਾ।"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ਕਾਰ ਦੀ ਆਡੀਓ ਅਵਾਜ਼ \'ਤੇ ਕੰਟਰੋਲ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ਕਾਰ ਦੀਆਂ ਆਡੀਓ ਸੈਟਿੰਗਾਂ ਦਾ ਪ੍ਰਬੰਧਨ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ਵਾਹਨ HAL ਦੀ ਨਕਲ ਕਰੋ"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਵਿੱਚ ਐਪਾਂ ਲਾਂਚ ਕਰੋ"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"ਸਾਧਨ ਕਲੱਸਟਰ ਦੇ ਨੈਵੀਗੇਸ਼ਨ ਦੀ ਸਥਿਤੀ"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ਸਾਧਨ ਕਲੱਸਟਰ ਦੇ ਨੈਵੀਗੇਸ਼ਨ ਦੀ ਸਥਿਤੀ ਵਿਚਲੀਆਂ ਤਬਦੀਲੀਆਂ ਸੁਣੋ"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਰੈਂਡਰਿੰਗ"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ਇੰਸਟਰੂਮੈਂਟ ਕਲੱਸਟਰ ਡਾਟਾ ਪ੍ਰਾਪਤ ਕਰੋ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ਪਾਬੰਦੀਆਂ ਦਾ ਸੰਰੂਪਣ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX ਪਾਬੰਦੀਆਂ ਦਾ ਸੰਰੂਪਣ ਕਰੋ"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ਨਿੱਜੀ ਡਿਸਪਲੇ ਆਈਡੀ ਨੂੰ ਪੜ੍ਹਨ ਦੀ ਪਹੁੰਚ"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"ਕਾਰ ਚਲਾਉਣ ਵਾਲੇ ਲਈ ਜਾਗਰੂਕਤਾ ਸਿਸਟਮ ਦੀ ਸਥਿਤੀ ਨੂੰ ਪੜ੍ਹਨ ਅਤੇ ਇਸਦੇ ਡਾਟੇ ਦਾ ਪਤਾ ਲਗਾਉਣ ਦੀ ਆਗਿਆ ਦਿੰਦਾ ਹੈ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"ਕਾਰ ਚਲਾਉਣ ਵਾਲੇ ਲਈ ਜਾਗਰੂਕਤਾ ਸਿਸਟਮ ਦੇ ਗ੍ਰਾਫ਼ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"ਕਾਰ ਚਲਾਉਣ ਵਾਲੇ ਲਈ ਜਾਗਰੂਕਤਾ ਸਿਸਟਮ ਦੇ ਪਤਾ ਲਗਾਉਣ ਵਾਲੇ ਗ੍ਰਾਫ਼ ਨੂੰ ਸ਼ੁਰੂ ਕਰਨ ਅਤੇ ਰੋਕਣ ਦੀ ਆਗਿਆ ਦਿੰਦਾ ਹੈ"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ਕਾਰ ਇਨਪੁੱਟ ਸਰਵਿਸ"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ਇਨਪੁੱਟ ਇਵੈਂਟਾਂ ਦੀ ਸੰਭਾਲ"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ਤਸ਼ਖੀਸੀ ਡਾਟੇ ਨੂੰ ਪੜ੍ਹਨਾ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ਕਾਰ ਦਾ ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਪੜ੍ਹਨਾ।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ਤਸ਼ਖੀਸੀ ਡਾਟਾ ਕਲੀਅਰ ਕਰਨਾ"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS ਸੁਨੇਹੇ ਪ੍ਰਕਾਸ਼ਿਤ ਕਰੋ"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS ਗਾਹਕ"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS ਸੁਨੇਹਿਆਂ ਦੇ ਗਾਹਕ ਬਣੋ"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ਕਲਾਇੰਟ ਸੇਵਾ"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ਕਲਾਇੰਟਾਂ ਨਾਲ ਜੋੜੋ"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ਫਲੈਸ਼ ਸਟੋਰੇਜ ਦਾ ਨਿਰੀਖਣ"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ਫਲੈਸ਼ ਸਟੋਰੇਜ ਵਰਤੋਂ ਦਾ ਨਿਰੀਖਣ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ਗੱਡੀ ਚਲਾਉਣ ਦੀ ਸਥਿਤੀ ਨੂੰ ਜਾਣਨਾ"</string>
