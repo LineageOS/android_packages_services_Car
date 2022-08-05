@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"vincula a un servei de projecció"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Permet que el titular vinculi a la interfície de nivell superior d\'un servei de projecció. No s\'hauria de necessitar mai per a les aplicacions normals"</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Servei de client de VMS"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Vincular a clients de VMS"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Renderització del quadre de comandament"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Rebre dades del quadre de comandament"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Servei d\'entrada del cotxe"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Gestionar els esdeveniments d\'entrada"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"No pots fer servir aquesta funció mentre condueixes"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Per tornar a començar amb unes funcions d\'aplicació segures, selecciona <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Enrere"</string>
