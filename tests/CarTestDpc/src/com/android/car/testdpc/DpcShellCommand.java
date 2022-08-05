@@ -23,6 +23,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
+import android.os.UserManager;
+import android.util.DebugUtils;
 import android.util.Log;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
@@ -49,6 +51,8 @@ final class DpcShellCommand {
 
     /* Args has to be at least of size 4 to account for cmd, ARG_USER, userID, key */
     private static final int ADD_USER_RESTRICTION_ARG_LEN = 4;
+    /* Command only has one argument */
+    private static final int SINGLE_ARG = 2;
 
     private static final String ARG_TARGET_USER = "--target-user";
     private static final String CMD_GET_AFFILIATION_IDS = "get-affiliation-ids";
@@ -59,6 +63,10 @@ final class DpcShellCommand {
     private static final String CMD_GET_USER_RESTRICTIONS = "get-user-restrictions";
     private static final String CMD_HELP = "help";
     private static final String CMD_REBOOT = "reboot";
+    private static final String CMD_CREATE_AND_MANAGE_USER = "create-and-manage-user";
+    private static final String CMD_REMOVE_USER = "remove-user";
+    private static final String CMD_START_USER_BACKGROUND = "start-user-background";
+    private static final String CMD_STOP_USER = "stop-user";
 
     DpcShellCommand(Context context, PrintWriter writer, String[] args,
             List<DevicePolicyManagerInterface> profileOwners,
@@ -106,6 +114,18 @@ final class DpcShellCommand {
                 case CMD_REBOOT:
                     runReboot();
                     break;
+                case CMD_CREATE_AND_MANAGE_USER:
+                    runCreateAndManageUser();
+                    break;
+                case CMD_REMOVE_USER:
+                    runRemoveUser();
+                    break;
+                case CMD_START_USER_BACKGROUND:
+                    runStartUserBackground();
+                    break;
+                case CMD_STOP_USER:
+                    runStopUser();
+                    break;
                 default:
                     mWriter.println("Invalid command: " + cmd);
                     runHelp();
@@ -137,19 +157,27 @@ final class DpcShellCommand {
         mWriter.println("\tReturns whether this user is affiliated with the device.");
         mWriter.printf("%s\n", CMD_REBOOT);
         mWriter.println("\tReboots the device.");
+        mWriter.printf("%s <user_name>\n", CMD_CREATE_AND_MANAGE_USER);
+        mWriter.println("\tStarts a user in background.");
+        mWriter.printf("%s %s <user_id>\n", CMD_REMOVE_USER, ARG_TARGET_USER);
+        mWriter.println("\tRemoves the user specified by <user-id>.");
+        mWriter.printf("%s %s <user_id>\n", CMD_START_USER_BACKGROUND, ARG_TARGET_USER);
+        mWriter.println("\tStarts the user specified user <user-id> in background.");
+        mWriter.printf("%s %s <user_id>\n", CMD_STOP_USER, ARG_TARGET_USER);
+        mWriter.println("\tStops the user specified by <user-id>.");
     }
 
     private void runAddUserRestriction() {
         Log.i(TAG, "Calling addUserRestriction()");
 
         if (mArgs.length != ADD_USER_RESTRICTION_ARG_LEN || !(ARG_TARGET_USER.equals(mArgs[1]))) {
-            mWriter.println("Error: invalid argument format. Run help to see valid format.");
+            showHelp();
             return;
         }
 
         UserHandle target = getUserHandleFromUserId(mArgs[2]);
         if (target == null) {
-            mWriter.println("Could not find user");
+            showHelp();
             return;
         }
 
@@ -158,7 +186,7 @@ final class DpcShellCommand {
         if (mDoInterface.getUser().equals(target)) {
             Log.d(TAG, mDoInterface.getUser() + ": addUserRestriction("
                     + mAdmin.flattenToShortString() + ", " + restriction);
-            mDoInterface.addUserRestriction(/* key= */ restriction);
+            mDoInterface.addUserRestriction(restriction);
             return;
         }
 
@@ -166,9 +194,8 @@ final class DpcShellCommand {
             DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
                     .filter((dpm) -> dpm.getUser().equals(target))
                     .findAny().get();
-            Log.d(TAG, profileOwner.getUser() + ": addUserRestriction("
-                    + restriction);
-            profileOwner.addUserRestriction(/* key= */ restriction);
+            Log.d(TAG, profileOwner.getUser() + ": addUserRestriction(" + restriction);
+            profileOwner.addUserRestriction(restriction);
         } catch (NoSuchElementException e) {
             mWriter.println("User not found (see logs)");
             Log.e(TAG, "User not found", e);
@@ -227,6 +254,52 @@ final class DpcShellCommand {
         mDoInterface.reboot();
     }
 
+    private void runCreateAndManageUser() {
+        if (mArgs.length != SINGLE_ARG) {
+            showHelp();
+            return;
+        }
+        String userId = mArgs[1];
+        UserHandle user = mDpm.createAndManageUser(mAdmin, userId, mAdmin,
+                /* adminExtras= */ null, /* flags= */ 0);
+        mWriter.printf("Created user with id %s: %s\n", userId, user);
+    }
+
+    private void runRemoveUser() {
+        if (mArgs.length != 3 || !mArgs[1].equals(ARG_TARGET_USER)) {
+            showHelp();
+            return;
+        }
+        String userId = mArgs[2];
+        UserHandle user = UserHandle.of(Integer.parseInt(userId));
+        boolean success = mDpm.removeUser(mAdmin, user);
+        mWriter.printf("User %s was removed: %b\n", userId, success);
+    }
+
+    private void runStartUserBackground() {
+        if (mArgs.length != 3 || !mArgs[1].equals(ARG_TARGET_USER)) {
+            showHelp();
+            return;
+        }
+        String userId = mArgs[2];
+        UserHandle user = UserHandle.of(Integer.parseInt(userId));
+        int status = mDpm.startUserInBackground(mAdmin, user);
+        mWriter.printf("Result of starting user %s: %s\n",
+                userId, userOperationStatusToString(status));
+    }
+
+    private void runStopUser() {
+        if (mArgs.length != 3 || !mArgs[1].equals(ARG_TARGET_USER)) {
+            showHelp();
+            return;
+        }
+        String userId = mArgs[2];
+        UserHandle user = UserHandle.of(Integer.parseInt(userId));
+        int status = mDpm.stopUser(mAdmin, user);
+        mWriter.printf("Result of stopping user %s: %s\n",
+                userId, userOperationStatusToString(status));
+    }
+
     /**
      * See {@link android.apps.gsa.shared.util.Util#bundleToString(Bundle)}
      */
@@ -257,5 +330,15 @@ final class DpcShellCommand {
             Log.e(TAG, "Could not parse target user id", e);
         }
         return targetUser;
+    }
+
+    private void showHelp() {
+        mWriter.println("Incorrect calling format");
+        mWriter.println("run 'help' to see the correct calling format");
+        mWriter.printf("args: %s", Arrays.toString(mArgs));
+    }
+
+    private String userOperationStatusToString(int status) {
+        return DebugUtils.valueToString(UserManager.class, "USER_OPERATION_", status);
     }
 }
