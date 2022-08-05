@@ -22,6 +22,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -32,8 +33,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertThrows;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
@@ -44,7 +43,6 @@ import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.hal.AudioControlWrapper.AudioControlDeathRecipient;
 import com.android.car.audio.hal.AudioControlWrapperAidl;
 import com.android.car.audio.hal.HalAudioGainCallback;
 
@@ -112,7 +110,7 @@ public final class CarAudioGainMonitorTest extends AbstractExtendedMockitoTestCa
         CarAudioGainMonitor carAudioGainMonitor =
                 new CarAudioGainMonitor(mAudioControlWrapperAidl, mCarAudioZones);
 
-        assertNotNull(carAudioGainMonitor);
+        expectWithMessage("carAudioGainMonitor").that(carAudioGainMonitor).isNotNull();
     }
 
     @Test

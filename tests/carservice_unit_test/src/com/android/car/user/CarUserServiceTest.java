@@ -35,6 +35,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -47,8 +48,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -57,7 +56,6 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase.ExpectWtf;
 import android.car.test.mocks.BlockingAnswer;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -612,7 +610,7 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 ArgumentCaptor.forClass(Runnable.class);
         verify(mMockedHandler).post(runnableCaptor.capture());
         Runnable runnable = runnableCaptor.getValue();
-        expectThrows(IllegalStateException.class, ()-> runnable.run());
+        assertThrows(IllegalStateException.class, ()-> runnable.run());
     }
 
     @Test

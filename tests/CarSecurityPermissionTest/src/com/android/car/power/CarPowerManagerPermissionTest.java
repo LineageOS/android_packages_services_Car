@@ -24,7 +24,7 @@ import static android.car.Car.POWER_SERVICE;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager;
@@ -62,14 +62,14 @@ public final class CarPowerManagerPermissionTest {
 
     @Test
     public void testGetPowerState() throws Exception {
-        Exception e = expectThrows(SecurityException.class, () -> mCarPowerManager.getPowerState());
+        Exception e = assertThrows(SecurityException.class, () -> mCarPowerManager.getPowerState());
 
         assertThat(e.getMessage()).contains(PERMISSION_CAR_POWER);
     }
 
     @Test
     public void testRequestShutdownOnNextSuspend() throws Exception {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.requestShutdownOnNextSuspend());
 
         assertThat(e.getMessage()).contains(PERMISSION_CAR_POWER);
@@ -77,7 +77,7 @@ public final class CarPowerManagerPermissionTest {
 
     @Test
     public void testScheduleNextWakeupTime() throws Exception {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.scheduleNextWakeupTime(100));
 
         assertThat(e.getMessage()).contains(PERMISSION_CAR_POWER);
@@ -85,7 +85,7 @@ public final class CarPowerManagerPermissionTest {
 
     @Test
     public void testSetListener() throws Exception {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.setListener(mContext.getMainExecutor(), (state) -> {}));
 
         assertThat(e.getMessage()).contains(PERMISSION_CAR_POWER);
@@ -93,7 +93,7 @@ public final class CarPowerManagerPermissionTest {
 
     @Test
     public void testSetListenerWithCompletion() throws Exception {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.setListenerWithCompletion(mContext.getMainExecutor(),
                         (state, future) -> {}));
 
@@ -102,7 +102,7 @@ public final class CarPowerManagerPermissionTest {
 
     @Test
     public void testGetCurrentPowerPolicy() throws Exception {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.getCurrentPowerPolicy());
 
         assertThat(e.getMessage()).contains(PERMISSION_READ_CAR_POWER_POLICY);
@@ -110,7 +110,7 @@ public final class CarPowerManagerPermissionTest {
 
     @Test
     public void testApplyPowerPolicy() throws Exception {
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.applyPowerPolicy("policy_id"));
 
         assertThat(e.getMessage()).contains(PERMISSION_CONTROL_CAR_POWER_POLICY);
@@ -121,7 +121,7 @@ public final class CarPowerManagerPermissionTest {
         Executor executor = mContext.getMainExecutor();
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                 .setComponents(PowerComponent.AUDIO).build();
-        Exception e = expectThrows(SecurityException.class,
+        Exception e = assertThrows(SecurityException.class,
                 () -> mCarPowerManager.addPowerPolicyListener(executor, filter, (p) -> { }));
 
         assertThat(e.getMessage()).contains(PERMISSION_READ_CAR_POWER_POLICY);

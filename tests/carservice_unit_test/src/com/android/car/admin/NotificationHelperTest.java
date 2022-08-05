@@ -30,6 +30,7 @@ import static com.android.car.admin.NotificationHelper.newNotificationBuilder;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -38,7 +39,6 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -107,7 +107,7 @@ public final class NotificationHelperTest {
 
     @Test
     public void testNewNotificationBuilder_nullContext() {
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> newNotificationBuilder(/* context= */ null, IMPORTANCE_HIGH));
 
         assertWithMessage("exception message").that(exception.getMessage()).contains("context");

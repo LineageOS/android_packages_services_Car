@@ -20,13 +20,13 @@ import static com.android.car.hal.HalPropValueMatcher.isProperty;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.hardware.automotive.vehicle.StatusCode;
@@ -81,7 +81,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
             .doThrow(new RemoteException("D'OH!"))
             .when(mIVehicle).set(isProperty(PROP));
 
-        Exception actualException = expectThrows(ServiceSpecificException.class,
+        Exception actualException = assertThrows(ServiceSpecificException.class,
                 () -> mClient.setValue(mProp));
 
         assertThat(actualException).hasMessageThat().contains(Integer.toHexString(PROP));
@@ -103,7 +103,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         doThrow(new ServiceSpecificException(StatusCode.INVALID_ARG))
                 .when(mIVehicle).set(isProperty(PROP));
 
-        Exception actualException = expectThrows(IllegalArgumentException.class,
+        Exception actualException = assertThrows(IllegalArgumentException.class,
                 () -> mClient.setValue(mProp));
 
         assertThat(actualException).hasMessageThat().contains(Integer.toHexString(PROP));
@@ -115,7 +115,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         doThrow(new ServiceSpecificException(StatusCode.INTERNAL_ERROR))
             .when(mIVehicle).set(isProperty(PROP));
 
-        Exception actualException = expectThrows(ServiceSpecificException.class,
+        Exception actualException = assertThrows(ServiceSpecificException.class,
                 () -> mClient.setValue(mProp));
 
         assertThat(actualException).hasMessageThat().contains(Integer.toHexString(PROP));
@@ -135,7 +135,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
             .thenThrow(new RemoteException("Never give up, never surrender!"))
             .thenThrow(new RemoteException("D'OH!"));
 
-        Exception actualException = expectThrows(ServiceSpecificException.class,
+        Exception actualException = assertThrows(ServiceSpecificException.class,
                 () -> mClient.getValue(mProp));
 
         assertThat(actualException).hasMessageThat().contains(Integer.toHexString(PROP));
@@ -159,7 +159,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         when(mIVehicle.get(isProperty(PROP))).thenThrow(new ServiceSpecificException(
                 StatusCode.INVALID_ARG));
 
-        Exception actualException = expectThrows(IllegalArgumentException.class,
+        Exception actualException = assertThrows(IllegalArgumentException.class,
                 () -> mClient.getValue(mProp));
 
         assertThat(actualException).hasMessageThat().contains(Integer.toHexString(PROP));
@@ -171,7 +171,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         when(mIVehicle.get(isProperty(PROP))).thenThrow(new ServiceSpecificException(
                 StatusCode.INTERNAL_ERROR));
 
-        Exception actualException = expectThrows(ServiceSpecificException.class,
+        Exception actualException = assertThrows(ServiceSpecificException.class,
                 () -> mClient.getValue(mProp));
 
         assertThat(actualException).hasMessageThat().contains(Integer.toHexString(PROP));
@@ -182,7 +182,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
     public void testGet_returnNull() throws Exception {
         when(mIVehicle.get(isProperty(PROP))).thenReturn(null);
 
-        ServiceSpecificException actualException = expectThrows(ServiceSpecificException.class,
+        ServiceSpecificException actualException = assertThrows(ServiceSpecificException.class,
                 () -> mClient.getValue(mProp));
 
         assertThat(actualException.errorCode).isEqualTo(StatusCode.NOT_AVAILABLE);

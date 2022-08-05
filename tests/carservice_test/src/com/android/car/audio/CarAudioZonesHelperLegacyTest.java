@@ -21,9 +21,9 @@ import static android.media.AudioDeviceInfo.TYPE_FM_TUNER;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.annotation.XmlRes;
 import android.content.Context;
@@ -69,7 +69,7 @@ public class CarAudioZonesHelperLegacyTest {
     public void constructor_checksForNoDuplicateBusNumbers() {
         List<CarAudioDeviceInfo> carAudioDeviceInfos = getCarAudioDeviceInfoWithDuplicateBuses();
 
-        RuntimeException exception = expectThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
                         carAudioDeviceInfos, mMockAudioControlWrapper, mMockCarAudioSettings,
                         getInputDevices()));
@@ -83,7 +83,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(INVALID_BUS);
 
-        RuntimeException exception = expectThrows(RuntimeException.class,
+        RuntimeException exception = assertThrows(RuntimeException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
                         carAudioDeviceInfos, mMockAudioControlWrapper,
                         mMockCarAudioSettings, getInputDevices()));
@@ -98,7 +98,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(INVALID_BUS);
 
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
                         carAudioDeviceInfos, mMockAudioControlWrapper,
                         mMockCarAudioSettings, null));
@@ -112,7 +112,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(INVALID_BUS);
 
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> new CarAudioZonesHelperLegacy(null, mCarVolumeGroups,
                         carAudioDeviceInfos, mMockAudioControlWrapper,
                         mMockCarAudioSettings, getInputDevices()));
@@ -124,7 +124,7 @@ public class CarAudioZonesHelperLegacyTest {
     public void constructor_throwsIfNullCarAudioDeviceInfo() throws Exception {
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(INVALID_BUS);
 
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
                         null, mMockAudioControlWrapper,
                         mMockCarAudioSettings, getInputDevices()));
@@ -138,7 +138,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(INVALID_BUS);
 
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
                         carAudioDeviceInfos, null,
                         mMockCarAudioSettings, getInputDevices()));
@@ -152,7 +152,7 @@ public class CarAudioZonesHelperLegacyTest {
 
         when(mMockAudioControlWrapper.getBusForContext(anyInt())).thenReturn(INVALID_BUS);
 
-        NullPointerException exception = expectThrows(NullPointerException.class,
+        NullPointerException exception = assertThrows(NullPointerException.class,
                 () -> new CarAudioZonesHelperLegacy(mContext, mCarVolumeGroups,
                         carAudioDeviceInfos, mMockAudioControlWrapper,
                         null, getInputDevices()));

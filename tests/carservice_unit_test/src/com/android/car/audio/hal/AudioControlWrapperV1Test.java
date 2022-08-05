@@ -23,11 +23,10 @@ import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
@@ -153,7 +152,7 @@ public class AudioControlWrapperV1Test {
     public void onDevicesToMuteChange_throws() {
         AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
 
-        UnsupportedOperationException thrown = expectThrows(UnsupportedOperationException.class,
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
                 () -> audioControlWrapperV1.onDevicesToMuteChange(new ArrayList<>()));
 
         assertWithMessage("UnsupportedOperationException thrown by onDevicesToMute")

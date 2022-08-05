@@ -69,12 +69,12 @@ import com.android.car.user.CarUserService;
 import com.google.common.collect.Range;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.testng.Assert;
 
 import java.util.BitSet;
 import java.util.function.BooleanSupplier;

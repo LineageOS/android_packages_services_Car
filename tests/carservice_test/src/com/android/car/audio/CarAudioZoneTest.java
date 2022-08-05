@@ -31,14 +31,13 @@ import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
-import static org.testng.Assert.expectThrows;
 
 import android.car.media.CarAudioManager;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
@@ -107,7 +106,7 @@ public class CarAudioZoneTest {
     @Test
     public void getAddressForContext_throwsOnInvalidContext() {
         IllegalArgumentException thrown =
-                expectThrows(IllegalArgumentException.class,
+                assertThrows(IllegalArgumentException.class,
                         () -> mTestAudioZone.getAddressForContext(INVALID));
 
         assertThat(thrown).hasMessageThat().contains("audioContext 0 is invalid");
@@ -116,7 +115,7 @@ public class CarAudioZoneTest {
     @Test
     public void getAddressForContext_throwsOnNonExistentContext() {
         IllegalStateException thrown =
-                expectThrows(IllegalStateException.class,
+                assertThrows(IllegalStateException.class,
                         () -> mTestAudioZone.getAddressForContext(MUSIC));
 
         assertThat(thrown).hasMessageThat().contains("Could not find output device in zone");

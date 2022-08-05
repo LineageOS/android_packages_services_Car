@@ -28,12 +28,12 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.annotation.UserIdInt;
 import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
@@ -114,7 +114,7 @@ public class CarVolumeGroupUnitTest {
         CarAudioDeviceInfo differentStepValueDevice = new InfoBuilder(NAVIGATION_DEVICE_ADDRESS)
                 .setStepValue(mMediaDeviceInfo.getStepValue() + 1).build();
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> builder.setDeviceInfoForContext(NAVIGATION,
                         differentStepValueDevice));
 
@@ -128,7 +128,7 @@ public class CarVolumeGroupUnitTest {
         CarVolumeGroup.Builder builder = getBuilder();
         builder.setDeviceInfoForContext(MUSIC, mMediaDeviceInfo);
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> builder.setDeviceInfoForContext(MUSIC,
                         mNavigationDeviceInfo));
 
@@ -248,7 +248,7 @@ public class CarVolumeGroupUnitTest {
     public void builderBuild_withNoCallToSetDeviceInfoForContext_throws() {
         CarVolumeGroup.Builder builder = getBuilder();
 
-        Exception e = expectThrows(IllegalArgumentException.class, builder::build);
+        Exception e = assertThrows(IllegalArgumentException.class, builder::build);
 
         assertWithMessage("Builder build failure").that(e).hasMessageThat()
                 .isEqualTo(
@@ -450,7 +450,7 @@ public class CarVolumeGroupUnitTest {
     public void setCurrentGainIndex_checksNewGainIsAboveMin() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> carVolumeGroup.setCurrentGainIndex(MIN_GAIN_INDEX - 1));
         assertWithMessage("Set out of bound gain index failure")
                 .that(thrown).hasMessageThat()
@@ -461,7 +461,7 @@ public class CarVolumeGroupUnitTest {
     public void setCurrentGainIndex_checksNewGainIsBelowMax() {
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX + 1));
         assertWithMessage("Set out of bound gain index failure")
                 .that(thrown).hasMessageThat()

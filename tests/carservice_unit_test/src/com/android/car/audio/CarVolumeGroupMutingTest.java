@@ -24,9 +24,9 @@ import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.car.media.CarAudioManager;
 import android.hardware.automotive.audiocontrol.MutingInfo;
@@ -104,7 +104,7 @@ public final class CarVolumeGroupMutingTest {
 
     @Test
     public void constructor_withNullZones_fails() {
-        NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarVolumeGroupMuting(null, mMockAudioControlWrapper);
         });
 
@@ -114,7 +114,7 @@ public final class CarVolumeGroupMutingTest {
 
     @Test
     public void constructor_withEmptyZonesList_fails() {
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> {
             new CarVolumeGroupMuting(new SparseArray<>(), mMockAudioControlWrapper);
         });
 
@@ -124,7 +124,7 @@ public final class CarVolumeGroupMutingTest {
 
     @Test
     public void constructor_withNullAudioControlWrapper_fails() {
-        NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
+        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
             new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone), null);
         });
 
@@ -138,7 +138,7 @@ public final class CarVolumeGroupMutingTest {
                 .supportsFeature(AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING))
                 .thenReturn(false);
 
-        IllegalStateException thrown = expectThrows(IllegalStateException.class, () -> {
+        IllegalStateException thrown = assertThrows(IllegalStateException.class, () -> {
             new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone), mMockAudioControlWrapper);
         });
 

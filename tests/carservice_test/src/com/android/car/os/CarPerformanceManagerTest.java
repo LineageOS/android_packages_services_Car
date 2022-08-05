@@ -18,12 +18,12 @@ package com.android.car.os;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.car.Car;
 import android.car.os.CarPerformanceManager;
@@ -110,7 +110,7 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
                 ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> mCarPerformanceManager.setThreadPriority(p));
 
         assertWithMessage("exception on illegal set thread priority argument").that(thrown)
@@ -124,7 +124,7 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
                 ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
 
-        IllegalStateException thrown = expectThrows(IllegalStateException.class,
+        IllegalStateException thrown = assertThrows(IllegalStateException.class,
                 () -> mCarPerformanceManager.setThreadPriority(p));
 
         assertWithMessage("exception on illegal state exception").that(thrown).hasMessageThat()
@@ -149,7 +149,7 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         ThreadPolicyWithPriority p = new ThreadPolicyWithPriority(
                 ThreadPolicyWithPriority.SCHED_FIFO, /* priority= */ 1);
 
-        expectThrows(SetSchedulerFailedException.class,
+        assertThrows(SetSchedulerFailedException.class,
                 () -> mCarPerformanceManager.setThreadPriority(p));
     }
 
@@ -183,7 +183,7 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         when(mCarWatchdogDaemonHelper.getThreadPriority(
                 anyInt(), anyInt(), anyInt())).thenReturn(p);
 
-        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+        assertThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
     }
 
     @Test
@@ -192,7 +192,7 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         when(mCarWatchdogDaemonHelper.getThreadPriority(
                 anyInt(), anyInt(), anyInt())).thenReturn(p);
 
-        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+        assertThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
     }
 
     @Test
@@ -211,7 +211,7 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         when(mCarWatchdogDaemonHelper.getThreadPriority(anyInt(), anyInt(), anyInt())).thenThrow(
                 new IllegalStateException(""));
 
-        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+        assertThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
     }
 
     @Test
@@ -219,6 +219,6 @@ public class CarPerformanceManagerTest extends MockedCarTestBase {
         when(mCarWatchdogDaemonHelper.getThreadPriority(anyInt(), anyInt(), anyInt())).thenThrow(
                 new ServiceSpecificException(0));
 
-        expectThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
+        assertThrows(IllegalStateException.class, () -> mCarPerformanceManager.getThreadPriority());
     }
 }

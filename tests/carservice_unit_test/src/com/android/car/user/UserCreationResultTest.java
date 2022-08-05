@@ -19,7 +19,7 @@ import static android.car.user.UserCreationResult.STATUS_SUCCESSFUL;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.car.user.UserCreationResult;
 import android.os.UserHandle;
@@ -30,7 +30,7 @@ public final class UserCreationResultTest {
 
     @Test
     public void testConstructor_invalidStatus() {
-        expectThrows(IllegalArgumentException.class, ()-> new UserCreationResult(42));
+        assertThrows(IllegalArgumentException.class, ()-> new UserCreationResult(42));
     }
 
     @Test

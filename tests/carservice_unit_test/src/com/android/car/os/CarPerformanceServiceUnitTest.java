@@ -18,6 +18,7 @@ package com.android.car.os;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
@@ -25,7 +26,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.expectThrows;
 
 import android.car.os.CpuAvailabilityMonitoringConfig;
 import android.car.os.ICpuAvailabilityChangeListener;
@@ -113,12 +113,12 @@ public final class CarPerformanceServiceUnitTest extends AbstractExtendedMockito
                 new CpuAvailabilityMonitoringConfig.Builder(/* lowerBoundPercent= */ 10,
                         /* upperBoundPercent= */ 90, /* timeoutInSeconds= */ 300).build();
 
-        NullPointerException npeThrown = expectThrows(NullPointerException.class,
+        NullPointerException npeThrown = assertThrows(NullPointerException.class,
                 () -> mCarPerformanceService.addCpuAvailabilityChangeListener(null, mockListener));
         assertWithMessage("NullPointerException thrown on null config")
                 .that(npeThrown).hasMessageThat().contains("Configuration must be non-null");
 
-        npeThrown = expectThrows(NullPointerException.class,
+        npeThrown = assertThrows(NullPointerException.class,
                 () -> mCarPerformanceService.addCpuAvailabilityChangeListener(goodConfig, null));
         assertWithMessage("NullPointerException thrown on null listener")
                 .that(npeThrown).hasMessageThat().contains("Listener must be non-null");
@@ -128,7 +128,7 @@ public final class CarPerformanceServiceUnitTest extends AbstractExtendedMockito
                         CpuAvailabilityMonitoringConfig.IGNORE_PERCENT_LOWER_BOUND,
                         CpuAvailabilityMonitoringConfig.IGNORE_PERCENT_UPPER_BOUND,
                         /* timeoutInSeconds= */ 300).build();
-        IllegalArgumentException iaeThrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException iaeThrown = assertThrows(IllegalArgumentException.class,
                 () -> mCarPerformanceService.addCpuAvailabilityChangeListener(ignoreBoundsConfig,
                         mockListener));
         assertWithMessage("IllegalArgumentException thrown on ignore lower/uppwer bound percents")
@@ -138,7 +138,7 @@ public final class CarPerformanceServiceUnitTest extends AbstractExtendedMockito
         CpuAvailabilityMonitoringConfig mismatchBoundsConfig =
                 new CpuAvailabilityMonitoringConfig.Builder(/* lowerBoundPercent= */ 90,
                         /* upperBoundPercent= */ 10, /* timeoutInSeconds= */ 300).build();
-        iaeThrown = expectThrows(IllegalArgumentException.class,
+        iaeThrown = assertThrows(IllegalArgumentException.class,
                 () -> mCarPerformanceService.addCpuAvailabilityChangeListener(mismatchBoundsConfig,
                         mockListener));
         assertWithMessage("IllegalArgumentException thrown on invalid lower/upper bound percents")
