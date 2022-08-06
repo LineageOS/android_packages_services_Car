@@ -74,13 +74,15 @@ public class AnnotationHelper {
 
         StringBuilder errorFlatten = new StringBuilder();
         if (!errorsNoAnnotation.isEmpty()) {
-            errorFlatten.append("Errors:\nNo AddedIn annotation found for-\n");
+            // TODO(b/240343308): remove @AddedIn once all usages have been replaced
+            errorFlatten.append("Errors:\nMissing ApiRequirements (or AddedIn) annotation for-\n");
             errorFlatten.append(String.join("\n", errorsNoAnnotation));
         }
 
         if (!errorsExtraAnnotation.isEmpty()) {
-            errorFlatten
-                    .append("\nErrors:\nAddedIn annotation used for private members/methods-\n");
+            // TODO(b/240343308): remove @AddedIn once all usages have been replaced
+            errorFlatten.append("\nErrors:\nApiRequirements (or AddedIn) annotation used for "
+                    + "private members/methods-\n");
             errorFlatten.append(String.join("\n", errorsExtraAnnotation));
         }
 
