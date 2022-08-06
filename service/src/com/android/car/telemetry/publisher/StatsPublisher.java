@@ -105,12 +105,6 @@ public class StatsPublisher extends AbstractPublisher {
 
     private static final String BUNDLE_CONFIG_KEY_PREFIX = "statsd-publisher-config-id-";
     private static final String BUNDLE_CONFIG_VERSION_PREFIX = "statsd-publisher-config-version-";
-    /**
-     * Binder transaction size limit is 1MB for all binders per process, so for large script input
-     * file pipe will be used to transfer the data to script executor instead of binder call. This
-     * is the input size threshold above which piping is used.
-     */
-    private static final int SCRIPT_INPUT_SIZE_THRESHOLD_BYTES = 20 * 1024; // 20 kb
 
     @VisibleForTesting
     static final StatsdConfigProto.FieldMatcher PROCESS_MEMORY_STATE_FIELDS_MATCHER =
@@ -290,7 +284,7 @@ public class StatsPublisher extends AbstractPublisher {
                 }
             }
         }
-        if (bytes < SCRIPT_INPUT_SIZE_THRESHOLD_BYTES) {
+        if (bytes < DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES) {
             return false;
         }
         return true;

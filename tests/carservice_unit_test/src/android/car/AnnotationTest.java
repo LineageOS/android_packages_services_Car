@@ -20,6 +20,7 @@ import static android.car.test.util.AnnotationHelper.checkForAnnotation;
 
 import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 
 import org.junit.Test;
 
@@ -295,6 +296,9 @@ public final class AnnotationTest {
             "android.car.builtin.window.DisplayAreaOrganizerHelper",
             "android.car.builtin.widget.LockPatternHelper",
             "android.car.builtin.bluetooth.BluetoothHeadsetClientHelper",
+            "android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper",
+            "android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper$Callback",
+            "android.car.builtin.bluetooth.le.AdvertisingSetHelper",
             "android.car.builtin.input.InputManagerHelper",
             "android.car.builtin.app.VoiceInteractionHelper",
             "android.car.builtin.app.TaskInfoHelper",
@@ -322,12 +326,15 @@ public final class AnnotationTest {
             };
 
     @Test
-    public void testCarAPIAddedInAnnotation() throws Exception {
-        checkForAnnotation(CAR_API_CLASSES, AddedIn.class, AddedInOrBefore.class);
+    public void testCarAPIApiRequirementsAnnotation() throws Exception {
+        // TODO(b/240343308): remove @AddedIn once all usages have been replaced
+        checkForAnnotation(CAR_API_CLASSES, ApiRequirements.class, AddedInOrBefore.class,
+                AddedIn.class);
     }
 
     @Test
     public void testCarBuiltInAPIAddedInAnnotation() throws Exception {
+        // TODO(b/240343308): replace by @ApiRequirements / rename test method
         checkForAnnotation(CAR_BUILT_IN_API_CLASSES, android.car.builtin.annotation.AddedIn.class);
     }
 }
