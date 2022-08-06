@@ -16,6 +16,7 @@
 package com.android.car.testdpc;
 
 import android.app.admin.DeviceAdminReceiver;
+import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -25,9 +26,19 @@ public final class DpcReceiver extends DeviceAdminReceiver {
 
     private static final String TAG = DpcReceiver.class.getSimpleName();
 
+    private Context mContext;
+    private DevicePolicyManager mDpm;
+    private ComponentName mAdmin;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, "onReceive(): " + intent);
+
+        mContext = context;
+
+        mAdmin = getComponentName(context);
+
+        mDpm = context.getSystemService(DevicePolicyManager.class);
 
         super.onReceive(context, intent);
     }

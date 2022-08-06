@@ -20,20 +20,15 @@ import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Process;
-import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
-import com.android.car.testdpc.remotedpm.LocalDevicePolicyManager;
-import com.android.car.testdpc.remotedpm.RemoteDevicePolicyManager;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * Service that handles calls to Device Policy Manager from shell.
@@ -51,6 +46,7 @@ public final class DpcService extends DeviceAdminService {
 
     private ComponentName mAdmin;
     private Context mContext;
+    private DpcFactory mDevicePolicyPicker;
     private List<DevicePolicyManagerInterface> mPoInterfaces;
     private DevicePolicyManagerInterface mDoInterface;
     private DevicePolicyManager mDpm;
@@ -66,44 +62,14 @@ public final class DpcService extends DeviceAdminService {
         mAdmin = DpcReceiver.getComponentName(mContext);
         mDpm = mContext.getSystemService(DevicePolicyManager.class);
 
-        mDoInterface = new LocalDevicePolicyManager(mContext);
-        mPoInterfaces = new ArrayList<DevicePolicyManagerInterface>();
+        mDpm.setAffiliationIds(mAdmin, AFFILIATION_IDS);
+        Log.i(TAG, "setAffiliationIds(" + mAdmin.flattenToShortString() + ", "
+                + AFFILIATION_IDS + ")");
 
-        if (isPO() || isDO()) {
-            Log.i(TAG, "setAffiliationIds(" + mAdmin.flattenToShortString() + ", "
-                    + AFFILIATION_IDS + ")");
-            mDpm.setAffiliationIds(mAdmin, AFFILIATION_IDS);
-            assignDevicePolicyManagers();
-        }
+        mDevicePolicyPicker = new DpcFactory(mContext);
+        mDoInterface = mDevicePolicyPicker.getDoInterface();
+        mPoInterfaces = mDevicePolicyPicker.getPoInterfaces();
     }
-
-    private void assignDevicePolicyManagers() {
-        List<UserHandle> targetUsers = mDpm.getBindDeviceAdminTargetUsers(DpcReceiver
-                .getComponentName(mContext));
-        Log.d(TAG, "targetUsers: " + targetUsers);
-
-        if (mDpm.isDeviceOwnerApp(mContext.getPackageName())) {
-            mDoInterface = new LocalDevicePolicyManager(mContext);
-            mPoInterfaces = targetUsers.stream()
-                    .map((u) -> new RemoteDevicePolicyManager(mContext, u))
-                    .collect(Collectors.toList());
-        } else {
-            // Add all remote dpms to a list
-            mPoInterfaces = targetUsers.stream()
-                    .filter((u) -> !(u.equals(UserHandle.SYSTEM)))
-                    .map((u) -> new RemoteDevicePolicyManager(mContext, u))
-                    .collect(Collectors.toList());
-            // Add local dpm to the same list
-            mPoInterfaces.add(new LocalDevicePolicyManager(mContext));
-            // Find the device owner userhandle and use it to set that to DoDpm
-            mDoInterface = new RemoteDevicePolicyManager(mContext, targetUsers.stream()
-                    .filter((u) -> u.equals(UserHandle.SYSTEM))
-                    .findFirst()
-                    .get());
-        }
-    }
-
-    /* TODO(b/239466708): Add an onDestroy() method to unbind the services */
 
     @Override
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
@@ -123,16 +89,8 @@ public final class DpcService extends DeviceAdminService {
     private void printInternalState(PrintWriter writer) {
         writer.printf("Current User: %s\n", Process.myUserHandle());
         writer.printf("mAdminComponentName: %s\n", mAdmin.flattenToShortString());
-        writer.printf("isProfileOwner()? %b\n", isPO());
-        writer.printf("isDeviceOwner()? %b\n", isDO());
+        writer.printf("isProfileOwner()? %b\n", mDpm.isProfileOwnerApp(mContext.getPackageName()));
+        writer.printf("isDeviceOwner()? %b\n", mDpm.isDeviceOwnerApp(mContext.getPackageName()));
         writer.printf("AFFILIATION_IDS=%s\n\n", AFFILIATION_IDS);
-    }
-
-    public boolean isPO() {
-        return mDpm.isProfileOwnerApp(mContext.getPackageName());
-    }
-
-    public boolean isDO() {
-        return mDpm.isDeviceOwnerApp(mContext.getPackageName());
     }
 }
