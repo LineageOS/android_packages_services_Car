@@ -26,6 +26,10 @@ import android.bluetooth.le.AdvertisingSet;
 import android.bluetooth.le.AdvertisingSetCallback;
 import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.car.Car;
+import android.car.PlatformApiVersion;
+import android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper;
+import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.ParcelUuid;
@@ -77,6 +81,69 @@ class FastPairAdvertiser {
                 modelId);
         mFastPairModelData = Arrays.copyOfRange(modelIdBytes.array(), 1, 4);
         initializeBluetoothLeAdvertiser();
+        initializeAdvertisingSetCallback();
+    }
+
+    private void initializeAdvertisingSetCallback() {
+        // Certain functionality of {@link AdvertisingSetCallback} were disabled in
+        // {@code TIRAMISU} (major == 33, minor == 0) due to hidden API usage. These functionality
+        // were later restored, but require platform version to be at least TM-QPR-1
+        // (major == 33, minor == 1).
+        if (DBG) {
+            Slogf.d(TAG, "AdvertisingSetCallback running on platform version (major=%d, minor=%d",
+                    Car.getPlatformApiVersion().getMajorVersion(),
+                    Car.getPlatformApiVersion().getMinorVersion());
+        }
+        if (Car.getPlatformApiVersion().isAtLeast(PlatformApiVersion.TIRAMISU_1)) {
+            AdvertisingSetCallbackHelper.Callback proxy =
+                    new AdvertisingSetCallbackHelper.Callback() {
+                @Override
+                public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
+                        int status) {
+                    onAdvertisingSetStartedHandler(advertisingSet, txPower, status);
+                    AdvertisingSetHelper.getOwnAddress(advertisingSet);
+                }
+
+                @Override
+                public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
+                    onAdvertisingSetStoppedHandler(advertisingSet);
+                }
+
+                @Override
+                public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
+                        String address) {
+                    onOwnAddressReadHandler(advertisingSet, addressType, address);
+                }
+            };
+
+            mAdvertisingSetCallback =
+                    AdvertisingSetCallbackHelper.createRealCallbackFromProxy(proxy);
+        } else {
+            mAdvertisingSetCallback = new AdvertisingSetCallback() {
+                @Override
+                public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
+                        int status) {
+                    onAdvertisingSetStartedHandler(advertisingSet, txPower, status);
+                    //TODO: b/196233989
+                    Slogf.w(TAG, "AdvertisingSet#getOwnAddress not called."
+                            + " This feature is not supported in this platform version.");
+                }
+
+                @Override
+                public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
+                    onAdvertisingSetStoppedHandler(advertisingSet);
+                }
+
+                /*
+                * TODO: b/196233989
+                @Override
+                public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
+                        String address) {
+                    onOwnAddressReadHandler(advertisingSet, addressType, address);
+                }
+                */
+            };
+        }
     }
 
     /**
@@ -167,37 +234,32 @@ class FastPairAdvertiser {
     }
 
     /* Callback to handle changes in advertising. */
-    private AdvertisingSetCallback mAdvertisingSetCallback = new AdvertisingSetCallback() {
-        @Override
-        public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
-                int status) {
-            if (DBG) {
-                Slogf.d(TAG, "onAdvertisingSetStarted(): txPower: %s, status: %s", txPower, status);
-            }
-            mAdvertising = true;
-            if (advertisingSet == null) return;
-            //TODO: b/196233989
-            //advertisingSet.getOwnAddress();
-            Slogf.w(TAG, "AdvertisingSet#getOwnAddress not called."
-                    + " This feature is not supported in this platform version.");
-        }
+    private AdvertisingSetCallback mAdvertisingSetCallback;
 
-        @Override
-        public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
-            if (DBG) Slogf.d(TAG, "onAdvertisingSetStopped():");
-            mAdvertising = false;
+    // For {@link AdvertisingSetCallback#onAdvertisingSetStarted} and its proxy
+    private void onAdvertisingSetStartedHandler(AdvertisingSet advertisingSet, int txPower,
+            int status) {
+        if (DBG) {
+            Slogf.d(TAG, "onAdvertisingSetStarted(): txPower: %s, status: %s", txPower, status);
         }
+        mAdvertising = true;
+        if (advertisingSet == null) return;
+        //TODO: b/196233989
+        //advertisingSet.getOwnAddress();
+    }
 
-        /*
-         * TODO: b/196233989
-        @Override
-        public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
-                String address) {
-            if (DBG) Slogf.d(TAG, "onOwnAddressRead Type= %s, Address= %s", addressType, address);
-            mCallbacks.onRpaUpdated(mBluetoothAdapter.getRemoteDevice(address));
-        }
-        */
-    };
+    // For {@link AdvertisingSetCallback#onAdvertisingSetStopped} and its proxy
+    private void onAdvertisingSetStoppedHandler(AdvertisingSet advertisingSet) {
+        if (DBG) Slogf.d(TAG, "onAdvertisingSetStopped():");
+        mAdvertising = false;
+    }
+
+    // For {@link AdvertisingSetCallback#onOwnAddressRead} and its proxy
+    private void onOwnAddressReadHandler(AdvertisingSet advertisingSet, int addressType,
+            String address) {
+        if (DBG) Slogf.d(TAG, "onOwnAddressRead Type= %s, Address= %s", addressType, address);
+        mCallbacks.onRpaUpdated(mBluetoothAdapter.getRemoteDevice(address));
+    }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
