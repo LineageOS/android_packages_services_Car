@@ -26,10 +26,13 @@ import android.util.Log;
 public final class LocalDevicePolicyManager implements DevicePolicyManagerInterface {
 
     private static final String TAG = LocalDevicePolicyManager.class.getSimpleName();
+
+    private final ComponentName mAdmin;
     private final DevicePolicyManager mDpm;
 
     /* Constructor for local dpm implementation of DPM Factory */
-    public LocalDevicePolicyManager(Context context) {
+    public LocalDevicePolicyManager(ComponentName admin, Context context) {
+        mAdmin = admin;
         mDpm = context.getSystemService(DevicePolicyManager.class);
     }
 
@@ -39,14 +42,14 @@ public final class LocalDevicePolicyManager implements DevicePolicyManagerInterf
     }
 
     @Override
-    public void reboot(ComponentName admin) {
-        Log.d(TAG, "Calling local reboot(" + admin + ")");
-        mDpm.reboot(admin);
+    public void reboot() {
+        Log.d(TAG, "Calling local reboot(" + mAdmin + ")");
+        mDpm.reboot(mAdmin);
     }
 
     @Override
-    public void addUserRestriction(ComponentName admin, String key) {
-        Log.d(TAG, "Calling local addUserRestriction(" + admin + ", " + key + ")");
-        mDpm.addUserRestriction(admin, key);
+    public void addUserRestriction(String key) {
+        Log.d(TAG, "Calling local addUserRestriction(" + mAdmin + ", " + key + ")");
+        mDpm.addUserRestriction(mAdmin, key);
     }
 }
