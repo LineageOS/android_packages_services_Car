@@ -132,7 +132,8 @@ private:
     ndk::ScopedAStatus handlePowerCycleChange(
             aidl::android::automotive::watchdog::internal::PowerCycle powerCycle);
     ndk::ScopedAStatus handleUserStateChange(
-            userid_t userId, aidl::android::automotive::watchdog::internal::UserState userState);
+            userid_t userId,
+            const aidl::android::automotive::watchdog::internal::UserState& userState);
     void setThreadPriorityController(std::unique_ptr<ThreadPriorityControllerInterface> controller);
 
     android::sp<WatchdogServiceHelperInterface> mWatchdogServiceHelper;

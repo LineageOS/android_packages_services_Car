@@ -372,7 +372,7 @@ void WatchdogProcessService::setEnabled(bool isEnabled) {
     }
 }
 
-void WatchdogProcessService::notifyUserStateChange(userid_t userId, bool isStarted) {
+void WatchdogProcessService::onUserStateChange(userid_t userId, bool isStarted) {
     std::string buffer;
     Mutex::Autolock lock(mMutex);
     if (isStarted) {
