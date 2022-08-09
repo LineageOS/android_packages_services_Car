@@ -80,12 +80,33 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
                     + " against " + requiredVersion.getClass().getName());
         }
 
+        // special case for the current development platform
+        Boolean isLatest = isAtLeastLatestPlatform(requiredVersion);
+        if (isLatest != null) {
+            return isLatest;
+        }
+
+
         int requiredApiVersionMajor = requiredVersion.getMajorVersion();
         int requiredApiVersionMinor = requiredVersion.getMinorVersion();
 
         return (mMajorVersion > requiredApiVersionMajor)
                 || (mMajorVersion == requiredApiVersionMajor
                         && mMinorVersion >= requiredApiVersionMinor);
+    }
+
+    /**
+     * Checks if the required version is latest platform version.
+     *
+     * @return null if the required version is not latest development platform. Return true if the
+     * required version is latest development platform and platform version is also same, returns
+     * false otherwise.
+     */
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    Boolean isAtLeastLatestPlatform(T requiredVersion) {
+        return null;
     }
 
     /**
