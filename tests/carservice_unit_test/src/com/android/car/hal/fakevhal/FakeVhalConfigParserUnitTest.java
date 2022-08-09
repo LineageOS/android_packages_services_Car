@@ -24,11 +24,13 @@ import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
+import android.hardware.automotive.vehicle.VehicleAreaWheel;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehicleSeatOccupancyState;
+import android.hardware.automotive.vehicle.VehicleUnit;
 import android.util.SparseArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -43,10 +45,13 @@ import org.junit.runner.RunWith;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
-import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class FakeVhalConfigParserUnitTest {
+    private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
+    private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
+    private static final int WHEEL_FRONT_LEFT = VehicleAreaWheel.LEFT_FRONT;
+
     private FakeVhalConfigParser mFakeVhalConfigParser;
 
     @Before
@@ -68,8 +73,8 @@ public class FakeVhalConfigParserUnitTest {
     public void testConfigFileNotExistAndFileIsOptional() throws Exception {
         File tempFile = new File("NotExist.json");
 
-        assertThat(mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ true))
-                .isEmpty();
+        assertThat(mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ true).size())
+                .isEqualTo(0);
     }
 
     @Test
@@ -126,8 +131,8 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 123}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false).get(0)
-                .getConfig().prop;
+        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false)
+                .get(123).getConfig().prop;
 
         assertThat(propId).isEqualTo(123);
     }
@@ -171,8 +176,8 @@ public class FakeVhalConfigParserUnitTest {
                 + "[{\"property\": \"VehicleProperty::INFO_FUEL_CAPACITY\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false).get(0)
-                .getConfig().prop;
+        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false)
+                .get(VehicleProperty.INFO_FUEL_CAPACITY).getConfig().prop;
 
         assertThat(propId).isEqualTo(VehicleProperty.INFO_FUEL_CAPACITY);
     }
@@ -257,8 +262,8 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": \"Constants::DOOR_1_LEFT\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false).get(0)
-                .getConfig().prop;
+        int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false)
+                .get(DOOR_1_LEFT).getConfig().prop;
 
         assertThat(propId).isEqualTo(VehicleAreaDoor.ROW_1_LEFT);
     }
@@ -304,7 +309,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
 
         float minSampleRate = mFakeVhalConfigParser.parseJsonConfig(tempFile,
-                /* isFileOpt= */ false).get(0).getConfig().minSampleRate;
+                /* isFileOpt= */ false).get(123).getConfig().minSampleRate;
 
         assertThat(minSampleRate).isEqualTo(49f);
     }
@@ -327,7 +332,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
 
         float minSampleRate = mFakeVhalConfigParser.parseJsonConfig(tempFile,
-                /* isFileOpt= */ false).get(0).getConfig().minSampleRate;
+                /* isFileOpt= */ false).get(123).getConfig().minSampleRate;
 
         assertThat(minSampleRate).isEqualTo(456f);
     }
@@ -338,8 +343,8 @@ public class FakeVhalConfigParserUnitTest {
                 + "\"access\": \"VehiclePropertyAccess::READ\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        int access = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false).get(0)
-                .getConfig().access;
+        int access = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false)
+                .get(VehicleProperty.INFO_VIN).getConfig().access;
 
         assertThat(access).isEqualTo(1);
     }
@@ -352,7 +357,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
 
         int changeMode = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false)
-                .get(0).getConfig().changeMode;
+                .get(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY).getConfig().changeMode;
 
         assertThat(changeMode).isEqualTo(2);
     }
@@ -424,7 +429,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
 
         long[] longValues = mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false)
-                .get(0).getInitialValue().int64Values;
+                .get(286261504).getInitialValue().int64Values;
         long[] expectLongValues = {0, 100000, 200000};
         assertThat(longValues).isEqualTo(expectLongValues);
     }
@@ -436,7 +441,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
 
         RawPropValues rawPropValues = mFakeVhalConfigParser.parseJsonConfig(tempFile,
-                /* isFileOpt= */ false).get(0).getInitialValue();
+                /* isFileOpt= */ false).get(286261504).getInitialValue();
         RawPropValues expectRawPropertyValues = new RawPropValues();
         expectRawPropertyValues.floatValues = new float[]{2.3f, 49.0f};
         assertThat(rawPropValues).isEqualTo(expectRawPropertyValues);
@@ -451,7 +456,7 @@ public class FakeVhalConfigParserUnitTest {
         expectRawPropertyValues.int32Values = new int[]{VehicleSeatOccupancyState.VACANT};
 
         RawPropValues rawPropValues = mFakeVhalConfigParser.parseJsonConfig(tempFile,
-                /* isFileOpt= */ false).get(0).getInitialValue();
+                /* isFileOpt= */ false).get(286261504).getInitialValue();
 
         assertThat(rawPropValues).isEqualTo(expectRawPropertyValues);
 
@@ -525,7 +530,7 @@ public class FakeVhalConfigParserUnitTest {
                 new RawPropValues(), areaValuesByAreaId);
 
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile,
-                /* isFileOpt= */ false).get(0);
+                /* isFileOpt= */ false).get(286261504);
 
         assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
     }
@@ -599,7 +604,7 @@ public class FakeVhalConfigParserUnitTest {
                 defaultRawPropValues, areaValuesByAreaId);
 
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile,
-                /* isFileOpt= */ false).get(0);
+                /* isFileOpt= */ false).get(VehicleProperty.WHEEL_TICK);
 
         assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
     }
@@ -667,13 +672,22 @@ public class FakeVhalConfigParserUnitTest {
 
         File tempFile = createTempFileWithContent(new String(ByteStreams.toByteArray(is)));
 
-        List<ConfigDeclaration> result = mFakeVhalConfigParser.parseJsonConfig(tempFile,
+        SparseArray<ConfigDeclaration> result = mFakeVhalConfigParser.parseJsonConfig(tempFile,
                 /* isFileOpt= */ false);
 
-        assertThat(result.get(0).getConfig().prop).isEqualTo(VehicleProperty.INFO_FUEL_CAPACITY);
-        assertThat(result.get(0).getInitialValue().floatValues[0]).isEqualTo(15000.0f);
-        assertThat(result.get(11).getConfig().prop).isEqualTo(VehicleProperty.PERF_VEHICLE_SPEED);
-        assertThat(result.get(11).getConfig().maxSampleRate).isEqualTo(10.0f);
+        assertThat(result.get(VehicleProperty.INFO_FUEL_CAPACITY).getConfig().prop)
+                .isEqualTo(VehicleProperty.INFO_FUEL_CAPACITY);
+        assertThat(result.get(VehicleProperty.INFO_FUEL_CAPACITY).getInitialValue().floatValues[0])
+                .isEqualTo(15000.0f);
+        assertThat(result.get(VehicleProperty.PERF_VEHICLE_SPEED).getConfig().maxSampleRate)
+                .isEqualTo(10.0f);
+        assertThat(result.get(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS).getConfig().configArray)
+                .isEqualTo(new int[]{VehicleUnit.METER_PER_SEC, VehicleUnit.MILES_PER_HOUR,
+                        VehicleUnit.KILOMETERS_PER_HOUR});
+        assertThat(result.get(VehicleProperty.SEAT_OCCUPANCY).getInitialAreaValuesByAreaId()
+                .get(SEAT_1_LEFT).int32Values[0]).isEqualTo(VehicleSeatOccupancyState.VACANT);
+        assertThat(result.get(VehicleProperty.TIRE_PRESSURE).getConfig().areaConfigs[0].areaId)
+                .isEqualTo(WHEEL_FRONT_LEFT);
     }
 
     private File createTempFileWithContent(String fileContent) throws Exception {
