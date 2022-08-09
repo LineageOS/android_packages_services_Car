@@ -42,8 +42,8 @@ import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
-import android.car.CarApiVersion;
 import android.car.CarOccupantZoneManager;
+import android.car.CarVersion;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
@@ -265,7 +265,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_TEST_ECHO_REVERSE_BYTES = "test-echo-reverse-bytes";
 
-    private static final String COMMAND_GET_TARGET_CAR_API_VERSION = "get-target-car-api-version";
+    private static final String COMMAND_GET_TARGET_CAR_VERSION = "get-target-car-version";
 
     private static final String COMMAND_SET_PROCESS_GROUP = "set-process-group";
     private static final String COMMAND_GET_PROCESS_GROUP = "get-process-group";
@@ -357,7 +357,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_TEST_ECHO_REVERSE_BYTES,
                 android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL);
-        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_TARGET_CAR_API_VERSION,
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_TARGET_CAR_VERSION,
                 android.Manifest.permission.QUERY_ALL_PACKAGES);
     }
 
@@ -770,7 +770,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 + "ECHO_REVERSE_BYTES, REQUEST_SIZE is how many byteValues in the request. "
                 + "This command can be used for testing LargeParcelable by passing large request.");
 
-        pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_API_VERSION);
+        pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_VERSION);
         pw.println("\t  Gets the target API version (major and minor) defined by the given apps "
                 + "for the given user (or current user when --user is not set).");
 
@@ -1156,8 +1156,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_TEST_ECHO_REVERSE_BYTES:
                 testEchoReverseBytes(args, writer);
                 break;
-            case COMMAND_GET_TARGET_CAR_API_VERSION:
-                getTargetCarApiVersion(args, writer);
+            case COMMAND_GET_TARGET_CAR_VERSION:
+                getTargetCarVersion(args, writer);
                 break;
             case COMMAND_SET_PROCESS_GROUP:
                 setProcessGroup(args, writer);
@@ -3242,7 +3242,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("Test Succeeded!");
     }
 
-    private void getTargetCarApiVersion(String[] args, IndentingPrintWriter writer) {
+    private void getTargetCarVersion(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             showInvalidArguments(writer);
             return;
@@ -3277,10 +3277,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         for (int i = firstAppArg; i < args.length; i++) {
             String app = args[i];
             try {
-                CarApiVersion apiVersion = CarPackageManagerService.getTargetCarApiVersion(
+                CarVersion Version = CarPackageManagerService.getTargetCarVersion(
                         userContext, app);
                 writer.printf("  %s: major=%d, minor=%d\n", app,
-                        apiVersion.getMajorVersion(), apiVersion.getMinorVersion());
+                        Version.getMajorVersion(), Version.getMinorVersion());
             } catch (ServiceSpecificException e) {
                 if (e.errorCode == CarPackageManager.ERROR_CODE_NO_PACKAGE) {
                     writer.printf("  %s: not found\n", app);

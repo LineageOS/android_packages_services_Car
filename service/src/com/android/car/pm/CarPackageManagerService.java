@@ -35,7 +35,7 @@ import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.app.TaskInfo;
 import android.car.Car;
-import android.car.CarApiVersion;
+import android.car.CarVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.TaskInfoHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
@@ -1515,30 +1515,30 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     }
 
     @Override
-    public CarApiVersion getTargetCarApiVersion(String packageName) {
-        return getTargetCarApiVersion(Binder.getCallingUserHandle(), packageName);
+    public CarVersion getTargetCarVersion(String packageName) {
+        return getTargetCarVersion(Binder.getCallingUserHandle(), packageName);
     }
 
     @Override
-    public CarApiVersion getSelfTargetCarApiVersion(String packageName) {
+    public CarVersion getSelfTargetCarVersion(String packageName) {
         Utils.checkCalledByPackage(mContext, packageName);
 
-        return getTargetCarApiVersion(Binder.getCallingUserHandle(), packageName);
+        return getTargetCarVersion(Binder.getCallingUserHandle(), packageName);
     }
 
     /**
      * Public, as it's also used by {@code ICarImpl}.
      */
-    public CarApiVersion getTargetCarApiVersion(UserHandle user, String packageName) {
+    public CarVersion getTargetCarVersion(UserHandle user, String packageName) {
         Context context = mContext.createContextAsUser(user, /* flags= */ 0);
-        return getTargetCarApiVersion(context, packageName);
+        return getTargetCarVersion(context, packageName);
     }
 
     /**
      * Used by {@code CarShellCommand} as well.
      */
     @Nullable
-    public static CarApiVersion getTargetCarApiVersion(Context context, String packageName) {
+    public static CarVersion getTargetCarVersion(Context context, String packageName) {
         String permission = android.Manifest.permission.QUERY_ALL_PACKAGES;
         if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
             Slogf.w(TAG, "getTargetCarVersion(%s): UID %d doesn't have %s permission",
@@ -1557,7 +1557,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             throw new ServiceSpecificException(CarPackageManager.ERROR_CODE_NO_PACKAGE,
                     e.getMessage());
         }
-        return CarApiVersionParser.getTargetCarApiVersion(info);
+        return CarVersionParser.getTargetCarVersion(info);
     }
 
     /**
