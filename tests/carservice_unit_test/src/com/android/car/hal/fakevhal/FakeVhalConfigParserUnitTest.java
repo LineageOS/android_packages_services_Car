@@ -18,7 +18,7 @@ package com.android.car.hal.fakevhal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.testng.Assert.expectThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
@@ -54,7 +54,7 @@ public class FakeVhalConfigParserUnitTest {
     public void testConfigFileNotExist() throws Exception {
         File tempFile = new File("NotExist.json");
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("Missing required file");
@@ -73,7 +73,7 @@ public class FakeVhalConfigParserUnitTest {
         String fileContent = "This is a config file.";
         File tempFile = createTempFile(fileContent);
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class,
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
                 () -> mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ true));
 
         assertThat(thrown).hasMessageThat().contains("This file does not contain a valid "
@@ -85,7 +85,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": 123}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ true));
 
         assertThat(thrown).hasMessageThat().contains("field value is not a valid JSONArray.");
@@ -96,7 +96,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{}, 123]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ true));
 
         assertThat(thrown).hasMessageThat().contains("properties array has an invalid JSON element"
@@ -110,7 +110,7 @@ public class FakeVhalConfigParserUnitTest {
         Object propertyObject = jsonObject.optJSONArray("properties").optJSONObject(0);
         File tempFile = createTempFile(jsonObject.toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("The JSONObject " + propertyObject
@@ -133,7 +133,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"NotAPropIdFieldName\": 123}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains(" doesn't have propId. PropId is required.");
@@ -144,7 +144,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": NULL}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped value.");
@@ -155,7 +155,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 12.3f}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("property doesn't have a mapped int value.");
@@ -178,7 +178,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": " + "[{\"property\": \"\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("must in the form of "
@@ -190,7 +190,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": " + "[{\"property\": \"1234\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("must in the form of "
@@ -203,7 +203,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "[{\"property\": \"VehicleProperty:INFO_FUEL_CAPACITY\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("must in the form of "
@@ -216,7 +216,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "[{\"property\": \"NotExistEnumClass::INFO_FUEL_CAPACITY\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("is not a valid class name.");
@@ -228,7 +228,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "[{\"property\": \"VehicleProperty::NOT_EXIST\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("VehicleProperty doesn't have a constant field"
@@ -241,7 +241,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "[{\"property\": \"IVehicle::INVALID_MEMORY_ID\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("Failed to get int value of interface "
@@ -264,7 +264,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": \"Constants::ROW_1_LEFT\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("ROW_1_LEFT is not a valid constant name.");
@@ -275,7 +275,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 123, \"configString\": \"\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("configString doesn't have a mapped value.");
@@ -286,7 +286,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 123, \"minSampleRate\": \"\"}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains(" must in the form of "
@@ -310,7 +310,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 123, \"minSampleRate\": null}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("minSampleRate doesn't have a mapped float "
@@ -358,7 +358,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"configArray\": 123}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("configArray doesn't have a mapped JSONArray "
@@ -371,7 +371,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "[123, null]}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("[123,null] doesn't have a mapped int value "
@@ -383,7 +383,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": null}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("defaultValue doesn't have a mapped value.");
@@ -394,7 +394,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": {}}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
@@ -406,7 +406,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "{\"int32Values\": null}}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("Failed to parse the field name: int32Values "
@@ -458,7 +458,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": {}}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("areas doesn't have a mapped array value.");
@@ -469,7 +469,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": [null]}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("Unable to get a JSONObject element for areas "
@@ -481,7 +481,7 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": [{}]}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
@@ -493,7 +493,7 @@ public class FakeVhalConfigParserUnitTest {
                 + "[{\"minInt32Value\": 0}]}]}";
         File tempFile = createTempFile(new JSONObject(jsonString).toString());
 
-        IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () ->
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
                 mFakeVhalConfigParser.parseJsonConfig(tempFile, /* isFileOpt= */ false));
 
         assertThat(thrown).hasMessageThat().contains("{\"minInt32Value\":0} doesn't have areaId. "

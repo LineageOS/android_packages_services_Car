@@ -165,8 +165,11 @@ public final class FakeVhalConfigParser {
             Map.entry("WINDOW_ROOF_TOP_1", WINDOW_ROOF_TOP_1),
             Map.entry("WINDOW_1_RIGHT_2_LEFT_2_RIGHT", WINDOW_1_RIGHT | WINDOW_2_LEFT
                     | WINDOW_2_RIGHT),
-            Map.entry("SEAT_1_RIGHT", SEAT_1_RIGHT),
             Map.entry("SEAT_1_LEFT", SEAT_1_LEFT),
+            Map.entry("SEAT_1_RIGHT", SEAT_1_RIGHT),
+            Map.entry("SEAT_2_LEFT", SEAT_1_LEFT),
+            Map.entry("SEAT_2_RIGHT", SEAT_2_RIGHT),
+            Map.entry("SEAT_2_CENTER", SEAT_2_CENTER),
             Map.entry("WHEEL_REAR_RIGHT", WHEEL_REAR_RIGHT),
             Map.entry("WHEEL_REAR_LEFT", WHEEL_REAR_LEFT),
             Map.entry("WHEEL_FRONT_RIGHT", WHEEL_FRONT_RIGHT),
