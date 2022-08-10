@@ -27,6 +27,7 @@
     <color name="system_bar_background_pill_color">#fff</color>
     <color name="status_icon_panel_bg_color">#fff</color>
     <color name="status_icon_not_highlighted_color">#202124</color>
+    <color name="status_icon_selected_button_color">#6BF0FF</color>
 
     <color name="status_bar_background_color">#00000000</color>
     <drawable name="status_bar_background">@color/status_bar_background_color</drawable>
@@ -47,4 +48,7 @@
     <color name="title_bar_display_area_handle_bar_color">#9aa0a6</color>
     <color name="title_bar_display_area_background_color">#ffffff</color>
     <color name="immersive_chevron_icon_color">@color/title_bar_display_area_handle_bar_color</color>
+
+    <color name="privacy_chip_light_icon_color">#000000</color>
+    <color name="privacy_chip_dark_icon_color">#ffffff</color>
 </resources>
