@@ -94,15 +94,12 @@ public class SessionControllerUnitTest
 
     @Before
     public void setUp() {
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class,
-                mMockCarPowerManagementService);
         when(mDirectHandler.post(any(Runnable.class))).thenAnswer(i -> {
             Runnable runnable = i.getArgument(0);
             runnable.run();
             return true;
         });
-        mSessionController = new SessionController(mDirectHandler);
+        mSessionController = new SessionController(mMockCarPowerManagementService, mDirectHandler);
         verify(mMockCarPowerManagementService).registerInternalListener(
                 mPowerStateListenerCaptor.capture());
     }
