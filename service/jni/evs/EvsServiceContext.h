@@ -53,6 +53,11 @@ public:
     bool initialize(JNIEnv* env, jobject thiz) ACQUIRE(mLock);
 
     /*
+     * Deinitialize the service context and releases the resources.
+     */
+    void deinitialize() ACQUIRE(mLock);
+
+    /*
      * Requests to open a target camera device.
      *
      * @param id a string camera device identifier
