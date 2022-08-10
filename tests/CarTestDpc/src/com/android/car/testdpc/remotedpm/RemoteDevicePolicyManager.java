@@ -45,7 +45,7 @@ import com.google.errorprone.annotations.FormatMethod;
 public final class RemoteDevicePolicyManager implements DevicePolicyManagerInterface {
     private static final String TAG = RemoteDevicePolicyManager.class.getSimpleName();
 
-
+    private final ComponentName mAdmin;
     private final Context mContext;
     private final DevicePolicyManager mDpm;
     private final Object mLock = new Object();
@@ -81,7 +81,8 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
                 }
             };
 
-    public RemoteDevicePolicyManager(Context context, UserHandle target) {
+    public RemoteDevicePolicyManager(ComponentName admin, Context context, UserHandle target) {
+        mAdmin = admin;
         mContext = context;
         mDpm = context.getSystemService(DevicePolicyManager.class);
 
@@ -124,18 +125,18 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
      * <p>Only works when bound with device owner and the users are affiliated </p>
      */
     @Override
-    public void reboot(ComponentName admin) {
+    public void reboot() {
         IRemoteDevicePolicyManager remoteDpm;
         remoteDpm = getBoundRemoteDpm();
-        run(() -> remoteDpm.reboot(admin), "reboot(%s)", admin);
+        run(() -> remoteDpm.reboot(mAdmin), "reboot(%s)", mAdmin);
     }
 
     @Override
-    public void addUserRestriction(ComponentName admin, String key) {
+    public void addUserRestriction(String key) {
         IRemoteDevicePolicyManager remoteDpm;
         remoteDpm = getBoundRemoteDpm();
-        run(() -> remoteDpm.addUserRestriction(admin, key),
-                "addUserRestriction(%s, %s)", admin, key);
+        run(() -> remoteDpm.addUserRestriction(mAdmin, key),
+                "addUserRestriction(%s, %s)", mAdmin, key);
     }
 
     @FormatMethod

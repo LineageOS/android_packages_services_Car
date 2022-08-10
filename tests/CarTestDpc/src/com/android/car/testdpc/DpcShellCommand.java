@@ -153,10 +153,12 @@ final class DpcShellCommand {
             return;
         }
 
+        String restriction = mArgs[3];
+
         if (mDoInterface.getUser().equals(target)) {
             Log.d(TAG, mDoInterface.getUser() + ": addUserRestriction("
-                    + mAdmin.flattenToShortString() + ", " + mArgs[3]);
-            mDoInterface.addUserRestriction(mAdmin, /* key= */ mArgs[3]);
+                    + mAdmin.flattenToShortString() + ", " + restriction);
+            mDoInterface.addUserRestriction(/* key= */ restriction);
             return;
         }
 
@@ -165,8 +167,8 @@ final class DpcShellCommand {
                     .filter((dpm) -> dpm.getUser().equals(target))
                     .findAny().get();
             Log.d(TAG, profileOwner.getUser() + ": addUserRestriction("
-                    + mAdmin.flattenToShortString() + ", " + mArgs[3]);
-            profileOwner.addUserRestriction(mAdmin, /* key= */ mArgs[3]);
+                    + restriction);
+            profileOwner.addUserRestriction(/* key= */ restriction);
         } catch (NoSuchElementException e) {
             mWriter.println("User not found (see logs)");
             Log.e(TAG, "User not found", e);
@@ -222,7 +224,7 @@ final class DpcShellCommand {
 
     private void runReboot() {
         Log.i(TAG, "Calling reboot()");
-        mDoInterface.reboot(mAdmin);
+        mDoInterface.reboot();
     }
 
     /**

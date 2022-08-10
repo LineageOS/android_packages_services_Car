@@ -17,6 +17,7 @@
 package com.android.car.testdpc;
 
 import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.UserHandle;
 import android.util.Log;
@@ -35,11 +36,12 @@ public final class DpcFactory {
     private List<DevicePolicyManagerInterface> mPoInterfaces;
     private DevicePolicyManagerInterface mDoInterface;
 
+    private final ComponentName mAdmin;
     private final Context mContext;
     private final DevicePolicyManager mDpm;
 
     public DpcFactory(Context context) {
-
+        mAdmin = DpcReceiver.getComponentName(context);
         mContext = context;
         mDpm = mContext.getSystemService(DevicePolicyManager.class);
 
@@ -49,25 +51,24 @@ public final class DpcFactory {
     }
 
     private void assignDevicePolicyManagers() {
-        List<UserHandle> targetUsers = mDpm.getBindDeviceAdminTargetUsers(DpcReceiver
-                .getComponentName(mContext));
+        List<UserHandle> targetUsers = mDpm.getBindDeviceAdminTargetUsers(mAdmin);
         Log.d(TAG, "targetUsers: " + targetUsers);
 
         if (isDO(mContext, mDpm)) {
-            mDoInterface = new LocalDevicePolicyManager(mContext);
+            mDoInterface = new LocalDevicePolicyManager(mAdmin, mContext);
             mPoInterfaces = targetUsers.stream()
-                    .map((u) -> new RemoteDevicePolicyManager(mContext, u))
+                    .map((u) -> new RemoteDevicePolicyManager(mAdmin, mContext, u))
                     .collect(Collectors.toList());
         } else {
             // Add all remote dpms to a list
             mPoInterfaces = targetUsers.stream()
                     .filter((u) -> !(u.equals(UserHandle.SYSTEM)))
-                    .map((u) -> new RemoteDevicePolicyManager(mContext, u))
+                    .map((u) -> new RemoteDevicePolicyManager(mAdmin, mContext, u))
                     .collect(Collectors.toList());
             // Add local dpm to the same list
-            mPoInterfaces.add(new LocalDevicePolicyManager(mContext));
+            mPoInterfaces.add(new LocalDevicePolicyManager(mAdmin, mContext));
             // Find the device owner userhandle and use it to set that to DoDpm
-            mDoInterface = new RemoteDevicePolicyManager(mContext, targetUsers.stream()
+            mDoInterface = new RemoteDevicePolicyManager(mAdmin, mContext, targetUsers.stream()
                     .filter((u) -> u.equals(UserHandle.SYSTEM))
                     .findFirst()
                     .get());
