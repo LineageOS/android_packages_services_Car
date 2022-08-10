@@ -68,7 +68,7 @@ public final class CarTest extends AbstractExtendedMockitoTestCase {
     // It is tricky to mock this. So create placeholder version instead.
     private static final class FakeService extends ICar.Stub {
 
-        public ExceptionalFunction<String, CarApiVersion, RemoteException>
+        public ExceptionalFunction<String, CarVersion, RemoteException>
                 getTargetCarApiVersionMocker;
 
         @Override
