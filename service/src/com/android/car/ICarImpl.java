@@ -407,7 +407,8 @@ public class ICarImpl extends ICar.Stub {
         if (mFeatureController.isFeatureEnabled(Car.CAR_TELEMETRY_SERVICE)) {
             if (carTelemetryService == null) {
                 mCarTelemetryService = constructWithTrace(t, CarTelemetryService.class,
-                        () -> new CarTelemetryService(serviceContext, mCarPropertyService));
+                        () -> new CarTelemetryService(
+                                serviceContext, mCarPowerManagementService, mCarPropertyService));
             } else {
                 mCarTelemetryService = carTelemetryService;
             }

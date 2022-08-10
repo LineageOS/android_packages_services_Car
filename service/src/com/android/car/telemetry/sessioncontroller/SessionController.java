@@ -20,13 +20,11 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 
-import com.android.car.CarLocalServices;
 import com.android.car.power.CarPowerManagementService;
 
 import java.lang.annotation.Retention;
@@ -55,7 +53,6 @@ public class SessionController {
     public @interface SessionControllerState {
     }
 
-    private final Context mContext;
     private int mSessionId = 0;
     private int mSessionState = STATE_EXIT_DRIVING_SESSION;
     private long mStateChangedAtMillisSinceBoot; // uses SystemClock.elapsedRealtime();
@@ -94,10 +91,10 @@ public class SessionController {
         void onSessionStateChanged(SessionAnnotation annotation);
     }
 
-    public SessionController(Context context, Handler telemetryHandler) {
-        mContext = context;
+    public SessionController(
+            CarPowerManagementService carPowerManagementService, Handler telemetryHandler) {
         mTelemetryHandler = telemetryHandler;
-        mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
+        mCarPowerManagementService = carPowerManagementService;
         mCarPowerManagementService.registerInternalListener(mCarPowerStateListener);
     }
 
