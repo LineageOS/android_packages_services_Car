@@ -73,8 +73,8 @@ VhalClientResult<std::unique_ptr<IHalPropValue>> IVhalClient::getValueSync(
                     std::lock_guard<std::mutex> lockGuard(s.lock);
                     s.result = std::move(r);
                     s.gotResult = true;
+                    s.cv.notify_one();
                 }
-                s.cv.notify_one();
             });
 
     getValue(requestValue, callback);
@@ -99,8 +99,8 @@ VhalClientResult<void> IVhalClient::setValueSync(const IHalPropValue& requestVal
                     std::lock_guard<std::mutex> lockGuard(s.lock);
                     s.result = std::move(r);
                     s.gotResult = true;
+                    s.cv.notify_one();
                 }
-                s.cv.notify_one();
             });
 
     setValue(requestValue, callback);
