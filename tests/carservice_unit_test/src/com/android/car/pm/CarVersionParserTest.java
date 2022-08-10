@@ -16,24 +16,24 @@
 
 package com.android.car.pm;
 
-import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_API_VERSION;
+import static android.car.content.pm.CarPackageManager.MANIFEST_METADATA_TARGET_CAR_VERSION;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.car.CarApiVersion;
+import android.car.CarVersion;
 import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 
 import org.junit.Test;
 
-public final class CarApiVersionParserTest {
+public final class CarVersionParserTest {
 
     @Test
     public void testGetTargetCarApiVersion_noMetadata() {
         ApplicationInfo info = new ApplicationInfo();
         info.targetSdkVersion  = 42;
 
-        CarApiVersion apiVersion = CarApiVersionParser.getTargetCarApiVersion(info);
+        CarVersion apiVersion = CarVersionParser.getTargetCarVersion(info);
 
         assertWithMessage("parse(%s)", info).that(apiVersion).isNotNull();
         expectWithMessage("parse(%s).major", info).that(apiVersion.getMajorVersion()).isEqualTo(42);
@@ -46,9 +46,9 @@ public final class CarApiVersionParserTest {
         ApplicationInfo info = new ApplicationInfo();
         info.targetSdkVersion = 666; // Set to make sure it's not used
         info.metaData = new Bundle();
-        info.metaData.putString(MANIFEST_METADATA_TARGET_CAR_API_VERSION, "108:42");
+        info.metaData.putString(MANIFEST_METADATA_TARGET_CAR_VERSION, "108:42");
 
-        CarApiVersion apiVersion = CarApiVersionParser.getTargetCarApiVersion(info);
+        CarVersion apiVersion = CarVersionParser.getTargetCarVersion(info);
 
         assertWithMessage("getTargetCarApiVersion(%s)", info).that(apiVersion).isNotNull();
         expectWithMessage("getTargetCarApiVersion(%s).major", info)

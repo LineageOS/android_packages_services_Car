@@ -23,8 +23,6 @@ import static java.lang.annotation.ElementType.TYPE;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 import android.annotation.TestApi;
-import android.car.CarApiVersion;
-import android.car.PlatformApiVersion;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
@@ -58,19 +56,19 @@ public @interface ApiRequirements {
     @SuppressWarnings("Enum")
     enum CarVersion {
 
-        TIRAMISU_0(CarApiVersion.VERSION_CODES.TIRAMISU_0),
-        TIRAMISU_1(CarApiVersion.VERSION_CODES.TIRAMISU_1);
+        TIRAMISU_0(android.car.CarVersion.VERSION_CODES.TIRAMISU_0),
+        TIRAMISU_1(android.car.CarVersion.VERSION_CODES.TIRAMISU_1);
 
-        private final CarApiVersion mVersion;
+        private final android.car.CarVersion mVersion;
 
-        CarVersion(CarApiVersion version) {
+        CarVersion(android.car.CarVersion version) {
             mVersion = version;
         }
 
         /**
-         * Gets the {@link CarApiVersion} associated with it.
+         * Gets the {@link CarVersion} associated with it.
          */
-        public CarApiVersion get() {
+        public android.car.CarVersion get() {
             return mVersion;
         }
     }
@@ -78,19 +76,19 @@ public @interface ApiRequirements {
     @SuppressWarnings("Enum")
     enum PlatformVersion {
 
-        TIRAMISU_0(PlatformApiVersion.VERSION_CODES.TIRAMISU_0),
-        TIRAMISU_1(PlatformApiVersion.VERSION_CODES.TIRAMISU_1);
+        TIRAMISU_0(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_0),
+        TIRAMISU_1(android.car.PlatformVersion.VERSION_CODES.TIRAMISU_1);
 
-        private final PlatformApiVersion mVersion;
+        private final android.car.PlatformVersion mVersion;
 
-        PlatformVersion(PlatformApiVersion version) {
+        PlatformVersion(android.car.PlatformVersion version) {
             mVersion = version;
         }
 
         /**
-         * Gets the {@link PlatformApiVersion} associated with it.
+         * Gets the {@link PlatformVersion} associated with it.
          */
-        public PlatformApiVersion get() {
+        public android.car.PlatformVersion get() {
             return mVersion;
         }
     }

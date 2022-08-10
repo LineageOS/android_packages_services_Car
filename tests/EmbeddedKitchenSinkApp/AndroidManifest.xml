@@ -196,7 +196,7 @@
              android:resource="@xml/automotive_app_desc"/>
 
         <!-- Car Mainline version -->
-        <meta-data android:name="android.car.targetCarApiVersion" android:value="33:1"/>
+        <meta-data android:name="android.car.targetCarVersion" android:value="33:1"/>
 
         <activity android:name=".orientation.LandscapeActivity"
              android:label="@string/landscpae_activity"
