@@ -658,58 +658,77 @@ public class ICarImpl extends ICar.Stub {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpIndenting(FileDescriptor fd, IndentingPrintWriter writer, String[] args) {
-        if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
-            writer.println("*Dump car service*");
-            dumpVersions(writer);
-            dumpAllServices(writer);
-            dumpAllHals(writer);
-            dumpRROs(writer);
-        } else if ("--list".equals(args[0])) {
-            dumpListOfServices(writer);
+        if (args == null || args.length == 0) {
+            dumpAll(writer);
             return;
-        } else if ("--version".equals(args[0])) {
-            dumpVersions(writer);
-            return;
-        } else if ("--services".equals(args[0])) {
-            if (args.length < 2) {
-                writer.println("Must pass services to dump when using --services");
+        }
+        switch (args[0]) {
+            case "-a":
+                dumpAll(writer);
+                return;
+            case "--list":
+                dumpListOfServices(writer);
+                return;
+            case "--version":
+                dumpVersions(writer);
+                return;
+            case "--services": {
+                if (args.length < 2) {
+                    writer.println("Must pass services to dump when using --services");
+                    return;
+                }
+                int length = args.length - 1;
+                String[] services = new String[length];
+                System.arraycopy(args, 1, services, 0, length);
+                dumpIndividualServices(writer, services);
                 return;
             }
-            int length = args.length - 1;
-            String[] services = new String[length];
-            System.arraycopy(args, 1, services, 0, length);
-            dumpIndividualServices(writer, services);
-            return;
-        } else if ("--metrics".equals(args[0])) {
-            // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
-            // allowing for nested flag selection.
-            if (args.length == 1 || Arrays.asList(args).contains("--vms-client")) {
-                mCarStatsService.dump(writer);
-            }
-        } else if ("--vms-hal".equals(args[0])) {
-            mHal.getVmsHal().dumpMetrics(fd);
-        } else if ("--hal".equals(args[0])) {
-            if (args.length == 1) {
-                dumpAllHals(writer);
+            case "--metrics":
+                // Strip the --metrics flag when passing dumpsys arguments to CarStatsService
+                // allowing for nested flag selection.
+                if (args.length == 1 || Arrays.asList(args).contains("--vms-client")) {
+                    mCarStatsService.dump(writer);
+                }
+                return;
+            case "--vms-hal":
+                mHal.getVmsHal().dumpMetrics(fd);
+                return;
+            case "--hal": {
+                if (args.length == 1) {
+                    dumpAllHals(writer);
+                    return;
+                }
+                int length = args.length - 1;
+                String[] halNames = new String[length];
+                System.arraycopy(args, 1, halNames, 0, length);
+                mHal.dumpSpecificHals(writer, halNames);
                 return;
             }
-            int length = args.length - 1;
-            String[] halNames = new String[length];
-            System.arraycopy(args, 1, halNames, 0, length);
-            mHal.dumpSpecificHals(writer, halNames);
-
-        } else if ("--list-hals".equals(args[0])) {
-            mHal.dumpListHals(writer);
-            return;
-        } else if ("--data-dir".equals(args[0])) {
-            dumpDataDir(writer);
-            return;
-        } else if ("--help".equals(args[0])) {
-            showDumpHelp(writer);
-        } else {
-            execShellCmd(args, writer);
+            case "--list-hals":
+                mHal.dumpListHals(writer);
+                return;
+            case "--data-dir":
+                dumpDataDir(writer);
+                return;
+            case "--help":
+                showDumpHelp(writer);
+                return;
+            case "--rro":
+                dumpRROs(writer);
+                return;
+            default:
+                execShellCmd(args, writer);
         }
     }
+
+    private void dumpAll(IndentingPrintWriter writer) {
+        writer.println("*Dump car service*");
+        dumpVersions(writer);
+        dumpAllServices(writer);
+        dumpAllHals(writer);
+        dumpRROs(writer);
+    }
+
 
     private void dumpRROs(IndentingPrintWriter writer) {
         writer.println("*Dump Car Service RROs*");
@@ -794,6 +813,8 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  (or -1 if not unlocked)");
         writer.println("--data-dir");
         writer.println("\t  dumps CarService data dir (and whether it exists)");
+        writer.println("--rro");
+        writer.println("\t  dumps only the RROs");
         writer.println("-h");
         writer.println("\t  shows commands usage (NOTE: commands are not available on USER builds");
         writer.println("[ANYTHING ELSE]");
