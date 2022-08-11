@@ -831,7 +831,7 @@ package android.car.hardware.property {
     ctor public GetPropertyServiceRequest(int, int, int);
     method public int describeContents();
     method public int getAreaId();
-    method public int getPropId();
+    method public int getPropertyId();
     method public int getRequestId();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetPropertyServiceRequest> CREATOR;
@@ -847,21 +847,21 @@ package android.car.hardware.property {
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetValueResult> CREATOR;
   }
 
-  public interface ICarPropertyServiceCallback extends android.os.IInterface {
+  public interface IGetAsyncPropertyResultCallback extends android.os.IInterface {
     method public void onGetValueResult(java.util.List<android.car.hardware.property.GetValueResult>) throws android.os.RemoteException;
-    field public static final String DESCRIPTOR = "android.car.hardware.property.ICarPropertyServiceCallback";
+    field public static final String DESCRIPTOR = "android.car.hardware.property.IGetAsyncPropertyResultCallback";
   }
 
-  public static class ICarPropertyServiceCallback.Default implements android.car.hardware.property.ICarPropertyServiceCallback {
-    ctor public ICarPropertyServiceCallback.Default();
+  public static class IGetAsyncPropertyResultCallback.Default implements android.car.hardware.property.IGetAsyncPropertyResultCallback {
+    ctor public IGetAsyncPropertyResultCallback.Default();
     method public android.os.IBinder asBinder();
     method public void onGetValueResult(java.util.List<android.car.hardware.property.GetValueResult>) throws android.os.RemoteException;
   }
 
-  public abstract static class ICarPropertyServiceCallback.Stub extends android.os.Binder implements android.car.hardware.property.ICarPropertyServiceCallback {
-    ctor public ICarPropertyServiceCallback.Stub();
+  public abstract static class IGetAsyncPropertyResultCallback.Stub extends android.os.Binder implements android.car.hardware.property.IGetAsyncPropertyResultCallback {
+    ctor public IGetAsyncPropertyResultCallback.Stub();
     method public android.os.IBinder asBinder();
-    method public static android.car.hardware.property.ICarPropertyServiceCallback asInterface(android.os.IBinder);
+    method public static android.car.hardware.property.IGetAsyncPropertyResultCallback asInterface(android.os.IBinder);
     method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
   }
 

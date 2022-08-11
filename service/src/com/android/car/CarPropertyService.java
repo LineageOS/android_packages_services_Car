@@ -31,7 +31,7 @@ import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.GetPropertyServiceRequest;
 import android.car.hardware.property.ICarProperty;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.car.hardware.property.ICarPropertyServiceCallback;
+import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -699,13 +699,63 @@ public class CarPropertyService extends ICarProperty.Stub
         CarServiceUtils.assertPermission(mContext, writePermission);
     }
 
+    private void assertAreaIdIsSupported(CarPropertyConfig config, int propertyId, int areaId) {
+        int[] areaIds = config.getAreaIds();
+        boolean validAreaId = false;
+        for (int i = 0; i < areaIds.length; i++) {
+            if (areaId == areaIds[i]) {
+                validAreaId = true;
+                break;
+            }
+        }
+        if (!validAreaId) {
+            throw new IllegalArgumentException(
+                    "areadId 0x" + toHexString(areaId) + " not supported for propertyId "
+                            + VehiclePropertyIds.toString(propertyId));
+        }
+    }
+
+    private void assertPropertyIsReadable(CarPropertyConfig config, int propertyId) {
+        synchronized (mLock) {
+            if (config.getAccess() != CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
+                    && config.getAccess() != CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE) {
+                throw new IllegalArgumentException(
+                        "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
+            }
+        }
+    }
+
+    private void assertPropertyIdIsSupported(CarPropertyConfig config, int propertyId) {
+        synchronized (mLock) {
+            if (config == null) {
+                // Do not attempt to register an invalid propertyId
+                throw new IllegalArgumentException(
+                        "propertyId is not in config list: " + VehiclePropertyIds.toString(
+                                propertyId));
+            }
+        }
+    }
+
     /**
      * Query CarPropertyValue with list of GetPropertyServiceRequest objects.
      *
      * <p>This method gets the CarPropertyValue using async methods. </p>
      */
     public void getPropertiesAsync(List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            ICarPropertyServiceCallback carPropertyServiceCallback) {
-        // TODO(b/238323662): implement the logic
+            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
+        for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
+            int propertyId = getPropertyServiceRequests.get(i).getPropertyId();
+            int areaId = getPropertyServiceRequests.get(i).getAreaId();
+            CarPropertyConfig config;
+            synchronized (mLock) {
+                config = mPropertyIdToCarPropertyConfig.get(propertyId);
+            }
+            assertPropertyIdIsSupported(config, propertyId);
+            assertPropertyIsReadable(config, propertyId);
+            assertReadPermission(propertyId);
+            assertAreaIdIsSupported(config, propertyId, areaId);
+        }
+        mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
+                getAsyncPropertyResultCallback);
     }
 }

@@ -27,7 +27,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.GetPropertyServiceRequest;
-import android.car.hardware.property.ICarPropertyServiceCallback;
+import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.ServiceSpecificException;
@@ -445,7 +445,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void getCarPropertyValuesAsync(
             List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            ICarPropertyServiceCallback carPropertyServiceCallback) {
+            IGetAsyncPropertyResultCallback carPropertyServiceCallback) {
         // TODO(b/238472103): implement the logic
     }
 }

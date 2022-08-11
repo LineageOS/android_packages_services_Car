@@ -831,7 +831,7 @@ package android.car.hardware.property {
     ctor public GetPropertyServiceRequest(int, int, int);
     method public int describeContents();
     method public int getAreaId();
-    method public int getPropId();
+    method public int getPropertyId();
     method public int getRequestId();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetPropertyServiceRequest> CREATOR;
