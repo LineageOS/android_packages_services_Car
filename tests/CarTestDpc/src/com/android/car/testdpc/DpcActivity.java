@@ -85,7 +85,7 @@ public final class DpcActivity extends Activity {
 
     public void uiReboot(View v) {
         showToast(R.string.rebooting);
-        mDoInterface.reboot(mAdmin);
+        mDoInterface.reboot();
     }
 
     public void uiAddUserRestriction(View v) {
@@ -104,12 +104,11 @@ public final class DpcActivity extends Activity {
 
         if (mDoInterface.getUser().equals(target)) {
             try {
-                mDoInterface.addUserRestriction(mAdmin, restriction);
-                showToast("%s: addUserRestriction(%s, %s)",
-                        mDoInterface.getUser(), mAdmin.flattenToShortString(), restriction);
+                mDoInterface.addUserRestriction(restriction);
+                showToast("%s: addUserRestriction(%s)",
+                        mDoInterface.getUser(), restriction);
             } catch (RuntimeException e) {
-                showToast("Exception when calling addUserRestriction(%s, %s)",
-                        mAdmin.flattenToShortString(), restriction);
+                showToast(e, "Exception when calling addUserRestriction(%s)", restriction);
                 return;
             }
 
@@ -120,12 +119,11 @@ public final class DpcActivity extends Activity {
                 .filter((dpm) -> dpm.getUser().equals(target))
                 .findAny().get();
         try {
-            profileOwner.addUserRestriction(mAdmin, restriction);
-            showToast("%s: addUserRestriction(%s, %s)",
-                    profileOwner.getUser(), mAdmin.flattenToShortString(), restriction);
+            profileOwner.addUserRestriction(restriction);
+            showToast("%s: addUserRestriction(%s)",
+                    profileOwner.getUser(), restriction);
         } catch (RuntimeException e) {
-            showToast("Exception when calling addUserRestriction(%s, %s)",
-                    mAdmin.flattenToShortString(), restriction);
+            showToast(e, "Exception when calling addUserRestriction(%s)", restriction);
             return;
         }
 

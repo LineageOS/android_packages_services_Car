@@ -13,16 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package android.car;
 
-package com.android.car.testdpc.remotedpm;
-
-import android.os.UserHandle;
-
-public interface DevicePolicyManagerInterface {
-
-    UserHandle getUser();
-
-    void reboot();
-
-    void addUserRestriction(String key);
-}
+parcelable CarApiVersion;

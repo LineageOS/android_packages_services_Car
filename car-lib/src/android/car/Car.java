@@ -1455,6 +1455,18 @@ public final class Car {
     }
 
     /**
+     * @deprecated use getCarVersion instead
+     */
+    @Deprecated
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
+    public static android.car.CarApiVersion getCarApiVersion() {
+        return CarApiVersion
+                .forMajorAndMinorVersions(API_VERSION_MAJOR_INT, API_VERSION_MINOR_INT);
+    }
+
+    /**
      * Defines the {@link PlatformVersion version} of the standard {@code SDK} APIs in the
      * device.
      *
@@ -1467,6 +1479,18 @@ public final class Car {
     @NonNull
     public static android.car.PlatformVersion getPlatformVersion() {
         return PLATFORM_API_VERSION;
+    }
+
+    /**
+     * @deprecated use getPlatformVersion instead
+     */
+    @Deprecated
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @NonNull
+    public static android.car.PlatformApiVersion getPlatformApiVersion() {
+        return PlatformApiVersion.forMajorAndMinorVersions(Build.VERSION.SDK_INT,
+                PLATFORM_VERSION_MINOR_INT);
     }
 
     /**
