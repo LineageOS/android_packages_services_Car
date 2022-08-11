@@ -44,9 +44,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -202,33 +203,47 @@ public final class FakeVhalConfigParser {
     );
 
     /**
-     * Reads config file and parses the JSON root object whose field name is "properties".
+     * Reads custom config files and parses the JSON root object whose field name is "properties".
      *
-     * @param configFile The JSON file to parse from.
-     * @param isFileOpt Whether the config file is optional.
+     * @param customConfigFile The custom config JSON file to parse from.
      * @return a list of {@link ConfigDeclaration} storing configs and values for each property.
      * @throws IOException if unable to read the config file.
      * @throws IllegalArgumentException if file is invalid JSON or when a JSONException is caught.
      */
-    public SparseArray<ConfigDeclaration> parseJsonConfig(File configFile, boolean isFileOpt) throws
-            IOException {
+    public SparseArray<ConfigDeclaration> parseJsonConfig(File customConfigFile) throws
+            IOException, IllegalArgumentException {
         // Check if config file exists.
-        if (!isFileValid(configFile)) {
-            if (!isFileOpt) {
-                throw new IllegalArgumentException("Missing required file at "
-                            + configFile.toPath());
-            }
-            return new SparseArray<>(/* initialCapacity= */0);
+        if (!isFileValid(customConfigFile)) {
+            Slogf.w(TAG, "Custom config file: %s is not a valid file.", customConfigFile.getPath());
+            return new SparseArray<>(/* initialCapacity= */ 0);
         }
 
-        // Read config file.
-        byte[] allBytesInFile = Files.readAllBytes(configFile.toPath());
+        FileInputStream customConfigFileStream = new FileInputStream(customConfigFile);
+        if (customConfigFileStream.available() == 0) {
+            Slogf.w(TAG, "Custom config file: %s is empty.", customConfigFile.getPath());
+            return new SparseArray<>(/* initialCapacity= */ 0);
+        }
+
+        return parseJsonConfig(customConfigFileStream);
+    }
+
+    /**
+     * Reads default config file from java resources which is in the type of input stream.
+     *
+     * @param configInputStream The {@link InputStream} to parse from.
+     * @return a list of {@link ConfigDeclaration} storing configs and values for each property.
+     * @throws IOException if unable to read the config file.
+     * @throws IllegalArgumentException if file is invalid JSON or when a JSONException is caught.
+     */
+    public SparseArray<ConfigDeclaration> parseJsonConfig(InputStream configInputStream)
+            throws IOException {
+        String configString = new String(configInputStream.readAllBytes());
 
         // Parse JSON root object.
         JSONObject configJsonObject;
         JSONArray configJsonArray;
         try {
-            configJsonObject = new JSONObject(new String(allBytesInFile));
+            configJsonObject = new JSONObject(configString);
         } catch (JSONException e) {
             throw new IllegalArgumentException("This file does not contain a valid JSONObject.", e);
         }
