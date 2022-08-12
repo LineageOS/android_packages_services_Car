@@ -15,6 +15,8 @@
  */
 package com.android.car.power;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -63,6 +65,7 @@ import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
@@ -405,6 +408,89 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 /* checkParam= */ true);
 
         cpms.removePowerPolicyListener(powerPolicyListener);
+    }
+
+    @Test
+    public void testShutdownPostponeDuringHibernationEnter() throws Exception {
+        testShutdownPostponeWhileListenerPendingInState(CarPowerManager.STATE_HIBERNATION_ENTER,
+                VehicleApPowerStateShutdownParam.CAN_HIBERNATE,
+                VehicleApPowerStateReport.HIBERNATION_ENTRY);
+    }
+
+    @Test
+    public void testShutdownPostponeDuringShutdownEnter() throws Exception {
+        testShutdownPostponeWhileListenerPendingInState(CarPowerManager.STATE_SHUTDOWN_ENTER,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY,
+                VehicleApPowerStateReport.SHUTDOWN_START);
+    }
+
+    @Test
+    public void testShutdownPostponeDuringSuspendEnter() throws Exception {
+        testShutdownPostponeWhileListenerPendingInState(CarPowerManager.STATE_SUSPEND_ENTER,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP,
+                VehicleApPowerStateReport.DEEP_SLEEP_ENTRY);
+    }
+
+    @Test
+    public void testShutdownPostponeDuringPreShutdownPrepare() throws Exception {
+        testShutdownPostponeWhileListenerPendingInState(CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP,
+                VehicleApPowerStateReport.DEEP_SLEEP_ENTRY);
+    }
+
+    @Test
+    public void testShutdownPostponeDuringPreShutdownPrepareWithImmediately() throws Exception {
+        testShutdownPostponeWhileListenerPendingInState(CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY,
+                VehicleApPowerStateReport.SHUTDOWN_START);
+    }
+
+    private void testShutdownPostponeWhileListenerPendingInState(final int targetState,
+            int stateRequestParam, int finalPowerState) throws Exception {
+        assertWaitForVhal();
+
+        Semaphore notificationSem = new Semaphore(0);
+
+        AtomicBoolean errorOccurred = new AtomicBoolean(false);
+        CarPowerManagementService cpms =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+
+        ICarPowerStateListener listener = new ICarPowerStateListener.Stub() {
+            @Override
+            public void onStateChanged(int state, long expirationTimeMs) {
+                if (!CarPowerManagementService.isCompletionAllowed(state)) {
+                    return;
+                }
+                if (state == targetState) {
+                    new Thread(() -> {
+                        try {
+                            if (!notificationSem.tryAcquire(DEFAULT_WAIT_TIMEOUT_MS,
+                                    TimeUnit.MILLISECONDS)) {
+                                errorOccurred.set(true);
+                            }
+                            cpms.completeHandlingPowerStateChange(state, this);
+                        } catch (InterruptedException e) {
+                            errorOccurred.set(true);
+                        }
+                    }).start();
+                } else {
+                    cpms.completeHandlingPowerStateChange(state, this);
+                }
+            }
+        };
+        cpms.registerInternalListener(listener);
+
+        //start shutown prepare
+        mPowerStateHandler.sendPowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                stateRequestParam);
+        // wait for SHUTDOWN_POSTPONE
+        mPowerStateHandler.waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS,
+                VehicleApPowerStateReport.SHUTDOWN_POSTPONE);
+        // complete listener
+        notificationSem.release();
+
+        mPowerStateHandler.waitForStateSetAndGetAll(DEFAULT_WAIT_TIMEOUT_MS, finalPowerState);
+        assertThat(errorOccurred.get()).isFalse();
     }
 
     // Check that 'expectedState' was reached and is the current state.
