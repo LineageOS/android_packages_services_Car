@@ -20,6 +20,7 @@ import static com.android.car.CarServiceUtils.subscribeOptionsToHidl;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
@@ -41,11 +42,14 @@ import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 final class HidlVehicleStub extends VehicleStub {
 
     private final IVehicle mHidlVehicle;
     private final HalPropValueBuilder mPropValueBuilder;
+    private final Executor mExecutor = Executors.newFixedThreadPool(5);
 
     HidlVehicleStub() {
         this(getHidlVehicle());
@@ -201,7 +205,51 @@ final class HidlVehicleStub extends VehicleStub {
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
             GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
-        // TODO(b/239744386): implement the logic.
+        mExecutor.execute(() -> {
+            for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
+                GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                        getVehicleStubAsyncRequests.get(i);
+                int serviceRequestId = getVehicleStubAsyncRequest.getServiceRequestId();
+                try {
+                    HalPropValue halPropValue;
+                    try {
+                        halPropValue = get(getVehicleStubAsyncRequest.getHalPropValue());
+                    } catch (ServiceSpecificException e) {
+                        callGetAsyncErrorCallbacks(convertHalToCarPropertyManagerError(e.errorCode),
+                                serviceRequestId, getAsyncVehicleStubCallback);
+                        return;
+                    }
+                    if (halPropValue == null) {
+                        callGetAsyncErrorCallbacks(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
+                                serviceRequestId, getAsyncVehicleStubCallback);
+                        return;
+                    }
+                    getAsyncVehicleStubCallback.onGetAsyncResults(
+                            List.of(new GetVehicleStubAsyncResult(serviceRequestId, halPropValue)));
+                } catch (RemoteException e) {
+                    Slogf.w(CarLog.TAG_SERVICE,
+                            "Received RemoteException from VHAL. VHAL is likely dead.");
+                    callGetAsyncErrorCallbacks(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
+                            serviceRequestId, getAsyncVehicleStubCallback);
+                }
+            }
+        });
+    }
+
+    private void callGetAsyncErrorCallbacks(
+            @CarPropertyManager.ErrorCode int errorCodeCarPropertyManager, int serviceRequestId,
+            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+        getAsyncVehicleStubCallback.onGetAsyncResults(
+                List.of(new GetVehicleStubAsyncResult(serviceRequestId,
+                        errorCodeCarPropertyManager)));
+    }
+
+    private int convertHalToCarPropertyManagerError(int errorCode) {
+        // TODO (b/241060746): Implement retry logic - StatusCode.TRY_AGAIN
+        if (errorCode == android.hardware.automotive.vehicle.V2_0.StatusCode.NOT_AVAILABLE) {
+            return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+        }
+        return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
     }
 
     /**
