@@ -271,6 +271,12 @@ final class AidlVehicleStub extends VehicleStub {
         }
     }
 
+    @Override
+    public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+        // TODO(b/239744386): implement the logic.
+    }
+
     /**
      * Sets a property.
      *

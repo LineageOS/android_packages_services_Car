@@ -27,15 +27,20 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.GetPropertyServiceRequest;
+import android.car.hardware.property.GetValueResult;
 import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.ArrayMap;
 import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.VehicleStub;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
@@ -45,7 +50,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Common interface for HAL services that send Vehicle Properties back and forth via ICarProperty.
@@ -55,14 +62,9 @@ import java.util.Set;
 public class PropertyHalService extends HalServiceBase {
     private final boolean mDbg = true;
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
-    // Use SparseArray to save memory.
-    @GuardedBy("mLock")
-    private final SparseArray<CarPropertyConfig<?>> mMgrPropIdToCarPropConfig = new SparseArray<>();
-    @GuardedBy("mLock")
-    private final SparseArray<HalPropConfig> mHalPropIdToPropConfig =
-            new SparseArray<>();
-    @GuardedBy("mLock")
-    private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
+    private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
+    private final Map<IBinder, VehicleStub.GetAsyncVehicleStubCallback>
+            mResultBinderToVehicleStubCallback = new ArrayMap<>();
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.
     private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
             BidirectionalSparseIntArray.create(
@@ -72,13 +74,70 @@ public class PropertyHalService extends HalServiceBase {
     private final VehicleHal mVehicleHal;
     private final PropertyHalServiceIds mPropertyHalServiceIds = new PropertyHalServiceIds();
     private final HalPropValueBuilder mPropValueBuilder;
-
+    private final Object mLock = new Object();
+    // Use SparseArray to save memory.
+    @GuardedBy("mLock")
+    private final SparseArray<CarPropertyConfig<?>> mMgrPropIdToCarPropConfig = new SparseArray<>();
+    @GuardedBy("mLock")
+    private final SparseArray<HalPropConfig> mHalPropIdToPropConfig =
+            new SparseArray<>();
+    @GuardedBy("mLock")
+    private final SparseArray<Pair<String, String>> mMgrPropIdToPermissions = new SparseArray<>();
+    @GuardedBy("mLock")
+    private final SparseArray<GetPropertyServiceRequest> mServiceRequestIdToPropertyServiceRequest =
+            new SparseArray<>();
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
     @GuardedBy("mLock")
     private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
 
-    private final Object mLock = new Object();
+    private class VehicleStubCallback extends VehicleStub.GetAsyncVehicleStubCallback {
+        private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
+
+        VehicleStubCallback(IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
+            mGetAsyncPropertyResultCallback = getAsyncPropertyResultCallback;
+        }
+
+        @Override
+        public void onGetAsyncResults(
+                List<VehicleStub.GetVehicleStubAsyncResult> getVehicleStubAsyncResults) {
+            List<GetValueResult> getValueResults = new ArrayList<>();
+            synchronized (mLock) {
+                for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
+                    VehicleStub.GetVehicleStubAsyncResult getVehicleStubAsyncResult =
+                            getVehicleStubAsyncResults.get(i);
+                    int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
+                    GetPropertyServiceRequest getPropertyServiceRequest =
+                            mServiceRequestIdToPropertyServiceRequest.get(serviceRequestId);
+                    mServiceRequestIdToPropertyServiceRequest.remove(serviceRequestId);
+                    if (getPropertyServiceRequest == null) {
+                        Slogf.w(TAG,
+                                "onGetAsyncResults: Request ID: %d might have been completed or an "
+                                        + "exception might have been thrown", serviceRequestId);
+                        continue;
+                    }
+                    int errorCode = getVehicleStubAsyncResult.getErrorCode();
+                    CarPropertyValue carPropertyValue;
+                    if (errorCode != CarPropertyManager.STATUS_OK) {
+                        carPropertyValue = null;
+                    } else {
+                        int managerPropertyId = getPropertyServiceRequest.getPropertyId();
+                        HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(
+                                managerToHalPropId(managerPropertyId));
+                        carPropertyValue = getVehicleStubAsyncResult.getHalPropValue()
+                                .toCarPropertyValue(managerPropertyId, halPropConfig);
+                    }
+                    getValueResults.add(new GetValueResult(getPropertyServiceRequest.getRequestId(),
+                            carPropertyValue, errorCode));
+                }
+            }
+            try {
+                mGetAsyncPropertyResultCallback.onGetValueResult(getValueResults);
+            } catch (RemoteException e) {
+                Slogf.w(TAG, "onGetAsyncResults: Client might have died already %s", e);
+            }
+        }
+    }
 
     /**
      * Converts manager property ID to Vehicle HAL property ID.
@@ -445,7 +504,36 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void getCarPropertyValuesAsync(
             List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            IGetAsyncPropertyResultCallback carPropertyServiceCallback) {
-        // TODO(b/238472103): implement the logic
+            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
+        // TODO(b/242326085): Change local variables into memory pool to reduce memory
+        //  allocation/release cycle
+        List<VehicleHal.GetVehicleHalRequest> getVehicleHalRequests = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
+                GetPropertyServiceRequest getPropertyServiceRequest =
+                        getPropertyServiceRequests.get(i);
+                int serviceRequestIdCounter = mServiceRequestIdCounter.getAndIncrement();
+                mServiceRequestIdToPropertyServiceRequest.put(serviceRequestIdCounter,
+                        getPropertyServiceRequest);
+                getVehicleHalRequests.add(
+                        new VehicleHal.GetVehicleHalRequest(serviceRequestIdCounter,
+                                managerToHalPropId(getPropertyServiceRequest.getPropertyId()),
+                                getPropertyServiceRequest.getAreaId()));
+            }
+        }
+        IBinder getAsyncPropertyResultBinder = getAsyncPropertyResultCallback.asBinder();
+        try {
+            getAsyncPropertyResultBinder.linkToDeath(
+                    () -> mResultBinderToVehicleStubCallback.remove(
+                            getAsyncPropertyResultBinder), /* flags= */0);
+        } catch (RemoteException e) {
+            Slogf.w(TAG, "Linking to binder death recipient failed: %s", e);
+        }
+        if (mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder) == null) {
+            mResultBinderToVehicleStubCallback.put(getAsyncPropertyResultBinder,
+                    new VehicleStubCallback(getAsyncPropertyResultCallback));
+        }
+        mVehicleHal.getAsync(getVehicleHalRequests,
+                mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder));
     }
 }

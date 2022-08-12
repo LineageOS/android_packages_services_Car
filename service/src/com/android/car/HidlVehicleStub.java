@@ -198,6 +198,12 @@ final class HidlVehicleStub extends VehicleStub {
         return getHalPropValueBuilder().build(result.value);
     }
 
+    @Override
+    public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+        // TODO(b/239744386): implement the logic.
+    }
+
     /**
      * Sets a property.
      *
