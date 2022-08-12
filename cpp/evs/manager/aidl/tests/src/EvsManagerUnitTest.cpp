@@ -19,6 +19,10 @@
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
+#include <cutils/android_filesystem_config.h>
+
+#include <unistd.h>
+
 namespace {
 
 using ::aidl::android::hardware::automotive::evs::CameraDesc;
@@ -33,6 +37,8 @@ using ::aidl::android::hardware::automotive::evs::Stream;
 
 constexpr size_t kNumMockEvsCameras = 4;
 constexpr size_t kNumMockEvsDisplays = 2;
+
+const std::unordered_set<int32_t> gAllowedUid({AID_ROOT, AID_SYSTEM, AID_AUTOMOTIVE_EVS});
 
 }  // namespace
 
@@ -80,23 +86,31 @@ private:
 };
 
 TEST_F(EvsEnumeratorUnitTest, VerifyPermissionCheck) {
+    bool isAllowedUid = gAllowedUid.find(getuid()) != gAllowedUid.end();
     mEnumerator->enablePermissionCheck(true);
 
     std::vector<CameraDesc> cameras;
-    EXPECT_FALSE(mEnumerator->getCameraList(&cameras).isOk());
-
-    std::shared_ptr<IEvsCamera> invalidCamera;
     Stream emptyConfig;
-    EXPECT_FALSE(mEnumerator->openCamera(/* cameraId= */ "invalidId", emptyConfig, &invalidCamera)
-                         .isOk());
-    EXPECT_EQ(nullptr, invalidCamera);
-    EXPECT_FALSE(mEnumerator->closeCamera(invalidCamera).isOk());
+    if (!isAllowedUid) {
+        EXPECT_FALSE(mEnumerator->getCameraList(&cameras).isOk());
 
-    std::shared_ptr<IEvsDisplay> invalidDisplay;
-    EXPECT_FALSE(mEnumerator->openDisplay(/* displayId= */ 0xFF, &invalidDisplay).isOk());
+        std::shared_ptr<IEvsCamera> invalidCamera;
+        EXPECT_FALSE(
+                mEnumerator->openCamera(/* cameraId= */ "invalidId", emptyConfig, &invalidCamera)
+                        .isOk());
+        EXPECT_EQ(nullptr, invalidCamera);
+        EXPECT_FALSE(mEnumerator->closeCamera(invalidCamera).isOk());
 
-    DisplayState emptyState;
-    EXPECT_FALSE(mEnumerator->getDisplayState(&emptyState).isOk());
+        std::shared_ptr<IEvsDisplay> invalidDisplay;
+        EXPECT_FALSE(mEnumerator->openDisplay(/* displayId= */ 0xFF, &invalidDisplay).isOk());
+
+        DisplayState emptyState;
+        EXPECT_FALSE(mEnumerator->getDisplayState(&emptyState).isOk());
+    } else {
+        // TODO(b/240619903): Adds more lines to verify the behavior when
+        //                    current user is allowed to use the EVS service.
+        EXPECT_TRUE(mEnumerator->getCameraList(&cameras).isOk());
+    }
 
     mEnumerator->enablePermissionCheck(false);
 }
