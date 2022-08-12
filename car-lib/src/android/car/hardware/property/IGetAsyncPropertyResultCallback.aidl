@@ -13,6 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car;
 
-parcelable CarApiVersion;
+package android.car.hardware.property;
+
+import android.car.hardware.property.GetValueResult;
+
+/**
+ * Callback interface for async {@link CarPropertyService#getPropertiesAsync} when successful.
+ */
+oneway interface IGetAsyncPropertyResultCallback {
+    /**
+     * Method called when {@link GetValueResult} returns a result.
+     */
+    void onGetValueResult(in List<GetValueResult> getValueResults);
+}

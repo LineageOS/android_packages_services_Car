@@ -30,13 +30,14 @@ public final class GetValueResult implements Parcelable {
     private final int mRequestId;
     @Nullable
     private final CarPropertyValue mCarPropertyValue;
+    @CarPropertyManager.ErrorCode
     private final int mErrorCode;
 
     /**
      * Get an instance for GetValueResult.
      */
     public GetValueResult(int requestId, @Nullable CarPropertyValue carPropertyValue,
-            int errorCode) {
+            @CarPropertyManager.ErrorCode int errorCode) {
         mRequestId = requestId;
         mCarPropertyValue = carPropertyValue;
         mErrorCode = errorCode;
@@ -68,7 +69,7 @@ public final class GetValueResult implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    public int getErrorCode() {
+    public @CarPropertyManager.ErrorCode int getErrorCode() {
         return mErrorCode;
     }
 
@@ -124,10 +125,10 @@ public final class GetValueResult implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1657920805083L,
+            time = 1659570543545L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/property/GetValueResult.java",
-            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final  int mErrorCode\nclass GetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final @android.car.hardware.property.CarPropertyManager.ErrorCode int mErrorCode\nclass GetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 

@@ -26,15 +26,15 @@ import com.android.car.internal.util.DataClass;
 @DataClass(genConstructor = false)
 public final class GetPropertyServiceRequest implements Parcelable {
     private final int mRequestId;
-    private final int mPropId;
+    private final int mPropertyId;
     private final int mAreaId;
 
     /**
      * Get an instance for GetPropertyServiceRequest.
      */
-    public GetPropertyServiceRequest(int requestId, int propId, int areaId) {
+    public GetPropertyServiceRequest(int requestId, int propertyId, int areaId) {
         mRequestId = requestId;
-        mPropId = propId;
+        mPropertyId = propertyId;
         mAreaId = areaId;
     }
 
@@ -59,8 +59,8 @@ public final class GetPropertyServiceRequest implements Parcelable {
     }
 
     @DataClass.Generated.Member
-    public int getPropId() {
-        return mPropId;
+    public int getPropertyId() {
+        return mPropertyId;
     }
 
     @DataClass.Generated.Member
@@ -75,7 +75,7 @@ public final class GetPropertyServiceRequest implements Parcelable {
         // void parcelFieldName(Parcel dest, int flags) { ... }
 
         dest.writeInt(mRequestId);
-        dest.writeInt(mPropId);
+        dest.writeInt(mPropertyId);
         dest.writeInt(mAreaId);
     }
 
@@ -91,11 +91,11 @@ public final class GetPropertyServiceRequest implements Parcelable {
         // static FieldType unparcelFieldName(Parcel in) { ... }
 
         int requestId = in.readInt();
-        int propId = in.readInt();
+        int propertyId = in.readInt();
         int areaId = in.readInt();
 
         this.mRequestId = requestId;
-        this.mPropId = propId;
+        this.mPropertyId = propertyId;
         this.mAreaId = areaId;
 
         // onConstructed(); // You can define this method to get a callback
@@ -116,10 +116,10 @@ public final class GetPropertyServiceRequest implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1657577424304L,
+            time = 1658770975996L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/property/GetPropertyServiceRequest.java",
-            inputSignatures = "private final  int mRequestId\nprivate final  int mPropId\nprivate final  int mAreaId\nclass GetPropertyServiceRequest extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "private final  int mRequestId\nprivate final  int mPropertyId\nprivate final  int mAreaId\nclass GetPropertyServiceRequest extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 

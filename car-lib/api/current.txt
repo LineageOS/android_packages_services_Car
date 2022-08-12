@@ -16,12 +16,10 @@ package android.car {
     method @Nullable public static android.car.Car createCar(android.content.Context, @Nullable android.os.Handler);
     method @NonNull public static android.car.Car createCar(@NonNull android.content.Context, @Nullable android.os.Handler, long, @NonNull android.car.Car.CarServiceLifecycleListener);
     method public void disconnect();
-    method @Deprecated @NonNull public static android.car.CarApiVersion getCarApiVersion();
     method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
     method @Nullable public <T> T getCarManager(@NonNull Class<T>);
     method @NonNull public static android.car.CarVersion getCarVersion();
-    method @Deprecated @NonNull public static android.car.PlatformApiVersion getPlatformApiVersion();
     method @NonNull public static android.car.PlatformVersion getPlatformVersion();
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
     method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
@@ -74,20 +72,6 @@ package android.car {
 
   public static interface Car.CarServiceLifecycleListener {
     method public void onLifecycleChanged(@NonNull android.car.Car, boolean);
-  }
-
-  @Deprecated public final class CarApiVersion extends android.car.ApiVersion<android.car.CarApiVersion> implements android.os.Parcelable {
-    method @Deprecated public int describeContents();
-    method @Deprecated @NonNull public static android.car.CarApiVersion forMajorAndMinorVersions(int, int);
-    method @Deprecated @NonNull public static android.car.CarApiVersion forMajorVersion(int);
-    method @Deprecated public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @Deprecated @NonNull public static final android.os.Parcelable.Creator<android.car.CarApiVersion> CREATOR;
-  }
-
-  @Deprecated public static class CarApiVersion.VERSION_CODES {
-    field @Deprecated @NonNull public static final android.car.CarApiVersion TIRAMISU_0;
-    field @Deprecated @NonNull public static final android.car.CarApiVersion TIRAMISU_1;
-    field @Deprecated @NonNull public static final android.car.CarApiVersion UPSIDE_DOWN_CAKE_0;
   }
 
   public final class CarAppFocusManager {
@@ -219,20 +203,6 @@ package android.car {
   public final class GsrComplianceRequirementType {
     field public static final int GSR_COMPLIANCE_NOT_REQUIRED = 0; // 0x0
     field public static final int GSR_COMPLIANCE_REQUIRED_V1 = 1; // 0x1
-  }
-
-  @Deprecated public final class PlatformApiVersion extends android.car.ApiVersion<android.car.PlatformApiVersion> implements android.os.Parcelable {
-    method @Deprecated public int describeContents();
-    method @Deprecated @NonNull public static android.car.PlatformApiVersion forMajorAndMinorVersions(int, int);
-    method @Deprecated @NonNull public static android.car.PlatformApiVersion forMajorVersion(int);
-    method @Deprecated public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @Deprecated @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformApiVersion> CREATOR;
-  }
-
-  @Deprecated public static class PlatformApiVersion.VERSION_CODES {
-    field @Deprecated @NonNull public static final android.car.PlatformApiVersion TIRAMISU_0;
-    field @Deprecated @NonNull public static final android.car.PlatformApiVersion TIRAMISU_1;
-    field @Deprecated @NonNull public static final android.car.PlatformApiVersion UPSIDE_DOWN_CAKE_0;
   }
 
   public final class PlatformVersion extends android.car.ApiVersion<android.car.PlatformVersion> implements android.os.Parcelable {
@@ -861,7 +831,7 @@ package android.car.hardware.property {
     ctor public GetPropertyServiceRequest(int, int, int);
     method public int describeContents();
     method public int getAreaId();
-    method public int getPropId();
+    method public int getPropertyId();
     method public int getRequestId();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.property.GetPropertyServiceRequest> CREATOR;

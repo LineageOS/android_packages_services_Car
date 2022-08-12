@@ -17,12 +17,17 @@
 
 package com.android.car.bluetooth;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.staticMockMarker;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -35,6 +40,10 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.AdvertiseData;
 import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.car.Car;
+import android.car.PlatformVersion;
+import android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper;
+import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -189,6 +198,9 @@ public class BluetoothFastPairTest {
         mMockitoSession = ExtendedMockito.mockitoSession()
                 .strictness(Strictness.WARN)
                 .spyStatic(BluetoothAdapter.class)
+                .spyStatic(Car.class)
+                .spyStatic(AdvertisingSetCallbackHelper.class)
+                .spyStatic(AdvertisingSetHelper.class)
                 .startMocking();
 
         mTestFastPairAdvertiser = new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
@@ -472,11 +484,58 @@ public class BluetoothFastPairTest {
         verify(mMockLeAdvertiser, timeout(ASYNC_CALL_TIMEOUT_MILLIS)).stopAdvertisingSet(any());
     }
 
+    /**
+     * {@link AdvertisingSetCallbackHelper} and {@link AdvertisingSetHelper} were introduced in
+     * TM-QPR-1 (maj=33, min=1) to help with {@link FastPairAdvertiser} hidden API usages. A
+     * version check was added to the constructor of {@link FastPairAdvertiser} to ensure backwards
+     * compatibility with respect to the availability of these helper classes. One way to test
+     * which branch the check took is to check whether
+     * {@link AdvertisingSetCallbackHelper#createRealCallbackFromProxy} was invoked or not.
+     */
+    @Test
+    public void testFPAdvertiserBackCompat_tiramisu1_createRealCallbackFromProxyInvoked() {
+        mockGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
+        // reset invocation count
+        clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
+
+        // version check lies in constructor
+        new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
+
+        verify(() -> AdvertisingSetCallbackHelper.createRealCallbackFromProxy(any()));
+    }
+
+    /**
+     * {@link AdvertisingSetCallbackHelper} and {@link AdvertisingSetHelper} were introduced in
+     * TM-QPR-1 (maj=33, min=1) to help with {@link FastPairAdvertiser} hidden API usages. A
+     * version check was added to the constructor of {@link FastPairAdvertiser} to ensure backwards
+     * compatibility with respect to the availability of these helper classes. One way to test
+     * which branch the check took is to check whether
+     * {@link AdvertisingSetCallbackHelper#createRealCallbackFromProxy} was invoked or not.
+     */
+    @Test
+    public void testFPAdvertiserBackCompat_tiramisu0_createRealCallbackFromProxyNotInvoked() {
+        mockGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+        // reset invocation count
+        clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
+
+        // version check lies in constructor
+        new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
+
+        verify(() -> AdvertisingSetCallbackHelper.createRealCallbackFromProxy(any()), never());
+    }
+
     void sendPairingKey(int pairingKey) {
         Intent pairingRequest = new Intent(BluetoothDevice.ACTION_PAIRING_REQUEST);
         pairingRequest.putExtra(BluetoothDevice.EXTRA_PAIRING_KEY, pairingKey);
         pairingRequest.putExtra(BluetoothDevice.EXTRA_DEVICE, mMockBluetoothDevice);
         mTestGattServer.mPairingAttemptsReceiver.onReceive(mMockContext, pairingRequest);
 
+    }
+
+    /**
+     * Mocks a call to {@link Car#getPlatformVersion}.
+     */
+    protected final void mockGetPlatformVersion(PlatformVersion version) {
+        doReturn(version).when(() -> Car.getPlatformVersion());
     }
 }

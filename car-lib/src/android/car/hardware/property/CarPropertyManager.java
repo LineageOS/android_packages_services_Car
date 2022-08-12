@@ -34,6 +34,8 @@ import android.car.hardware.CarPropertyValue;
 import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArraySet;
@@ -42,6 +44,7 @@ import android.util.SparseArray;
 
 import com.android.car.internal.CarPropertyEventCallbackController;
 import com.android.car.internal.SingleMessageHandler;
+import com.android.car.internal.os.HandlerExecutor;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
@@ -49,6 +52,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,6 +71,11 @@ public class CarPropertyManager extends CarManagerBase {
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
     @AddedIn(majorVersion = 34)
     public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
+    @GuardedBy("mLock")
+    private final SparseArray<GetAsyncPropertyClientInfo> mRequestIdToClientInfo =
+            new SparseArray<>();
+    private final GetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback =
+            new GetAsyncPropertyResultCallback();
 
     private final CarPropertyEventListenerToService mCarPropertyEventToService =
             new CarPropertyEventListenerToService(this);
@@ -234,6 +243,80 @@ public class CarPropertyManager extends CarManagerBase {
     }
 
     /**
+     * A class for delivering {@link GetPropertyCallback} client callback when
+     * {@link IGetAsyncPropertyResultCallback} returns a result.
+     */
+    private class GetAsyncPropertyResultCallback extends IGetAsyncPropertyResultCallback.Stub {
+
+        @Override
+        public IBinder asBinder() {
+            return this;
+        }
+
+        @Override
+        public void onGetValueResult(List<GetValueResult> getValueResults) {
+            for (int i = 0; i < getValueResults.size(); i++) {
+                GetValueResult getValueResult = getValueResults.get(i);
+                int requestId = getValueResult.getRequestId();
+                GetAsyncPropertyClientInfo getAsyncPropertyClientInfo;
+                synchronized (mLock) {
+                    getAsyncPropertyClientInfo = mRequestIdToClientInfo.get(requestId);
+                    mRequestIdToClientInfo.remove(requestId);
+                }
+                if (getAsyncPropertyClientInfo == null) {
+                    Log.w(TAG, "onGetValueResult: Request ID: " + requestId
+                            + " might have been completed or an exception might have been thrown");
+                    continue;
+                }
+                Executor callbackExecutor = getAsyncPropertyClientInfo.getCallbackExecutor();
+                GetPropertyCallback getPropertyCallback =
+                        getAsyncPropertyClientInfo.getGetPropertyCallback();
+                @ErrorCode
+                int errorCode = getValueResult.getErrorCode();
+                if (errorCode == STATUS_OK) {
+                    callbackExecutor.execute(() -> getPropertyCallback.onSuccess(
+                            new GetPropertyResult(requestId,
+                                    getValueResult.getCarPropertyValue())));
+                } else {
+                    callbackExecutor.execute(() -> getPropertyCallback.onFailure(
+                            new GetPropertyError(requestId, errorCode)));
+                }
+            }
+        }
+    }
+
+    /**
+     * A class to store client info when {@link CarPropertyManager#getPropertiesAsync} is called.
+     */
+    private static final class GetAsyncPropertyClientInfo {
+        private final GetPropertyRequest mGetPropertyRequest;
+        private final Executor mCallbackExecutor;
+        private final GetPropertyCallback mGetPropertyCallback;
+
+        public GetPropertyRequest getGetPropertyRequest() {
+            return mGetPropertyRequest;
+        }
+
+        public Executor getCallbackExecutor() {
+            return mCallbackExecutor;
+        }
+
+        public GetPropertyCallback getGetPropertyCallback() {
+            return mGetPropertyCallback;
+        }
+
+        /**
+         * Get an instance of GetAsyncPropertyClientInfo.
+         */
+        private GetAsyncPropertyClientInfo(GetPropertyRequest getPropertyRequest,
+                Executor callbackExecutor, GetPropertyCallback getPropertyCallback) {
+            mGetPropertyRequest = getPropertyRequest;
+            mCallbackExecutor = callbackExecutor;
+            mGetPropertyCallback = getPropertyCallback;
+        }
+    }
+
+    /**
      * An error result for {@link GetPropertyCallback}.
      */
     @AddedIn(majorVersion = 34)
@@ -369,7 +452,7 @@ public class CarPropertyManager extends CarManagerBase {
             return;
         }
         mHandler = new SingleMessageHandler<CarPropertyEvent>(eventHandler.getLooper(),
-            MSG_GENERIC_EVENT) {
+                MSG_GENERIC_EVENT) {
             @Override
             protected void handleEvent(CarPropertyEvent carPropertyEvent) {
                 CarPropertyEventCallbackController carPropertyEventCallbackController;
@@ -1125,6 +1208,15 @@ public class CarPropertyManager extends CarManagerBase {
         }
     }
 
+    private void clearRequestIdToClientInfo(
+            List<GetPropertyRequest> getPropertyRequests) {
+        synchronized (mLock) {
+            for (int i = 0; i < getPropertyRequests.size(); i++) {
+                mRequestIdToClientInfo.remove(getPropertyRequests.get(i).getRequestId());
+            }
+        }
+    }
+
     /** @hide */
     @Override
     @AddedInOrBefore(majorVersion = 33)
@@ -1148,6 +1240,25 @@ public class CarPropertyManager extends CarManagerBase {
         return new GetPropertyRequest(requestIdCounter, propertyId, areaId);
     }
 
+    private void checkGetAsyncRequirements(List<GetPropertyRequest> getPropertyRequests,
+            GetPropertyCallback getPropertyCallback, long timeoutInMs) {
+        Objects.requireNonNull(getPropertyRequests);
+        Objects.requireNonNull(getPropertyCallback);
+        if (timeoutInMs <= 0) {
+            throw new IllegalArgumentException("timeoutInMs must be a positive number");
+        }
+    }
+
+    private void updateRequestIdToClientInfo(
+            SparseArray<GetAsyncPropertyClientInfo> currentRequestIdToClientInfo) {
+        synchronized (mLock) {
+            for (int i = 0; i < currentRequestIdToClientInfo.size(); i++) {
+                mRequestIdToClientInfo.put(currentRequestIdToClientInfo.keyAt(i),
+                        currentRequestIdToClientInfo.valueAt(i));
+            }
+        }
+    }
+
     /**
      * Query a list of {@link CarPropertyValue} with property ID and area ID asynchronously.
      *
@@ -1167,11 +1278,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @param callbackExecutor The executor to execute the callback with.
      * @param getPropertyCallback The callback function to deliver the result.
      * @throws SecurityException if missing permission to read the specific property.
-     * @throws CarInternalErrorException when there is an error detected in cars.
      * @throws IllegalArgumentException if the [property ID, area ID] is not supported.
      */
-    // TODO(b/240446493): Remove suppress warnings when implemented.
-    @SuppressWarnings("unchecked")
     @AddedIn(majorVersion = 34)
     public void getPropertiesAsync(
             @NonNull List<GetPropertyRequest> getPropertyRequests,
@@ -1179,7 +1287,48 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable CancellationSignal cancellationSignal,
             @Nullable Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
-        // TODO(b/238323816): implement the logic
+        // TODO(b/238323816): implement cancellationSignal and timeoutInMs logic.
+        checkGetAsyncRequirements(getPropertyRequests, getPropertyCallback, timeoutInMs);
+        List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>(
+                getPropertyRequests.size());
+        SparseArray<GetAsyncPropertyClientInfo> currentRequestIdToClientInfo =
+                new SparseArray<>();
+        if (callbackExecutor == null) {
+            callbackExecutor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
+        }
+        for (int i = 0; i < getPropertyRequests.size(); i++) {
+            GetPropertyRequest getPropertyRequest = getPropertyRequests.get(i);
+            int propertyId = getPropertyRequest.getPropertyId();
+            int areaId = getPropertyRequest.getAreaId();
+            if (DBG) {
+                Log.d(TAG, "getPropertiesAsync, propId: " + VehiclePropertyIds.toString(propertyId)
+                        + ", areaId: 0x" + toHexString(areaId));
+            }
+            GetAsyncPropertyClientInfo getAsyncPropertyClientInfo = new GetAsyncPropertyClientInfo(
+                    getPropertyRequest, callbackExecutor, getPropertyCallback);
+            int requestId = getPropertyRequest.getRequestId();
+            synchronized (mLock) {
+                if (mRequestIdToClientInfo.contains(requestId)
+                        || currentRequestIdToClientInfo.contains(requestId)) {
+                    throw new IllegalArgumentException(
+                            "Request ID: " + requestId + " already exists");
+                }
+                currentRequestIdToClientInfo.put(requestId, getAsyncPropertyClientInfo);
+            }
+            getPropertyServiceRequests.add(
+                    new GetPropertyServiceRequest(requestId, propertyId, areaId));
+        }
+        updateRequestIdToClientInfo(currentRequestIdToClientInfo);
+        try {
+            mService.getPropertiesAsync(getPropertyServiceRequests,
+                    mGetAsyncPropertyResultCallback);
+        } catch (RemoteException e) {
+            clearRequestIdToClientInfo(getPropertyRequests);
+            handleRemoteExceptionFromCarService(e);
+        } catch (IllegalArgumentException | SecurityException e) {
+            clearRequestIdToClientInfo(getPropertyRequests);
+            throw e;
+        }
     }
 
     /**
