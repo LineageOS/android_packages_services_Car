@@ -121,15 +121,8 @@ EvsServiceContext::EvsServiceContext(JavaVM* vm, jclass clazz) :
 }
 
 EvsServiceContext::~EvsServiceContext() {
-    {
-        std::lock_guard<std::mutex> lock(mLock);
-        if (mService) {
-            ::AIBinder_DeathRecipient_delete(mDeathRecipient.get());
-        }
-        mService = nullptr;
-        mCamera = nullptr;
-        mStreamHandler = nullptr;
-    }
+    // Releases the resources
+    deinitialize();
 
     // Stops the callback thread
     mCallbackThread.stop();
@@ -195,6 +188,16 @@ bool EvsServiceContext::initialize(JNIEnv* env, jobject thiz) {
 
     LOG(INFO) << mCameraList.size() << " camera devices are listed.";
     return true;
+}
+
+void EvsServiceContext::deinitialize() {
+    std::lock_guard<std::mutex> lock(mLock);
+    if (mService) {
+        ::AIBinder_DeathRecipient_delete(mDeathRecipient.get());
+    }
+    mService = nullptr;
+    mCamera = nullptr;
+    mStreamHandler = nullptr;
 }
 
 bool EvsServiceContext::openCamera(const char* id) {

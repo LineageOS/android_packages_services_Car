@@ -55,6 +55,20 @@ jboolean connectToHalServiceIfNecessary(JNIEnv* env, jobject thiz, jlong handle)
 }
 
 /*
+ * Disconnects from the Extended View System service
+ */
+void disconnectFromHalService(JNIEnv*, jobject, jlong handle) {
+    EvsServiceContext* ctxt = reinterpret_cast<EvsServiceContext*>(handle);
+    if (ctxt == nullptr || !ctxt->isAvailable()) {
+        LOG(DEBUG) << "Ignores a disconnecting service request with an invalid handle.";
+        return;
+    }
+
+    // We simply delete a service handle.
+    ctxt->deinitialize();
+}
+
+/*
  * Returns a consumed frame buffer to EVS service
  */
 void returnFrameBuffer(JNIEnv* /*env*/, jobject /*thiz*/, jlong handle, jint bufferId) {
@@ -162,6 +176,8 @@ jint initializeCarEvsService(JavaVM* vm) {
     static const JNINativeMethod methods[] = {
             {"nativeConnectToHalServiceIfNecessary", "(J)Z",
              reinterpret_cast<void*>(connectToHalServiceIfNecessary)},
+            {"nativeDisconnectFromHalService", "(J)V",
+             reinterpret_cast<void*>(disconnectFromHalService)},
             {"nativeOpenCamera", "(JLjava/lang/String;)Z", reinterpret_cast<void*>(openCamera)},
             {"nativeCloseCamera", "(J)V", reinterpret_cast<void*>(closeCamera)},
             {"nativeRequestToStartVideoStream", "(J)Z", reinterpret_cast<void*>(startVideoStream)},
