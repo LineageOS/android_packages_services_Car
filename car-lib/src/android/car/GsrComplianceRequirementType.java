@@ -16,7 +16,7 @@
 package android.car;
 
 import android.annotation.IntDef;
-import android.car.annotation.AddedIn;
+import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -31,12 +31,14 @@ public final class GsrComplianceRequirementType {
     /**
      * GSR compliance is not required.
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int GSR_COMPLIANCE_NOT_REQUIRED = 0;
     /**
      * GSR compliance is required and the requirement solution version is 1.
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int GSR_COMPLIANCE_REQUIRED_V1 = 1;
 
     /** @hide */
