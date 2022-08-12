@@ -82,8 +82,7 @@ public final class ApiCheckerRuleTest {
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
 
-        assertWithMessage("exception (%s) message", e).that(e.getMessage())
-                .containsMatch("invalid .*" + methodName);
+        assertWithMessage("exception (%s) message", e).that(e.getMessage()).contains(methodName);
     }
 
     @Test

@@ -16,7 +16,6 @@
 
 package android.car.test;
 
-import android.annotation.Nullable;
 import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
@@ -26,8 +25,9 @@ import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.Member;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Rule used to validate Car API requirements on CTS tests.
@@ -110,8 +110,16 @@ public final class ApiCheckerRule implements TestRule {
                     if (apis == null || apis.length == 0) {
                         throw new IllegalStateException("empty @ApiTest annotation");
                     }
+                    List<String> invalidApis = new ArrayList<>();
                     for (String api: apis) {
-                        validateApi(api);
+                        Member member = ApiHelper.resolve(api);
+                        if (member == null) {
+                            invalidApis.add(api);
+                        }
+                    }
+                    if (!invalidApis.isEmpty()) {
+                        throw new IllegalStateException("Could not resolve some APIs ("
+                                + invalidApis + ") on annotation (" + apiTest + ")");
                     }
                 }
 
@@ -119,69 +127,5 @@ public final class ApiCheckerRule implements TestRule {
             }
 
         };
-    }
-
-    // TODO(b/242315785): improve methods below
-    // - support all formats (like parameters and fields)
-    // - add unit tests
-    // - use regex
-    // - how to handle special cases like android.car.CarVersion.VERSION_CODES.xyz or CREATOR
-    //   - might need special annotation to ignore them
-
-    private static void validateApi(String api) {
-        // Try method first
-        Method method = getMethod(api);
-        if (method != null) {
-            return;
-        }
-        // then field
-        Field field = getField(api);
-        if (field == null) {
-            throw new IllegalStateException("invalid API: " + api);
-        }
-
-    }
-
-    @Nullable
-    private static Method getMethod(String fullyQualifiedMethodName) {
-        int classSeparator = fullyQualifiedMethodName.indexOf('#');
-        if (classSeparator == -1) {
-            return null;
-        }
-        String className = fullyQualifiedMethodName.substring(0, classSeparator);
-        String methodName = fullyQualifiedMethodName.substring(classSeparator + 1,
-                fullyQualifiedMethodName.length());
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-            if (clazz != null) {
-                Class<?>[] noParams = {};
-                return clazz.getDeclaredMethod(methodName, noParams);
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "getMethod(" + fullyQualifiedMethodName + ") failed: " + e);
-        }
-        return null;
-    }
-
-    @Nullable
-    private static Field getField(String fullyQualifiedFieldName) {
-        int classSeparator = fullyQualifiedFieldName.indexOf('#');
-        if (classSeparator == -1) {
-            return null;
-        }
-        String className = fullyQualifiedFieldName.substring(0, classSeparator);
-        String fieldName = fullyQualifiedFieldName.substring(classSeparator + 1,
-                fullyQualifiedFieldName.length());
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-            if (clazz != null) {
-                return clazz.getDeclaredField(fieldName);
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "getField(" + fullyQualifiedFieldName + ") failed: " + e);
-        }
-        return null;
     }
 }
