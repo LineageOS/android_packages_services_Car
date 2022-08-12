@@ -115,16 +115,17 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                                 .CarDisplayAreaTransitionAnimator animator) {
 
                     mIsDisplayAreaAnimating = true;
-                    SurfaceControl.Transaction tx = new SurfaceControl.Transaction();
-                    // Update the foreground panel layer index to animate on top of the
-                    // background DA.
-                    tx.setLayer(mBackgroundApplicationDisplay.getLeash(),
-                            BACKGROUND_LAYER_INDEX);
-                    tx.setLayer(mForegroundApplicationDisplay.getLeash(),
-                            BACKGROUND_LAYER_INDEX + 1);
-                    tx.setLayer(mControlBarDisplay.getLeash(),
-                            CONTROL_BAR_LAYER_INDEX);
-                    tx.apply(true);
+
+                    mTransactionQueue.runInSync(tx -> {
+                        // Update the foreground panel layer index to animate on top of the
+                        // background DA.
+                        tx.setLayer(mBackgroundApplicationDisplay.getLeash(),
+                                BACKGROUND_LAYER_INDEX);
+                        tx.setLayer(mForegroundApplicationDisplay.getLeash(),
+                                BACKGROUND_LAYER_INDEX + 1);
+                        tx.setLayer(mControlBarDisplay.getLeash(),
+                                CONTROL_BAR_LAYER_INDEX);
+                    });
                 }
 
                 @Override
