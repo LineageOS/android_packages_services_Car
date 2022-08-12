@@ -16,7 +16,6 @@
 package com.android.car.util;
 
 import android.car.Car;
-import android.car.PlatformApiVersion;
 import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
 
@@ -44,30 +43,6 @@ public final class VersionUtils {
     public static boolean isPlatformVersionAtLeast(PlatformVersion expectedPlatformVersion) {
         PlatformVersion currentPlatformVersion = Car.getPlatformVersion();
         return currentPlatformVersion.isAtLeast(expectedPlatformVersion);
-    }
-
-    /**
-     * @deprecated use assertPlatformVersionAtLeast
-     */
-    @Deprecated
-    public static void assertPlatformApiVersionAtLeast(
-            PlatformApiVersion expectedPlatformApiVersion) {
-        PlatformApiVersion currentPlatformApiVersion = Car.getPlatformApiVersion();
-        if (!currentPlatformApiVersion.isAtLeast(expectedPlatformApiVersion)) {
-            throw new PlatformVersionMismatchException(PlatformVersion.forMajorAndMinorVersions(
-                    expectedPlatformApiVersion.getMajorVersion(),
-                    expectedPlatformApiVersion.getMinorVersion()));
-        }
-    }
-
-    /**
-     * @deprecated use isPlatformVersionAtLeast
-     */
-    @Deprecated
-    public static boolean isPlatformApiVersionAtLeast(
-            PlatformApiVersion expectedPlatformApiVersion) {
-        PlatformApiVersion currentPlatformApiVersion = Car.getPlatformApiVersion();
-        return currentPlatformApiVersion.isAtLeast(expectedPlatformApiVersion);
     }
 
     private VersionUtils() {
