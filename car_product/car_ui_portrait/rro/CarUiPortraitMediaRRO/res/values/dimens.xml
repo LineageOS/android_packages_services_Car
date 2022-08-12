@@ -32,4 +32,12 @@
     <dimen name="media_browse_list_item_text_margin_x">148dp</dimen>
     <dimen name="media_browse_list_icons_item_art_margin_start">16dp</dimen>
     <dimen name="media_browse_list_icons_item_text_margin_x">112dp</dimen>
+
+    <!-- error_button_background.xml -->
+    <dimen name="error_button_corner_radius">38dp</dimen>
+
+    <!-- fragment_error.xml -->
+    <dimen name="fragment_error_button_width">760dp</dimen>
+    <dimen name="fragment_error_button_height">88dp</dimen>
+    <dimen name="fragment_error_button_marginTop">120dp</dimen>
 </resources>
