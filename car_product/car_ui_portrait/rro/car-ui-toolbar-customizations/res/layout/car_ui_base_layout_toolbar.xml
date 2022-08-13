@@ -39,8 +39,8 @@
         android:paddingEnd="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toEndOf="@id/left_part_of_toolbar_focus_area"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintStart_toEndOf="@id/car_ui_base_layout_divider"
+        app:layout_constraintRight_toRightOf="parent"/>
 
     <com.android.car.ui.FocusArea
         android:id="@+id/top_part_of_toolbar_focus_area"
@@ -105,27 +105,27 @@
             </FrameLayout>
 
             <LinearLayout android:layout_height="wrap_content"
-                          android:layout_width="wrap_content"
-                          android:id="@+id/car_ui_toolbar_title_container"
-                          android:orientation="vertical"
-                          android:layout_marginStart="16dp"
-                          app:layout_goneMarginStart="0dp"
-                          app:layout_constraintBottom_toBottomOf="parent"
-                          app:layout_constraintTop_toTopOf="parent"
-                          app:layout_constraintEnd_toEndOf="parent"
-                          app:layout_constraintStart_toEndOf="@id/car_ui_toolbar_title_logo_container">
+                android:layout_width="wrap_content"
+                android:id="@+id/car_ui_toolbar_title_container"
+                android:orientation="vertical"
+                android:layout_marginStart="16dp"
+                app:layout_goneMarginStart="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/car_ui_toolbar_title_logo_container">
                 <TextView android:id="@+id/car_ui_toolbar_title"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:singleLine="true"
-                          android:textAlignment="viewStart"
-                          android:textAppearance="@style/TextAppearance.CarUi.Widget.Toolbar.Title"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textAlignment="viewStart"
+                    android:textAppearance="@style/TextAppearance.CarUi.Widget.Toolbar.Title"/>
                 <TextView android:id="@+id/car_ui_toolbar_subtitle"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:visibility="gone"
-                          android:textAlignment="viewStart"
-                          android:textAppearance="?android:attr/textAppearanceSmall"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    android:textAlignment="viewStart"
+                    android:textAppearance="?android:attr/textAppearanceSmall"/>
             </LinearLayout>
 
             <FrameLayout
@@ -175,11 +175,10 @@
         android:id="@+id/left_part_of_toolbar_focus_area"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
-        android:tag="car_ui_left_inset"
         android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_part_of_toolbar_focus_area"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent">
 
         <com.android.car.ui.toolbar.TabLayout
             android:id="@+id/car_ui_toolbar_tabs"
@@ -190,11 +189,13 @@
 
     <!-- Hairline to the right of the tabs -->
     <View
+        android:id="@+id/car_ui_base_layout_divider"
         android:layout_width="2dp"
         android:layout_height="0dp"
         android:background="@color/divider_color"
         android:focusable="false"
-        app:layout_constraintStart_toEndOf="@id/left_part_of_toolbar_focus_area"
+        android:tag="car_ui_left_inset"
+        app:layout_constraintLeft_toRightOf="@id/left_part_of_toolbar_focus_area"
         app:layout_constraintTop_toBottomOf="@id/top_part_of_toolbar_focus_area"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

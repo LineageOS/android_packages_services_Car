@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -24,9 +26,11 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.GetValueRequest;
 import android.hardware.automotive.vehicle.GetValueRequests;
 import android.hardware.automotive.vehicle.GetValueResult;
@@ -62,12 +66,14 @@ import com.android.compatibility.common.util.PollingCheck;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleStubTest {
@@ -85,6 +91,8 @@ public class VehicleStubTest {
     private IBinder mAidlBinder;
     @Mock
     private android.hardware.automotive.vehicle.V2_0.IVehicle mHidlVehicle;
+    @Mock
+    private VehicleStub.GetAsyncVehicleStubCallback mGetAsyncVehicleStubCallback;
 
     private AidlVehicleStub mAidlVehicleStub;
     private VehicleStub mHidlVehicleStub;
@@ -316,6 +324,65 @@ public class VehicleStubTest {
     }
 
     @Test
+    public void testGetHidlAsync() throws Exception {
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                    (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) args[0];
+            assertThat(propValue.prop).isEqualTo(TEST_PROP);
+            android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback callback =
+                    (android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback) args[1];
+            callback.onValues(StatusCode.OK, propValue);
+            return null;
+        }).when(mHidlVehicle).get(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+
+        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                new VehicleStub.GetVehicleStubAsyncRequest(0, value);
+
+        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
+                mGetAsyncVehicleStubCallback);
+
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().get(0).getHalPropValue()).isEqualTo(value);
+    }
+
+    @Test
+    public void testGetHidlAsyncError() throws Exception {
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                    (android.hardware.automotive.vehicle.V2_0.VehiclePropValue) args[0];
+            assertThat(propValue.prop).isEqualTo(TEST_PROP);
+            android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback callback =
+                    (android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback) args[1];
+            callback.onValues(StatusCode.INVALID_ARG, propValue);
+            return null;
+        }).when(mHidlVehicle).get(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/false);
+        HalPropValue value = builder.build(TEST_PROP, 0, TEST_VALUE);
+        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                new VehicleStub.GetVehicleStubAsyncRequest(0, value);
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
+                mGetAsyncVehicleStubCallback);
+
+        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+    }
+
+    @Test
     public void testGetHidl() throws Exception {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
@@ -494,6 +561,99 @@ public class VehicleStubTest {
 
         assertThat(gotValue).isEqualTo(value);
         assertThat(mAidlVehicleStub.countPendingRequests()).isEqualTo(0);
+    }
+
+    @Test
+    public void testGetAsyncAidlCallback() throws RemoteException {
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.prop.prop).isEqualTo(HVAC_TEMPERATURE_SET);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.OK;
+            result.prop = request.prop;
+            result.requestId = request.requestId;
+            GetValueResults results = new GetValueResults();
+            results.payloads = new GetValueResult[]{result};
+
+            // Call callback after 100ms.
+            mHandler.postDelayed(() -> {
+                try {
+                    callback.onGetValues(results);
+                } catch (RemoteException e) {
+                    // ignore.
+                }
+            }, /* delayMillis= */ 100);
+            return null;
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                new VehicleStub.GetVehicleStubAsyncRequest(0, value);
+
+        mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
+                mGetAsyncVehicleStubCallback);
+
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().get(0).getHalPropValue()).isEqualTo(value);
+    }
+
+    @Test
+    public void testGetAsyncAidlError() throws RemoteException {
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            GetValueRequests requests = (GetValueRequests) args[1];
+            assertThat(requests.payloads.length).isEqualTo(1);
+            GetValueRequest request = requests.payloads[0];
+            assertThat(request.requestId).isEqualTo(0);
+            assertThat(request.prop.prop).isEqualTo(HVAC_TEMPERATURE_SET);
+            IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
+
+            GetValueResult result = new GetValueResult();
+            result.status = StatusCode.INTERNAL_ERROR;
+            result.prop = request.prop;
+            result.requestId = request.requestId;
+            GetValueResults results = new GetValueResults();
+            results.payloads = new GetValueResult[]{result};
+
+            // Call callback after 100ms.
+            mHandler.postDelayed(() -> {
+                try {
+                    callback.onGetValues(results);
+                } catch (RemoteException e) {
+                    // ignore.
+                }
+            }, /* delayMillis= */ 100);
+            return null;
+        }).when(mAidlVehicle).getValues(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/*isAidl=*/true);
+        HalPropValue value = builder.build(HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                new VehicleStub.GetVehicleStubAsyncRequest(0, value);
+
+        mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
+                mGetAsyncVehicleStubCallback);
+
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
     @Test

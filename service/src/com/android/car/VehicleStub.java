@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.car.hardware.property.CarPropertyManager;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -58,6 +59,91 @@ public abstract class VehicleStub {
          */
         void unsubscribe(int prop) throws RemoteException, ServiceSpecificException;
     }
+
+    /**
+     * A request for {@link com.android.car.hal.HalClient#getValuesAsync}
+     */
+    public static class GetVehicleStubAsyncRequest {
+        private final int mServiceRequestId;
+        private final HalPropValue mHalPropValue;
+
+        public int getServiceRequestId() {
+            return mServiceRequestId;
+        }
+
+        public HalPropValue getHalPropValue() {
+            return mHalPropValue;
+        }
+
+        /**
+         * Get an instance for GetVehicleStubAsyncRequest.
+         */
+        public GetVehicleStubAsyncRequest(int serviceRequestId, HalPropValue halPropValue) {
+            mServiceRequestId = serviceRequestId;
+            mHalPropValue = halPropValue;
+        }
+    }
+
+    /**
+     * A result for {@link VehicleStub#getAsync}.
+     */
+    public static final class GetVehicleStubAsyncResult {
+        private final int mServiceRequestId;
+        @Nullable
+        private final HalPropValue mHalPropValue;
+        @CarPropertyManager.ErrorCode
+        private final int mErrorCode;
+
+        public int getServiceRequestId() {
+            return mServiceRequestId;
+        }
+
+        @Nullable
+        public HalPropValue getHalPropValue() {
+            return mHalPropValue;
+        }
+
+        @CarPropertyManager.ErrorCode
+        public int getErrorCode() {
+            return mErrorCode;
+        }
+
+        /**
+         * Get an instance for GetVehicleStubAsyncResult when result returned successfully.
+         */
+        public GetVehicleStubAsyncResult(int serviceRequestId, HalPropValue halPropValue) {
+            mServiceRequestId = serviceRequestId;
+            mHalPropValue = halPropValue;
+            mErrorCode = CarPropertyManager.STATUS_OK;
+        }
+
+        /**
+         * Get an instance for GetVehicleStubAsyncResult when error.
+         */
+        public GetVehicleStubAsyncResult(int serviceRequestId,
+                @CarPropertyManager.ErrorCode int errorCode) {
+            mServiceRequestId = serviceRequestId;
+            mHalPropValue = null;
+            mErrorCode = errorCode;
+        }
+    }
+
+    /**
+     * A callback for async {@link VehicleStub#getAsync} when successful.
+     */
+    public abstract static class GetAsyncVehicleStubCallback {
+        /**
+         * Method called when {@link GetVehicleStubAsyncResult} returns a result.
+         */
+        public abstract void onGetAsyncResults(
+                List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults);
+    }
+
+    /**
+     * Gets a property in async.
+     */
+    public abstract void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback);
 
     /**
      * Checks whether we are connected to AIDL VHAL: {@code true} or HIDL VHAL: {@code false}.

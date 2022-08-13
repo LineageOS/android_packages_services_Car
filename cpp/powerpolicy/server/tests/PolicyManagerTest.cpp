@@ -33,7 +33,7 @@ using ::aidl::android::hardware::automotive::vehicle::VehicleApPowerStateReport;
 using ::tinyxml2::XML_SUCCESS;
 using ::tinyxml2::XMLDocument;
 
-namespace {
+namespace test {
 
 constexpr const char* kDirPrefix = "/tests/data/";
 
@@ -66,6 +66,9 @@ constexpr const char* kNonExistingPowerPolicyId = "non_existing_power_poicy_id";
 constexpr const char* kValidPowerPolicyGroupId = "mixed_policy_group";
 constexpr const char* kInvalidPowerPolicyGroupId = "invalid_policy_group";
 constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";
+constexpr const char* kSystemPolicyIdinitialOn = "system_power_policy_initial_on";
+constexpr const char* kSystemPolicyIdinitialAllOn = "system_power_policy_all_on";
+constexpr const char* kSystemPolicyIdSuspendPrep = "system_power_policy_suspend_prep";
 
 const VehicleApPowerStateReport kExistingTransition = VehicleApPowerStateReport::WAIT_FOR_VHAL;
 const VehicleApPowerStateReport kNonExistingTransition = static_cast<VehicleApPowerStateReport>(-1);
@@ -217,7 +220,7 @@ void checkInvalidPolicies(const PolicyManager& policyManager) {
     ASSERT_TRUE(isEqual(*policyMeta->powerPolicy, kSystemPowerPolicyNoUserInteraction));
 }
 
-}  // namespace
+}  // namespace test
 
 namespace internal {
 
@@ -234,7 +237,7 @@ public:
 private:
     void readXmlFile(const char* filename) {
         XMLDocument xmlDoc;
-        std::string path = getTestDataPath(filename);
+        std::string path = test::getTestDataPath(filename);
         xmlDoc.LoadFile(path.c_str());
         ASSERT_TRUE(xmlDoc.ErrorID() == XML_SUCCESS);
         mManager->readPowerPolicyFromXml(xmlDoc);
@@ -245,6 +248,8 @@ private:
 };
 
 }  // namespace internal
+
+namespace test {
 
 class PolicyManagerTest : public ::testing::Test {};
 
@@ -334,6 +339,16 @@ TEST_F(PolicyManagerTest, TestValidXml_SystemPowerPolicyOnly) {
     checkSystemPowerPolicy(policyManager, kModifiedSystemPowerPolicy);
 }
 
+TEST_F(PolicyManagerTest, TestDefaultPowerPolicies) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdSuspendPrep).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdNoUserInteraction).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdinitialOn).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdinitialAllOn).ok());
+}
+
 TEST_F(PolicyManagerTest, TestInvalidPowerPolicyXml) {
     for (const auto& filename : kInvalidPowerPolicyXmlFiles) {
         PolicyManager policyManager;
@@ -394,6 +409,7 @@ TEST_F(PolicyManagerTest, TestSystemPowerPolicyAllOn) {
     ASSERT_TRUE(systemPolicyDefault->disabledComponents.empty());
 }
 
+}  // namespace test
 }  // namespace powerpolicy
 }  // namespace automotive
 }  // namespace frameworks

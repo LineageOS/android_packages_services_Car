@@ -205,7 +205,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     Slogf.i(TAG_EVS, "Requested to launch the activity.");
                 } else {
                     // Ensure we stops streaming
-                    mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE);
+                    handleClientDisconnected(mStreamCallback);
                 }
             }
         }
@@ -323,7 +323,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             int result = ERROR_NONE;
             synchronized (mLock) {
                 // TODO(b/188970686): Reduce this lock duration.
-                if (mState == destination && destination != SERVICE_STATE_REQUESTED) {
+                if (mState == destination && priority < mLastRequestPriority &&
+                        destination != SERVICE_STATE_REQUESTED) {
                     // Nothing to do
                     return ERROR_NONE;
                 }
@@ -390,7 +391,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         public CarEvsStatus getStateAndServiceType() {
             synchronized (mLock) {
-                return new CarEvsStatus(mServiceType, mState);
+                return new CarEvsStatus(getServiceType(), getState());
             }
         }
 
@@ -455,7 +456,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
                 case SERVICE_STATE_REQUESTED:
                     // Requested to cancel a pending service request
-                    if (mServiceType != service || mLastRequestPriority > priority) {
+                    if (mServiceType != service || priority < mLastRequestPriority) {
                         return ERROR_BUSY;
                     }
 
@@ -465,7 +466,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
                 case SERVICE_STATE_ACTIVE:
                     // Requested to stop a current video stream
-                    if (mServiceType != service || mLastRequestPriority > priority) {
+                    if (mServiceType != service || priority < mLastRequestPriority) {
                         return ERROR_BUSY;
                     }
 
