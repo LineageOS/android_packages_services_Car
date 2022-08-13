@@ -455,7 +455,7 @@ public class CarPowerManager extends CarManagerBase {
             // Updates listener
             mListener = listener;
             mExecutor = executor;
-            setServiceForListenerLocked(false);
+            setServiceForListenerLocked(/* useCompletion= */ false);
         }
     }
 
@@ -489,7 +489,7 @@ public class CarPowerManager extends CarManagerBase {
             // Updates listener
             mListenerWithCompletion = listener;
             mExecutor = executor;
-            setServiceForListenerLocked(true);
+            setServiceForListenerLocked(/* useCompletion= */ true);
         }
     }
 
@@ -691,6 +691,7 @@ public class CarPowerManager extends CarManagerBase {
     public static boolean isCompletionAllowed(@CarPowerState int state) {
         switch (state) {
             case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
             case CarPowerManager.STATE_SHUTDOWN_ENTER:
             case CarPowerManager.STATE_SUSPEND_ENTER:
             case CarPowerManager.STATE_HIBERNATION_ENTER:
