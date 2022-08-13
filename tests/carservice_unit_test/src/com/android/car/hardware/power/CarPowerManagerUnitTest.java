@@ -504,6 +504,22 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                 referenceStates).inOrder();
     }
 
+    private static boolean isCompletionAllowed(@CarPowerManager.CarPowerState int state) {
+        switch (state) {
+            case CarPowerManager.STATE_PRE_SHUTDOWN_PREPARE:
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
+            case CarPowerManager.STATE_SHUTDOWN_ENTER:
+            case CarPowerManager.STATE_SUSPEND_ENTER:
+            case CarPowerManager.STATE_HIBERNATION_ENTER:
+            case CarPowerManager.STATE_POST_SHUTDOWN_ENTER:
+            case CarPowerManager.STATE_POST_SUSPEND_ENTER:
+            case CarPowerManager.STATE_POST_HIBERNATION_ENTER:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     private static final class MockDisplayInterface implements DisplayInterface {
         @GuardedBy("sLock")
         private boolean mDisplayOn = true;
@@ -597,7 +613,7 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                     (state, future) -> {
                         mReceivedStates.add(state);
                         mRemainingCount--;
-                        if (CarPowerManager.isCompletionAllowed(state)) {
+                        if (isCompletionAllowed(state)) {
                             assertThat(future).isNotNull();
                             future.complete();
                         } else {
