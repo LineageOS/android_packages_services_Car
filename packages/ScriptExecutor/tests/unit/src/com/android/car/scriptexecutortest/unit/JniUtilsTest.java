@@ -37,6 +37,7 @@ public final class JniUtilsTest {
     private static final String NUMBER_KEY = "number_key";
     private static final String INT_ARRAY_KEY = "int_array_key";
     private static final String LONG_ARRAY_KEY = "long_array_key";
+    private static final String DOUBLE_ARRAY_KEY = "double_array_key";
 
     private static final boolean BOOLEAN_VALUE = true;
     private static final double NUMBER_VALUE = 0.1;
@@ -44,6 +45,7 @@ public final class JniUtilsTest {
     private static final String STRING_VALUE = "test";
     private static final int[] INT_ARRAY_VALUE = new int[]{1, 2, 3};
     private static final long[] LONG_ARRAY_VALUE = new long[]{1, 2, 3, 4};
+    private static final double[] DOUBLE_ARRAY_VALUE = new double[]{1.1d, 2.2d, 3.3d, 4.4d};
 
     // Pointer to Lua Engine instantiated in native space.
     private long mLuaEnginePtr = 0;
@@ -91,6 +93,8 @@ public final class JniUtilsTest {
 
     private native boolean nativeHasLongArrayValue(long luaEnginePtr, String key, long[] value);
 
+    private native boolean nativeHasDoubleArrayValue(long luaEnginePtr, String key, double[] value);
+
     @Test
     public void pushBundleToLuaTable_nullBundleMakesEmptyLuaTable() {
         nativePushBundleToLuaTableCaller(mLuaEnginePtr, null);
@@ -136,6 +140,7 @@ public final class JniUtilsTest {
         PersistableBundle bundle = new PersistableBundle();
         bundle.putIntArray(INT_ARRAY_KEY, INT_ARRAY_VALUE);
         bundle.putLongArray(LONG_ARRAY_KEY, LONG_ARRAY_VALUE);
+        bundle.putDoubleArray(DOUBLE_ARRAY_KEY, DOUBLE_ARRAY_VALUE);
 
         // Invokes the corresponding helper method to convert the bundle
         // to Lua table on Lua stack.
@@ -147,5 +152,8 @@ public final class JniUtilsTest {
         assertThat(nativeHasIntArrayValue(mLuaEnginePtr, INT_ARRAY_KEY, INT_ARRAY_VALUE)).isTrue();
         assertThat(
                 nativeHasLongArrayValue(mLuaEnginePtr, LONG_ARRAY_KEY, LONG_ARRAY_VALUE)).isTrue();
+        assertThat(
+                nativeHasDoubleArrayValue(mLuaEnginePtr, DOUBLE_ARRAY_KEY, DOUBLE_ARRAY_VALUE))
+                .isTrue();
     }
 }
