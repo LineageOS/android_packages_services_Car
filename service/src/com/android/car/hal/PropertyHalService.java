@@ -109,7 +109,6 @@ public class PropertyHalService extends HalServiceBase {
                     int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
                     GetPropertyServiceRequest getPropertyServiceRequest =
                             mServiceRequestIdToPropertyServiceRequest.get(serviceRequestId);
-                    mServiceRequestIdToPropertyServiceRequest.remove(serviceRequestId);
                     if (getPropertyServiceRequest == null) {
                         Slogf.w(TAG,
                                 "onGetAsyncResults: Request ID: %d might have been completed or an "
@@ -117,6 +116,7 @@ public class PropertyHalService extends HalServiceBase {
                         continue;
                     }
                     int errorCode = getVehicleStubAsyncResult.getErrorCode();
+                    mServiceRequestIdToPropertyServiceRequest.remove(serviceRequestId);
                     CarPropertyValue carPropertyValue;
                     if (errorCode != CarPropertyManager.STATUS_OK) {
                         carPropertyValue = null;
@@ -512,11 +512,11 @@ public class PropertyHalService extends HalServiceBase {
             for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
                 GetPropertyServiceRequest getPropertyServiceRequest =
                         getPropertyServiceRequests.get(i);
-                int serviceRequestIdCounter = mServiceRequestIdCounter.getAndIncrement();
-                mServiceRequestIdToPropertyServiceRequest.put(serviceRequestIdCounter,
+                int serviceRequestId = mServiceRequestIdCounter.getAndIncrement();
+                mServiceRequestIdToPropertyServiceRequest.put(serviceRequestId,
                         getPropertyServiceRequest);
                 getVehicleHalRequests.add(
-                        new VehicleHal.GetVehicleHalRequest(serviceRequestIdCounter,
+                        new VehicleHal.GetVehicleHalRequest(serviceRequestId,
                                 managerToHalPropId(getPropertyServiceRequest.getPropertyId()),
                                 getPropertyServiceRequest.getAreaId()));
             }
