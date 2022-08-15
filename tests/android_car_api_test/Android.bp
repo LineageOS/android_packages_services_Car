@@ -32,6 +32,7 @@ android_test {
     certificate: "platform",
 
     min_sdk_version: "33",
+    target_sdk_version: "34",
 
     // When built explicitly put it in the data partition
 
