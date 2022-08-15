@@ -699,7 +699,7 @@ public class CarPropertyService extends ICarProperty.Stub
         CarServiceUtils.assertPermission(mContext, writePermission);
     }
 
-    private void assertAreaIdIsSupported(CarPropertyConfig config, int propertyId, int areaId) {
+    private void assertAreaIdIsSupported(CarPropertyConfig config, int areaId) {
         int[] areaIds = config.getAreaIds();
         boolean validAreaId = false;
         for (int i = 0; i < areaIds.length; i++) {
@@ -711,28 +711,24 @@ public class CarPropertyService extends ICarProperty.Stub
         if (!validAreaId) {
             throw new IllegalArgumentException(
                     "areadId 0x" + toHexString(areaId) + " not supported for propertyId "
-                            + VehiclePropertyIds.toString(propertyId));
+                            + VehiclePropertyIds.toString(config.getPropertyId()));
         }
     }
 
-    private void assertPropertyIsReadable(CarPropertyConfig config, int propertyId) {
-        synchronized (mLock) {
-            if (config.getAccess() != CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
-                    && config.getAccess() != CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE) {
-                throw new IllegalArgumentException(
-                        "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
-            }
+    private void assertPropertyIsReadable(CarPropertyConfig config) {
+        if (config.getAccess() != CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ
+                && config.getAccess() != CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE) {
+            throw new IllegalArgumentException(
+                    "No access. Cannot read " + VehiclePropertyIds.toString(config.getPropertyId())
+                            + ".");
         }
     }
 
     private void assertPropertyIdIsSupported(CarPropertyConfig config, int propertyId) {
-        synchronized (mLock) {
-            if (config == null) {
-                // Do not attempt to register an invalid propertyId
-                throw new IllegalArgumentException(
-                        "propertyId is not in config list: " + VehiclePropertyIds.toString(
-                                propertyId));
-            }
+        if (config == null) {
+            // Do not attempt to register an invalid propertyId
+            throw new IllegalArgumentException(
+                    "propertyId is not in config list: " + VehiclePropertyIds.toString(propertyId));
         }
     }
 
@@ -751,9 +747,9 @@ public class CarPropertyService extends ICarProperty.Stub
                 config = mPropertyIdToCarPropertyConfig.get(propertyId);
             }
             assertPropertyIdIsSupported(config, propertyId);
-            assertPropertyIsReadable(config, propertyId);
+            assertPropertyIsReadable(config);
             assertReadPermission(propertyId);
-            assertAreaIdIsSupported(config, propertyId, areaId);
+            assertAreaIdIsSupported(config, areaId);
         }
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 getAsyncPropertyResultCallback);
