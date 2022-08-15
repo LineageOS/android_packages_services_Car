@@ -37,5 +37,12 @@ enum UserState {
   USER_STATE_STARTED = 0,
   USER_STATE_STOPPED = 1,
   USER_STATE_REMOVED = 2,
+  /**
+   * @deprecated Value of enum no longer reflects the true amount of user states. Enum should not be used.
+   */
   NUM_USER_STATES = 3,
+  USER_STATE_SWITCHING = 4,
+  USER_STATE_UNLOCKING = 5,
+  USER_STATE_UNLOCKED = 6,
+  USER_STATE_POST_UNLOCKED = 7,
 }
