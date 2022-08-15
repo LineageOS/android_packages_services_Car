@@ -56,5 +56,6 @@
         <permission name="android.car.permission.PRIVILEGED_CAR_INFO"/>
         <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
         <permission name="android.car.permission.CONTROL_CAR_SEATS"/>
+        <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
     </privapp-permissions>
 </permissions>
