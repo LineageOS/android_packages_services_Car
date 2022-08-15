@@ -788,11 +788,16 @@ public class ICarImpl extends ICar.Stub {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpVersions(IndentingPrintWriter writer) {
         writer.println("*Dump versions*");
-        writer.println("Android SDK_INT:" + Build.VERSION.SDK_INT);
-        writer.println("Car API major:" + Car.API_VERSION_MAJOR_INT);
-        writer.println("Car API minor:" + Car.API_VERSION_MINOR_INT);
-        writer.println("Car Platform minor:" + Car.PLATFORM_VERSION_MINOR_INT);
-        writer.println("CarBuiltin Platform minor:" + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
+        writer.println("Android SDK_INT: " + Build.VERSION.SDK_INT);
+        writer.println("Car Version: " + Car.getCarVersion());
+        writer.println("Platform Version: " + Car.getPlatformVersion());
+        writer.println("CarBuiltin Platform minor: " + CarBuiltin.PLATFORM_VERSION_MINOR_INT);
+        writer.println("Legacy versions (might differ from above as they can't be emulated)");
+        writer.increaseIndent();
+        writer.println("Car API major: " + Car.API_VERSION_MAJOR_INT);
+        writer.println("Car API minor: " + Car.API_VERSION_MINOR_INT);
+        writer.println("Car Platform minor: " + Car.PLATFORM_VERSION_MINOR_INT);
+        writer.decreaseIndent();
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)

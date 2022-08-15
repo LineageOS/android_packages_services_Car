@@ -36,6 +36,7 @@ import android.car.annotation.ApiRequirements;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
@@ -138,11 +139,38 @@ public final class Car {
     public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties
             .getInt(PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
 
-    private static final CarVersion CAR_API_VERSION = CarVersion
-            .forMajorAndMinorVersions(API_VERSION_MAJOR_INT, API_VERSION_MINOR_INT);
+    private static final CarVersion CAR_VERSION =
+            CarVersion.forMajorAndMinorVersions(API_VERSION_MAJOR_INT, API_VERSION_MINOR_INT);
 
-    private static final PlatformVersion PLATFORM_API_VERSION = PlatformVersion
-            .forMajorAndMinorVersions(Build.VERSION.SDK_INT, PLATFORM_VERSION_MINOR_INT);
+    private static final PlatformVersion PLATFORM_VERSION;
+
+    /**
+     * @hide
+     */
+    @TestApi
+    public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR =
+            "android.car.debug.platform_major_version";
+    /**
+     * @hide
+     */
+    @TestApi
+    public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR =
+            "android.car.debug.platform_minor_version";
+
+    static {
+        PlatformVersion emulated = null;
+        if (!BuildHelper.isUserBuild()) {
+            int major = SystemProperties.getInt(PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR, -1);
+            if (major != -1) {
+                int minor = SystemProperties.getInt(PROPERTY_EMULATED_PLATFORM_VERSION_MINOR,
+                        PLATFORM_VERSION_MINOR_INT);
+                emulated = android.car.PlatformVersion.forMajorAndMinorVersions(major, minor);
+                Log.i(TAG_CAR, "Emulating PLATFORM_VERSION version: " + emulated);
+            }
+        }
+        PLATFORM_VERSION = emulated != null ? emulated : PlatformVersion
+                .forMajorAndMinorVersions(Build.VERSION.SDK_INT, PLATFORM_VERSION_MINOR_INT);
+    }
 
     /**
      * Binder service name of car service registered to service manager.
@@ -1395,13 +1423,13 @@ public final class Car {
      *
      * <p>Starting on {@link Build.VERSION_CODES#TIRAMISU Android 13}, the {@code Car} APIs can be
      * upgraded without an OTA, so it's possible that these APIs are higher than the
-     * {@link #PLATFORM_API_VERSION platform's}.
+     * {@link #getPlatformVersion() platform's}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static android.car.CarVersion getCarVersion() {
-        return CAR_API_VERSION;
+        return CAR_VERSION;
     }
 
     /**
@@ -1428,7 +1456,7 @@ public final class Car {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public static android.car.PlatformVersion getPlatformVersion() {
-        return PLATFORM_API_VERSION;
+        return PLATFORM_VERSION;
     }
 
     /**
