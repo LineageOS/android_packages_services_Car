@@ -3,8 +3,6 @@ Lua Interpreter
 
 The Lua Interpreter is a web-based IDE tool that can run Lua scripts with the specific Android Auto telemetry callbacks.
 
-If both a report and saved state are available, the order of display is 1. the report and 2. the saved state.
-
 ## Prerequisites
 ***
 Install the required node dependencies using npm with

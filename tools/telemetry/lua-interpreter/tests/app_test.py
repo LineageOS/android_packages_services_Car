@@ -74,6 +74,32 @@ class TestWebApp(unittest.TestCase):
     span = rendered_html.find(id='script-output').find('span')
     self.assertIn('Error encountered while running the script.', str(span))
 
+  def test_execute_script_saved_state_unchanged(self):
+    response = self.client.post(
+        '/execute_script',
+        data={
+            'script': 'function test(data, state) log(2) end',
+            'function-name': 'test',
+            'published-data': "{}",
+            'saved-state': '{"test": "state"}'
+        })
+    rendered_html = BeautifulSoup(response.data.decode('UTF-8'), 'html.parser')
+    span = rendered_html.find(id='saved-state-input').getText()
+    self.assertIn('{"test": "state"}', str(span))
+
+  def test_execute_script_saved_state_changed(self):
+    response = self.client.post(
+        '/execute_script',
+        data={
+            'script': 'function test(data, state) on_success(data) end',
+            'function-name': 'test',
+            'published-data': '{"test": "data"}',
+            'saved-state': '{"test": "state"}'
+        })
+    rendered_html = BeautifulSoup(response.data.decode('UTF-8'), 'html.parser')
+    span = rendered_html.find(id='saved-state-input').getText()
+    self.assertIn('{\n  "test": "data"\n}', str(span))
+
   def test_execute_script_faulty_published_data(self):
     response = self.client.post('/execute_script',
                                 data={

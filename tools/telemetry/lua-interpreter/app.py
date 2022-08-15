@@ -23,7 +23,7 @@ class LuaOutput(ctypes.Structure):
   """Python wrapper class around LuaOutput struct as defined in lua_engine.h.
   """
   _fields_ = [('output', ctypes.POINTER(ctypes.c_char_p)),
-              ('size', ctypes.c_int)]
+              ('size', ctypes.c_int), ('saved_state', ctypes.c_char_p)]
 
 
 @app.route('/')
@@ -87,6 +87,10 @@ def execute_script():
   decoded_output = []
   for i in range(lua_output.size):
     decoded_output.append(prettify_json(lua_output.output[i].decode()))
+
+  new_saved_state = prettify_json(
+      ctypes.string_at(lua_output.saved_state).decode())
+  saved_state = new_saved_state if new_saved_state else saved_state
 
   lua_lib.FreeLuaOutput(ctypes.byref(lua_output))
 
