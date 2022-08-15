@@ -109,7 +109,7 @@ public abstract class VehicleStub {
         }
 
         /**
-         * Get an instance for GetVehicleStubAsyncResult when result returned successfully.
+         * Constructs an instance for GetVehicleStubAsyncResult when result returned successfully.
          */
         public GetVehicleStubAsyncResult(int serviceRequestId, HalPropValue halPropValue) {
             mServiceRequestId = serviceRequestId;
@@ -118,7 +118,7 @@ public abstract class VehicleStub {
         }
 
         /**
-         * Get an instance for GetVehicleStubAsyncResult when error.
+         * Constructs an instance for GetVehicleStubAsyncResult when error.
          */
         public GetVehicleStubAsyncResult(int serviceRequestId,
                 @CarPropertyManager.ErrorCode int errorCode) {
