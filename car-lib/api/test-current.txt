@@ -1453,6 +1453,7 @@ package android.car.user {
     method public static String lifecycleEventTypeToString(int);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.util.concurrent.AsyncFuture<android.car.user.UserSwitchResult> switchUser(int);
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED = 8; // 0x8
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6; // 0x6
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5; // 0x5
