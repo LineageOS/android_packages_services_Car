@@ -19,6 +19,7 @@ import static android.car.test.util.UserTestingHelper.clearUserLockCredentials;
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.test.util.UserTestingHelper.setUserLockCredentials;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
@@ -130,6 +131,42 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
             UserLifecycleEvent event = events.get(0);
             assertWithMessage("type of event %s", event).that(event.getEventType())
                     .isEqualTo(USER_LIFECYCLE_EVENT_TYPE_CREATED);
+            assertWithMessage("user id on %s", event).that(event.getUserId())
+                    .isEqualTo(newUserId);
+        } finally {
+            Log.d(TAG, "unregistering listener: " + listener);
+            mgr.removeListener(listener);
+            Log.v(TAG, "ok");
+        }
+    }
+
+    @Test
+    public void testLifecycleUserRemovedListener() throws Exception {
+        int newUserId = createUser("TestUserToRemove").id;
+        Car car = Car.createCar(getContext().getApplicationContext());
+        CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+
+        BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forUser(newUserId)
+                .setTimeout(START_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_REMOVED)
+                .build();
+
+        try {
+            Log.d(TAG, "registering listener: " + listener);
+            mgr.addListener(Runnable::run, listener);
+            Log.v(TAG, "ok");
+
+            removeUser(newUserId);
+
+            Log.d(TAG, "Waiting for events");
+            List<UserLifecycleEvent> events = listener.waitForEvents();
+            Log.d(TAG, "events: " + events);
+            assertWithMessage("events").that(events).hasSize(1);
+            UserLifecycleEvent event = events.get(0);
+            assertWithMessage("type of event %s", event).that(event.getEventType())
+                    .isEqualTo(USER_LIFECYCLE_EVENT_TYPE_REMOVED);
             assertWithMessage("user id on %s", event).that(event.getUserId())
                     .isEqualTo(newUserId);
         } finally {

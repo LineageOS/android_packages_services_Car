@@ -956,6 +956,8 @@ public class ICarImpl extends ICar.Stub {
             mCarUserService.initBootUser();
         }
 
+        // TODO(235524989): Remove this method as on user removed will now go through
+        // onUserLifecycleEvent due to changes in CarServiceProxy and CarUserService.
         @Override
         public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();
