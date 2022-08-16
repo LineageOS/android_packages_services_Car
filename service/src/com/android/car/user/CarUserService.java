@@ -32,6 +32,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
+import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
@@ -110,6 +111,7 @@ import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.FunctionalUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.internal.annotations.GuardedBy;
@@ -250,6 +252,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final CarUxRestrictionsManagerService mCarUxRestrictionService;
 
+    private final CarPackageManagerService mCarPackageManagerService;
+
     private static final int PRE_CREATION_STAGE_BEFORE_SUSPEND = 1;
 
     private static final int PRE_CREATION_STAGE_ON_SYSTEM_START = 2;
@@ -310,12 +314,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
             int maxRunningUsers,
-            @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
+            @NonNull CarUxRestrictionsManagerService uxRestrictionService,
+            @NonNull CarPackageManagerService carPackageManagerService) {
         this(context, hal, userManager, new UserHandleHelper(context, userManager),
                 context.getSystemService(DevicePolicyManager.class),
                 context.getSystemService(ActivityManager.class), maxRunningUsers,
                 /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService,
-                null);
+                null, carPackageManagerService);
     }
 
     @VisibleForTesting
@@ -328,7 +333,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @Nullable InitialUserSetter initialUserSetter,
             @Nullable UserPreCreator userPreCreator,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
-            @Nullable Handler handler) {
+            @Nullable Handler handler,
+            @NonNull CarPackageManagerService carPackageManagerService) {
         Slogf.d(TAG, "CarUserService(): DBG=%b, user=%s", DBG, context.getUser());
         mContext = context;
         mHal = hal;
@@ -347,6 +353,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
         mCarUxRestrictionService = uxRestrictionService;
+        mCarPackageManagerService = carPackageManagerService;
         mPreCreationStage = resources.getInteger(R.integer.config_userPreCreationStage);
         int preCreationDelayMs = resources
                 .getInteger(R.integer.config_userPreCreationDelay);
@@ -2044,9 +2051,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // POST_UNLOCKED event is meant only for internal service listeners. Skip sending it to
             // app listeners.
             if (eventType != CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED) {
-                // TODO(b/235524989): Do target version check inside
-                // handleNotifyAppUserLifecycleListeners and do not send the event if an app's
-                // target car version is lower than TIRAMISU_1.
                 handleNotifyAppUserLifecycleListeners(event);
             }
         });
@@ -2087,6 +2091,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
             AppLifecycleListener listener = mAppLifecycleListeners.valueAt(i);
+            // Perform target car version check to ensure only apps expecting the new
+            // lifecycle event types will have the events sent to them.
+            // TODO(b/235524989): Cache the target car version for packages in
+            // CarPackageManagerService.
+            if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED
+                    || eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED) {
+                CarVersion targetCarVersion = mCarPackageManagerService.getTargetCarVersion(
+                        listener.packageName);
+                if (!targetCarVersion.isAtLeast(CarVersion.VERSION_CODES.TIRAMISU_1)) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Skipping app listener %s for event %s due to incompatible"
+                                + " target car version %s.", listener, event, targetCarVersion);
+                    }
+                    continue;
+                }
+            }
             if (!listener.applyFilters(event)) {
                 if (DBG) {
                     Slogf.d(TAG, "Skipping app listener %s for event %s due to the filters"
