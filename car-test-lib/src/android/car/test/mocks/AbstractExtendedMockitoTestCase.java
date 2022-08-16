@@ -21,7 +21,6 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSess
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.Mockito.when;
 
 import static java.lang.annotation.ElementType.METHOD;
@@ -363,7 +362,13 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }).when(() -> Log.wtf(anyString(), anyString()));
         doAnswer((invocation) -> {
             return addWtf(invocation);
-        }).when(() -> Log.wtf(anyString(), anyString(), notNull()));
+        }).when(() -> Log.wtf(anyString(), any(Throwable.class)));
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
+        }).when(() -> Log.wtf(anyString(), anyString(), any(Throwable.class)));
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
+        }).when(() -> Slog.wtf(anyString(), any(Throwable.class)));
         doAnswer((invocation) -> {
             return addWtf(invocation);
         }).when(() -> Slog.wtf(anyString(), anyString()));
