@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,13 +41,14 @@ final class DpcShellCommand {
 
     private static final String TAG = DpcShellCommand.class.getSimpleName();
 
+    private final Context mContext;
     private final DevicePolicyManager mDpm;
     private final ComponentName mAdmin;
     private final PrintWriter mWriter;
     private final String[] mArgs;
     private final DpcFactory mDpcFactory;
 
-    private final List<DevicePolicyManagerInterface> mPoInterfaces;
+    private List<DevicePolicyManagerInterface> mPoInterfaces;
     private final DevicePolicyManagerInterface mDoInterface;
 
     /* Args has to be at least of size 4 to account for cmd, ARG_USER, userID, key */
@@ -72,6 +72,7 @@ final class DpcShellCommand {
     private static final String CMD_STOP_USER = "stop-user";
 
     DpcShellCommand(Context context, DpcFactory dpcFactory, PrintWriter writer, String[] args) {
+        mContext = context;
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mAdmin = new ComponentName(context, DpcReceiver.class.getName());
         Log.d(TAG, "Created for user " + Process.myUserHandle() + " and component " + mAdmin
@@ -189,24 +190,31 @@ final class DpcShellCommand {
         }
 
         String restriction = mArgs[3];
+        UserManager manager = mContext.getSystemService(UserManager.class);
+
+        if (mDoInterface.getUser().equals(Process.myUserHandle())
+                && !manager.isUserRunning(target)) {
+            mDpcFactory.runOnOfflineUser(() -> addUserRestrictionPO(target, restriction), target,
+                    "addUserRestriction(%s)", restriction);
+            return;
+        }
 
         if (mDoInterface.getUser().equals(target)) {
             Log.d(TAG, mDoInterface.getUser() + ": addUserRestriction("
-                    + mAdmin.flattenToShortString() + ", " + restriction);
+                    + mAdmin.flattenToShortString() + ", " + restriction + ")");
             mDoInterface.addUserRestriction(restriction);
             return;
         }
 
-        try {
-            DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
-                    .filter((dpm) -> dpm.getUser().equals(target))
-                    .findAny().get();
-            Log.d(TAG, profileOwner.getUser() + ": addUserRestriction(" + restriction);
-            profileOwner.addUserRestriction(restriction);
-        } catch (NoSuchElementException e) {
-            mWriter.println("User not found (see logs)");
-            Log.e(TAG, "User not found", e);
-        }
+        addUserRestrictionPO(target, restriction);
+    }
+
+    private void addUserRestrictionPO(UserHandle target, String restriction) {
+        DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
+                .filter((dpm) -> dpm.getUser().equals(target))
+                .findAny().get();
+        Log.d(TAG, profileOwner.getUser() + ": addUserRestriction(" + restriction + ")");
+        profileOwner.addUserRestriction(restriction);
     }
 
     private void runClearUserRestriction() {
@@ -220,7 +228,7 @@ final class DpcShellCommand {
         if (restrictions == null || restrictions.isEmpty()) {
             mWriter.println("No restrictions.");
         } else {
-            mWriter.printf("%d restriction(s): %s", restrictions.size(),
+            mWriter.printf("%d restriction(s): %s\n", restrictions.size(),
                     bundleToString(restrictions));
         }
     }
@@ -293,10 +301,15 @@ final class DpcShellCommand {
         int status = mDpm.startUserInBackground(mAdmin, user);
         mWriter.printf("Result of starting user %s: %s\n",
                 userId, userOperationStatusToString(status));
+
+        if (status == UserManager.USER_OPERATION_SUCCESS) {
+            mDpcFactory.addProfileOwnerDpm(user);
+            mPoInterfaces = mDpcFactory.getPoInterfaces();
+        }
     }
 
     private void runStopUser() {
-        if (mArgs.length != 3 || !mArgs[1].equals(ARG_TARGET_USER)) {
+        if (mArgs.length != 3 || !ARG_TARGET_USER.equals(mArgs[1])) {
             showHelp();
             return;
         }
@@ -305,6 +318,11 @@ final class DpcShellCommand {
         int status = mDpm.stopUser(mAdmin, user);
         mWriter.printf("Result of stopping user %s: %s\n",
                 userId, userOperationStatusToString(status));
+
+        if (status == UserManager.USER_OPERATION_SUCCESS) {
+            mDpcFactory.removeProfileOwnerDpm(user);
+            mPoInterfaces = mDpcFactory.getPoInterfaces();
+        }
     }
 
     private void runShowAffiliatedUsers() {
