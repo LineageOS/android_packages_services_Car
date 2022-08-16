@@ -16,8 +16,12 @@
 
 package com.android.car.watchdog;
 
+import static android.car.PlatformVersion.VERSION_CODES;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
 import static android.content.Intent.ACTION_REBOOT;
 import static android.content.Intent.ACTION_SHUTDOWN;
@@ -705,12 +709,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             Slogf.w(TAG, "Cannot get CarUserService");
             return;
         }
-        UserLifecycleEventFilter userStartingOrStoppedEventFilter =
+        UserLifecycleEventFilter userEventFilter =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED).build();
-        userService.addUserLifecycleListener(userStartingOrStoppedEventFilter, (event) -> {
+        userService.addUserLifecycleListener(userEventFilter, (event) -> {
             if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
+                    USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
+                    USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
+                return;
+            }
+            if (!Car.getPlatformVersion().isAtLeast(VERSION_CODES.TIRAMISU_1)
+                    && !isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
                     USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
                 return;
             }
@@ -723,6 +736,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/ false);
                     userState = UserState.USER_STATE_STARTED;
                     userStateDesc = "STARTING";
+                    break;
+                case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
+                    userState = UserState.USER_STATE_SWITCHING;
+                    userStateDesc = "SWITCHING";
+                    break;
+                case USER_LIFECYCLE_EVENT_TYPE_UNLOCKING:
+                    userState = UserState.USER_STATE_UNLOCKING;
+                    userStateDesc = "UNLOCKING";
+                    break;
+                case USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED:
+                    userState = UserState.USER_STATE_POST_UNLOCKED;
+                    userStateDesc = "POST_UNLOCKED";
                     break;
                 case USER_LIFECYCLE_EVENT_TYPE_STOPPED:
                     mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/ true);
