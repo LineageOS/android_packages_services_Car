@@ -88,4 +88,8 @@ android_test {
         "libdexmakerjvmtiagent",
         "libstaticjvmtiagent",
     ],
+
+    java_resources: [
+        ":VehicleHalDefaultProperties_JSON",
+    ],
 }
