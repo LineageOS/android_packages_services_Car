@@ -43,7 +43,7 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final PlatformVersion TIRAMISU_0 =
-                forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 0);
+                new PlatformVersion("TIRAMISU_0", Build.VERSION_CODES.TIRAMISU, 0);
 
         /**
          * Helper object for first minor upgrade of Android 13.
@@ -52,7 +52,7 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
                 minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public static final PlatformVersion TIRAMISU_1 =
-                forMajorAndMinorVersions(Build.VERSION_CODES.TIRAMISU, 1);
+                new PlatformVersion("TIRAMISU_1", Build.VERSION_CODES.TIRAMISU, 1);
 
         private VERSION_CODES() {
             throw new UnsupportedOperationException("Only provide constants");
@@ -77,6 +77,10 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
     @NonNull
     public static PlatformVersion forMajorVersion(int majorVersion) {
         return new PlatformVersion(majorVersion, /* minorVersion= */ 0);
+    }
+
+    private PlatformVersion(String name, int majorVersion, int minorVersion) {
+        super(name, majorVersion, minorVersion);
     }
 
     private PlatformVersion(int majorVersion, int minorVersion) {
@@ -106,7 +110,7 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
         @Override
         public PlatformVersion createFromParcel(Parcel source) {
             return ApiVersion.readFromParcel(source,
-                    (major, minor) -> forMajorAndMinorVersions(major, minor));
+                    (name, major, minor) -> new PlatformVersion(name, major, minor));
         }
 
         @Override
