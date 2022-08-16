@@ -58,6 +58,8 @@ import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.car.bluetooth.CarBluetoothService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -91,6 +93,7 @@ public class CarProjectionServiceTest {
             .setSsid("SSID")
             .setBssid(MacAddress.fromString("de:ad:be:ef:77:77"))
             .setPassphrase("Password", SoftApConfiguration.SECURITY_TYPE_WPA2_PSK)
+            .setMacRandomizationSetting(SoftApConfiguration.RANDOMIZATION_NONE)
             .build();
 
     private final IBinder mToken = new Binder();

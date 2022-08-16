@@ -15,9 +15,6 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="rear_view_camera_button_background">#CCFFFFFF</color>
-    <color name="rear_view_camera_exit_icon_color">@android:color/black</color>
-
     <color name="car_nav_icon_fill_color">#FFFFFF</color>
     <color name="car_nav_icon_background_color">#282A2D</color>
     <color name="car_nav_minimize_icon_fill_color">@android:color/black</color>

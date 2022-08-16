@@ -106,7 +106,7 @@ public final class UserRestrictionsFragment extends Fragment {
     }
 
     private List<UserRestrictionListItem> createUserRestrictionItems() {
-        int userId = getContext().getUserId();
+        int userId = getContext().getUser().getIdentifier();
         UserHandle user = UserHandle.of(userId);
         UserManager userManager = getUserManager();
 

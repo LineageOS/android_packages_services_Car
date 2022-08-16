@@ -19,8 +19,10 @@ package com.android.car.telemetry.publisher.net;
 import android.annotation.NonNull;
 import android.app.usage.NetworkStats;
 import android.os.PersistableBundle;
-import android.util.IntArray;
-import android.util.LongArray;
+
+import com.android.car.internal.util.IntArray;
+import com.android.car.internal.util.LongArray;
+import com.android.car.telemetry.UidPackageMapper;
 
 /**
  * Restructured {@link NetworkStats} to simplify subtract/add arithmetics, as well as converting
@@ -120,7 +122,8 @@ public class RefinedStats {
      *     startMillis = 1640779280000,
      *     endMillis = 1640779380000,
      *     size  = 3,
-     *     uid = IntArray[0, 1000, 12345],
+     *     uid = IntArray[0, 1200, 12345],
+     *     packages = StringArray["root", "", "com.android.car,com.android.settings"],
      *     tag = IntArray[0, 0, 5555],
      *     rxBytes = LongArray[0, 0, 0],
      *     txBytes = LongArray[0, 0, 0],
@@ -128,7 +131,12 @@ public class RefinedStats {
      * </code> Where "startMillis" and "endMillis" are timestamps (wall clock) since epoch of time
      * range when the data is collected; field "size" is the length of "uid", "tag", "rxBytes",
      * "txBytes" arrays; fields "uid" and "tag" are dimensions; fields "rxBytes", "txBytes" are
-     * received and transmitted bytes for given dimensions.
+     * received and transmitted bytes for given dimensions; field "packages" contains the comma
+     * separated package names of the apps running in the given uid.
+     *
+     * <p>It's possible to add more data and dimensions to the result. Please see
+     * {@link NetworkStats#Bucket} class to see what's available. Some information can be found in
+     * b/223297091.
      *
      * <p>"tag" field may contain "0" {@link NetworkStats.TAG_NONE}, which is the total value across
      * all the tags. These stats contain both tagged and untagged network usage.
@@ -137,7 +145,7 @@ public class RefinedStats {
      * android.net.NetworkStats#groupedByIface()} method.
      */
     @NonNull
-    public PersistableBundle toPersistableBundle() {
+    public PersistableBundle toPersistableBundle(@NonNull UidPackageMapper uidMapper) {
         PersistableBundle data = new PersistableBundle();
         data.putLong("startMillis", mStartMillis);
         data.putLong("endMillis", mEndMillis);
@@ -145,6 +153,11 @@ public class RefinedStats {
         // TODO(b/218596960): send empty array anyway for data schema consistency.
         if (mUid.size() > 0) {
             data.putIntArray("uid", mUid.toArray());
+            String[] packages = new String[mUid.size()];
+            for (int i = 0; i < mUid.size(); i++) {
+                packages[i] = String.join(",", uidMapper.getPackagesForUid(mUid.get(i)));
+            }
+            data.putStringArray("packages", packages);
             data.putIntArray("tag", mTag.toArray());
             data.putLongArray("rxBytes", mRxBytes.toArray());
             data.putLongArray("txBytes", mTxBytes.toArray());

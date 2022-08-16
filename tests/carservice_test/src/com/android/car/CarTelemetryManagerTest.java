@@ -35,6 +35,8 @@ import android.util.ArrayMap;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import com.android.car.telemetry.CarTelemetryService;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -67,6 +69,13 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
 
         mCarTelemetryManager = (CarTelemetryManager) getCar().getCarManager(
                 Car.CAR_TELEMETRY_SERVICE);
+    }
+
+    @Override
+    protected CarTelemetryService createCarTelemetryService() {
+        // Forces the base class implementation to instantiate real instance of
+        // CarTelemetryService in ICarImpl.
+        return null;
     }
 
     @Test
@@ -105,6 +114,27 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
         mAddMetricsConfigCallback.mSemaphore.acquire();
         assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
                 STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD);
+    }
+
+    @Test
+    public void testAddMetricsConfig_invalidFieldInConfig_shouldFail() throws Exception {
+        // configure a bad publisher, read interval is not allowed to be less than 1
+        TelemetryProto.Publisher.Builder badPublisher =
+                TelemetryProto.Publisher.newBuilder().setMemory(
+                        TelemetryProto.MemoryPublisher.newBuilder().setReadIntervalSec(-1));
+        TelemetryProto.Subscriber.Builder badSubscriber =
+                TelemetryProto.Subscriber.newBuilder()
+                        .setHandler("handler_fn_1")
+                        .setPublisher(badPublisher);
+        TelemetryProto.MetricsConfig config =
+                METRICS_CONFIG_V1.toBuilder().addSubscribers(badSubscriber).build();
+
+        mCarTelemetryManager.addMetricsConfig(
+                CONFIG_NAME, config.toByteArray(), DIRECT_EXECUTOR, mAddMetricsConfigCallback);
+
+        mAddMetricsConfigCallback.mSemaphore.acquire();
+        assertThat(mAddMetricsConfigCallback.mAddConfigStatusMap.get(CONFIG_NAME)).isEqualTo(
+                STATUS_ADD_METRICS_CONFIG_PARSE_FAILED);
     }
 
     @Test

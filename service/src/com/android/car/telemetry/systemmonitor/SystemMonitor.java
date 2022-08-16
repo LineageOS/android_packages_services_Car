@@ -20,12 +20,11 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
-import android.content.Context;
+import android.car.builtin.util.Slogf;
 import android.os.Handler;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

@@ -87,6 +87,7 @@ public class VehiclePropertyPublisherTest {
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.IMMEDIATE);
+    private final FakePublisherListener mFakePublisherListener = new FakePublisherListener();
 
     @Mock
     private DataSubscriber mMockDataSubscriber;
@@ -107,7 +108,7 @@ public class VehiclePropertyPublisherTest {
                 .thenReturn(List.of(PROP_CONFIG_1, PROP_CONFIG_2_WRITE_ONLY));
         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
                 mMockCarPropertyService,
-                this::onPublisherFailure,
+                mFakePublisherListener,
                 mFakeHandlerWrapper.getMockHandler());
     }
 
@@ -203,7 +204,4 @@ public class VehiclePropertyPublisherTest {
         // TODO(b/197269115): add more assertions on the contents of
         // PersistableBundle object.
     }
-
-    private void onPublisherFailure(AbstractPublisher publisher,
-                List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error) { }
 }

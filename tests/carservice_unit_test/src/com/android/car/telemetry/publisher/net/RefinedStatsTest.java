@@ -20,18 +20,24 @@ import static android.net.NetworkStats.TAG_NONE;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
+
 import android.annotation.NonNull;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.os.PersistableBundle;
 
+import com.android.car.telemetry.UidPackageMapper;
 import com.android.internal.util.FastXmlSerializer;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.StringWriter;
+import java.util.List;
 
 /**
  * Tests for {@link RefinedStats}. Some logic is acquired from {@link android.net.NetworkStatsTest}
@@ -45,10 +51,17 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
 
     private static final int TAG_1 = 1;
 
+    @Mock private UidPackageMapper mMockUidMapper;
+
     private RefinedStats mRefinedStats; // subject
+
+    public RefinedStatsTest() {
+        super(RefinedStatsTest.class.getSimpleName());
+    }
 
     @Before
     public void setUp() throws Exception {
+        when(mMockUidMapper.getPackagesForUid(anyInt())).thenReturn(List.of("pkg1", "pkg2"));
         mRefinedStats = new RefinedStats(/* startMillis= */ 10_000, /* endMillis= */ 20_000);
     }
 
@@ -63,13 +76,14 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
         stats.add(buildBucket(UID_0, TAG_1, /* rx= */ 10000, /* tx= */ 10000)); // merges with 1st
 
         mRefinedStats.addNetworkStats(stats);
-        PersistableBundle result = mRefinedStats.toPersistableBundle();
+        PersistableBundle result = mRefinedStats.toPersistableBundle(mMockUidMapper);
 
         PersistableBundle expected = new PersistableBundle();
         expected.putLong("startMillis", 10_000);
         expected.putLong("endMillis", 20_000);
         expected.putInt("size", 2);
         expected.putIntArray("uid", new int[] {UID_0, UID_1});
+        expected.putStringArray("packages", new String[] {"pkg1,pkg2", "pkg1,pkg2"});
         expected.putIntArray("tag", new int[] {TAG_1, TAG_NONE});
         expected.putLongArray("rxBytes", new long[] {14096, 4095});
         expected.putLongArray("txBytes", new long[] {12048, 2047});
@@ -112,11 +126,13 @@ public class RefinedStatsTest extends AbstractExtendedMockitoTestCase {
         expected.putLong("endMillis", 20_000);
         expected.putInt("size", 3); // the same size as "mRefinedStats"
         expected.putIntArray("uid", new int[] {UID_1, UID_1, UID_2});
+        expected.putStringArray("packages", new String[] {"pkg1,pkg2", "pkg1,pkg2", "pkg1,pkg2"});
         expected.putIntArray("tag", new int[] {TAG_NONE, TAG_1, TAG_NONE});
         // Handles negative values too (hence 0).
         expected.putLongArray("rxBytes", new long[] {4090, 0, 4096});
         expected.putLongArray("txBytes", new long[] {2040, 0, 2048});
-        assertThat(bundleToXml(diff.toPersistableBundle())).isEqualTo(bundleToXml(expected));
+        assertThat(bundleToXml(diff.toPersistableBundle(mMockUidMapper)))
+                .isEqualTo(bundleToXml(expected));
     }
 
     private static FakeNetworkStats.CustomBucket buildBucket(int uid, int tag, long rx, long tx) {

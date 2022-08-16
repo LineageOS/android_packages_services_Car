@@ -16,16 +16,6 @@
   -->
 
 <resources>
-    <!-- dimensions for rear view camera -->
-    <dimen name="rear_view_camera_width">1020dp</dimen>
-    <dimen name="rear_view_camera_height">720dp</dimen>
-
-    <dimen name="rear_view_camera_exit_button_width">48dp</dimen>
-    <dimen name="rear_view_camera_exit_button_height">48dp</dimen>
-    <dimen name="rear_view_camera_exit_button_margin">24dp</dimen>
-    <dimen name="rear_view_camera_exit_icon_width">26dp</dimen>
-    <dimen name="rear_view_camera_exit_icon_height">26dp</dimen>
-
     <dimen name="hvac_container_padding">24dp</dimen>
     <dimen name="hvac_temperature_text_size">56sp</dimen>
     <dimen name="hvac_temperature_text_padding">12dp</dimen>

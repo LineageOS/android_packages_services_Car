@@ -79,6 +79,13 @@ public final class ScriptExecutorFunctionalTest {
             mResponseLatch.countDown();
         }
 
+        @Override
+        public void onMetricsReport(PersistableBundle report, PersistableBundle stateToPersist) {
+            mFinalResult = report;
+            mInterimResult = stateToPersist;
+            mResponseLatch.countDown();
+        }
+
         private boolean awaitResponse(int waitTimeSec) throws InterruptedException {
             return mResponseLatch.await(waitTimeSec, TimeUnit.SECONDS);
         }
@@ -892,6 +899,95 @@ public final class ScriptExecutorFunctionalTest {
                 .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mListener.mMessage)
                 .contains("is an array with values of type=boolean, which is not supported yet");
+    }
+
+    @Test
+    public void invokeScript_onMetricsReport_returnsReport() throws Exception {
+        String returnFinalResultScript =
+                "function script_completes(data, state)\n"
+                        + "    result = {data = state.input + 1}\n"
+                        + "    on_metrics_report(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        previousState.putInt("input", 1);
+
+        runScriptAndWaitForResponse(
+                returnFinalResultScript, "script_completes", mEmptyPublishedData, previousState);
+
+        // Expect to get back a bundle with a single key-value pair {"data": 2}
+        // because data = state.input + 1 as in the script body above.
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getLong("data")).isEqualTo(2);
+        assertThat(mListener.mInterimResult).isNull();
+    }
+
+    @Test
+    public void invokeScript_onMetricsReport_returnsReportAndState() throws Exception {
+        String returnFinalResultScript =
+                "function script_completes(data, state)\n"
+                        + "    result = {data = state.input + 1}\n"
+                        + "    on_metrics_report(result, state)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        previousState.putInt("input", 1);
+
+        runScriptAndWaitForResponse(
+                returnFinalResultScript, "script_completes", mEmptyPublishedData, previousState);
+
+        // Expect to get back a bundle with a single key-value pair {"data": 2}
+        // because data = state.input + 1 as in the script body above.
+        assertThat(mListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mListener.mFinalResult.getLong("data")).isEqualTo(2);
+        assertThat(mListener.mInterimResult.size()).isEqualTo(1);
+        assertThat(mListener.mInterimResult.getLong("input")).isEqualTo(1);
+    }
+
+    @Test
+    public void invokeScript_onMetricsReport_returnsError() throws Exception {
+        String returnFinalResultScript =
+                "function script_completes(data, state)\n"
+                        + "    on_metrics_report()\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(
+                returnFinalResultScript, "script_completes", mEmptyPublishedData,
+                mEmptyIterimResult);
+
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage).contains("on_metrics_report should push 1 to 2 parameters");
+    }
+
+    @Test
+    public void invokeScript_onMetricsReportBadReport_returnsError() throws Exception {
+        String returnFinalResultScript =
+                "function script_completes(data, state)\n"
+                        + "    on_metrics_report('string argument')\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(
+                returnFinalResultScript, "script_completes", mEmptyPublishedData,
+                mEmptyIterimResult);
+
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage).contains("on_metrics_report should push 1 to 2 parameters");
+    }
+
+    @Test
+    public void invokeScript_onMetricsReportBadState_returnsError() throws Exception {
+        String returnFinalResultScript =
+                "function script_completes(data, state)\n"
+                        + "    on_metrics_report(data, 'string argument')\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(
+                returnFinalResultScript, "script_completes", mEmptyPublishedData,
+                mEmptyIterimResult);
+
+        assertThat(mListener.mErrorType)
+                .isEqualTo(IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mListener.mMessage).contains("on_metrics_report should push 1 to 2 parameters");
     }
 
     // Helper method to invoke the script and wait for it to complete and return a response.

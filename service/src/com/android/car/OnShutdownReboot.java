@@ -55,7 +55,7 @@ public class OnShutdownReboot {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SHUTDOWN);
         filter.addAction(Intent.ACTION_REBOOT);
-        mContext.registerReceiver(mReceiver, filter);
+        mContext.registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     /** Adds an action to be done at reboot/shutdown. */

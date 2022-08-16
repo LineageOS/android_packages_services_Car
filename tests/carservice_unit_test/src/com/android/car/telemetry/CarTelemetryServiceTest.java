@@ -22,6 +22,11 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFI
 import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_PENDING;
 import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR;
 
+// TODO(b/233973826): Uncomment once SystemMonitor work is complete.
+// import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_HI;
+// import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_LOW;
+// import static com.android.car.telemetry.CarTelemetryService.TASK_PRIORITY_MED;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -29,6 +34,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -47,12 +53,16 @@ import android.os.ResultReceiver;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceUtils;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.telemetry.databroker.DataBroker;
+import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
+// import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -73,21 +83,32 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
                     .setName(METRICS_CONFIG_NAME).setVersion(2).setScript("no-op").build();
 
     private CarTelemetryService mService;
+    private DataBroker.DataBrokerListener mDataBrokerListener;
     private File mTempSystemCarDir;
     private Handler mTelemetryHandler;
     private MetricsConfigStore mMetricsConfigStore;
     private ResultStore mResultStore;
+    private SystemMonitor.SystemMonitorCallback mSystemMonitorCallback;
 
     @Mock private ActivityManager mMockActivityManager;
+    @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarPropertyService mMockCarPropertyService;
+    @Mock private CarTelemetryService.Dependencies mDependencies;
     @Mock private Context mMockContext;
+    @Mock private DataBroker mMockDataBroker;
     @Mock private ICarTelemetryReportListener mMockReportListener;
     @Mock private ICarTelemetryReportReadyListener mMockReportReadyListener;
-    @Mock private SystemInterface mMockSystemInterface;
-    @Mock private SystemStateInterface mMockSystemStateInterface;
-    @Mock private CarPowerManagementService mMockCarPowerManagementService;
-    @Mock private SystemMonitor mMockSystemMonitor;
+    @Mock private PublisherFactory mPublisherFactory;
     @Mock private ResultReceiver mMockAddMetricsConfigCallback;
+    @Mock private SessionController mMockSessionController;
+    @Mock private SystemInterface mMockSystemInterface;
+    @Mock private SystemMonitor mMockSystemMonitor;
+    @Mock private UidPackageMapper mMockUidMapper;
+
+
+    public CarTelemetryServiceTest() {
+        super(CarLog.TAG_TELEMETRY);
+    }
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -105,17 +126,38 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         when(mMockContext.getSystemService(ActivityManager.class))
                 .thenReturn(mMockActivityManager);
 
-        when(SystemMonitor.create(any(), any())).thenReturn(mMockSystemMonitor);
+        // TODO(b/233973826): Re-enable once SystemMonitor work is complete.
+        // when(SystemMonitor.create(any(), any())).thenReturn(mMockSystemMonitor);
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
-        when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
-        mService = new CarTelemetryService(mMockContext, mMockCarPropertyService);
+        when(mDependencies.getUidPackageMapper(any(), any())).thenReturn(mMockUidMapper);
+        when(mDependencies.getPublisherFactory(any(), any(), any(), any(), any(), any(), any()))
+                .thenReturn(mPublisherFactory);
+
+        mService = new CarTelemetryService(
+                mMockContext,
+                mMockCarPropertyService,
+                mDependencies,
+                mMockDataBroker,
+                mMockSessionController);
         mService.init();
 
         mTelemetryHandler = mService.getTelemetryHandler();
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+
+        ArgumentCaptor<DataBroker.DataBrokerListener> dataBrokerListenerArgumentCaptor =
+                ArgumentCaptor.forClass(DataBroker.DataBrokerListener.class);
+        verify(mMockDataBroker).setDataBrokerListener(dataBrokerListenerArgumentCaptor.capture());
+        mDataBrokerListener = dataBrokerListenerArgumentCaptor.getValue();
+
+        // TODO(b/233973826): Uncomment once SystemMonitor work is complete.
+        /*
+        ArgumentCaptor<SystemMonitor.SystemMonitorCallback> systemMonitorCallbackCaptor =
+                ArgumentCaptor.forClass(SystemMonitor.SystemMonitorCallback.class);
+        verify(mMockSystemMonitor).setSystemMonitorCallback(systemMonitorCallbackCaptor.capture());
+        mSystemMonitorCallback = systemMonitorCallbackCaptor.getValue(); */
 
         mMetricsConfigStore = mService.getMetricsConfigStore();
         mResultStore = mService.getResultStore();
@@ -150,6 +192,19 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     @Test
     public void testAddMetricsConfig_invalidMetricsConfig_shouldFail() {
         mService.addMetricsConfig(METRICS_CONFIG_NAME, "bad config".getBytes(),
+                mMockAddMetricsConfigCallback);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockAddMetricsConfigCallback).send(
+                eq(CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_PARSE_FAILED), isNull());
+    }
+
+    @Test
+    public void testAddMetricsConfig_invalidMetricsConfigName_shouldFail() {
+        TelemetryProto.MetricsConfig noNameConfig =
+                TelemetryProto.MetricsConfig.getDefaultInstance();
+
+        mService.addMetricsConfig(noNameConfig.getName(), noNameConfig.toByteArray(),
                 mMockAddMetricsConfigCallback);
 
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
@@ -355,4 +410,162 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
         verify(mMockReportReadyListener).onReady(eq(name1));
         verify(mMockReportReadyListener).onReady(eq(name2));
     }
+
+    @Test
+    public void testOnEventConsumed_shouldStoreInterimResult() {
+        mDataBrokerListener.onEventConsumed(METRICS_CONFIG_NAME, new PersistableBundle());
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isNotNull();
+        verify(mMockDataBroker).scheduleNextTask();
+    }
+
+    @Test
+    public void testOnReportFinished_removesConfigAndDoesNotNotifyClient() throws Exception {
+        mService.setReportReadyListener(mMockReportReadyListener);
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+
+        mDataBrokerListener.onReportFinished(METRICS_CONFIG_NAME);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
+        verify(mMockReportReadyListener, never()).onReady(any());
+        verify(mMockDataBroker).scheduleNextTask();
+    }
+
+    @Test
+    public void testOnReportFinished_withReport_removesConfigAndNotifiesClient() throws Exception {
+        mService.setReportReadyListener(mMockReportReadyListener);
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+
+        mDataBrokerListener.onReportFinished(METRICS_CONFIG_NAME, new PersistableBundle());
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
+        assertThat(mResultStore.getFinalResult(METRICS_CONFIG_NAME, false)).isNotNull();
+        verify(mMockReportReadyListener).onReady(eq(METRICS_CONFIG_NAME));
+        verify(mMockDataBroker).scheduleNextTask();
+    }
+
+    @Test
+    public void testOnReportFinished_withError_removesConfigAndNotifiesClient() throws Exception {
+        mService.setReportReadyListener(mMockReportReadyListener);
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+
+        mDataBrokerListener.onReportFinished(
+                METRICS_CONFIG_NAME, TelemetryProto.TelemetryError.newBuilder().build());
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
+        assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNotNull();
+        verify(mMockReportReadyListener).onReady(eq(METRICS_CONFIG_NAME));
+        verify(mMockDataBroker).scheduleNextTask();
+    }
+
+    @Test
+    public void testOnMetricsReport_savesReportAndConfigStillActive() throws Exception {
+        mService.setReportReadyListener(mMockReportReadyListener);
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+        PersistableBundle bundle = new PersistableBundle();
+
+        mDataBrokerListener.onMetricsReport(METRICS_CONFIG_NAME, bundle, bundle);
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs())
+                .containsExactly(METRICS_CONFIG_V1);
+        assertThat(mResultStore.getInterimResult(METRICS_CONFIG_NAME)).isEqualTo(bundle);
+        assertThat(mResultStore.getFinalResult(METRICS_CONFIG_NAME, false)).isEqualTo(bundle);
+        verify(mMockReportReadyListener).onReady(eq(METRICS_CONFIG_NAME));
+        verify(mMockDataBroker).scheduleNextTask();
+    }
+
+    @Test
+    public void testOnBootCompleted_shouldStartMetricsCollection() {
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+        ArgumentCaptor<Runnable> mRunnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+
+        // verify that startsMetricsCollection() is scheduled to run on boot complete
+        verify(mMockSystemInterface).scheduleActionForBootCompleted(
+                mRunnableCaptor.capture(), any());
+        // run startMetricsCollection()
+        mRunnableCaptor.getValue().run();
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        verify(mMockDataBroker).addMetricsConfig(eq(METRICS_CONFIG_NAME), eq(METRICS_CONFIG_V1));
+        verify(mMockSessionController).initSession();
+    }
+
+    @Test
+    public void testStartMetricsCollection_shouldReportFailure() {
+        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
+        doThrow(IllegalArgumentException.class)
+                .when(mMockDataBroker).addMetricsConfig(any(), any());
+        ArgumentCaptor<Runnable> mRunnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        // startsMetricsCollection() is scheduled to run on boot complete
+        verify(mMockSystemInterface).scheduleActionForBootCompleted(
+                mRunnableCaptor.capture(), any());
+
+        mRunnableCaptor.getValue().run(); // run startMetricsCollection()
+
+        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
+        assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNotNull();
+    }
+
+    // TODO(b/233973826): Uncomment once SystemMonitor is tuned-up.
+    /*
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForHighCpuUsage() {
+        SystemMonitorEvent highCpuEvent = new SystemMonitorEvent();
+        highCpuEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_HI);
+        highCpuEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+
+        mSystemMonitorCallback.onSystemMonitorEvent(highCpuEvent);
+
+        verify(mMockDataBroker).setTaskExecutionPriority(eq(TASK_PRIORITY_HI));
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForHighMemUsage() {
+        SystemMonitorEvent highMemEvent = new SystemMonitorEvent();
+        highMemEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        highMemEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_HI);
+
+        mSystemMonitorCallback.onSystemMonitorEvent(highMemEvent);
+
+        verify(mMockDataBroker).setTaskExecutionPriority(eq(TASK_PRIORITY_HI));
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForMedCpuUsage() {
+        SystemMonitorEvent medCpuEvent = new SystemMonitorEvent();
+        medCpuEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_MED);
+        medCpuEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+
+        mSystemMonitorCallback.onSystemMonitorEvent(medCpuEvent);
+
+        verify(mMockDataBroker).setTaskExecutionPriority(eq(TASK_PRIORITY_MED));
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForMedMemUsage() {
+        SystemMonitorEvent medMemEvent = new SystemMonitorEvent();
+        medMemEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        medMemEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_MED);
+
+        mSystemMonitorCallback.onSystemMonitorEvent(medMemEvent);
+
+        verify(mMockDataBroker).setTaskExecutionPriority(eq(TASK_PRIORITY_MED));
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForLowUsage() {
+        SystemMonitorEvent lowUsageEvent = new SystemMonitorEvent();
+        lowUsageEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        lowUsageEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+
+        mSystemMonitorCallback.onSystemMonitorEvent(lowUsageEvent);
+
+        verify(mMockDataBroker).setTaskExecutionPriority(eq(TASK_PRIORITY_LOW));
+    }*/
 }

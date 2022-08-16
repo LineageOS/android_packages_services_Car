@@ -23,27 +23,31 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFI
 import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_PENDING;
 import static android.car.telemetry.CarTelemetryManager.STATUS_GET_METRICS_CONFIG_RUNTIME_ERROR;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import static java.util.stream.Collectors.toList;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.builtin.os.TraceHelper;
+import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ICarTelemetryReportListener;
 import android.car.telemetry.ICarTelemetryReportReadyListener;
 import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.TelemetryProto;
+import android.car.telemetry.TelemetryProto.TelemetryError;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
-import android.os.Trace;
 import android.util.ArrayMap;
-import android.util.IndentingPrintWriter;
-import android.util.TimingsTraceLog;
+import android.util.Log;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -51,19 +55,22 @@ import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.OnShutdownReboot;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.databroker.DataBroker;
-import com.android.car.telemetry.databroker.DataBrokerController;
 import com.android.car.telemetry.databroker.DataBrokerImpl;
+import com.android.car.telemetry.databroker.ScriptExecutionTask;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
+import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -74,62 +81,167 @@ import java.util.Set;
  */
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
-    public static final boolean DEBUG = true; // STOPSHIP if true
+    public static final boolean DEBUG = false; // STOPSHIP if true
 
     private static final String PUBLISHER_DIR = "publisher";
     public static final String TELEMETRY_DIR = "telemetry";
 
+    /**
+     * Priorities range from 0 to 100, with 0 being the highest priority and 100 being the lowest.
+     * A {@link ScriptExecutionTask} must have equal or higher priority than the threshold in order
+     * to be executed.
+     * The following constants are chosen with the idea that subscribers with a priority of 0
+     * must be executed as soon as data is published regardless of system health conditions.
+     * Otherwise {@link ScriptExecutionTask}s are executed from the highest priority to the lowest
+     * subject to system health constraints from {@link SystemMonitor}.
+     */
+    public static final int TASK_PRIORITY_HI = 0;
+    public static final int TASK_PRIORITY_MED = 50;
+    public static final int TASK_PRIORITY_LOW = 100;
+
     private final Context mContext;
     private final CarPropertyService mCarPropertyService;
+    private final Dependencies mDependencies;
     private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
             CarTelemetryService.class.getSimpleName());
     private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
+    private final UidPackageMapper mUidMapper;
+
+    private final DataBroker.DataBrokerListener mDataBrokerListener =
+            new DataBroker.DataBrokerListener() {
+        @Override
+        public void onEventConsumed(
+                @NonNull String metricsConfigName, @NonNull PersistableBundle state) {
+            mResultStore.putInterimResult(metricsConfigName, state);
+            mDataBroker.scheduleNextTask();
+        }
+        @Override
+        public void onReportFinished(@NonNull String metricsConfigName) {
+            cleanupMetricsConfig(metricsConfigName); // schedules next script execution task
+            if (mResultStore.getErrorResult(metricsConfigName, false) != null
+                    || mResultStore.getFinalResult(metricsConfigName, false) != null) {
+                onReportReady(metricsConfigName);
+            }
+        }
+
+        @Override
+        public void onReportFinished(
+                @NonNull String metricsConfigName, @NonNull PersistableBundle report) {
+            cleanupMetricsConfig(metricsConfigName); // schedules next script execution task
+            mResultStore.putFinalResult(metricsConfigName, report);
+            onReportReady(metricsConfigName);
+        }
+
+        @Override
+        public void onReportFinished(
+                @NonNull String metricsConfigName, @NonNull TelemetryProto.TelemetryError error) {
+            cleanupMetricsConfig(metricsConfigName); // schedules next script execution task
+            mResultStore.putErrorResult(metricsConfigName, error);
+            onReportReady(metricsConfigName);
+        }
+
+        @Override
+        public void onMetricsReport(
+                @NonNull String metricsConfigName,
+                @NonNull PersistableBundle report,
+                @Nullable PersistableBundle state) {
+            // TODO(b/229134432): ResultStore should be able to store multiple reports
+            mResultStore.putFinalResult(metricsConfigName, report);
+            if (state != null) {
+                mResultStore.putInterimResult(metricsConfigName, state);
+            }
+            onReportReady(metricsConfigName);
+            mDataBroker.scheduleNextTask();
+        }
+    };
 
     // accessed and updated on the main thread
     private boolean mReleased = false;
 
     // all the following fields are accessed and updated on the telemetry thread
     private DataBroker mDataBroker;
-    private DataBrokerController mDataBrokerController;
     private ICarTelemetryReportReadyListener mReportReadyListener;
     private MetricsConfigStore mMetricsConfigStore;
     private OnShutdownReboot mOnShutdownReboot;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
     private SessionController mSessionController;
-    private SystemMonitor mSystemMonitor;
+    // private SystemMonitor mSystemMonitor;
     private TimingsTraceLog mTelemetryThreadTraceLog; // can only be used on telemetry thread
 
+    static class Dependencies {
+
+        /** Returns a new PublisherFactory instance. */
+        public PublisherFactory getPublisherFactory(
+                CarPropertyService carPropertyService,
+                Handler handler,
+                Context context,
+                File publisherDirectory,
+                SessionController sessionController, ResultStore resultStore,
+                UidPackageMapper uidMapper) {
+            return new PublisherFactory(
+                    carPropertyService, handler, context, publisherDirectory, sessionController,
+                    resultStore, uidMapper);
+        }
+
+        /** Returns a new UidPackageMapper instance. */
+        public UidPackageMapper getUidPackageMapper(Context context, Handler telemetryHandler) {
+            return new UidPackageMapper(context, telemetryHandler);
+        }
+    }
+
     public CarTelemetryService(Context context, CarPropertyService carPropertyService) {
+        this(context, carPropertyService, new Dependencies(), null, null);
+    }
+
+    @VisibleForTesting
+    CarTelemetryService(
+            Context context,
+            CarPropertyService carPropertyService,
+            Dependencies deps,
+            DataBroker dataBroker,
+            SessionController sessionController) {
         mContext = context;
         mCarPropertyService = carPropertyService;
+        mDependencies = deps;
+        mUidMapper = mDependencies.getUidPackageMapper(mContext, mTelemetryHandler);
+        mDataBroker = dataBroker;
+        mSessionController = sessionController;
     }
 
     @Override
     public void init() {
         mTelemetryHandler.post(() -> {
             mTelemetryThreadTraceLog = new TimingsTraceLog(
-                    CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
+                    CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
             mTelemetryThreadTraceLog.traceBegin("init");
             SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+            // starts metrics collection after boot complete
+            systemInterface.scheduleActionForBootCompleted(
+                    this::startMetricsCollection, Duration.ZERO);
             // full root directory path is /data/system/car/telemetry
             File rootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
             File publisherDirectory = new File(rootDirectory, PUBLISHER_DIR);
             publisherDirectory.mkdirs();
             // initialize all necessary components
+            mUidMapper.init();
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(rootDirectory);
-            mSessionController = new SessionController(mContext);
-            mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
-                    mContext, publisherDirectory);
-            mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
-                    mTelemetryThreadTraceLog);
+            if (mSessionController == null) {
+                mSessionController = new SessionController(mContext, mTelemetryHandler);
+            }
+            mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
+                    mTelemetryHandler, mContext, publisherDirectory, mSessionController,
+                    mResultStore, mUidMapper);
+            if (mDataBroker == null) {
+                mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore,
+                        mTelemetryThreadTraceLog);
+            }
+            mDataBroker.setDataBrokerListener(mDataBrokerListener);
             ActivityManager activityManager = mContext.getSystemService(ActivityManager.class);
-            mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
-            // controller starts metrics collection after boot complete
-            mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
-                    mMetricsConfigStore, this::onReportReady, mSystemMonitor,
-                    systemInterface.getSystemStateInterface(), mSessionController);
+            // TODO(b/233973826): Re-enable once SystemMonitor tune-up is complete.
+            // mSystemMonitor = SystemMonitor.create(activityManager, mTelemetryHandler);
+            // mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
             mTelemetryThreadTraceLog.traceEnd();
             // save state at reboot and shutdown
             mOnShutdownReboot = new OnShutdownReboot(mContext);
@@ -148,12 +260,14 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mResultStore.flushToDisk();
             mOnShutdownReboot.release();
             mSessionController.release();
+            mUidMapper.release();
             mTelemetryThreadTraceLog.traceEnd();
         });
         mTelemetryThread.quitSafely();
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarTelemetryService*");
         writer.println();
@@ -200,9 +314,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     /**
      * Send a telemetry metrics config to the service.
+     *
      * @param metricsConfigName name of the MetricsConfig.
-     * @param config the serialized bytes of a MetricsConfig object.
-     * @param callback to send status code to CarTelemetryManager.
+     * @param config            the serialized bytes of a MetricsConfig object.
+     * @param callback          to send status code to CarTelemetryManager.
      */
     @Override
     public void addMetricsConfig(@NonNull String metricsConfigName, @NonNull byte[] config,
@@ -229,6 +344,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
             return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
         }
+        if (metricsConfig.getName().length() == 0) {
+            Slogf.e(CarLog.TAG_TELEMETRY, "MetricsConfig name cannot be an empty string");
+            return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
+        }
         if (!metricsConfig.getName().equals(metricsConfigName)) {
             Slogf.e(CarLog.TAG_TELEMETRY, "Argument config name " + metricsConfigName
                     + " doesn't match name in MetricsConfig (" + metricsConfig.getName() + ").");
@@ -242,7 +361,16 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         // for this config and add config to the DataBroker for metrics collection.
         mResultStore.removeResult(metricsConfigName);
         mDataBroker.removeMetricsConfig(metricsConfigName);
-        mDataBroker.addMetricsConfig(metricsConfigName, metricsConfig);
+        // add config to DataBroker could fail due to invalid metrics configurations, such as
+        // containing an illegal field. An example is setting the read_interval_sec to 0 in
+        // MemoryPublisher. The read_interval_sec must be at least 1.
+        try {
+            mDataBroker.addMetricsConfig(metricsConfigName, metricsConfig);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Invalid config, failed to add to DataBroker", e);
+            removeMetricsConfig(metricsConfigName); // clean up
+            return STATUS_ADD_METRICS_CONFIG_PARSE_FAILED;
+        }
         // TODO(b/199410900): update logic once metrics configs have expiration dates
         return STATUS_ADD_METRICS_CONFIG_SUCCEEDED;
     }
@@ -294,7 +422,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      * {@link ICarTelemetryReportListener}.
      *
      * @param metricsConfigName the unique identifier of a MetricsConfig.
-     * @param listener to receive finished report or error.
+     * @param listener          to receive finished report or error.
      */
     @Override
     public void getFinishedReport(@NonNull String metricsConfigName,
@@ -389,8 +517,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Implementation of the functional interface {@link DataBrokerController.ReportReadyListener}.
-     * Invoked from {@link DataBrokerController} when a script produces a report or a runtime error.
+     * Invoked when a script produces a report or a runtime error.
      */
     private void onReportReady(@NonNull String metricsConfigName) {
         if (mReportReadyListener == null) {
@@ -433,6 +560,72 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         } catch (RemoteException e) {
             Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryReportListener", e);
         }
+    }
+
+    /**
+     * Starts collecting data. Once data is sent by publishers, DataBroker will arrange scripts to
+     * run. This method is called by some thread on executor service, therefore the work needs to
+     * be posted on the telemetry thread.
+     */
+    private void startMetricsCollection() {
+        mTelemetryHandler.post(() -> {
+            for (TelemetryProto.MetricsConfig config :
+                    mMetricsConfigStore.getActiveMetricsConfigs()) {
+                try {
+                    mDataBroker.addMetricsConfig(config.getName(), config);
+                } catch (IllegalArgumentException | IllegalStateException e) {
+                    Slogf.w(CarLog.TAG_TELEMETRY,
+                            "Loading MetricsConfig from disk failed, stopping MetricsConfig("
+                                    + config.getName() + ") and storing error", e);
+                    removeMetricsConfig(config.getName()); // clean up
+                    TelemetryError error = TelemetryError.newBuilder()
+                            .setErrorType(TelemetryError.ErrorType.PUBLISHER_FAILED)
+                            .setMessage("Publisher failed when loading MetricsConfig from disk")
+                            .setStackTrace(Log.getStackTraceString(e))
+                            .build();
+                    // this will remove the MetricsConfig from disk and clean up its associated
+                    // subscribers and tasks from CarTelemetryService, and also notify the client
+                    // that an error report is available for them
+                    mDataBrokerListener.onReportFinished(config.getName(), error);
+                }
+            }
+            // By this point all publishers are instantiated according to the active configs
+            // and subscribed to session updates. The publishers are ready to handle session updates
+            // that this call might trigger.
+            mSessionController.initSession();
+        });
+    }
+
+    /**
+     * Listens to {@link SystemMonitorEvent} and changes the cut-off priority
+     * for {@link DataBroker} such that only tasks with the same or more urgent
+     * priority can be run.
+     *
+     * Highest priority is 0 and lowest is 100.
+     *
+     * @param event the {@link SystemMonitorEvent} received.
+     */
+    private void onSystemMonitorEvent(@NonNull SystemMonitorEvent event) {
+        if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI
+                || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI) {
+            mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_HI);
+        } else if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED
+                || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED) {
+            mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_MED);
+        } else {
+            mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_LOW);
+        }
+    }
+
+    /**
+     * As a MetricsConfig completes its lifecycle, it should be cleaned up from the service.
+     * It will be removed from the MetricsConfigStore, all subscribers should be unsubscribed,
+     * and associated tasks should be removed from DataBroker.
+     */
+    private void cleanupMetricsConfig(String metricsConfigName) {
+        mMetricsConfigStore.removeMetricsConfig(metricsConfigName);
+        mDataBroker.removeMetricsConfig(metricsConfigName);
+        mDataBroker.scheduleNextTask();
     }
 
     @VisibleForTesting

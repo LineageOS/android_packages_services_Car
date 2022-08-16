@@ -17,46 +17,53 @@
 #ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKVEHICLE_H_
 #define CPP_WATCHDOG_SERVER_TESTS_MOCKVEHICLE_H_
 
-#include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
+#include <aidl/android/hardware/automotive/vehicle/BnVehicle.h>
 #include <gmock/gmock.h>
-#include <utils/StrongPointer.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockVehicle final : public android::hardware::automotive::vehicle::V2_0::IVehicle {
+class MockVehicle final : public aidl::android::hardware::automotive::vehicle::BnVehicle {
 public:
-    MockVehicle() {}
+    MockVehicle() {
+        ON_CALL(*this, unsubscribe(::testing::_, ::testing::_))
+                .WillByDefault(
+                        ::testing::Return(::testing::ByMove(std::move(ndk::ScopedAStatus::ok()))));
+    }
 
-    MOCK_METHOD(android::hardware::Return<void>, getAllPropConfigs, (getAllPropConfigs_cb),
-                (override));
-    MOCK_METHOD(android::hardware::Return<void>, getPropConfigs,
-                (const android::hardware::hidl_vec<int32_t>&, getPropConfigs_cb), (override));
-    MOCK_METHOD(android::hardware::Return<void>, get,
-                (const android::hardware::automotive::vehicle::V2_0::VehiclePropValue&, get_cb),
+    MOCK_METHOD(ndk::ScopedAStatus, getAllPropConfigs,
+                (aidl::android::hardware::automotive::vehicle::VehiclePropConfigs*), (override));
+    MOCK_METHOD(ndk::ScopedAStatus, getPropConfigs,
+                (const std::vector<int32_t>&,
+                 aidl::android::hardware::automotive::vehicle::VehiclePropConfigs*),
                 (override));
     MOCK_METHOD(
-            android::hardware::Return<::android::hardware::automotive::vehicle::V2_0::StatusCode>,
-            set, (const android::hardware::automotive::vehicle::V2_0::VehiclePropValue&),
+            ndk::ScopedAStatus, getValues,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             const aidl::android::hardware::automotive::vehicle::GetValueRequests&),
             (override));
-    MOCK_METHOD(android::hardware::Return<android::hardware::automotive::vehicle::V2_0::StatusCode>,
-                subscribe,
-                (const android::sp<android::hardware::automotive::vehicle::V2_0::IVehicleCallback>&,
-                 const android::hardware::hidl_vec<
-                         android::hardware::automotive::vehicle::V2_0::SubscribeOptions>&),
-                (override));
-    MOCK_METHOD(android::hardware::Return<android::hardware::automotive::vehicle::V2_0::StatusCode>,
-                unsubscribe,
-                (const android::sp<android::hardware::automotive::vehicle::V2_0::IVehicleCallback>&,
-                 int32_t),
-                (override));
-    MOCK_METHOD(android::hardware::Return<void>, debugDump, (debugDump_cb _hidl_cb), (override));
-    MOCK_METHOD(android::hardware::Return<bool>, linkToDeath,
-                (const ::android::sp<::android::hardware::hidl_death_recipient>&, uint64_t),
-                (override));
-    MOCK_METHOD(android::hardware::Return<bool>, unlinkToDeath,
-                (const ::android::sp<::android::hardware::hidl_death_recipient>&), (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, setValues,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             const aidl::android::hardware::automotive::vehicle::SetValueRequests&),
+            (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, subscribe,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             const std::vector<aidl::android::hardware::automotive::vehicle::SubscribeOptions>&,
+             int32_t),
+            (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, unsubscribe,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             const std::vector<int32_t>&),
+            (override));
+    MOCK_METHOD(
+            ndk::ScopedAStatus, returnSharedMemory,
+            (const std::shared_ptr<aidl::android::hardware::automotive::vehicle::IVehicleCallback>&,
+             int64_t),
+            (override));
 };
 
 }  // namespace watchdog
