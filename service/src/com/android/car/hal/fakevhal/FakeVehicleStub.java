@@ -26,6 +26,7 @@ import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -219,25 +220,15 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @param requestedPropValue The property to get.
      * @return the property value.
-     * @throws ServiceSpecificException if propId or areaId doesn't exist.
+     * @throws ServiceSpecificException if propId or areaId is not supported.
      */
     @Override
     @Nullable
-    public HalPropValue get(HalPropValue requestedPropValue) {
+    public HalPropValue get(HalPropValue requestedPropValue) throws ServiceSpecificException {
         int propId = requestedPropValue.getPropId();
-        // Check if the property config exists.
-        if (!mPropConfigsByPropId.contains(propId)) {
-            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The propId: " + propId
-                + " is not supported.");
-        }
+        checkPropIdSupported(propId);
         int areaId = isPropertyGlobal(propId) ? 0 : requestedPropValue.getAreaId();
-        // For global property, areaId is ignored.
-        // For non-global property, if property config exists, check if areaId is supported.
-        if (!isPropertyGlobal(propId) && !getAllSupportedAreaId(propId).contains(areaId)) {
-            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
-                + " is not supported.");
-        }
-
+        checkAreaIdSupported(propId, areaId);
         // Check access permission.
         int access = mPropConfigsByPropId.get(propId).getAccess();
         if (access != VehiclePropertyAccess.READ && access != VehiclePropertyAccess.READ_WRITE) {
@@ -269,14 +260,46 @@ public final class FakeVehicleStub extends VehicleStub {
      * Sets a property value.
      *
      * @param propValue The property to set.
-     * @throws ServiceSpecificException if Vhal returns service specific error.
+     * @throws ServiceSpecificException if propId or areaId is not supported.
      */
     @Override
     public void set(HalPropValue propValue) throws ServiceSpecificException {
-        // TODO(b/238646350) Set a property value.
+        int propId = propValue.getPropId();
+        checkPropIdSupported(propId);
+        int areaId = isPropertyGlobal(propId) ? 0 : propValue.getAreaId();
+        checkAreaIdSupported(propId, areaId);
+        // Check access permission.
+        int access = mPropConfigsByPropId.get(propId).getAccess();
+        if (access != VehiclePropertyAccess.WRITE && access != VehiclePropertyAccess.READ_WRITE) {
+            throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
+                + " doesn't have write permission.");
+        }
+
         if (isSpecialProperty(propValue.getPropId())) {
             // TODO(b/241006476) Handle special properties.
+            Slogf.w(TAG, "Special property is not supported.");
+            return;
         }
+
+        RawPropValues rawPropValues = ((VehiclePropValue) propValue.toVehiclePropValue()).value;
+
+        // Check if the set values are within the value config range.
+        if (!withinRange(propId, areaId, rawPropValues)) {
+            throw new ServiceSpecificException(StatusCode.INVALID_ARG,
+                    "The set value is outside the range.");
+        }
+
+        HalPropValue updatedValue = buildHalPropValue(propId, areaId,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        SparseArray<HalPropValue> propValueByAreaId;
+        // Default value of this property exists.
+        if (mPropValuesByAreaIdByPropId.contains(propId)) {
+            propValueByAreaId = mPropValuesByAreaIdByPropId.get(propId);
+        } else {
+            propValueByAreaId = new SparseArray<>();
+        }
+        propValueByAreaId.put(areaId, updatedValue);
+        mPropValuesByAreaIdByPropId.put(propId, propValueByAreaId);
     }
 
     /**
@@ -305,7 +328,6 @@ public final class FakeVehicleStub extends VehicleStub {
         InputStream defaultConfigInputStream = mParser.getClass().getClassLoader()
                 .getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
         SparseArray<ConfigDeclaration> configDeclarations;
-
         // Parse default config file.
         configDeclarations = mParser.parseJsonConfig(defaultConfigInputStream);
 
@@ -479,5 +501,99 @@ public final class FakeVehicleStub extends VehicleStub {
             allSupportedAreaId.add(areaConfigs[i].getAreaId());
         }
         return allSupportedAreaId;
+    }
+
+    /**
+     * Checks if the set value is within the value range.
+     *
+     * @return {@code true} if set value is within the prop config range.
+     */
+    private boolean withinRange(int propId, int areaId, RawPropValues rawPropValues) {
+        if (isPropertyGlobal(propId)) {
+            // TODO(238646350) Handle global properties.
+            return true;
+        }
+
+        // For non-global properties.
+        int index = getAllSupportedAreaId(propId).indexOf(areaId);
+        HalAreaConfig areaConfig = mPropConfigsByPropId.get(propId).getAreaConfigs()[index];
+
+        int[] int32Values = rawPropValues.int32Values;
+        long[] int64Values = rawPropValues.int64Values;
+        float[] floatValues = rawPropValues.floatValues;
+        // If max and min values exists, then check the boundaries. If max and min values are all
+        // 0s, return true.
+        switch (getPropType(propId)) {
+            case VehiclePropertyType.INT32:
+            case VehiclePropertyType.INT32_VEC:
+                int minInt32Value = areaConfig.getMinInt32Value();
+                int maxInt32Value = areaConfig.getMaxInt32Value();
+                if (minInt32Value != maxInt32Value || minInt32Value != 0) {
+                    for (int int32Value : int32Values) {
+                        if (int32Value > maxInt32Value || int32Value < minInt32Value) {
+                            Slogf.e(TAG, "For propId: %d, areaId: %d, the valid min value is: "
+                                    + "%d, max value is: %d, but the given value is: %d.", propId,
+                                    areaId, minInt32Value, maxInt32Value, int32Value);
+                            return false;
+                        }
+                    }
+                }
+                break;
+            case VehiclePropertyType.INT64:
+            case VehiclePropertyType.INT64_VEC:
+                long minInt64Value = areaConfig.getMinInt64Value();
+                long maxInt64Value = areaConfig.getMaxInt64Value();
+                if (minInt64Value != maxInt64Value || minInt64Value != 0) {
+                    for (long int64Value : int64Values) {
+                        if (int64Value > maxInt64Value || int64Value < minInt64Value) {
+                            Slogf.e(TAG, "For propId: %d, areaId: %d, the valid min value is: "
+                                    + "%d, max value is: %d, but the given value is: %d.", propId,
+                                    areaId, minInt64Value, maxInt64Value, int64Value);
+                            return false;
+                        }
+                    }
+                }
+                break;
+            case VehiclePropertyType.FLOAT:
+            case VehiclePropertyType.FLOAT_VEC:
+                float minFloatValue = areaConfig.getMinFloatValue();
+                float maxFloatValue = areaConfig.getMaxFloatValue();
+                if (minFloatValue != maxFloatValue || minFloatValue != 0) {
+                    for (float floatValue : floatValues) {
+                        if (floatValue > maxFloatValue || floatValue < minFloatValue) {
+                            Slogf.e(TAG, "For propId: %d, areaId: %d, the valid min value is: "
+                                    + "%f, max value is: %f, but the given value is: %d.", propId,
+                                    areaId, minFloatValue, maxFloatValue, floatValue);
+                            return false;
+                        }
+                    }
+                }
+                break;
+            default:
+                Slogf.d(TAG, "Skip checking range for propId: %d because it is mixed type.",
+                        propId);
+        }
+        return true;
+    }
+
+    private static int getPropType(int propId) {
+        return propId & VehiclePropertyType.MASK;
+    }
+
+    private void checkPropIdSupported(int propId) {
+        // Check if the property config exists.
+        if (!mPropConfigsByPropId.contains(propId)) {
+            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The propId: " + propId
+                + " is not supported.");
+        }
+    }
+
+    private void checkAreaIdSupported(int propId, int areaId) {
+        // For global property, areaId is ignored.
+        // For non-global property, if property config exists, check if areaId is supported.
+        if (!isPropertyGlobal(propId) && !getAllSupportedAreaId(propId).contains(areaId)) {
+            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
+                + " is not supported.");
+        }
     }
 }
