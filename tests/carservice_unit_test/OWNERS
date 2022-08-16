@@ -8,6 +8,9 @@ per-file src/com/android/car/AppFocusServiceTest.java = ycheo@google.com
 per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
 per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google.com
 
+# Bluetooth
+per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
+
 # Cluster
 per-file src/android/car/cluster/* = ycheo@google.com
 per-file src/com/android/car/hal/ClusterHalServiceTest.java = ycheo@google.com
