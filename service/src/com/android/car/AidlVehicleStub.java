@@ -327,13 +327,25 @@ final class AidlVehicleStub extends VehicleStub {
         try {
             mAidlVehicle.getValues(mGetSetValuesCallback, requests);
         } catch (RemoteException e) {
-            handleRemoteExceptionFromVhal(requests, getAsyncVehicleStubCallback);
+            handleExceptionFromVhal(requests, getAsyncVehicleStubCallback,
+                    CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+        } catch (ServiceSpecificException e) {
+            handleExceptionFromVhal(requests, getAsyncVehicleStubCallback,
+                    convertHalToCarPropertyManagerError(e.errorCode));
         }
     }
 
-    private void handleRemoteExceptionFromVhal(GetValueRequests requests,
-            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
-        Slogf.w(CarLog.TAG_SERVICE, "Received RemoteException from VHAL. VHAL is likely dead.");
+    /**
+     * Callback to deliver error results back to the client.
+     *
+     * <p>When an exception is received, the callback delivers the error results on the same thread
+     * where the caller is.
+     */
+    private void handleExceptionFromVhal(GetValueRequests requests,
+            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback, int errorCode) {
+        Slogf.w(CarLog.TAG_SERVICE,
+                "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
+                        + "dead.");
         List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < requests.payloads.length; i++) {
@@ -348,8 +360,7 @@ final class AidlVehicleStub extends VehicleStub {
                     continue;
                 }
                 getVehicleStubAsyncResults.add(
-                        new GetVehicleStubAsyncResult(clientInfo.getServiceRequestId(),
-                                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR));
+                        new GetVehicleStubAsyncResult(clientInfo.getServiceRequestId(), errorCode));
             }
         }
         getAsyncVehicleStubCallback.onGetAsyncResults(getVehicleStubAsyncResults);
@@ -530,7 +541,7 @@ final class AidlVehicleStub extends VehicleStub {
                     CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         } else if (result.status != StatusCode.OK) {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
-                    convertHalToCarPropertyManagerError(result));
+                    convertHalToCarPropertyManagerError(result.status));
         } else {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
                     mPropValueBuilder.build(result.prop));
@@ -576,9 +587,9 @@ final class AidlVehicleStub extends VehicleStub {
         }
     }
 
-    private int convertHalToCarPropertyManagerError(GetValueResult result) {
+    private int convertHalToCarPropertyManagerError(int errorCode) {
         // TODO (b/241060746): Implement retry logic - StatusCode.TRY_AGAIN
-        if (result.status == StatusCode.NOT_AVAILABLE) {
+        if (errorCode == StatusCode.NOT_AVAILABLE) {
             return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
         }
         return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;

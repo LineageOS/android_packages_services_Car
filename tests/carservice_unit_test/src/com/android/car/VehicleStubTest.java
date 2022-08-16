@@ -656,6 +656,46 @@ public class VehicleStubTest {
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
+    private void createGetAsyncAidlException(int errorCode) throws Exception {
+        HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ true);
+        HalPropValue value = builder.build(HVAC_TEMPERATURE_SET, 0, 17.0f);
+
+        VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
+                new VehicleStub.GetVehicleStubAsyncRequest(0, value);
+        ServiceSpecificException exception = new ServiceSpecificException(
+                errorCode);
+        doThrow(exception).when(mAidlVehicle).getValues(any(), any());
+
+        mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
+                mGetAsyncVehicleStubCallback);
+    }
+
+    @Test
+    public void testGetAsyncAidlServiceSpecificExceptionInternalError() throws Exception {
+        createGetAsyncAidlException(StatusCode.INTERNAL_ERROR);
+
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testGetAsyncAidlServiceSpecificExceptionNotAvailable() throws Exception {
+        createGetAsyncAidlException(StatusCode.NOT_AVAILABLE);
+
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+                argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+    }
+
     @Test
     public void testGetAidlTimeout() throws Exception {
         mAidlVehicleStub.setTimeoutMs(100);
