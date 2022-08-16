@@ -50,3 +50,7 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_customization-com-google-android-tts \
     generated_caruiportrait_customization-com-android-htmlviewer \
     generated_caruiportrait_customization-com-android-vending
+
+# This system property is used to enable the RROs on startup via
+# the requiredSystemPropertyName/Value attributes in the manifest
+PRODUCT_PRODUCT_PROPERTIES += ro.build.car_ui_rros_enabled=true

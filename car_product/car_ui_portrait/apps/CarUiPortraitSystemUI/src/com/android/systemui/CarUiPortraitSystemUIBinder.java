@@ -25,7 +25,7 @@ import dagger.Module;
 import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 
-/** Binder for AAECarSystemUI specific {@link SystemUI} modules and components. */
+/** Binder for AAECarSystemUI specific {@link CoreStartable} modules and components. */
 @Module(includes = {ExtendedOverlayWindowModule.class, CarDisplayAreaModule.class})
 abstract class CarUiPortraitSystemUIBinder extends CarSystemUIBinder {
 
@@ -33,5 +33,5 @@ abstract class CarUiPortraitSystemUIBinder extends CarSystemUIBinder {
     @Binds
     @IntoMap
     @ClassKey(DisplayAreaComponent.class)
-    public abstract SystemUI bindDisplayAreaComponent(DisplayAreaComponent sysui);
+    public abstract CoreStartable bindDisplayAreaComponent(DisplayAreaComponent sysui);
 }

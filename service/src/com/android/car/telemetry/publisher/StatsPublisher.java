@@ -29,14 +29,15 @@ import static java.nio.charset.StandardCharsets.UTF_16;
 
 import android.annotation.NonNull;
 import android.app.StatsManager.StatsUnavailableException;
+import android.car.builtin.os.TraceHelper;
+import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.telemetry.TelemetryProto;
 import android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
-import android.os.Trace;
 import android.util.LongSparseArray;
-import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.AtomsProto.ProcessCpuTime;
@@ -47,10 +48,10 @@ import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.statsconverters.ConfigMetricsReportListConverter;
 import com.android.car.telemetry.publisher.statsconverters.StatsConversionException;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 import com.android.car.telemetry.util.IoUtils;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -165,11 +166,11 @@ public class StatsPublisher extends AbstractPublisher {
     private final PersistableBundle mSavedStatsConfigs;
 
     StatsPublisher(
-            @NonNull PublisherFailureListener failureListener,
+            @NonNull PublisherListener listener,
             @NonNull StatsManagerProxy statsManager,
             @NonNull File publisherDirectory,
             @NonNull Handler telemetryHandler) {
-        super(failureListener);
+        super(listener);
         mStatsManager = statsManager;
         mTelemetryHandler = telemetryHandler;
         mSavedStatsConfigsFile = new File(publisherDirectory, SAVED_STATS_CONFIGS_FILE);
@@ -218,6 +219,7 @@ public class StatsPublisher extends AbstractPublisher {
         long configKey = buildConfigKey(subscriber);
         mConfigKeyToSubscribers.put(configKey, subscriber);
         addStatsConfig(configKey, subscriber);
+
         if (!mIsPullingReports) {
             if (DEBUG) {
                 Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
@@ -241,7 +243,7 @@ public class StatsPublisher extends AbstractPublisher {
             return;
         }
         TimingsTraceLog traceLog = new TimingsTraceLog(
-                CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
+                CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         Map<Long, PersistableBundle> metricBundles = null;
         try {
             traceLog.traceBegin("convert stats report");
@@ -347,7 +349,7 @@ public class StatsPublisher extends AbstractPublisher {
         }
 
         TimingsTraceLog traceLog = new TimingsTraceLog(
-                CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
+                CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         try {
             traceLog.traceBegin("pull stats report");
             // TODO(b/202131100): Get the active list of configs using
@@ -729,4 +731,7 @@ public class StatsPublisher extends AbstractPublisher {
                         .setWhat(WTF_OCCURRED_ATOM_MATCHER_ID))
                 .build();
     }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {}
 }

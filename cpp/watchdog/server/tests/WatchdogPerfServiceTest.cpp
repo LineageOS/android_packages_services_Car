@@ -16,10 +16,10 @@
 
 #include "LooperStub.h"
 #include "MockDataProcessor.h"
-#include "MockProcDiskStats.h"
-#include "MockProcStat.h"
+#include "MockProcDiskStatsCollector.h"
+#include "MockProcStatCollector.h"
 #include "MockUidStatsCollector.h"
-#include "ProcStat.h"
+#include "ProcStatCollector.h"
 #include "UidStatsCollector.h"
 #include "WatchdogPerfService.h"
 
@@ -61,19 +61,20 @@ constexpr std::chrono::seconds kTestPeriodicMonitorInterval = 2s;
 
 namespace internal {
 
-class WatchdogPerfServicePeer : public RefBase {
+class WatchdogPerfServicePeer final : public RefBase {
 public:
     explicit WatchdogPerfServicePeer(const sp<WatchdogPerfService>& service) : mService(service) {}
     WatchdogPerfServicePeer() = delete;
 
     void init(const sp<LooperWrapper>& looper,
-              const sp<UidStatsCollectorInterface>& uidStatsCollector, const sp<ProcStat>& procStat,
-              const sp<IProcDiskStatsInterface>& procDiskStats) {
+              const sp<UidStatsCollectorInterface>& uidStatsCollector,
+              const sp<ProcStatCollectorInterface>& procStatCollector,
+              const sp<ProcDiskStatsCollectorInterface>& procDiskStatsCollector) {
         Mutex::Autolock lock(mService->mMutex);
         mService->mHandlerLooper = looper;
         mService->mUidStatsCollector = uidStatsCollector;
-        mService->mProcStat = procStat;
-        mService->mProcDiskStats = procDiskStats;
+        mService->mProcStatCollector = procStatCollector;
+        mService->mProcDiskStatsCollector = procDiskStatsCollector;
     }
 
     void updateIntervals() {
@@ -112,8 +113,8 @@ protected:
         mLooperStub = sp<LooperStub>::make();
         mMockUidStatsCollector = sp<MockUidStatsCollector>::make();
         mMockDataProcessor = sp<StrictMock<MockDataProcessor>>::make();
-        mMockProcDiskStats = sp<NiceMock<MockProcDiskStats>>::make();
-        mMockProcStat = sp<NiceMock<MockProcStat>>::make();
+        mMockProcDiskStatsCollector = sp<NiceMock<MockProcDiskStatsCollector>>::make();
+        mMockProcStatCollector = sp<NiceMock<MockProcStatCollector>>::make();
     }
 
     virtual void TearDown() {
@@ -127,20 +128,21 @@ protected:
         mLooperStub.clear();
         mMockUidStatsCollector.clear();
         mMockDataProcessor.clear();
-        mMockProcDiskStats.clear();
-        mMockProcStat.clear();
+        mMockProcDiskStatsCollector.clear();
+        mMockProcStatCollector.clear();
     }
 
     void startService() {
-        mServicePeer->init(mLooperStub, mMockUidStatsCollector, mMockProcStat, mMockProcDiskStats);
+        mServicePeer->init(mLooperStub, mMockUidStatsCollector, mMockProcStatCollector,
+                           mMockProcDiskStatsCollector);
 
         EXPECT_CALL(*mMockDataProcessor, init()).Times(1);
 
         ASSERT_RESULT_OK(mService->registerDataProcessor(mMockDataProcessor));
 
         EXPECT_CALL(*mMockUidStatsCollector, init()).Times(1);
-        EXPECT_CALL(*mMockProcStat, init()).Times(1);
-        EXPECT_CALL(*mMockProcDiskStats, init()).Times(1);
+        EXPECT_CALL(*mMockProcStatCollector, init()).Times(1);
+        EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
 
         ASSERT_RESULT_OK(mService->start());
 
@@ -149,9 +151,9 @@ protected:
 
     void startPeriodicCollection() {
         EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(2);
-        EXPECT_CALL(*mMockProcStat, collect()).Times(2);
+        EXPECT_CALL(*mMockProcStatCollector, collect()).Times(2);
         EXPECT_CALL(*mMockDataProcessor,
-                    onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStat)))
+                    onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
                 .Times(2);
 
         // Make sure the collection event changes from EventType::INIT to
@@ -178,8 +180,8 @@ protected:
 
     void verifyAndClearExpectations() {
         Mock::VerifyAndClearExpectations(mMockUidStatsCollector.get());
-        Mock::VerifyAndClearExpectations(mMockProcStat.get());
-        Mock::VerifyAndClearExpectations(mMockProcDiskStats.get());
+        Mock::VerifyAndClearExpectations(mMockProcStatCollector.get());
+        Mock::VerifyAndClearExpectations(mMockProcDiskStatsCollector.get());
         Mock::VerifyAndClearExpectations(mMockDataProcessor.get());
     }
 
@@ -187,23 +189,24 @@ protected:
     sp<internal::WatchdogPerfServicePeer> mServicePeer;
     sp<LooperStub> mLooperStub;
     sp<MockUidStatsCollector> mMockUidStatsCollector;
-    sp<MockProcStat> mMockProcStat;
-    sp<MockProcDiskStats> mMockProcDiskStats;
+    sp<MockProcStatCollector> mMockProcStatCollector;
+    sp<MockProcDiskStatsCollector> mMockProcDiskStatsCollector;
     sp<MockDataProcessor> mMockDataProcessor;
 };
 
 }  // namespace
 
 TEST_F(WatchdogPerfServiceTest, TestServiceStartAndTerminate) {
-    mServicePeer->init(mLooperStub, mMockUidStatsCollector, mMockProcStat, mMockProcDiskStats);
+    mServicePeer->init(mLooperStub, mMockUidStatsCollector, mMockProcStatCollector,
+                       mMockProcDiskStatsCollector);
 
     EXPECT_CALL(*mMockDataProcessor, init()).Times(1);
 
     ASSERT_RESULT_OK(mService->registerDataProcessor(mMockDataProcessor));
 
     EXPECT_CALL(*mMockUidStatsCollector, init()).Times(1);
-    EXPECT_CALL(*mMockProcStat, init()).Times(1);
-    EXPECT_CALL(*mMockProcDiskStats, init()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, init()).Times(1);
+    EXPECT_CALL(*mMockProcDiskStatsCollector, init()).Times(1);
 
     ASSERT_RESULT_OK(mService->start());
 
@@ -235,9 +238,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #1 Boot-time collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
-                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStat)))
+                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -250,9 +253,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #2 Boot-time collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
-                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStat)))
+                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -266,9 +269,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #3 Last boot-time collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
-                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStat)))
+                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mService->onBootFinished());
@@ -283,8 +286,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     // #4 Periodic monitor
-    EXPECT_CALL(*mMockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStats), _)).Times(1);
+    EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+            .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -294,8 +298,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     // #5 Periodic monitor
-    EXPECT_CALL(*mMockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStats), _)).Times(1);
+    EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+            .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -306,10 +311,10 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #6 Periodic collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
-                                     Eq(mMockProcStat)))
+                                     Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -330,10 +335,10 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_RESULT_OK(mService->onCustomCollection(-1, args));
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onCustomCollection(_, SystemState::NORMAL_MODE, _, Eq(mMockUidStatsCollector),
-                                   Eq(mMockProcStat)))
+                                   Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -345,10 +350,10 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #8 Custom collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onCustomCollection(_, SystemState::NORMAL_MODE, _, Eq(mMockUidStatsCollector),
-                                   Eq(mMockProcStat)))
+                                   Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -377,10 +382,10 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
 
     // #10 Switch to periodic collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
-                                     Eq(mMockProcStat)))
+                                     Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -392,8 +397,9 @@ TEST_F(WatchdogPerfServiceTest, TestValidCollectionSequence) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     // #11 Periodic monitor.
-    EXPECT_CALL(*mMockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStats), _)).Times(1);
+    EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
+            .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
 
@@ -407,7 +413,7 @@ TEST_F(WatchdogPerfServiceTest, TestCollectionTerminatesOnZeroEnabledCollectors)
     ASSERT_NO_FATAL_FAILURE(startService());
 
     ON_CALL(*mMockUidStatsCollector, enabled()).WillByDefault(Return(false));
-    ON_CALL(*mMockProcStat, enabled()).WillByDefault(Return(false));
+    ON_CALL(*mMockProcStatCollector, enabled()).WillByDefault(Return(false));
 
     // Collection should terminate and call data processor's terminate method on error.
     EXPECT_CALL(*mMockDataProcessor, terminate()).Times(1);
@@ -442,7 +448,7 @@ TEST_F(WatchdogPerfServiceTest, TestCollectionTerminatesOnDataProcessorError) {
     // Inject data processor error.
     Result<void> errorRes = Error() << "Failed to process data";
     EXPECT_CALL(*mMockDataProcessor,
-                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStat)))
+                onBoottimeCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
             .WillOnce(Return(errorRes));
 
     // Collection should terminate and call data processor's terminate method on error.
@@ -476,12 +482,12 @@ TEST_F(WatchdogPerfServiceTest, TestCustomCollection) {
                                          kTestCustomCollectionInterval.count());
     for (int i = 0; i <= maxIterations; ++i) {
         EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-        EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+        EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
         EXPECT_CALL(*mMockDataProcessor,
                     onCustomCollection(_, SystemState::NORMAL_MODE,
                                        UnorderedElementsAreArray(
                                                {"android.car.cts", "system_server"}),
-                                       Eq(mMockUidStatsCollector), Eq(mMockProcStat)))
+                                       Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
                 .Times(1);
 
         ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -517,8 +523,8 @@ TEST_F(WatchdogPerfServiceTest, TestPeriodicMonitorRequestsCollection) {
     ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
 
     // Periodic monitor issuing an alert to start new collection.
-    EXPECT_CALL(*mMockProcDiskStats, collect()).Times(1);
-    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStats), _))
+    EXPECT_CALL(*mMockProcDiskStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onPeriodicMonitor(_, Eq(mMockProcDiskStatsCollector), _))
             .WillOnce([&](auto, auto, const auto& alertHandler) -> Result<void> {
                 alertHandler();
                 return {};
@@ -532,10 +538,10 @@ TEST_F(WatchdogPerfServiceTest, TestPeriodicMonitorRequestsCollection) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
-    EXPECT_CALL(*mMockProcStat, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
                 onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
-                                     Eq(mMockProcStat)))
+                                     Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());

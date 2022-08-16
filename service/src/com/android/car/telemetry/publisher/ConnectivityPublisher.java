@@ -19,7 +19,11 @@ package com.android.car.telemetry.publisher;
 import static com.android.car.telemetry.CarTelemetryService.DEBUG;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.app.usage.NetworkStats;
+import android.car.builtin.os.TraceHelper;
+import android.car.builtin.util.Slogf;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.telemetry.TelemetryProto;
 import android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
 import android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
@@ -29,21 +33,24 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.Trace;
 import android.util.ArrayMap;
-import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
+import com.android.car.telemetry.ResultStore;
+import com.android.car.telemetry.UidPackageMapper;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;
 import com.android.car.telemetry.publisher.net.RefinedStats;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Publisher implementation for {@link TelemetryProto.ConnectivityPublisher}.
@@ -53,20 +60,15 @@ import java.util.Objects;
  * hours buckets, we won't be able to get precise netstats if we use the buckets mechanism, that's
  * why we will be storing baseline (or previous) netstats in ConnectivityPublisher to find netstats
  * diff between now and the last pull.
+ *
+ * <p>Schema for this publisher data is defined and documented in the
+ * {@link RefinedStats#toPersistableBundle} method.
  */
 public class ConnectivityPublisher extends AbstractPublisher {
     // The default bucket duration used when query a snapshot from NetworkStatsService. The value
     // should be sync with NetworkStatsService#DefaultNetworkStatsSettings#getUidConfig.
     private static final long NETSTATS_UID_DEFAULT_BUCKET_DURATION_MILLIS =
             Duration.ofHours(2).toMillis();
-
-    // TODO(b/218529196): Flatten the load spike by pulling reports for each MetricsConfigs
-    //                    using separate periodical timers.
-    // TODO(b/197905656): Use driving sessions to compute network usage statistics.
-    private static final Duration PULL_NETSTATS_PERIOD = Duration.ofSeconds(90);
-
-    // Assign the method to {@link Runnable}, otherwise the handler fails to remove it.
-    private final Runnable mPullNetstatsPeriodically = this::pullNetstatsPeriodically;
 
     // Use ArrayMap instead of HashMap to improve memory usage. It doesn't store more than 100s
     // of items, and it's good enough performance-wise.
@@ -78,19 +80,24 @@ public class ConnectivityPublisher extends AbstractPublisher {
     // All the methods in this class are expected to be called on this handler's thread.
     private final Handler mTelemetryHandler;
 
+    private final UidPackageMapper mUidMapper;
     private final TimingsTraceLog mTraceLog;
+    private final ResultStore mResultStore;
 
     private NetworkStatsManagerProxy mNetworkStatsManager;
-    private boolean mIsPullingNetstats = false;
 
     ConnectivityPublisher(
-            @NonNull PublisherFailureListener failureListener,
+            @NonNull PublisherListener listener,
             @NonNull NetworkStatsManagerProxy networkStatsManager,
-            @NonNull Handler telemetryHandler) {
-        super(failureListener);
+            @NonNull Handler telemetryHandler,
+            @NonNull ResultStore resultStore,
+            @NonNull SessionController sessionController, @NonNull UidPackageMapper uidMapper) {
+        super(listener);
         mNetworkStatsManager = networkStatsManager;
         mTelemetryHandler = telemetryHandler;
-        mTraceLog = new TimingsTraceLog(CarLog.TAG_TELEMETRY, Trace.TRACE_TAG_SYSTEM_SERVER);
+        mResultStore = resultStore;
+        mUidMapper = uidMapper;
+        mTraceLog = new TimingsTraceLog(CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
         for (Transport transport : Transport.values()) {
             if (transport.equals(Transport.TRANSPORT_UNDEFINED)) {
                 continue;
@@ -102,9 +109,34 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 mSubscribers.put(QueryParam.build(transport, oemType), new ArrayList<>());
             }
         }
-        // Pull baseine netstats to compute statistics for all the QueryParam combinations since
-        // boot. It's needed to calculate netstats since the boot.
-        mTelemetryHandler.post(this::pullInitialNetstats);
+        // Subscribes the publisher to driving session updates by SessionController.
+        sessionController.registerCallback(this::handleSessionStateChange);
+    }
+
+    @Override
+    protected void handleSessionStateChange(SessionAnnotation annotation) {
+        if (annotation.sessionState == SessionController.STATE_ENTER_DRIVING_SESSION) {
+            processPreviousSession();
+            pullInitialNetstats();
+        } else if (annotation.sessionState == SessionController.STATE_EXIT_DRIVING_SESSION) {
+            PersistableBundle resultsToStore = new PersistableBundle();
+            // Pull data and calculate difference per each distinct QueryParam.
+            // Each QueryParam is a combination of transport/oem_managed keys.
+            for (int i = 0; i < mSubscribers.size(); i++) {
+                if (mSubscribers.valueAt(i).isEmpty()) {
+                    // no need to pull data if there are no subscribers
+                    continue;
+                }
+                PersistableBundle bundle = pullNetstatsAndCalculateDiff(mSubscribers.keyAt(i));
+                if (bundle == null) {
+                    continue;
+                }
+                annotation.addAnnotationsToBundle(bundle);
+                resultsToStore.putPersistableBundle(mSubscribers.keyAt(i).toString(), bundle);
+            }
+            mResultStore.putPublisherData(ConnectivityPublisher.class.getSimpleName(),
+                    resultsToStore);
+        }
     }
 
     @Override
@@ -115,23 +147,11 @@ public class ConnectivityPublisher extends AbstractPublisher {
                 "Subscribers only with ConnectivityPublisher are supported by this class.");
 
         mSubscribers.get(QueryParam.forSubscriber(subscriber)).add(subscriber);
-        if (!mIsPullingNetstats) {
-            if (DEBUG) {
-                Slogf.d(CarLog.TAG_TELEMETRY, "NetStats will be pulled in " + PULL_NETSTATS_PERIOD);
-            }
-            mIsPullingNetstats = true;
-            mTelemetryHandler.postDelayed(
-                    mPullNetstatsPeriodically, PULL_NETSTATS_PERIOD.toMillis());
-        }
     }
 
     @Override
     public void removeDataSubscriber(@NonNull DataSubscriber subscriber) {
         mSubscribers.get(QueryParam.forSubscriber(subscriber)).remove(subscriber);
-        if (isSubscribersEmpty()) {
-            mIsPullingNetstats = false;
-            mTelemetryHandler.removeCallbacks(mPullNetstatsPeriodically);
-        }
     }
 
     @Override
@@ -139,8 +159,6 @@ public class ConnectivityPublisher extends AbstractPublisher {
         for (int i = 0; i < mSubscribers.size(); i++) {
             mSubscribers.valueAt(i).clear();
         }
-        mIsPullingNetstats = false;
-        mTelemetryHandler.removeCallbacks(mPullNetstatsPeriodically);
     }
 
     @Override
@@ -165,28 +183,52 @@ public class ConnectivityPublisher extends AbstractPublisher {
         mTraceLog.traceEnd();
     }
 
-    private void pullNetstatsPeriodically() {
-        if (!mIsPullingNetstats) {
+    /**
+     * Retrieves data from a previous session, i.e. pulled and stored in ResultStore, if any. Adds
+     * attributes of the previous session to a {@link PersistableBundle} that contains the data and
+     * pushes it to subscribers.
+     */
+    private void processPreviousSession() {
+        PersistableBundle previousSessionData = mResultStore.getPublisherData(
+                ConnectivityPublisher.class.getSimpleName(), true);
+        if (previousSessionData == null) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "Data from the previous session is not found. Quitting.");
             return;
         }
-
-        for (int i = 0; i < mSubscribers.size(); i++) {
-            ArrayList<DataSubscriber> subscribers = mSubscribers.valueAt(i);
-            if (subscribers.isEmpty()) {
+        for (String key : previousSessionData.keySet()) {
+            QueryParam queryParam = QueryParam.fromString(key);
+            if (queryParam == null) {
+                Slogf.e(CarLog.TAG_TELEMETRY,
+                        "Failed to convert ResultStore key to QueryParam. This is an unexpected "
+                                + "error. Halting any further processing of the session data");
                 continue;
             }
-            pullAndForwardNetstatsToSubscribers(mSubscribers.keyAt(i), subscribers);
+            PersistableBundle data = previousSessionData.getPersistableBundle(key);
+            if (!data.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)) {
+                Slogf.e(CarLog.TAG_TELEMETRY,
+                        "Session annotations is unexpectedly missing. Skipping this batch.");
+                continue;
+            }
+            ArrayList<DataSubscriber> subscribers = mSubscribers.get(queryParam);
+            for (DataSubscriber subscriber : subscribers) {
+                subscriber.push(data);
+            }
         }
-
-        if (DEBUG) {
-            Slogf.d(CarLog.TAG_TELEMETRY, "NetStats will be pulled in " + PULL_NETSTATS_PERIOD);
-        }
-        mTelemetryHandler.postDelayed(mPullNetstatsPeriodically, PULL_NETSTATS_PERIOD.toMillis());
     }
 
-    private void pullAndForwardNetstatsToSubscribers(
-            @NonNull QueryParam param, @NonNull ArrayList<DataSubscriber> subscribers) {
-        mTraceLog.traceBegin("ConnectivityPublisher.pullAndForwardNetstatsToSubscribers");
+    @Nullable
+    private PersistableBundle pullNetstatsAndCalculateDiff(@NonNull QueryParam param) {
+        mTraceLog.traceBegin("ConnectivityPublisher.pullNetstatsAndCalculateDiff");
+
+        RefinedStats previous = mTransportPreviousNetstats.get(param);
+        if (previous == null) {
+            Slogf.w(
+                    CarLog.TAG_TELEMETRY,
+                    "Previous stats is null for param %s. Will try again in the next pull.",
+                    param);
+            mTraceLog.traceEnd();
+            return null;
+        }
 
         RefinedStats current;
         try {
@@ -195,29 +237,17 @@ public class ConnectivityPublisher extends AbstractPublisher {
             // If the NetworkStatsService is not available, it retries in the next pull.
             Slogf.w(CarLog.TAG_TELEMETRY, e);
             mTraceLog.traceEnd();
-            return;
+            return null;
         }
-        RefinedStats previous = mTransportPreviousNetstats.get(param);
-        // Update the previous, so that next pull will calculate diff from the current.
-        mTransportPreviousNetstats.put(param, current);
-        if (previous == null) {
-            Slogf.w(
-                    CarLog.TAG_TELEMETRY,
-                    "Previous stats is null for param %s. Will try again in the next pull.",
-                    param);
-            mTraceLog.traceEnd();
-            return;
-        }
+
 
         // By subtracting, it calculates network usage since the last pull.
         RefinedStats diff = RefinedStats.subtract(current, previous);
-        PersistableBundle data = diff.toPersistableBundle();
-
-        for (DataSubscriber subscriber : subscribers) {
-            subscriber.push(data);
-        }
+        PersistableBundle data = diff.toPersistableBundle(mUidMapper);
 
         mTraceLog.traceEnd();
+
+        return data;
     }
 
     /**
@@ -324,6 +354,20 @@ public class ConnectivityPublisher extends AbstractPublisher {
         @Override
         public String toString() {
             return "QueryParam(matchRule=" + mMatchRule + ", oemManaged=" + mOemManaged + ")";
+        }
+
+        public static QueryParam fromString(String input) {
+            Pattern pattern = Pattern.compile(
+                    "QueryParam\\(matchRule=(\\d+),\\s*oemManaged=(-?\\d+)\\)");
+            Matcher matcher = pattern.matcher(input);
+            if (!matcher.matches()) {
+                return null;
+            }
+            if (matcher.groupCount() != 2) {
+                return null;
+            }
+            return new QueryParam(Integer.parseInt(matcher.group(1)),
+                    Integer.parseInt(matcher.group(2)));
         }
 
         @Override

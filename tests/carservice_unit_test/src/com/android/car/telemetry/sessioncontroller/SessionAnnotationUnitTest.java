@@ -18,8 +18,6 @@ package com.android.car.telemetry.sessioncontroller;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
-
 import android.os.PersistableBundle;
 
 import org.junit.Test;
@@ -39,56 +37,22 @@ public class SessionAnnotationUnitTest {
             CREATED_AT_SINCE_BOOT_MILLIS, CREATED_AT_MILLIS, BOOT_REASON);
 
     @Test
-    public void testToPersistableBundle_populatesBundle() {
-        PersistableBundle result = sAnnotation.toPersistableBundle();
-
-        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(
-                SESSION_ID);
-        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_STATE)).isEqualTo(
-                SESSION_STATE);
-        assertThat(result.getLong(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS)).isEqualTo(
-                CREATED_AT_SINCE_BOOT_MILLIS);
-        assertThat(result.getLong(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS)).isEqualTo(
-                CREATED_AT_MILLIS);
-        assertThat(result.getString(SessionAnnotation.ANNOTATION_BUNDLE_KEY_BOOT_REASON)).isEqualTo(
-                BOOT_REASON);
-    }
-
-    @Test
     public void testAddAnnotationsToBundle_addsPopulatedBundle() {
         PersistableBundle data = new PersistableBundle();
 
         sAnnotation.addAnnotationsToBundle(data);
 
-        assertThat(data.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT)).isTrue();
-        PersistableBundle conversionResult = data.getPersistableBundle(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT);
-        assertThat(conversionResult.getInt(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(
+        assertThat(data.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(
                 SESSION_ID);
-        assertThat(conversionResult.getInt(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_STATE)).isEqualTo(
+        assertThat(data.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_STATE)).isEqualTo(
                 SESSION_STATE);
-        assertThat(conversionResult.getLong(
+        assertThat(data.getLong(
                 SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_SINCE_BOOT_MILLIS)).isEqualTo(
                 CREATED_AT_SINCE_BOOT_MILLIS);
         assertThat(
-                conversionResult.getLong(
-                        SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS)).isEqualTo(
+                data.getLong(SessionAnnotation.ANNOTATION_BUNDLE_KEY_CREATED_AT_MILLIS)).isEqualTo(
                 CREATED_AT_MILLIS);
-        assertThat(conversionResult.getString(
-                SessionAnnotation.ANNOTATION_BUNDLE_KEY_BOOT_REASON)).isEqualTo(
+        assertThat(data.getString(SessionAnnotation.ANNOTATION_BUNDLE_KEY_BOOT_REASON)).isEqualTo(
                 BOOT_REASON);
-    }
-
-    @Test
-    public void testAddAnnotationsToBundle_throwsExceptionIfKeyExists() {
-        PersistableBundle data = new PersistableBundle();
-        data.putInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_ROOT, 100);
-
-        assertThrows(IllegalArgumentException.class,
-                () -> sAnnotation.addAnnotationsToBundle(data));
     }
 }

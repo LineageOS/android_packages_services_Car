@@ -16,16 +16,18 @@
 
 package com.android.car.telemetry.sessioncontroller;
 
-import static android.car.hardware.power.CarPowerManager.CarPowerStateListener;
-
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.hardware.power.CarPowerManager;
+import android.car.hardware.power.ICarPowerStateListener;
 import android.content.Context;
+import android.os.Handler;
+import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 
 import com.android.car.CarLocalServices;
+import com.android.car.power.CarPowerManagementService;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -54,7 +56,6 @@ public class SessionController {
     }
 
     private final Context mContext;
-    private final CarPowerManager mCarPowerManager;
     private int mSessionId = 0;
     private int mSessionState = STATE_EXIT_DRIVING_SESSION;
     private long mStateChangedAtMillisSinceBoot; // uses SystemClock.elapsedRealtime();
@@ -62,6 +63,21 @@ public class SessionController {
     private String mBootReason;
     private final ArrayList<SessionControllerCallback> mSessionControllerListeners =
             new ArrayList<>();
+    private final ICarPowerStateListener.Stub mCarPowerStateListener =
+            new ICarPowerStateListener.Stub() {
+                @Override
+                public void onStateChanged(int state, long expirationTime) throws RemoteException {
+                    mTelemetryHandler.post(() -> {
+                        onCarPowerStateChanged(state);
+                        // completeHandlingPowerStateChange must be called to allow
+                        // CarPowerManagementService to move on to the next power state.
+                        mCarPowerManagementService.completeHandlingPowerStateChange(state, this);
+                    });
+                }
+            };
+
+    private CarPowerManagementService mCarPowerManagementService;
+    private Handler mTelemetryHandler;
 
     /**
      * Clients register {@link SessionControllerCallback} object with SessionController to receive
@@ -78,10 +94,27 @@ public class SessionController {
         void onSessionStateChanged(SessionAnnotation annotation);
     }
 
-    public SessionController(Context context) {
+    public SessionController(Context context, Handler telemetryHandler) {
         mContext = context;
-        mCarPowerManager = CarLocalServices.createCarPowerManager(mContext);
-        mCarPowerManager.setListener(mCarPowerStateListener);
+        mTelemetryHandler = telemetryHandler;
+        mCarPowerManagementService = CarLocalServices.getService(CarPowerManagementService.class);
+        mCarPowerManagementService.registerInternalListener(mCarPowerStateListener);
+    }
+
+    private void onCarPowerStateChanged(int state) {
+        // Driving session transitions are entirely driven by changes in the state of
+        // CarPowerManagementService. In particular, driving session begins when ON state is
+        // entered and exits when SHUTDOWN_PREPARE is entered.
+        switch (state) {
+            case CarPowerManager.STATE_SHUTDOWN_PREPARE:
+                notifySessionStateChange(STATE_EXIT_DRIVING_SESSION);
+                break;
+            case CarPowerManager.STATE_ON:
+                notifySessionStateChange(STATE_ENTER_DRIVING_SESSION);
+                break;
+            default:
+                break;
+        }
     }
 
     /**
@@ -94,7 +127,7 @@ public class SessionController {
     public void initSession() {
         mBootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
         // Read the current power state and handle it.
-        mCarPowerStateListener.onStateChanged(mCarPowerManager.getPowerState());
+        onCarPowerStateChanged(mCarPowerManagementService.getPowerState());
     }
 
     /**
@@ -154,20 +187,8 @@ public class SessionController {
         }
     }
 
-    private final CarPowerStateListener mCarPowerStateListener =
-            new CarPowerStateListener() {
-                @Override
-                public void onStateChanged(int state) {
-                    if (state == CarPowerStateListener.SHUTDOWN_PREPARE) {
-                        notifySessionStateChange(STATE_EXIT_DRIVING_SESSION);
-                    } else if (state == CarPowerStateListener.ON) {
-                        notifySessionStateChange(STATE_ENTER_DRIVING_SESSION);
-                    }
-                }
-            };
-
     /** Gracefully cleans up the class state when the car telemetry service is shutting down. */
     public void release() {
-        mCarPowerManager.clearListener();
+        mCarPowerManagementService.unregisterInternalListener(mCarPowerStateListener);
     }
 }

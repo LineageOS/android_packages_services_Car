@@ -29,6 +29,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::sp;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::PackageInfo;
@@ -65,12 +66,12 @@ std::string toString(const std::unordered_map<uid_t, PackageInfo>& mappings) {
 
 namespace internal {
 
-class PackageInfoResolverPeer {
+class PackageInfoResolverPeer final {
 public:
     PackageInfoResolverPeer() {
         PackageInfoResolver::getInstance();
         mPackageInfoResolver = PackageInfoResolver::sInstance;
-        mockWatchdogServiceHelper = new MockWatchdogServiceHelper();
+        mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
         mPackageInfoResolver->initWatchdogServiceHelper(mockWatchdogServiceHelper);
     }
 

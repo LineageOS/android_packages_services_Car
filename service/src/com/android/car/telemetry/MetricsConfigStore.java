@@ -22,6 +22,7 @@ import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFI
 import static android.car.telemetry.CarTelemetryManager.STATUS_ADD_METRICS_CONFIG_VERSION_TOO_OLD;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slogf;
 import android.car.telemetry.TelemetryProto;
 import android.util.ArrayMap;
 import android.util.AtomicFile;
@@ -29,7 +30,6 @@ import android.util.AtomicFile;
 import com.android.car.CarLog;
 import com.android.car.telemetry.util.IoUtils;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.io.File;
 import java.io.IOException;

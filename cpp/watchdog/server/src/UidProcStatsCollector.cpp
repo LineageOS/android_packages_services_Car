@@ -332,7 +332,7 @@ Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsL
         tgid = std::get<1>(*result);
     }
 
-    if (uid == -1 || tgid != pid) {
+    if (uid == static_cast<uid_t>(-1) || tgid != pid) {
         return Error(ERR_FILE_OPEN_READ)
                 << "Skipping PID '" << pid << "' because either Tgid != PID or invalid UID";
     }

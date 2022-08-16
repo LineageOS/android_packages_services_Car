@@ -22,6 +22,7 @@ import android.annotation.IntDef;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.PerStateBytes;
+import android.car.builtin.util.Slogf;
 import android.car.watchdog.IoOveruseStats;
 import android.car.watchdog.PackageKillableState.KillableState;
 import android.content.ContentValues;
@@ -33,13 +34,12 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.IntArray;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.io.File;
 import java.lang.annotation.Retention;
@@ -513,8 +513,8 @@ public final class WatchdogStorage {
      * @return the number of replaced entries, on success. Otherwise, returns
      *     {@code FAILED_TRANSACTION}
      */
-    private static int atomicReplaceEntries(
-            SQLiteDatabase db, String tableName, List<ContentValues> rows) {
+    private static int atomicReplaceEntries(SQLiteDatabase db, String tableName,
+            List<ContentValues> rows) {
         if (rows.isEmpty()) {
             return 0;
         }

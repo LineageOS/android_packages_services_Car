@@ -23,6 +23,10 @@ import static android.net.NetworkTemplate.OEM_MANAGED_PRIVATE;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import android.annotation.NonNull;
 import android.app.usage.NetworkStatsManager;
 import android.car.telemetry.TelemetryProto;
@@ -36,17 +40,26 @@ import android.os.PersistableBundle;
 import android.os.SystemClock;
 import android.telephony.TelephonyManager;
 
+import com.android.car.telemetry.ResultStore;
+import com.android.car.telemetry.UidPackageMapper;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.publisher.net.FakeNetworkStats;
 import com.android.car.telemetry.publisher.net.NetworkStatsManagerProxy;
 import com.android.car.telemetry.publisher.net.NetworkStatsWrapper;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.test.FakeHandlerWrapper;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.io.File;
+import java.nio.file.Files;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -105,6 +118,17 @@ public class ConnectivityPublisherTest {
                     .addSubscribers(SUBSCRIBER_CELL_OEM_NONE)
                     .setScript("function empty_handler()\nend")
                     .build();
+    private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_1 =
+            new SessionAnnotation(1, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+    private static final SessionAnnotation SESSION_ANNOTATION_END_1 =
+            new SessionAnnotation(1, SessionController.STATE_EXIT_DRIVING_SESSION, 0, 0, "");
+    private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_2 =
+            new SessionAnnotation(2, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+    private static final SessionAnnotation SESSION_ANNOTATION_END_2 =
+            new SessionAnnotation(2, SessionController.STATE_EXIT_DRIVING_SESSION, 0, 0, "");
+    private static final SessionAnnotation SESSION_ANNOTATION_BEGIN_3 =
+            new SessionAnnotation(3, SessionController.STATE_ENTER_DRIVING_SESSION, 0, 0, "");
+
 
     /** See {@code ConnectivityPublisher#pullInitialNetstats()}. */
     private static final int BASELINE_PULL_COUNT = 8;
@@ -119,6 +143,8 @@ public class ConnectivityPublisherTest {
     private static final int UID_3 = 3;
     private static final int UID_4 = 4;
 
+    @Mock private UidPackageMapper mMockUidMapper;
+
     private final long mNow = System.currentTimeMillis(); // since epoch
 
     private final FakeHandlerWrapper mFakeHandler =
@@ -131,47 +157,62 @@ public class ConnectivityPublisherTest {
     private final FakeDataSubscriber mDataSubscriberCell =
             new FakeDataSubscriber(METRICS_CONFIG, SUBSCRIBER_CELL_OEM_NONE);
 
+    private final FakePublisherListener mFakePublisherListener = new FakePublisherListener();
     private final FakeNetworkStatsManager mFakeManager = new FakeNetworkStatsManager();
 
     private ConnectivityPublisher mPublisher; // subject
+    private File mTestRootDir;
+    private ResultStore mResultStore;
+
+    @Mock
+    private SessionController mMockSessionController;
+    @Captor
+    private ArgumentCaptor<SessionController.SessionControllerCallback>
+            mSessionControllerCallbackArgumentCaptor;
 
     @Before
     public void setUp() throws Exception {
+        mTestRootDir = Files.createTempDirectory("car_telemetry_test").toFile();
+        mResultStore = new ResultStore(mTestRootDir);
+        when(mMockUidMapper.getPackagesForUid(anyInt())).thenReturn(List.of("pkg1"));
         mPublisher =
                 new ConnectivityPublisher(
-                        this::onPublisherFailure, mFakeManager, mFakeHandler.getMockHandler());
+                        mFakePublisherListener, mFakeManager, mFakeHandler.getMockHandler(),
+                        mResultStore, mMockSessionController, mMockUidMapper);
+        verify(mMockSessionController).registerCallback(
+                mSessionControllerCallbackArgumentCaptor.capture());
+    }
+
+    private boolean verifyPublisherSavedData(int expectedSessionId) {
+        PersistableBundle savedResult = mResultStore.getPublisherData(
+                ConnectivityPublisher.class.getSimpleName(), false);
+        if (savedResult == null) {
+            return false;
+        }
+        if (savedResult.keySet().size() != 2) {
+            return false;
+        }
+
+        return savedResult.containsKey(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
+                && savedResult.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)
+                == expectedSessionId;
     }
 
     @Test
-    public void testAddDataSubscriber_storesIt_andStartsPeriodicPull() {
+    public void testAddDataSubscriber_storesIt() {
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
         assertThat(mPublisher.hasDataSubscriber(mDataSubscriberWifi)).isTrue();
-        // One for initial pull, second one for this addDataSubscriber.
-        assertThat(mFakeHandler.getQueuedMessages()).hasSize(2);
     }
 
     @Test
     public void testRemoveDataSubscriber_removesIt() {
-        mPublisher.addDataSubscriber(mDataSubscriberWifi);
-
-        mPublisher.removeDataSubscriber(mDataSubscriberWifi);
-
-        assertThat(mPublisher.hasDataSubscriber(mDataSubscriberWifi)).isFalse();
-        // Only initial pull left, because we removed the last subscriber.
-        assertThat(mFakeHandler.getQueuedMessages()).hasSize(1);
-    }
-
-    @Test
-    public void testRemoveDataSubscriber_leavesPeriodicTask_ifOtherSubscriberExists() {
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
         mPublisher.addDataSubscriber(mDataSubscriberCell);
 
         mPublisher.removeDataSubscriber(mDataSubscriberWifi);
 
         assertThat(mPublisher.hasDataSubscriber(mDataSubscriberWifi)).isFalse();
-        // Only initial pull left + periodic puller.
-        assertThat(mFakeHandler.getQueuedMessages()).hasSize(2);
     }
 
     @Test
@@ -181,38 +222,28 @@ public class ConnectivityPublisherTest {
         mPublisher.removeDataSubscriber(mDataSubscriberCell);
 
         assertThat(mPublisher.hasDataSubscriber(mDataSubscriberWifi)).isTrue();
-        // One for initial pull, second one for this addDataSubscriber.
-        assertThat(mFakeHandler.getQueuedMessages()).hasSize(2);
     }
 
     @Test
-    public void testRemoveAllDataSubscribers_removesAll_andStopsPeriodicPull() {
+    public void testRemoveAllDataSubscribers_removesAll() {
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
         mPublisher.addDataSubscriber(mDataSubscriberCell);
 
         mPublisher.removeAllDataSubscribers();
 
         assertThat(mPublisher.hasDataSubscriber(mDataSubscriberWifi)).isFalse();
-        // Only initial pull left, because we removed the subscribers.
-        assertThat(mFakeHandler.getQueuedMessages()).hasSize(1);
-    }
-
-    @Test
-    public void testSchedulesNextPeriodicPullInHandler() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
-        mPublisher.addDataSubscriber(mDataSubscriberWifi);
-
-        mFakeHandler.dispatchQueuedMessages(); // Current pull.
-
-        assertThat(mFakeHandler.getQueuedMessages()).hasSize(1); // Next pull.
     }
 
     @Test
     public void testPullsOnlyNecessaryData() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
+        // triggers pulling of empty baseline netstats
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
-        mFakeHandler.dispatchQueuedMessages();
+        // triggers the second pull, calculates the diff and stores the result in ResultStore
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
 
         // Pulls netstats only once for wifi.
         assertThat(mFakeManager.getMethodCallCount("querySummary"))
@@ -223,11 +254,16 @@ public class ConnectivityPublisherTest {
 
     @Test
     public void testPullsOnlyNecessaryData_wifiAndMobile() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
+        // triggers pulling of empty baseline netstats
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
         mPublisher.addDataSubscriber(mDataSubscriberCell);
 
-        mFakeHandler.dispatchQueuedMessages();
+        // triggers the second pull, calculates the diff and stores the result in ResultStore
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+
 
         assertThat(mFakeManager.getMethodCallCount("querySummary"))
                 .isEqualTo(BASELINE_PULL_COUNT + 2);
@@ -237,7 +273,8 @@ public class ConnectivityPublisherTest {
 
     @Test
     public void testPullsTaggedAndUntaggedMobileStats() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
+        // triggers pulling of empty baseline netstats
+        mPublisher.handleSessionStateChange(SESSION_ANNOTATION_BEGIN_1);
         mFakeManager.addMobileStats(UID_1, TAG_1, 2500L, 3500L, OEM_MANAGED_NO, mNow);
         mFakeManager.addMobileStats(UID_1, TAG_NONE, 2502L, 3502L, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_1, TAG_2, 30, 30, OEM_MANAGED_NO, mNow);
@@ -245,7 +282,14 @@ public class ConnectivityPublisherTest {
         mFakeManager.addWifiStats(UID_3, TAG_2, 6, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberCell);
 
-        mFakeHandler.dispatchQueuedMessages();
+        // triggers the second pull, calculates the diff and stores the result in ResultStore
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
+
 
         assertThat(mDataSubscriberCell.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberCell.get(0);
@@ -261,18 +305,27 @@ public class ConnectivityPublisherTest {
 
     @Test
     public void testPullsOemManagedWifiStats() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
+        // triggers pulling of empty baseline netstats
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
         mFakeManager.addMobileStats(UID_1, TAG_2, 5000, 5000, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_1, TAG_1, 30, 30, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_2, TAG_NONE, 100L, 200L, OEM_MANAGED_PAID, mNow);
         mFakeManager.addWifiStats(UID_3, TAG_2, 6L, 7L, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifiOemManaged);
 
-        mFakeHandler.dispatchQueuedMessages();
+        // triggers the second pull, calculates the diff and stores the result in ResultStore
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
 
         assertThat(mDataSubscriberWifiOemManaged.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifiOemManaged.get(0);
-        // Matches only UID_2 + UID_3.
+
+        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
         assertThat(result.getInt("size")).isEqualTo(2);
         assertThat(result.getIntArray("uid")).asList().containsExactly(UID_2, UID_3);
         assertThat(result.getIntArray("tag")).asList().containsExactly(TAG_NONE, TAG_2);
@@ -282,17 +335,26 @@ public class ConnectivityPublisherTest {
 
     @Test
     public void testPullsOemNotManagedWifiStats() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
+        // triggers pulling of empty baseline netstats
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
         mFakeManager.addMobileStats(UID_4, TAG_2, 5000, 5000, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_1, TAG_1, 30, 30, OEM_MANAGED_NO, mNow);
         mFakeManager.addWifiStats(UID_2, TAG_1, 10, 10, OEM_MANAGED_PAID, mNow);
         mFakeManager.addWifiStats(UID_3, TAG_1, 6, 6, OEM_MANAGED_PRIVATE, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
-        mFakeHandler.dispatchQueuedMessages();
+        // triggers the second pull, calculates the diff and stores the result in ResultStore
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
+        assertThat(result.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(1);
         // Matches only UID_1.
         assertThat(result.getInt("size")).isEqualTo(1);
         assertThat(result.getIntArray("uid")).asList().containsExactly(UID_1);
@@ -303,7 +365,9 @@ public class ConnectivityPublisherTest {
 
     @Test
     public void testPullsStatsOnlyBetweenBootTimeMinus2HoursAndNow() {
-        mFakeHandler.dispatchQueuedMessages(); // pulls empty baseline netstats
+        // triggers pulling of empty baseline netstats
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
         long mBootTimeMillis = mNow - SystemClock.elapsedRealtime(); // since epoch
         long bootMinus30Mins = mBootTimeMillis - Duration.ofMinutes(30).toMillis();
         long bootMinus5Hours = mBootTimeMillis - Duration.ofHours(5).toMillis();
@@ -313,7 +377,14 @@ public class ConnectivityPublisherTest {
         mFakeManager.addWifiStats(UID_3, TAG_1, 7, 7, OEM_MANAGED_NO, bootMinus5Hours);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
 
-        mFakeHandler.dispatchQueuedMessages();
+        // triggers the second pull, calculates the diff and stores the result in ResultStore
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
+
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
@@ -331,7 +402,14 @@ public class ConnectivityPublisherTest {
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
         mFakeManager.addWifiStats(UID_1, TAG_1, 10, 10, OEM_MANAGED_NO, mNow);
 
-        mFakeHandler.dispatchQueuedMessages();
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1);
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
 
         // The final data should not be marked "large".
         assertThat(mDataSubscriberWifi.mPushedData.get(0).mIsLargeData).isFalse();
@@ -343,14 +421,21 @@ public class ConnectivityPublisherTest {
         mFakeManager.addWifiStats(UID_4, TAG_1, 10, 10, OEM_MANAGED_PRIVATE, someTimeAgo);
         mFakeManager.addWifiStats(UID_4, TAG_1, 11, 11, OEM_MANAGED_PAID, someTimeAgo);
         mFakeManager.addWifiStats(UID_4, TAG_1, 12, 12, OEM_MANAGED_NO, someTimeAgo);
-        mFakeHandler.dispatchQueuedMessages(); // pulls 10, 11, 12 bytes.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1); // pulls 10, 11, 12 bytes.
 
         // A hack to force the publisher to compute the diff from the initial pull.
-        // Otherwise we'll get "(100 + 12) - 12".
+        // Otherwise, we'll get "(100 + 12) - 12".
         mFakeManager.clearNetworkStats();
         mFakeManager.addWifiStats(UID_4, TAG_1, 100, 100, OEM_MANAGED_NO, mNow);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
-        mFakeHandler.dispatchQueuedMessages();
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1);
+
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
@@ -366,12 +451,17 @@ public class ConnectivityPublisherTest {
         // ==== 0th (initial) pull.
         long someTimeAgo = mNow - Duration.ofMinutes(1).toMillis();
         mFakeManager.addWifiStats(UID_4, TAG_1, 12, 12, OEM_MANAGED_NO, someTimeAgo);
-        mFakeHandler.dispatchQueuedMessages(); // pulls 12 bytes
-
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_1); // pulls 12 bytes
         // ==== 1st pull.
         mFakeManager.addWifiStats(UID_4, TAG_1, 200, 200, OEM_MANAGED_NO, someTimeAgo);
         mPublisher.addDataSubscriber(mDataSubscriberWifi);
-        mFakeHandler.dispatchQueuedMessages(); // pulls 200 + 12 bytes
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_1); // pulls 200 + 12 bytes
+        verifyPublisherSavedData(1);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_2);
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(1);
         PersistableBundle result = mDataSubscriberWifi.get(0);
@@ -383,7 +473,12 @@ public class ConnectivityPublisherTest {
 
         // ==== 2nd pull.
         mFakeManager.addWifiStats(UID_4, TAG_1, 1000, 1000, OEM_MANAGED_NO, mNow);
-        mFakeHandler.dispatchQueuedMessages(); // pulls 200 + 12 + 1000 bytes
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_END_2); // pulls 200 + 12 + 1000 bytes
+        verifyPublisherSavedData(2);
+        // Triggers processing of previous session results and pushing them to publishers.
+        mSessionControllerCallbackArgumentCaptor.getValue().onSessionStateChanged(
+                SESSION_ANNOTATION_BEGIN_3);
 
         assertThat(mDataSubscriberWifi.mPushedData).hasSize(2);
         result = mDataSubscriberWifi.get(1);
@@ -394,11 +489,6 @@ public class ConnectivityPublisherTest {
         assertThat(result.getLongArray("txBytes")).asList().containsExactly(1000L);
     }
 
-    private void onPublisherFailure(
-            AbstractPublisher publisher,
-            List<TelemetryProto.MetricsConfig> affectedConfigs,
-            Throwable error) {}
-
     private static class FakeDataSubscriber extends DataSubscriber {
         private final ArrayList<PushedData> mPushedData = new ArrayList<>();
 
@@ -408,8 +498,9 @@ public class ConnectivityPublisherTest {
         }
 
         @Override
-        public void push(PersistableBundle data, boolean isLargeData) {
+        public int push(PersistableBundle data, boolean isLargeData) {
             mPushedData.add(new PushedData(data, isLargeData));
+            return mPushedData.size();
         }
 
         /** Returns the pushed data by the given index. */

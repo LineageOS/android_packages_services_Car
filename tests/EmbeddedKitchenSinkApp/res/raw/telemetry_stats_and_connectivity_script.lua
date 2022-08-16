@@ -18,7 +18,7 @@ function indexOf(array, value)
 end
 
 GOOGLE_MAPS_PROCESS_NAME = 'com.google.android.apps.maps'
-MIN_NETSTATS_DATA_RECEIVED = 5
+MIN_NETSTATS_DATA_RECEIVED = 3
 
 function onProcessCpuTime(published_data, state)
     local processNameArray = published_data['process_name']
@@ -68,4 +68,32 @@ function onWifiNetstats(published_data, state)
     else
         on_success(state)
     end
+end
+
+-- Finds the top 5 processes that transferred the most bytes.
+-- See ConnectivityPublisher for the data schema.
+function onWifiNetstatsForTopConsumers(data, state)
+    local sortedTable = {}
+    for i = 1, data.size do
+        local totalBytes = data.rxBytes[i] + data.txBytes[i]
+        table.insert(sortedTable, {
+            ["totalBytes"] = totalBytes,
+            ["uid"] = data.uid[i],
+            ["packages"] = data.packages[i],
+        })
+    end
+    -- Reverse sort by totalBytes
+    table.sort(sortedTable, function (a, b)
+            return a.totalBytes > b.totalBytes
+        end)
+    local lines = {}
+    for i = 1, math.min(5, data.size) do
+        table.insert(lines, "{" ..
+            "totalBytes=" .. sortedTable[i].totalBytes ..
+            " uid=" .. sortedTable[i].uid ..
+            " packages=" .. sortedTable[i].packages ..
+            "}")
+    end
+    local resultStr = table.concat(lines, ", ")
+    on_script_finished({["top_data_usage"] = resultStr})
 end

@@ -101,8 +101,8 @@ private:
     std::vector<UidStats> process(
             const std::unordered_map<uid_t, UidIoStats>& uidIoStatsByUid,
             const std::unordered_map<uid_t, UidProcStats>& uidProcStatsByUid) const;
-    // Local IPackageInfoResolver instance. Useful to mock in tests.
-    sp<IPackageInfoResolver> mPackageInfoResolver;
+    // Local PackageInfoResolverInterface instance. Useful to mock in tests.
+    sp<PackageInfoResolverInterface> mPackageInfoResolver;
 
     mutable Mutex mMutex;
 

@@ -22,12 +22,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.Log;
 
-import com.android.systemui.SystemUI;
+import com.android.systemui.CoreStartable;
 import com.android.systemui.dagger.SysUISingleton;
 
 import javax.inject.Inject;
@@ -36,7 +37,7 @@ import javax.inject.Inject;
  * Dagger Subcomponent for DisplayAreas within SysUI.
  */
 @SysUISingleton
-public class DisplayAreaComponent extends SystemUI {
+public class DisplayAreaComponent extends CoreStartable {
     public static final String TAG = "DisplayAreaComponent";
     // action name for the intent when to update the foreground DA visibility
     public static final String DISPLAY_AREA_VISIBILITY_CHANGED =
@@ -61,6 +62,7 @@ public class DisplayAreaComponent extends SystemUI {
 
     @Override
     public void start() {
+        logIfDebuggable("start:");
         if (CarDisplayAreaUtils.isCustomDisplayPolicyDefined(mContext)) {
             // Register the DA's
             mCarDisplayAreaController.register();
@@ -80,6 +82,7 @@ public class DisplayAreaComponent extends SystemUI {
                                 && mCurrentUser != UserHandle.USER_SYSTEM) {
                             int res = Settings.Secure.getIntForUser(mContext.getContentResolver(),
                                     KEY_SETUP_WIZARD_IN_PROGRESS, mCurrentUser);
+                            logIfDebuggable("SUW in progress: " + (res == 1));
                             // res == 1 -> SUW in progress
                             if (res == 1 && !mIsDefaultTdaFullScreen) {
                                 if (!mCarDisplayAreaController.isForegroundDaVisible()) {
@@ -113,6 +116,7 @@ public class DisplayAreaComponent extends SystemUI {
                 public void onReceive(Context context, Intent intent) {
                     mCurrentUser = intent.getIntExtra(Intent.EXTRA_USER_HANDLE,
                             UserHandle.USER_ALL);
+                    logIfDebuggable("ACTION_USER_SWITCHED received current user: " + mCurrentUser);
                     handler.post(runnable);
                 }
             }, filter, null, null);
@@ -127,5 +131,11 @@ public class DisplayAreaComponent extends SystemUI {
      */
     public enum FOREGROUND_DA_STATE {
         CONTROL_BAR, DEFAULT, FULL
+    }
+
+    private static void logIfDebuggable(String message) {
+        if (Build.IS_DEBUGGABLE) {
+            Log.d(TAG, message);
+        }
     }
 }
