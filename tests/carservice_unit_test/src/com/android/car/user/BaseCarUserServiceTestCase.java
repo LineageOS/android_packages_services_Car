@@ -103,6 +103,7 @@ import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
+import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.R;
 import com.android.internal.util.Preconditions;
 
@@ -158,6 +159,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected ICarServiceHelper mICarServiceHelper;
     @Mock protected Handler mMockedHandler;
     @Mock protected UserHandleHelper mMockedUserHandleHelper;
+    @Mock protected CarPackageManagerService mCarPackageManagerService;
 
     protected final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.forAnyEvent().build();
@@ -472,7 +474,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 mInitialUserSetter,
                 mUserPreCreator,
                 mCarUxRestrictionService,
-                mHandler);
+                mHandler,
+                mCarPackageManagerService);
     }
 
     /**

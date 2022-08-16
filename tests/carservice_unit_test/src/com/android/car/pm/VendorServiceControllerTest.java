@@ -105,6 +105,9 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @Mock
     private CarUxRestrictionsManagerService mUxRestrictionService;
 
+    @Mock
+    private CarPackageManagerService mCarPackageManagerService;
+
     private ServiceLauncherContext mContext;
     private CarUserService mCarUserService;
     private VendorServiceController mController;
@@ -123,7 +126,7 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
 
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
-                /* maxRunningUsers= */ 2, mUxRestrictionService);
+                /* maxRunningUsers= */ 2, mUxRestrictionService, mCarPackageManagerService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
         mController = new VendorServiceController(mContext, Looper.getMainLooper());
