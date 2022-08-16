@@ -33,6 +33,7 @@
         <permission name="android.car.permission.CONTROL_CAR_POWER_POLICY"/>
         <permission name="android.car.permission.CONTROL_CAR_CLIMATE"/>
         <permission name="android.car.permission.CONTROL_CAR_DOORS"/>
+        <permission name="android.car.permission.CONTROL_CAR_WINDOWS"/>
         <permission name="android.car.permission.CAR_TIRES"/>
         <permission name="android.car.permission.READ_CAR_STEERING"/>
         <permission name="android.car.permission.REQUEST_CAR_EVS_ACTIVITY" />
