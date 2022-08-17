@@ -29,6 +29,7 @@ import com.android.car.bluetooth.CarBluetoothUserService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ProxiedService;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.internal.annotations.Keep;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -41,6 +42,7 @@ import java.io.PrintWriter;
  * This Service is run as the Current User on every User Switch and components of CarService can
  * use this service to communicate with services/processes running as the current (non-system) user.
  */
+@Keep
 public class PerUserCarServiceImpl extends ProxiedService {
     private static final boolean DBG = true;
     private static final String TAG = CarLog.tagFor(PerUserCarServiceImpl.class);
