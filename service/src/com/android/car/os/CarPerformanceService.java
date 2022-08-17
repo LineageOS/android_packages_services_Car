@@ -25,7 +25,7 @@ import static android.car.os.CpuAvailabilityMonitoringConfig.TIMEOUT_ACTION_NOTI
 import static android.car.os.CpuAvailabilityMonitoringConfig.TIMEOUT_ACTION_REMOVE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.VersionUtils.assertPlatformVersionAtLeast;
+import static com.android.car.internal.util.VersionUtils.assertPlatformVersionAtLeast;
 
 import android.annotation.NonNull;
 import android.car.Car;

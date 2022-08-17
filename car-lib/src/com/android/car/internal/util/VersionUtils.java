@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car.util;
+package com.android.car.internal.util;
 
 import android.car.Car;
 import android.car.PlatformVersion;
@@ -21,6 +21,8 @@ import android.car.PlatformVersionMismatchException;
 
 /**
  * Utility class for platform and car API version check.
+ *
+ * @hide
  */
 public final class VersionUtils {
 
@@ -30,10 +32,10 @@ public final class VersionUtils {
      * @throws PlatformVersionMismatchException if current platform version is not equal to or
      * greater than expected platform version.
      */
-    public static void assertPlatformVersionAtLeast(PlatformVersion expectedPlatformVersion) {
+    public static void assertPlatformVersionAtLeast(PlatformVersion expectedPlatformApiVersion) {
         PlatformVersion currentPlatformVersion = Car.getPlatformVersion();
-        if (!currentPlatformVersion.isAtLeast(expectedPlatformVersion)) {
-            throw new PlatformVersionMismatchException(expectedPlatformVersion);
+        if (!currentPlatformVersion.isAtLeast(expectedPlatformApiVersion)) {
+            throw new PlatformVersionMismatchException(expectedPlatformApiVersion);
         }
     }
 
