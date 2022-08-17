@@ -2041,6 +2041,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // POST_UNLOCKED event is meant only for internal service listeners. Skip sending it to
             // app listeners.
             if (eventType != CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED) {
+                // TODO(b/235524989): Do target version check inside
+                // handleNotifyAppUserLifecycleListeners and do not send the event if an app's
+                // target car version is lower than TIRAMISU_1.
                 handleNotifyAppUserLifecycleListeners(event);
             }
         });

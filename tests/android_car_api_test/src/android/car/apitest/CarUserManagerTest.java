@@ -18,6 +18,7 @@ package android.car.apitest;
 import static android.car.test.util.UserTestingHelper.clearUserLockCredentials;
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.test.util.UserTestingHelper.setUserLockCredentials;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
@@ -103,6 +104,40 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         // Make sure the guest exists
         UserInfo loadedGuest = getUser(newGuest.id);
         assertUserInfo(newGuest, loadedGuest);
+    }
+
+    @Test
+    public void testLifecycleUserCreatedListener() throws Exception {
+        Car car = Car.createCar(getContext().getApplicationContext());
+        CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+
+        BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .setTimeout(START_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_CREATED)
+                .build();
+
+        try {
+            Log.d(TAG, "registering listener: " + listener);
+            mgr.addListener(Runnable::run, listener);
+            Log.v(TAG, "ok");
+
+            int newUserId = createUser("TestUserToCreate").id;
+
+            Log.d(TAG, "Waiting for events");
+            List<UserLifecycleEvent> events = listener.waitForEvents();
+            Log.d(TAG, "events: " + events);
+            assertWithMessage("events").that(events).hasSize(1);
+            UserLifecycleEvent event = events.get(0);
+            assertWithMessage("type of event %s", event).that(event.getEventType())
+                    .isEqualTo(USER_LIFECYCLE_EVENT_TYPE_CREATED);
+            assertWithMessage("user id on %s", event).that(event.getUserId())
+                    .isEqualTo(newUserId);
+        } finally {
+            Log.d(TAG, "unregistering listener: " + listener);
+            mgr.removeListener(listener);
+            Log.v(TAG, "ok");
+        }
     }
 
     @Test

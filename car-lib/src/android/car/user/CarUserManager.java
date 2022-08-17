@@ -34,7 +34,9 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.MinimumPlatformSdkVersion;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.util.concurrent.AndroidAsyncFuture;
@@ -185,6 +187,17 @@ public final class CarUserManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+
+    /**
+     * {@link UserLifecycleEvent} called after an existing user is removed.
+     *
+     * @hide
+     */
+    @SystemApi
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @MinimumPlatformSdkVersion(majorVersion = 33, minorVersion = 1)
+    public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_CREATED;
 
     /** @hide */
     @AddedInOrBefore(majorVersion = 33)
@@ -988,6 +1001,10 @@ public final class CarUserManager extends CarManagerBase {
                 return "STOPPING";
             case USER_LIFECYCLE_EVENT_TYPE_STOPPED:
                 return "STOPPED";
+            case USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED:
+                return "POST_UNLOCKED";
+            case USER_LIFECYCLE_EVENT_TYPE_CREATED:
+                return "CREATED";
             default:
                 return "UNKNOWN-" + type;
         }
@@ -1053,8 +1070,9 @@ public final class CarUserManager extends CarManagerBase {
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_SWITCHING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED},
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING}, or
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED}.
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING},
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED}, or
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED}.
          */
         @UserLifecycleEventType
         @AddedInOrBefore(majorVersion = 33)
