@@ -94,13 +94,18 @@ filegroup {
     ],
 }
 
+cc_library_static {
+    name : "libevsmanagerd",
+    defaults : ["evsmanagerd_defaults"],
+    srcs : [":evsmanagerd_sources"],
+    export_include_dirs : ["."],
+}
+
 cc_binary {
     name: "evsmanagerd",
     defaults: ["evsmanagerd_defaults"],
-    srcs: [
-        ":evsmanagerd_sources",
-        "src/service.cpp",
-    ],
+    static_libs: ["libevsmanagerd"],
+    srcs: ["src/service.cpp"],
     init_rc: ["evsmanagerd.rc"],
     vintf_fragments: ["manifest_evsmanagerd.xml"],
 }
@@ -143,6 +148,7 @@ cc_test {
     static_libs: [
         "libgmock",
         "libgtest",
+        "libevsmanagerd",
     ],
 }
 
