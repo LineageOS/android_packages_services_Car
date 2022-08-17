@@ -33,7 +33,6 @@ import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.MandatoryFeature;
-import android.car.annotation.MinimumPlatformSdkVersion;
 import android.car.annotation.OptionalFeature;
 import android.car.app.CarActivityManager;
 import android.car.builtin.os.ServiceManagerHelper;
@@ -1997,9 +1996,8 @@ public final class Car {
      * @return Matching service manager or {@code null} if there is no such service.
      */
     @Nullable
-    // TODO(b/230004170): STOPSHIP - replace 10000 with U version
-    @AddedIn(majorVersion = 10000, minorVersion = 0)
-    @MinimumPlatformSdkVersion(majorVersion = 10000, minorVersion = 0)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public <T> T getCarManager(@NonNull Class<T> serviceClass) {
         String serviceName = CAR_SERVICE_NAMES.get(serviceClass);
         return serviceName != null ? (T) getCarManager(serviceName) : null;
