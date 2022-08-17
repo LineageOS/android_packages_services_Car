@@ -158,7 +158,7 @@ public class InputCaptureClientController {
                     .append(",callback:")
                     .append(mCallback)
                     .append(",inputTypes:")
-                    .append(mInputTypes)
+                    .append(Arrays.toString(mInputTypes))
                     .append(",flags:")
                     .append(Integer.toHexString(mFlags))
                     .append(",grantedTypes:")
