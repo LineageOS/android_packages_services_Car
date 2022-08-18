@@ -27,6 +27,7 @@ import android.car.CarAppFocusManager;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Process;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
 
@@ -272,8 +273,9 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         assertThat(manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, owner))
                 .isEqualTo(APP_FOCUS_REQUEST_SUCCEEDED);
 
+        String[] myPackages = getContext().getPackageManager().getPackagesForUid(Process.myUid());
         assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION))
-                .containsExactly("android.car.apitest");
+                .containsExactlyElementsIn(myPackages);
 
         manager.abandonAppFocus(owner, APP_FOCUS_TYPE_NAVIGATION);
 
