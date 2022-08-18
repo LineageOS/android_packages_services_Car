@@ -61,6 +61,8 @@ public final class DpcActivity extends Activity {
         mContext = getApplicationContext();
         mAdmin = DpcReceiver.getComponentName(mContext);
 
+        Log.d(TAG, "onCreate(): user= " + mContext.getUser() + ", admin=" + mAdmin);
+
         mDevicePolicyPicker = new DpcFactory(mContext);
         mDoInterface = mDevicePolicyPicker.getDoInterface();
         mPoInterfaces = mDevicePolicyPicker.getPoInterfaces();
