@@ -133,7 +133,10 @@ cc_fuzz {
 cc_test {
     name: "evsmanagerd_test",
     defaults: ["evsmanagerd_defaults"],
-    test_suites: ["general-tests"],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+    ],
     srcs: [
         ":evsmanagerd_sources",
         "tests/**/*.cpp"
