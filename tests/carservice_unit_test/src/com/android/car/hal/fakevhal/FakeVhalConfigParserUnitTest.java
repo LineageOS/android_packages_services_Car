@@ -622,8 +622,9 @@ public class FakeVhalConfigParserUnitTest {
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
                 .get(286261504);
 
-        assertThat(configDeclaration.getInitialAreaValuesByAreaId().size()).isEqualTo(2);
-        assertThat(configDeclaration.getInitialAreaValuesByAreaId().get(2)).isEqualTo(null);
+        assertThat(configDeclaration.getInitialAreaValuesByAreaId().size()).isEqualTo(1);
+        assertThat(configDeclaration.getInitialAreaValuesByAreaId().get(1).int32Values[0])
+                .isEqualTo(0);
     }
 
     @Test

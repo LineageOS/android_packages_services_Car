@@ -225,7 +225,6 @@ public final class FakeVhalConfigParser {
             Slogf.w(TAG, "Custom config file: %s is empty.", customConfigFile.getPath());
             return new SparseArray<>(/* initialCapacity= */ 0);
         }
-
         return parseJsonConfig(customConfigFileStream);
     }
 
@@ -367,7 +366,9 @@ public final class FakeVhalConfigParser {
                                 parseAreaConfig(areaObject, errors);
                         if (result != null) {
                             areaConfigs.add(result.first);
-                            defaultValuesByAreaId.put(result.first.areaId, result.second);
+                            if (result.second != null) {
+                                defaultValuesByAreaId.put(result.first.areaId, result.second);
+                            }
                         }
                     }
                     vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
