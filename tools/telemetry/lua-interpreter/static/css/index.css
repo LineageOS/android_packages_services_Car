@@ -17,7 +17,7 @@
 .input-container {
   display: flex;
   flex-direction: row;
-  height: 500px;
+  height: 600px;
 }
 
 .script-container {
@@ -47,6 +47,23 @@
   width: auto;
 }
 
+.published-data-container {
+  display: flex;
+  flex-direction: column;
+  height: 55%;
+  margin: 0 0 5px;
+  width: auto;
+}
+
+.published-data-button-group {
+  height: auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 10px;
+  white-space: nowrap;
+  width: 100%;
+}
+
 /**
  * The CodeMirrors are configured to fill up whatever container they are in so these
  * specify the actual size of them.
@@ -54,17 +71,17 @@
 .script-input-container {
   height: 90%;
   width: auto;
+  overflow: auto;
 }
 
 .published-data-input-container {
-  height: 50%;
-  margin: 0 0 5px;
-  width: auto;
+  height: 100%;
+  margin: 5px 0 0;
+  overflow: auto;
 }
 
 .saved-state-input-container {
-  height: 50%;
-  margin: 5px 0 0;
+  height: 45%;
   width: auto;
 }
 
@@ -92,4 +109,9 @@
 /* Modifies scrollbar handle */
 ::-webkit-scrollbar-thumb {
   background: #434c5e;
+}
+
+/** Modifies the scrollbar for the published data header div ONLY. */
+.published-data-header::-webkit-scrollbar {
+  height: 10px;
 }

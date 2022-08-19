@@ -3,6 +3,8 @@ Lua Interpreter
 
 The Lua Interpreter is a web-based IDE tool that can run Lua scripts with the specific Android Auto telemetry callbacks.
 
+If both a report and saved state are available, the order of display is 1. the report and 2. the saved state.
+
 ## Prerequisites
 ***
 Install the required node dependencies using npm with
@@ -21,9 +23,9 @@ of the Lua C API which should be in $ANDROID_BUILD_TOP/external/lua/src.
 
 ## Running
 ***
-In your virtual environment run the following commands on the command line to start the server:
+Run the following commands on the command line to start the server:
 ```
-npm run build; bazel run :server
+npm run build; bazel run server
 ```
 
 Open the link provided from starting the server to access the tool (the link is accessible from the terminal window).

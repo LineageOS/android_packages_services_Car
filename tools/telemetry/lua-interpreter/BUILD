@@ -29,6 +29,11 @@ cc_library(
 )
 
 filegroup(
+    name = "publisher_jsons",
+    srcs = glob(["data/**"]),
+)
+
+filegroup(
     name = "templates",
     srcs = glob(["templates/**"]),
 )
@@ -43,6 +48,7 @@ py_library(
     srcs = ["app.py"],
     data = [
         ":lua_engine",
+        ":publisher_jsons",
         ":static_files",
         ":templates",
     ],
@@ -55,6 +61,7 @@ py_binary(
     srcs = ["app.py"],
     data = [
         ":lua_engine",
+        ":publisher_jsons",
         ":static_files",
         ":templates",
     ],

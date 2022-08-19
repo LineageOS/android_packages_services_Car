@@ -1,0 +1,60 @@
+{
+    "last_read_error_uid": [
+        -1
+    ],
+    "foreground_state": [
+        1
+    ],
+    "package_name": [
+        "com.android.calendar"
+    ],
+    "data_loader_bind_delay_millis": [
+        -1
+    ],
+    "total_failed_reads": [
+        -1
+    ],
+    "total_delayed_reads_duration_millis": [
+        -1
+    ],
+    "millis_since_oldest_pending_read": [
+        -1
+    ],
+    "pid": [
+        2982
+    ],
+    "uid": [
+        1010115
+    ],
+    "elapsed_timestamp_nanos": 166061735209,
+    "error_source": [
+        2
+    ],
+    "total_delayed_reads": [
+        -1
+    ],
+    "is_instant_app": [
+        1
+    ],
+    "data_loader_status_code": [
+        -1
+    ],
+    "last_read_error_millis_since": [
+        -1
+    ],
+    "event_type": [
+        "crash"
+    ],
+    "storage_health_code": [
+        -1
+    ],
+    "last_read_error_code": [
+        0
+    ],
+    "millis_since_last_data_loader_bind": [
+        -1
+    ],
+    "process_name": [
+        "com.android.calendar"
+    ]
+}
