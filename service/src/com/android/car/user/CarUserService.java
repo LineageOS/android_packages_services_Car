@@ -2023,10 +2023,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         int userId = toUserId;
 
         // Handle special cases first...
-        if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
-            onUserSwitching(fromUserId, toUserId);
-        } else if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED) {
-            onUserUnlocked(userId);
+        switch (eventType) {
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
+                onUserSwitching(fromUserId, toUserId);
+                break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
+                onUserUnlocked(userId);
+                break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED:
+                onUserRemoved(UserHandle.of(userId));
+                break;
+            default:
         }
 
         // ...then notify listeners.
