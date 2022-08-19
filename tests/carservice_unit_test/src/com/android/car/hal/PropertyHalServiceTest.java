@@ -68,17 +68,6 @@ public class PropertyHalServiceTest {
     private VehicleHal mVehicleHal;
 
     @Mock
-    private HalPropConfig mHalPropConfig;
-
-    @Mock
-    private HalPropValueBuilder mHalPropValueBuilder;
-
-    @Mock
-    private HalPropValue mHalPropValue;
-
-    @Mock
-    private CarPropertyValue<?> mCarPropertyValue;
-    @Mock
     private IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
     @Mock
     private IBinder mGetAsyncPropertyResultBinder;
@@ -98,7 +87,7 @@ public class PropertyHalServiceTest {
 
     @Before
     public void setUp() {
-        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mHalPropValueBuilder);
+        when(mVehicleHal.getHalPropValueBuilder()).thenReturn(mPropValueBuilder);
         mPropertyHalService = new PropertyHalService(mVehicleHal);
         mPropertyHalService.init();
     }
@@ -116,12 +105,13 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(List.of(GET_PROPERTY_SERVICE_REQUEST_1),
                 mGetAsyncPropertyResultCallback);
 
-        ArgumentCaptor<List<VehicleHal.GetVehicleHalRequest>> captor = ArgumentCaptor.forClass(
-                List.class);
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncRequest>> captor =
+                ArgumentCaptor.forClass(List.class);
         verify(mVehicleHal).getAsync(captor.capture(),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
         assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
-        assertThat(captor.getValue().get(0).getHalPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+        assertThat(captor.getValue().get(0).getHalPropValue().getPropId()).isEqualTo(
+                HVAC_TEMPERATURE_SET);
     }
 
     @Test
@@ -134,16 +124,18 @@ public class PropertyHalServiceTest {
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
                 mGetAsyncPropertyResultCallback);
 
-        ArgumentCaptor<List<VehicleHal.GetVehicleHalRequest>> captor = ArgumentCaptor.forClass(
-                List.class);
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncRequest>> captor =
+                ArgumentCaptor.forClass(List.class);
         verify(mVehicleHal).getAsync(captor.capture(),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
         assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
-        assertThat(captor.getValue().get(0).getHalPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
-        assertThat(captor.getValue().get(0).getAreaId()).isEqualTo(0);
+        assertThat(captor.getValue().get(0).getHalPropValue().getPropId()).isEqualTo(
+                HVAC_TEMPERATURE_SET);
+        assertThat(captor.getValue().get(0).getHalPropValue().getAreaId()).isEqualTo(0);
         assertThat(captor.getValue().get(1).getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_2);
-        assertThat(captor.getValue().get(1).getHalPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
-        assertThat(captor.getValue().get(1).getAreaId()).isEqualTo(0);
+        assertThat(captor.getValue().get(1).getHalPropValue().getPropId()).isEqualTo(
+                HVAC_TEMPERATURE_SET);
+        assertThat(captor.getValue().get(1).getHalPropValue().getAreaId()).isEqualTo(0);
     }
 
     @Test
@@ -161,20 +153,21 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List getVehicleHalRequests = (List) args[0];
-            VehicleHal.GetVehicleHalRequest getVehicleHalRequest =
-                    (VehicleHal.GetVehicleHalRequest) getVehicleHalRequests.get(0);
-            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback =
-                    (VehicleStub.GetAsyncVehicleStubCallback) args[1];
+            VehicleStub.GetVehicleStubAsyncRequest getVehicleHalRequest =
+                    (VehicleStub.GetVehicleStubAsyncRequest) getVehicleHalRequests.get(0);
+            VehicleStub.GetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
+                    (VehicleStub.GetVehicleStubAsyncCallback) args[1];
 
             assertThat(getVehicleHalRequest.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
-            assertThat(getVehicleHalRequest.getHalPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+            assertThat(getVehicleHalRequest.getHalPropValue().getPropId()).isEqualTo(
+                    HVAC_TEMPERATURE_SET);
 
             VehicleStub.GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                     new VehicleStub.GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_1, mPropValue);
-            getAsyncVehicleStubCallback.onGetAsyncResults(List.of(getVehicleStubAsyncResult));
+            getVehicleStubAsyncCallback.onGetAsyncResults(List.of(getVehicleStubAsyncResult));
             return null;
         }).when(mVehicleHal).getAsync(any(List.class),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
 
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
 
@@ -194,21 +187,22 @@ public class PropertyHalServiceTest {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             List getVehicleHalRequests = (List) args[0];
-            VehicleHal.GetVehicleHalRequest getVehicleHalRequest =
-                    (VehicleHal.GetVehicleHalRequest) getVehicleHalRequests.get(0);
-            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback =
-                    (VehicleStub.GetAsyncVehicleStubCallback) args[1];
+            VehicleStub.GetVehicleStubAsyncRequest getVehicleHalRequest =
+                    (VehicleStub.GetVehicleStubAsyncRequest) getVehicleHalRequests.get(0);
+            VehicleStub.GetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
+                    (VehicleStub.GetVehicleStubAsyncCallback) args[1];
 
             assertThat(getVehicleHalRequest.getServiceRequestId()).isEqualTo(RECEIVED_REQUEST_ID_1);
-            assertThat(getVehicleHalRequest.getHalPropertyId()).isEqualTo(HVAC_TEMPERATURE_SET);
+            assertThat(getVehicleHalRequest.getHalPropValue().getPropId()).isEqualTo(
+                    HVAC_TEMPERATURE_SET);
 
             VehicleStub.GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                     new VehicleStub.GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_1,
                             CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
-            getAsyncVehicleStubCallback.onGetAsyncResults(List.of(getVehicleStubAsyncResult));
+            getVehicleStubAsyncCallback.onGetAsyncResults(List.of(getVehicleStubAsyncResult));
             return null;
         }).when(mVehicleHal).getAsync(any(List.class),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
 
         doReturn(mGetAsyncPropertyResultBinder).when(mGetAsyncPropertyResultCallback).asBinder();
 
@@ -228,18 +222,18 @@ public class PropertyHalServiceTest {
     public void testOnGetAsyncResults_multipleResultsSameCall() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            List<VehicleHal.GetVehicleHalRequest> getVehicleHalRequests = (List) args[0];
-            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback =
-                    (VehicleStub.GetAsyncVehicleStubCallback) args[1];
+            List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleHalRequests = (List) args[0];
+            VehicleStub.GetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
+                    (VehicleStub.GetVehicleStubAsyncCallback) args[1];
 
             assertThat(getVehicleHalRequests.size()).isEqualTo(2);
             assertThat(getVehicleHalRequests.get(0).getServiceRequestId()).isEqualTo(
                     RECEIVED_REQUEST_ID_1);
-            assertThat(getVehicleHalRequests.get(0).getHalPropertyId()).isEqualTo(
+            assertThat(getVehicleHalRequests.get(0).getHalPropValue().getPropId()).isEqualTo(
                     HVAC_TEMPERATURE_SET);
             assertThat(getVehicleHalRequests.get(1).getServiceRequestId()).isEqualTo(
                     RECEIVED_REQUEST_ID_2);
-            assertThat(getVehicleHalRequests.get(1).getHalPropertyId()).isEqualTo(
+            assertThat(getVehicleHalRequests.get(1).getHalPropValue().getPropId()).isEqualTo(
                     HVAC_TEMPERATURE_SET);
 
             List<VehicleStub.GetVehicleStubAsyncResult> getVehicleStubAsyncResults =
@@ -248,10 +242,10 @@ public class PropertyHalServiceTest {
                     new VehicleStub.GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_1, mPropValue));
             getVehicleStubAsyncResults.add(
                     new VehicleStub.GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_2, mPropValue));
-            getAsyncVehicleStubCallback.onGetAsyncResults(getVehicleStubAsyncResults);
+            getVehicleStubAsyncCallback.onGetAsyncResults(getVehicleStubAsyncResults);
             return null;
         }).when(mVehicleHal).getAsync(any(List.class),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
 
         ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
         List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
@@ -273,29 +267,29 @@ public class PropertyHalServiceTest {
     public void testOnGetAsyncResults_multipleResultsDifferentCalls() throws RemoteException {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
-            List<VehicleHal.GetVehicleHalRequest> getVehicleHalRequests = (List) args[0];
-            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback =
-                    (VehicleStub.GetAsyncVehicleStubCallback) args[1];
+            List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleHalRequests = (List) args[0];
+            VehicleStub.GetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
+                    (VehicleStub.GetVehicleStubAsyncCallback) args[1];
 
             assertThat(getVehicleHalRequests.size()).isEqualTo(2);
             assertThat(getVehicleHalRequests.get(0).getServiceRequestId()).isEqualTo(
                     RECEIVED_REQUEST_ID_1);
-            assertThat(getVehicleHalRequests.get(0).getHalPropertyId()).isEqualTo(
+            assertThat(getVehicleHalRequests.get(0).getHalPropValue().getPropId()).isEqualTo(
                     HVAC_TEMPERATURE_SET);
             assertThat(getVehicleHalRequests.get(1).getServiceRequestId()).isEqualTo(
                     RECEIVED_REQUEST_ID_2);
-            assertThat(getVehicleHalRequests.get(1).getHalPropertyId()).isEqualTo(
+            assertThat(getVehicleHalRequests.get(1).getHalPropValue().getPropId()).isEqualTo(
                     HVAC_TEMPERATURE_SET);
 
-            getAsyncVehicleStubCallback.onGetAsyncResults(
+            getVehicleStubAsyncCallback.onGetAsyncResults(
                     List.of(new VehicleStub.GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_1,
                             mPropValue)));
-            getAsyncVehicleStubCallback.onGetAsyncResults(
+            getVehicleStubAsyncCallback.onGetAsyncResults(
                     List.of(new VehicleStub.GetVehicleStubAsyncResult(RECEIVED_REQUEST_ID_2,
                             mPropValue)));
             return null;
         }).when(mVehicleHal).getAsync(any(List.class),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
 
         ArgumentCaptor<List<GetValueResult>> value = ArgumentCaptor.forClass(List.class);
         List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>();
@@ -331,18 +325,20 @@ public class PropertyHalServiceTest {
 
     @Test
     public void setProperty_handlesHalAndMgrPropIdMismatch() {
-        when(mCarPropertyValue.getPropertyId()).thenReturn(
+
+        HalPropConfig mockPropConfig = mock(HalPropConfig.class);
+        CarPropertyValue mockCarPropertyValue = mock(CarPropertyValue.class);
+        when(mockCarPropertyValue.getPropertyId()).thenReturn(
                 VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS);
-        when(mHalPropConfig.getPropId()).thenReturn(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
-        when(mHalPropValueBuilder.build(mCarPropertyValue,
-                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, mHalPropConfig)).thenReturn(
-                mHalPropValue);
-        mPropertyHalService.takeProperties(ImmutableList.of(mHalPropConfig));
+        when(mockCarPropertyValue.getAreaId()).thenReturn(0);
+        when(mockCarPropertyValue.getValue()).thenReturn(1.0f);
+        when(mockPropConfig.getPropId()).thenReturn(VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS);
+        mPropertyHalService.takeProperties(ImmutableList.of(mockPropConfig));
 
-        mPropertyHalService.setProperty(mCarPropertyValue);
+        mPropertyHalService.setProperty(mockCarPropertyValue);
 
-        verify(mHalPropValueBuilder).build(mCarPropertyValue,
-                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, mHalPropConfig);
-        verify(mVehicleHal).set(mHalPropValue);
+        HalPropValue value = mPropValueBuilder.build(
+                VehicleProperty.VEHICLE_SPEED_DISPLAY_UNITS, /* areaId= */ 0, /* value= */ 1.0f);
+        verify(mVehicleHal).set(value);
     }
 }

@@ -40,7 +40,9 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.VehicleStub;
+import com.android.car.VehicleStub.GetVehicleStubAsyncCallback;
+import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
+import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
@@ -63,7 +65,7 @@ public class PropertyHalService extends HalServiceBase {
     private final boolean mDbg = true;
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
-    private final Map<IBinder, VehicleStub.GetAsyncVehicleStubCallback>
+    private final Map<IBinder, GetVehicleStubAsyncCallback>
             mResultBinderToVehicleStubCallback = new ArrayMap<>();
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.
     private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
@@ -91,7 +93,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
 
-    private class VehicleStubCallback extends VehicleStub.GetAsyncVehicleStubCallback {
+    private class VehicleStubCallback extends GetVehicleStubAsyncCallback {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
 
         VehicleStubCallback(IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
@@ -100,11 +102,11 @@ public class PropertyHalService extends HalServiceBase {
 
         @Override
         public void onGetAsyncResults(
-                List<VehicleStub.GetVehicleStubAsyncResult> getVehicleStubAsyncResults) {
+                List<GetVehicleStubAsyncResult> getVehicleStubAsyncResults) {
             List<GetValueResult> getValueResults = new ArrayList<>();
             synchronized (mLock) {
                 for (int i = 0; i < getVehicleStubAsyncResults.size(); i++) {
-                    VehicleStub.GetVehicleStubAsyncResult getVehicleStubAsyncResult =
+                    GetVehicleStubAsyncResult getVehicleStubAsyncResult =
                             getVehicleStubAsyncResults.get(i);
                     int serviceRequestId = getVehicleStubAsyncResult.getServiceRequestId();
                     GetPropertyServiceRequest getPropertyServiceRequest =
@@ -151,6 +153,14 @@ public class PropertyHalService extends HalServiceBase {
      */
     private static int halToManagerPropId(int halPropId) {
         return MGR_PROP_ID_TO_HAL_PROP_ID.getKey(halPropId, halPropId);
+    }
+
+    private GetVehicleStubAsyncRequest toGetVehicleStubAsyncRequest(int serviceRequestId,
+            GetPropertyServiceRequest getPropertyServiceRequest) {
+        int halPropertyId = managerToHalPropId(getPropertyServiceRequest.getPropertyId());
+        int areaId = getPropertyServiceRequest.getAreaId();
+        return new GetVehicleStubAsyncRequest(
+                serviceRequestId, mPropValueBuilder.build(halPropertyId, areaId));
     }
 
     // Checks if the property exists in this VHAL before calling methods in IVehicle.
@@ -507,7 +517,7 @@ public class PropertyHalService extends HalServiceBase {
             IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
         // TODO(b/242326085): Change local variables into memory pool to reduce memory
         //  allocation/release cycle
-        List<VehicleHal.GetVehicleHalRequest> getVehicleHalRequests = new ArrayList<>();
+        List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
                 GetPropertyServiceRequest getPropertyServiceRequest =
@@ -515,10 +525,8 @@ public class PropertyHalService extends HalServiceBase {
                 int serviceRequestId = mServiceRequestIdCounter.getAndIncrement();
                 mServiceRequestIdToPropertyServiceRequest.put(serviceRequestId,
                         getPropertyServiceRequest);
-                getVehicleHalRequests.add(
-                        new VehicleHal.GetVehicleHalRequest(serviceRequestId,
-                                managerToHalPropId(getPropertyServiceRequest.getPropertyId()),
-                                getPropertyServiceRequest.getAreaId()));
+                getVehicleStubAsyncRequests.add(toGetVehicleStubAsyncRequest(serviceRequestId,
+                        getPropertyServiceRequest));
             }
         }
         IBinder getAsyncPropertyResultBinder = getAsyncPropertyResultCallback.asBinder();
@@ -533,7 +541,7 @@ public class PropertyHalService extends HalServiceBase {
             mResultBinderToVehicleStubCallback.put(getAsyncPropertyResultBinder,
                     new VehicleStubCallback(getAsyncPropertyResultCallback));
         }
-        mVehicleHal.getAsync(getVehicleHalRequests,
+        mVehicleHal.getAsync(getVehicleStubAsyncRequests,
                 mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder));
     }
 }

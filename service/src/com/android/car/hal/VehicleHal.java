@@ -25,7 +25,6 @@ import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
-import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -120,43 +119,6 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
 
     // Used by injectVHALEvent for testing purposes.  Delimiter for an array of data
     private static final String DATA_DELIMITER = ",";
-
-    /**
-     * A request for {@link VehicleHal#getAsync}.
-     */
-    public static class GetVehicleHalRequest {
-        private final int mServiceRequestId;
-        /**
-         * {@link VehicleHal} property ID.
-         *
-         * <p> This may be different from the {@link CarPropertyManager} property ID. See
-         * {@link PropertyHalService#managerToHalPropId} and
-         * {@link PropertyHalService#halToManagerPropId} for conversion logic.
-         */
-        private final int mHalPropertyId;
-        private final int mAreaId;
-
-        public int getServiceRequestId() {
-            return mServiceRequestId;
-        }
-
-        public int getHalPropertyId() {
-            return mHalPropertyId;
-        }
-
-        public int getAreaId() {
-            return mAreaId;
-        }
-
-        /**
-         * Get an instance for GetVehicleHalRequest.
-         */
-        public GetVehicleHalRequest(int serviceRequestId, int halPropertyId, int areaId) {
-            mServiceRequestId = serviceRequestId;
-            mHalPropertyId = halPropertyId;
-            mAreaId = areaId;
-        }
-    }
 
     /**
      * Constructs a new {@link VehicleHal} object given the {@link Context} and {@link IVehicle}
@@ -1218,22 +1180,8 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
      *
      * <p>This method gets the HalPropValue using async methods.
      */
-    public void getAsync(List<GetVehicleHalRequest> getVehicleHalRequests,
-            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
-        List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests =
-                new ArrayList<>();
-        for (int i = 0; i < getVehicleHalRequests.size(); i++) {
-            GetVehicleHalRequest getVehicleHalRequest = getVehicleHalRequests.get(i);
-            int halPropertyId = getVehicleHalRequest.getHalPropertyId();
-            int areaId = getVehicleHalRequest.getAreaId();
-            if (DBG) {
-                Slogf.d(CarLog.TAG_HAL, "get, %s%s", toCarPropertyLog(halPropertyId),
-                        toCarAreaLog(areaId));
-            }
-            getVehicleStubAsyncRequests.add(new VehicleStub.GetVehicleStubAsyncRequest(
-                    getVehicleHalRequest.getServiceRequestId(),
-                    mPropValueBuilder.build(halPropertyId, areaId)));
-        }
-        mHalClient.getValuesAsync(getVehicleStubAsyncRequests, getAsyncVehicleStubCallback);
+    public void getAsync(List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
+            VehicleStub.GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+        mHalClient.getValuesAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
 }

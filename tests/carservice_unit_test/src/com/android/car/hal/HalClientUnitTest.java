@@ -65,7 +65,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
     @Mock HalClientCallback mHalClientCallback;
     @Mock SubscriptionClient mSubscriptionClient;
     @Mock
-    VehicleStub.GetAsyncVehicleStubCallback mGetAsyncVehicleStubCallback;
+    VehicleStub.GetVehicleStubAsyncCallback mGetVehicleStubAsyncCallback;
 
     private HalClient mClient;
     private TestLooper mLooper = new TestLooper();
@@ -89,7 +89,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
         VehicleStub.GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
                 new VehicleStub.GetVehicleStubAsyncRequest(serviceRequestId, halPropValue);
 
-        mClient.getValuesAsync(List.of(getVehicleStubAsyncRequest), mGetAsyncVehicleStubCallback);
+        mClient.getValuesAsync(List.of(getVehicleStubAsyncRequest), mGetVehicleStubAsyncCallback);
 
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncRequest>> captor =
                 ArgumentCaptor.forClass(List.class);
@@ -97,7 +97,7 @@ public final class HalClientUnitTest extends AbstractExtendedMockitoTestCase {
                 0);
 
         verify(mIVehicle).getAsync(captor.capture(),
-                any(VehicleStub.GetAsyncVehicleStubCallback.class));
+                any(VehicleStub.GetVehicleStubAsyncCallback.class));
         assertThat(captor.getValue().get(0).getServiceRequestId()).isEqualTo(serviceRequestId);
         assertThat(captor.getValue().get(0).getHalPropValue()).isEqualTo(testHalPropValue);
     }

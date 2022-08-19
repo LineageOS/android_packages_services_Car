@@ -92,7 +92,7 @@ public class VehicleStubTest {
     @Mock
     private android.hardware.automotive.vehicle.V2_0.IVehicle mHidlVehicle;
     @Mock
-    private VehicleStub.GetAsyncVehicleStubCallback mGetAsyncVehicleStubCallback;
+    private VehicleStub.GetVehicleStubAsyncCallback mGetVehicleStubAsyncCallback;
 
     private AidlVehicleStub mAidlVehicleStub;
     private VehicleStub mHidlVehicleStub;
@@ -343,12 +343,12 @@ public class VehicleStubTest {
                 new VehicleStub.GetVehicleStubAsyncRequest(0, value);
 
         mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetAsyncVehicleStubCallback);
+                mGetVehicleStubAsyncCallback);
 
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getHalPropValue()).isEqualTo(value);
     }
@@ -374,9 +374,9 @@ public class VehicleStubTest {
                 ArgumentCaptor.forClass(List.class);
 
         mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetAsyncVehicleStubCallback);
+                mGetVehicleStubAsyncCallback);
 
-        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
@@ -599,12 +599,12 @@ public class VehicleStubTest {
                 new VehicleStub.GetVehicleStubAsyncRequest(0, value);
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetAsyncVehicleStubCallback);
+                mGetVehicleStubAsyncCallback);
 
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getHalPropValue()).isEqualTo(value);
     }
@@ -645,12 +645,12 @@ public class VehicleStubTest {
                 new VehicleStub.GetVehicleStubAsyncRequest(0, value);
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetAsyncVehicleStubCallback);
+                mGetVehicleStubAsyncCallback);
 
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
@@ -667,7 +667,7 @@ public class VehicleStubTest {
         doThrow(exception).when(mAidlVehicle).getValues(any(), any());
 
         mAidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetAsyncVehicleStubCallback);
+                mGetVehicleStubAsyncCallback);
     }
 
     @Test
@@ -677,7 +677,7 @@ public class VehicleStubTest {
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
@@ -690,7 +690,7 @@ public class VehicleStubTest {
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mGetAsyncVehicleStubCallback, timeout(1000)).onGetAsyncResults(
+        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
                 argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
