@@ -39,7 +39,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -51,15 +50,12 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.JavaMockitoHelper;
-import android.content.ContentResolver;
 import android.content.Context;
-import android.content.IContentProvider;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.VehicleApPowerStateShutdownParam;
-import android.net.wifi.WifiManager;
 import android.os.UserManager;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
@@ -83,7 +79,6 @@ import com.android.internal.annotations.GuardedBy;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
@@ -130,12 +125,6 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     private CarUserService mCarUserService;
     @Mock
     private ICarPowerPolicySystemNotification mPowerPolicyDaemon;
-    @Mock
-    private IContentProvider mIContentProvider;
-    @Mock
-    private ContentResolver mContentResolver;
-    @Mock
-    private WifiManager mWifiManager;
 
     public CarPowerManagerUnitTest() throws Exception {
         super(CarPowerManager.TAG);
@@ -432,11 +421,6 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
                 new AtomicFile(mComponentStateFile.getFile()));
-
-        when(mContext.getContentResolver()).thenReturn(mContentResolver);
-        when(mContentResolver.acquireProvider(anyString())).thenReturn(mIContentProvider);
-        when(mContext.getSystemService(ArgumentMatchers.<Class>any())).thenReturn(mWifiManager);
-
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
                 /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
