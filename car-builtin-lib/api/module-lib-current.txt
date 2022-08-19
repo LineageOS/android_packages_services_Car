@@ -11,6 +11,16 @@ package android.car.builtin {
 
 }
 
+package android.car.builtin.annotation {
+
+  public enum PlatformVersion {
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_0;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion TIRAMISU_1;
+    enum_constant public static final android.car.builtin.annotation.PlatformVersion UPSIDE_DOWN_CAKE_0;
+  }
+
+}
+
 package android.car.builtin.app {
 
   public final class ActivityManagerHelper {

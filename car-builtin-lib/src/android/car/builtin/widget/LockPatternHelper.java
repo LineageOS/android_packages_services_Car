@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 
 import com.android.internal.widget.LockPatternUtils;
@@ -37,7 +38,7 @@ public final class LockPatternHelper {
     /**
      * Checks if the given user has lock credentials.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean isSecure(@NonNull Context context, @UserIdInt int userId) {
         return new LockPatternUtils(context).isSecure(userId);
     }
