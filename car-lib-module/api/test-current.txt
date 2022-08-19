@@ -2,9 +2,6 @@
 package android.car {
 
   public final class Car {
-    field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
-    field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
-    field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR = "com.android.car.internal.debug.platform_major_version";
     field public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR = "com.android.car.internal.debug.platform_minor_version";
   }
