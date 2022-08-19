@@ -243,7 +243,12 @@ public final class UsbDeviceHandlerResolver {
 
     private String getHashed(String serial) {
         try {
-            return MessageDigest.getInstance("MD5").digest(serial.getBytes()).toString();
+            byte[] digest = MessageDigest.getInstance("MD5").digest(serial.getBytes());
+            StringBuilder sb = new StringBuilder(digest.length * 2);
+            for (byte b : digest) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             Log.w(TAG, "could not create MD5 for serial number: " + serial);
             return Integer.toString(serial.hashCode());
