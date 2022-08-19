@@ -16,7 +16,7 @@
 
 #include "lua_engine.h"
 
-#include <iostream>
+#include <cstring>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -36,6 +36,9 @@ enum LuaNumReturnedResults {
 
 // Prefix for logging messages coming from lua script.
 const char kLuaLogTag[] = "LUA: ";
+
+// Key for retrieving saved state from the registry.
+const char* const kSavedStateKey = "saved_state";
 
 LuaEngine::LuaEngine() {
   lua_state_ = luaL_newstate();
@@ -147,11 +150,49 @@ bool ConvertJsonToLuaTable(lua_State* lua_state, std::string published_data,
   return true;
 }
 
+void LuaEngine::SaveSavedStateToRegistry(lua_State* lua_state,
+                                         std::string saved_state) {
+  // After this push, the stack indices and its contents are:
+  // -1: the saved state key string
+  // the rest of the stack contents
+  // The state is saved under the key kSavedStateKey
+  lua_pushstring(lua_state, kSavedStateKey);
+
+  // After this push, the stack indices and its contents are:
+  // -1: the saved state JSON string
+  // -2: the saved state key string
+  // the rest of the stack contents
+  lua_pushstring(lua_state, saved_state.c_str());
+
+  // After setting the key to the value in the registry, the stack is at it's
+  // original state.
+  lua_settable(lua_state, LUA_REGISTRYINDEX);
+}
+
+void LuaEngine::ClearSavedStateInRegistry(lua_State* lua_state) {
+  // After this push, the stack indices and its contents are:
+  // -1: the saved state key string
+  // the rest of the stack contents
+  lua_pushstring(lua_state, kSavedStateKey);
+
+  // After this push, the stack indices and its contents are:
+  // -1: nil
+  // -2: the saved state key string
+  // the rest of the stack contents
+  lua_pushnil(lua_state);
+
+  // After setting the key to the value in the registry, the stack is at it's
+  // original state.
+  lua_settable(lua_state, LUA_REGISTRYINDEX);
+}
+
 std::vector<std::string> LuaEngine::ExecuteScript(std::string script_body,
                                                   std::string function_name,
                                                   std::string published_data,
                                                   std::string saved_state) {
   output_.clear();
+  ClearSavedStateInRegistry(lua_state_);
+
   const int load_status = luaL_dostring(lua_state_, script_body.data());
   if (load_status != LUA_OK) {
     const char* error = lua_tostring(lua_state_, lua_gettop(lua_state_));
@@ -208,10 +249,37 @@ char** LuaEngine::StringVectorToCharArray(std::vector<std::string> vector) {
   for (unsigned int i = 0; i < vector.size(); i++) {
     // Size + 1 is for the null-terminating character.
     array[i] = new char[vector[i].size() + 1];
-    snprintf(array[i], vector[i].size() + 1, "%s", vector[i].c_str());
+    strncpy(array[i], vector[i].c_str(), vector[i].size() + 1);
   }
 
   return array;
+}
+
+std::string LuaEngine::GetSavedState() {
+  // After this push, the stack indices and its contents are:
+  // -1: the saved state key string
+  // the rest of the stack contents
+  lua_pushstring(lua_state_, kSavedStateKey);
+
+  // After obtaining the Lua value of the given key from the registry, the stack
+  // indices and its contents are:
+  // -1: the saved state JSON string (or nil if key is not assigned)
+  // the rest of the stack contents
+  lua_gettable(lua_state_, LUA_REGISTRYINDEX);
+
+  if (lua_isnil(lua_state_, lua_gettop(lua_state_))) {
+    // After popping the nil value from the stack, the stack is at it's
+    // original state.
+    lua_pop(lua_state_, 1);
+    return std::string();
+  }
+
+  const auto saved_state = lua_tostring(lua_state_, lua_gettop(lua_state_));
+  // After popping the saved state JSON string from the stack, the stack is at
+  // it's original state.
+  lua_pop(lua_state_, 1);
+
+  return saved_state;
 }
 
 // Converts the Lua table at the top of the stack to a JSON string.
@@ -292,7 +360,7 @@ int LuaEngine::OnSuccess(lua_State* lua_state) {
     return ZERO_RETURNED_RESULTS;
   }
 
-  output_.push_back(ConvertTableToJson(lua_state));
+  SaveSavedStateToRegistry(lua_state, ConvertTableToJson(lua_state));
 
   return ZERO_RETURNED_RESULTS;
 }
@@ -359,12 +427,13 @@ int LuaEngine::OnMetricsReport(lua_State* lua_state) {
     return ZERO_RETURNED_RESULTS;
   }
 
-  // If there are two tables, at index -1 would be the saved state table (since
-  // it's the second argument for on_metrics_report) so the report is pushed to
-  // output_ first so the console will display the report first.
   const auto report = ConvertTableToJson(lua_state);
   output_.push_back(report);
-  output_.push_back(first_table);
+
+  // If there's two tables, at index -1 would be the saved state table (since
+  // it's the second argument for on_metrics_report), so first_table is the
+  // saved state.
+  SaveSavedStateToRegistry(lua_state, first_table);
 
   return ZERO_RETURNED_RESULTS;
 }
@@ -375,6 +444,7 @@ void FreeLuaOutput(LuaOutput* lua_output) {
     delete[] lua_output->output[i];
   }
   delete[] lua_output->output;
+  delete[] lua_output->saved_state;
   delete lua_output;
 }
 
@@ -388,6 +458,13 @@ LuaOutput* ExecuteScript(LuaEngine* l, char* script, char* function_name,
   lua_engine_output->size = script_execution_output.size();
   lua_engine_output->output =
       LuaEngine::StringVectorToCharArray(script_execution_output);
+
+  std::string new_saved_state = l->GetSavedState();
+  // Size + 1 is for the null-terminating character which is included in
+  // c_str().
+  lua_engine_output->saved_state = new char[new_saved_state.size() + 1];
+  strncpy(lua_engine_output->saved_state, new_saved_state.c_str(),
+          new_saved_state.size() + 1);
   return lua_engine_output;
 }
 }  // extern "C"
