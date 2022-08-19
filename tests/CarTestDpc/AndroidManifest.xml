@@ -16,8 +16,9 @@
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.android.car.testdpc">
+    <!-- TODO(b/242105770): Remove this permission requirement when we implement callback binding-->
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
     <application android:testOnly="true" android:debuggable="true">
-
         <activity
             android:name=".DpcActivity"
             android:exported="true"
