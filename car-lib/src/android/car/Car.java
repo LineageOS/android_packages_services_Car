@@ -148,12 +148,16 @@ public final class Car {
      * @hide
      */
     @TestApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR =
             "com.android.car.internal.debug.platform_major_version";
     /**
      * @hide
      */
     @TestApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR =
             "com.android.car.internal.debug.platform_minor_version";
 
