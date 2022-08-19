@@ -19,6 +19,7 @@ package android.car.builtin.input;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.hardware.input.InputManager;
 
 /**
@@ -40,7 +41,7 @@ public class InputManagerHelper {
      * @param event        the event to inject
      * @return {@code true} if injection succeeds
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean injectInputEvent(@NonNull InputManager inputManager,
             @NonNull android.view.InputEvent event) {
         return inputManager.injectInputEvent(event, InputManager.INJECT_INPUT_EVENT_MODE_ASYNC);

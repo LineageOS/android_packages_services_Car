@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.os.SystemProperties;
 
 /**
@@ -34,7 +35,7 @@ public final class SystemPropertiesHelper {
     }
 
     /** Check {@link SystemProperties#set(String, String)} */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void set(@NonNull String key, @Nullable String val) {
         SystemProperties.set(key, val);
     }

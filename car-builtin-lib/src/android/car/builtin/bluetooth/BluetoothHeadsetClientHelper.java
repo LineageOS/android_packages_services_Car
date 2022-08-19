@@ -21,6 +21,7 @@ import android.annotation.SystemApi;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.os.Bundle;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ public final class BluetoothHeadsetClientHelper {
      * @param headsetClient Proxy object for controlling the Bluetooth HFP Client service.
      * @return a list of connected devices that support BVRA.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static List<BluetoothDevice> getConnectedBvraDevices(
             @NonNull BluetoothHeadsetClient headsetClient) {
         List<BluetoothDevice> devices = headsetClient.getConnectedDevices();
@@ -68,7 +69,7 @@ public final class BluetoothHeadsetClientHelper {
      * @param device The connected device whose voice recognition will be started.
      * @return {@code true} if the command has been issued successfully; {@code false} otherwise.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean startVoiceRecognition(@NonNull BluetoothHeadsetClient headsetClient,
             BluetoothDevice device) {
         return headsetClient.startVoiceRecognition(device);
@@ -81,7 +82,7 @@ public final class BluetoothHeadsetClientHelper {
      * @param device The connected device whose voice recognition will be stopped.
      * @return {@code true} if the command has been issued successfully; {@code false} otherwise.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean stopVoiceRecognition(@NonNull BluetoothHeadsetClient headsetClient,
             BluetoothDevice device) {
         return headsetClient.stopVoiceRecognition(device);
