@@ -151,13 +151,13 @@ public final class Car {
      */
     @TestApi
     public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR =
-            "android.car.debug.platform_major_version";
+            "com.android.car.internal.debug.platform_major_version";
     /**
      * @hide
      */
     @TestApi
     public static final String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR =
-            "android.car.debug.platform_minor_version";
+            "com.android.car.internal.debug.platform_minor_version";
 
     static {
         PlatformVersion emulated = null;
