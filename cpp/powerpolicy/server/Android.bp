@@ -107,18 +107,11 @@ cc_fuzz {
     name: "android.frameworks.automotive.powerpolicy.CarPowerPolicyServer.fuzzer",
     defaults: [
         "carpowerpolicyserver_defaults",
+        "service_fuzzer_defaults",
     ],
     static_libs: [
-        "libbase",
-        "libbinder_random_parcel",
-        "libcutils",
         "liblog",
         "lib_carpowerpolicyserver",
-    ],
-    shared_libs: [
-        "libbinder_ndk",
-        "libbinder",
-        "libutils",
     ],
     srcs: ["src/fuzzer.cpp"],
     fuzz_config: {
