@@ -1,0 +1,4 @@
+{
+    "timestamp": 1658520588225,
+    "meminfo": "MemTotal: 2013452 kB MemFree: 538984 kB MemAvailable: 950908 kB Buffers: 19964 kB Cached: 598348 kB SwapCached: 0 kB Active: 296540 kB Inactive: 845132 kB Active(anon): 35176 kB Inactive(anon): 496292 kB Active(file): 261364 kB Inactive(file): 348840 kB Unevictable: 3580 kB Mlocked: 3580 kB SwapTotal: 1510084 kB SwapFree: 1509572 kB Dirty: 40 kB Writeback: 0 kB AnonPages: 526988 kB Mapped: 481972 kB Shmem: 5324 kB KReclaimable: 55380 kB Slab: 147964 kB SReclaimable: 55380 kB SUnreclaim: 92584 kB KernelStack: 21536 kB PageTables: 39764 kB NFS_Unstable: 0 kB Bounce: 0 kB WritebackTmp: 0 kB CommitLimit: 2516808 kB Committed_AS: 30357416 kB VmallocTotal: 34359738367 kB VmallocUsed: 37472 kB VmallocChunk: 0 kB Percpu: 2296 kB AnonHugePages: 0 kB ShmemHugePages: 0 kB ShmemPmdMapped: 0 kB FileHugePages: 0 kB FilePmdMapped: 0 kB CmaTotal: 274432 kB CmaFree: 274204 kB DirectMap4k: 57176 kB DirectMap2M: 2039808 kB "
+}

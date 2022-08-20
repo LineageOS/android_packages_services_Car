@@ -36,6 +36,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 final class DpcShellCommand {
 
@@ -45,6 +46,7 @@ final class DpcShellCommand {
     private final ComponentName mAdmin;
     private final PrintWriter mWriter;
     private final String[] mArgs;
+    private final DpcFactory mDpcFactory;
 
     private final List<DevicePolicyManagerInterface> mPoInterfaces;
     private final DevicePolicyManagerInterface mDoInterface;
@@ -58,6 +60,7 @@ final class DpcShellCommand {
     private static final String CMD_GET_AFFILIATION_IDS = "get-affiliation-ids";
     private static final String CMD_SET_AFFILIATION_IDS = "set-affiliation-ids";
     private static final String CMD_IS_USER_AFFILIATED = "is-user-affiliated";
+    private static final String CMD_SHOW_AFFILIATED_USERS = "show-affiliated-users";
     private static final String CMD_ADD_USER_RESTRICTION = "add-user-restriction";
     private static final String CMD_CLR_USER_RESTRICTION = "clear-user-restriction";
     private static final String CMD_GET_USER_RESTRICTIONS = "get-user-restrictions";
@@ -68,9 +71,7 @@ final class DpcShellCommand {
     private static final String CMD_START_USER_BACKGROUND = "start-user-background";
     private static final String CMD_STOP_USER = "stop-user";
 
-    DpcShellCommand(Context context, PrintWriter writer, String[] args,
-            List<DevicePolicyManagerInterface> profileOwners,
-            DevicePolicyManagerInterface deviceOwner) {
+    DpcShellCommand(Context context, DpcFactory dpcFactory, PrintWriter writer, String[] args) {
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mAdmin = new ComponentName(context, DpcReceiver.class.getName());
         Log.d(TAG, "Created for user " + Process.myUserHandle() + " and component " + mAdmin
@@ -78,8 +79,9 @@ final class DpcShellCommand {
         mWriter = writer;
         mArgs = args;
 
-        mDoInterface = deviceOwner;
-        mPoInterfaces = profileOwners;
+        mDpcFactory = dpcFactory;
+        mDoInterface = mDpcFactory.getDoInterface();
+        mPoInterfaces = mDpcFactory.getPoInterfaces();
     }
 
     void run() {
@@ -126,6 +128,9 @@ final class DpcShellCommand {
                 case CMD_STOP_USER:
                     runStopUser();
                     break;
+                case CMD_SHOW_AFFILIATED_USERS:
+                    runShowAffiliatedUsers();
+                    break;
                 default:
                     mWriter.println("Invalid command: " + cmd);
                     runHelp();
@@ -155,6 +160,8 @@ final class DpcShellCommand {
         mWriter.println("\tGet affiliation id(s) for a specified user.");
         mWriter.printf("%s\n", CMD_IS_USER_AFFILIATED);
         mWriter.println("\tReturns whether this user is affiliated with the device.");
+        mWriter.printf("%s\n", CMD_SHOW_AFFILIATED_USERS);
+        mWriter.println("\tLists all affiliated users.");
         mWriter.printf("%s\n", CMD_REBOOT);
         mWriter.println("\tReboots the device.");
         mWriter.printf("%s <user_name>\n", CMD_CREATE_AND_MANAGE_USER);
@@ -298,6 +305,15 @@ final class DpcShellCommand {
         int status = mDpm.stopUser(mAdmin, user);
         mWriter.printf("Result of stopping user %s: %s\n",
                 userId, userOperationStatusToString(status));
+    }
+
+    private void runShowAffiliatedUsers() {
+        mWriter.printf("Device Owner: %s\n", mDoInterface.getUser());
+        mWriter.printf("Affiliated Users with remoteDpm: %s\n",
+                mPoInterfaces.stream().map(u -> u.getUser()).collect(
+                Collectors.toList()).toString());
+        mWriter.printf("Users with same affiliation ids: %s\n",
+                mDpm.getBindDeviceAdminTargetUsers(mAdmin));
     }
 
     /**

@@ -17,9 +17,21 @@ class TestWebApp(unittest.TestCase):
     response = self.client.get('/')
     self.assertIn('Lua Telemetry Interpreter', str(response.data))
 
+  def test_get_published_data_file_names_and_content(self):
+    response = self.client.post('/get_published_data_file_names_and_content')
+    data = response.get_json()['file_names']
+    self.assertCountEqual([
+        'activity_foreground_state_changed', 'anr_occurred',
+        'app_start_memory_state_captured', 'app_crash_occurred',
+        'connectivity_publisher', 'memory_publisher', 'process_cpu_time',
+        'process_memory_state', 'wtf_occurred'
+    ], data)
+    data = response.get_json()['memory_publisher']
+    self.assertIn('"timestamp": 1658520588225', data)
+
   def test_execute_script_output(self):
     response = self.client.post(
-        '/execute-script',
+        '/execute_script',
         data={
             'script':
                 'function test(data,state) ' \
@@ -35,7 +47,7 @@ class TestWebApp(unittest.TestCase):
 
   def test_execute_script_loading_error(self):
     response = self.client.post(
-        '/execute-script',
+        '/execute_script',
         data={
             'script': 'function test(data, state) x == 1 end',
             'function-name': 'test',
@@ -51,7 +63,7 @@ class TestWebApp(unittest.TestCase):
 
   def test_execute_script_running_error(self):
     response = self.client.post(
-        '/execute-script',
+        '/execute_script',
         data={
             'script': 'function test(data, state) call() end',
             'function-name': 'test',
@@ -62,8 +74,34 @@ class TestWebApp(unittest.TestCase):
     span = rendered_html.find(id='script-output').find('span')
     self.assertIn('Error encountered while running the script.', str(span))
 
+  def test_execute_script_saved_state_unchanged(self):
+    response = self.client.post(
+        '/execute_script',
+        data={
+            'script': 'function test(data, state) log(2) end',
+            'function-name': 'test',
+            'published-data': "{}",
+            'saved-state': '{"test": "state"}'
+        })
+    rendered_html = BeautifulSoup(response.data.decode('UTF-8'), 'html.parser')
+    span = rendered_html.find(id='saved-state-input').getText()
+    self.assertIn('{"test": "state"}', str(span))
+
+  def test_execute_script_saved_state_changed(self):
+    response = self.client.post(
+        '/execute_script',
+        data={
+            'script': 'function test(data, state) on_success(data) end',
+            'function-name': 'test',
+            'published-data': '{"test": "data"}',
+            'saved-state': '{"test": "state"}'
+        })
+    rendered_html = BeautifulSoup(response.data.decode('UTF-8'), 'html.parser')
+    span = rendered_html.find(id='saved-state-input').getText()
+    self.assertIn('{\n  "test": "data"\n}', str(span))
+
   def test_execute_script_faulty_published_data(self):
-    response = self.client.post('/execute-script',
+    response = self.client.post('/execute_script',
                                 data={
                                     'script': 'function test(data, state) end',
                                     'function-name': 'test',
@@ -75,7 +113,7 @@ class TestWebApp(unittest.TestCase):
     self.assertIn('Error from parsing published data', str(span))
 
   def test_execute_script_faulty_saved_state(self):
-    response = self.client.post('/execute-script',
+    response = self.client.post('/execute_script',
                                 data={
                                     'script': 'function test(data, state) end',
                                     'function-name': 'test',
@@ -87,7 +125,7 @@ class TestWebApp(unittest.TestCase):
     self.assertIn('Error from parsing saved state', str(span))
 
   def test_execute_script_wrong_function(self):
-    response = self.client.post('/execute-script',
+    response = self.client.post('/execute_script',
                                 data={
                                     'script': 'function test(data, state) end',
                                     'function-name': 'tes',

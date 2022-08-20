@@ -89,6 +89,7 @@
     <item target="layout/car_ui_alert_dialog_list" value="@layout/car_ui_alert_dialog_list"/>
     <item target="layout/car_ui_base_layout_toolbar" value="@layout/car_ui_base_layout_toolbar"/>
     <item target="layout/car_ui_preference_two_action_switch" value="@layout/car_ui_preference_two_action_switch"/>
+    <item target="layout/car_ui_preference_two_action_text" value="@layout/car_ui_preference_two_action_text"/>
     <item target="layout/car_ui_preference_widget_switch" value="@layout/car_ui_preference_widget_switch"/>
     <item target="layout/car_ui_preference_widget_seekbar" value="@layout/car_ui_preference_widget_seekbar"/>
     <item target="layout/car_ui_toolbar_menu_item_primary" value="@layout/car_ui_toolbar_menu_item_primary"/>

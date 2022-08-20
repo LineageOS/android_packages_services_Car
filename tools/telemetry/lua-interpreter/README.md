@@ -21,9 +21,9 @@ of the Lua C API which should be in $ANDROID_BUILD_TOP/external/lua/src.
 
 ## Running
 ***
-In your virtual environment run the following commands on the command line to start the server:
+Run the following commands on the command line to start the server:
 ```
-npm run build; bazel run :server
+npm run build; bazel run server
 ```
 
 Open the link provided from starting the server to access the tool (the link is accessible from the terminal window).

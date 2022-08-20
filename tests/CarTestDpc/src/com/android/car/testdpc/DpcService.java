@@ -22,12 +22,9 @@ import android.content.Context;
 import android.os.Process;
 import android.util.Log;
 
-import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
-
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -46,9 +43,7 @@ public final class DpcService extends DeviceAdminService {
 
     private ComponentName mAdmin;
     private Context mContext;
-    private DpcFactory mDevicePolicyPicker;
-    private List<DevicePolicyManagerInterface> mPoInterfaces;
-    private DevicePolicyManagerInterface mDoInterface;
+    private DpcFactory mDpcFactory;
     private DevicePolicyManager mDpm;
 
     @Override
@@ -66,9 +61,7 @@ public final class DpcService extends DeviceAdminService {
         Log.i(TAG, "setAffiliationIds(" + mAdmin.flattenToShortString() + ", "
                 + AFFILIATION_IDS + ")");
 
-        mDevicePolicyPicker = new DpcFactory(mContext);
-        mDoInterface = mDevicePolicyPicker.getDoInterface();
-        mPoInterfaces = mDevicePolicyPicker.getPoInterfaces();
+        mDpcFactory = new DpcFactory(mContext);
     }
 
     @Override
@@ -80,7 +73,7 @@ public final class DpcService extends DeviceAdminService {
                 case "cmd":
                     String[] cmdArgs = new String[args.length - 1];
                     System.arraycopy(args, 1, cmdArgs, 0, args.length - 1);
-                    new DpcShellCommand(this, writer, cmdArgs, mPoInterfaces, mDoInterface).run();
+                    new DpcShellCommand(this, mDpcFactory, writer, cmdArgs).run();
                     return;
             }
         }

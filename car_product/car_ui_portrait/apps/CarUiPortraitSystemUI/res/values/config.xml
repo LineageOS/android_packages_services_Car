@@ -70,5 +70,6 @@
     <string-array name="config_backgroundActivities" translatable="false">
         <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
         <item>com.android.car.ui.paintbooth/.MainActivity</item>
+        <item>android.accessibilityservice.cts/android.accessibilityservice.cts.AccessibilityGestureDispatchTest$GestureDispatchActivity</item>
     </string-array>
 </resources>
