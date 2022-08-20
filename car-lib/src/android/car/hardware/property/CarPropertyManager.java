@@ -295,7 +295,7 @@ public class CarPropertyManager extends CarManagerBase {
                 Executor callbackExecutor = getAsyncPropertyClientInfo.getCallbackExecutor();
                 GetPropertyCallback getPropertyCallback =
                         getAsyncPropertyClientInfo.getGetPropertyCallback();
-                @ErrorCode
+                @CarPropertyAsyncErrorCode
                 int errorCode = getValueResult.getErrorCode();
                 if (errorCode == STATUS_OK) {
                     callbackExecutor.execute(() -> getPropertyCallback.onSuccess(
@@ -347,7 +347,7 @@ public class CarPropertyManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class GetPropertyError {
         private final int mRequestId;
-        private @ErrorCode int mErrorCode;
+        private @CarPropertyAsyncErrorCode int mErrorCode;
 
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -361,7 +361,7 @@ public class CarPropertyManager extends CarManagerBase {
             return mErrorCode;
         }
 
-        public GetPropertyError(int requestId, @ErrorCode int errorCode) {
+        public GetPropertyError(int requestId, @CarPropertyAsyncErrorCode int errorCode) {
             mRequestId = requestId;
             mErrorCode = errorCode;
         }
@@ -415,6 +415,17 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN = 5;
 
+    /** @hide */
+    @IntDef(prefix = {"CAR_SET_PROPERTY_ERROR_CODE_"}, value = {
+            CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN,
+            CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG,
+            CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE,
+            CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED,
+            CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarSetPropertyErrorCode {}
+
     /**
      * Status indicating no error.
      *
@@ -446,17 +457,6 @@ public class CarPropertyManager extends CarManagerBase {
     public static final int STATUS_ERROR_TIMEOUT = 3;
 
     /** @hide */
-    @IntDef(prefix = {"CAR_SET_PROPERTY_ERROR_CODE_"}, value = {
-            CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN,
-            CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG,
-            CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE,
-            CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED,
-            CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CarSetPropertyErrorCode {}
-
-    /** @hide */
     @IntDef(prefix = {"STATUS_"}, value = {
             STATUS_OK,
             STATUS_ERROR_INTERNAL_ERROR,
@@ -464,7 +464,7 @@ public class CarPropertyManager extends CarManagerBase {
             STATUS_ERROR_TIMEOUT
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ErrorCode {}
+    public @interface CarPropertyAsyncErrorCode {}
 
     /**
      * Get an instance of the CarPropertyManager.
