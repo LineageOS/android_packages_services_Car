@@ -18,7 +18,7 @@ package android.car.hardware.property;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.car.annotation.AddedIn;
+import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,25 +35,29 @@ public final class EvRegenerativeBrakingState {
     /**
      * The vehicle's EV regenerative braking state is unknown.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_UNKNOWN = 0;
 
     /**
      * The regenerative braking is disabled.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_DISABLED = 1;
 
     /**
      * The regenerative braking is partially enabled.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_PARTIALLY_ENABLED = 2;
 
     /**
      * The regenerative braking is fully enabled.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_FULLY_ENABLED = 3;
 
 
@@ -64,7 +68,8 @@ public final class EvRegenerativeBrakingState {
      * Gets a user-friendly representation of an EV regenerative braking state.
      */
     @NonNull
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(@EvRegenerativeBrakingStateInt int evRegenerativeBrakingState) {
         switch (evRegenerativeBrakingState) {
             case STATE_UNKNOWN:
