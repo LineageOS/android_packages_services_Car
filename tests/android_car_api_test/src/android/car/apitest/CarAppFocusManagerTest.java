@@ -273,7 +273,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
                 .isEqualTo(APP_FOCUS_REQUEST_SUCCEEDED);
 
         assertThat(manager.getAppTypeOwner(APP_FOCUS_TYPE_NAVIGATION))
-                .containsExactly("android.car.apitest", "com.google.android.car.kitchensink");
+                .containsExactly("android.car.apitest");
 
         manager.abandonAppFocus(owner, APP_FOCUS_TYPE_NAVIGATION);
 
