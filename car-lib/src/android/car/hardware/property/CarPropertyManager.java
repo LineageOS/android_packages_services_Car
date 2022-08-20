@@ -23,6 +23,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
@@ -164,20 +165,22 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public abstract static class GetPropertyCallback {
+    // TODO(b/243057322): Remove this if/once lint is fixed.
+    @SuppressLint("CallbackInterface")
+    public interface GetPropertyCallback {
         /**
          * Method called when {@link GetPropertyRequest} successfully gets a result.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public abstract void onSuccess(@NonNull GetPropertyResult getPropertyResult);
+        void onSuccess(@NonNull GetPropertyResult getPropertyResult);
 
         /**
          * Method called when {@link GetPropertyRequest} returns an error.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public abstract void onFailure(@NonNull GetPropertyError getPropertyError);
+        void onFailure(@NonNull GetPropertyError getPropertyError);
     }
 
     /**
@@ -223,9 +226,9 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Get an instance for GetPropertyRequest.
+         * Internal use only. Users should use {@link generateGetPropertyRequest} instead.
          */
-        public GetPropertyRequest(int requestId, int propertyId, int areaId) {
+        private GetPropertyRequest(int requestId, int propertyId, int areaId) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
