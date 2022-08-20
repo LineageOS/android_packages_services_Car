@@ -3,6 +3,12 @@ per-file src/com/google/android/car/kitchensink/AudioAutoStartActivity.java = os
 per-file src/com/google/android/car/kitchensink/audio/* = oscarazu@google.com, ericjeong@google.com
 per-file src/com/google/android/car/kitchensink/volume/* = oscarazu@google.com, ericjeong@google.com
 
+# Bluetooth
+per-file src/com/google/android/car/kitchensink/bluetooth/* = salsavage@google.com, chengandrew@google.com
+
+# Connectivity
+per-file src/com/google/android/car/kitchensink/connectivity/* = salsavage@google.com, twasilczyk@google.com
+
 # Cluster
 per-file src/com/google/android/car/kitchensink/cluster/* = ycheo@google.com
 
