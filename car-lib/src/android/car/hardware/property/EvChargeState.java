@@ -18,7 +18,7 @@ package android.car.hardware.property;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.car.annotation.AddedIn;
+import android.car.annotation.ApiRequirements;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -35,31 +35,36 @@ public final class EvChargeState {
     /**
      * The vehicle's EV charge state is unknown.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_UNKNOWN = 0;
 
     /**
      * The vehicle is charging.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_CHARGING = 1;
 
     /**
      * The vehicle is fully charged.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_FULLY_CHARGED = 2;
 
     /**
      * The vehicle is not charging.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_NOT_CHARGING = 3;
 
     /**
      * The vehicle is not charging due to an error.
      */
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATE_ERROR = 4;
 
 
@@ -70,7 +75,8 @@ public final class EvChargeState {
      * Gets a user-friendly representation of an EV charge state.
      */
     @NonNull
-    @AddedIn(majorVersion = 10000) // TODO(b/230004170): STOPSHIP - replace 10000 with U version
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static String toString(@EvChargeStateInt int evChargeState) {
         switch (evChargeState) {
             case STATE_UNKNOWN:

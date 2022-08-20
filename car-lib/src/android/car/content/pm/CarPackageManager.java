@@ -30,8 +30,8 @@ import android.app.PendingIntent;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarVersion;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.content.ComponentName;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.IBinder;
@@ -188,7 +188,8 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SystemApi
     public static final String MANIFEST_METADATA_TARGET_CAR_VERSION =
             "android.car.targetCarVersion";
@@ -487,7 +488,8 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @SystemApi
     @RequiresPermission(Manifest.permission.QUERY_ALL_PACKAGES)
     @NonNull
@@ -515,7 +517,8 @@ public final class CarPackageManager extends CarManagerBase {
      *
      * @return targeted Car API version (as defined above)
      */
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public CarVersion getTargetCarVersion() {
         String pkgName = mCar.getContext().getPackageName();

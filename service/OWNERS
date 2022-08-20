@@ -1,8 +1,6 @@
 # Project owners
 include platform/packages/services/Car:/OWNERS
 kevinme@google.com
-salsavage@google.com
-twasilczyk@google.com
 
 # ActivityManager
 per-file src/com/android/car/SystemActivityMonitoringService.java = ycheo@google.com
@@ -11,6 +9,10 @@ per-file src/com/android/car/systeminterface/ActivityManagerInterface.java = ych
 
 # Audio
 per-file src/com/android/car/audio/* = oscarazu@google.com, ericjeong@google.com
+per-file src/com/android/car/audio/hal/* = oscarazu@google.com, ericjeong@google.com
+
+# Bluetooth
+per-file src/com/android/car/bluetooth/* = salsavage@google.com, chengandrew@google.com
 
 # Cluster
 per-file src/com/android/car/cluster/* = ycheo@google.com
@@ -46,6 +48,7 @@ per-file src/com/android/car/hal/HalAreaConfig.java = ericjeong@google.com
 per-file src/com/android/car/hal/HalClient*.java = ericjeong@google.com
 per-file src/com/android/car/hal/HalProp*.java = ericjeong@google.com
 per-file src/com/android/car/hal/VehicleHal.java = ericjeong@google.com
+per-file src/com/android/car/hal/fakevhal/*.java = ericjeong@google.com
 
 # Watchdog
 per-file proto/android/car/watchdog/* = lakshmana@google.com

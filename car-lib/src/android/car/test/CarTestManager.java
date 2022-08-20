@@ -20,8 +20,8 @@ import android.annotation.RequiresPermission;
 import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -107,7 +107,8 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String dumpVhal(List<String> options, long waitTimeoutMs) {
         try {
             return mService.dumpVhal(options, waitTimeoutMs);
@@ -124,7 +125,8 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean hasAidlVhal() throws RemoteException {
         return mService.hasAidlVhal();
     }

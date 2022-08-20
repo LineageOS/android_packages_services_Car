@@ -19,8 +19,8 @@ package android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
@@ -2272,7 +2272,8 @@ public final class VehiclePropertyIds {
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_INFO))
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT = 289410887;
 
     /*

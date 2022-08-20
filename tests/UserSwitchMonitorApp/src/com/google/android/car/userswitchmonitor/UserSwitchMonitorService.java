@@ -122,6 +122,8 @@ public final class UserSwitchMonitorService extends Service {
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_BOOT_COMPLETED);
+        filter.addAction(Intent.ACTION_LOCKED_BOOT_COMPLETED);
+        filter.addAction(Intent.ACTION_PRE_BOOT_COMPLETED);
         filter.addAction(Intent.ACTION_USER_ADDED);
         filter.addAction(Intent.ACTION_USER_BACKGROUND);
         filter.addAction(Intent.ACTION_USER_FOREGROUND);

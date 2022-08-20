@@ -22,7 +22,6 @@ import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 public final class AnnotationTest {
@@ -326,7 +325,6 @@ public final class AnnotationTest {
             "android.car.builtin.CarBuiltin"
             };
 
-    @Ignore // TODO(b/243105617): re-add
     @Test
     public void testCarAPIApiRequirementsAnnotation() throws Exception {
         // TODO(b/240343308): remove @AddedIn once all usages have been replaced
