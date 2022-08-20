@@ -36,7 +36,6 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArraySet;
@@ -1272,8 +1271,8 @@ public class CarPropertyManager extends CarManagerBase {
      * callback functions are called is equal to the number of requests if this function does not
      * throw an exception. It is guaranteed that none of the callback functions are called if an
      * exception is thrown. If the {@code callbackExecutor} is {@code null}, the callback will be
-     * executed on the main thread. If the callback is doing heavy work, it is recommended that
-     * the {@code callbackExecutor} is provided.
+     * executed on the default event handler thread. If the callback is doing heavy work, it is
+     * recommended that the {@code callbackExecutor} is provided.
      *
      * @param getPropertyRequests The property ID and the optional area ID for the property to get
      * @param timeoutInMs The timeout for the operation, in milliseconds
@@ -1298,7 +1297,7 @@ public class CarPropertyManager extends CarManagerBase {
         SparseArray<GetAsyncPropertyClientInfo> currentRequestIdToClientInfo =
                 new SparseArray<>();
         if (callbackExecutor == null) {
-            callbackExecutor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
+            callbackExecutor = new HandlerExecutor(getEventHandler());
         }
         for (int i = 0; i < getPropertyRequests.size(); i++) {
             GetPropertyRequest getPropertyRequest = getPropertyRequests.get(i);
