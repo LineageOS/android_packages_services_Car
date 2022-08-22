@@ -127,3 +127,8 @@ include packages/services/Car/cpp/watchdog/product/carwatchdog.mk
 
 # Enable car power policy
 include packages/services/Car/cpp/powerpolicy/product/carpowerpolicy.mk
+
+# Conditionally enable the telemetry service
+ifeq ($(ENABLE_CARTELEMETRY_SERVICE), true)
+include packages/services/Car/cpp/telemetry/cartelemetryd/products/telemetry.mk
+endif
