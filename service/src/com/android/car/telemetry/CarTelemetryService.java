@@ -58,6 +58,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.OnShutdownReboot;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.MetricsReportProto.MetricsReportContainer;
 import com.android.car.telemetry.MetricsReportProto.MetricsReportList;
@@ -109,6 +110,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public static final int TASK_PRIORITY_LOW = 100;
 
     private final Context mContext;
+    private final CarPowerManagementService mCarPowerManagementService;
     private final CarPropertyService mCarPropertyService;
     private final Dependencies mDependencies;
     private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
@@ -197,18 +199,24 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         }
     }
 
-    public CarTelemetryService(Context context, CarPropertyService carPropertyService) {
-        this(context, carPropertyService, new Dependencies(), null, null);
+    public CarTelemetryService(
+            Context context,
+            CarPowerManagementService carPowerManagementService,
+            CarPropertyService carPropertyService) {
+        this(context, carPowerManagementService, carPropertyService, new Dependencies(),
+                /* dataBroker = */ null, /* sessionController = */ null);
     }
 
     @VisibleForTesting
     CarTelemetryService(
             Context context,
+            CarPowerManagementService carPowerManagementService,
             CarPropertyService carPropertyService,
             Dependencies deps,
             DataBroker dataBroker,
             SessionController sessionController) {
         mContext = context;
+        mCarPowerManagementService = carPowerManagementService;
         mCarPropertyService = carPropertyService;
         mDependencies = deps;
         mUidMapper = mDependencies.getUidPackageMapper(mContext, mTelemetryHandler);
@@ -233,7 +241,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
             mResultStore = new ResultStore(mContext, rootDirectory);
             if (mSessionController == null) {
-                mSessionController = new SessionController(mTelemetryHandler);
+                mSessionController = new SessionController(
+                        mCarPowerManagementService, mTelemetryHandler);
             }
             mPublisherFactory = mDependencies.getPublisherFactory(mCarPropertyService,
                     mTelemetryHandler, mContext, mSessionController, mResultStore, mUidMapper);
