@@ -23,7 +23,6 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.car.setupwizardlib.CarSetupWizardCompatLayout;
 import com.android.managedprovisioning.R;
 import com.android.managedprovisioning.common.CarSetupWizardLayoutHelper;
 import com.android.managedprovisioning.common.ProvisionLogger;
@@ -87,8 +86,7 @@ public final class CarConsentUiHelper implements ConsentUiHelper {
 
         // Set the base layout
         CarSetupWizardLayoutHelper layoutHelper = new CarSetupWizardLayoutHelper(mActivity);
-        CarSetupWizardCompatLayout layout = layoutHelper.setBaseLayout(
-                subLayoutId, /* isDoubleColumnAllowed= */ true);
+        layoutHelper.setBaseLayout(subLayoutId, /* isDoubleColumnAllowed= */ true);
         layoutHelper.setHeaderText(headerResId, R.string.view_terms);
         layoutHelper.setupPrimaryToolbarButton(R.string.accept_and_continue,
                 v -> onTermsAccepted());
