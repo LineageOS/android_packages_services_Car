@@ -27,8 +27,8 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.os.Build;
@@ -69,7 +69,8 @@ public class CarPropertyManager extends CarManagerBase {
     private final ICarProperty mService;
     private final int mAppTargetSdk;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
     @GuardedBy("mLock")
     private final SparseArray<GetAsyncPropertyClientInfo> mRequestIdToClientInfo =
@@ -161,7 +162,8 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * A callback {@link CarPropertyManager#getPropertiesAsync} when successful or failure.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public abstract static class GetPropertyCallback {
         /**
          * Method called when {@link GetPropertyRequest} successfully gets a result.
@@ -178,7 +180,8 @@ public class CarPropertyManager extends CarManagerBase {
      * A request for {@link CarPropertyManager#getPropertiesAsync(List, long, CancellationSignal,
      * Executor, GetPropertyCallback)}.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class GetPropertyRequest {
         /**
          * The requestId to uniquely identify the request.
@@ -222,7 +225,8 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * A successful result for {@link GetPropertyCallback}.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class GetPropertyResult {
         private final int mRequestId;
         private final CarPropertyValue mCarPropertyValue;
@@ -319,7 +323,8 @@ public class CarPropertyManager extends CarManagerBase {
     /**
      * An error result for {@link GetPropertyCallback}.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class GetPropertyError {
         private final int mRequestId;
         @ErrorCode int mErrorCode;
@@ -394,22 +399,26 @@ public class CarPropertyManager extends CarManagerBase {
      *
      * @hide
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_OK = 0;
     /**
      * Error indicating that there is an error detected in cars.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_ERROR_INTERNAL_ERROR = 1;
     /**
      * Error indicating that the property is temporarily not available.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_ERROR_NOT_AVAILABLE = 2;
     /**
      * Error indicating the operation has timed-out.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int STATUS_ERROR_TIMEOUT = 3;
 
     /** @hide */
@@ -1233,7 +1242,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @param areaId area ID
      * @return GetPropertyRequest object
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @NonNull
     public GetPropertyRequest generateGetPropertyRequest(int propertyId, int areaId) {
         int requestIdCounter = mRequestIdCounter.getAndIncrement();
@@ -1280,7 +1290,8 @@ public class CarPropertyManager extends CarManagerBase {
      * @throws SecurityException if missing permission to read the specific property.
      * @throws IllegalArgumentException if the [property ID, area ID] is not supported.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void getPropertiesAsync(
             @NonNull List<GetPropertyRequest> getPropertyRequests,
             long timeoutInMs,
@@ -1337,7 +1348,8 @@ public class CarPropertyManager extends CarManagerBase {
      * Same as {@link CarPropertyManager#getPropertiesAsync(List, long, CancellationSignal,
      * Executor, GetPropertyCallback)} with default timeout 10s.
      */
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void getPropertiesAsync(
             @NonNull List<GetPropertyRequest> getPropertyRequests,
             @Nullable CancellationSignal cancellationSignal,
