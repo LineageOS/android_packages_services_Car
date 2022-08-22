@@ -84,6 +84,16 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
     }
 
     /**
+     * Creates a named instance with the given major and minor versions.
+     */
+    // TODO(b/243429779): should not need @ApiRequirements as it's package-protected
+    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    static PlatformVersion newInstance(String versionName, int majorVersion, int minorVersion) {
+        return new PlatformVersion(versionName, majorVersion, minorVersion);
+    }
+
+    /**
      * Creates a new instance with the given major and minor versions.
      */
     @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
