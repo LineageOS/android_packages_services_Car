@@ -35,7 +35,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 final class DpcShellCommand {
 
@@ -48,8 +47,7 @@ final class DpcShellCommand {
     private final String[] mArgs;
     private final DpcFactory mDpcFactory;
 
-    private List<DevicePolicyManagerInterface> mPoInterfaces;
-    private final DevicePolicyManagerInterface mDoInterface;
+    private final DevicePolicyManagerInterface mDeviceOwner;
 
     /* Args has to be at least of size 4 to account for cmd, ARG_USER, userID, key */
     private static final int ADD_USER_RESTRICTION_ARG_LEN = 4;
@@ -81,8 +79,9 @@ final class DpcShellCommand {
         mArgs = args;
 
         mDpcFactory = dpcFactory;
-        mDoInterface = mDpcFactory.getDoInterface();
-        mPoInterfaces = mDpcFactory.getPoInterfaces();
+        mDeviceOwner = mDpcFactory.getDevicePolicyManager(
+                UserHandle.getUserHandleForUid(UserHandle.USER_SYSTEM)
+        );
     }
 
     void run() {
@@ -192,17 +191,10 @@ final class DpcShellCommand {
         String restriction = mArgs[3];
         UserManager manager = mContext.getSystemService(UserManager.class);
 
-        if (mDoInterface.getUser().equals(Process.myUserHandle())
+        if (mDeviceOwner.getUser().equals(Process.myUserHandle())
                 && !manager.isUserRunning(target)) {
             mDpcFactory.runOnOfflineUser(() -> addUserRestrictionPO(target, restriction), target,
                     "addUserRestriction(%s)", restriction);
-            return;
-        }
-
-        if (mDoInterface.getUser().equals(target)) {
-            Log.d(TAG, mDoInterface.getUser() + ": addUserRestriction("
-                    + mAdmin.flattenToShortString() + ", " + restriction + ")");
-            mDoInterface.addUserRestriction(restriction);
             return;
         }
 
@@ -210,10 +202,22 @@ final class DpcShellCommand {
     }
 
     private void addUserRestrictionPO(UserHandle target, String restriction) {
-        DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
-                .filter((dpm) -> dpm.getUser().equals(target))
-                .findAny().get();
+        if (mDeviceOwner.getUser().equals(target)) {
+            Log.d(TAG, mDeviceOwner.getUser() + ": addUserRestriction("
+                    + mAdmin.flattenToShortString() + ", " + restriction);
+            mDeviceOwner.addUserRestriction(restriction);
+            return;
+        }
+
+        DevicePolicyManagerInterface profileOwner = mDpcFactory.getDevicePolicyManager(target);
         Log.d(TAG, profileOwner.getUser() + ": addUserRestriction(" + restriction + ")");
+
+        if (profileOwner == null) {
+            mWriter.println("User not found");
+            return;
+        }
+
+        Log.d(TAG, target + ": addUserRestriction(" + restriction + ")");
         profileOwner.addUserRestriction(restriction);
     }
 
@@ -266,7 +270,7 @@ final class DpcShellCommand {
 
     private void runReboot() {
         Log.i(TAG, "Calling reboot()");
-        mDoInterface.reboot();
+        mDeviceOwner.reboot();
     }
 
     private void runCreateAndManageUser() {
@@ -304,7 +308,6 @@ final class DpcShellCommand {
 
         if (status == UserManager.USER_OPERATION_SUCCESS) {
             mDpcFactory.addProfileOwnerDpm(user);
-            mPoInterfaces = mDpcFactory.getPoInterfaces();
         }
     }
 
@@ -321,15 +324,13 @@ final class DpcShellCommand {
 
         if (status == UserManager.USER_OPERATION_SUCCESS) {
             mDpcFactory.removeProfileOwnerDpm(user);
-            mPoInterfaces = mDpcFactory.getPoInterfaces();
         }
     }
 
     private void runShowAffiliatedUsers() {
-        mWriter.printf("Device Owner: %s\n", mDoInterface.getUser());
-        mWriter.printf("Affiliated Users with remoteDpm: %s\n",
-                mPoInterfaces.stream().map(u -> u.getUser()).collect(
-                Collectors.toList()).toString());
+        mWriter.printf("Device Owner: %s\n", mDeviceOwner.getUser());
+        mWriter.printf("Users with callable Dpms: %s\n",
+                mDpcFactory.getAllBoundUsers());
         mWriter.printf("Users with same affiliation ids: %s\n",
                 mDpm.getBindDeviceAdminTargetUsers(mAdmin));
     }
