@@ -475,8 +475,8 @@ public final class CarPackageManager extends CarManagerBase {
      * {@link #MANIFEST_METADATA_TARGET_CAR_VERSION}.
      *
      * <p>If the app manifest doesn't contain the {@link #MANIFEST_METADATA_TARGET_CAR_VERSION}
-     * metadata attribute, the attribute format is invalid, the returned {@code CarVersion} will
-     * be using the
+     * metadata attribute or if the attribute format is invalid, the returned {@code CarVersion}
+     * will be using the
      * {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform version} as major
      * and {@code 0} as minor instead.
      *
@@ -510,8 +510,8 @@ public final class CarPackageManager extends CarManagerBase {
      * {@link #MANIFEST_METADATA_TARGET_CAR_VERSION}.
      *
      * <p>If the app manifest doesn't contain the {@link #MANIFEST_METADATA_TARGET_CAR_VERSION}
-     * metadata attribute, the attribute format is invalid, the returned {@code CarVersion} will
-     * be using the {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform
+     * metadata attribute or if the attribute format is invalid, the returned {@code CarVersion}
+     * will be using the {@link android.content.pm.ApplicationInfo#targetSdkVersion target platform
      * version} as major and {@code 0} as minor instead.
      *
      * @return targeted Car API version (as defined above)
