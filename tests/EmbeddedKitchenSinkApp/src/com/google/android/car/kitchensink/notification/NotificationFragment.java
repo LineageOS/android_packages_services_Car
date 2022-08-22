@@ -108,6 +108,15 @@ public class NotificationFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        View view = getView();
+        if (view != null) {
+            view.post(() -> view.scrollTo(0, view.findViewById(R.id.fragment_top).getTop()));
+        }
+    }
+
     private PendingIntent createServiceIntent(int notificationId, String action) {
         Intent intent = new Intent(mContext, KitchenSinkActivity.class).setAction(action);
 
