@@ -12,11 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# cartelemetryd service
-PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
-
 # Selinux public policies for cartelemetry
 PRODUCT_PUBLIC_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/public
 
+# cartelemetryd service
+PRODUCT_PACKAGES += android.automotive.telemetryd@1.0
+
 # Selinux private policies for cartelemetry
 PRODUCT_PRIVATE_SEPOLICY_DIRS += packages/services/Car/cpp/telemetry/cartelemetryd/sepolicy/private
+
+# Sets soong build variables that are declared in
+# cpp/telemetry/cartelemetryd/products/soong/Android.bp and can be used to check whether the
+# telemetry service is included in the target product or not, in Android.bp.  Please refer to
+# cpp/evs/apps/default/Android.bp for more details.
+SOONG_CONFIG_NAMESPACES += cartelemetry
+SOONG_CONFIG_cartelemetry += enabled
+SOONG_CONFIG_cartelemetry_enabled := true
