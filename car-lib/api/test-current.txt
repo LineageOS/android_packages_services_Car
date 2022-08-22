@@ -739,7 +739,7 @@ package android.car.evs {
 
   public final class CarEvsBufferDescriptor implements java.lang.AutoCloseable android.os.Parcelable {
     ctor public CarEvsBufferDescriptor(int, @NonNull android.hardware.HardwareBuffer);
-    method public void close();
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public void close();
     method public int describeContents();
     method @NonNull public android.hardware.HardwareBuffer getHardwareBuffer();
     method public int getId();
