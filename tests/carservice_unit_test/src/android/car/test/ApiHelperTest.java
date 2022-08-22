@@ -22,11 +22,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
-import android.car.Car;
-import android.car.Car.CarServiceLifecycleListener;
-import android.car.CarVersion;
 import android.content.Context;
-import android.os.Handler;
+import android.os.Parcel;
 import android.os.Parcelable;
 
 import org.junit.Test;
@@ -52,77 +49,141 @@ public final class ApiHelperTest {
 
     @Test
     public void testResolve_methodWithoutParameters() {
-        assertMethod("android.car.Car#getCarVersion", Car.class, "getCarVersion");
+        assertMethod("android.car.test.ApiHelperTest#methodWithoutParameters", ApiHelperTest.class,
+                "methodWithoutParameters");
     }
 
     @Test
     public void testResolve_methodWithOneParameter_fullyQualified() {
-        assertInvalidApi("android.car.Car#createCar(android.content.Context)");
+        assertInvalidApi("android.car.test.ApiHelperTest#"
+                + "methodWithOneParameterAndroid(android.content.Context)");
     }
 
     @Test
     public void testResolve_methodWithOneParameter() {
-        assertMethod("android.car.Car#createCar(Context)", Car.class, "createCar", Context.class);
+        assertMethod("android.car.test.ApiHelperTest#methodWithOneParameterAndroid(Context)",
+                ApiHelperTest.class, "methodWithOneParameterAndroid", Context.class);
     }
 
     @Test
     public void testResolve_methodWithOneParameterFromJavaLang() {
-        assertMethod("android.car.Car#isFeatureEnabled(String)", Car.class, "isFeatureEnabled",
-                String.class);
+        assertMethod("android.car.test.ApiHelperTest#methodWithOneParameterJavaLang(String)",
+                ApiHelperTest.class, "methodWithOneParameterJavaLang", String.class);
     }
 
     @Test
-    public void testResolve_methodWithMultipleParametersIncludingFromJavaLang() {
-        assertMethod("android.car.Car#createCar(Context,Handler,long,CarServiceLifecycleListener)",
-                Car.class, "createCar",
-                Context.class, Handler.class, long.class, CarServiceLifecycleListener.class);
-    }
-
-    @Test
-    public void testResolve_methodWithMultipleParametersWithSpaces() {
-        assertMethod("android.car.Car#createCar( Context,Handler, long ,"
-                + "CarServiceLifecycleListener )",
-                Car.class, "createCar",
-                Context.class, Handler.class, long.class, CarServiceLifecycleListener.class);
+    public void testResolve_methodWithOneParameterPrimitiveType() {
+        assertMethod("android.car.test.ApiHelperTest#methodWithOneParameterPrimitive(int)",
+                ApiHelperTest.class, "methodWithOneParameterPrimitive", int.class);
     }
 
     @Test
     public void testResolve_methodWithOverloadedParameters() {
-        assertMethod("android.car.Car#createCar(Context,Handler)",
-                Car.class, "createCar",
-                Context.class, Handler.class);
+        Method method1 = assertMethod(
+                "android.car.test.ApiHelperTest#methodWithOneParameterOverloaded(Context)",
+                ApiHelperTest.class, "methodWithOneParameterOverloaded", Context.class);
 
-        assertMethod("android.car.Car#createCar(Context)",
-                Car.class, "createCar",
-                Context.class);
+        Method method2 = assertMethod(
+                "android.car.test.ApiHelperTest#methodWithOneParameterOverloaded(String)",
+                ApiHelperTest.class, "methodWithOneParameterOverloaded", String.class);
+
+        assertWithMessage("method1").that(method1).isNotEqualTo(method2);
+        assertWithMessage("method1").that(method1).isNotSameInstanceAs(method2);
+    }
+
+
+    @Test
+    public void testResolve_methodWithMultipleParameters() {
+        assertMethod(
+                "android.car.test.ApiHelperTest#methodWithMultipleParameters(Context,String,int)",
+                ApiHelperTest.class, "methodWithMultipleParameters",
+                Context.class, String.class, int.class);
+    }
+
+    @Test
+    public void testResolve_methodWithMultipleParametersWithSpaces() {
+        assertMethod("android.car.test.ApiHelperTest#"
+                + "methodWithMultipleParameters( Context, String,int )",
+                ApiHelperTest.class, "methodWithMultipleParameters",
+                Context.class, String.class, int.class);
     }
 
     @Test
     public void testResolve_singleField() {
-        assertField("android.car.Car#API_VERSION_MAJOR_INT", Car.class, int.class,
-                "API_VERSION_MAJOR_INT");
+        assertField("android.car.test.ApiHelperTest#SINGLE_FIELD", ApiHelperTest.class, long.class,
+                "SINGLE_FIELD");
     }
 
     @Test
     public void testResolve_creator() {
-        assertField("android.car.CarVersion#CREATOR", CarVersion.class, Parcelable.Creator.class,
-                "CREATOR");
+        assertField("android.car.test.ApiHelperTest#CREATOR", ApiHelperTest.class,
+                Parcelable.Creator.class, "CREATOR");
     }
 
     @Test
     public void testResolve_nestedField_valid() {
-        assertField("android.car.CarVersion.VERSION_CODES#TIRAMISU_0",
-                CarVersion.VERSION_CODES.class, CarVersion.class, "TIRAMISU_0");
+        assertField("android.car.test.ApiHelperTest.VERSION_CODES#KEY_LIME_PIE",
+                ApiHelperTest.VERSION_CODES.class, int.class, "KEY_LIME_PIE");
     }
 
     @Test
     public void testResolve_nestedField_invalid() {
-        assertInvalidApi("android.car.CarVersion$VERSION_CODES");
-        assertInvalidApi("android.car.CarVersion$VERSION_CODES.TIRAMISU_0");
-        assertInvalidApi("android.car.CarVersion$VERSION_CODES#TIRAMISU_0");
-        assertInvalidApi("android.car.CarVersion#VERSION_CODES");
-        assertInvalidApi("android.car.CarVersion.VERSION_CODES.TIRAMISU_0");
+        assertInvalidApi("android.car.test.ApiHelperTest$VERSION_CODES");
+        assertInvalidApi("android.car.test.ApiHelperTest$VERSION_CODES.KEY_LIME_PIE");
+        assertInvalidApi("android.car.test.ApiHelperTest$VERSION_CODES#KEY_LIME_PIE");
+        assertInvalidApi("android.car.test.ApiHelperTest#VERSION_CODES");
+        assertInvalidApi("android.car.test.ApiHelperTest.VERSION_CODES.KEY_LIME_PIE");
     }
+
+    ////////////////////////////////////
+    // Start of members used on tests //
+    ////////////////////////////////////
+
+    public static final long SINGLE_FIELD = 4815162342L;
+
+    public void methodWithoutParameters() {
+    }
+
+    public void methodWithOneParameterAndroid(Context context) {
+    }
+
+    public void methodWithOneParameterJavaLang(String string) {
+    }
+
+    public void methodWithOneParameterPrimitive(int integer) {
+    }
+
+    public void methodWithOneParameterOverloaded(Context context) {
+    }
+
+    public void methodWithOneParameterOverloaded(String string) {
+    }
+
+    public void methodWithMultipleParameters(Context context, String string, int integer) {
+    }
+
+    public static final Parcelable.Creator<Parcelable> CREATOR =
+            new Parcelable.Creator<Parcelable>() {
+
+        @Override
+        public Parcelable createFromParcel(Parcel source) {
+            return null;
+        }
+
+        @Override
+        public Parcelable[] newArray(int size) {
+            return new Parcelable[size];
+        }
+    };
+
+    public static final class VERSION_CODES {
+        public static final int KEY_LIME_PIE = 42;
+    }
+
+
+    //////////////////////////////////
+    // End of members used on tests //
+    //////////////////////////////////
 
     private static void assertInvalidApi(String api) {
         assertWithMessage("invalid API").that(resolve(api)).isNull();
