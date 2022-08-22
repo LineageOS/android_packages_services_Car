@@ -210,7 +210,7 @@ public final class FakeVhalConfigParser {
      * @throws IOException if unable to read the config file.
      * @throws IllegalArgumentException if file is invalid JSON or when a JSONException is caught.
      */
-    public List<ConfigDeclaration> parseJsonConfig(File configFile, boolean isFileOpt) throws
+    public SparseArray<ConfigDeclaration> parseJsonConfig(File configFile, boolean isFileOpt) throws
             IOException {
         // Check if config file exists.
         if (!isFileValid(configFile)) {
@@ -218,7 +218,7 @@ public final class FakeVhalConfigParser {
                 throw new IllegalArgumentException("Missing required file at "
                             + configFile.toPath());
             }
-            return new ArrayList<>();
+            return new SparseArray<>(/* initialCapacity= */0);
         }
 
         // Read config file.
@@ -239,7 +239,7 @@ public final class FakeVhalConfigParser {
                 + "JSONArray.", e);
         }
 
-        List<ConfigDeclaration> allPropConfigs = new ArrayList<>();
+        SparseArray<ConfigDeclaration> allPropConfigs = new SparseArray<>();
         List<String> errors = new ArrayList<>();
         // Parse each property.
         for (int i = 0; i < configJsonArray.length(); i++) {
@@ -252,13 +252,13 @@ public final class FakeVhalConfigParser {
             ConfigDeclaration propConfig = parseEachProperty(propertyObject, errors);
             if (propConfig == null) {
                 errors.add("Unable to parse JSON object: " + propertyObject + " at index " + i);
-                if (!allPropConfigs.isEmpty()) {
+                if (allPropConfigs.size() != 0) {
                     errors.add("Last successfully parsed property Id: "
-                            + allPropConfigs.get(allPropConfigs.size() - 1).getConfig().prop);
+                            + allPropConfigs.valueAt(allPropConfigs.size() - 1).getConfig().prop);
                 }
                 continue;
             }
-            allPropConfigs.add(propConfig);
+            allPropConfigs.put(propConfig.getConfig().prop, propConfig);
         }
         if (!errors.isEmpty()) {
             throw new IllegalArgumentException(String.join("\n", errors));
