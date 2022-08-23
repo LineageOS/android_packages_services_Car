@@ -95,7 +95,7 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.CARTELEMETRYD_FIELD_NUMBER:
                     if (mCarTelemetrydPublisher == null) {
                         mCarTelemetrydPublisher = new CarTelemetrydPublisher(
-                                mPublisherListener, mTelemetryHandler);
+                                mPublisherListener, mTelemetryHandler, mSessionController);
                     }
                     return mCarTelemetrydPublisher;
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
