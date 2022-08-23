@@ -17,7 +17,8 @@
 
 package com.android.car.bluetooth;
 
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
+
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.staticMockMarker;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -494,7 +495,7 @@ public class BluetoothFastPairTest {
      */
     @Test
     public void testFPAdvertiserBackCompat_tiramisu1_createRealCallbackFromProxyInvoked() {
-        mockGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
         // reset invocation count
         clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
 
@@ -514,7 +515,7 @@ public class BluetoothFastPairTest {
      */
     @Test
     public void testFPAdvertiserBackCompat_tiramisu0_createRealCallbackFromProxyNotInvoked() {
-        mockGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
         // reset invocation count
         clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
 
@@ -530,12 +531,5 @@ public class BluetoothFastPairTest {
         pairingRequest.putExtra(BluetoothDevice.EXTRA_DEVICE, mMockBluetoothDevice);
         mTestGattServer.mPairingAttemptsReceiver.onReceive(mMockContext, pairingRequest);
 
-    }
-
-    /**
-     * Mocks a call to {@link Car#getPlatformVersion}.
-     */
-    protected final void mockGetPlatformVersion(PlatformVersion version) {
-        doReturn(version).when(() -> Car.getPlatformVersion());
     }
 }

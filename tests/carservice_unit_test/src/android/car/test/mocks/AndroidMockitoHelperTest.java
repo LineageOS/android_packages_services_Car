@@ -19,6 +19,8 @@ package android.car.test.mocks;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS;
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUserHandle;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
@@ -43,6 +45,9 @@ import static org.mockito.Mockito.mock;
 import android.app.ActivityManager;
 import android.app.Service;
 import android.app.admin.DevicePolicyManager;
+import android.car.Car;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.Visitor;
 import android.content.Context;
@@ -87,6 +92,7 @@ public final class AndroidMockitoHelperTest {
                 .spyStatic(ActivityManager.class)
                 .spyStatic(ServiceManager.class)
                 .spyStatic(Binder.class)
+                .spyStatic(Car.class)
                 .startMocking();
     }
 
@@ -255,6 +261,25 @@ public final class AndroidMockitoHelperTest {
 
         assertThat(context.getPackageManager()).isEqualTo(packageManager);
     }
+
+    @Test
+    public void testMockCarGetCarVersion() {
+        CarVersion carVersion = CarVersion.forMajorVersion(666);
+
+        mockCarGetCarVersion(carVersion);
+
+        assertThat(Car.getCarVersion()).isSameInstanceAs(carVersion);
+    }
+
+    @Test
+    public void testMockCarGetPlatformVersion() {
+        PlatformVersion platformVersion = PlatformVersion.forMajorVersion(666);
+
+        mockCarGetPlatformVersion(platformVersion);
+
+        assertThat(Car.getPlatformVersion()).isSameInstanceAs(platformVersion);
+    }
+
 
     @Test
     public void mockContextCheckCallingOrSelfPermission_returnsPermissionDenied() {
