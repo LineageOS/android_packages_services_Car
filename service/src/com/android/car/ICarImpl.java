@@ -248,6 +248,11 @@ public class ICarImpl extends ICar.Stub {
         mCarUXRestrictionsService = constructWithTrace(t, CarUxRestrictionsManagerService.class,
                 () -> new CarUxRestrictionsManagerService(serviceContext, mCarDrivingStateService,
                         mCarPropertyService, mCarOccupantZoneService), allServices);
+        mCarActivityService = constructWithTrace(t, CarActivityService.class,
+                () -> new CarActivityService(serviceContext), allServices);
+        mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
+                () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
+                        mCarActivityService, mCarOccupantZoneService), allServices);
         if (carUserService != null) {
             mCarUserService = carUserService;
             CarLocalServices.addService(CarUserService.class, carUserService);
@@ -257,7 +262,8 @@ public class ICarImpl extends ICar.Stub {
             int maxRunningUsers = UserManagerHelper.getMaxRunningUsers(serviceContext);
             mCarUserService = constructWithTrace(t, CarUserService.class,
                     () -> new CarUserService(serviceContext, mHal.getUserHal(), userManager,
-                            maxRunningUsers, mCarUXRestrictionsService), allServices);
+                            maxRunningUsers, mCarUXRestrictionsService, mCarPackageManagerService),
+                    allServices);
         }
         if (mFeatureController.isFeatureEnabled(Car.EXPERIMENTAL_CAR_USER_SERVICE)) {
             mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
@@ -286,11 +292,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mOccupantAwarenessService = null;
         }
-        mCarActivityService = constructWithTrace(t, CarActivityService.class,
-                () -> new CarActivityService(serviceContext), allServices);
-        mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
-                () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
-                        mCarActivityService, mCarOccupantZoneService), allServices);
         mPerUserCarServiceHelper = constructWithTrace(
                 t, PerUserCarServiceHelper.class,
                 () -> new PerUserCarServiceHelper(serviceContext, mCarUserService), allServices);
