@@ -15,7 +15,7 @@
  */
 package com.android.car.bluetooth;
 
-import static com.android.car.bluetooth.FastPairUtils.AccountKey;
+import static com.android.car.bluetooth.FastPairAccountKeyStorage.AccountKey;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -54,6 +54,7 @@ import java.security.spec.ECPublicKeySpec;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import javax.crypto.Cipher;
@@ -66,7 +67,7 @@ import javax.crypto.spec.SecretKeySpec;
  * Seeker to connect, after which time it manages the authentication an performs the steps as
  * required by the Fast Pair Specification.
  */
-class FastPairGattServer {
+public class FastPairGattServer {
     // Service ID assigned for FastPair.
     public static final ParcelUuid FAST_PAIR_SERVICE_UUID = ParcelUuid
             .fromString("0000FE2C-0000-1000-8000-00805f9b34fb");
@@ -93,8 +94,9 @@ class FastPairGattServer {
     private final String mPrivateAntiSpoof;
     private final Context mContext;
 
-    private ArrayList<AccountKey> mKeys = new ArrayList<>();
-    private BluetoothGattServer mBluetoothGattServer;
+    private final FastPairAccountKeyStorage mFastPairAccountKeyStorage;
+
+    private final BluetoothGattServer mBluetoothGattServer;
     private final BluetoothAdapter mBluetoothAdapter;
     private int mPairingPasskey = INVALID;
     private int mFailureCount = 0;
@@ -114,6 +116,15 @@ class FastPairGattServer {
          * @param successful
          */
         void onPairingCompleted(boolean successful);
+    }
+
+    /**
+     * Check if this service is started
+     */
+    public boolean isStarted() {
+        return (mBluetoothGattServer == null)
+                ? false
+                : mBluetoothGattServer.getService(FAST_PAIR_SERVICE_UUID.getUuid()) != null;
     }
 
     /**
@@ -271,9 +282,11 @@ class FastPairGattServer {
      *     authenticated through the Fast Pair protocol without further user interaction.
      */
     FastPairGattServer(Context context, int modelId, String antiSpoof,
-            Callbacks callbacks, boolean automaticAcceptance) {
-        mContext = context;
-        mCallbacks = callbacks;
+            Callbacks callbacks, boolean automaticAcceptance,
+            FastPairAccountKeyStorage fastPairAccountKeyStorage) {
+        mContext = Objects.requireNonNull(context);
+        mFastPairAccountKeyStorage = Objects.requireNonNull(fastPairAccountKeyStorage);
+        mCallbacks = Objects.requireNonNull(callbacks);
         mPrivateAntiSpoof = antiSpoof;
         mAutomaticPasskeyConfirmation = automaticAcceptance;
         BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
@@ -346,22 +359,15 @@ class FastPairGattServer {
     void processAccountKey(byte[] accountKey) {
         byte[] decodedAccountKey = decrypt(accountKey);
         if (decodedAccountKey != null && decodedAccountKey[0] == 0x04) {
+            AccountKey receivedKey = new AccountKey(decodedAccountKey);
             if (DBG) {
-                Slogf.d(TAG, "ReceivedAccountKey %s", decodedAccountKey[0]);
+                Slogf.d(TAG, "Received Account Key, key=%s", receivedKey);
             }
-            FastPairUtils.AccountKey receivedKey = new FastPairUtils.AccountKey(decodedAccountKey);
-            if (!mKeys.contains(receivedKey)) {
-                mKeys.add(receivedKey);
-            }
-            // due to space restrictions in the protocol we can only store 10 keys
-            while (mKeys.size() > MAX_KEY_COUNT) {
-                mKeys.remove(0);
-            }
-            FastPairUtils.writeStoredAccountKeys(mContext, mKeys);
+            mFastPairAccountKeyStorage.add(receivedKey);
             mSuccessCount++;
         } else {
             if (DBG) {
-                Slogf.d(TAG, "Invalid Account Key");
+                Slogf.d(TAG, "Received invalid Account Key");
             }
         }
     }
@@ -435,7 +441,7 @@ class FastPairGattServer {
         } else {
             // otherwise the pairing request is the encrypted request, try all the stored account
             // keys
-            List<AccountKey> storedAccountKeys = FastPairUtils.readStoredAccountKeys(mContext);
+            List<AccountKey> storedAccountKeys = mFastPairAccountKeyStorage.getAllAccountKeys();
             for (AccountKey key : storedAccountKeys) {
                 possibleKeys.add(new SecretKeySpec(key.toBytes(), "AES"));
             }
@@ -623,9 +629,10 @@ class FastPairGattServer {
     }
 
     void start() {
-        if (mBluetoothGattServer == null) {
+        if (mBluetoothGattServer == null || isStarted()) {
             return;
         }
+
         // Setup filter to receive pairing attempts and passkey. Make this a high priority broadcast
         // receiver so others can't intercept it before we can handle it.
         IntentFilter filter = new IntentFilter();
@@ -637,9 +644,10 @@ class FastPairGattServer {
     }
 
     void stop() {
-        if (mBluetoothGattServer == null) {
+        if (mBluetoothGattServer == null || !isStarted()) {
             return;
         }
+
         if (isConnected()) {
             mBluetoothGattServer.cancelConnection(mRemoteGattDevice);
             mRemoteGattDevice = null;
@@ -652,8 +660,12 @@ class FastPairGattServer {
     }
 
     void dump(IndentingPrintWriter writer) {
+        writer.println("FastPairGattServer:");
+        writer.increaseIndent();
+        writer.println("Started                       : " + isStarted());
         writer.println("Currently connected to        : " + mRemoteGattDevice);
         writer.println("Successful pairing attempts   : " + mSuccessCount);
         writer.println("Unsuccessful pairing attempts : " + mFailureCount);
+        writer.decreaseIndent();
     }
 }
