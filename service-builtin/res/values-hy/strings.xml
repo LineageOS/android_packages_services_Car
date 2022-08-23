@@ -16,14 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"միանալ արտապատկերման ծառայությանը"</string>
-<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Թույլ է տալիս սեփականատիրոջը միանալ արտապատկերման ծառայության բազային միջերեսին: Սովորական հավելվածների համար երբևէ չպետք է անհրաժեշտ լինի:"</string>
-<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS սպասառուների ծառայություն"</string>
-<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Միանալ VMS սպասառուներին"</string>
-<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Սարքերի վահանակի արտապատկերում"</string>
-<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Ստանալ տվյալներ սարքերի վահանակից"</string>
-<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Ներածման ծառայություն"</string>
-<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Մշակել ներածման իրադարձությունները"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"միանալ արտապատկերման ծառայությանը"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Թույլ է տալիս սեփականատիրոջը միանալ արտապատկերման ծառայության բազային միջերեսին: Սովորական հավելվածների համար երբևէ չպետք է անհրաժեշտ լինի:"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS սպասառուների ծառայություն"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Միանալ VMS սպասառուներին"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Սարքերի վահանակի արտապատկերում"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Ստանալ տվյալներ սարքերի վահանակից"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Ներածման ծառայություն"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Մշակել ներածման իրադարձությունները"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Դուք չեք կարող օգտագործել այս գործառույթը մեքենա վարելիս"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Հավելվածն անվտանգ ռեժիմում վերագործարկելու համար սեղմեք<xliff:g id="EXIT_BUTTON">%s</xliff:g> կոճակը:"</string>
     <string name="exit_button" msgid="3491899413031549265">"Հետ"</string>

@@ -16,14 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"הכפפה לשירות ההקרנה למסך"</string>
-<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"מאפשרת למשתמש לבצע הכפפה לממשק ברמה עליונה של שירות הקרנה למסך. הרשאה זו לעולם אינה נחוצה לאפליקציות רגילות."</string>
-<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"שירות לקוח VMS"</string>
-<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"הכפפה ללקוחות VMS"</string>
-<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"עיבוד של אשכול הכלים"</string>
-<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"קבלת נתונים של אשכול כלים"</string>
-<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"שירות הקלט של הרכב"</string>
-<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ניהול אירועי קלט"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"הכפפה לשירות ההקרנה למסך"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"מאפשרת למשתמש לבצע הכפפה לממשק ברמה עליונה של שירות הקרנה למסך. הרשאה זו לעולם אינה נחוצה לאפליקציות רגילות."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"שירות לקוח VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"הכפפה ללקוחות VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"עיבוד של אשכול הכלים"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"קבלת נתונים של אשכול כלים"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"שירות הקלט של הרכב"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ניהול אירועי קלט"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"אי אפשר להשתמש בתכונה הזו במהלך הנהיגה"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"כדי להפעיל מחדש את האפליקציה במצב בטוח, יש ללחוץ על <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"הקודם"</string>
