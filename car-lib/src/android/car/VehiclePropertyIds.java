@@ -19,6 +19,7 @@ package android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
+import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
@@ -33,9 +34,10 @@ import java.lang.reflect.Modifier;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Copy from android.hardware.automotive.vehicle-V2.0-java_gen_java/gen/android/hardware/automotive
- * /vehicle/V2_0. Need to update this file when vehicle propertyId is changed in VHAL.
- * Use it as PropertyId in getProperty() and setProperty() in
+ * Based on {@code VehicleProperty.java} generated based on {@code VehicleProperty.aidl} in VHAL
+ * interface.
+ * Need to update this file when vehicle propertyId is changed in VHAL. Use it as PropertyId in
+ * getProperty() and setProperty() in
  * {@link android.car.hardware.property.CarPropertyManager}
  */
 public final class VehiclePropertyIds {
@@ -2238,7 +2240,19 @@ public final class VehiclePropertyIds {
     @AddedInOrBefore(majorVersion = 33)
     public static final int TRAILER_PRESENT = 289410885;
 
-    /*
+    /**
+     * EU's General security regulation compliance requirement.
+     *
+     * <p>Returns whether general security regulation compliance is required, if
+     * so, what type of requirement. See {@link GsrComplianceRequirementTYpe} for possible enums.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     */
+    @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_INFO))
+    @AddedIn(majorVersion = 33, minorVersion = 1)
+    public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT = 289410887;
+
+    /**
      * Used to cache the mapping of property Id integer values into property name strings. This
      * will be initialized during the first call to {@link VehiclePropertyIds#toString(int)}.
      */
