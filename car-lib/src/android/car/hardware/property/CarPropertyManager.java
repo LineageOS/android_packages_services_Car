@@ -66,13 +66,17 @@ public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
+    /**
+     * The default timeout in MS for {@link CarPropertyManager#getPropertiesAsync}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
+
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
     private final int mAppTargetSdk;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
     @GuardedBy("mLock")
     private final SparseArray<GetAsyncPropertyClientInfo> mRequestIdToClientInfo =
             new SparseArray<>();
