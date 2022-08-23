@@ -82,7 +82,7 @@
     <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"కారు నుండి సమస్య విశ్లేషణ డేటాను క్లియర్ చేయగలవు."</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS పబ్లిషర్‌"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS మెసేజ్‌లను పబ్లిష్ చేయండి"</string>
-    <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS సభ్యులు"</string>
+    <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS సబ్‌స్క్రయిబర్"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS మెసేజ్‌లను పొందడానికి సబ్‌స్క్రయిబ్ చేయండి"</string>
     <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS క్లయింట్ సేవ"</string>
     <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS క్లయింట్‌లను ఆచరించండి"</string>
