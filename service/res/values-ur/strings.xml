@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"کار کے ڈسپلے پر، ایپ، فون سے انٹرفیس پروجیکٹ کر سکتی ہے۔"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"پروجیکشن کی صورتحال تک رسائی حاصل کریں"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"ایپ، کار کے ڈسپلے پر پروجیکٹ کی جا رہیں دیگر ایپس کی صورتحال حاصل کر سکتی ہے۔"</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"کسی پروجیکشن سروس کا پابند بنیں"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"حامل کو پروجیکشن سروس کے اعلی سطحی انٹرفیس کا پابند ہونے کی اجازت دیتا ہے۔ عام ایپس کے لیے کبھی بھی اس کی ضرورت نہيں ہونی چاہئے۔"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"کار کی آڈیو والیوم کو کنٹرول کریں"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"کار کی آڈیو کی ترتیبات کا نظم کریں"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"HAL گاڑی کی تقلید کریں"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"آلہ کے گروہ میں اپپس کو شروع کریں"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"انسٹرومنٹ کلسٹر نیویگیشن اسٹیٹس"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"انسٹرومنٹ کلسٹر نیویگیشن اسٹیٹس میں تبدیلیوں کے لیے سنیں"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"آلہ کے گروہ کی رینڈرنگ"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"آلہ کے گروہ کا ڈیٹا موصول کریں"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX کی پابندیوں کی ترتیب"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX کی پابندیاں ترتیب دیں"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"نجی ڈسپلے ID تک پڑھنے کی رسائی"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"کار میں بیٹھنے والے فرد کے لیے بنے آگاہی کے سسٹم کیلئے پڑھنے کی حیثیت اور ڈیٹا کا پتہ لگانے کی اجازت دیتا ہے"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"کار میں بیٹھنے والے فرد کے لیے بنے آگاہی کے سسٹم کے گراف کو کنٹرول کریں"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"کار میں بیٹھنے والے فرد کے لیے بنا آگاہی کا سسٹم پتہ لگانے کے گراف کو شروع کرنے اور روکنے کی اجازت دیتا ہے"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"کار کی ان پٹ سروس"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ایونٹس کے ان پٹ کو ہینڈل کریں"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"تشخیصی ڈیٹا پڑھیں"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"کار کے تشخیصی ڈیٹا کے بارے میں پڑھیں۔"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"تشخیصی ڈیٹا صاف کریں"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS پیغامات شائع کریں"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS سبسکرائبر"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS پیغامات کو سبسکرائب کریں"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS کلائنٹ سروس"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS کلائنٹس کا پابند بنیں"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"اسٹوریج کی نگرانی کو فلیش کریں"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"فلیش کے اسٹوریج کے استعمال کی نگرانی کریں"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"کار چلانے کی صورتحال کے بارے میں سنیں"</string>

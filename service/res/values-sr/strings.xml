@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"Омогућава апликацији да пројектује интерфејс са телефона на екран аутомобила."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"приступ статусу пројекције"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Дозвољава апликацији да пронађе статус других апликација које пројектују на екран аутомобила."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"повезивање са услугом пројекције"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Дозвољава власнику да се повеже са интерфејсом услуге пројекције највишег нивоа. Уобичајене апликације никада не би требало да је користе."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"контролисање јачине звука у аутомобилу"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"управљање подешавањима звука у аутомобилу"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"емулација HAL-а возила"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Покреће апликације на инструмент табли"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Статус кретања на инструмент табли"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Откривање промена статуса кретања на инструмент табли"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Приказивање на инструмент табли"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Прима податке са инструмент табле"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Конфигурација ограничења КД-а"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Конфигурише ограничења КД-а"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Приступ за читање ИД-у за приватни приказ"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Омогућава читање података о статусу и откривању за Occupant Awareness System"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Управљање графиконом за Occupant Awareness System"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Омогућава покретање и заустављање графикона откривања за Occupant Awareness System"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Услуга аутомобилског уноса"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Управља догађајима уноса"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"читање дијагностичких података"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Читање дијагностичких података из аутомобила."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"брисање дијагностичких података"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Објављује VMS поруке"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Претплатник на VMS поруке"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Претплаћује на VMS поруке"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS услуга за клијенте"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Повезује са VMS клијентима"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Праћење флеш меморије"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Надгледа коришћење флеш меморије"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"слушање стања вожње"</string>

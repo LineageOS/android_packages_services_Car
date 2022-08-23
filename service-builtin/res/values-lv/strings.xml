@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"saistīt ar projicēšanas pakalpojumu"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Ļauj īpašniekam izveidot saiti ar projicēšanas pakalpojuma augšējā līmeņa saskarni. Parastajām lietotnēm tas nekad nav nepieciešams."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS klienta pakalpojums"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Saistīt ar VMS klientiem"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Atveide mēraparātu blokā"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Saņemt datus no mēraparātu bloka."</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Automašīnas ievades pakalpojums"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Apstrādāt ievades notikumus."</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Jūs nevarat izmantot šo funkciju braukšanas laikā."</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Lai atsāktu darbu ar drošām lietotnes funkcijām, atlasiet pogu <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Atpakaļ"</string>
