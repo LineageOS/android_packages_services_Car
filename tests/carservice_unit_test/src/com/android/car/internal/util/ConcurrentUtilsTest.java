@@ -44,6 +44,9 @@ public final class ConcurrentUtilsTest {
         ExecutorService service = ConcurrentUtils.newFixedThreadPool(1, "test pool",
                 /* linuxThreadPriority= */ 0);
         Future<Boolean> future = service.submit(() -> {
+            // Sleep to make sure the future does not complete before we interrupt the current
+            // thread.
+            Thread.sleep(1000);
             return true;
         });
         // This would set the interrupt flag on the current thread and cause future.get() to
@@ -51,6 +54,8 @@ public final class ConcurrentUtilsTest {
         Thread.currentThread().interrupt();
         assertThrows(IllegalStateException.class,
                 () -> ConcurrentUtils.waitForFutureNoInterrupt(future, "wait for result"));
+        future.cancel(/* mayInterruptIfRunning= */ true);
+        assertThat(future.isCancelled()).isTrue();
     }
 
     @Test
