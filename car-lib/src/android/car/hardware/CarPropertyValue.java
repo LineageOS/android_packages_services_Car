@@ -23,6 +23,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -33,6 +34,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 /**
  * Stores values broken down by area for a vehicle property.
@@ -271,5 +273,30 @@ public final class CarPropertyValue<T> implements Parcelable {
                 + ", mTimestamp=" + mTimestamp
                 + ", mValue=" + mValue
                 + '}';
+    }
+
+    /** Generates hash code for this instance. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Override
+    public int hashCode() {
+        return Objects.hash(mPropertyId, mAreaId, mStatus, mTimestamp, mValue);
+    }
+
+    /** Checks equality with passed {@code object}. */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!(object instanceof CarPropertyValue<?>)) {
+            return false;
+        }
+        CarPropertyValue<?> carPropertyValue = (CarPropertyValue<?>) object;
+        return mPropertyId == carPropertyValue.mPropertyId && mAreaId == carPropertyValue.mAreaId
+                && mTimestamp == carPropertyValue.mTimestamp && mStatus == carPropertyValue.mStatus
+                && Objects.equals(mValue, carPropertyValue.mValue);
     }
 }
