@@ -493,19 +493,22 @@ EvsEventDesc Utils::makeFromHidl(const hidlevs::V1_1::EvsEventDesc& hidlDesc) {
     return std::move(aidlDesc);
 }
 
-hidlevs::V1_1::EvsEventDesc Utils::makeToHidl(const EvsEventDesc& aidlDesc) {
-    hidlevs::V1_1::EvsEventDesc hidlDesc = {
-            .aType = makeToHidl(aidlDesc.aType),
-            .deviceId = aidlDesc.deviceId,
-    };
+bool Utils::makeToHidl(const EvsEventDesc& in, hidlevs::V1_1::EvsEventDesc* out) {
+    if (in.payload.size() > out->payload.size()) {
+        LOG(ERROR) << "The size of the event payload must not exceed "
+                   << out->payload.size() * sizeof(out->payload[0]) << " bytes.";
 
-    if (aidlDesc.payload.size() > 0) {
-        for (int i = 0; i < hidlDesc.payload.size(); ++i) {
-            hidlDesc.payload[i] = aidlDesc.payload[i];
-        }
+        return false;
     }
 
-    return std::move(hidlDesc);
+    out->aType = makeToHidl(in.aType);
+    out->deviceId = in.deviceId;
+
+    for (int i = 0; i < in.payload.size(); ++i) {
+        out->payload[i] = in.payload[i];
+    }
+
+    return true;
 }
 
 bool Utils::validateNativeHandle(const NativeHandle& handle) {
