@@ -42,6 +42,7 @@ import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.ParcelUuid;
+import android.os.UserManager;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 
@@ -101,6 +102,7 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     @Mock private PhoneAccountHandle mMockPhoneAccountHandle;
     @Captor private ArgumentCaptor<BluetoothDevice> mBvraDeviceCaptor;
     @Mock private Resources mMockResources;
+    @Mock private UserManager mMockUserManager;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -131,6 +133,9 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         when(mMockPerUserCarServiceImpl.getResources()).thenReturn(mMockResources);
         when(mMockPerUserCarServiceImpl.getSystemService(eq(BluetoothManager.class)))
                 .thenReturn(mMockBluetoothManager);
+        when(mMockPerUserCarServiceImpl.getSystemService(eq(UserManager.class)))
+                .thenReturn(mMockUserManager);
+        when(mMockUserManager.isUserUnlocked()).thenReturn(false);
 
         mCarBluetoothUserService = new CarBluetoothUserService(mMockPerUserCarServiceImpl);
 
