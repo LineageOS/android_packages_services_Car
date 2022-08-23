@@ -19,7 +19,6 @@ package com.android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
 import android.car.builtin.os.BinderHelper;
@@ -471,12 +470,9 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
      */
     @GuardedBy("mLock")
     private boolean isCarManualTransmissionTypeLocked() {
-        if (mSupportedGears != null
+        return mSupportedGears != null
                 && !mSupportedGears.isEmpty()
-                && !mSupportedGears.contains(VehicleGear.GEAR_PARK)) {
-            return true;
-        }
-        return false;
+                && !mSupportedGears.contains(VehicleGear.GEAR_PARK);
     }
 
     /**

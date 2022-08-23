@@ -284,10 +284,8 @@ public class StatsPublisher extends AbstractPublisher {
                 }
             }
         }
-        if (bytes < DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES) {
-            return false;
-        }
-        return true;
+
+        return bytes >= DataSubscriber.SCRIPT_INPUT_SIZE_THRESHOLD_BYTES;
     }
 
     private void processStatsMetadata(@NonNull StatsLogProto.StatsdStatsReport statsReport) {

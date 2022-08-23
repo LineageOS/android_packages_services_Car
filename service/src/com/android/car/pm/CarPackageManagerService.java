@@ -455,12 +455,8 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 infoWrapper = mActivityAllowlistMap.get(packageName);
             }
 
-            if (packageBlocked
-                    || !isActivityInMapAndMatching(infoWrapper, packageName, className)) {
-                return false;
-            }
-
-            return true;
+            return !packageBlocked
+                    && isActivityInMapAndMatching(infoWrapper, packageName, className);
         }
     }
 
@@ -542,11 +538,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
                 infoWrapper = mActivityAllowlistMap.get(packageName);
             }
 
-            if (packageBlocked || infoWrapper == null || infoWrapper.info == null) {
-                return false;
-            }
-
-            return true;
+            return !packageBlocked && infoWrapper != null && infoWrapper.info != null;
         }
     }
 

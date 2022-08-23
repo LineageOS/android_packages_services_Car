@@ -116,9 +116,7 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
         if (getClass() != obj.getClass()) return false;
         @SuppressWarnings("unchecked")
         ApiVersion<T> other = (ApiVersion<T>) obj;
-        if (mMajorVersion != other.mMajorVersion) return false;
-        if (mMinorVersion != other.mMinorVersion) return false;
-        return true;
+        return (mMajorVersion == other.mMajorVersion) && (mMinorVersion == other.mMinorVersion);
     }
 
     /**

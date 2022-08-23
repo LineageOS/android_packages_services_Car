@@ -173,15 +173,12 @@ public class ConnectivityFragment extends Fragment {
     }
 
     private boolean isRequestableCapability(int c) {
-        if (c == NetworkCapabilities.NET_CAPABILITY_VALIDATED
+        return !(c == NetworkCapabilities.NET_CAPABILITY_VALIDATED
                 || c == NetworkCapabilities.NET_CAPABILITY_CAPTIVE_PORTAL
                 || c == NetworkCapabilities.NET_CAPABILITY_NOT_ROAMING
                 || c == NetworkCapabilities.NET_CAPABILITY_FOREGROUND
                 || c == NetworkCapabilities.NET_CAPABILITY_NOT_CONGESTED
-                || c == NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED) {
-            return false;
-        }
-        return true;
+                || c == NetworkCapabilities.NET_CAPABILITY_NOT_SUSPENDED);
     }
 
     public void requestNetworkById(int netId) {

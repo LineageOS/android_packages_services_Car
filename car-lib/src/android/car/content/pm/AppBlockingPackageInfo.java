@@ -224,10 +224,8 @@ public final class AppBlockingPackageInfo implements Parcelable {
         } else if (!packageName.equals(other.packageName)) {
             return false;
         }
-        if (!Arrays.equals(signatures, other.signatures)) {
-            return false;
-        }
-        return true;
+
+        return Arrays.equals(signatures, other.signatures);
     }
 
     @Override
