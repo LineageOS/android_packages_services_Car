@@ -915,6 +915,13 @@
         android:label="@string/car_permission_label_manage_thread_priority"
         android:description="@string/car_permission_desc_manage_thread_priority"/>
 
+    <!-- Allows applications to assign / un-assign zones to users
+    -->
+    <permission android:name="android.car.permission.MANAGE_OCCUPANT_ZONE"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_manage_occupant_zone"
+                android:description="@string/car_permission_desc_manage_occupant_zone"/>
+
     <!-- NOTE: when you're adding a new permission, you should edit
          cts/tests/tests/permission2/res/raw/automotive_android_manifest.xml accordingly and run
          the test with 'atest android.permission2.cts.PermissionPolicyTest' to verify it.

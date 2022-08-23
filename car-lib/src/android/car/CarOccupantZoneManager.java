@@ -25,7 +25,7 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.car.annotation.AddedInOrBefore;
-import android.car.builtin.os.UserManagerHelper;
+import android.car.annotation.ApiRequirements;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.os.IBinder;
@@ -35,6 +35,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 import android.view.Display;
 
@@ -53,6 +54,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * API to get information on displays and users in the car.
+ *
+ * <p>From car version {@link CarVersion.VERSION_CODES#UPSIDE_DOWN_CAKE_0}, system without the
+ * driver zone is allowed and the current user will not be the driver.
  */
 public class CarOccupantZoneManager extends CarManagerBase {
 
@@ -107,7 +111,10 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_INVALID = -1;
 
-    /** Represents driver. There can be only one driver for the system. */
+    /**
+     * Represents the driver. There can be one or zero driver for the system. Zero driver situation
+     * can happen if the system is configured to support only passengers.
+     */
     @AddedInOrBefore(majorVersion = 33)
     public static final int OCCUPANT_TYPE_DRIVER = 0;
 
@@ -141,6 +148,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
         /** @hide */
         @AddedInOrBefore(majorVersion = 33)
         public static final int INVALID_ZONE_ID = -1;
+
         /**
          * This is an unique id to distinguish each occupant zone.
          *
@@ -271,6 +279,84 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @interface ZoneConfigChangeFlags {}
 
     /**
+     * The assignment was successful.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int USER_ASSIGN_RESULT_OK = 0;
+
+    /**
+     * The operation has failed as the user is already assigned to other zone. If the goal is to
+     * move the user, the current zone should be unassigned first.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED = 1;
+
+    /**
+     * The assigned user is not {@link UserManager#isUserVisible() visible user}.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER = 2;
+
+    /**
+     * Assigning non-current user to driver zone or un-assigning driver zone will fail with this
+     * error.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE = 3;
+
+    /** @hide */
+    @IntDef(flag = false, prefix = { "USER_ASSIGN_RESULT_" }, value = {
+            USER_ASSIGN_RESULT_OK,
+            USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED,
+            USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER,
+            USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface UserAssignResult {}
+
+    /**
+     * Launch home with category of {@link android.content.Intent#CATEGORY_HOME} or
+     * {@link android.content.Intent#CATEGORY_SECONDARY_HOME} for the assigned display.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final int USER_ASSIGN_FLAG_LAUNCH_HOME = 0x1;
+
+    /** @hide */
+    @IntDef(flag = true, prefix = { "USER_ASSIGN_FLAG_" }, value = {
+            USER_ASSIGN_FLAG_LAUNCH_HOME,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    @interface UserAssignFlags {}
+
+    /**
+     * Invalid user ID. Zone with this user ID has no allocated user. Should have the same value
+     * with {@link UserHandle#USER_NULL}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final @UserIdInt int INVALID_USER_ID = -10000;
+
+    /**
      * Listener to monitor any Occupant Zone configuration change. The configuration change can
      * involve some displays removed or new displays added. Also it can happen when assigned user
      * for any zone changes.
@@ -381,7 +467,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *
      * @param displayType the display type
      * @return the driver's display id or {@link Display#INVALID_DISPLAY} when no such display
-     * exists
+     * exists or if the driver zone does not exist.
      *
      * @hide
      */
@@ -450,7 +536,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
 
     /**
      * Returns android user id assigned for the given zone. It will return
-     * {@link UserHandle#USER_NULL} if user is not assigned or if zone is not available.
+     * {@link #INVALID_USER_ID} if user is not assigned or if zone is not available.
      */
     @UserIdInt
     @AddedInOrBefore(majorVersion = 33)
@@ -459,7 +545,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
         try {
             return mService.getUserForOccupant(occupantZone.zoneId);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, UserManagerHelper.USER_NULL);
+            return handleRemoteExceptionFromCarService(e, INVALID_USER_ID);
         }
     }
 
@@ -470,15 +556,20 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * <p>Note that only non-driver zone can be assigned with this call. Calling this for driver
      * zone will lead into {@code IllegalArgumentException}.
      *
+     * @deprecated Use {@link #assignVisibleUserToOccupantZone(OccupantZoneInfo, UserHandle, int)}
+     *             instead.
+     *
      * @param occupantZone Zone to assign user.
-     * @param userId profile user id to assign. Passing {@link UserHandle#USER_NULL} leads into
+     * @param userId profile user id to assign. Passing {@link #INVALID_USER_ID} leads into
      *               removing the current user assignment.
      * @return true if the request succeeds or if the user is already assigned to the zone.
      *
      * @hide
      */
-    @RequiresPermission(android.Manifest.permission.MANAGE_USERS)
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
     @AddedInOrBefore(majorVersion = 33)
+    @Deprecated
     public boolean assignProfileUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
             @UserIdInt int userId) {
         assertNonNullOccupant(occupantZone);
@@ -486,6 +577,80 @@ public class CarOccupantZoneManager extends CarManagerBase {
             return mService.assignProfileUserToOccupantZone(occupantZone.zoneId, userId);
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * Assign a visible user, which gets {@code true} from ({@link UserManager#isUserVisible()},
+     * to the specified occupant zone.
+     *
+     * <p>This API handles occupant zone change and other actions specified in the {@code flags}.
+     *
+     * <p>This API can take a long time, so it is recommended to call this from non-main thread.
+     *
+     * <p> The return value is {@link #USER_ASSIGN_RESULT_OK} when the assignment succeeds or if
+     * the user is already allocated to the zone. Note that new error code can be added in the
+     * future. For now, following error codes will be returned for a Failure:
+     * <ul>
+     *   <li>{@link #USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER} for non-visible user.
+     *   <li>{@link #USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED} if the user is already assigned to
+     *       other zone. New error code can be added in future.
+     *   <li>{@link #USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE} if non-current user is assigned to the
+     *       driver zone.
+     * </ul>
+     *
+     * <p>The system requires one user to  have one zone and moving user from one zone to another
+     * requires unassigning the zone using {@link #unassignOccupantZone(OccupantZoneInfo)}
+     * first.
+     *
+     * @param occupantZone The occupant zone to change user allocation.
+     * @param user The user to allocate. {@code null} user removes the allocation for the zone.
+     *             {@link UserHandle#CURRENT} will assign the current user to the zone.
+     * @param flags Flags to define actions done with the user assignment.
+     * @return Check the above.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @UserAssignResult
+    public int assignVisibleUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
+            @NonNull UserHandle user, @UserAssignFlags int flags) {
+        assertNonNullOccupant(occupantZone);
+        try {
+            return mService.assignVisibleUserToOccupantZone(occupantZone.zoneId, user, flags);
+        } catch (RemoteException e) {
+            // Return any error code if car service is gone.
+            return handleRemoteExceptionFromCarService(e, USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED);
+        }
+    }
+
+    /**
+     * Un-assign user from the specified occupant zone. The zone will return
+     * {@link #INVALID_USER_ID} for {@link #getUserForOccupant(OccupantZoneInfo)} after this call.
+     *
+     * @param occupantZone Zone to unassign.
+     * @return {@link #USER_ASSIGN_RESULT_OK} if the zone is unassigned by the call or was already
+     *         unassigned. Error code of {@link #USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE} will be
+     *         returned if driver zone is asked.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    @UserAssignResult
+    public int unassignOccupantZone(@NonNull OccupantZoneInfo occupantZone) {
+        try {
+            return mService.unassignOccupantZone(occupantZone.zoneId);
+        } catch (RemoteException e) {
+            // Return any error code if car service is gone.
+            return handleRemoteExceptionFromCarService(e, USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE);
         }
     }
 
@@ -533,6 +698,88 @@ public class CarOccupantZoneManager extends CarManagerBase {
                     // ignore for unregistering
                 }
             }
+        }
+    }
+
+    /**
+     * Returns {@link OccupantZoneInfo} for the calling process's android user.
+     * It will return {@code null} if there is no occupant zone assigned for the user.
+     *
+     * <p>When there is no occupant zone allocated for the user, most likely the user is not allowed
+     * to run Activity or play audio, which are the main use cases to get the zone. So apps should
+     * not try such tasks when {@code null} {@code OccupantZoneInfo} is returned. There can be an
+     * exception for system user running under
+     * {@link UserManager#isHeadlessSystemUserMode() Headless System User Mode}: The system user
+     * apps may show UI even if there is no zone allocated.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    public OccupantZoneInfo getMyOccupantZone() {
+        try {
+            return mService.getMyOccupantZone();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /**
+     * Finds {@code OccupantZoneInfo} for the given occupant type and seat.
+     * <p>For{@link #OCCUPANT_TYPE_DRIVER} and {@link #OCCUPANT_TYPE_FRONT_PASSENGER}, {@code seat}
+     * argument will be ignored.
+     * @param occupantType should be one of {@link #OCCUPANT_TYPE_DRIVER},
+     *                     {@link #OCCUPANT_TYPE_FRONT_PASSENGER},
+     *                     {@link #OCCUPANT_TYPE_FRONT_PASSENGER}
+     * @param seat Seat of the occupant. This is necessary for
+     *             {@link #OCCUPANT_TYPE_REAR_PASSENGER}.
+     * @return Matching occupant zone or {@code null} if such zone does not exist.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Nullable
+    public OccupantZoneInfo getOccupantZone(@OccupantTypeEnum int occupantType,
+            @VehicleAreaSeat.Enum int seat) {
+        try {
+            return mService.getOccupantZone(occupantType, seat);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, null);
+        }
+
+    }
+
+    /**
+     * Returns {@code true} if the system has a driver zone. It will return false for system with
+     * only passenger zones.
+     *
+     * <p> Note that at least one zone must be present and following system configurations are
+     * possible:
+     * <ul>
+     *     <li>One driver zone only.
+     *     <li>One driver zone with at least one passenger zone.
+     *     <li>At least one passenger zone.
+     * </ul>
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean hasDriverZone() {
+        try {
+            return mService.hasDriverZone();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
+        }
+    }
+
+    /**
+     * Returns {@code true} if the system has front or rear passenger zones. Check
+     * {@link #hasDriverZone()} for possible system configurations.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public boolean hasPassengerZones() {
+        try {
+            return mService.hasPassengerZones();
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, false);
         }
     }
 

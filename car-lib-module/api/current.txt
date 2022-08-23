@@ -124,7 +124,11 @@ package android.car {
     method @NonNull public java.util.List<android.car.CarOccupantZoneManager.OccupantZoneInfo> getAllOccupantZones();
     method @Nullable public android.view.Display getDisplayForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, int);
     method public int getDisplayType(@NonNull android.view.Display);
+    method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getMyOccupantZone();
+    method @Nullable public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantZone(int, int);
     method public int getUserForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    method public boolean hasDriverZone();
+    method public boolean hasPassengerZones();
     method public void registerOccupantZoneConfigChangeListener(@NonNull android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener);
     method public void unregisterOccupantZoneConfigChangeListener(@NonNull android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener);
     field public static final int DISPLAY_TYPE_AUXILIARY = 5; // 0x5
@@ -133,6 +137,7 @@ package android.car {
     field public static final int DISPLAY_TYPE_INSTRUMENT_CLUSTER = 2; // 0x2
     field public static final int DISPLAY_TYPE_MAIN = 1; // 0x1
     field public static final int DISPLAY_TYPE_UNKNOWN = 0; // 0x0
+    field public static final int INVALID_USER_ID = -10000; // 0xffffd8f0
     field public static final int OCCUPANT_TYPE_DRIVER = 0; // 0x0
     field public static final int OCCUPANT_TYPE_FRONT_PASSENGER = 1; // 0x1
     field public static final int OCCUPANT_TYPE_REAR_PASSENGER = 2; // 0x2

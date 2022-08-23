@@ -17,13 +17,14 @@
 package com.android.car;
 
 import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.car.util.Utils.isEventOfType;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
@@ -34,8 +35,8 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
+import android.car.PlatformVersion;
 import android.car.VehicleAreaSeat;
-import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.car.media.CarAudioManager;
@@ -43,9 +44,11 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteCallbackList;
@@ -68,6 +71,7 @@ import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
 import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,7 +166,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @VisibleForTesting
     static class OccupantConfig {
-        public int userId = UserManagerHelper.USER_NULL;
+        public int userId = CarOccupantZoneManager.INVALID_USER_ID;
         public final ArrayList<DisplayInfo> displayInfos = new ArrayList<>();
         public int audioZoneId = CarAudioManager.INVALID_AUDIO_ZONE;
 
@@ -199,9 +203,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @VisibleForTesting
     final UserLifecycleListener mUserLifecycleListener = event -> {
-        if (!isEventOfType(TAG, event, USER_LIFECYCLE_EVENT_TYPE_SWITCHING)) {
-            return;
-        }
         Slogf.d(TAG, "onEvent(%s)", event);
 
         handleUserChange();
@@ -283,9 +284,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             handleUserChangesLocked();
         }
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
-        UserLifecycleEventFilter userSwitchingEventFilter = new UserLifecycleEventFilter.Builder()
-                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).build();
-        userService.addUserLifecycleListener(userSwitchingEventFilter, mUserLifecycleListener);
+        UserLifecycleEventFilter userEventFilter = new UserLifecycleEventFilter.Builder()
+                .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING).addEventType(
+                        USER_LIFECYCLE_EVENT_TYPE_STOPPING).build();
+        userService.addUserLifecycleListener(userEventFilter, mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
         if (experimentalUserService != null) {
@@ -322,7 +324,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                         Slogf.w(TAG, "cannot find the zone(%d)", zoneId);
                         return false;
                     }
-                    if (zoneConfig.userId != UserManagerHelper.USER_NULL
+                    if (zoneConfig.userId != CarOccupantZoneManager.INVALID_USER_ID
                             && zoneConfig.userId != userId) {
                         Slogf.w(TAG, "other user already occupies the zone(%d)", zoneId);
                         return false;
@@ -338,7 +340,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
                         OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
                         if (config.userId == userId) {
-                            config.userId = UserManagerHelper.USER_NULL;
+                            config.userId = CarOccupantZoneManager.INVALID_USER_ID;
                             break;
                         }
                     }
@@ -523,7 +525,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 return new IntArray(0);
             }
             IntArray displayIds = new IntArray(config.displayInfos.size());
-            Slogf.d(TAG, "getAllDisplayIdsForDriver: displayInfos=" + config.displayInfos);
             for (int i = 0; i < config.displayInfos.size(); i++) {
                 DisplayInfo displayInfo = config.displayInfos.get(i);
                 if (displayInfo.displayType == displayType) {
@@ -549,7 +550,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @GuardedBy("mLock")
     @Nullable
-    private DisplayInfo findDisplayForDriverLocked(int driverUserId,
+    private DisplayInfo findDisplayForDriverLocked(@UserIdInt int driverUserId,
             @DisplayTypeEnum int displayType) {
         for (OccupantZoneInfo zoneInfo : getAllOccupantZones()) {
             if (zoneInfo.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
@@ -600,7 +601,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Override
-    public CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int audioZoneId) {
+    public OccupantZoneInfo getOccupantForAudioZoneId(int audioZoneId) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         synchronized (mLock) {
             int occupantZoneId = mAudioZoneIdToOccupantZoneIdMapping.get(audioZoneId,
@@ -652,14 +653,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         synchronized (mLock) {
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
             if (config == null) {
-                return UserManagerHelper.USER_NULL;
+                return CarOccupantZoneManager.INVALID_USER_ID;
             }
             return config.userId;
         }
     }
 
     @Override
-    public int getOccupantZoneIdForUserId(int userId) {
+    public int getOccupantZoneIdForUserId(@UserIdInt int userId) {
         synchronized (mLock) {
             for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
                 OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
@@ -727,46 +728,217 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Override
-    public boolean assignProfileUserToOccupantZone(int occupantZoneId, int userId) {
-        enforcePermission(android.Manifest.permission.MANAGE_USERS);
+    public boolean assignProfileUserToOccupantZone(int occupantZoneId, @UserIdInt int userId) {
+        CarServiceUtils.assertAnyPermission(mContext, android.Manifest.permission.MANAGE_USERS,
+                Car.PERMISSION_MANAGE_OCCUPANT_ZONE);
+
         if (!mEnableProfileUserAssignmentForMultiDisplay) {
             throw new IllegalStateException("feature not enabled");
         }
-        int currentUser = getCurrentUser();
 
+        UserHandle user = null;
         synchronized (mLock) {
             if (occupantZoneId == mDriverZoneId) {
                 throw new IllegalArgumentException("Driver zone cannot have profile user");
             }
-            updateEnabledProfilesLocked(currentUser);
+            updateEnabledProfilesLocked(getCurrentUser());
 
-            if (!mProfileUsers.contains(userId) && userId != UserManagerHelper.USER_NULL) {
+            if (!mProfileUsers.contains(userId)
+                    && userId != CarOccupantZoneManager.INVALID_USER_ID) {
                 // current user can change while this call is happening, so return false rather
                 // than throwing exception
                 Slogf.w(TAG, "Invalid profile user id: %d", userId);
                 return false;
             }
-            if (!mUserManager.isUserRunning(UserHandle.of(userId))) {
-                Slogf.w(TAG, "User%d is not running.", userId);
-                return false;
-            }
-            OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
-            if (config == null) {
-                throw new IllegalArgumentException("Invalid occupantZoneId:" + occupantZoneId);
-            }
-            if (config.userId == userId && userId != UserManagerHelper.USER_NULL) {
-                Slogf.w(TAG, "assignProfileUserToOccupantZone zone:%d already set to user:%",
-                        occupantZoneId, userId);
-                return true;
-            }
-            if (userId == UserManagerHelper.USER_NULL) {
-                config.userId = currentUser;
-            } else {
-                config.userId = userId;
+            if (userId != CarOccupantZoneManager.INVALID_USER_ID) {
+                user = UserHandle.of(userId);
             }
         }
+
+        long token = Binder.clearCallingIdentity();
+        try {
+            if (userId == CarOccupantZoneManager.INVALID_USER_ID) {
+                return unassignOccupantZoneUnchecked(occupantZoneId)
+                        == CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+            } else {
+                return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user,
+                        /* flags= */ 0) == CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+            }
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    @Override
+    public int assignVisibleUserToOccupantZone(int occupantZoneId, UserHandle user, int flags) {
+        CarServiceUtils.assertAnyPermission(mContext, android.Manifest.permission.MANAGE_USERS,
+                Car.PERMISSION_MANAGE_OCCUPANT_ZONE);
+        Preconditions.checkNotNull(user);
+        long token = Binder.clearCallingIdentity();
+        try {
+            return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user, flags);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    /**
+     * Precondition: permission check should be done and binder caller identity should be cleared.
+     */
+    private int assignVisibleUserToOccupantZoneUnchecked(int occupantZoneId,
+            @NonNull UserHandle user, int flags) {
+        int userId;
+        if (user.equals(UserHandle.CURRENT)) {
+            userId = getCurrentUser();
+        } else {
+            userId = user.getIdentifier();
+        }
+
+        if (!isUserVisible(user)) {
+            Slogf.w(TAG, "Non-visible user %d cannot be allocated to zone %d", userId,
+                    occupantZoneId);
+            return CarOccupantZoneManager.USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER;
+        }
+
+        synchronized (mLock) {
+            OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
+            if (config == null) {
+                Slogf.w(TAG, "Invalid zone:%d", occupantZoneId);
+                throw new IllegalArgumentException("Invalid occupantZoneId:" + occupantZoneId);
+            }
+            if (config.userId == userId && userId != CarOccupantZoneManager.INVALID_USER_ID) {
+                Slogf.w(TAG, "assignVisibleUserToOccupantZone zone:%d already set to user:%d",
+                        occupantZoneId, userId);
+                return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+            }
+            Slogf.d(TAG, "Assigned user %d to zone %d", userId, occupantZoneId);
+            config.userId = userId;
+        }
+
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
-        return true;
+
+        if ((flags & CarOccupantZoneManager.USER_ASSIGN_FLAG_LAUNCH_HOME) != 0) {
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            int targetDisplayId = getDisplayForOccupant(occupantZoneId,
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+            // TODO(b/243967195) Add other error code so that the client can know the partial
+            //  failure.
+            if (targetDisplayId == Display.INVALID_DISPLAY) {
+                Slogf.w(TAG,
+                        "USER_ASSIGN_FLAG_LAUNCH_HOME ignored as there is no valid main display"
+                                + " in the zone:%d", occupantZoneId);
+                return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+            } else if (targetDisplayId == Display.DEFAULT_DISPLAY) {
+                homeIntent.addCategory(Intent.CATEGORY_HOME);
+            } else { // Secondary display
+                homeIntent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
+            }
+            // TODO(b/243815672) Launch after user is unlocked if it is not direct boot aware.
+            mContext.startActivityAsUser(homeIntent, user);
+        }
+
+        return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+    }
+
+    @Override
+    public int unassignOccupantZone(int occupantZoneId) {
+        CarServiceUtils.assertAnyPermission(mContext, android.Manifest.permission.MANAGE_USERS,
+                Car.PERMISSION_MANAGE_OCCUPANT_ZONE);
+
+        long token = Binder.clearCallingIdentity();
+        try {
+            return unassignOccupantZoneUnchecked(occupantZoneId);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
+    }
+
+    /**
+     * Precondition: permission check should be done and binder caller identity should be cleared.
+     */
+    private int unassignOccupantZoneUnchecked(int occupantZoneId) {
+        synchronized (mLock) {
+            OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
+            if (config == null) {
+                Slogf.w(TAG, "Invalid zone:%d", occupantZoneId);
+                throw new IllegalArgumentException("Invalid occupantZoneId:" + occupantZoneId);
+            }
+            if (config.userId == CarOccupantZoneManager.INVALID_USER_ID) {
+                // already unassigned
+                Slogf.w(TAG, "unassignOccupantZone for already unassigned zone:%d",
+                        occupantZoneId);
+                return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+            }
+            OccupantZoneInfo info = mOccupantsConfig.get(occupantZoneId);
+            if (info.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
+                Slogf.w(TAG, "Cannot unassign driver zone");
+                return CarOccupantZoneManager.USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE;
+            }
+            Slogf.d(TAG, "Unassigned zone:%d", occupantZoneId);
+            config.userId = CarOccupantZoneManager.INVALID_USER_ID;
+        }
+        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+
+        return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+    }
+
+    @Override
+    public OccupantZoneInfo getMyOccupantZone() {
+        int uid = Binder.getCallingUid();
+        // UserHandle.getUserId(uid) can do this in one step but it is hidden API.
+        UserHandle user = UserHandle.getUserHandleForUid(uid);
+        int userId = user.getIdentifier();
+        synchronized (mLock) {
+            for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+                OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
+                if (config.userId == userId) {
+                    int zoneId = mActiveOccupantConfigs.keyAt(i);
+                    return mOccupantsConfig.get(zoneId);
+                }
+            }
+        }
+        Slogf.w(TAG, "getMyOccupantZone: No assigned zone for uid:%d", uid);
+        return null;
+    }
+
+    @Override
+    public OccupantZoneInfo getOccupantZone(@OccupantTypeEnum int occupantType,
+            @VehicleAreaSeat.Enum int seat) {
+        synchronized (mLock) {
+            for (int i = 0; i < mActiveOccupantConfigs.size(); i++) {
+                int zoneId = mActiveOccupantConfigs.keyAt(i);
+                OccupantZoneInfo info = mOccupantsConfig.get(zoneId);
+                if (occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER
+                        || occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER) {
+                    if (occupantType == info.occupantType) {
+                        return info;
+                    }
+                } else {
+                    if (occupantType == info.occupantType && seat == info.seat) {
+                        return info;
+                    }
+                }
+            }
+            return null;
+        }
+    }
+
+    @Override
+    public boolean hasDriverZone() {
+        synchronized (mLock) {
+            return mDriverZoneId != OccupantZoneInfo.INVALID_ZONE_ID;
+        }
+    }
+
+    @Override
+    public boolean hasPassengerZones() {
+        synchronized (mLock) {
+            // There can be only one driver zone. So if there is driver, there should be at least
+            // two zones to have passenger. If there is no driver zone, having a zone is enough to
+            // have passenger zone.
+            boolean hasDriver = mDriverZoneId != OccupantZoneInfo.INVALID_ZONE_ID;
+            return mActiveOccupantConfigs.size() > (hasDriver ? 1 : 0);
+        }
     }
 
     /**
@@ -880,7 +1052,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (config.displayInfos.isEmpty()) {
                 continue;
             }
-            // user like driver can have multiple zones assigned, so add them all.
+            // Do not allow any user if it is unassigned.
+            if (config.userId == CarOccupantZoneManager.INVALID_USER_ID) {
+                continue;
+            }
             IntArray displays = allowlists.get(config.userId);
             if (displays == null) {
                 displays = new IntArray();
@@ -1023,10 +1198,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
             mOccupantsConfig.put(zoneId, info);
         }
-        if (!hasDriver) {
+        // No zones defined. Then populate driver zone.
+        if (maxZoneId == OccupantZoneInfo.INVALID_ZONE_ID) {
             maxZoneId++;
             mDriverZoneId = maxZoneId;
-            Slogf.w(TAG, "No driver zone, add one:%d", mDriverZoneId);
+            Slogf.w(TAG, "No zones defined, add one as driver:%d", mDriverZoneId);
             OccupantZoneInfo info = new OccupantZoneInfo(mDriverZoneId,
                     CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER, getDriverSeat());
             mOccupantsConfig.put(mDriverZoneId, info);
@@ -1125,9 +1301,17 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
         Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
         if (findDisplayConfigForDisplayLocked(defaultDisplay) == null) {
-            Slogf.w(TAG, "No default display configuration, will assign to driver zone");
+            int zoneForDefaultDisplay = mDriverZoneId;
+            if (zoneForDefaultDisplay == OccupantZoneInfo.INVALID_ZONE_ID) {
+                // No driver zone but we still need to allocate the default display to the 1st zone,
+                // zone id 0.
+                zoneForDefaultDisplay = 0;
+            }
+            Slogf.w(TAG, "No default display configuration, will assign to zone:"
+                    + zoneForDefaultDisplay);
             mDisplayUniqueIdConfigs.put(DisplayHelper.getUniqueId(defaultDisplay),
-                    new DisplayConfig(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mDriverZoneId));
+                    new DisplayConfig(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                            zoneForDefaultDisplay));
         }
     }
 
@@ -1175,7 +1359,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @GuardedBy("mLock")
-    private void updateEnabledProfilesLocked(int userId) {
+    private void updateEnabledProfilesLocked(@UserIdInt int userId) {
         mProfileUsers.clear();
         List<UserHandle> profileUsers = mUserHandleHelper.getEnabledProfiles(userId);
         for (UserHandle profiles : profileUsers) {
@@ -1185,25 +1369,75 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    @GuardedBy("mLock")
-    private void handleUserChangesLocked() {
-        int driverUserId = getCurrentUser();
-
-        if (mEnableProfileUserAssignmentForMultiDisplay) {
-            updateEnabledProfilesLocked(driverUserId);
+    @VisibleForTesting
+    @SuppressLint("NewApi")
+    boolean isUserVisible(UserHandle user) {
+        if (Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            // createContextAsUser throw exception if user does not exist. So it is not a reliable
+            // way to query it from car service. We need to catch the exception.
+            // TODO(b/243864134) Plumb to CarServiceHelper to use UserManagerInternal instead.
+            try {
+                Context userContext = mContext.createContextAsUser(user, /* flags= */ 0);
+                UserManager userManager = userContext.getSystemService(UserManager.class);
+                return userManager.isUserVisible();
+            } catch (Exception e) {
+                Slogf.w(TAG, "Cannot create User Context for user:" + user.getIdentifier(), e);
+                return false;
+            }
         }
 
+        // This is legacy path for T where there is no visible user but we can still support profile
+        // user as visible as long as it belongs to the current user.
+        int currentUser = getCurrentUser();
+        int userId = user.getIdentifier();
+        if (userId == currentUser) {
+            return true;
+        }
+        synchronized (mLock) {
+            if (mProfileUsers.contains(userId)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /** Returns {@code true} if user allocation has changed */
+    @GuardedBy("mLock")
+    private boolean handleUserChangesLocked() {
+        int currentUserId = getCurrentUser();
+
+        if (mEnableProfileUserAssignmentForMultiDisplay) {
+            updateEnabledProfilesLocked(currentUserId);
+        }
+
+        boolean changed = false;
         for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
             int zoneId = mActiveOccupantConfigs.keyAt(i);
             OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
-            // mProfileUsers empty if not supported
-            if (mProfileUsers.contains(config.userId)) {
-                Slogf.i(TAG, "Profile user:%d already assigned for occupant zone:%d",
-                        config.userId, zoneId);
-            } else {
-                config.userId = driverUserId;
+            OccupantZoneInfo info = mOccupantsConfig.get(zoneId);
+            // Assign the current user to the driver zone if there is a driver zone.
+            if (info.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER
+                    && config.userId != currentUserId) {
+                config.userId = currentUserId;
+                changed = true;
+                Slogf.d(TAG, "Changed driver, current user change to %d",
+                        currentUserId);
+                continue;
+            }
+            // Do not touch if the zone is un-assigned.
+            if (config.userId == CarOccupantZoneManager.INVALID_USER_ID) {
+                continue;
+            }
+            // Now it will be non-driver valid user id.
+            if (!isUserVisible(UserHandle.of(config.userId))) {
+                Slogf.d(TAG, "Unassigned no longer visible user:%d", config.userId);
+                config.userId = CarOccupantZoneManager.INVALID_USER_ID;
+                changed = true;
             }
         }
+
+        return changed;
     }
 
     @GuardedBy("mLock")
@@ -1246,10 +1480,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     private void handleUserChange() {
+        boolean changed;
         synchronized (mLock) {
-            handleUserChangesLocked();
+            changed = handleUserChangesLocked();
         }
-        sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        if (changed) {
+            sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
+        }
     }
 
     private void handlePassengerStarted() {
@@ -1263,9 +1500,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     private void handleDisplayChange() {
         synchronized (mLock) {
             handleActiveDisplaysLocked();
-            //audio zones should be re-checked for changed display
+            // Audio zones should be re-checked for changed display
             handleAudioZoneChangesLocked();
-            // user should be re-checked for changed displays
+            // User should be re-checked for changed displays
             handleUserChangesLocked();
         }
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_DISPLAY);

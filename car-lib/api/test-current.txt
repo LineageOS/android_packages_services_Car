@@ -67,6 +67,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) public static final String PERMISSION_MANAGE_OCCUPANT_ZONE = "android.car.permission.MANAGE_OCCUPANT_ZONE";
     field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_1) public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
@@ -116,9 +117,16 @@ package android.car {
   }
 
   public class CarOccupantZoneManager {
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.car.Car.PERMISSION_MANAGE_OCCUPANT_ZONE}) public int assignVisibleUserToOccupantZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo, @NonNull android.os.UserHandle, int);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int getAudioZoneIdForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @RequiresPermission(android.car.Car.ACCESS_PRIVATE_DISPLAY_ID) public int getDisplayIdForDriver(int);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0) @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.car.Car.PERMISSION_MANAGE_OCCUPANT_ZONE}) public int unassignOccupantZone(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGN_FLAG_LAUNCH_HOME = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED = 1; // 0x1
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE = 3; // 0x3
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER = 2; // 0x2
+    field @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) public static final int USER_ASSIGN_RESULT_OK = 0; // 0x0
   }
 
   public final class CarProjectionManager {
