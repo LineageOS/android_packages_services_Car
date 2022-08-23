@@ -109,8 +109,7 @@ public class CarAudioZoneTest {
                 assertThrows(IllegalArgumentException.class,
                         () -> mTestAudioZone.getAddressForContext(INVALID));
 
-        assertThat(thrown).hasMessageThat()
-                .contains("Car audio context " + INVALID + " is invalid");
+        assertThat(thrown).hasMessageThat().contains("audioContext 0 is invalid");
     }
 
     @Test

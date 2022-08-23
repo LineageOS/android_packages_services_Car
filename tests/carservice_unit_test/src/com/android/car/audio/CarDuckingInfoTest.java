@@ -28,7 +28,6 @@ import static org.mockito.Mockito.mock;
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
-import android.media.AudioAttributes;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -42,11 +41,9 @@ public class CarDuckingInfoTest {
     private static final int ZONE_ID = 0;
     private static final List<String> ADDRESSES_TO_DUCK = List.of("address1", "address2");
     private static final List<String> ADDRESSES_TO_UNDUCK = List.of("address3", "address4");
-    private static final List<AudioAttributes> USAGES_HOLDING_FOCUS =
-            List.of(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                    CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
+    private static final int[] USAGES_HOLDING_FOCUS = {USAGE_MEDIA, USAGE_NOTIFICATION};
     private static final List<PlaybackTrackMetadata> PLAYBACKTRACK_METADATA_HOLDING_FOCUS =
-            CarHalAudioUtils.audioAttributesToMetadatas(
+            CarHalAudioUtils.usagesToMetadatas(
                     USAGES_HOLDING_FOCUS, mock(CarAudioZone.class, RETURNS_DEEP_STUBS));
 
     @Test
@@ -74,7 +71,7 @@ public class CarDuckingInfoTest {
     }
 
     @Test
-    public void constructor_nullPlaybackMetadataHoldingFocus_throws() {
+    public void constructor_nullusagesHoldingFocus_throws() {
         assertThrows(
                 NullPointerException.class,
                 () -> new CarDuckingInfo(ZONE_ID, ADDRESSES_TO_DUCK, ADDRESSES_TO_UNDUCK, null));

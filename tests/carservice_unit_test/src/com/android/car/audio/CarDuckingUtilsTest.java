@@ -24,6 +24,7 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_NOTIFICATION;
 import static android.media.AudioAttributes.USAGE_SAFETY;
 import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
+import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.EMERGENCY;
@@ -40,7 +41,6 @@ import static org.mockito.Mockito.when;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
-import android.media.AudioManager;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -108,59 +108,43 @@ public class CarDuckingUtilsTest {
     }
 
     @Test
-    public void getAudioAttributesHoldingFocus_withNoHolders_returnsEmptyArray() {
-        List<AudioAttributes> audioAttributesList =
-                CarDuckingUtils.getAudioAttributesHoldingFocus(new ArrayList<>());
+    public void getUsagesHoldingFocus_withNoHolders_returnsEmptyArray() {
+        int[] usages = CarDuckingUtils.getUsagesHoldingFocus(new ArrayList<>());
 
-        assertWithMessage("Audio attribute list")
-                .that(audioAttributesList).isEmpty();
+        assertThat(usages).isEmpty();
     }
 
     @Test
-    public void getAudioAttributesHoldingFocus_removesDuplicateUsages() {
-        List<AudioAttributes> audioAttributes = new ArrayList<>(/* initialCapacity= */ 3);
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
-        List<AudioFocusInfo> focusHolders =
-                generateAudioFocusInfoForAudioAttributes(audioAttributes);
+    public void getUsagesHoldingFocus_removesDuplicateUsages() {
+        List<AudioFocusInfo> focusHolders = List.of(
+                generateAudioFocusInfoForUsage(USAGE_NOTIFICATION),
+                generateAudioFocusInfoForUsage(USAGE_MEDIA),
+                generateAudioFocusInfoForUsage(USAGE_NOTIFICATION));
 
-        List<AudioAttributes> attributesHoldingFocus =
-                CarDuckingUtils.getAudioAttributesHoldingFocus(focusHolders);
+        int[] usages = CarDuckingUtils.getUsagesHoldingFocus(focusHolders);
 
-        assertWithMessage(" Attributes holding focus")
-                .that(attributesHoldingFocus)
-                .containsExactly(CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION),
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+        assertThat(usages).hasLength(2);
+        assertThat(usages).asList().containsExactly(USAGE_MEDIA, USAGE_NOTIFICATION);
     }
 
     @Test
-    public void getAudioAttributesHoldingFocus_includesSystemAudioAttributes() {
-        List<AudioAttributes> audioAttributes = new ArrayList<>(/* initialCapacity= */ 3);
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY));
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
-        List<AudioFocusInfo> focusHolders =
-                generateAudioFocusInfoForAudioAttributes(audioAttributes);
+    public void getUsagesHoldingFocus_includesSystemUsages() {
+        List<AudioFocusInfo> focusHolders = List.of(generateAudioFocusInfoForUsage(USAGE_MEDIA),
+                generateAudioFocusInfoForSystemUsage(USAGE_SAFETY),
+                generateAudioFocusInfoForSystemUsage(USAGE_EMERGENCY));
 
-        List<AudioAttributes> audioAttributesHoldingFocus =
-                CarDuckingUtils.getAudioAttributesHoldingFocus(focusHolders);
+        int[] usages = CarDuckingUtils.getUsagesHoldingFocus(focusHolders);
 
-        assertWithMessage("Attributes holding focus")
-                .that(audioAttributesHoldingFocus).containsExactly(
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_EMERGENCY));
+        assertThat(usages).hasLength(3);
+        assertThat(usages).asList().containsExactly(USAGE_MEDIA, USAGE_SAFETY, USAGE_EMERGENCY);
     }
 
     @Test
     public void getAddressesToDuck_withOneUsage_returnsEmptyList() {
         CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME));
 
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
+        List<String> addresses = CarDuckingUtils.getAddressesToDuck(new int[]{USAGE_MEDIA,
+                USAGE_GAME}, mockZone);
 
         assertThat(addresses).isEmpty();
     }
@@ -168,11 +152,9 @@ public class CarDuckingUtilsTest {
     @Test
     public void getAddressesToDuck_withMultipleUsagesForTheSameContext_returnsEmptyList() {
         CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_GAME));
 
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
+        List<String> addresses = CarDuckingUtils.getAddressesToDuck(new int[]{USAGE_MEDIA,
+                USAGE_GAME}, mockZone);
 
         assertThat(addresses).isEmpty();
     }
@@ -180,12 +162,10 @@ public class CarDuckingUtilsTest {
     @Test
     public void getAddressesToDuck_onlyReturnsDevicesForUsagesHoldingFocus() {
         CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+        int[] usages =
+                new int[]{USAGE_MEDIA, USAGE_SAFETY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE};
 
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
+        List<String> addresses = CarDuckingUtils.getAddressesToDuck(usages, mockZone);
 
         assertThat(addresses).containsExactly(MEDIA_ADDRESS, NAVIGATION_ADDRESS);
     }
@@ -193,10 +173,9 @@ public class CarDuckingUtilsTest {
     @Test
     public void getAddressesToDuck_doesNotConsidersInvalidUsage() {
         CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_VIRTUAL_SOURCE));
+        int[] usages = new int[]{USAGE_VIRTUAL_SOURCE};
 
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
+        List<String> addresses = CarDuckingUtils.getAddressesToDuck(usages, mockZone);
 
         assertThat(addresses).isEmpty();
     }
@@ -205,12 +184,9 @@ public class CarDuckingUtilsTest {
     public void getAddressesToDuck_withDuckedAndUnduckedContextsSharingDevice_excludesThatDevice() {
         CarAudioZone mockZone = generateAudioZoneMock();
         when(mockZone.getAddressForContext(CarAudioContext.SAFETY)).thenReturn(NAVIGATION_ADDRESS);
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
+        int[] usages = new int[]{USAGE_MEDIA, USAGE_SAFETY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE};
 
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
+        List<String> addresses = CarDuckingUtils.getAddressesToDuck(usages, mockZone);
 
         assertThat(addresses).containsExactly(MEDIA_ADDRESS);
     }
@@ -219,12 +195,9 @@ public class CarDuckingUtilsTest {
     public void getAddressesToDuck_withDuckedContextsSharingADevice_includesAddressOnce() {
         CarAudioZone mockZone = generateAudioZoneMock();
         when(mockZone.getAddressForContext(CarAudioContext.ALARM)).thenReturn(MEDIA_ADDRESS);
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_ALARM));
+        int[] usages = new int[]{USAGE_MEDIA, USAGE_SAFETY, USAGE_ALARM};
 
-        List<String> addresses = CarDuckingUtils.getAddressesToDuck(audioAttributes, mockZone);
+        List<String> addresses = CarDuckingUtils.getAddressesToDuck(usages, mockZone);
 
         assertThat(addresses).containsExactly(MEDIA_ADDRESS);
     }
@@ -255,24 +228,16 @@ public class CarDuckingUtilsTest {
     @Test
     public void generateDuckingInfo_succeed() {
         CarAudioZone mockZone = generateAudioZoneMock();
-        List<AudioAttributes> audioAttributes = new ArrayList<>(/* initialCapacity= */ 3);
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
-        audioAttributes.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_SAFETY));
-        audioAttributes.add(CarAudioContext
-                .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
-        List<AudioAttributes> audioAttributesWithoutSafety =
-                new ArrayList<>(/* initialCapacity= */ 2);
-        audioAttributesWithoutSafety.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
-        audioAttributesWithoutSafety.add(CarAudioContext
-                .getAudioAttributeFromUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
-        List<AudioAttributes> audioAttributesWithOnlyMedia =
-                new ArrayList<>(/* initialCapacity= */ 1);
-        audioAttributesWithOnlyMedia.add(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
 
         List<AudioFocusInfo> focusHolders =
-                generateAudioFocusInfoForAudioAttributes(audioAttributes);
+                List.of(
+                        generateAudioFocusInfoForUsage(USAGE_MEDIA),
+                        generateAudioFocusInfoForUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE),
+                        generateAudioFocusInfoForSystemUsage(USAGE_SAFETY));
         List<PlaybackTrackMetadata> playbackTrackMetadataHoldingFocus =
-                CarHalAudioUtils.audioAttributesToMetadatas(audioAttributes, mockZone);
+                CarHalAudioUtils.usagesToMetadatas(
+                        new int[] {USAGE_MEDIA, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE, USAGE_SAFETY},
+                        mockZone);
 
         CarDuckingInfo duckingInfo =
                 CarDuckingUtils.generateDuckingInfo(
@@ -286,10 +251,13 @@ public class CarDuckingUtilsTest {
                 .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
 
         // Then decimate safety
-        focusHolders = generateAudioFocusInfoForAudioAttributes(audioAttributesWithoutSafety);
+        focusHolders =
+                List.of(
+                        generateAudioFocusInfoForUsage(USAGE_MEDIA),
+                        generateAudioFocusInfoForUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE));
         playbackTrackMetadataHoldingFocus =
-                CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithoutSafety,
-                        mockZone);
+                CarHalAudioUtils.usagesToMetadatas(
+                        new int[] {USAGE_MEDIA, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE}, mockZone);
 
         CarDuckingInfo duckingInfo1 =
                 CarDuckingUtils.generateDuckingInfo(duckingInfo, focusHolders, mockZone);
@@ -301,9 +269,9 @@ public class CarDuckingUtilsTest {
                 .containsExactlyElementsIn(playbackTrackMetadataHoldingFocus);
 
         // Then decimate nav
-        focusHolders = generateAudioFocusInfoForAudioAttributes(audioAttributesWithOnlyMedia);
+        focusHolders = List.of(generateAudioFocusInfoForUsage(USAGE_MEDIA));
         playbackTrackMetadataHoldingFocus =
-                CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithOnlyMedia, mockZone);
+                CarHalAudioUtils.usagesToMetadatas(new int[] {USAGE_MEDIA}, mockZone);
 
         CarDuckingInfo duckingInfo2 =
                 CarDuckingUtils.generateDuckingInfo(duckingInfo1, focusHolders, mockZone);
@@ -317,7 +285,7 @@ public class CarDuckingUtilsTest {
         // back to none holding focus
         focusHolders = new ArrayList<AudioFocusInfo>();
         playbackTrackMetadataHoldingFocus =
-                CarHalAudioUtils.audioAttributesToMetadatas(audioAttributesWithOnlyMedia, mockZone);
+                CarHalAudioUtils.usagesToMetadatas(new int[] {USAGE_MEDIA}, mockZone);
 
         CarDuckingInfo duckingInfo3 =
                 CarDuckingUtils.generateDuckingInfo(duckingInfo2, focusHolders, mockZone);
@@ -328,22 +296,17 @@ public class CarDuckingUtilsTest {
         assertThat(duckingInfo3.getPlaybackMetaDataHoldingFocus()).isEmpty();
     }
 
-    private static AudioFocusInfo generateAudioFocusInfoForAudioAttributes(
-            AudioAttributes audioAttributes) {
-        return new AudioFocusInfo(audioAttributes, /* clientUid= */ 0,
-                "client_id", "package.name",
-                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT, /* lossReceived= */ 0,
-                /* flags= */ 0, /* sdk= */  0);
+    private static AudioFocusInfo generateAudioFocusInfoForUsage(int usage) {
+        AudioAttributes attributes = new AudioAttributes.Builder().setUsage(usage).build();
+        return new AudioFocusInfo(attributes, 0, "client_id", "package.name",
+                AUDIOFOCUS_GAIN_TRANSIENT, 0, 0, 0);
     }
 
-    private static List<AudioFocusInfo> generateAudioFocusInfoForAudioAttributes(
-            List<AudioAttributes> audioAttributes) {
-        List<AudioFocusInfo> audioFocusInfos = new ArrayList<>(audioAttributes.size());
-        for (int index = 0; index < audioAttributes.size(); index++) {
-            audioFocusInfos
-                    .add(generateAudioFocusInfoForAudioAttributes(audioAttributes.get(index)));
-        }
-        return audioFocusInfos;
+    private static AudioFocusInfo generateAudioFocusInfoForSystemUsage(int systemUsage) {
+        AudioAttributes attributes = new AudioAttributes.Builder().setSystemUsage(
+                systemUsage).build();
+        return new AudioFocusInfo(attributes, 0, "client_id", "package.name",
+                AUDIOFOCUS_GAIN_TRANSIENT, 0, 0, 0);
     }
 
     private static CarAudioZone generateAudioZoneMock() {

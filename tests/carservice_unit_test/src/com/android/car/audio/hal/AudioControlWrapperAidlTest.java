@@ -48,14 +48,12 @@ import android.hardware.automotive.audiocontrol.IAudioGainCallback;
 import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.Reasons;
-import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.android.car.audio.CarAudioContext;
 import com.android.car.audio.CarAudioGainConfigInfo;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.audio.CarHalAudioUtils;
@@ -210,15 +208,13 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
 
     @Test
     public void onDevicesToDuckChange_convertsUsagesToXsdStrings() throws Exception {
-        List<AudioAttributes> audioAttributes = List.of(
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
         CarDuckingInfo carDuckingInfo =
                 new CarDuckingInfo(
                         ZONE_ID,
                         new ArrayList<>(),
                         new ArrayList<>(),
-                        CarHalAudioUtils.audioAttributesToMetadatas(audioAttributes,
+                        CarHalAudioUtils.usagesToMetadatas(
+                                new int[] {USAGE_MEDIA, USAGE_NOTIFICATION},
                                 /* CarAudioZone= */ null));
 
         mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));

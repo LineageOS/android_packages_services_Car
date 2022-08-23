@@ -18,6 +18,7 @@ package com.android.car.audio;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.annotation.NonNull;
 import android.media.AudioFocusInfo;
 import android.util.SparseArray;
 
@@ -42,11 +43,10 @@ final class CarDucking implements CarFocusCallback {
     @GuardedBy("mLock")
     private final SparseArray<CarDuckingInfo> mCurrentDuckingInfo = new SparseArray<>();
 
-    CarDucking(SparseArray<CarAudioZone> carAudioZones, AudioControlWrapper audioControlWrapper) {
-        mCarAudioZones = Objects.requireNonNull(carAudioZones, "Car audio zones can not be null");
-        mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper,
-                        "Audio control wrapper can not be null");
-
+    CarDucking(@NonNull SparseArray<CarAudioZone> carAudioZones,
+            @NonNull AudioControlWrapper audioControlWrapper) {
+        mCarAudioZones = Objects.requireNonNull(carAudioZones);
+        mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper);
         for (int i = 0; i < carAudioZones.size(); i++) {
             int zoneId = carAudioZones.keyAt(i);
             mCurrentDuckingInfo.put(
@@ -65,7 +65,7 @@ final class CarDucking implements CarFocusCallback {
 
     @Override
     public void onFocusChange(int[] audioZoneIds,
-            SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId) {
+            @NonNull SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId) {
         synchronized (mLock) {
             List<CarDuckingInfo> newDuckingInfos = new ArrayList<>(audioZoneIds.length);
             for (int i = 0; i < audioZoneIds.length; i++) {

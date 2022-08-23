@@ -25,14 +25,12 @@ import static com.android.car.audio.CarAudioContext.NOTIFICATION;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.audio.policy.configuration.V7_0.AudioUsage;
 import android.hardware.audio.common.PlaybackTrackMetadata;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
-import android.media.AudioAttributes;
 import android.media.audio.common.AudioDevice;
 import android.media.audio.common.AudioDeviceAddress;
 import android.media.audio.common.AudioDeviceDescription;
@@ -56,12 +54,7 @@ public class CarHalAudioUtilsTest {
     private static final String NOTIFICATION_ADDRESS = "NOTIFICATION_ADDRESS";
     private static final List<String> ADDRESSES_TO_DUCK = List.of("address1", "address2");
     private static final List<String> ADDRESSES_TO_UNDUCK = List.of("address3", "address4");
-    private static final AudioAttributes MEDIA_AUDIO_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA);
-    private static final AudioAttributes NOTIFICATION_AUDIO_ATTRIBUTE =
-            CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION);
-    private static final List<AudioAttributes> AUDIO_ATTRIBUTES_HOLDING_FOCUS = List.of(
-            MEDIA_AUDIO_ATTRIBUTE, NOTIFICATION_AUDIO_ATTRIBUTE);
+    private static final int[] USAGES_HOLDING_FOCUS = {USAGE_MEDIA, USAGE_NOTIFICATION};
     private static final String[] USAGES_LITERAL_HOLDING_FOCUS = {
         AudioUsage.AUDIO_USAGE_MEDIA.toString(), AudioUsage.AUDIO_USAGE_NOTIFICATION.toString()
     };
@@ -75,19 +68,19 @@ public class CarHalAudioUtilsTest {
 
     @Before
     public void setUp() {
-        for (int index = 0; index < AUDIO_ATTRIBUTES_HOLDING_FOCUS.size(); index++) {
+        for (int index = 0; index < USAGES_HOLDING_FOCUS.length; index++) {
             PlaybackTrackMetadata playbackTrackMetadata = new PlaybackTrackMetadata();
-            playbackTrackMetadata.usage =
-                    AUDIO_ATTRIBUTES_HOLDING_FOCUS.get(index).getSystemUsage();
+            playbackTrackMetadata.usage = USAGES_HOLDING_FOCUS[index];
 
             AudioDeviceDescription add = new AudioDeviceDescription();
             add.connection = new String();
             AudioDevice ad = new AudioDevice();
             ad.type = add;
             ad.address =
-                    AudioDeviceAddress.id(mCarAudioZone.getAddressForContext(
-                                    CarAudioContext.getContextForAudioAttribute(
-                                            AUDIO_ATTRIBUTES_HOLDING_FOCUS.get(index))));
+                    AudioDeviceAddress.id(
+                            mCarAudioZone.getAddressForContext(
+                                    CarAudioContext.getContextForUsage(
+                                            USAGES_HOLDING_FOCUS[index])));
             playbackTrackMetadata.sourceDevice = ad;
 
             mPlaybackTrackMetadataHoldingFocus.add(playbackTrackMetadata);
@@ -98,8 +91,7 @@ public class CarHalAudioUtilsTest {
     public void generateDuckingInfo_succeeds() {
         DuckingInfo duckingInfo = CarHalAudioUtils.generateDuckingInfo(getCarDuckingInfo());
 
-        assertWithMessage("Generated duck info zone ")
-                .that(duckingInfo.zoneId).isEqualTo(ZONE_ID);
+        assertWithMessage("Generated duck info zone ").that(duckingInfo.zoneId).isEqualTo(ZONE_ID);
         assertWithMessage("Generated duck info addresses to duck")
                 .that(duckingInfo.deviceAddressesToDuck)
                 .asList()
@@ -115,19 +107,9 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void generateDuckingInfo_withNullDuckingInfo_fails() {
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            CarHalAudioUtils.generateDuckingInfo(null);
-        });
-
-        assertWithMessage("Null ducking info exception")
-                .that(thrown).hasMessageThat().contains("Car Ducking Info can not be null");
-    }
-
-    @Test
-    public void audioAttributeToMetadata_succeeds() {
+    public void usageToMetadata_succeeds() {
         PlaybackTrackMetadata playbackTrackMetadata =
-                CarHalAudioUtils.audioAttributeToMetadata(MEDIA_AUDIO_ATTRIBUTE, mCarAudioZone);
+                CarHalAudioUtils.usageToMetadata(USAGE_MEDIA, mCarAudioZone);
         assertWithMessage("Playback Track Metadata usage")
                 .that(playbackTrackMetadata.usage)
                 .isEqualTo(USAGE_MEDIA);
@@ -137,10 +119,9 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void audioAttributeToMetadata_withNullZone_succeeds() {
+    public void usageToMetadata_withNullZone_succeeds() {
         PlaybackTrackMetadata playbackTrackMetadata =
-                CarHalAudioUtils.audioAttributeToMetadata(MEDIA_AUDIO_ATTRIBUTE,
-                        /* CarAudioZone= */ null);
+                CarHalAudioUtils.usageToMetadata(USAGE_MEDIA, /*CarAudioZone=*/ null);
         assertWithMessage("Playback Track Metadata usage")
                 .that(playbackTrackMetadata.usage)
                 .isEqualTo(USAGE_MEDIA);
@@ -151,16 +132,15 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void audioAttributesToMetadatas_succeeds() {
+    public void usagesToMetadatas_succeeds() {
         List<PlaybackTrackMetadata> playbackTrackMetadataList =
-                CarHalAudioUtils.audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS,
-                        mCarAudioZone);
+                CarHalAudioUtils.usagesToMetadatas(USAGES_HOLDING_FOCUS, mCarAudioZone);
 
         assertWithMessage(
                         "Converted PlaybackTrackMetadata size for usages holding focus size %s",
-                        AUDIO_ATTRIBUTES_HOLDING_FOCUS.size())
+                        USAGES_HOLDING_FOCUS.length)
                 .that(playbackTrackMetadataList.size())
-                .isEqualTo(AUDIO_ATTRIBUTES_HOLDING_FOCUS.size());
+                .isEqualTo(USAGES_HOLDING_FOCUS.length);
 
         int[] usages = new int[playbackTrackMetadataList.size()];
         String[] addresses = new String[playbackTrackMetadataList.size()];
@@ -180,17 +160,18 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void audioAttributesToMetadatas_withNullZone_succeeds() {
-        List<PlaybackTrackMetadata> playbackTrackMetadataList = CarHalAudioUtils
-                .audioAttributesToMetadatas(AUDIO_ATTRIBUTES_HOLDING_FOCUS, /*CarAudioZone=*/ null);
+    public void usagesToMetadatas_withNullZone_succeeds() {
+        List<PlaybackTrackMetadata> playbackTrackMetadataList =
+                CarHalAudioUtils.usagesToMetadatas(USAGES_HOLDING_FOCUS, /*CarAudioZone=*/ null);
 
         assertWithMessage(
                         "Converted PlaybackTrackMetadata size for usages holding focus size %s",
-                        AUDIO_ATTRIBUTES_HOLDING_FOCUS.size())
+                        USAGES_HOLDING_FOCUS.length)
                 .that(playbackTrackMetadataList.size())
-                .isEqualTo(AUDIO_ATTRIBUTES_HOLDING_FOCUS.size());
+                .isEqualTo(USAGES_HOLDING_FOCUS.length);
 
         int[] usages = new int[playbackTrackMetadataList.size()];
+        String[] addresses = new String[playbackTrackMetadataList.size()];
         for (int index = 0; index < playbackTrackMetadataList.size(); index++) {
             PlaybackTrackMetadata playbackTrackMetadata = playbackTrackMetadataList.get(index);
             usages[index] = playbackTrackMetadata.usage;
@@ -206,39 +187,32 @@ public class CarHalAudioUtilsTest {
     }
 
     @Test
-    public void metadataToAudioAttribute_succeeds() {
+    public void metadataToUsage_succeeds() {
         for (int index = 0; index < mPlaybackTrackMetadataHoldingFocus.size(); index++) {
             PlaybackTrackMetadata playbackTrackMetadata =
                     mPlaybackTrackMetadataHoldingFocus.get(index);
-            AudioAttributes audioAttribute =
-                    CarHalAudioUtils.metadataToAudioAttribute(playbackTrackMetadata);
-            assertWithMessage("Build Converted PlaybackTrackMetadata[%s] audio attribute",
-                    playbackTrackMetadata)
-                    .that(audioAttribute)
-                    .isEqualTo(CarAudioContext
-                            .getAudioAttributeFromUsage(playbackTrackMetadata.usage));
+            int usage = CarHalAudioUtils.metadataToUsage(playbackTrackMetadata);
+            assertWithMessage(
+                            "Buld Converted PlaybackTrackMetadata[%s] usage", playbackTrackMetadata)
+                    .that(usage)
+                    .isEqualTo(playbackTrackMetadata.usage);
         }
     }
 
     @Test
-    public void metadataToAudioAttributes_succeeds() {
-        List<AudioAttributes> audioAttributesList =
-                CarHalAudioUtils.metadataToAudioAttributes(mPlaybackTrackMetadataHoldingFocus);
+    public void metadatasToUsages_succeeds() {
+        int[] usages = CarHalAudioUtils.metadatasToUsages(mPlaybackTrackMetadataHoldingFocus);
+        assertThat(usages.length).isEqualTo(mPlaybackTrackMetadataHoldingFocus.size());
+        assertThat(usages).asList().containsExactly(USAGE_MEDIA, USAGE_NOTIFICATION);
 
-        assertThat(audioAttributesList.size()).isEqualTo(mPlaybackTrackMetadataHoldingFocus.size());
-        assertThat(audioAttributesList)
-                .containsExactly(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA),
-                        CarAudioContext.getAudioAttributeFromUsage(USAGE_NOTIFICATION));
-
-        for (int index = 0; index < audioAttributesList.size(); index++) {
-            AudioAttributes audioAttribute = audioAttributesList.get(index);
+        for (int index = 0; index < usages.length; index++) {
+            int usage = usages[index];
             PlaybackTrackMetadata playbackTrackMetadata =
                     mPlaybackTrackMetadataHoldingFocus.get(index);
-            assertWithMessage("Build converted playback track metadata [%s] audio attribute",
-                    playbackTrackMetadata)
-                    .that(audioAttribute)
-                    .isEqualTo(CarAudioContext
-                            .getAudioAttributeFromUsage(playbackTrackMetadata.usage));
+            assertWithMessage(
+                            "Buld Converted PlaybackTrackMetadata[%s] usage", playbackTrackMetadata)
+                    .that(usage)
+                    .isEqualTo(playbackTrackMetadata.usage);
         }
     }
 
