@@ -91,7 +91,7 @@ public final class PackageManagerHelper {
         } catch (RuntimeException e) {
             throw new IllegalStateException("Invalid component name defined by "
                     + "com.android.internal.R.string.config_systemUIServiceComponent resource: "
-                    + flattenName);
+                    + flattenName, e);
         }
     }
 

@@ -815,7 +815,8 @@ public class CarTelemetryTestFragment extends Fragment {
             return new String(bytes);
         } catch (IOException e) {
             throw new RuntimeException(
-                    "Unable to send MetricsConfig, because reading Lua script from file failed.");
+                    "Unable to send MetricsConfig, because reading Lua script from file failed.",
+                    e);
         }
     }
 
