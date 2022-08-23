@@ -133,7 +133,10 @@ cc_test {
         "libwatchdog_process_service_defaults",
         "libwatchdog_service_manager_defaults",
     ],
-    test_suites: ["general-tests"],
+    test_suites: [
+        "general-tests",
+        "automotive-tests",
+    ],
     tidy_disabled_srcs: [
         // b/207508335
         "tests/PackageInfoResolverTest.cpp",
