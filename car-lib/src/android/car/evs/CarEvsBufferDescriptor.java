@@ -23,8 +23,8 @@ import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.car.Car;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.annotation.RequiredFeature;
 import android.hardware.HardwareBuffer;
 import android.os.Parcel;
@@ -107,7 +107,8 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
 
     @Override
     @SuppressLint("GenericException")
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     protected void finalize() throws Throwable {
         try {
             close();
@@ -117,7 +118,8 @@ public final class CarEvsBufferDescriptor implements Parcelable, AutoCloseable {
     }
 
     @Override
-    @AddedIn(majorVersion = 34)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public void close() {
         if (!mHardwareBuffer.isClosed()) {
             mHardwareBuffer.close();

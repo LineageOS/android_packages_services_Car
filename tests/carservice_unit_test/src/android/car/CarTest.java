@@ -282,6 +282,22 @@ public final class CarTest extends AbstractExtendedMockitoTestCase {
         });
     }
 
+    @Test
+    public void testDevelopmentVersion() {
+        /*
+         * TODO(b/242311601): Once U has its own branch
+         * - Change DEVELOPMENT_PLATFORM_CODENAME and DEVELOPMENT_PLATFORM to null in U branch.
+         * - Change DEVELOPMENT_PLATFORM_CODENAME and DEVELOPMENT_PLATFORM to V-release code in
+         *   master branch.
+         * - Update the unit test testDevelopmentVersion for testing special handling of V version
+         *   in master branch.
+         * - Remove the unit test testDevelopmentVersion from U branch as it no longer a development
+         *   branch and doesn't go through the code path of the special logic.
+         */
+        PlatformVersion.forMajorVersion(Integer.MAX_VALUE)
+                .isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
+    }
+
     private void runOnMainSyncSafe(Runnable runnable) {
         if (Looper.getMainLooper() == Looper.myLooper()) {
             runnable.run();

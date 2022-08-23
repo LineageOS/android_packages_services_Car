@@ -15,6 +15,8 @@
  */
 package android.car;
 
+import static android.os.Build.VERSION.CODENAME;
+
 import android.annotation.NonNull;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
@@ -28,6 +30,19 @@ import android.os.Parcelable;
 @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
 public final class PlatformVersion extends ApiVersion<PlatformVersion> implements Parcelable {
+
+    /*
+     * TODO(b/242311601): Once U has its own branch
+     * - Change DEVELOPMENT_PLATFORM_CODENAME and DEVELOPMENT_PLATFORM to null in U branch.
+     * - Change DEVELOPMENT_PLATFORM_CODENAME and DEVELOPMENT_PLATFORM to V-release code in master
+     *   branch.
+     * - Update the unit test testDevelopmentVersion for testing special handling of V version in
+     *   master branch.
+     * - Remove the unit test testDevelopmentVersion from U branch as it no longer a development
+     *   branch and doesn't go through the code path of the special logic.
+     */
+    private static final String DEVELOPMENT_PLATFORM_CODENAME = "UpsideDownCake";
+    private static final PlatformVersion DEVELOPMENT_PLATFORM = VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 
     /**
      * Contains pre-defined versions matching Car releases.
@@ -94,6 +109,28 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
 
     private PlatformVersion(int majorVersion, int minorVersion) {
         super(majorVersion, minorVersion);
+    }
+
+    /**
+     * Checks if this platform version is latest development platform.
+     *
+     * <p>If required platform is development platform, then checks if codename matches and return
+     * false if code name doesn't match. If the required platform is not a development platform,
+     * then return null.
+     */
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    @Override
+    Boolean isAtLeastLatestPlatform(@NonNull PlatformVersion requiredVersion) {
+        // Update this code for each release while development on master branch.
+        if (requiredVersion.equals(DEVELOPMENT_PLATFORM)) {
+            if ("REL".equals(CODENAME)) {
+                return false;
+            }
+            return CODENAME.compareTo(DEVELOPMENT_PLATFORM_CODENAME) >= 0;
+        }
+        return null;
+
     }
 
     @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,

@@ -82,7 +82,7 @@ abstract class CarProvisioningActivityBridgeImpl implements ProvisioningActivity
                 mainLayoutId, /* headerResId= */ null);
         activity.setTitle(titleResId);
 
-        CarSetupWizardLayoutHelper layoutHelper = setupBasicLayout(activity, subLayoutId);
+        setupBasicLayout(activity, subLayoutId);
 
         setupEducationViews(getShouldSkipEducationScreens(), getProgressLabelResId());
     }
