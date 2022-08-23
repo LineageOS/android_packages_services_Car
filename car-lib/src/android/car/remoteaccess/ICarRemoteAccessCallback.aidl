@@ -26,7 +26,7 @@ oneway interface ICarRemoteAccessCallback {
      * @param deviceId Globally unique identifier to specify the vehicle.
      * @param clientId Locally unique identifier to specify the remote task client.
      */
-     void onRegistrationUpdated(in String serviceId, in String deviceId, in String clientId);
+     void onClientRegistrationUpdated(in String serviceId, in String deviceId, in String clientId);
 
     /**
      * Called when registering the remote task client fails.

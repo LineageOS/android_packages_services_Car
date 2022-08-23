@@ -27,13 +27,17 @@ import android.car.CarManagerBase;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
 import android.car.annotation.ApiRequirements.PlatformVersion;
+import android.car.builtin.util.Slogf;
 import android.os.IBinder;
+import android.os.RemoteException;
+
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -104,6 +108,79 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     public @interface NextPowerState {}
 
     private final ICarRemoteAccessService mService;
+    private final Object mLock = new Object();
+
+    private final ICarRemoteAccessCallback mCarRemoteAccessCallback =
+            new ICarRemoteAccessCallback.Stub() {
+        @Override
+        public void onClientRegistrationUpdated(String serviceId, String deviceId,
+                String clientId) {
+            RemoteTaskClientCallback callback;
+            Executor executor;
+            synchronized (mLock) {
+                if (mRemoteTaskClientCallback == null || mExecutor == null) {
+                    Slogf.w(TAG, "Cannot call onRegistrationUpdated because no remote task client "
+                            + "is registered");
+                    return;
+                }
+                mCurrentClientId = clientId;
+                callback = mRemoteTaskClientCallback;
+                executor = mExecutor;
+            }
+            executor.execute(() -> callback.onRegistrationUpdated(serviceId, deviceId, clientId));
+        }
+
+        @Override
+        public void onClientRegistrationFailed() {
+            RemoteTaskClientCallback callback;
+            Executor executor;
+            synchronized (mLock) {
+                if (mRemoteTaskClientCallback == null || mExecutor == null) {
+                    Slogf.w(TAG, "Cannot call onRegistrationFailed because no remote task client "
+                            + "is registered");
+                    return;
+                }
+                callback = mRemoteTaskClientCallback;
+                executor = mExecutor;
+            }
+            executor.execute(() -> callback.onRegistrationFailed());
+        }
+
+        @Override
+        public void onRemoteTaskRequested(String clientId, String taskId, byte[] data,
+                int taskMaxDurationInSec) {
+            RemoteTaskClientCallback callback;
+            Executor executor;
+            synchronized (mLock) {
+                if (mCurrentClientId == null || !mCurrentClientId.equals(clientId)) {
+                    Slogf.w(TAG, "Received a task for a mismatched client ID(%s): the current "
+                            + "client ID = %s", clientId, mCurrentClientId);
+                    return;
+                }
+                callback = mRemoteTaskClientCallback;
+                executor = mExecutor;
+            }
+            if (callback == null || executor == null) {
+                Slogf.w(TAG, "Cannot call onRemoteTaskRequested because no remote task client is "
+                        + "registered");
+                return;
+            }
+            executor.execute(() -> callback.onRemoteTaskRequested(taskId, data,
+                    taskMaxDurationInSec));
+        }
+
+        @Override
+        public void onShutdownStarting() {
+            // TODO(b/253304673): Implememnt async future completion handling.
+        }
+    };
+
+    @GuardedBy("mLock")
+    private RemoteTaskClientCallback mRemoteTaskClientCallback;
+    @GuardedBy("mLock")
+    private Executor mExecutor;
+    @GuardedBy("mLock")
+    private String mCurrentClientId;
 
     /**
      * An interface passed from {@link RemoteTaskClientCallback}.
@@ -192,20 +269,42 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      *
      * @param executor Executor on which {@code callback} is executed.
      * @param callback {@link RemoteTaskClientCallback} that listens to remote task events.
+     * @throws IllegalStateException When a remote task client is already set.
+     * @throws IllegalArgumentException When the given callback or the executor is {@code null}.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setRemoteTaskClient(@NonNull @CallbackExecutor Executor executor,
             @NonNull RemoteTaskClientCallback callback) {
-        Objects.requireNonNull(executor, "Executor cannot be null");
-        Objects.requireNonNull(callback, "Callback cannot be null");
+        Preconditions.checkArgument(executor != null, "Executor cannot be null");
+        Preconditions.checkArgument(callback != null, "Callback cannot be null");
 
-        // TODO(b/134519794): Implement the logic.
+        synchronized (mLock) {
+            if (mRemoteTaskClientCallback != null) {
+                throw new IllegalStateException("Remote task client must be cleared first");
+            }
+            mRemoteTaskClientCallback = callback;
+            mExecutor = executor;
+        }
+
+        try {
+            mService.addCarRemoteTaskClient(mCarRemoteAccessCallback);
+        } catch (RemoteException e) {
+            synchronized (mLock) {
+                mRemoteTaskClientCallback = null;
+                mExecutor = null;
+            }
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
      * Clears the remote task client previously set via {@link setRemoteTaskClient}.
+     *
+     * <p>After the remote task client is cleared, all tasks associated with the previous client
+     * will not be delivered and the client must not call {@code reportRemoteTaskDone} with the
+     * task ID associated with the previous client ID.
      *
      * @throws IllegalStateException if {@code callback} is not registered.
      */
@@ -213,7 +312,20 @@ public final class CarRemoteAccessManager extends CarManagerBase {
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void clearRemoteTaskClient() {
-        // TODO(b/134519794): Implement the logic.
+        synchronized (mLock) {
+            if (mRemoteTaskClientCallback == null) {
+                Slogf.w(TAG, "No registered remote task client to clear");
+                return;
+            }
+            mRemoteTaskClientCallback = null;
+            mExecutor = null;
+            mCurrentClientId = null;
+        }
+        try {
+            mService.removeCarRemoteTaskClient(mCarRemoteAccessCallback);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
@@ -221,17 +333,32 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      * power state before the wake-up.
      *
      * @param taskId ID of the remote task which has been completed.
-     * @throws NullPointerException if {@code taskId} is {@code null}.
-     * @throws IllegalArgumentException if {@code taskId} is invalid.
-     * @throws IllegalStateException if the remote task client is not registered or not woken up.
+     * @throws IllegalArgumentException If {@code taskId} is null.
+     * @throws IllegalStateException If the remote task client is not registered or not woken up.
      */
     @RequiresPermission(Car.PERMISSION_USE_REMOTE_ACCESS)
     @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void reportRemoteTaskDone(@NonNull String taskId) {
-        Objects.requireNonNull(taskId, "Task ID cannot be null");
+        Preconditions.checkArgument(taskId != null, "Task ID cannot be null");
 
-        // TODO(b/134519794): Implement the logic.
+        String currentClientId;
+        synchronized (mLock) {
+            if (mCurrentClientId == null) {
+                Slogf.w(TAG, "Failed to report remote task completion: no remote task client is "
+                        + "registered");
+                throw new IllegalStateException("No remote task client is registered");
+            }
+            currentClientId = mCurrentClientId;
+        }
+        try {
+            mService.reportRemoteTaskDone(currentClientId, taskId);
+        } catch (IllegalStateException e) {
+            Slogf.w(TAG, "Task ID(%s) is not valid: %s", taskId, e);
+            throw e;
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
@@ -242,6 +369,8 @@ public final class CarRemoteAccessManager extends CarManagerBase {
      *
      * @param nextPowerState The next power state after the remote task is completed.
      * @param runGarageMode Whether to run Garage Mode when switching to the next power state.
+     * @throws IllegalArgumentException If {@code nextPowerState} is not valid.
+     * @throws IllegalStateException If the remote task client is not registered or not woken up.
      *
      * @hide
      */
@@ -251,7 +380,10 @@ public final class CarRemoteAccessManager extends CarManagerBase {
             minPlatformVersion = PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public void setPowerStatePostTaskExecution(@NextPowerState int nextPowerState,
             boolean runGarageMode) {
-
-        // TODO(b/134519794): Implement the logic.
+        try {
+            mService.setPowerStatePostTaskExecution(nextPowerState, runGarageMode);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 }
