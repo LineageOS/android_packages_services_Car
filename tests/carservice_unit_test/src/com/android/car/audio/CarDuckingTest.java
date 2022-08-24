@@ -23,9 +23,8 @@ import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 
-import static com.google.common.truth.Truth.assertWithMessage;
+import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -80,42 +79,17 @@ public final class CarDuckingTest {
     }
 
     @Test
-    public void constructor_withNullAudioZones_fails() {
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            new CarDucking(null, mMockAudioControlWrapper);
-        });
-
-        assertWithMessage("Null audio zone constructor exception")
-                .that(thrown).hasMessageThat().contains("Car audio zones can not be null");
-    }
-
-    @Test
-    public void constructor_withNullAudioControlWrapper_fails() {
-        NullPointerException thrown = assertThrows(NullPointerException.class, () -> {
-            new CarDucking(mCarAudioZones, null);
-        });
-
-        assertWithMessage("Null audio control wrapper constructor exception")
-                .that(thrown).hasMessageThat().contains("Audio control wrapper can not be null");
-    }
-
-    @Test
     public void constructor_initializesEmptyDuckingInfoForZones() {
         SparseArray<CarDuckingInfo> currentDuckingInfo = mCarDucking.getCurrentDuckingInfo();
 
-        assertWithMessage("Ducking info size")
-                .that(currentDuckingInfo.size()).isEqualTo(mCarAudioZones.size());
+        assertThat(currentDuckingInfo.size()).isEqualTo(mCarAudioZones.size());
         for (int i = 0; i < mCarAudioZones.size(); i++) {
             int zoneId = mCarAudioZones.keyAt(i);
             CarDuckingInfo duckingInfo = currentDuckingInfo.get(zoneId);
-            assertWithMessage("Ducking info object for zone %s", zoneId)
-                    .that(duckingInfo).isNotNull();
-            assertWithMessage("Ducking info metadata holding focus for zone %s", zoneId)
-                    .that(duckingInfo.mPlaybackMetaDataHoldingFocus).isEmpty();
-            assertWithMessage("Ducking info addresses to duck for zone %s", zoneId)
-                    .that(duckingInfo.mAddressesToDuck).isEmpty();
-            assertWithMessage("Ducking info addresses to unduck for zone %s", zoneId)
-                    .that(duckingInfo.mAddressesToUnduck).isEmpty();
+            assertThat(duckingInfo).isNotNull();
+            assertThat(duckingInfo.mPlaybackMetaDataHoldingFocus).isEmpty();
+            assertThat(duckingInfo.mAddressesToDuck).isEmpty();
+            assertThat(duckingInfo.mAddressesToUnduck).isEmpty();
         }
     }
 
@@ -124,11 +98,11 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
-
-        assertWithMessage("Audio attributes holding focus")
-                .that(CarHalAudioUtils.metadataToAudioAttributes(newDuckingInfo
-                        .get(PRIMARY_ZONE_ID).mPlaybackMetaDataHoldingFocus))
-                .containsExactly(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+        assertThat(
+                        CarHalAudioUtils.metadatasToUsages(
+                                newDuckingInfo.get(PRIMARY_ZONE_ID).mPlaybackMetaDataHoldingFocus))
+                .asList()
+                .containsExactly(USAGE_MEDIA);
     }
 
     @Test
@@ -136,12 +110,8 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
-
-        assertWithMessage("Passenger zone playback metadata holding focus")
-                .that(newDuckingInfo.get(PASSENGER_ZONE_ID)
-                        .mPlaybackMetaDataHoldingFocus).isEmpty();
-        assertWithMessage("Rear zone playback metadata holding focus")
-                .that(newDuckingInfo.get(REAR_ZONE_ID).mPlaybackMetaDataHoldingFocus).isEmpty();
+        assertThat(newDuckingInfo.get(PASSENGER_ZONE_ID).mPlaybackMetaDataHoldingFocus).isEmpty();
+        assertThat(newDuckingInfo.get(REAR_ZONE_ID).mPlaybackMetaDataHoldingFocus).isEmpty();
     }
 
     @Test
@@ -149,9 +119,7 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaNavFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
-
-        assertWithMessage("Ducking info addresses to duck for multiple focus")
-                .that(newDuckingInfo.get(PRIMARY_ZONE_ID).mAddressesToDuck)
+        assertThat(newDuckingInfo.get(PRIMARY_ZONE_ID).mAddressesToDuck)
                 .containsExactly(PRIMARY_MEDIA_ADDRESS);
     }
 
@@ -162,9 +130,7 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
-
-        assertWithMessage("Ducking info addresses to unduck for multiple focus")
-                .that(newDuckingInfo.get(PRIMARY_ZONE_ID).mAddressesToUnduck)
+        assertThat(newDuckingInfo.get(PRIMARY_ZONE_ID).mAddressesToUnduck)
                 .containsExactly(PRIMARY_MEDIA_ADDRESS);
     }
 
@@ -173,14 +139,10 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
-
-        List<AudioAttributes> audioAttributesList =
-                CarHalAudioUtils.metadataToAudioAttributes(
+        int[] usagesHoldingFocus =
+                CarHalAudioUtils.metadatasToUsages(
                         mCarDuckingInfosCaptor.getValue().get(0).mPlaybackMetaDataHoldingFocus);
-
-        assertWithMessage("Audio attributes holding focus")
-                .that(audioAttributesList)
-                .containsExactly(CarAudioContext.getAudioAttributeFromUsage(USAGE_MEDIA));
+        assertThat(usagesHoldingFocus).asList().containsExactly(USAGE_MEDIA);
     }
 
     @Test
@@ -188,10 +150,8 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaNavFocusHolders);
 
         verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
-
         List<String> addressesToDuck = mCarDuckingInfosCaptor.getValue().get(0).mAddressesToDuck;
-        assertWithMessage("Notified addresses to duck")
-                .that(addressesToDuck).containsExactly(PRIMARY_MEDIA_ADDRESS);
+        assertThat(addressesToDuck).containsExactly(PRIMARY_MEDIA_ADDRESS);
     }
 
     @Test
@@ -204,8 +164,7 @@ public final class CarDuckingTest {
                 .onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
         List<String> addressesToUnduck = mCarDuckingInfosCaptor.getValue().get(0)
                 .mAddressesToUnduck;
-        assertWithMessage("Notified addresses to unduck")
-                .that(addressesToUnduck).containsExactly(PRIMARY_MEDIA_ADDRESS);
+        assertThat(addressesToUnduck).containsExactly(PRIMARY_MEDIA_ADDRESS);
     }
 
     @Test
@@ -218,8 +177,7 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(zoneIds, focusChanges);
 
         verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
-        assertWithMessage("Notified ducking info, zone size")
-                .that(mCarDuckingInfosCaptor.getValue().size()).isEqualTo(zoneIds.length);
+        assertThat(mCarDuckingInfosCaptor.getValue().size()).isEqualTo(zoneIds.length);
     }
 
     private AudioFocusInfo generateAudioFocusInfoForUsage(int usage) {

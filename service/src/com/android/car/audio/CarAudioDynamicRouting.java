@@ -26,6 +26,7 @@ import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.annotation.AttributeUsage;
 
 import java.util.Arrays;
 
@@ -75,18 +76,16 @@ final class CarAudioDynamicRouting {
             AudioMixingRule.Builder mixingRuleBuilder = new AudioMixingRule.Builder();
             for (int carAudioContext : group.getContextsForAddress(address)) {
                 hasContext = true;
-                AudioAttributes[] allAudioAttributes =
-                        CarAudioContext.getAudioAttributesForContext(carAudioContext);
-                for (int index = 0; index < allAudioAttributes.length; index++) {
-                    AudioAttributes attributes = allAudioAttributes[index];
+                int[] usages = CarAudioContext.getUsagesForContext(carAudioContext);
+                for (int usage : usages) {
+                    AudioAttributes attributes = buildAttributesWithUsage(usage);
                     mixingRuleBuilder.addRule(attributes,
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
                 if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
                     Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s sampleRate: %d "
-                            + "channels: %d attributes: %s", address, carAudioContext,
-                            info.getSampleRate(), info.getChannelCount(),
-                            Arrays.toString(allAudioAttributes));
+                            + "channels: %d usages: %s", address, carAudioContext,
+                            info.getSampleRate(), info.getChannelCount(), Arrays.toString(usages));
                 }
             }
             if (hasContext) {
@@ -101,5 +100,15 @@ final class CarAudioDynamicRouting {
                 builder.addMix(audioMix);
             }
         }
+    }
+
+    private static AudioAttributes buildAttributesWithUsage(@AttributeUsage int usage) {
+        AudioAttributes.Builder attributesBuilder = new AudioAttributes.Builder();
+        if (AudioAttributes.isSystemUsage(usage)) {
+            attributesBuilder.setSystemUsage(usage);
+        } else {
+            attributesBuilder.setUsage(usage);
+        }
+        return attributesBuilder.build();
     }
 }
