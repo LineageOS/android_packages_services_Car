@@ -72,6 +72,7 @@
 
         <com.android.car.apps.common.UxrTextView
             android:id="@+id/error_message"
+            android:textColor="@color/fragment_error_text_primary_color"
             android:layout_width="520dp"
             android:layout_height="44dp"
             android:gravity="center"
@@ -81,12 +82,10 @@
 
         <com.android.car.apps.common.UxrButton
             android:id="@+id/error_button"
-            android:layout_width="760dp"
-            android:layout_height="88dp"
-            android:background="@color/button_background_color"
-            android:textAlignment="center"
-            android:gravity="center"
-            android:layout_marginTop="120dp"
+            style="@style/ErrorButtonStyle"
+            android:layout_width="@dimen/fragment_error_button_width"
+            android:layout_height="@dimen/fragment_error_button_height"
+            android:layout_marginTop="@dimen/fragment_error_button_marginTop"
             android:layout_centerHorizontal="true"
             android:layout_below="@id/error_message"/>
     </RelativeLayout>
