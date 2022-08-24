@@ -127,9 +127,6 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     public void setUp() throws Exception {
         CarLocalServices.removeServiceForTest(SystemInterface.class);
         CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class,
-                mMockCarPowerManagementService);
 
         when(mMockContext.getSystemService(ActivityManager.class))
                 .thenReturn(mMockActivityManager);
@@ -146,6 +143,7 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
 
         mService = new CarTelemetryService(
                 mMockContext,
+                mMockCarPowerManagementService,
                 mMockCarPropertyService,
                 mDependencies,
                 mMockDataBroker,
