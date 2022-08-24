@@ -1,4 +1,4 @@
-// Copyright (C) 2015 The Android Open Source Project
+// Copyright (C) 2022 The Android Open Source Project
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,14 +19,9 @@ package {
 }
 
 android_app {
-    name: "EmbeddedKitchenSinkApp",
+    name: "CarHotwordDetectionServiceOne",
 
-    srcs: [
-        "src/**/*.java",
-        ":cartelemetryservice-proto-srcs",
-    ],
-
-    resource_dirs: ["res"],
+    srcs: ["src/**/*.java"],
 
     platform_apis: true,
 
@@ -38,35 +33,24 @@ android_app {
         enabled: false,
     },
 
+    libs: [
+        "android.car",
+    ],
+
+    static_libs: [
+        "concurrent.hotword.lib",
+    ],
+
+    required: ["allowed_privapp_com.android.test.car.one.hotworddetectionservice"],
+
     enforce_uses_libs: false,
+
     dex_preopt: {
         enabled: false,
     },
 
-    static_libs: [
-        "SettingsLib",
-        "com.google.android.material_material",
-        "androidx.appcompat_appcompat",
-        "car-admin-ui-lib",
-        "car-ui-lib",
-        "car-qc-lib",
-        "android.hidl.base-V1.0-java",
-        "com.android.car.keventreader-client",
-        "guava",
-        "android.car.cluster.navigation",
-        "car-experimental-api-static-lib",
-        "concurrent.hotword.lib",
-    ],
-
-    libs: [
-        "android.car"
-    ],
-
-    required: ["allowed_privapp_com.google.android.car.kitchensink"],
-
     product_variables: {
         pdk: {
-            //disble build in PDK, missing ui-lib breaks build
             enabled: false,
         },
     },
