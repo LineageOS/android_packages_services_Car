@@ -19,6 +19,7 @@ package com.android.car.bluetooth;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
 
+import static com.android.car.bluetooth.FastPairAccountKeyStorage.AccountKey;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.staticMockMarker;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -27,7 +28,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
@@ -47,9 +47,9 @@ import android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper;
 import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.ParcelUuid;
+import android.os.UserManager;
 
 import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
@@ -65,7 +65,6 @@ import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.quality.Strictness;
 
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -142,13 +141,10 @@ public class BluetoothFastPairTest {
     Resources mMockResources;
 
     @Mock
-    SharedPreferences mMockSharedPreferences;
-
-    @Mock
-    SharedPreferences.Editor mMockSharedPreferencesEditor;
-
-    @Mock
     BluetoothManager mMockBluetoothManager;
+
+    @Mock
+    UserManager mMockUserManager;
 
     @Mock
     FastPairGattServer.Callbacks mMockGattCallbacks;
@@ -168,24 +164,25 @@ public class BluetoothFastPairTest {
     FastPairAdvertiser mTestFastPairAdvertiser;
     FastPairProvider mTestFastPairProvider;
     FastPairGattServer mTestGattServer;
+    @Mock FastPairAccountKeyStorage mMockFastPairAccountKeyStorage;
 
     MockitoSession mMockitoSession;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        when(mMockContext.getSharedPreferences(anyString(), anyInt()))
-                .thenReturn(mMockSharedPreferences);
-        when(mMockSharedPreferences.getInt(any(), anyInt())).thenReturn(2);
-        when(mMockSharedPreferences.getString(any(), any()))
-                .thenReturn(new BigInteger(TEST_ACCOUNT_KEY_1).toString())
-                .thenReturn(new BigInteger(TEST_ACCOUNT_KEY_2).toString());
-        when(mMockSharedPreferences.edit()).thenReturn(mMockSharedPreferencesEditor);
+        when(mMockFastPairAccountKeyStorage.getAllAccountKeys())
+                .thenReturn(new ArrayList<>(List.of(
+                        new AccountKey(TEST_ACCOUNT_KEY_1),
+                        new AccountKey(TEST_ACCOUNT_KEY_2))));
 
         when(mMockContext.getResources()).thenReturn(mMockResources);
         when(mMockContext.getSystemService(BluetoothManager.class))
                 .thenReturn(mMockBluetoothManager);
+        when(mMockContext.getSystemService(UserManager.class))
+                .thenReturn(mMockUserManager);
         when(mMockResources.getInteger(anyInt())).thenReturn(0x001122);
+        when(mMockResources.getString(anyInt())).thenReturn(TEST_PRIVATE_KEY_B_BASE64);
         when(mMockResources.getBoolean(anyInt())).thenReturn(true);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
         when(mMockBluetoothAdapter.getBluetoothLeAdvertiser()).thenReturn(mMockLeAdvertiser);
@@ -195,6 +192,7 @@ public class BluetoothFastPairTest {
                 mMockBluetoothDevice);
         when(mMockBluetoothAdapter.getRemoteDevice(any(byte[].class))).thenReturn(
                 mMockBluetoothDevice);
+        when(mMockUserManager.isUserUnlocked()).thenReturn(false);
 
         mMockitoSession = ExtendedMockito.mockitoSession()
                 .strictness(Strictness.WARN)
@@ -207,7 +205,8 @@ public class BluetoothFastPairTest {
         mTestFastPairAdvertiser = new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
         mTestFastPairProvider = new FastPairProvider(mMockContext);
         mTestGattServer = new FastPairGattServer(mMockContext, TEST_MODEL_ID,
-                TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, true);
+                TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, true,
+                mMockFastPairAccountKeyStorage);
     }
 
     @After
@@ -217,8 +216,8 @@ public class BluetoothFastPairTest {
 
     @Test
     public void bloomFilterOneKeyTest() {
-        List<FastPairUtils.AccountKey> testKeys = new ArrayList();
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1));
+        List<AccountKey> testKeys = new ArrayList();
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
 
         byte[] bloomResults = FastPairUtils.bloom(testKeys, TEST_SALT);
         assertThat(bloomResults).isEqualTo(TEST_KEY_1_EXPECTED_RESULT);
@@ -226,29 +225,23 @@ public class BluetoothFastPairTest {
 
     @Test
     public void bloomFilterTwoKeyTest() {
-        List<FastPairUtils.AccountKey> testKeys = new ArrayList();
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1));
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_2));
+        List<AccountKey> testKeys = new ArrayList();
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_2));
 
         byte[] bloomResults = FastPairUtils.bloom(testKeys, TEST_SALT);
         assertThat(bloomResults).isEqualTo(TEST_KEY_12_EXPECTED_RESULT);
     }
 
     @Test
-    public void readAccountKeysTest() {
-        List<FastPairUtils.AccountKey> testKeys = FastPairUtils.readStoredAccountKeys(mMockContext);
-        assertThat(testKeys.size()).isEqualTo(2);
-        assertThat(testKeys.get(0).key).isEqualTo(TEST_ACCOUNT_KEY_1);
-        assertThat(testKeys.get(1).key).isEqualTo(TEST_ACCOUNT_KEY_2);
-    }
-
-    @Test
     public void getAccountKeyTest() {
-        byte[] advertisementResults = FastPairUtils.getAccountKeyAdvertisement(mMockContext);
+        List<AccountKey> testKeys = new ArrayList();
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_2));
+
+        byte[] advertisementResults =
+                FastPairUtils.getAccountKeyAdvertisement(testKeys);
         byte salt = advertisementResults[advertisementResults.length - 1];
-        List<FastPairUtils.AccountKey> testKeys = new ArrayList();
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1));
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_2));
 
         byte[] bloomResults = FastPairUtils.bloom(testKeys, salt);
         System.arraycopy(bloomResults, 0, mAdvertisementExpectedResults, 2,
@@ -266,7 +259,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testAccountKeyCreation() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1);
+        AccountKey testKey = new AccountKey(TEST_ACCOUNT_KEY_1);
         assertThat(testKey.toBytes()).isEqualTo(TEST_ACCOUNT_KEY_1);
     }
 
@@ -283,7 +276,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void tessECDHKeyGeneration() {
-        FastPairUtils.AccountKey generatedKey = mTestGattServer
+        AccountKey generatedKey = mTestGattServer
                 .calculateAntiSpoofing(TEST_PRIVATE_KEY_B, TEST_PUBLIC_KEY_A);
         assertThat(generatedKey.toBytes()).isEqualTo(TEST_GENERATED_KEY);
 
@@ -291,12 +284,12 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testStoredKeySelection() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1);
+        AccountKey testKey = new AccountKey(TEST_ACCOUNT_KEY_1);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
         mTestGattServer.setSharedSecretKey(TEST_SHARED_SECRET);
         assertThat(mTestGattServer.validatePairingRequest(encryptedRequest,
-                (new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_2)).getKeySpec())).isFalse();
+                (new AccountKey(TEST_ACCOUNT_KEY_2)).getKeySpec())).isFalse();
 
         assertThat(mTestGattServer.processKeyBasedPairing(encryptedRequest)).isTrue();
     }
@@ -304,17 +297,17 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testNoValidKey() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
         assertThat(mTestGattServer.validatePairingRequest(encryptedRequest,
-                (new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1)).getKeySpec())).isFalse();
+                (new AccountKey(TEST_ACCOUNT_KEY_1)).getKeySpec())).isFalse();
         assertThat(mTestGattServer.processKeyBasedPairing(encryptedRequest)).isFalse();
     }
 
     @Test
     public void testDisableAfter10Failures() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_2);
+        AccountKey testKey = new AccountKey(TEST_ACCOUNT_KEY_2);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
         assertThat(mTestGattServer.processKeyBasedPairing(encryptedRequest)).isTrue();
@@ -328,7 +321,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testIgnoreAfterTimeout() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
 
@@ -344,7 +337,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testInvalidPairingKey() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
 
@@ -360,7 +353,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testNoPairingKey() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
 
@@ -375,7 +368,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void testValidPairingKeyAutoAccept() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
 
@@ -393,9 +386,10 @@ public class BluetoothFastPairTest {
     @Test
     public void testValidPairingKeyNoAutoAccept() {
         mTestGattServer = new FastPairGattServer(mMockContext, TEST_MODEL_ID,
-                TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, false);
+                TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, false,
+                mMockFastPairAccountKeyStorage);
 
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
 
@@ -413,7 +407,7 @@ public class BluetoothFastPairTest {
 
     @Test
     public void receivedAccountKey() {
-        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        AccountKey testKey = new AccountKey(TEST_SHARED_SECRET);
         mTestGattServer.setSharedSecretKey(testKey.toBytes());
         byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
 
@@ -429,13 +423,15 @@ public class BluetoothFastPairTest {
 
         verify(mMockBluetoothDevice).setPairingConfirmation(true);
         mTestGattServer.processAccountKey(encryptedAccountKey);
-        verify(mMockSharedPreferences).edit();
-
+        verify(mMockFastPairAccountKeyStorage).add(new AccountKey(TEST_ACCOUNT_KEY_3));
     }
 
     @Test
     public void testAdvertiseAccountKeys() {
-        mTestFastPairAdvertiser.advertiseAccountKeys();
+        List<AccountKey> testKeys = new ArrayList();
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
+        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_2));
+        mTestFastPairAdvertiser.advertiseAccountKeys(testKeys);
         verify(mMockLeAdvertiser).startAdvertisingSet(mAdvertisingSetParameters.capture(),
                 mAdvertiseData.capture(), any(), any(), any(), any());
         assertThat(mAdvertisingSetParameters.getValue().getInterval())
@@ -444,9 +440,6 @@ public class BluetoothFastPairTest {
         assertThat(serviceData.size()).isEqualTo(1);
         byte[] advertisementResults = serviceData.get(FastPairAdvertiser.FastPairServiceUuid);
         byte salt = advertisementResults[advertisementResults.length - 1];
-        List<FastPairUtils.AccountKey> testKeys = new ArrayList();
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_1));
-        testKeys.add(new FastPairUtils.AccountKey(TEST_ACCOUNT_KEY_2));
 
         byte[] bloomResults = FastPairUtils.bloom(testKeys, salt);
         System.arraycopy(bloomResults, 0, mAdvertisementExpectedResults, 2,
