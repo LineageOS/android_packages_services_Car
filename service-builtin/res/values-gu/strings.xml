@@ -16,14 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"પ્રોજેક્શન સેવા સાથે જોડાઓ"</string>
-<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ધારકને કોઈ પ્રોજેક્શન સેવાના ઉચ્ચ લેવલના ઇન્ટરફેસથી પ્રતિબદ્ધ થવાની મંજૂરી આપે છે. સામાન્ય ઍપ માટે ક્યારેય જરૂરી હોવું જોઈએ નહીં."</string>
-<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ક્લાયન્ટ સેવા"</string>
-<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ક્લાયન્ટથી પ્રતિબદ્ધ થાઓ"</string>
-<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટર રેન્ડર કરી રહ્યું છે"</string>
-<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરનો ડેટા પ્રાપ્ત કરો"</string>
-<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"કારની ઇનપુટ સેવા"</string>
-<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ઇનપુટ ઇવેન્ટ્સને હૅન્ડલ કરો"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"પ્રોજેક્શન સેવા સાથે જોડાઓ"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ધારકને કોઈ પ્રોજેક્શન સેવાના ઉચ્ચ લેવલના ઇન્ટરફેસથી પ્રતિબદ્ધ થવાની મંજૂરી આપે છે. સામાન્ય ઍપ માટે ક્યારેય જરૂરી હોવું જોઈએ નહીં."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS ક્લાયન્ટ સેવા"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS ક્લાયન્ટથી પ્રતિબદ્ધ થાઓ"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટર રેન્ડર કરી રહ્યું છે"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"ઇન્સ્ટ્રુમેન્ટ ક્લસ્ટરનો ડેટા પ્રાપ્ત કરો"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"કારની ઇનપુટ સેવા"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ઇનપુટ ઇવેન્ટ્સને હૅન્ડલ કરો"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"ડ્રાઇવ કરતી વખતે તમે આ સુવિધાનો ઉપયોગ કરી શકતા નથી"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"સુરક્ષિત ઍપ્લિકેશન સુવિધાઓ સાથે ફરી શરૂ કરવા, <xliff:g id="EXIT_BUTTON">%s</xliff:g> પસંદ કરો."</string>
     <string name="exit_button" msgid="3491899413031549265">"પાછળ"</string>
