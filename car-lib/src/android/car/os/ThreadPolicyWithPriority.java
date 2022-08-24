@@ -148,6 +148,7 @@ public final class ThreadPolicyWithPriority implements Parcelable {
 
     /** @hide */
     @DataClass.Generated.Member
+    @AddedIn(majorVersion = 33, minorVersion = 1)
     public static String priorityToString(@Priority int value) {
         switch (value) {
             case PRIORITY_MIN:
