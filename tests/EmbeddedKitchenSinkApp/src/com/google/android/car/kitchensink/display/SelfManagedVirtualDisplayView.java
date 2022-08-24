@@ -18,9 +18,14 @@ package com.google.android.car.kitchensink.display;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
+import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.pm.UserInfo;
+import android.os.UserManager;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Display;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,8 +33,10 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.car.kitchensink.R;
+import com.google.android.car.kitchensink.users.UsersSpinner;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 /**
  * Custom view that hosts a virtual display and a button to create / remove it
@@ -47,6 +54,13 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
     private final EditText mDisplayIdEditText;
     private final Button mCreateDisplayButton;
     private final Button mDeleteDisplayButton;
+    private final UsersSpinner mUsersSpinner;
+    private final Button mSwitchUserButton;
+
+    private int mDisplayId = Display.INVALID_DISPLAY;
+
+    @Nullable
+    private List<UserInfo> mUsers;
 
     public SelfManagedVirtualDisplayView(Context context, AttributeSet attrs) {
         this(context, VirtualDisplayView.getName(context, attrs));
@@ -63,6 +77,9 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         mCreateDisplayButton = findViewById(R.id.create);
         mDeleteDisplayButton = findViewById(R.id.delete);
 
+        mUsersSpinner = findViewById(R.id.users);
+        mSwitchUserButton = findViewById(R.id.switch_user);
+
         if (name != null) {
             mVirtualDisplayView.setName(name);
         }
@@ -71,6 +88,35 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
         mCreateDisplayButton.setOnClickListener((v) -> createDisplayAndToastMessage());
         mDeleteDisplayButton.setOnClickListener((v) -> deleteDisplayAndToastMessage());
 
+        mSwitchUserButton.setOnClickListener((v) -> switchUser());
+        setUserSwitchingVisible(false);
+    }
+
+    // TODO: ideally it should be part of the constructor / AttributeSet, and it should use a 
+    // boolean to indicated it's enabled (rather than relying on mUsers being null)
+    void enableUserSwitching() {
+        mUsers = getContext().getSystemService(UserManager.class).getAliveUsers();
+        Log.d(TAG, "Enabling user switching. Users = " + mUsers);
+        mUsersSpinner.init(mUsers);
+    }
+
+    private void setUserSwitchingVisible(boolean visible) {
+        int visibility = visible && mUsers != null ? View.VISIBLE : View.GONE;
+        mUsersSpinner.setVisibility(visibility);
+        mSwitchUserButton.setVisibility(visibility);
+    }
+
+    private void switchUser() {
+        UserInfo user = mUsersSpinner.getSelectedUser();
+        Log.d(TAG, "Starting user " + user.toFullString() + " on display " + mDisplayId);
+        try {
+            boolean started = mContext.getSystemService(ActivityManager.class)
+                    .startUserInBackgroundOnSecondaryDisplay(user.id, mDisplayId);
+            logAndToastMessage("%s user %d on display %d",
+                    (started ? "Started" : "Failed to start"), user.id, mDisplayId);
+        } catch (Exception e) {
+            logAndToastError(e, "Error starting user %d on display %d", user.id, mDisplayId);
+        }
     }
 
     void setHeaderVisible(boolean visible) {
@@ -98,8 +144,8 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
     private void createDisplayAndToastMessage() {
         Log.i(TAG, "Creating virtual display");
         try {
-            int displayId = createDisplay();
-            logAndToastMessage("Created virtual display with id %d", displayId);
+            createDisplay();
+            logAndToastMessage("Created virtual display with id %d", mDisplayId);
         } catch (Exception e) {
             logAndToastError(e, "Failed to create virtual display");
         }
@@ -109,10 +155,11 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
      * Creates the display and return its id.
      */
     int createDisplay() {
-        int displayId = mVirtualDisplayView.createVirtualDisplay();
-        mDisplayIdEditText.setText(String.valueOf(displayId));
+        mDisplayId = mVirtualDisplayView.createVirtualDisplay();
+        mDisplayIdEditText.setText(String.valueOf(mDisplayId));
         toggleCreateDeleteButtons(/* create= */ false);
-        return displayId;
+        setUserSwitchingVisible(/* visible= */ true);
+        return mDisplayId;
     }
 
     private void deleteDisplayAndToastMessage() {
@@ -130,8 +177,10 @@ public final class SelfManagedVirtualDisplayView extends LinearLayout {
      */
     void deleteDisplay() {
         mVirtualDisplayView.deleteVirtualDisplay();
+        mDisplayId = Display.INVALID_DISPLAY;
         mDisplayIdEditText.setText(NO_ID_TEXT);
         toggleCreateDeleteButtons(/* create= */ true);
+        setUserSwitchingVisible(/* visible= */ false);
     }
 
     private void toggleCreateDeleteButtons(boolean create) {

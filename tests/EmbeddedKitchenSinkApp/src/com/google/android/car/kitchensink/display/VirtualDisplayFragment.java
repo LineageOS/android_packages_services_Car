@@ -243,6 +243,7 @@ public final class VirtualDisplayFragment extends Fragment {
                         + " and RelativeLayout subject " + subject);
                 display = new SelfManagedVirtualDisplayView(getContext(), name);
                 display.setId(subject);
+                display.enableUserSwitching();
                 mDisplays[i] = display;
                 isNew = true;
             } else {
