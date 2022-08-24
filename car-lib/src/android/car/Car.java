@@ -141,8 +141,8 @@ public final class Car {
     public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties
             .getInt(PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
 
-    private static final CarVersion CAR_VERSION =
-            CarVersion.forMajorAndMinorVersions(API_VERSION_MAJOR_INT, API_VERSION_MINOR_INT);
+    private static final CarVersion CAR_VERSION = CarVersion.newInstance("Car.CAR_VERSION",
+            API_VERSION_MAJOR_INT, API_VERSION_MINOR_INT);
 
     private static final PlatformVersion PLATFORM_VERSION;
 
@@ -170,12 +170,13 @@ public final class Car {
             if (major != -1) {
                 int minor = SystemProperties.getInt(PROPERTY_EMULATED_PLATFORM_VERSION_MINOR,
                         PLATFORM_VERSION_MINOR_INT);
-                emulated = android.car.PlatformVersion.forMajorAndMinorVersions(major, minor);
+                emulated = android.car.PlatformVersion.newInstance("EMULATED", major, minor);
                 Log.i(TAG_CAR, "Emulating PLATFORM_VERSION version: " + emulated);
             }
         }
         PLATFORM_VERSION = emulated != null ? emulated : PlatformVersion
-                .forMajorAndMinorVersions(Build.VERSION.SDK_INT, PLATFORM_VERSION_MINOR_INT);
+                .newInstance("Car.PLATFORM_VERSION",
+                        Build.VERSION.SDK_INT, PLATFORM_VERSION_MINOR_INT);
     }
 
     // Car service registry information.

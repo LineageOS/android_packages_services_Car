@@ -69,6 +69,16 @@ public final class CarVersion extends ApiVersion<CarVersion> implements Parcelab
     }
 
     /**
+     * Creates a named instance with the given major and minor versions.
+     */
+    // TODO(b/243429779): should not need @ApiRequirements as it's package-protected
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = PlatformVersion.TIRAMISU_0)
+    static CarVersion newInstance(String versionName, int majorVersion, int minorVersion) {
+        return new CarVersion(versionName, majorVersion, minorVersion);
+    }
+
+    /**
      * Creates a new instance with the given major and minor versions.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
