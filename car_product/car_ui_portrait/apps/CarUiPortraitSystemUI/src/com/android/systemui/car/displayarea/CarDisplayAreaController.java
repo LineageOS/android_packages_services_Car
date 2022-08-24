@@ -492,6 +492,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
 
     @Override
     public void animateCollapsePanels(int flags, boolean force) {
+        if (mIsForegroundDaFullScreen) {
+            return;
+        }
         Intent homeActivityIntent = new Intent(Intent.ACTION_MAIN);
         homeActivityIntent.addCategory(Intent.CATEGORY_HOME);
         homeActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
