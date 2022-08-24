@@ -16,6 +16,7 @@
 
 package com.android.car.hal.fakevhal;
 
+import android.annotation.Nullable;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.util.SparseArray;
@@ -31,11 +32,10 @@ public final class ConfigDeclaration {
     private final RawPropValues mInitialValue;
     private final SparseArray<RawPropValues> mInitialAreaValuesByAreaId;
 
-    public ConfigDeclaration(VehiclePropConfig config, RawPropValues initialValue,
+    public ConfigDeclaration(VehiclePropConfig config, @Nullable RawPropValues initialValue,
             SparseArray<RawPropValues> initialAreaValuesByAreaId) {
         this.mConfig = Objects.requireNonNull(config, "config cannot be null.");
-        this.mInitialValue = Objects.requireNonNull(initialValue, "initialValue cannot be"
-            + " null");
+        this.mInitialValue = initialValue;
         this.mInitialAreaValuesByAreaId = Objects.requireNonNull(initialAreaValuesByAreaId,
             "initialAreaValueByAreaId cannot be null.");
     }
@@ -57,7 +57,9 @@ public final class ConfigDeclaration {
             return false;
         }
         ConfigDeclaration other = (ConfigDeclaration) obj;
-        return mConfig.equals(other.getConfig()) && mInitialValue.equals(other.getInitialValue())
+
+        return mConfig.equals(other.getConfig())
+                && Objects.equals(mInitialValue, other.getInitialValue())
                 && mInitialAreaValuesByAreaId.contentEquals(other.getInitialAreaValuesByAreaId());
     }
 
