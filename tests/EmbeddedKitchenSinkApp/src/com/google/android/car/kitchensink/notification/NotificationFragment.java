@@ -41,7 +41,8 @@ public class NotificationFragment extends Fragment {
     private static final String IMPORTANCE_LOW_ID = "importance_low";
     private static final String IMPORTANCE_MIN_ID = "importance_min";
     private static final String IMPORTANCE_NONE_ID = "importance_none";
-    private int mCurrentNotificationId = 0;
+    private int mCurrentNotificationId;
+    private int mCurrentGroupNotificationCount;
     private NotificationManager mManager;
     private Context mContext;
     private Handler mHandler = new Handler();
@@ -95,6 +96,7 @@ public class NotificationFragment extends Fragment {
         initMessagingStyleButtonForDiffPerson(view);
         initMessagingStyleButtonForSamePerson(view);
         initMessagingStyleButtonForLongMessageSamePerson(view);
+        initMessagingStyleButtonForMessageSameGroup(view);
         initMessagingStyleButtonWithMuteAction(view);
         initTestMessagesButton(view);
         initProgressButton(view);
@@ -279,7 +281,7 @@ public class NotificationFragment extends Fragment {
 
             MessagingStyle messagingStyle =
                     new MessagingStyle(personList.get(0))
-                            .setConversationTitle("Customizable Group chat");
+                            .setConversationTitle("Customizable Group chat: " + id);
             if (personList.size() > 1) {
                 messagingStyle.setGroupConversation(true);
             }
@@ -394,6 +396,62 @@ public class NotificationFragment extends Fragment {
         });
     }
 
+    private void initMessagingStyleButtonForMessageSameGroup(View view) {
+        int numOfPeople = 3;
+        Person user = new Person.Builder()
+                .setName("User")
+                .setIcon(IconCompat.createWithResource(view.getContext(), R.drawable.avatar1))
+                .build();
+
+        MessagingStyle messagingStyle =
+                new MessagingStyle(user)
+                        .setConversationTitle("Same group chat")
+                        .setGroupConversation(true);
+
+        List<Person> personList = new ArrayList<>();
+        for (int i = 1; i <= numOfPeople; i++) {
+            personList.add(new Person.Builder()
+                    .setName("Person " + i)
+                    .setIcon(IconCompat.createWithResource(view.getContext(),
+                            i % 2 == 1 ? R.drawable.avatar1 : R.drawable.avatar2))
+                    .build());
+        }
+
+        view.findViewById(R.id.category_message_same_group_button).setOnClickListener(v -> {
+            mCurrentGroupNotificationCount++;
+            PendingIntent replyIntent = createServiceIntent(123456, "reply");
+            PendingIntent markAsReadIntent = createServiceIntent(123456, "read");
+            Person person = personList.get(mCurrentGroupNotificationCount % numOfPeople);
+            String messageText =
+                    person.getName() + "'s " + mCurrentGroupNotificationCount + " message";
+            messagingStyle.addMessage(
+                    new MessagingStyle.Message(messageText, System.currentTimeMillis(), person));
+
+            NotificationCompat.Builder notification = new NotificationCompat
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setContentTitle("Same Group chat (Title)")
+                    .setContentText("Same Group chat (Text)")
+                    .setShowWhen(true)
+                    .setCategory(Notification.CATEGORY_MESSAGE)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setStyle(messagingStyle)
+                    .setAutoCancel(true)
+                    .addAction(
+                            new Action.Builder(R.drawable.ic_check_box, "read", markAsReadIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_MARK_AS_READ)
+                                    .setShowsUserInterface(false)
+                                    .build())
+                    .addAction(
+                            new Action.Builder(R.drawable.ic_check_box, "reply", replyIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_REPLY)
+                                    .setShowsUserInterface(false)
+                                    .addRemoteInput(new RemoteInput.Builder("input").build())
+                                    .build());
+
+            mManager.notify(123456, notification.build());
+        });
+    }
+
     private void initMessagingStyleButtonForSamePerson(View view) {
         view.findViewById(R.id.category_message_same_person_button).setOnClickListener(v -> {
             int id = mCurrentNotificationId++;
@@ -441,7 +499,6 @@ public class NotificationFragment extends Fragment {
 
             PendingIntent replyIntent = createServiceIntent(id, "reply");
             PendingIntent markAsReadIntent = createServiceIntent(id, "read");
-
 
 
             Person person = new Person.Builder().setName("John Doe").build();
