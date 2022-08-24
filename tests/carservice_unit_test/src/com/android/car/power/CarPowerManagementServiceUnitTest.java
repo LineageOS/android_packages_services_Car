@@ -90,6 +90,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -596,6 +597,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.applyPowerPolicy(policyId);
 
         CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        assertThat(policy).isNotNull();
         assertThat(policy.getPolicyId()).isEqualTo(policyId);
         assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
         assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
@@ -688,7 +690,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.addPowerPolicyListener(filterWifi, listenerWifi);
         mService.applyPowerPolicy(policyId);
 
+        assertThat(listenerAudio.getCurrentPowerPolicy()).isNotNull();
         assertThat(listenerAudio.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
+        assertThat(listenerWifi.getCurrentPowerPolicy()).isNotNull();
         assertThat(listenerWifi.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
         assertThat(listenerLocation.getCurrentPowerPolicy()).isNull();
     }
@@ -1140,15 +1144,23 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private final class MockedPowerPolicyListener extends ICarPowerPolicyListener.Stub {
+        private static final int NOTIFICATION_TIMEOUT_SEC = 5;
+
+        private final CountDownLatch mLatch = new CountDownLatch(1);
         private CarPowerPolicy mCurrentPowerPolicy;
 
         @Override
         public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                 CarPowerPolicy accumulatedPolicy) {
             mCurrentPowerPolicy = accumulatedPolicy;
+            mLatch.countDown();
         }
 
         public CarPowerPolicy getCurrentPowerPolicy() {
+            try {
+                mLatch.await(NOTIFICATION_TIMEOUT_SEC, TimeUnit.SECONDS);
+            } catch (InterruptedException ignored) { }
+
             return mCurrentPowerPolicy;
         }
     }
