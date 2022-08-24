@@ -1208,6 +1208,10 @@ package android.car.settings {
   public class CarSettings {
   }
 
+  public static final class CarSettings.Global {
+    field public static final String GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE";
+  }
+
   public static final class CarSettings.Secure {
     field public static final String KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL = "android.car.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL";
     field public static final String KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES = "android.car.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES";
@@ -1215,6 +1219,7 @@ package android.car.settings {
     field public static final String KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE = "android.car.KEY_PACKAGES_DISABLED_ON_RESOURCE_OVERUSE";
     field public static final String KEY_ROTARY_KEY_EVENT_FILTER = "android.car.ROTARY_KEY_EVENT_FILTER";
     field public static final String KEY_SETUP_WIZARD_IN_PROGRESS = "android.car.SETUP_WIZARD_IN_PROGRESS";
+    field public static final String VISIBLE_USER_ALLOCATION_PER_ZONE = "android.car.VISIBLE_USER_ALLOCATION_PER_ZONE";
   }
 
 }
