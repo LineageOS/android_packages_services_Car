@@ -1082,10 +1082,14 @@ public final class CarUserManager extends CarManagerBase {
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_SWITCHING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED},
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING},
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED},
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED}, or
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED}.
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING} or
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED} for all apps;
+         * for apps {@link CarPackageManager#getTargetCarVersion() targeting car version}
+         * {@link CarVersion.VERSION_CODES#TIRAMISU_1} or higher, it could be new types
+         * added on later releases, such as
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED},
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED} and possibly others.
+         *
          */
         @UserLifecycleEventType
         @AddedInOrBefore(majorVersion = 33)
