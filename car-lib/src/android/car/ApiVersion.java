@@ -194,9 +194,9 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
     /**
      * @hide
      */
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = PlatformVersion.TIRAMISU_0)
     interface ApiVersionFactory<T extends ApiVersion<?>> {
+        @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
+                minPlatformVersion = PlatformVersion.TIRAMISU_0)
         T newInstance(String name, int major, int minor);
     }
 }
