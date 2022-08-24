@@ -1444,8 +1444,8 @@ package android.car.test {
 
   public final class CarTestManager {
     ctor public CarTestManager(@NonNull android.car.Car, @NonNull android.os.IBinder);
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String dumpVhal(java.util.List<java.lang.String>, long);
-    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.TIRAMISU_1, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public boolean hasAidlVhal() throws android.os.RemoteException;
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public String dumpVhal(java.util.List<java.lang.String>, long);
+    method @android.car.annotation.ApiRequirements(minCarVersion=android.car.annotation.ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0, minPlatformVersion=android.car.annotation.ApiRequirements.PlatformVersion.TIRAMISU_0) @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public boolean hasAidlVhal() throws android.os.RemoteException;
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public void startCarService(@NonNull android.os.IBinder);
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_TEST_SERVICE) public void stopCarService(@NonNull android.os.IBinder);
   }
