@@ -16,10 +16,19 @@
 
 package android.car.test;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
+
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
+import android.car.Car;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
+import android.car.PlatformVersionMismatchException;
+import android.car.annotation.ApiRequirements;
+import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
@@ -31,11 +40,20 @@ import org.junit.runners.model.Statement;
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
 
-public final class ApiCheckerRuleTest {
+public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = ApiCheckerRuleTest.class.getSimpleName();
 
+    private static final String INVALID_API = "I.cant.believe.this.is.a.valid.API";
+    private static final String VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1 =
+            "android.car.test.ApiCheckerRuleTest#requiresCarAndPlatformTiramisu1";
+
     private final SimpleStatement<Exception> mBaseStatement = new SimpleStatement<>();
+
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(Car.class);
+    }
 
     @Test
     public void failWhenTestMethodIsMissingAnnotations() throws Throwable {
@@ -45,7 +63,7 @@ public final class ApiCheckerRuleTest {
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
 
-        assertWithMessage("exception (%s) message", e).that(e.getMessage())
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("missing @ApiTest annotation");
     }
 
@@ -57,7 +75,7 @@ public final class ApiCheckerRuleTest {
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
 
-        assertWithMessage("exception (%s) message", e).that(e.getMessage())
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("empty @ApiTest annotation");
     }
 
@@ -69,21 +87,34 @@ public final class ApiCheckerRuleTest {
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
 
-        assertWithMessage("exception (%s) message", e).that(e.getMessage())
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("empty @ApiTest annotation");
     }
 
     @Test
     public void passWhenTestMethodHasApiTestAnnotationButItsInvalid() throws Throwable {
-        String methodName = "I.cant.believe.this.is.a.valid.method.name";
+        String methodName = INVALID_API;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
 
-        assertWithMessage("exception (%s) message", e).that(e.getMessage())
-                .containsMatch("invalid .*" + methodName);
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .contains(methodName);
+    }
+
+    @Test
+    public void failWhenTestMethodHasValidApiTestAnnotationButNoApiRequirements() throws Throwable {
+        String methodName = "android.content.Context#getResources";
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .contains("@ApiRequirements");
     }
 
     @Test
@@ -107,6 +138,116 @@ public final class ApiCheckerRuleTest {
         mBaseStatement.assertEvaluated();
     }
 
+    @Test
+    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforced() throws Throwable {
+        Description testMethod = newTestMethod(
+                new ApiTestAnnotation("android.content.Context#getResources"));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().disableAnnotationsCheck().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    @Test
+    public void failWhenTestMethodRunsOnUnsupportedVersionsAndDoesntThrow() throws Throwable {
+        String methodName = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+        mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> rule.apply(mBaseStatement, testMethod).evaluate());
+
+        assertWithMessage("Exception when platform is not supported").that(e).hasMessageThat()
+                .containsMatch(".*Test.*should throw.*"
+                        + PlatformVersionMismatchException.class.getSimpleName()
+                        + ".*CarVersion=.*major.*33.*minor.*1"
+                        + ".*PlatformVersion=.*major.*33.*minor.*0"
+                        + ".*ApiRequirements=.*"
+                        + "minCarVersion=.*TIRAMISU_1.*minPlatformVersion=.*TIRAMISU_1"
+                        + ".*");
+    }
+
+    @Test
+    public void pasWhenTestMethodRunsOnUnsupportedVersionsAndDoesntThrow() throws Throwable {
+        String methodName = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+        CarVersion carVersion = CarVersion.VERSION_CODES.TIRAMISU_1;
+        PlatformVersion platformVersion = PlatformVersion.VERSION_CODES.TIRAMISU_0;
+        mockCarGetCarVersion(carVersion);
+        mockCarGetPlatformVersion(platformVersion);
+        mBaseStatement.failWith(
+                new PlatformVersionMismatchException(PlatformVersion.VERSION_CODES.TIRAMISU_1));
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    @Test
+    public void testIsApiSupported_null() throws Throwable {
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        assertThrows(NullPointerException.class, () -> rule.isApiSupported(null));
+    }
+
+    @Test
+    public void testIsApiSupported_invalidApi() throws Throwable {
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        assertThrows(IllegalArgumentException.class, ()-> rule.isApiSupported(INVALID_API));
+    }
+
+    @Test
+    public void testIsApiSupported_validApiButWithoutApiRequirements() throws Throwable {
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        assertThrows(IllegalStateException.class,
+                () -> rule.isApiSupported("java.lang.Object#toString"));
+    }
+
+    @Test
+    public void testIsApiSupported_carVersionNotSupported() throws Throwable {
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+        String api = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_0);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
+
+        assertWithMessage("isApiSupported(%s) when CarVersion is not supported", api)
+                .that(rule.isApiSupported(api)).isFalse();
+    }
+
+    @Test
+    public void testIsApiSupported_platformVersionNotSupported() throws Throwable {
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+        String api = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+
+        assertWithMessage("isApiSupported(%s) when PlatformVersion is not supported", api)
+                .that(rule.isApiSupported(api)).isFalse();
+    }
+
+    @Test
+    public void testIsApiSupported_supported() throws Throwable {
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+        String api = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
+
+        assertWithMessage("isApiSupported(%s) when CarVersion and PlatformVersion are supported",
+                api).that(rule.isApiSupported(api)).isTrue();
+    }
+
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
+    public void requiresCarAndPlatformTiramisu1() {
+
+    }
+
     private static Description newTestMethod(ApiTestAnnotation... annotations) {
         return Description.createTestDescription("SomeClass", "someTest", annotations);
     }
@@ -114,17 +255,25 @@ public final class ApiCheckerRuleTest {
     private static class SimpleStatement<T extends Exception> extends Statement {
 
         private boolean mEvaluated;
+        private Throwable mThrowable;
 
         @Override
         public void evaluate() throws Throwable {
-            Log.d(TAG, "SimpleStatement.evaluate()");
+            Log.d(TAG, "evaluate() called");
             mEvaluated = true;
+            if (mThrowable != null) {
+                Log.d(TAG, "Throwing " + mThrowable);
+                throw mThrowable;
+            }
+        }
+
+        public void failWith(Throwable t) {
+            mThrowable = t;
         }
 
         public void assertEvaluated() {
             assertWithMessage("test method called").that(mEvaluated).isTrue();
         }
-
     }
 
     private static final class ApiTestAnnotation implements ApiTest {

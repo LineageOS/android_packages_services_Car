@@ -16,7 +16,11 @@
 
 package android.car.test;
 
-import android.annotation.Nullable;
+import android.car.Car;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
+import android.car.PlatformVersionMismatchException;
+import android.car.annotation.ApiRequirements;
 import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
@@ -27,7 +31,10 @@ import org.junit.runners.model.Statement;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Rule used to validate Car API requirements on CTS tests.
@@ -37,13 +44,12 @@ public final class ApiCheckerRule implements TestRule {
 
     // TODO(b/242315785): add missing features
     // - CDD support (and its own ApiRequirements)
-    // - check for car / platform version
     // - new annotation for exception cases, like:
     //   - not validating @ApiTest content
     //   - assert throw exception on unsupported version
     //   - ignore on unsupported version
 
-    private static final String TAG = ApiCheckerRule.class.getSimpleName();
+    public static final String TAG = ApiCheckerRule.class.getSimpleName();
 
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
@@ -75,6 +81,56 @@ public final class ApiCheckerRule implements TestRule {
         mEnforceTestApiAnnotations = builder.mEnforceTestApiAnnotations;
     }
 
+    /**
+     * Checks whether the test is running in an environment that supports the given API.
+     *
+     * @param api API as defined by {@link ApiTest}.
+     * @return whether the test is running in an environment that supports the
+     * {@link ApiRequirements} defined in such API.
+     */
+    public boolean isApiSupported(String api) {
+        ApiRequirements apiRequirements = getApiRequirements(api);
+
+        if (apiRequirements == null) {
+            throw new IllegalStateException("No @ApiRequirements on " + api);
+        }
+
+        return isSupported(apiRequirements);
+    }
+
+    private boolean isSupported(ApiRequirements apiRequirements) {
+        CarVersion carVersion = Car.getCarVersion();
+        PlatformVersion platformVersion = Car.getPlatformVersion();
+        boolean carSupported = carVersion.isAtLeast(apiRequirements.minCarVersion().get());
+        boolean platformSupported = platformVersion
+                .isAtLeast(apiRequirements.minPlatformVersion().get());
+        boolean isSupported = carSupported && platformSupported;
+        if (DBG) {
+            Log.d(TAG, "isSupported(" + apiRequirements + "): carVersion=" + carVersion
+                    + " (supported=" + carSupported + "), platformVersion=" + platformVersion
+                    + " (supported=" + platformSupported + "): " + isSupported);
+        }
+        return isSupported;
+    }
+
+    private static ApiRequirements getApiRequirements(String api) {
+        Member member = ApiHelper.resolve(api);
+        if (member == null) {
+            throw new IllegalArgumentException("API not found: " + api);
+        }
+        return getApiRequirements(member);
+    }
+
+    private static ApiRequirements getApiRequirements(Member member) {
+        if (member instanceof Field) {
+            return ((Field) member).getAnnotation(ApiRequirements.class);
+        }
+        if (member instanceof Method) {
+            return ((Method) member).getAnnotation(ApiRequirements.class);
+        }
+        throw new UnsupportedOperationException("Invalid member type for API: " + member);
+    }
+
     @Override
     public Statement apply(Statement base, Description description) {
         return new Statement() {
@@ -85,6 +141,8 @@ public final class ApiCheckerRule implements TestRule {
                 }
 
                 ApiTest apiTest = null;
+                ApiRequirements apiRequirements = null;
+
                 for (Annotation annotation : description.getAnnotations()) {
                     if (annotation instanceof ApiTest) {
                         apiTest = (ApiTest) annotation;
@@ -110,78 +168,65 @@ public final class ApiCheckerRule implements TestRule {
                     if (apis == null || apis.length == 0) {
                         throw new IllegalStateException("empty @ApiTest annotation");
                     }
+                    List<String> invalidApis = new ArrayList<>();
                     for (String api: apis) {
-                        validateApi(api);
+                        Member member = ApiHelper.resolve(api);
+                        if (member == null) {
+                            invalidApis.add(api);
+                        } else if (apiRequirements == null) {
+                            apiRequirements = getApiRequirements(member);
+                        } else {
+                            // TODO(b/242315785): must check that when multiple APIs are defined,
+                            // they have the same api requirements (and unit test it)
+                            Log.w(TAG, "Multiple @ApiRequirements found, but rule is not checking"
+                                    + " if they're compatible yet");
+                        }
                     }
+                    if (!invalidApis.isEmpty()) {
+                        throw new IllegalStateException("Could not resolve some APIs ("
+                                + invalidApis + ") on annotation (" + apiTest + ")");
+                    }
+
                 }
 
-                base.evaluate();
-            }
+                if (apiRequirements == null) {
+                    if (mEnforceTestApiAnnotations) {
+                        throw new IllegalStateException("Missing @ApiRequirements");
+                    } else {
+                        Log.w(TAG, "Test " + description + " doesn't have required "
+                                + "@ApiRequirements, but rule is not enforcing it");
+                    }
+                    base.evaluate();
+                    return;
+                }
 
+                // Finally, run the test and assert results depending on whether it's supported or
+                // not
+                if (isSupported(apiRequirements)) {
+                    if (DBG) {
+                        Log.d(TAG, "Car / Platform combo is supported, running "
+                                + description.getDisplayName());
+                    }
+                    base.evaluate();
+                } else {
+                    Log.i(TAG, "Car / Platform combo is NOT supported, running "
+                            + description.getDisplayName() + " but expecting "
+                                    + "PlatformVersionMismatchException");
+                    try {
+                        base.evaluate();
+                        throw new IllegalStateException("Test should throw "
+                                + PlatformVersionMismatchException.class.getSimpleName()
+                                + " when running on unsupported platform: "
+                                + "CarVersion=" + Car.getCarVersion()
+                                + ", PlatformVersion=" + Car.getPlatformVersion()
+                                + ", ApiRequirements=" + apiRequirements);
+                    } catch (PlatformVersionMismatchException e) {
+                        if (DBG) {
+                            Log.d(TAG, "Exception thrown as expected: " + e);
+                        }
+                    }
+                }
+            }
         };
-    }
-
-    // TODO(b/242315785): improve methods below
-    // - support all formats (like parameters and fields)
-    // - add unit tests
-    // - use regex
-    // - how to handle special cases like android.car.CarVersion.VERSION_CODES.xyz or CREATOR
-    //   - might need special annotation to ignore them
-
-    private static void validateApi(String api) {
-        // Try method first
-        Method method = getMethod(api);
-        if (method != null) {
-            return;
-        }
-        // then field
-        Field field = getField(api);
-        if (field == null) {
-            throw new IllegalStateException("invalid API: " + api);
-        }
-
-    }
-
-    @Nullable
-    private static Method getMethod(String fullyQualifiedMethodName) {
-        int classSeparator = fullyQualifiedMethodName.indexOf('#');
-        if (classSeparator == -1) {
-            return null;
-        }
-        String className = fullyQualifiedMethodName.substring(0, classSeparator);
-        String methodName = fullyQualifiedMethodName.substring(classSeparator + 1,
-                fullyQualifiedMethodName.length());
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-            if (clazz != null) {
-                Class<?>[] noParams = {};
-                return clazz.getDeclaredMethod(methodName, noParams);
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "getMethod(" + fullyQualifiedMethodName + ") failed: " + e);
-        }
-        return null;
-    }
-
-    @Nullable
-    private static Field getField(String fullyQualifiedFieldName) {
-        int classSeparator = fullyQualifiedFieldName.indexOf('#');
-        if (classSeparator == -1) {
-            return null;
-        }
-        String className = fullyQualifiedFieldName.substring(0, classSeparator);
-        String fieldName = fullyQualifiedFieldName.substring(classSeparator + 1,
-                fullyQualifiedFieldName.length());
-        Class<?> clazz;
-        try {
-            clazz = Class.forName(className);
-            if (clazz != null) {
-                return clazz.getDeclaredField(fieldName);
-            }
-        } catch (Exception e) {
-            Log.w(TAG, "getField(" + fullyQualifiedFieldName + ") failed: " + e);
-        }
-        return null;
     }
 }
