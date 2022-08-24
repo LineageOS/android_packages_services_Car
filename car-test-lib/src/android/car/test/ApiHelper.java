@@ -96,7 +96,6 @@ public final class ApiHelper {
         try {
             Class<?> clazz = Class.forName(className);
             String methodName = methodSignature;
-            Class<?>[] params = {};
             if (clazz != null) {
                 if (methodSignature.contains("(") && methodSignature.endsWith(")")) {
                     int openingIndex = methodSignature.indexOf('(');
@@ -105,12 +104,16 @@ public final class ApiHelper {
                             methodSignature.length() - 1);
                     String[] paramTypesNames = types.split(",");
                     if (DBG) {
-                        Log.d(TAG, "Method name: " + methodName + ". Types: "
+                        Log.d(TAG, "Method name after stripping (): " + methodName + ". Types: "
                                 + Arrays.toString(paramTypesNames));
                     }
-                    return getMethod(clazz, methodName, paramTypesNames);
+                    return getMethodWithParameters(clazz, methodName, paramTypesNames);
                 } // methodSignature.contains....
-                return clazz.getDeclaredMethod(methodName, params);
+                if (DBG) {
+                    Log.d(TAG, "Getting method without params: " + methodName);
+                }
+                Class<?>[] noParams = {};
+                return clazz.getDeclaredMethod(methodName, noParams);
             } // clazz != null
         } catch (Exception e) {
             if (DBG) {
@@ -121,7 +124,8 @@ public final class ApiHelper {
     }
 
     @Nullable
-    private static Method getMethod(Class<?> clazz, String methodName, String[] paramTypesNames) {
+    private static Method getMethodWithParameters(Class<?> clazz, String methodName,
+            String[] paramTypesNames) {
         if (DBG) {
             Log.d(TAG, "getMethod(" + clazz  + ", " + methodName + ", "
                     + Arrays.toString(paramTypesNames) + ")");
