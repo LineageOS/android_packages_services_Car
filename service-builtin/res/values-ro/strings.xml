@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"Se conectează la un serviciu de proiecție"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Permite proprietarului să se conecteze la interfața de nivel superior a unui serviciu de proiecție. Nu ar trebui să fie niciodată necesară pentru aplicațiile obișnuite"</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Serviciu client VMS"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Se conectează la clienții VMS"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Redarea grupurilor de instrumente"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Primiți date despre grupul de instrumente"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Gestionează serviciul de intrare pentru mașină"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Gestionează evenimentele de intrare"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Nu puteți folosi această funcție în timp ce conduceți"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Pentru a începe din nou cu funcțiile pentru aplicații sigure, selectați <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Înapoi"</string>

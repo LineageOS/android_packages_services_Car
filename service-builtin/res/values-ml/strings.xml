@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"പ്രൊജക്ഷൻ സേവനവുമായി ബന്ധിപ്പിക്കുക"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"പ്രൊജക്ഷൻ സേവനത്തിൻ്റെ ഏറ്റവും മികച്ച ഇൻ്റർഫേസുമായി ബന്ധിപ്പിക്കാൻ ദാതാവിനെ അനുവദിക്കുന്നു. സാധാരണ ആപ്പുകൾക്ക് ഒരിക്കലും ആവശ്യമില്ല."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ക്ലയൻ്റ് സേവനം"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ക്ലയൻ്റുകളുമായി ബന്ധിപ്പിക്കുക"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ഇൻസ്‌ട്രുമെന്റ് ക്ലസ്‌റ്റർ റെൻഡർ ചെയ്യൽ"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ഇൻസ്‌ട്രുമെന്റ് ക്ലസ്‌റ്റർ ഡാറ്റ സ്വീകരിക്കുക"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"കാറിന്റെ ഇൻപുട്ട് സേവനം"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ഇൻപുട്ട് ഇവന്റുകൾ കൈകാര്യം ചെയ്യുക"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"ഡ്രെെവ് ചെയ്യുമ്പോൾ നിങ്ങൾ ഈ ഫീച്ചർ ഉപയോഗിക്കരുത്"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"സുരക്ഷിതമായ ആപ്പ് ഫീച്ചറുകൾ ഉപയോഗിച്ച് പുനരാരംഭിക്കാൻ, <xliff:g id="EXIT_BUTTON">%s</xliff:g> തിരഞ്ഞെടുക്കുക."</string>
     <string name="exit_button" msgid="3491899413031549265">"മടങ്ങുക"</string>

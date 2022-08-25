@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇನಲ್ಲಿರುವ ಫೋನ್‌ನಿಂದ ಇಂಟರ್ ಫೇಸ್ ಅನ್ನು ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"ಪ್ರಕ್ಷೇಪಣೆ ಸ್ಥಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"ಕಾರಿನ ಡಿಸ್‌ಪ್ಲೇಗೆ ಪ್ರಾಜೆಕ್ಟ್ ಮಾಡುವ ಇತರ ಆ್ಯಪ್‌ಗಳ ಸ್ಥಿತಿಯನ್ನು ಪಡೆಯಲು ಆ್ಯಪ್‌ಗೆ ಅನುಮತಿಸುತ್ತದೆ."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ಪ್ರಕ್ಷೇಪಣೆ ಸೇವೆಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ಪ್ರೊಜೆಕ್ಷನ್ ಸೇವೆಯ ಉನ್ನತ ಮಟ್ಟದ ಇಂಟರ್ ಫೇಸ್‌ಗೆ ಪ್ರತಿಬಂಧಿಸಲು ಮಾಲೀಕರಿಗೆ ಅವಕಾಶ ನೀಡುತ್ತದೆ. ಸಾಮಾನ್ಯ ಆ್ಯಪ್‌ಗಳಿಗೆ ಎಂದಿಗೂ ಅಗತ್ಯವಿರುವುದಿಲ್ಲ."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"ಕಾರಿನ ಆಡಿಯೋ ವಾಲ್ಯೂಮ್ ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"ಕಾರಿನ ಆಡಿಯೋ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ನಿರ್ವಹಿಸಿ"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"ವಾಹನದ HAL ಸಂಪರ್ಕಸಾಧನವನ್ನು ಅನುಕರಿಸಿ"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಆ್ಯಪ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"ಸಲಕರಣೆ ಕ್ಲಸ್ಟರ್ ನ್ಯಾವಿಗೇಷನ್ ಸ್ಥಿತಿ"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ಸಲಕರಣೆ ಕ್ಲಸ್ಟರ್ ನ್ಯಾವಿಗೇಶನ್ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಗಳನ್ನು ಆಲಿಸಿ"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ಸಲಕರಣೆ ಸಂಚಯ ತೋರಿಸು"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶ"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System ಗಾಗಿ ಓದುವ ಸ್ಥಿತಿ ಮತ್ತು ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಡೇಟಾವನ್ನು ಅನುಮತಿಸುತ್ತದೆ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System Graph ಅನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System ಪತ್ತೆಹಚ್ಚುವಿಕೆ ಗ್ರಾಫ್‌ನ ಪ್ರಾರಂಭಿಸಲು ಮತ್ತು ನಿಲ್ಲಿಸುವುದನ್ನು ನಿಯಂತ್ರಿಸಲು ನಿಮಗೆ ಅನುಮತಿಸುತ್ತದೆ"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"ಕಾರಿನ ಇನ್‌ಪುಟ್ ಸೇವೆ"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ಊಡಿಕೆ ಘಟನೆಗಳನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"ಕಾರಿನಲ್ಲಿರುವ ಅದರ ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ಡಯಾಗ್ನೋಸ್ಟಿಕ್ ಡೇಟಾವನ್ನು ತೆರವುಗೊಳಿಸಿ"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS ಸಂದೇಶಗಳನ್ನು ಪ್ರಕಟಿಸಿ"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS ಸಬ್‌ಸ್ಕ್ರೈಬರ್‌"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS ಸಂದೇಶಗಳಿಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಮಾಡಿ"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ಕ್ಲೈಂಟ್ ಸೇವೆ"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ಕ್ಲೈಂಟ್‌ಗಳಿಗೆ ಪ್ರತಿಬಂಧಿಸಿ"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ಫ್ಲಾಶ್ ಸಂಗ್ರಹದ ಉಸ್ತುವಾರಿ"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ಫ್ಲಾಶ್ ಸಂಗ್ರಹ ಬಳಕೆಯ ಉಸ್ತುವಾರಿ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಯನ್ನು ಆಲಿಸಿ"</string>

@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"Membenarkan apl mengunjurkan antara muka pada paparan kereta daripada telefon."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"akses status unjuran"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Membenarkan apl mendapatkan status apl lain yang mengunjurkan sesuatu pada paparan kereta."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ikat pada perkhidmatan unjuran"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Membenarkan pemegang terikat dengan antara muka peringkat tertinggi bagi perkhidmatan unjuran. Tidak sekali-kali diperlukan untuk apl biasa."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"kawal kelantangan audio kereta"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"urus tetapan audio kereta"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"tiru HAL kenderaan"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Lancarkan apl dalam kluster alatan"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Keadaan navigasi kluster instrumen"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"Perhatikan perubahan keadaan navigasi kluster instrumen"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Pemaparan Kluster Alatan"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Terima data kluster alatan"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Konfigurasi Sekatan UX"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Konfigurasikan Sekatan UX"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Akses baca ke id paparan peribadi"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Membenarkan pembacaan status dan data pengesanan untuk Sistem Kesedaran Penumpang"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Kawal Graf Sistem Kesedaran Penumpang"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Membenarkan pengawalan permulaan dan penamatan graf pengesanan Sistem Kesedaran Penumpang"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Perkhidmatan Input Kereta"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Kendalikan peristiwa input"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"baca data diagnostik"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Baca data diagnostik daripada kereta."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"kosongkan data diagnostik"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Terbitkan mesej VMS"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Pelanggan VMS"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Langgan mesej VMS"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Perkhidmatan Pelanggan VMS"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Terikat pada pelanggan VMS"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Pemantauan storan pemacu kilat"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Pantau penggunaan storan pemacu kilat"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"dengar keadaan pemanduan"</string>
