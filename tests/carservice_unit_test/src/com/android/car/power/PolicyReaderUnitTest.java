@@ -211,6 +211,17 @@ public final class PolicyReaderUnitTest {
 
     @Test
     public void testDefaultPolicies() throws Exception {
+        assertDefaultPolicies();
+    }
+
+    @Test
+    public void testDefaultPoliciesWithCustomVendorPolicies() throws Exception {
+        readPowerPolicyXml(R.raw.valid_power_policy);
+
+        assertDefaultPolicies();
+    }
+
+    private void assertDefaultPolicies() {
         assertThat(mPolicyReader.getPowerPolicy(ALL_ON_POLICY_ID)).isNotNull();
         assertThat(mPolicyReader.getPreemptivePowerPolicy(NO_USER_INTERACTION_POLICY_ID))
                 .isNotNull();
