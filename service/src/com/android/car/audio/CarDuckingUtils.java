@@ -30,13 +30,14 @@ import static com.android.car.audio.CarAudioContext.SYSTEM_SOUND;
 import static com.android.car.audio.CarAudioContext.VEHICLE_STATUS;
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
+import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
+import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -111,8 +112,8 @@ final class CarDuckingUtils {
 
     static CarDuckingInfo generateDuckingInfo(
             CarDuckingInfo oldDuckingInfo, List<AudioFocusInfo> focusHolders, CarAudioZone zone) {
-        int[] usagesHoldingFocus = getUsagesHoldingFocus(focusHolders);
-        List<String> addressesToDuck = getAddressesToDuck(usagesHoldingFocus, zone);
+        List<AudioAttributes> attributesHoldingFocus = getAudioAttributesHoldingFocus(focusHolders);
+        List<String> addressesToDuck = getAddressesToDuck(attributesHoldingFocus, zone);
         List<String> addressesToUnduck =
                 getAddressesToUnduck(addressesToDuck, oldDuckingInfo.mAddressesToDuck);
 
@@ -120,26 +121,21 @@ final class CarDuckingUtils {
                 zone.getId(),
                 addressesToDuck,
                 addressesToUnduck,
-                CarHalAudioUtils.usagesToMetadatas(usagesHoldingFocus, zone));
+                CarHalAudioUtils.audioAttributesToMetadatas(attributesHoldingFocus, zone));
     }
 
-    static int[] getUsagesHoldingFocus(List<AudioFocusInfo> focusHolders) {
-        Set<Integer> uniqueUsages = new HashSet<>();
-        for (AudioFocusInfo focusInfo : focusHolders) {
-            uniqueUsages.add(focusInfo.getAttributes().getSystemUsage());
+    static List<AudioAttributes> getAudioAttributesHoldingFocus(List<AudioFocusInfo> focusHolders) {
+        List<AudioAttributes> audioAttributes = new ArrayList<>(focusHolders.size());
+        for (int index = 0; index < focusHolders.size(); index++) {
+            audioAttributes.add(focusHolders.get(index).getAttributes());
         }
-
-        int index = 0;
-        int[] usagesHoldingFocus = new int[uniqueUsages.size()];
-        for (int usage : uniqueUsages) {
-            usagesHoldingFocus[index] = usage;
-            index++;
-        }
-        return usagesHoldingFocus;
+        return CarAudioContext.getUniqueAttributesHoldingFocus(audioAttributes);
     }
 
-    static List<String> getAddressesToDuck(int[] usages, CarAudioZone zone) {
-        Set<Integer> uniqueContexts = CarAudioContext.getUniqueContextsForUsages(usages);
+    static List<String> getAddressesToDuck(List<AudioAttributes> audioAttributes,
+            CarAudioZone zone) {
+        Set<Integer> uniqueContexts =
+                CarAudioContext.getUniqueContextsForAudioAttributes(audioAttributes);
         uniqueContexts.remove(INVALID);
         Set<Integer> contextsToDuck = getContextsToDuck(uniqueContexts);
         Set<String> addressesToDuck = getAddressesForContexts(contextsToDuck, zone);
@@ -161,13 +157,13 @@ final class CarDuckingUtils {
 
     private static Set<Integer> getUnduckedContexts(Set<Integer> contexts,
             Set<Integer> duckedContexts) {
-        Set<Integer> unduckedContexts = new HashSet<>(contexts);
+        Set<Integer> unduckedContexts = new ArraySet<>(contexts);
         unduckedContexts.removeAll(duckedContexts);
         return unduckedContexts;
     }
 
     private static Set<String> getAddressesForContexts(Set<Integer> contexts, CarAudioZone zone) {
-        Set<String> addresses = new HashSet<>();
+        Set<String> addresses = new ArraySet<>();
         for (Integer context : contexts) {
             addresses.add(zone.getAddressForContext(context));
         }
@@ -175,7 +171,7 @@ final class CarDuckingUtils {
     }
 
     private static Set<Integer> getContextsToDuck(Set<Integer> contexts) {
-        Set<Integer> contextsToDuck = new HashSet<>();
+        Set<Integer> contextsToDuck = new ArraySet<>();
 
         for (Integer context : contexts) {
             int[] duckedContexts = sContextsToDuck.get(context);

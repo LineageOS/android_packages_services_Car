@@ -25,12 +25,12 @@ import static com.android.car.audio.CarAudioUtils.hasExpired;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.media.AudioAttributes;
 import android.media.AudioPlaybackConfiguration;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
-import com.android.car.internal.annotation.AttributeUsage;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -137,8 +137,8 @@ final class CarVolume {
      * <p> Note that if an active context is found it be will saved and retrieved later on.
      */
     @AudioContext int getSuggestedAudioContextAndSaveIfFound(
-            @NonNull List<Integer> activePlaybackContexts, int callState,
-            @NonNull @AttributeUsage int[] activeHalUsages) {
+            List<Integer> activePlaybackContexts, int callState,
+            List<AudioAttributes> activeHalAttributes) {
 
         int activeContext = getAudioContextStillActive();
         if (activeContext != CarAudioContext.INVALID) {
@@ -146,8 +146,8 @@ final class CarVolume {
             return activeContext;
         }
 
-        Set<Integer> activeContexts = getActiveContexts(activePlaybackContexts, callState,
-                activeHalUsages);
+        Set<Integer> activeContexts =
+                getActiveContexts(activePlaybackContexts, callState, activeHalAttributes);
 
 
         @AudioContext int context =
@@ -189,28 +189,32 @@ final class CarVolume {
         }
     }
 
-    public static boolean isAnyContextActive(@NonNull @AudioContext int [] contexts,
-            @NonNull List<Integer> activePlaybackContext, int callState,
-            @NonNull @AttributeUsage int[] activeHalUsages) {
-        Objects.nonNull(contexts);
-        Preconditions.checkArgument(contexts.length != 0,
-                "contexts can not be empty.");
+    public static boolean isAnyContextActive(@AudioContext int [] contexts,
+            List<Integer> activePlaybackContext, int callState,
+            List<AudioAttributes> activeHalAudioAttributes) {
+        Objects.requireNonNull(contexts, "Contexts can not be null");
+        Preconditions.checkArgument(contexts.length != 0, "Contexts can not be empty");
+        Objects.requireNonNull(activeHalAudioAttributes, "Audio attributes can not be null");
+
         Set<Integer> activeContexts = getActiveContexts(activePlaybackContext,
-                callState, activeHalUsages);
+                callState, activeHalAudioAttributes);
+
         for (@AudioContext int context : contexts) {
             if (activeContexts.contains(context)) {
                 return true;
             }
         }
+
         return false;
     }
 
     private static Set<Integer> getActiveContexts(@NonNull List<Integer> activePlaybackContexts,
-            int callState, @NonNull @AttributeUsage int[] activeHalUsages) {
-        Objects.nonNull(activePlaybackContexts);
-        Objects.nonNull(activeHalUsages);
+            int callState, List<AudioAttributes> activeHalAudioAttributes) {
+        Objects.requireNonNull(activePlaybackContexts, "Playback contexts can not be null");
+        Objects.requireNonNull(activeHalAudioAttributes, "Active HAL contexts can not be null");
 
-        Set<Integer> contexts = CarAudioContext.getUniqueContextsForUsages(activeHalUsages);
+        Set<Integer> contexts =
+                CarAudioContext.getUniqueContextsForAudioAttributes(activeHalAudioAttributes);
 
         switch (callState) {
             case CALL_STATE_RINGING:
