@@ -31,6 +31,7 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::base::Error;
+using ::android::base::ParseInt;
 using ::android::base::ParseUint;
 using ::android::base::ReadFileToString;
 using ::android::base::Result;
@@ -39,7 +40,7 @@ using ::android::base::StartsWith;
 
 namespace {
 
-bool parseCpuStats(const std::string& data, CpuStats* cpuStats) {
+bool parseCpuStats(const std::string& data, CpuStats* cpuStats, int32_t millisPerClockTick) {
     std::vector<std::string> fields = Split(data, " ");
     if (fields.size() == 12 && fields[1].empty()) {
         /* The first cpu line will have an extra space after the first word. This will generate an
@@ -47,17 +48,31 @@ bool parseCpuStats(const std::string& data, CpuStats* cpuStats) {
          */
         fields.erase(fields.begin() + 1);
     }
-    if (fields.size() != 11 || fields[0] != "cpu" || !ParseUint(fields[1], &cpuStats->userTime) ||
-        !ParseUint(fields[2], &cpuStats->niceTime) || !ParseUint(fields[3], &cpuStats->sysTime) ||
-        !ParseUint(fields[4], &cpuStats->idleTime) ||
-        !ParseUint(fields[5], &cpuStats->ioWaitTime) || !ParseUint(fields[6], &cpuStats->irqTime) ||
-        !ParseUint(fields[7], &cpuStats->softIrqTime) ||
-        !ParseUint(fields[8], &cpuStats->stealTime) ||
-        !ParseUint(fields[9], &cpuStats->guestTime) ||
-        !ParseUint(fields[10], &cpuStats->guestNiceTime)) {
+    if (fields.size() != 11 || fields[0] != "cpu" ||
+        !ParseInt(fields[1], &cpuStats->userTimeMillis) ||
+        !ParseInt(fields[2], &cpuStats->niceTimeMillis) ||
+        !ParseInt(fields[3], &cpuStats->sysTimeMillis) ||
+        !ParseInt(fields[4], &cpuStats->idleTimeMillis) ||
+        !ParseInt(fields[5], &cpuStats->ioWaitTimeMillis) ||
+        !ParseInt(fields[6], &cpuStats->irqTimeMillis) ||
+        !ParseInt(fields[7], &cpuStats->softIrqTimeMillis) ||
+        !ParseInt(fields[8], &cpuStats->stealTimeMillis) ||
+        !ParseInt(fields[9], &cpuStats->guestTimeMillis) ||
+        !ParseInt(fields[10], &cpuStats->guestNiceTimeMillis)) {
         ALOGW("Invalid cpu line: \"%s\"", data.c_str());
         return false;
     }
+    // Convert clock ticks to millis
+    cpuStats->userTimeMillis *= millisPerClockTick;
+    cpuStats->niceTimeMillis *= millisPerClockTick;
+    cpuStats->sysTimeMillis *= millisPerClockTick;
+    cpuStats->idleTimeMillis *= millisPerClockTick;
+    cpuStats->ioWaitTimeMillis *= millisPerClockTick;
+    cpuStats->irqTimeMillis *= millisPerClockTick;
+    cpuStats->softIrqTimeMillis *= millisPerClockTick;
+    cpuStats->stealTimeMillis *= millisPerClockTick;
+    cpuStats->guestTimeMillis *= millisPerClockTick;
+    cpuStats->guestNiceTimeMillis *= millisPerClockTick;
     return true;
 }
 
@@ -115,10 +130,10 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
             continue;
         }
         if (!lines[i].compare(0, 4, "cpu ")) {
-            if (info.totalCpuTime() != 0) {
+            if (info.totalCpuTimeMillis() != 0) {
                 return Error() << "Duplicate `cpu .*` line in " << kPath;
             }
-            if (!parseCpuStats(std::move(lines[i]), &info.cpuStats)) {
+            if (!parseCpuStats(lines[i], &info.cpuStats, mMillisPerClockTick)) {
                 return Error() << "Failed to parse `cpu .*` line in " << kPath;
             }
         } else if (!lines[i].compare(0, 4, "ctxt")) {
@@ -152,7 +167,7 @@ Result<ProcStatInfo> ProcStatCollector::getProcStatLocked() const {
             return Error() << "Unknown procs_ line `" << lines[i] << "` in " << kPath;
         }
     }
-    if (info.totalCpuTime() == 0 || !didReadContextSwitches || !didReadProcsRunning ||
+    if (info.totalCpuTimeMillis() == 0 || !didReadContextSwitches || !didReadProcsRunning ||
         !didReadProcsBlocked) {
         return Error() << kPath << " is incomplete";
     }

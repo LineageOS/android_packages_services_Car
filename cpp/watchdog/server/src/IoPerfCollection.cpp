@@ -53,8 +53,12 @@ constexpr const char kCustomCollectionTitle[] = "%s\nCustom performance data rep
 constexpr const char kCollectionTitle[] =
         "Collection duration: %.f seconds\nNumber of collections: %zu\n";
 constexpr const char kRecordTitle[] = "\nCollection %zu: <%s>\n%s\n%s";
-constexpr const char kIoReadsTitle[] = "\nTop N Reads:\n%s\n";
-constexpr const char kIoWritesTitle[] = "\nTop N Writes:\n%s\n";
+constexpr const char kCpuTimeTitle[] = "\nTop N CPU Times:\n%s\n";
+constexpr const char kCpuTimeHeader[] =
+        "Android User ID, Package Name, CPU Time (ms), Percentage of total CPU time\n\tCommand, "
+        "CPU Time (ms), Percentage of UID's CPU Time\n";
+constexpr const char kIoReadsTitle[] = "\nTop N Storage I/O Reads:\n%s\n";
+constexpr const char kIoWritesTitle[] = "\nTop N Storage I/O Writes:\n%s\n";
 constexpr const char kIoStatsHeader[] =
         "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, Foreground Fsync, "
         "Foreground Fsync %%, Background Bytes, Background Bytes %%, Background Fsync, "
@@ -137,22 +141,24 @@ void cacheTopNIoStats(MetricType metricType, const UidStats& uidStats,
 enum ProcStatType {
     IO_BLOCKED_TASKS_COUNT = 0,
     MAJOR_FAULTS,
+    CPU_TIME,
     PROC_STAT_TYPES,
 };
 
 bool cacheTopNProcessStats(ProcStatType procStatType, const ProcessStats& processStats,
-                           std::vector<UserPackageStats::ProcStats::ProcessCount>* topNProcesses) {
-    uint64_t count = procStatType == IO_BLOCKED_TASKS_COUNT ? processStats.ioBlockedTasksCount
-                                                            : processStats.totalMajorFaults;
-    if (count == 0) {
+                           std::vector<UserPackageStats::ProcStats::ProcessValue>* topNProcesses) {
+    uint64_t value = procStatType == CPU_TIME        ? processStats.cpuTimeMillis
+            : procStatType == IO_BLOCKED_TASKS_COUNT ? processStats.ioBlockedTasksCount
+                                                     : processStats.totalMajorFaults;
+    if (value == 0) {
         return false;
     }
     for (auto it = topNProcesses->begin(); it != topNProcesses->end(); ++it) {
-        if (count > it->count) {
+        if (value > it->value) {
             topNProcesses->emplace(it,
-                                   UserPackageStats::ProcStats::ProcessCount{
+                                   UserPackageStats::ProcStats::ProcessValue{
                                            .comm = processStats.comm,
-                                           .count = count,
+                                           .value = value,
                                    });
             topNProcesses->pop_back();
             return true;
@@ -163,12 +169,13 @@ bool cacheTopNProcessStats(ProcStatType procStatType, const ProcessStats& proces
 
 UserPackageStats toUserPackageStats(ProcStatType procStatType, const UidStats& uidStats,
                                     int topNProcessCount) {
-    uint64_t count = procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
-                                                            : uidStats.procStats.totalMajorFaults;
+    uint64_t value = procStatType == CPU_TIME        ? uidStats.cpuTimeMillis
+            : procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
+                                                     : uidStats.procStats.totalMajorFaults;
     UserPackageStats userPackageStats = {
             .uid = uidStats.uid(),
             .genericPackageName = uidStats.genericPackageName(),
-            .stats = UserPackageStats::ProcStats{.count = count},
+            .stats = UserPackageStats::ProcStats{.value = value},
     };
     auto& procStats = std::get<UserPackageStats::ProcStats>(userPackageStats.stats);
     procStats.topNProcesses.resize(topNProcessCount);
@@ -187,14 +194,15 @@ UserPackageStats toUserPackageStats(ProcStatType procStatType, const UidStats& u
 
 bool cacheTopNProcStats(ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
                         std::vector<UserPackageStats>* topNProcStats) {
-    uint64_t count = procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
-                                                            : uidStats.procStats.totalMajorFaults;
-    if (count == 0) {
+    uint64_t value = procStatType == CPU_TIME        ? uidStats.cpuTimeMillis
+            : procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
+                                                     : uidStats.procStats.totalMajorFaults;
+    if (value == 0) {
         return false;
     }
     for (auto it = topNProcStats->begin(); it != topNProcStats->end(); ++it) {
         if (const auto* procStats = std::get_if<UserPackageStats::ProcStats>(&it->stats);
-            procStats == nullptr || count > procStats->count) {
+            procStats == nullptr || value > procStats->value) {
             topNProcStats->emplace(it,
                                    toUserPackageStats(procStatType, uidStats, topNProcessCount));
             topNProcStats->pop_back();
@@ -237,23 +245,30 @@ std::string UserPackageStats::toString(MetricType metricsType,
     return buffer;
 }
 
-std::string UserPackageStats::toString(int64_t totalCount) const {
+std::string UserPackageStats::toString(int64_t totalValue) const {
     std::string buffer;
     const auto& procStats = std::get<UserPackageStats::ProcStats>(stats);
     StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", multiuser_get_user_id(uid),
-                  genericPackageName.c_str(), procStats.count,
-                  percentage(procStats.count, totalCount));
-    for (const auto& processCount : procStats.topNProcesses) {
-        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processCount.comm.c_str(),
-                      processCount.count, percentage(processCount.count, procStats.count));
+                  genericPackageName.c_str(), procStats.value,
+                  percentage(procStats.value, totalValue));
+    for (const auto& processValue : procStats.topNProcesses) {
+        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processValue.comm.c_str(),
+                      processValue.value, percentage(processValue.value, procStats.value));
     }
     return buffer;
 }
 
 std::string UserPackageSummaryStats::toString() const {
     std::string buffer;
+    if (!topNCpuTimes.empty()) {
+        StringAppendF(&buffer, kCpuTimeTitle, std::string(16, '-').c_str());
+        StringAppendF(&buffer, kCpuTimeHeader);
+        for (const auto& stats : topNCpuTimes) {
+            StringAppendF(&buffer, "%s", stats.toString(totalCpuTimeMillis).c_str());
+        }
+    }
     if (!topNIoReads.empty()) {
-        StringAppendF(&buffer, kIoReadsTitle, std::string(12, '-').c_str());
+        StringAppendF(&buffer, kIoReadsTitle, std::string(24, '-').c_str());
         StringAppendF(&buffer, kIoStatsHeader);
         for (const auto& stats : topNIoReads) {
             StringAppendF(&buffer, "%s",
@@ -261,7 +276,7 @@ std::string UserPackageSummaryStats::toString() const {
         }
     }
     if (!topNIoWrites.empty()) {
-        StringAppendF(&buffer, kIoWritesTitle, std::string(13, '-').c_str());
+        StringAppendF(&buffer, kIoWritesTitle, std::string(25, '-').c_str());
         StringAppendF(&buffer, kIoStatsHeader);
         for (const auto& stats : topNIoWrites) {
             StringAppendF(&buffer, "%s",
@@ -292,11 +307,11 @@ std::string UserPackageSummaryStats::toString() const {
 
 std::string SystemSummaryStats::toString() const {
     std::string buffer;
-    StringAppendF(&buffer, "Total CPU time: %" PRIu64 "\n", totalCpuTime);
-    StringAppendF(&buffer, "Total idle CPU time/percent: %" PRIu64 " / %.2f%%\n", cpuIdleTime,
-                  percentage(cpuIdleTime, totalCpuTime));
-    StringAppendF(&buffer, "CPU I/O wait time/percent: %" PRIu64 " / %.2f%%\n", cpuIoWaitTime,
-                  percentage(cpuIoWaitTime, totalCpuTime));
+    StringAppendF(&buffer, "Total CPU time (ms): %" PRIu64 "\n", totalCpuTimeMillis);
+    StringAppendF(&buffer, "Total idle CPU time (ms)/percent: %" PRIu64 " / %.2f%%\n",
+                  cpuIdleTimeMillis, percentage(cpuIdleTimeMillis, totalCpuTimeMillis));
+    StringAppendF(&buffer, "CPU I/O wait time (ms)/percent: %" PRIu64 " / %.2f%%\n",
+                  cpuIoWaitTimeMillis, percentage(cpuIoWaitTimeMillis, totalCpuTimeMillis));
     StringAppendF(&buffer, "Number of context switches: %" PRIu64 "\n", contextSwitchesCount);
     StringAppendF(&buffer, "Number of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
                   ioBlockedProcessCount, percentage(ioBlockedProcessCount, totalProcessCount));
@@ -462,6 +477,8 @@ Result<void> IoPerfCollection::processLocked(
     };
     processUidStatsLocked(filterPackages, uidStatsCollector, &record.userPackageSummaryStats);
     processProcStatLocked(procStatCollector, &record.systemSummaryStats);
+    record.userPackageSummaryStats.totalCpuTimeMillis =
+            record.systemSummaryStats.totalCpuTimeMillis;
     if (collectionInfo->records.size() > collectionInfo->maxCacheSize) {
         collectionInfo->records.erase(collectionInfo->records.begin());  // Erase the oldest record.
     }
@@ -477,9 +494,8 @@ void IoPerfCollection::processUidStatsLocked(
     if (uidStats.empty()) {
         return;
     }
-    // TODO(b/235881079): Retrieve the CPU time from uidStats and store in
-    //  userPackageSummaryStats. Dump the CPU stat for bugreport.
     if (filterPackages.empty()) {
+        userPackageSummaryStats->topNCpuTimes.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoReads.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoWrites.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoBlocked.resize(mTopNStatsPerCategory);
@@ -494,6 +510,8 @@ void IoPerfCollection::processUidStatsLocked(
                              &userPackageSummaryStats->topNIoReads);
             cacheTopNIoStats(MetricType::WRITE_BYTES, curUidStats,
                              &userPackageSummaryStats->topNIoWrites);
+            cacheTopNProcStats(CPU_TIME, curUidStats, mTopNStatsPerSubcategory,
+                               &userPackageSummaryStats->topNCpuTimes);
             if (cacheTopNProcStats(IO_BLOCKED_TASKS_COUNT, curUidStats, mTopNStatsPerSubcategory,
                                    &userPackageSummaryStats->topNIoBlocked)) {
                 userPackageSummaryStats->taskCountByUid[uid] =
@@ -508,6 +526,8 @@ void IoPerfCollection::processUidStatsLocked(
                     toUserPackageStats(MetricType::READ_BYTES, curUidStats));
             userPackageSummaryStats->topNIoWrites.emplace_back(
                     toUserPackageStats(MetricType::WRITE_BYTES, curUidStats));
+            userPackageSummaryStats->topNCpuTimes.emplace_back(
+                    toUserPackageStats(CPU_TIME, curUidStats, mTopNStatsPerSubcategory));
             userPackageSummaryStats->topNIoBlocked.emplace_back(
                     toUserPackageStats(IO_BLOCKED_TASKS_COUNT, curUidStats,
                                        mTopNStatsPerSubcategory));
@@ -534,6 +554,7 @@ void IoPerfCollection::processUidStatsLocked(
             }
         }
     };
+    removeEmptyStats(userPackageSummaryStats->topNCpuTimes);
     removeEmptyStats(userPackageSummaryStats->topNIoReads);
     removeEmptyStats(userPackageSummaryStats->topNIoWrites);
     removeEmptyStats(userPackageSummaryStats->topNIoBlocked);
@@ -544,9 +565,9 @@ void IoPerfCollection::processProcStatLocked(
         const sp<ProcStatCollectorInterface>& procStatCollector,
         SystemSummaryStats* systemSummaryStats) const {
     const ProcStatInfo& procStatInfo = procStatCollector->deltaStats();
-    systemSummaryStats->cpuIoWaitTime = procStatInfo.cpuStats.ioWaitTime;
-    systemSummaryStats->cpuIdleTime = procStatInfo.cpuStats.idleTime;
-    systemSummaryStats->totalCpuTime = procStatInfo.totalCpuTime();
+    systemSummaryStats->cpuIoWaitTimeMillis = procStatInfo.cpuStats.ioWaitTimeMillis;
+    systemSummaryStats->cpuIdleTimeMillis = procStatInfo.cpuStats.idleTimeMillis;
+    systemSummaryStats->totalCpuTimeMillis = procStatInfo.totalCpuTimeMillis();
     systemSummaryStats->contextSwitchesCount = procStatInfo.contextSwitchesCount;
     systemSummaryStats->ioBlockedProcessCount = procStatInfo.ioBlockedProcessCount;
     systemSummaryStats->totalProcessCount = procStatInfo.totalProcessCount();
