@@ -44,6 +44,8 @@ import com.google.errorprone.annotations.FormatMethod;
  */
 public final class RemoteDevicePolicyManager implements DevicePolicyManagerInterface {
     private static final String TAG = RemoteDevicePolicyManager.class.getSimpleName();
+    private static final int THREAD_SLEEP_TIME = 100;
+    private static final int THREAD_SLEEP_MAX = 5000;
 
     private final ComponentName mAdmin;
     private final Context mContext;
@@ -81,6 +83,7 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
                 }
             };
 
+    // TODO(b/243543739): Add an init method to remoteDpm
     public RemoteDevicePolicyManager(ComponentName admin, Context context, UserHandle target) {
         mAdmin = admin;
         mContext = context;
@@ -88,14 +91,28 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
 
         mTargetUserHandle = target;
 
-        mBound = bindRemoteDpm();
-
-        if (!mBound) {
-            Log.i(TAG, "Binding failed.");
-            throw new IllegalStateException("Binding Failed");
-        }
+        waitForBinding();
 
         Log.i(TAG, "Binding successful with " + mTargetUserHandle + "? " + mBound);
+    }
+
+    private void waitForBinding() {
+        int totalTime = 0;
+        // User must be running and affiliated to move forward (exit loop)
+        while (!(mBound = bindRemoteDpm())) {
+            try {
+                Thread.sleep(THREAD_SLEEP_TIME);
+                totalTime += THREAD_SLEEP_TIME;
+                if (totalTime > THREAD_SLEEP_MAX) {
+                    Log.i(TAG, "Reached max sleep time, no longer attempting to bind.");
+                    break;
+                }
+                Log.i(TAG, "sleeping for " + totalTime + " seconds.");
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                Log.e(TAG, "Thread sleep was interrupted.", e);
+            }
+        }
     }
 
     private boolean bindRemoteDpm() {
@@ -157,6 +174,12 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
                 throw new IllegalStateException("RemoteDpm was not bound");
             }
             return mRemoteDpm;
+        }
+    }
+
+    public boolean isBound() {
+        synchronized (mLock) {
+            return mRemoteDpm != null;
         }
     }
 }

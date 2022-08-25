@@ -19,19 +19,27 @@ package com.android.car.testdpc;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.Log;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
 import com.android.car.testdpc.remotedpm.LocalDevicePolicyManager;
 import com.android.car.testdpc.remotedpm.RemoteDevicePolicyManager;
 
+import com.google.errorprone.annotations.FormatMethod;
+
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public final class DpcFactory {
 
     private static final String TAG = DpcFactory.class.getSimpleName();
+    private static final int SLEEP_TIME_MS = 100;
+    private static final int SLEEP_MAX_MS = 10_000;
 
     private List<DevicePolicyManagerInterface> mPoInterfaces;
     private DevicePolicyManagerInterface mDoInterface;
@@ -40,10 +48,18 @@ public final class DpcFactory {
     private final Context mContext;
     private final DevicePolicyManager mDpm;
 
+    private final HandlerThread mHandlerThread;
+    private final Handler mHandler;
+
     public DpcFactory(Context context) {
         mAdmin = DpcReceiver.getComponentName(context);
         mContext = context;
         mDpm = mContext.getSystemService(DevicePolicyManager.class);
+
+        mHandlerThread = new HandlerThread("DpcHelperThread");
+        mHandlerThread.start();
+
+        mHandler = new Handler(mHandlerThread.getLooper());
 
         if (isPO(mContext, mDpm) || isDO(mContext, mDpm)) {
             assignDevicePolicyManagers();
@@ -75,6 +91,26 @@ public final class DpcFactory {
         }
     }
 
+    public void addProfileOwnerDpm(UserHandle target) {
+        if (mPoInterfaces.stream().filter((u) -> u.getUser().equals(target))
+                .findFirst().isPresent()) {
+            return;
+        }
+        mHandler.post(
+                () -> mPoInterfaces.add(new RemoteDevicePolicyManager(mAdmin, mContext, target))
+        );
+    }
+
+    public void removeProfileOwnerDpm(UserHandle target) {
+        Optional<DevicePolicyManagerInterface> poInterface = mPoInterfaces.stream()
+                .filter((u) -> u.getUser().equals(target)).findFirst();
+        if (!poInterface.isPresent()) {
+            return;
+        }
+        Log.i(TAG, "Remove User: " + poInterface.get());
+        mPoInterfaces.remove(poInterface.get());
+    }
+
     private static boolean isPO(Context context, DevicePolicyManager dpm) {
         return dpm.isProfileOwnerApp(context.getPackageName());
     }
@@ -89,5 +125,74 @@ public final class DpcFactory {
 
     public List<DevicePolicyManagerInterface> getPoInterfaces() {
         return mPoInterfaces;
+    }
+
+    /**
+     * Executes commands for stopped users
+     *
+     * <p> This will execute commands passed in as Runnables and will attempt to run them
+     * from a stopped user by staring it, waiting for success, running the command, then stopping
+     * the user.
+     */
+    @FormatMethod
+    public void runOnOfflineUser(Runnable cmd, UserHandle targetUser,
+            String cmdFormat, Object... args) {
+
+        if (!isDO(mContext, mDpm)) {
+            throw new IllegalStateException("Caller is not device owner.");
+        }
+
+        String command = String.format(cmdFormat, args);
+        Log.d(TAG, "Running " + command + " on user " + targetUser);
+
+        mHandler.post(() -> {
+            // start user
+            int status = mDpm.startUserInBackground(mAdmin, targetUser);
+            boolean successStart = status == UserManager.USER_OPERATION_SUCCESS;
+            Log.d(TAG, "User started? " + successStart);
+
+            /*
+             * TODO(b/242105770): take advantage of the binder callback
+             * by just re-establishing binding during start service
+             */
+
+            RemoteDevicePolicyManager targetDpm =
+                    new RemoteDevicePolicyManager(mAdmin, mContext, targetUser);
+            mPoInterfaces.add(targetDpm);
+
+            waitForBound(targetDpm);
+
+            try {
+                cmd.run();
+            } catch (Exception e) {
+                Log.e(TAG, "Could not execute command " + command, e);
+                return;
+            }
+
+            // Stop user knowing command has executed without exception
+            int statusStop = mDpm.stopUser(mAdmin, targetUser);
+            boolean succeedStop = statusStop == UserManager.USER_OPERATION_SUCCESS;
+            removeProfileOwnerDpm(targetUser);
+            Log.d(TAG, "User stopped? " + succeedStop);
+        });
+    }
+
+    private void waitForBound(RemoteDevicePolicyManager targetDpm) {
+        int totalTime = 0;
+        while (!targetDpm.isBound()) {
+            try {
+                Thread.sleep(SLEEP_TIME_MS);
+                totalTime += SLEEP_TIME_MS;
+                if (totalTime > SLEEP_MAX_MS) {
+                    Log.i(TAG, "Reached max sleep time, no longer attempting to bind.");
+                    break;
+                }
+                Log.i(TAG, "sleeping for " + totalTime + " seconds.");
+                Log.i(TAG, "Is user bound? " + targetDpm.isBound());
+            } catch (InterruptedException e) {
+                Log.e(TAG, "Thread sleep was interrupted.", e);
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }
