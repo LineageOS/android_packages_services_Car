@@ -33,18 +33,14 @@ import android.widget.Toast;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
 
-import java.util.List;
-
 public final class DpcActivity extends Activity {
 
     private static final String TAG = DpcActivity.class.getSimpleName();
 
     private ComponentName mAdmin;
     private Context mContext;
-    private DpcFactory mDevicePolicyPicker;
-
+    private DpcFactory mDpcFactory;
     private DevicePolicyManagerInterface mDoInterface;
-    private List<DevicePolicyManagerInterface> mPoInterfaces;
 
     private EditText mUserId;
     private EditText mKey;
@@ -63,9 +59,10 @@ public final class DpcActivity extends Activity {
 
         Log.d(TAG, "onCreate(): user= " + mContext.getUser() + ", admin=" + mAdmin);
 
-        mDevicePolicyPicker = new DpcFactory(mContext);
-        mDoInterface = mDevicePolicyPicker.getDoInterface();
-        mPoInterfaces = mDevicePolicyPicker.getPoInterfaces();
+        mDpcFactory = new DpcFactory(mContext);
+        mDoInterface = mDpcFactory.getDevicePolicyManager(
+                UserHandle.getUserHandleForUid(UserHandle.USER_SYSTEM)
+        );
 
         setContentView(R.layout.activity_main);
 
@@ -117,9 +114,7 @@ public final class DpcActivity extends Activity {
             return;
         }
 
-        DevicePolicyManagerInterface profileOwner = mPoInterfaces.stream()
-                .filter((dpm) -> dpm.getUser().equals(target))
-                .findAny().get();
+        DevicePolicyManagerInterface profileOwner = mDpcFactory.getDevicePolicyManager(target);
         try {
             profileOwner.addUserRestriction(restriction);
             showToast("%s: addUserRestriction(%s)",

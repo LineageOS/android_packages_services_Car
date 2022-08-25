@@ -21,6 +21,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
@@ -31,8 +32,10 @@ import com.android.car.testdpc.remotedpm.RemoteDevicePolicyManager;
 
 import com.google.errorprone.annotations.FormatMethod;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class DpcFactory {
@@ -40,6 +43,8 @@ public final class DpcFactory {
     private static final String TAG = DpcFactory.class.getSimpleName();
     private static final int SLEEP_TIME_MS = 100;
     private static final int SLEEP_MAX_MS = 10_000;
+
+    private final Map<UserHandle, DevicePolicyManagerInterface> mDevicePolicyManagers;
 
     private List<DevicePolicyManagerInterface> mPoInterfaces;
     private DevicePolicyManagerInterface mDoInterface;
@@ -55,6 +60,7 @@ public final class DpcFactory {
         mAdmin = DpcReceiver.getComponentName(context);
         mContext = context;
         mDpm = mContext.getSystemService(DevicePolicyManager.class);
+        mDevicePolicyManagers = new HashMap<>();
 
         mHandlerThread = new HandlerThread("DpcHelperThread");
         mHandlerThread.start();
@@ -70,45 +76,22 @@ public final class DpcFactory {
         List<UserHandle> targetUsers = mDpm.getBindDeviceAdminTargetUsers(mAdmin);
         Log.d(TAG, "targetUsers: " + targetUsers);
 
-        if (isDO(mContext, mDpm)) {
-            mDoInterface = new LocalDevicePolicyManager(mAdmin, mContext);
-            mPoInterfaces = targetUsers.stream()
-                    .map((u) -> new RemoteDevicePolicyManager(mAdmin, mContext, u))
-                    .collect(Collectors.toList());
-        } else {
-            // Add all remote dpms to a list
-            mPoInterfaces = targetUsers.stream()
-                    .filter((u) -> !(u.equals(UserHandle.SYSTEM)))
-                    .map((u) -> new RemoteDevicePolicyManager(mAdmin, mContext, u))
-                    .collect(Collectors.toList());
-            // Add local dpm to the same list
-            mPoInterfaces.add(new LocalDevicePolicyManager(mAdmin, mContext));
-            // Find the device owner userhandle and use it to set that to DoDpm
-            mDoInterface = new RemoteDevicePolicyManager(mAdmin, mContext, targetUsers.stream()
-                    .filter((u) -> u.equals(UserHandle.SYSTEM))
-                    .findFirst()
-                    .get());
-        }
+        mDevicePolicyManagers.putAll(targetUsers.stream()
+                .collect(Collectors.toMap(
+                        u -> u, u -> new RemoteDevicePolicyManager(mAdmin, mContext, u))
+                ));
+
+        mDevicePolicyManagers.put(Process.myUserHandle(),
+                new LocalDevicePolicyManager(mAdmin, mContext));
     }
 
     public void addProfileOwnerDpm(UserHandle target) {
-        if (mPoInterfaces.stream().filter((u) -> u.getUser().equals(target))
-                .findFirst().isPresent()) {
-            return;
-        }
-        mHandler.post(
-                () -> mPoInterfaces.add(new RemoteDevicePolicyManager(mAdmin, mContext, target))
-        );
+        mDevicePolicyManagers.put(target,
+                new RemoteDevicePolicyManager(mAdmin, mContext, target));
     }
 
     public void removeProfileOwnerDpm(UserHandle target) {
-        Optional<DevicePolicyManagerInterface> poInterface = mPoInterfaces.stream()
-                .filter((u) -> u.getUser().equals(target)).findFirst();
-        if (!poInterface.isPresent()) {
-            return;
-        }
-        Log.i(TAG, "Remove User: " + poInterface.get());
-        mPoInterfaces.remove(poInterface.get());
+        mDevicePolicyManagers.remove(target);
     }
 
     private static boolean isPO(Context context, DevicePolicyManager dpm) {
@@ -119,12 +102,12 @@ public final class DpcFactory {
         return dpm.isDeviceOwnerApp(context.getPackageName());
     }
 
-    public DevicePolicyManagerInterface getDoInterface() {
-        return mDoInterface;
+    public DevicePolicyManagerInterface getDevicePolicyManager(UserHandle target) {
+        return mDevicePolicyManagers.get(target);
     }
 
-    public List<DevicePolicyManagerInterface> getPoInterfaces() {
-        return mPoInterfaces;
+    public List<UserHandle> getAllBoundUsers() {
+        return new ArrayList<>(mDevicePolicyManagers.keySet());
     }
 
     /**
@@ -156,11 +139,9 @@ public final class DpcFactory {
              * by just re-establishing binding during start service
              */
 
-            RemoteDevicePolicyManager targetDpm =
-                    new RemoteDevicePolicyManager(mAdmin, mContext, targetUser);
-            mPoInterfaces.add(targetDpm);
+            addProfileOwnerDpm(targetUser);
 
-            waitForBound(targetDpm);
+            waitForBound((RemoteDevicePolicyManager) mDevicePolicyManagers.get(targetUser));
 
             try {
                 cmd.run();
