@@ -18,6 +18,8 @@ package com.android.car.hal.fakevhal;
 
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
+import android.hardware.automotive.vehicle.AccessForVehicleProperty;
+import android.hardware.automotive.vehicle.ChangeModeForVehicleProperty;
 import android.hardware.automotive.vehicle.PortLocationType;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleArea;
@@ -300,6 +302,8 @@ public final class FakeVhalConfigParser {
 
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = VehicleProperty.INVALID;
+        boolean isAccessSet = false;
+        boolean isChangeModeSet = false;
         List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
         RawPropValues rawPropValues = null;
         SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
@@ -324,9 +328,11 @@ public final class FakeVhalConfigParser {
                     break;
                 case JSON_FIELD_NAME_ACCESS:
                     vehiclePropConfig.access = parseIntValue(propertyObject, fieldName, errors);
+                    isAccessSet = true;
                     break;
                 case JSON_FIELD_NAME_CHANGE_MODE:
                     vehiclePropConfig.changeMode = parseIntValue(propertyObject, fieldName, errors);
+                    isChangeModeSet = true;
                     break;
                 case JSON_FIELD_NAME_CONFIG_ARRAY:
                     JSONArray configArray = propertyObject.optJSONArray(fieldName);
@@ -378,6 +384,24 @@ public final class FakeVhalConfigParser {
 
         if (errors.size() > initialErrorCount) {
             return null;
+        }
+
+        if (!isAccessSet) {
+            if (AccessForVehicleProperty.values.containsKey(vehiclePropConfig.prop)) {
+                vehiclePropConfig.access =
+                        AccessForVehicleProperty.values.get(vehiclePropConfig.prop);
+            } else {
+                errors.add("Access field is not set for this property: " + propertyObject);
+            }
+        }
+
+        if (!isChangeModeSet) {
+            if (ChangeModeForVehicleProperty.values.containsKey(vehiclePropConfig.prop)) {
+                vehiclePropConfig.changeMode = ChangeModeForVehicleProperty.values
+                        .get(vehiclePropConfig.prop);
+            } else {
+                errors.add("ChangeMode field is not set for this property: " + propertyObject);
+            }
         }
 
         return new ConfigDeclaration(vehiclePropConfig, rawPropValues, defaultValuesByAreaId);

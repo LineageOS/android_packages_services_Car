@@ -33,6 +33,7 @@ java_defaults {
 
     srcs: [
         // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
+        ":IVehicleGeneratedJavaFiles",
         ":android.car.cluster.navigation-src",
         ":android.car.watchdoglib-src",
         ":cartelemetry-cardata-proto-srcs",
