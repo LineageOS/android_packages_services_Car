@@ -317,6 +317,11 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
+
+        // Prepare for test
+        applyInitialPolicyForTest(/* policyName= */ "audio_off", /* enabledComponents= */
+                new String[]{}, /* disabledComponents= */ new String[]{"AUDIO"});
+
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
         MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
@@ -374,6 +379,10 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     @Test
     public void testRemovePowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
+
+        applyInitialPolicyForTest(/* policyName= */ "audio_off", /* enabledComponents= */
+                new String[]{}, /* disabledComponents= */ new String[]{"AUDIO"});
+
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
         MockedPowerPolicyListener listenerOne = new MockedPowerPolicyListener();
@@ -388,6 +397,12 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
 
         assertThat(listenerOne.getCurrentPolicyId()).isNull();
         assertThat(listenerTwo.getCurrentPolicyId()).isEqualTo(policyId);
+    }
+
+    private void applyInitialPolicyForTest(String policyName, String[] enabledComponents,
+            String[] disabledComponents) {
+        mService.definePowerPolicy(policyName, enabledComponents, disabledComponents);
+        mCarPowerManager.applyPowerPolicy(policyName);
     }
 
     @Test
