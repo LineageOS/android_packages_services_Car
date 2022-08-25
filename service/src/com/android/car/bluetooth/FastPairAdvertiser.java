@@ -433,7 +433,7 @@ public class FastPairAdvertiser {
         }
 
         AdvertisingHandler() {
-            super(CarServiceUtils.getHandlerThread(FastPairUtils.THREAD_NAME).getLooper());
+            super(CarServiceUtils.getHandlerThread(FastPairProvider.THREAD_NAME).getLooper());
         }
 
         public void startAdvertising(byte[] data, int interval, Callbacks callback) {
