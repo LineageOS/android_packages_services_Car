@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"प्रोजेक्सन सेवामा सम्बद्ध हुने"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"धारकलाई प्रोजेक्सन सेवाको उच्च स्तरको इन्टरफेसमा सम्बद्ध हुने अनुमति दिन्छ। साधारण अनुप्रयोगहरूको लागि कहिल्यै पनि आवश्यक पर्दैन।"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS क्लाइन्ट सेवा"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS क्लाइन्टहरूमा सम्बद्ध हुनुहोस्"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"उपकरणको क्लस्टर रेन्डर गर्ने प्रक्रिया"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"उपकरणको क्लस्टरको डेटा प्राप्त गर्नुहोस्‌"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"कारको इनपुट सेवा"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"तपाईं सवारी साधन चलाइरहेका बेला यो सुविधा प्रयोग गर्न सक्नुहुन्न"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"एपका सुरक्षित सुविधाहरूको प्रयोग गरी फेरि सुरु गर्न <xliff:g id="EXIT_BUTTON">%s</xliff:g> चयन गर्नुहोस्‌।"</string>
     <string name="exit_button" msgid="3491899413031549265">"पछाडि"</string>

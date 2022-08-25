@@ -36,6 +36,8 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+namespace {
+
 using ::android::RefBase;
 using ::android::sp;
 using ::android::base::ReadFdToString;
@@ -53,8 +55,6 @@ using ::testing::Test;
 using ::testing::UnorderedElementsAreArray;
 using ::testing::VariantWith;
 
-namespace {
-
 MATCHER_P(IoStatsEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::IoStats::bytes,
                                           ElementsAreArray(expected.bytes)),
@@ -63,25 +63,26 @@ MATCHER_P(IoStatsEq, expected, "") {
                               arg, result_listener);
 }
 
-MATCHER_P(ProcessCountEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("comm", &UserPackageStats::ProcStats::ProcessCount::comm,
+MATCHER_P(ProcessValueEq, expected, "") {
+    return ExplainMatchResult(AllOf(Field("comm", &UserPackageStats::ProcStats::ProcessValue::comm,
                                           Eq(expected.comm)),
-                                    Field("count",
-                                          &UserPackageStats::ProcStats::ProcessCount::count,
-                                          Eq(expected.count))),
+                                    Field("value",
+                                          &UserPackageStats::ProcStats::ProcessValue::value,
+                                          Eq(expected.value))),
                               arg, result_listener);
 }
 
 MATCHER_P(ProcStatsEq, expected, "") {
-    std::vector<Matcher<const UserPackageStats::ProcStats::ProcessCount&>> processCountMatchers;
-    for (const auto& processCount : expected.topNProcesses) {
-        processCountMatchers.push_back(ProcessCountEq(processCount));
+    std::vector<Matcher<const UserPackageStats::ProcStats::ProcessValue&>> processValueMatchers;
+    processValueMatchers.reserve(expected.topNProcesses.size());
+    for (const auto& processValue : expected.topNProcesses) {
+        processValueMatchers.push_back(ProcessValueEq(processValue));
     }
-    return ExplainMatchResult(AllOf(Field("count", &UserPackageStats::ProcStats::count,
-                                          Eq(expected.count)),
+    return ExplainMatchResult(AllOf(Field("value", &UserPackageStats::ProcStats::value,
+                                          Eq(expected.value)),
                                     Field("topNProcesses",
                                           &UserPackageStats::ProcStats::topNProcesses,
-                                          ElementsAreArray(processCountMatchers))),
+                                          ElementsAreArray(processValueMatchers))),
                               arg, result_listener);
 }
 
@@ -128,7 +129,9 @@ MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
         }
         return ElementsAreArray(matchers);
     };
-    return ExplainMatchResult(AllOf(Field("topNIoReads", &UserPackageSummaryStats::topNIoReads,
+    return ExplainMatchResult(AllOf(Field("topNCpuTimes", &UserPackageSummaryStats::topNCpuTimes,
+                                          userPackageStatsMatchers(expected.topNCpuTimes)),
+                                    Field("topNIoReads", &UserPackageSummaryStats::topNIoReads,
                                           userPackageStatsMatchers(expected.topNIoReads)),
                                     Field("topNIoWrites", &UserPackageSummaryStats::topNIoWrites,
                                           userPackageStatsMatchers(expected.topNIoWrites)),
@@ -142,6 +145,9 @@ MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
                                     Field("taskCountByUid",
                                           &UserPackageSummaryStats::taskCountByUid,
                                           IsSubsetOf(expected.taskCountByUid)),
+                                    Field("totalCpuTimeMillis",
+                                          &UserPackageSummaryStats::totalCpuTimeMillis,
+                                          Eq(expected.totalCpuTimeMillis)),
                                     Field("totalMajorFaults",
                                           &UserPackageSummaryStats::totalMajorFaults,
                                           Eq(expected.totalMajorFaults)),
@@ -152,12 +158,15 @@ MATCHER_P(UserPackageSummaryStatsEq, expected, "") {
 }
 
 MATCHER_P(SystemSummaryStatsEq, expected, "") {
-    return ExplainMatchResult(AllOf(Field("cpuIoWaitTime", &SystemSummaryStats::cpuIoWaitTime,
-                                          Eq(expected.cpuIoWaitTime)),
-                                    Field("cpuIdleTime", &SystemSummaryStats::cpuIdleTime,
-                                          Eq(expected.cpuIdleTime)),
-                                    Field("totalCpuTime", &SystemSummaryStats::totalCpuTime,
-                                          Eq(expected.totalCpuTime)),
+    return ExplainMatchResult(AllOf(Field("cpuIoWaitTimeMillis",
+                                          &SystemSummaryStats::cpuIoWaitTimeMillis,
+                                          Eq(expected.cpuIoWaitTimeMillis)),
+                                    Field("cpuIdleTimeMillis",
+                                          &SystemSummaryStats::cpuIdleTimeMillis,
+                                          Eq(expected.cpuIdleTimeMillis)),
+                                    Field("totalCpuTimeMillis",
+                                          &SystemSummaryStats::totalCpuTimeMillis,
+                                          Eq(expected.totalCpuTimeMillis)),
                                     Field("contextSwitchesCount",
                                           &SystemSummaryStats::contextSwitchesCount,
                                           Eq(expected.contextSwitchesCount)),
@@ -220,6 +229,7 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
     };
     std::vector<UidStats>
             uidStats{{.packageInfo = constructPackageInfo("mount", 1009),
+                      .cpuTimeMillis = int64Multiplier(50),
                       .ioStats = {/*fgRdBytes=*/0,
                                   /*bgRdBytes=*/int64Multiplier(14'000),
                                   /*fgWrBytes=*/0,
@@ -238,6 +248,7 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                                                /*ioBlockedTasksCount=*/1}}}}},
                      {.packageInfo =
                               constructPackageInfo("com.google.android.car.kitchensink", 1002001),
+                      .cpuTimeMillis = int64Multiplier(60),
                       .ioStats = {/*fgRdBytes=*/0,
                                   /*bgRdBytes=*/int64Multiplier(3'400),
                                   /*fgWrBytes=*/0,
@@ -262,6 +273,7 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                                                /*totalTasksCount=*/3,
                                                /*ioBlockedTasksCount=*/2}}}}},
                      {.packageInfo = constructPackageInfo("", 1012345),
+                      .cpuTimeMillis = int64Multiplier(100),
                       .ioStats = {/*fgRdBytes=*/int64Multiplier(1'000),
                                   /*bgRdBytes=*/int64Multiplier(4'200),
                                   /*fgWrBytes=*/int64Multiplier(300),
@@ -280,24 +292,36 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                                                /*totalTasksCount=*/4,
                                                /*ioBlockedTasksCount=*/2}}}}},
                      {.packageInfo = constructPackageInfo("com.google.radio", 1015678),
+                      .cpuTimeMillis = 0,
                       .ioStats = {/*fgRdBytes=*/0,
                                   /*bgRdBytes=*/0,
                                   /*fgWrBytes=*/0,
                                   /*bgWrBytes=*/0,
                                   /*fgFsync=*/0, /*bgFsync=*/0},
-                      .procStats = {.cpuTimeMillis = int64Multiplier(30),
+                      .procStats = {.cpuTimeMillis = 0,
                                     .totalMajorFaults = 0,
                                     .totalTasksCount = 4,
                                     .ioBlockedTasksCount = 0,
                                     .processStatsByPid = {
                                             {/*pid=*/2345,
                                              {/*comm=*/"RadioApp", /*startTime=*/19789,
-                                              /*cpuTimeMillis=*/int64Multiplier(30),
+                                              /*cpuTimeMillis=*/0,
                                               /*totalMajorFaults=*/0,
                                               /*totalTasksCount=*/4,
                                               /*ioBlockedTasksCount=*/0}}}}}};
 
     UserPackageSummaryStats userPackageSummaryStats{
+            .topNCpuTimes = {{1012345, "1012345",
+                              UserPackageStats::ProcStats{uint64Multiplier(100),
+                                                          {{"MapsApp", uint64Multiplier(100)}}}},
+                             {1002001, "com.google.android.car.kitchensink",
+                              UserPackageStats::ProcStats{uint64Multiplier(60),
+                                                          {{"CTS", uint64Multiplier(25)},
+                                                           {"KitchenSinkApp",
+                                                            uint64Multiplier(25)}}}},
+                             {1009, "mount",
+                              UserPackageStats::ProcStats{uint64Multiplier(50),
+                                                          {{"disk I/O", uint64Multiplier(50)}}}}},
             .topNIoReads =
                     {{1009, "mount",
                       UserPackageStats::IoStats{{0, int64Multiplier(14'000)},
@@ -338,6 +362,7 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
                              {int64Multiplier(300), int64Multiplier(28'300)},
                              {int64Multiplier(600), int64Multiplier(600)}},
             .taskCountByUid = {{1009, 1}, {1002001, 5}, {1012345, 4}},
+            .totalCpuTimeMillis = int64Multiplier(48'376),
             .totalMajorFaults = uint64Multiplier(84'345),
             .majorFaultsPercentChange = 0.0,
     };
@@ -345,23 +370,26 @@ std::tuple<std::vector<UidStats>, UserPackageSummaryStats> sampleUidStats(int mu
 }
 
 std::tuple<ProcStatInfo, SystemSummaryStats> sampleProcStat(int multiplier = 1) {
+    const auto int64Multiplier = [&](int64_t bytes) -> int64_t {
+        return static_cast<int64_t>(bytes * multiplier);
+    };
     const auto uint64Multiplier = [&](uint64_t bytes) -> uint64_t {
         return static_cast<uint64_t>(bytes * multiplier);
     };
     const auto uint32Multiplier = [&](uint32_t bytes) -> uint32_t {
         return static_cast<uint32_t>(bytes * multiplier);
     };
-    ProcStatInfo procStatInfo{/*cpuStats=*/{uint64Multiplier(2'900), uint64Multiplier(7'900),
-                                            uint64Multiplier(4'900), uint64Multiplier(8'900),
-                                            /*ioWaitTime=*/uint64Multiplier(5'900),
-                                            uint64Multiplier(6'966), uint64Multiplier(7'980), 0, 0,
-                                            uint64Multiplier(2'930)},
-                              /*contextSwitches=*/uint64Multiplier(500),
-                              /*runnableProcessCount=*/uint32Multiplier(100),
-                              /*ioBlockedProcessCount=*/uint32Multiplier(57)};
-    SystemSummaryStats systemSummaryStats{/*cpuIoWaitTime=*/uint64Multiplier(5'900),
-                                          /*cpuIdleTime=*/uint64Multiplier(8'900),
-                                          /*totalCpuTime=*/uint64Multiplier(48'376),
+    ProcStatInfo procStatInfo{/*stats=*/{int64Multiplier(2'900), int64Multiplier(7'900),
+                                         int64Multiplier(4'900), int64Multiplier(8'900),
+                                         /*ioWaitTimeMillis=*/int64Multiplier(5'900),
+                                         int64Multiplier(6'966), int64Multiplier(7'980), 0, 0,
+                                         int64Multiplier(2'930)},
+                              /*ctxtSwitches=*/uint64Multiplier(500),
+                              /*runnableCnt=*/uint32Multiplier(100),
+                              /*ioBlockedCnt=*/uint32Multiplier(57)};
+    SystemSummaryStats systemSummaryStats{/*cpuIoWaitTimeMillis=*/int64Multiplier(5'900),
+                                          /*cpuIdleTimeMillis=*/int64Multiplier(8'900),
+                                          /*totalCpuTimeMillis=*/int64Multiplier(48'376),
                                           /*contextSwitchesCount=*/uint64Multiplier(500),
                                           /*ioBlockedProcessCount=*/uint32Multiplier(57),
                                           /*totalProcessCount=*/uint32Multiplier(157)};
@@ -583,6 +611,10 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
     const auto actual = mCollectorPeer->getCustomCollectionInfo();
 
     UserPackageSummaryStats userPackageSummaryStats{
+            .topNCpuTimes = {{1009, "mount", UserPackageStats::ProcStats{50, {{"disk I/O", 50}}}},
+                             {1002001, "com.google.android.car.kitchensink",
+                              UserPackageStats::ProcStats{60,
+                                                          {{"CTS", 25}, {"KitchenSinkApp", 25}}}}},
             .topNIoReads = {{1009, "mount", UserPackageStats::IoStats{{0, 14'000}, {0, 100}}},
                             {1002001, "com.google.android.car.kitchensink",
                              UserPackageStats::IoStats{{0, 3'400}, {0, 200}}}},
@@ -600,6 +632,7 @@ TEST_F(PerformanceProfilerTest, TestOnCustomCollectionWithPackageFilter) {
                                                   {{"KitchenSinkApp", 12'345}, {"CTS", 10'100}}}}},
             .totalIoStats = {{1000, 21'600}, {300, 28'300}, {600, 600}},
             .taskCountByUid = {{1009, 1}, {1002001, 5}},
+            .totalCpuTimeMillis = 48'376,
             .totalMajorFaults = 84'345,
             .majorFaultsPercentChange = 0.0,
     };
@@ -649,6 +682,8 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
     const auto actual = mCollectorPeer->getPeriodicCollectionInfo();
 
     UserPackageSummaryStats userPackageSummaryStats{
+            .topNCpuTimes = {{1012345, "1012345",
+                              UserPackageStats::ProcStats{100, {{"MapsApp", 100}}}}},
             .topNIoReads = {{1009, "mount", UserPackageStats::IoStats{{0, 14'000}, {0, 100}}}},
             .topNIoWrites = {{1009, "mount", UserPackageStats::IoStats{{0, 16'000}, {0, 100}}}},
             .topNIoBlocked = {{1002001, "com.google.android.car.kitchensink",
@@ -657,6 +692,7 @@ TEST_F(PerformanceProfilerTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTo
                                  UserPackageStats::ProcStats{50'900, {{"MapsApp", 50'900}}}}},
             .totalIoStats = {{1000, 21'600}, {300, 28'300}, {600, 600}},
             .taskCountByUid = {{1009, 1}, {1002001, 5}, {1012345, 4}},
+            .totalCpuTimeMillis = 48'376,
             .totalMajorFaults = 84'345,
             .majorFaultsPercentChange = 0.0,
     };

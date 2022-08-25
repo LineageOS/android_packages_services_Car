@@ -21,19 +21,56 @@
 #include "RingBuffer.h"
 
 #include <aidl/android/automotive/telemetry/internal/ICarDataListener.h>
+#include <aidl/android/frameworks/automotive/telemetry/CallbackConfig.h>
 #include <aidl/android/frameworks/automotive/telemetry/CarData.h>
+#include <aidl/android/frameworks/automotive/telemetry/ICarTelemetryCallback.h>
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
 #include <android-base/thread_annotations.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Looper.h>
 
+#include <cstdint>
 #include <memory>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
+
+using ::aidl::android::frameworks::automotive::telemetry::CallbackConfig;
+using ::aidl::android::frameworks::automotive::telemetry::ICarTelemetryCallback;
+
+struct TelemetryCallback {
+    CallbackConfig config;
+    std::shared_ptr<ICarTelemetryCallback> callback;
+
+    TelemetryCallback() {}
+    explicit TelemetryCallback(const std::shared_ptr<ICarTelemetryCallback>& cb) : callback(cb) {}
+    explicit TelemetryCallback(const CallbackConfig& cfg,
+                               const std::shared_ptr<ICarTelemetryCallback>& cb) :
+          config(cfg), callback(cb) {}
+    // Copy constructor & copy assignment
+    TelemetryCallback(const TelemetryCallback& other) = default;
+    TelemetryCallback& operator=(const TelemetryCallback& other) = default;
+    // Move constructor & move assignment
+    TelemetryCallback(TelemetryCallback&& other) = default;
+    TelemetryCallback& operator=(TelemetryCallback&& other) = default;
+
+    // Equal function
+    bool operator==(const TelemetryCallback& other) const {
+        return reinterpret_cast<uintptr_t>(callback->asBinder().get()) ==
+                reinterpret_cast<uintptr_t>(other.callback->asBinder().get());
+    }
+
+    struct HashFunction {
+        size_t operator()(const TelemetryCallback& tc) const {
+            return std::hash<uintptr_t>()(
+                    reinterpret_cast<uintptr_t>(tc.callback->asBinder().get()));
+        }
+    };
+};
 
 // This class contains the main logic of cartelemetryd native service.
 //
@@ -64,6 +101,27 @@ public:
     void writeCarData(
             const std::vector<aidl::android::frameworks::automotive::telemetry::CarData>& dataList,
             uid_t publisherUid);
+
+    /**
+     * Adds a ICarTelemtryCallback and associate it with the CallbackConfig.
+     *
+     * <p>Expected to be called from a binder thread pool.
+
+     * @return An empty okay result on success, or an error result if the callback already
+     * exists.
+     */
+    android::base::Result<void> addCallback(const CallbackConfig& config,
+                                            const std::shared_ptr<ICarTelemetryCallback>& callback);
+
+    /**
+     * Removes a ICarTelemetryCallback.
+     *
+     * <p>Expected to be called from a binder thread pool.
+     *
+     * @return An empty okay result on success, or an error result if the callback is not found.
+     */
+    android::base::Result<void> removeCallback(
+            const std::shared_ptr<ICarTelemetryCallback>& callback);
 
     /**
      * Sets the listener. If the listener already set, it returns an error.
@@ -116,6 +174,8 @@ private:
     };
 
 private:
+    // Find the common elements in mCarDataIds and the argument ids
+    std::vector<int32_t> findCarDataIdsIntersection(const std::vector<int32_t>& ids);
     // Periodically called by mLooper if there is a "push car data" messages.
     void pushCarDataToListeners();
 
@@ -137,6 +197,16 @@ private:
     // Used for filtering data.
     std::unordered_set<int32_t> mCarDataIds GUARDED_BY(mMutex);
 
+    // A hashset of TelemetryCallbacks to keep track of which callbacks have been added.
+    std::unordered_set<TelemetryCallback, TelemetryCallback::HashFunction> mCallbacks
+            GUARDED_BY(mMutex);
+
+    // Maps CarData ID to a set of callbacks that are associated with this ID.
+    // Used for invoking the callback when this ID has been added or removed.
+    std::unordered_map<int32_t,
+                       std::unordered_set<TelemetryCallback, TelemetryCallback::HashFunction>>
+            mIdToCallbacksMap GUARDED_BY(mMutex);
+
     // Handler for mLooper.
     android::sp<MessageHandlerImpl> mMessageHandler;
 
@@ -144,8 +214,10 @@ private:
     friend class TelemetryServerTest;
     FRIEND_TEST(TelemetryServerTest, NoListenerButMultiplePushes);
     FRIEND_TEST(TelemetryServerTest, NoDataButMultiplePushes);
-    // The following test accesses `mCarDataIds` to check its contents
+    // The following test accesses member variables such as `mCarDataIds` and `mCallbacks`
+    // to check its contents.
     FRIEND_TEST(TelemetryServerTest, RemoveCarDataIdsReturnsOk);
+    FRIEND_TEST(TelemetryServerTest, RemoveCallbackReturnsOk);
 };
 
 }  // namespace telemetry

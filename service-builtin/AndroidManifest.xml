@@ -23,7 +23,41 @@
     <original-package android:name="com.android.car"/>
 
     <!-- Do not add any new permission here.
-         Update ../service/AndroidManifest instead -->
+         Update ../service/AndroidManifest instead (Except signature only permission).
+         Signature only permission should be associated with platform signature, not module
+         signature. -->
+
+    <!-- Must be required by projection service to ensure only system can bind to it.
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.car.permission.BIND_PROJECTION_SERVICE"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_projection_service"
+         android:description="@string/car_permission_desc_bind_projection_service"/>
+
+    <!-- Must be required by VMS client service to ensure only system can bind to it.
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.car.permission.BIND_VMS_CLIENT"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_vms_client"
+         android:description="@string/car_permission_desc_bind_vms_client"/>
+
+    <!-- Must be required by instrument cluster service to ensure only system can bind to it.
+         <p>Protection level: signature
+    -->
+   <permission android:name="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_instrument_cluster_rendering"
+         android:description="@string/car_permission_desc_bind_instrument_cluster_rendering"/>
+
+    <!-- Allows an application to handle the vehicle input events.
+         <p>Protection level: signature
+    -->
+    <permission android:name="android.car.permission.BIND_CAR_INPUT_SERVICE"
+         android:protectionLevel="signature"
+         android:label="@string/car_permission_label_bind_input_service"
+         android:description="@string/car_permission_desc_bind_input_service"/>
 
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.DEVICE_POWER"/>

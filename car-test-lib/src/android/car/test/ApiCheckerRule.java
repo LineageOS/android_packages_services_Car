@@ -99,16 +99,12 @@ public final class ApiCheckerRule implements TestRule {
     }
 
     private boolean isSupported(ApiRequirements apiRequirements) {
-        CarVersion carVersion = Car.getCarVersion();
         PlatformVersion platformVersion = Car.getPlatformVersion();
-        boolean carSupported = carVersion.isAtLeast(apiRequirements.minCarVersion().get());
-        boolean platformSupported = platformVersion
+        boolean isSupported = platformVersion
                 .isAtLeast(apiRequirements.minPlatformVersion().get());
-        boolean isSupported = carSupported && platformSupported;
         if (DBG) {
-            Log.d(TAG, "isSupported(" + apiRequirements + "): carVersion=" + carVersion
-                    + " (supported=" + carSupported + "), platformVersion=" + platformVersion
-                    + " (supported=" + platformSupported + "): " + isSupported);
+            Log.d(TAG, "isSupported(" + apiRequirements + "): platformVersion=" + platformVersion
+                    + ",supported=" + isSupported);
         }
         return isSupported;
     }
@@ -141,7 +137,12 @@ public final class ApiCheckerRule implements TestRule {
                 }
 
                 ApiTest apiTest = null;
-                ApiRequirements apiRequirements = null;
+
+                // Variables below are used to validate that all ApiRequirements are compatible
+                List<String> allApis = new ArrayList<>();
+                List<ApiRequirements> allApiRequirements = new ArrayList<>();
+                boolean compatibleApis = true;
+                ApiRequirements firstApiRequirements = null;
 
                 for (Annotation annotation : description.getAnnotations()) {
                     if (annotation instanceof ApiTest) {
@@ -170,16 +171,29 @@ public final class ApiCheckerRule implements TestRule {
                     }
                     List<String> invalidApis = new ArrayList<>();
                     for (String api: apis) {
+                        allApis.add(api);
                         Member member = ApiHelper.resolve(api);
                         if (member == null) {
                             invalidApis.add(api);
-                        } else if (apiRequirements == null) {
-                            apiRequirements = getApiRequirements(member);
+                            continue;
+                        }
+                        ApiRequirements apiRequirements = getApiRequirements(member);
+                        allApiRequirements.add(apiRequirements);
+                        if (firstApiRequirements == null) {
+                            firstApiRequirements = apiRequirements;
+                            continue;
+                        }
+                        // Make sure all ApiRequirements are compatible
+                        if (!apiRequirements.minCarVersion()
+                                .equals(firstApiRequirements.minCarVersion())
+                                || !apiRequirements.minPlatformVersion()
+                                        .equals(firstApiRequirements.minPlatformVersion())) {
+                            Log.w(TAG, "Found incompatible API requirement (" + apiRequirements
+                                    + ") on " + api + "(first ApiRequirements is "
+                                    + firstApiRequirements + ")");
+                            compatibleApis = false;
                         } else {
-                            // TODO(b/242315785): must check that when multiple APIs are defined,
-                            // they have the same api requirements (and unit test it)
-                            Log.w(TAG, "Multiple @ApiRequirements found, but rule is not checking"
-                                    + " if they're compatible yet");
+                            Log.d(TAG, "Multiple @ApiRequirements found but they're compatible");
                         }
                     }
                     if (!invalidApis.isEmpty()) {
@@ -189,7 +203,7 @@ public final class ApiCheckerRule implements TestRule {
 
                 }
 
-                if (apiRequirements == null) {
+                if (firstApiRequirements == null) {
                     if (mEnforceTestApiAnnotations) {
                         throw new IllegalStateException("Missing @ApiRequirements");
                     } else {
@@ -200,9 +214,13 @@ public final class ApiCheckerRule implements TestRule {
                     return;
                 }
 
+                if (!compatibleApis) {
+                    throw new IncompatibleApiRequirementsException(allApis, allApiRequirements);
+                }
+
                 // Finally, run the test and assert results depending on whether it's supported or
                 // not
-                if (isSupported(apiRequirements)) {
+                if (isSupported(firstApiRequirements)) {
                     if (DBG) {
                         Log.d(TAG, "Car / Platform combo is supported, running "
                                 + description.getDisplayName());
@@ -214,12 +232,9 @@ public final class ApiCheckerRule implements TestRule {
                                     + "PlatformVersionMismatchException");
                     try {
                         base.evaluate();
-                        throw new IllegalStateException("Test should throw "
-                                + PlatformVersionMismatchException.class.getSimpleName()
-                                + " when running on unsupported platform: "
-                                + "CarVersion=" + Car.getCarVersion()
-                                + ", PlatformVersion=" + Car.getPlatformVersion()
-                                + ", ApiRequirements=" + apiRequirements);
+                        throw new PlatformVersionMismatchExceptionNotThrownException(
+                                Car.getCarVersion(), Car.getPlatformVersion(),
+                                firstApiRequirements);
                     } catch (PlatformVersionMismatchException e) {
                         if (DBG) {
                             Log.d(TAG, "Exception thrown as expected: " + e);
@@ -228,5 +243,64 @@ public final class ApiCheckerRule implements TestRule {
                 }
             }
         };
+    } // apply
+
+    public static final class PlatformVersionMismatchExceptionNotThrownException
+            extends IllegalStateException {
+
+        private static final long serialVersionUID = 1L;
+
+        private final CarVersion mCarVersion;
+        private final PlatformVersion mPlatformVersion;
+        private final ApiRequirements mApiRequirements;
+
+        PlatformVersionMismatchExceptionNotThrownException(CarVersion carVersion,
+                PlatformVersion platformVersion, ApiRequirements apiRequirements) {
+            super("Test should throw " + PlatformVersionMismatchException.class.getSimpleName()
+                    + " when running on unsupported platform: CarVersion=" + carVersion
+                    + ", PlatformVersion=" + platformVersion
+                    + ", ApiRequirements=" + apiRequirements);
+
+            mCarVersion = carVersion;
+            mPlatformVersion = platformVersion;
+            mApiRequirements = apiRequirements;
+        }
+
+        public CarVersion getCarVersion() {
+            return mCarVersion;
+        }
+
+        public PlatformVersion getPlatformVersion() {
+            return mPlatformVersion;
+        }
+
+        public ApiRequirements getApiRequirements() {
+            return mApiRequirements;
+        }
+    }
+
+    public static final class IncompatibleApiRequirementsException extends IllegalStateException {
+
+        private static final long serialVersionUID = 1L;
+
+        private final List<String> mApis;
+        private final List<ApiRequirements> mApiRequirements;
+
+        IncompatibleApiRequirementsException(List<String> apis,
+                List<ApiRequirements> apiRequirements) {
+            super("Incompatible API requirements (apis=" + apis + ", apiRequirements="
+                    + apiRequirements + ") on test, consider splitting it into multiple methods");
+
+            mApis = apis;
+            mApiRequirements = apiRequirements;
+        }
+
+        public List<String> getApis() {
+            return mApis;
+        }
+
+        public List<ApiRequirements> getApiRequirements() {
+            return mApiRequirements;
+        }
     }
 }

@@ -418,7 +418,7 @@ public final class CarPropertyConfig<T> implements Parcelable {
         try {
             mType = (Class<T>) Class.forName(className);
         } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException("Class not found: " + className);
+            throw new IllegalArgumentException("Class not found: " + className, e);
         }
     }
 

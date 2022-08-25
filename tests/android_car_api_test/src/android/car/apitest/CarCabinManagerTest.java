@@ -63,10 +63,15 @@ public class CarCabinManagerTest extends CarApiTestBase {
     private void assertTypeAndZone(CarPropertyConfig property) {
         int propId = property.getPropertyId();
         switch (propId) {
-            // Zoned boolean properties
-            case CarCabinManager.ID_DOOR_LOCK:
+            // Global boolean properties
             case CarCabinManager.ID_MIRROR_LOCK:
             case CarCabinManager.ID_MIRROR_FOLD:
+                assertThat(property.getPropertyType()).isAssignableTo(Boolean.class);
+                assertThat(property.isGlobalProperty()).isTrue();
+                break;
+
+            // Zoned boolean properties
+            case CarCabinManager.ID_DOOR_LOCK:
             case CarCabinManager.ID_SEAT_BELT_BUCKLED:
             case CarCabinManager.ID_WINDOW_LOCK:
                 assertThat(property.getPropertyType()).isAssignableTo(Boolean.class);

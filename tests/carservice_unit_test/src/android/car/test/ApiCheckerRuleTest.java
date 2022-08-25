@@ -28,6 +28,8 @@ import android.car.CarVersion;
 import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
 import android.car.annotation.ApiRequirements;
+import android.car.test.ApiCheckerRule.IncompatibleApiRequirementsException;
+import android.car.test.ApiCheckerRule.PlatformVersionMismatchExceptionNotThrownException;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.util.Log;
 
@@ -39,14 +41,21 @@ import org.junit.runners.model.Statement;
 
 import java.lang.annotation.Annotation;
 import java.util.Arrays;
+import java.util.List;
 
 public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = ApiCheckerRuleTest.class.getSimpleName();
 
     private static final String INVALID_API = "I.cant.believe.this.is.a.valid.API";
-    private static final String VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1 =
+    private static final String VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0 =
+            "android.car.test.ApiCheckerRuleTest#requiresCarAndPlatformTiramisu0";
+    private static final String VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1 =
             "android.car.test.ApiCheckerRuleTest#requiresCarAndPlatformTiramisu1";
+    private static final String ANOTHER_VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0 =
+            "android.car.test.ApiCheckerRuleTest#alsoRequiresCarAndPlatformTiramisu0";
+    private static final String VALID_API_WITHOUT_ANNOTATIONS =
+            "android.car.test.ApiCheckerRuleTest#apiYUNoAnnotated";
 
     private final SimpleStatement<Exception> mBaseStatement = new SimpleStatement<>();
 
@@ -106,7 +115,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void failWhenTestMethodHasValidApiTestAnnotationButNoApiRequirements() throws Throwable {
-        String methodName = "android.content.Context#getResources";
+        String methodName = VALID_API_WITHOUT_ANNOTATIONS;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
@@ -119,8 +128,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void passWhenTestMethodHasValidApiTestAnnotation() throws Throwable {
-        Description testMethod = newTestMethod(
-                new ApiTestAnnotation("android.car.Car#getCarVersion"));
+        Description testMethod = newTestMethod(new ApiTestAnnotation(
+                VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
@@ -140,8 +149,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforced() throws Throwable {
-        Description testMethod = newTestMethod(
-                new ApiTestAnnotation("android.content.Context#getResources"));
+        String methodName = VALID_API_WITHOUT_ANNOTATIONS;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().disableAnnotationsCheck().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
@@ -151,28 +160,32 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void failWhenTestMethodRunsOnUnsupportedVersionsAndDoesntThrow() throws Throwable {
-        String methodName = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        String methodName = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
 
-        IllegalStateException e = assertThrows(IllegalStateException.class,
+        PlatformVersionMismatchExceptionNotThrownException e = assertThrows(
+                PlatformVersionMismatchExceptionNotThrownException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
 
-        assertWithMessage("Exception when platform is not supported").that(e).hasMessageThat()
-                .containsMatch(".*Test.*should throw.*"
-                        + PlatformVersionMismatchException.class.getSimpleName()
-                        + ".*CarVersion=.*major.*33.*minor.*1"
-                        + ".*PlatformVersion=.*major.*33.*minor.*0"
-                        + ".*ApiRequirements=.*"
-                        + "minCarVersion=.*TIRAMISU_1.*minPlatformVersion=.*TIRAMISU_1"
-                        + ".*");
+        assertWithMessage("exception.carVersion").that(e.getCarVersion())
+                .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
+        assertWithMessage("exception.platformVersion").that(e.getPlatformVersion())
+                .isEqualTo(PlatformVersion.VERSION_CODES.TIRAMISU_0);
+        ApiRequirements apiRequirements = e.getApiRequirements();
+        assertWithMessage("exception.apiRequirements.minCarVersion")
+                .that(apiRequirements.minCarVersion().get())
+                .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
+        assertWithMessage("exception.apiRequirements.minPlatformVersion")
+                .that(apiRequirements.minPlatformVersion().get())
+                .isEqualTo(PlatformVersion.VERSION_CODES.TIRAMISU_1);
     }
 
     @Test
     public void pasWhenTestMethodRunsOnUnsupportedVersionsAndDoesntThrow() throws Throwable {
-        String methodName = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        String methodName = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
         CarVersion carVersion = CarVersion.VERSION_CODES.TIRAMISU_1;
@@ -185,6 +198,52 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         rule.apply(mBaseStatement, testMethod).evaluate();
 
         mBaseStatement.assertEvaluated();
+    }
+
+    @Test
+    public void pasWhenTestMethodContainsCompatibleApiRequirements() throws Throwable {
+        Description testMethod = newTestMethod(new ApiTestAnnotation(
+                VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0,
+                ANOTHER_VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    @Test
+    public void failWhenTestMethodContainsIncompatibleApiRequirements() throws Throwable {
+        Description testMethod = newTestMethod(new ApiTestAnnotation(
+                VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0,
+                VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IncompatibleApiRequirementsException e = assertThrows(
+                IncompatibleApiRequirementsException.class,
+                () -> rule.apply(mBaseStatement, testMethod).evaluate());
+
+        assertWithMessage("apis on exception").that(e.getApis()).containsExactly(
+                VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0,
+                VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1).inOrder();
+        List<ApiRequirements> apiRequirements = e.getApiRequirements();
+        assertWithMessage("apiRequirements on exception").that(apiRequirements).hasSize(2);
+
+        ApiRequirements apiRequirements0 = apiRequirements.get(0);
+        assertWithMessage("apiRequirements[0].minCarVersion on exception")
+                .that(apiRequirements0.minCarVersion())
+                .isEqualTo(ApiRequirements.CarVersion.TIRAMISU_0);
+        assertWithMessage("apiRequirements[0].minPlatformCar on exception")
+                .that(apiRequirements0.minPlatformVersion())
+                .isEqualTo(ApiRequirements.PlatformVersion.TIRAMISU_0);
+
+        ApiRequirements apiRequirements1 = apiRequirements.get(1);
+        assertWithMessage("apiRequirements[0].minCarVersion on exception")
+                .that(apiRequirements1.minCarVersion())
+                .isEqualTo(ApiRequirements.CarVersion.TIRAMISU_1);
+        assertWithMessage("apiRequirements[0].minPlatformCar on exception")
+                .that(apiRequirements1.minPlatformVersion())
+                .isEqualTo(ApiRequirements.PlatformVersion.TIRAMISU_1);
     }
 
     @Test
@@ -206,24 +265,24 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         assertThrows(IllegalStateException.class,
-                () -> rule.isApiSupported("java.lang.Object#toString"));
+                () -> rule.isApiSupported(VALID_API_WITHOUT_ANNOTATIONS));
     }
 
     @Test
     public void testIsApiSupported_carVersionNotSupported() throws Throwable {
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
-        String api = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        String api = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_0);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
 
         assertWithMessage("isApiSupported(%s) when CarVersion is not supported", api)
-                .that(rule.isApiSupported(api)).isFalse();
+                .that(rule.isApiSupported(api)).isTrue();
     }
 
     @Test
     public void testIsApiSupported_platformVersionNotSupported() throws Throwable {
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
-        String api = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        String api = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
 
@@ -234,7 +293,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testIsApiSupported_supported() throws Throwable {
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
-        String api = VALID_API_THAT_REQUIRES_CAR_TIRAMISU_1_AND_PLATFORM_TIRAMISU_1;
+        String api = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
 
@@ -242,11 +301,35 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
                 api).that(rule.isApiSupported(api)).isTrue();
     }
 
+    ////////////////////////////////////
+    // Start of members used on tests //
+    ////////////////////////////////////
+
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public void requiresCarAndPlatformTiramisu0() {
+
+    }
+
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public void requiresCarAndPlatformTiramisu1() {
 
     }
+
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public void alsoRequiresCarAndPlatformTiramisu0() {
+
+    }
+
+    public void apiYUNoAnnotated() {
+
+    }
+
+    ////////////////////////////////////
+    // End of members used on tests //
+    ////////////////////////////////////
 
     private static Description newTestMethod(ApiTestAnnotation... annotations) {
         return Description.createTestDescription("SomeClass", "someTest", annotations);

@@ -1114,10 +1114,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             if (systemUiUid == callerUid) {
                 setSessionToken(token);
             } else {
-                throw new SecurityException("SystemUI only can generate SessionToken.");
+                throw new SecurityException("SystemUI only can generate SessionToken");
             }
-        } catch (NameNotFoundException err) {
-            throw new IllegalStateException(systemUiPackageName + " package not found.");
+        } catch (NameNotFoundException e) {
+            throw new IllegalStateException(systemUiPackageName + " package not found", e);
         } finally {
             return token;
         }

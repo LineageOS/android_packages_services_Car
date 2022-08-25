@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Handler;
+import android.text.TextUtils;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
@@ -52,10 +53,11 @@ public class FastPairProvider {
     private final Context mContext;
     private boolean mStarted;
     private int mScanMode;
-    private BluetoothAdapter mBluetoothAdapter;
+    private final BluetoothAdapter mBluetoothAdapter;
     private FastPairAdvertiser mFastPairModelAdvertiser;
     private FastPairAdvertiser mFastPairAccountAdvertiser;
     private FastPairGattServer mFastPairGattServer;
+    private final FastPairAccountKeyStorage mFastPairAccountKeyStorage;
     private Handler mFastPairAdvertiserHandler;
 
     FastPairAdvertiser.Callbacks mAdvertiserCallbacks = new FastPairAdvertiser.Callbacks() {
@@ -75,7 +77,6 @@ public class FastPairProvider {
                 advertiseAccountKeys();
             }
         }
-
     };
 
     /**
@@ -90,6 +91,13 @@ public class FastPairProvider {
                 Slogf.d(TAG, "onReceive, %s", action);
             }
             switch (action) {
+                case Intent.ACTION_USER_UNLOCKED:
+                    if (DBG) {
+                        Slogf.d(TAG, "User unlocked");
+                    }
+                    mFastPairAccountKeyStorage.load();
+                    break;
+
                 case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
                     mScanMode = intent
                             .getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE,
@@ -135,25 +143,31 @@ public class FastPairProvider {
     public FastPairProvider(Context context) {
         mContext = context;
         Resources res = mContext.getResources();
-
+        mFastPairAccountKeyStorage = new FastPairAccountKeyStorage(mContext, 5);
         mModelId = res.getInteger(R.integer.fastPairModelId);
         mAntiSpoofKey = res.getString(R.string.fastPairAntiSpoofKey);
         mAutomaticAcceptance = res.getBoolean(R.bool.fastPairAutomaticAcceptance);
         mBluetoothAdapter = mContext.getSystemService(BluetoothManager.class).getAdapter();
     }
 
+    private boolean isEnabled() {
+        return !(mModelId == 0 || TextUtils.isEmpty(mAntiSpoofKey));
+    }
+
     /**
      * Start the Fast Pair provider which will register for Bluetooth broadcasts.
      */
     public void start() {
-        if (mModelId == 0) {
-            Slogf.w(TAG, "Model ID undefined, disabling");
+        if (mStarted) return;
+        if (!isEnabled()) {
+            Slogf.w(TAG, "Fast Pair Provider not configured, disabling, model=%d, key=%s",
+                    mModelId, TextUtils.isEmpty(mAntiSpoofKey) ? "N/A" : "Set");
             return;
         }
-        Slogf.d(TAG, "modelId == %d", mModelId);
         mFastPairAdvertiserHandler = new Handler(
                 CarServiceUtils.getHandlerThread(FastPairUtils.THREAD_NAME).getLooper());
         IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_USER_UNLOCKED);
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         mContext.registerReceiver(mDiscoveryModeChanged, filter);
@@ -165,10 +179,9 @@ public class FastPairProvider {
      * Stop the Fast Pair provider which will unregister the broadcast receiver.
      */
     public void stop() {
-        if (mStarted) {
-            mContext.unregisterReceiver(mDiscoveryModeChanged);
-            mStarted = false;
-        }
+        if (!mStarted) return;
+        mContext.unregisterReceiver(mDiscoveryModeChanged);
+        mStarted = false;
     }
 
     void stopAdvertising() {
@@ -216,7 +229,8 @@ public class FastPairProvider {
                 }
 
                 startGatt();
-                mFastPairAccountAdvertiser.advertiseAccountKeys();
+                mFastPairAccountAdvertiser.advertiseAccountKeys(
+                        mFastPairAccountKeyStorage.getAllAccountKeys());
             }
         });
     }
@@ -226,7 +240,8 @@ public class FastPairProvider {
             mFastPairGattServer = new FastPairGattServer(mContext, mModelId,
                     mAntiSpoofKey,
                     mGattServerCallbacks,
-                    mAutomaticAcceptance);
+                    mAutomaticAcceptance,
+                    mFastPairAccountKeyStorage);
             mFastPairGattServer.start();
         }
     }
@@ -238,23 +253,22 @@ public class FastPairProvider {
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        writer.println(TAG + " services");
-        if (mModelId == 0) {
-            writer.increaseIndent();
-            writer.println("Service Disabled");
-            writer.decreaseIndent();
-            return;
-        }
+        writer.println("FastPairProvider:");
         writer.increaseIndent();
-        writer.println("Model ID                      : " + mModelId);
-        if (mFastPairModelAdvertiser != null) {
-            mFastPairModelAdvertiser.dump(writer);
-        }
-        if (mFastPairAccountAdvertiser != null) {
-            mFastPairAccountAdvertiser.dump(writer);
-        }
-        if (mFastPairGattServer != null) {
-            mFastPairGattServer.dump(writer);
+        writer.println("Status         : " + (isEnabled() ? "Enabled" : "Disabled"));
+        writer.println("Model ID       : " + mModelId);
+        writer.println("Anti-Spoof Key : " + (TextUtils.isEmpty(mAntiSpoofKey) ? "N/A" : "Set"));
+        if (isEnabled()) {
+            if (mFastPairModelAdvertiser != null) {
+                mFastPairModelAdvertiser.dump(writer);
+            }
+            if (mFastPairAccountAdvertiser != null) {
+                mFastPairAccountAdvertiser.dump(writer);
+            }
+            if (mFastPairGattServer != null) {
+                mFastPairGattServer.dump(writer);
+            }
+            mFastPairAccountKeyStorage.dump(writer);
         }
         writer.decreaseIndent();
     }

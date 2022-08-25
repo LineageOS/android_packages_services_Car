@@ -133,11 +133,13 @@ public final class AssistUtilsHelper {
         /**
          * See {@link IVoiceInteractionSessionShowCallback#onFailed()}
          */
+        @AddedIn(majorVersion = 33, minorVersion = 1)
         void onFailed();
 
         /**
          * See {@link IVoiceInteractionSessionShowCallback#onShow()}
          */
+        @AddedIn(majorVersion = 33, minorVersion = 1)
         void onShown();
     }
 
@@ -149,11 +151,13 @@ public final class AssistUtilsHelper {
         /**
          * See {@link IVoiceInteractionSessionListener#onVoiceSessionShown()}
          */
+        @AddedIn(majorVersion = 33, minorVersion = 1)
         void onVoiceSessionShown();
 
         /**
          * See {@link IVoiceInteractionSessionListener#onVoiceSessionHidden()}
          */
+        @AddedIn(majorVersion = 33, minorVersion = 1)
         void onVoiceSessionHidden();
     }
 

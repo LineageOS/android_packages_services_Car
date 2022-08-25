@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"ప్రొజెక్షన్ సేవకు అనుబంధించగలవు"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"ప్రొజెక్షన్ సేవ యొక్క అగ్ర-స్థాయి ఇంటర్‌ఫేస్‌కు అనుబంధించడానికి హోల్డర్‌ను అనుమతిస్తుంది. సాధారణ యాప్‌లకు ఎప్పటికీ దీని అవసరం లేదు."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS క్లయింట్ సేవ"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"VMS క్లయింట్‌లను ఆచరించండి"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"పరికర గుంపు రెండరింగ్"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"పరికర గుంపు డేటాను పొందండి"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"కారు ఇన్‌పుట్ సేవ"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"ఇన్‌పుట్ ఈవెంట్‌లను హ్యాండిల్ చేయండి"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"డ్రైవింగ్‌లో ఉండగా మీరు ఈ ఫీచర్‌ను ఉపయోగించలేరు"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"సురక్షిత యాప్ లక్షణాలతో ప్రారంభించడానికి, <xliff:g id="EXIT_BUTTON">%s</xliff:g>ని ఎంచుకోండి."</string>
     <string name="exit_button" msgid="3491899413031549265">"వెనుకకు"</string>

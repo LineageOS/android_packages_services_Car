@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"mengikat ke layanan proyeksi"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Mengizinkan pemegang untuk mengikat antarmuka tingkat tinggi dari suatu layanan proyeksi. Tidak pernah diperlukan oleh aplikasi normal."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"Layanan Klien VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Mengikat ke klien VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Rendering Kluster Instrumen"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Menerima data kluster instrumen"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Layanan Masukan Mobil"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Menangani aktivitas masukan"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Anda tidak dapat menggunakan fitur ini saat mengemudi"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Untuk mulai dari awal dengan fitur apl yang aman, pilih <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Kembali"</string>

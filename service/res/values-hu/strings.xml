@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"Lehetővé teszi az alkalmazás számára, hogy kivetítse a telefon kezelőfelületét az autó képernyőjén."</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"hozzáférhet a kivetítési állapothoz"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"Lehetővé teszi az alkalmazás számára más alkalmazások állapotának kivetítését az autó képernyőjére."</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"összeköthető kivetítési szolgáltatásokkal"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Lehetővé teszi a használó számára, hogy csatlakozzon a kivetítési szolgáltatás legfelső szintű kezelőfelületéhez. A normál alkalmazásoknak erre soha nincs szüksége."</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"vezérelheti az autó hangerejét"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"kezelheti az autó multimédia-rendszerének beállításait"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulálhatja a jármű hardverabsztrakciós rétegét (HAL)"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"Az alkalmazások műszerfalon való indítása"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"Műszerfal navigációs állapota"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"A műszerfal navigációs állapota változásainak figyelése"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Műszerfalon való megjelenítés"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Műszerfaladatok fogadása"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"Felhasználói élményre vonatkozó korlátozások beállítása"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"Felhasználói élményre vonatkozó korlátozások beállítása"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"Olvasási hozzáférés a privát megjelenítési azonosítóhoz"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Engedélyezi a státusz- és észlelési adatok olvasását az Occupant Awareness System számára"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Az Occupant Awareness System grafikonjának irányítása"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Engedélyezi az Occupant Awareness System észlelési grafikonjának indítását és leállítását"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Az autó beviteli szolgáltatása"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Kezelheti a beviteli eseményeket"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"olvashatja a diagnosztikai adatokat"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Olvashatja az autó diagnosztikai adatait."</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"törölheti a diagnosztikai adatokat"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Változtatható jelzésképű táblák üzeneteinek megjelenítése"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Feliratkozhat a változtatható jelzésképű táblák üzeneteire"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"Feliratkozhat a változtatható jelzésképű táblák üzeneteire"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"Változtatható jelzésképű táblák ügyfélszolgáltatója"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Változtatható jelzésképű táblák ügyfeleivel való összekapcsolás"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"Flash-tárhely figyelése"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Figyelheti a Flash-tárhely használatát"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"meghallgathatja a vezetési állapotról szóló adatokat"</string>

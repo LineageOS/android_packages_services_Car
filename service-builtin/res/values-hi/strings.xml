@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"प्रोजेक्ट करने की सुविधा इस्तेमाल कर सकता है"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"उपोयगकर्ता को किसी प्रोजेक्ट करने की सुविधा के टॉप-लेवल इंटरफ़ेस से जोड़ता है. सामान्य ऐप्लिकेशन के लिए इसकी कभी ज़रूरत नहीं होती."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"वीएमएस क्लाइंट सुविधा"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"वीएमएस क्लाइंट से जोड़ सकता है"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"इंस्ट्रूमेंट क्लस्टर रेंडर करने की सुविधा"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"इंस्ट्रूमेंट क्लस्टर का डेटा पाएं"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"कार की इनपुट सेवा"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"इनपुट से जुड़े इवेंट प्रबंधित कर सकता है"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"आप गाड़ी चलाते समय इस सुविधा का इस्तेमाल नहीं कर सकते"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"सुरक्षित ऐप्लिकेशन सुविधाएं फिर से शुरू करने के लिए, <xliff:g id="EXIT_BUTTON">%s</xliff:g> चुनें."</string>
     <string name="exit_button" msgid="3491899413031549265">"वापस शुरू करें"</string>

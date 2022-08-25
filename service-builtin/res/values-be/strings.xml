@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"звязваць з сэрвісам трансляцыі"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"Дазваляе ўладальніку звязвацца з інтэрфейсам службы трансляцыі вышэйшага ўзроўню. Не патрэбна для звычайных праграм."</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"Служба кліента VMS"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"Звязвацца з кліентамі VMS"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"Візуалізацыя на прыборнай панэлі"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"Магчымасць атрымліваць даныя з прыборнай панэлі"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"Сэрвіс уводу аўтамабіля"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"Магчымасць апрацоўваць падзеі ўводу"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Вам нельга выкарыстоўваць гэту функцыю, калі вы ведзяце аўтамабіль"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Каб перазапусціць праграму ў бяспечным рэжыме, націсніце кнопку \"<xliff:g id="EXIT_BUTTON">%s</xliff:g>\"."</string>
     <string name="exit_button" msgid="3491899413031549265">"Назад"</string>

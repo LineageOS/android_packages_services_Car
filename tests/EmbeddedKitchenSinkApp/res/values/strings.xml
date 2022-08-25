@@ -148,6 +148,8 @@
     <string name="file_path" translatable="false">File Path</string>
     <string name="stop_recording" translatable="false">Stop Recording</string>
     <string name="start_recording" translatable="false">Start Recording</string>
+    <string name="start_service" translatable="false">Start Service</string>
+    <string name="stop_service" translatable="false">Stop Service</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>

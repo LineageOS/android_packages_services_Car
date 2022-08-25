@@ -208,7 +208,7 @@ final class KitchenSinkShellCommand {
             mWriter.println("Error: missing argument");
             mWriter.flush();
             throw new IllegalArgumentException(
-                    "Missing argument. Args=" + Arrays.toString(mArgs));
+                    "Missing argument. Args=" + Arrays.toString(mArgs), e);
         }
     }
 

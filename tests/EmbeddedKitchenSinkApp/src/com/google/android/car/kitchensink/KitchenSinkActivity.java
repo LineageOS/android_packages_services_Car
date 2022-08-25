@@ -64,6 +64,7 @@ import com.google.android.car.kitchensink.display.DisplayInfoFragment;
 import com.google.android.car.kitchensink.display.DisplayMirroringFragment;
 import com.google.android.car.kitchensink.display.VirtualDisplayFragment;
 import com.google.android.car.kitchensink.experimental.ExperimentalFeatureTestFragment;
+import com.google.android.car.kitchensink.hotword.CarMultiConcurrentHotwordTestFragment;
 import com.google.android.car.kitchensink.hvac.HvacTestFragment;
 import com.google.android.car.kitchensink.insets.WindowInsetsFullScreenFragment;
 import com.google.android.car.kitchensink.mainline.CarMainlineFragment;
@@ -212,6 +213,7 @@ public class KitchenSinkActivity extends FragmentActivity {
                     AudioRecorderTestFragment.class),
             new FragmentMenuEntry(CarAudioInputTestFragment.FRAGMENT_NAME,
                     CarAudioInputTestFragment.class),
+            new FragmentMenuEntry("Hotword", CarMultiConcurrentHotwordTestFragment.class),
             new FragmentMenuEntry("B&R", BackupAndRestoreFragment.class),
             new FragmentMenuEntry("BT headset", BluetoothHeadsetFragment.class),
             new FragmentMenuEntry("BT messaging", MapMceTestFragment.class),
