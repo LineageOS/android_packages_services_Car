@@ -21,6 +21,9 @@ per-file src/com/android/car/pm/* = ycheo@google.com
 per-file src/com/android/car/garagemode/* = ericjeong@google.com
 per-file src/com/android/car/power/* = ericjeong@google.com
 
+# Property
+per-file src/com/android/car/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
 # StorageMonitoring
 per-file src/com/android/car/CarStorageMonitoringTest.java = lakshmana@google.com
 

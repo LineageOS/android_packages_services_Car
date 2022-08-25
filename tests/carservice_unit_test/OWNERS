@@ -35,6 +35,11 @@ per-file src/com/android/car/power/* = ericjeong@google.com
 # ProcInspector
 per-file src/com/android/car/procinspector/* = lakshmana@google.com
 
+# Property
+per-file src/com/android/car/CarProperty* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/PropertyHalServiceTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/PropertyHalServiceIdsTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
 # StorageMonitoring
 per-file src/com/android/car/storagemonitoring/* = lakshmana@google.com
 
