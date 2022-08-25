@@ -306,8 +306,7 @@ public final class PolicyReader {
     @VisibleForTesting
     void initPolicies() {
         mRegisteredPowerPolicies = new ArrayMap<>();
-        mRegisteredPowerPolicies.put(POWER_POLICY_ID_ALL_ON, POWER_POLICY_ALL_ON);
-        mRegisteredPowerPolicies.put(POWER_POLICY_ID_INITIAL_ON, POWER_POLICY_INITIAL_ON);
+        registerBasicPowerPolicies();
 
         mPolicyGroups = new ArrayMap<>();
 
@@ -369,6 +368,7 @@ public final class PolicyReader {
         validatePolicyGroups(policyGroups, registeredPolicies);
 
         mRegisteredPowerPolicies = registeredPolicies;
+        registerBasicPowerPolicies();
         mPolicyGroups = policyGroups;
         reconstructSystemPowerPolicy(systemPolicyOverride);
     }
@@ -610,6 +610,11 @@ public final class PolicyReader {
                 new CarPowerPolicy(POWER_POLICY_ID_NO_USER_INTERACTION,
                         CarServiceUtils.toIntArray(enabledComponents),
                         CarServiceUtils.toIntArray(disabledComponents)));
+    }
+
+    private void registerBasicPowerPolicies() {
+        mRegisteredPowerPolicies.put(POWER_POLICY_ID_ALL_ON, POWER_POLICY_ALL_ON);
+        mRegisteredPowerPolicies.put(POWER_POLICY_ID_INITIAL_ON, POWER_POLICY_INITIAL_ON);
     }
 
     private void removeComponent(List<Integer> components, int component) {

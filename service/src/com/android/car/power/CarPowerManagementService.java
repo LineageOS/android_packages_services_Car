@@ -1627,7 +1627,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             boolean upToDaemon, boolean force) {
         CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
-            int error = PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+            int error = PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
             Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId));
             return error;
         }
