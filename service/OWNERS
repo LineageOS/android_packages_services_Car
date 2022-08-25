@@ -38,7 +38,7 @@ per-file src/com/android/car/systeminterface/WakeLockInterface.java = ericjeong@
 
 # Property
 per-file src/com/android/car/hal/CarPropertyService.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
-per-file src/com/android/car/hal/PropertyHalSerivce.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/hal/PropertyHalService.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 
 # StorageMonitor
 per-file src/com/android/car/CarStorageMonitoringService.java = lakshmana@google.com
