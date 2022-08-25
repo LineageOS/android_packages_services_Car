@@ -154,8 +154,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 final class CarShellCommand extends BasicShellCommandHandler {
 
@@ -2232,7 +2230,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.printf("Suspend: simulating suspend-to-%s.\n", suspendType);
                 mCarPowerManagementService.simulateSuspendAndMaybeReboot(
                         isHibernation ? PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION
-                                : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
+                        : PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP,
                         /* shouldReboot= */ false, skipGarageMode, resumeDelay);
             } catch (Exception e) {
                 writer.printf("Simulating suspend-to-%s failed: %s\n", suspendType, e.getMessage());
@@ -2384,7 +2382,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         boolean result = mCarPowerManagementService.definePowerPolicyGroupFromCommand(args, writer);
         if (result) return RESULT_OK;
         writer.printf("\nUsage: cmd car_service %s <POLICY_GROUP_ID> [%s:<POLICY_ID>] "
-                        + "[%s:<POLICY_ID>]\n", COMMAND_DEFINE_POWER_POLICY_GROUP,
+                + "[%s:<POLICY_ID>]\n", COMMAND_DEFINE_POWER_POLICY_GROUP,
                 POWER_STATE_WAIT_FOR_VHAL, POWER_STATE_ON);
         return RESULT_ERROR;
     }
@@ -2689,14 +2687,14 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 ioOveruseConfiguration.getComponentLevelThresholds();
         return constructResourceOveruseConfigurationBuilder(
                 configuration).setIoOveruseConfiguration(
-                        new IoOveruseConfiguration.Builder(
-                                new PerStateBytes(foregroundModeBytes,
-                                        componentLevelThresholds.getBackgroundModeBytes(),
-                                        componentLevelThresholds.getGarageModeBytes()),
-                                ioOveruseConfiguration.getPackageSpecificThresholds(),
-                                ioOveruseConfiguration.getAppCategorySpecificThresholds(),
-                                ioOveruseConfiguration.getSystemWideThresholds())
-                                .build())
+                new IoOveruseConfiguration.Builder(
+                        new PerStateBytes(foregroundModeBytes,
+                                componentLevelThresholds.getBackgroundModeBytes(),
+                                componentLevelThresholds.getGarageModeBytes()),
+                        ioOveruseConfiguration.getPackageSpecificThresholds(),
+                        ioOveruseConfiguration.getAppCategorySpecificThresholds(),
+                        ioOveruseConfiguration.getSystemWideThresholds())
+                        .build())
                 .build();
     }
 
@@ -2752,20 +2750,15 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("\t  Runs a Lua script from stdin.");
         writer.println("\tlist");
         writer.println("\t  Lists the active config metrics.");
-        writer.println("\tget-result --config <name> --result-count <num_reports> --timeout "
-                + "<timeout_sec> --print-results");
-        writer.println("\t  Blocks until an expected <num_reports> number of metrics reports");
-        writer.println("\t  is available and returns them.");
-        writer.println("\t  <timeout_sec> specifies the maximum number of seconds that");
-        writer.println("\t  CLI will block for the expected <num_reports>");
-        writer.println("\t  number of reports to come in.");
-        writer.println("\t  Optionally prints contents of every report received");
-        writer.println("\t  if --print-results option is chosen.");
+        writer.println("\tget-result <name>");
+        writer.println("\t  Blocks until a metrics report is available and returns it.");
+        writer.println("\t  If there are multiple reports, the CLI is guaranteed to receive "
+                + "at least one report. There is no guarantee that it will be able to get "
+                + "all of them.");
         writer.println("\nEXAMPLES:");
         writer.println("\t$ adb shell cmd car_service telemetry add name < config1.protobin");
         writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
-        writer.println("\n\t$ adb shell cmd car_service telemetry get-result --config name "
-                + "--result-count 1 --timeout 10 --print-results");
+        writer.println("\n\t$ adb shell cmd car_service telemetry get-result name");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "< example_script.lua");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
@@ -2795,8 +2788,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                     return;
                 }
                 try (BufferedInputStream in = new BufferedInputStream(
-                        new FileInputStream(getInFileDescriptor()));
-                     ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                                new FileInputStream(getInFileDescriptor()));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream()) {
                     FileUtils.copy(in, out);
                     CountDownLatch latch = new CountDownLatch(1);
                     carTelemetryManager.addMetricsConfig(args[2], out.toByteArray(), Runnable::run,
@@ -2884,98 +2877,37 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 });
                 break;
             case "get-result":
-                if (args.length < 8 || args.length > 9) {
+                if (args.length != 3) {
                     writer.println("Invalid number of arguments.");
                     printTelemetryHelp(writer);
                     return;
                 }
-                String configName = null;
-                String expectedResultCount = null;
-                String timeout = null;
-                boolean printResults = false;
-                for (int i = 2; i < args.length; i++) {
-                    switch (args[i]) {
-                        case "--config":
-                            configName = args[++i];
-                            break;
-                        case "--result-count":
-                            expectedResultCount = args[++i];
-                            break;
-                        case "--timeout":
-                            timeout = args[++i];
-                            break;
-                        case "--print-results":
-                            printResults = true;
-                            break;
-                        default:
-                            writer.printf("%s is an invalid argument.\n", args[i]);
-                            printTelemetryHelp(writer);
-                            return;
-                    }
-                }
-                if (configName == null) {
-                    writer.printf("--config value was not provided.\n");
-                    printTelemetryHelp(writer);
-                    return;
-                }
-                if (expectedResultCount == null) {
-                    writer.printf("--result_count value was not provided.\n");
-                    printTelemetryHelp(writer);
-                    return;
-                }
-                if (timeout == null) {
-                    writer.printf("--timeout value was not provided.\n");
-                    printTelemetryHelp(writer);
-                    return;
-                }
-                CountDownLatch latch = new CountDownLatch(Integer.parseInt(expectedResultCount));
-                AtomicLong firstReportReady = new AtomicLong(Long.MIN_VALUE);
-                AtomicLong lastReportReady = new AtomicLong(Long.MIN_VALUE);
-                AtomicInteger numResultsReceived = new AtomicInteger(0);
-
-                boolean shouldPrintResults = printResults;
+                String configName = args[2];
+                CountDownLatch latch = new CountDownLatch(1);
                 CarTelemetryManager.MetricsReportCallback callback =
                         (metricsConfigName, report, telemetryError, status) -> {
                             if (report != null) {
-                                // Captures the first time the callback is invoked.
-                                firstReportReady.compareAndSet(Long.MIN_VALUE,
-                                        SystemClock.elapsedRealtime());
-                                // The callback can be invoked many times. This variable stores
-                                // the time instant when the callback was called most recently.
-                                lastReportReady.set(SystemClock.elapsedRealtime());
                                 report.size(); // unparcel()'s
-                                numResultsReceived.incrementAndGet();
-                                if (shouldPrintResults) {
-                                    writer.println("Report for " + metricsConfigName + ": "
-                                            + report);
-                                }
-                                latch.countDown();
+                                writer.println("Report for " + metricsConfigName + ": " + report);
                             } else if (telemetryError != null) {
                                 parseTelemetryError(telemetryError, writer);
                             }
+                            // the latch counts after receiving 1 report even if there are
+                            // multiple reports
+                            latch.countDown();
                         };
-                String parsedConfigName = configName;
                 carTelemetryManager.clearReportReadyListener();
                 Executor executor = Executors.newSingleThreadExecutor();
                 carTelemetryManager.setReportReadyListener(executor, metricsConfigName -> {
-                    if (metricsConfigName.equals(parsedConfigName)) {
-                        carTelemetryManager.getFinishedReport(metricsConfigName, executor,
-                                callback);
+                    if (metricsConfigName.equals(configName)) {
+                        carTelemetryManager.getFinishedReport(
+                                metricsConfigName, executor, callback);
                     }
                 });
                 try {
-                    writer.println("Waiting for the results...");
+                    writer.println("Waiting for the result...");
                     writer.flush();
-                    latch.await(/* timeout =*/Integer.parseInt(timeout), TimeUnit.SECONDS);
-                    long delta = lastReportReady.get() - firstReportReady.get();
-                    writer.println(
-                            "Took " + delta + " millis to produce " + numResultsReceived.get()
-                                    + " reports");
-                    writer.println("The first report produced at " + firstReportReady.get()
-                            + " millis since boot");
-                    writer.println("The last report produced at " + lastReportReady.get()
-                            + " millis since boot");
-                    writer.flush();
+                    latch.await();
                 } catch (InterruptedException e) {
                     writer.println("Result await error: " + e);
                 } finally {
@@ -3303,7 +3235,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         } catch (IllegalArgumentException | ServiceSpecificException e) {
             writer.println(
                     "Test Failed: Failed to clean up property value: failed to set property: "
-                            + propId + ", error: " + e);
+                    + propId + ", error: " + e);
             return;
         }
 

@@ -13,7 +13,7 @@ adb root
 adb remount  # make sure run "adb disable-verity" before remounting
 adb push $ANDROID_PRODUCT_OUT/vendor/bin/android.automotive.telemetryd-sampleclient /system/bin/
 
-adb shell /system/bin/android.automotive.telemetryd-sampleclient --batch-size 1000 --cardata-size 1000 --interval-micros 10
+adb shell /system/bin/android.automotive.telemetryd-sampleclient
 
 # Then check logcat and dumpsys to verify the results. The following command enables VERBOSE logs.
 adb shell setprop log.tag.android.automotive.telemetryd@1.0 V
