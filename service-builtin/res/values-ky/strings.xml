@@ -30,9 +30,9 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Түзмөгүңүз тазаланат"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Түзмөктү башкаруучу колдонмо жараксыз. Түзмөгүңүз азыр тазаланат.\n\nСуроолоруңуз болсо, ишканаңыздын администраторуна кайрылыңыз."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> системанын ишине кедергисин тийгизип жатат"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Тутумдун ишин жакшыртуу үчүн колдонмону өчүрүп коюңуз. Аны кайра жөндөөлөрдөн иштетип койсоңуз болот."</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Системанын ишин жакшыртуу үчүн колдонмону өчүрүп коюңуз. Аны кайра жөндөөлөрдөн иштетип койсоңуз болот."</string>
     <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Колдонмону пайдалана берүү үчүн ага артыкчылык бериңиз."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Тутумдун ишин жакшыртуу үчүн колдонмону чыгарып салыңыз."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Системанын ишин жакшыртуу үчүн колдонмону чыгарып салыңыз."</string>
     <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Колдонмону өчүрүп коюу"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Колдонмого артыкчылык берүү"</string>
     <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Колдонмону чыгарып салуу"</string>
