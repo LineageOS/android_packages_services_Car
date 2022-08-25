@@ -119,6 +119,7 @@ public final class FakeVhalConfigParser {
     private static final int HVAC_RIGHT = SEAT_1_RIGHT | SEAT_2_RIGHT;
     private static final int HVAC_ALL = HVAC_LEFT | HVAC_RIGHT;
     private static final int LIGHT_STATE_ON = VehicleLightState.ON;
+    private static final int LIGHT_SWITCH_OFF = VehicleLightSwitch.OFF;
     private static final int LIGHT_SWITCH_AUTO = VehicleLightSwitch.AUTOMATIC;
     private static final int MIRROR_DRIVER_LEFT_RIGHT = VehicleAreaMirror.DRIVER_LEFT
                                 | VehicleAreaMirror.DRIVER_RIGHT;
@@ -187,6 +188,7 @@ public final class FakeVhalConfigParser {
                     | FAN_DIRECTION_DEFROST | FAN_DIRECTION_FACE),
             Map.entry("FUEL_DOOR_REAR_LEFT", FUEL_DOOR_REAR_LEFT),
             Map.entry("LIGHT_STATE_ON", LIGHT_STATE_ON),
+            Map.entry("LIGHT_SWITCH_OFF", LIGHT_SWITCH_OFF),
             Map.entry("LIGHT_SWITCH_AUTO", LIGHT_SWITCH_AUTO),
             Map.entry("MIRROR_DRIVER_LEFT_RIGHT", MIRROR_DRIVER_LEFT_RIGHT),
             Map.entry("ECHO_REVERSE_BYTES", ECHO_REVERSE_BYTES),
