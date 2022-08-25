@@ -51,13 +51,25 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     private static final String TAG = ApiCheckerRuleTest.class.getSimpleName();
 
+    // Not a real test (i.e., it doesn't exist on this class), but it's passed to Description
+    private static final String TEST_METHOD_BEING_EXECUTED = "testAmI..OrNot";
+
+    // Similar, not a real method, but passed on annotation fields
+    private static final String METHOD_NAME_INVALID = "invalidIAm";
+
     private static final String METHOD_NAME_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0 =
             "requiresCarAndPlatformTiramisu0";
     private static final String METHOD_NAME_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1 =
             "requiresCarAndPlatformTiramisu1";
 
-    private static final String METHOD_NAME_ANNOTATED_WITH_SUPPORTED_VERSION_TEST =
-            "annotatedWithSupportedVersionTest";
+    private static final String METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION =
+            "annotatedWithSupportedVersionAnnotationWithRightUnsupportedField";
+    private static final String METHOD_NAME_ANNOTATED_WITH_WRONG_SUPPORTED_VERSION_ANNOTATION =
+            "annotatedWithSupportedVersionAnnotationWithWrongUnsupportedField";
+    private static final String METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION =
+            "annotatedWithUnsupportedVersionAnnotationWithRightSupportedField";
+    private static final String METHOD_NAME_ANNOTATED_WITH_WRONG_UNSUPPORTED_VERSION_ANNOTATION =
+            "annotatedWithUnsupportedVersionAnnotationWithWrongSupportedField";
 
     private static final String INVALID_API = "I.cant.believe.this.is.a.valid.API";
     private static final String VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0 =
@@ -85,6 +97,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("missing @ApiTest annotation");
@@ -97,6 +110,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("empty @ApiTest annotation");
@@ -109,6 +123,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("empty @ApiTest annotation");
@@ -122,6 +137,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains(methodName);
@@ -135,6 +151,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("@ApiRequirements");
@@ -183,6 +200,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         PlatformVersionMismatchExceptionNotThrownException e = assertThrows(
                 PlatformVersionMismatchExceptionNotThrownException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception.carVersion").that(e.getCarVersion())
                 .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
@@ -236,6 +254,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         IncompatibleApiRequirementsException e = assertThrows(
                 IncompatibleApiRequirementsException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("apis on exception").that(e.getApis()).containsExactly(
                 VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0,
@@ -269,6 +288,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
         assertWithMessage("exception.message").that(e).hasMessageThat()
                 .contains("missing supportedVersionTest");
     }
@@ -282,6 +302,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
         assertWithMessage("exception.message").that(e).hasMessageThat()
                 .containsMatch(".*invalid supportedVersionTest.*supportedIAm.*");
     }
@@ -296,10 +317,31 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
         assertWithMessage("exception.message").that(e).hasMessageThat()
                 .containsMatch(".*invalid supportedVersionTest.*"
                         + METHOD_NAME_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0
                         + ".*annotated with @SupportedVersionTest");
+    }
+
+    @Test
+    public void
+            failWhenUnsupportedVersionTestPointsToValidMethodWithInvalidSupportedVersionAnnotation()
+                    throws Throwable {
+        Description testMethod = newTestMethod(new UnsupportedVersionTestAnnotation(
+                METHOD_NAME_ANNOTATED_WITH_WRONG_SUPPORTED_VERSION_ANNOTATION));
+
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+        assertWithMessage("exception.message").that(e).hasMessageThat()
+                .containsMatch(".*invalid unsupportedVersionTest.*"
+                        + METHOD_NAME_INVALID
+                        + ".*method "
+                        + METHOD_NAME_ANNOTATED_WITH_WRONG_SUPPORTED_VERSION_ANNOTATION
+                        + ".*should be.*" + TEST_METHOD_BEING_EXECUTED);
     }
 
     @Test
@@ -308,12 +350,14 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         Description testMethod = newTestMethod(
                 new UnsupportedVersionTestAnnotation(
                         VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0),
-                new SupportedVersionTestAnnotation());
+                new SupportedVersionTestAnnotation(
+                        VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_0));
 
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         IllegalStateException e = assertThrows(IllegalStateException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
         assertWithMessage("exception.message").that(e).hasMessageThat()
                 .contains("either supportedVersionTest or unsupportedVersionTest, not both");
     }
@@ -334,10 +378,11 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     private void ignoreTestWithUnsupportedVersionTest_DEFAULT_or_EXPECT_THROWS_OnSupportedVersion(
             Behavior behavior) throws Throwable {
         Description testMethod = newTestMethod(
+                METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION,
                 new ApiTestAnnotation(
                         VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1),
                 new UnsupportedVersionTestAnnotation(behavior,
-                        METHOD_NAME_ANNOTATED_WITH_SUPPORTED_VERSION_TEST));
+                        METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION));
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
 
@@ -346,6 +391,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         ExpectedVersionAssumptionViolationException e = assertThrows(
                 ExpectedVersionAssumptionViolationException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception.carVersion").that(e.getCarVersion())
                 .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
@@ -378,10 +424,11 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     private void runTestWithUnsupportedVersionTest_DEFAULT_or_EXPECT_THROWS_OnUnsupportedVersion(
             Behavior behavior) throws Throwable {
         Description testMethod = newTestMethod(
+                METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION,
                 new ApiTestAnnotation(
                         VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1),
                 new UnsupportedVersionTestAnnotation(behavior,
-                        METHOD_NAME_ANNOTATED_WITH_SUPPORTED_VERSION_TEST));
+                        METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION));
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
 
@@ -390,6 +437,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         PlatformVersionMismatchExceptionNotThrownException e = assertThrows(
                 PlatformVersionMismatchExceptionNotThrownException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception.carVersion").that(e.getCarVersion())
                 .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
@@ -408,10 +456,11 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     public void runTestWithUnsupportedVersionTest_EXPECT_PASS_OnSupportedVersion()
             throws Throwable {
         Description testMethod = newTestMethod(
+                METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION,
                 new ApiTestAnnotation(
                         VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1),
                 new UnsupportedVersionTestAnnotation(Behavior.EXPECT_PASS,
-                        METHOD_NAME_ANNOTATED_WITH_SUPPORTED_VERSION_TEST));
+                        METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION));
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
 
@@ -420,6 +469,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         ExpectedVersionAssumptionViolationException e = assertThrows(
                 ExpectedVersionAssumptionViolationException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception.carVersion").that(e.getCarVersion())
                 .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
@@ -438,10 +488,11 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     public void runTestWithUnsupportedVersionTest_EXPECT_PASS_OnUnsupportedVersion()
             throws Throwable {
         Description testMethod = newTestMethod(
+                METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION,
                 new ApiTestAnnotation(
                         VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1),
                 new UnsupportedVersionTestAnnotation(Behavior.EXPECT_PASS,
-                        METHOD_NAME_ANNOTATED_WITH_SUPPORTED_VERSION_TEST));
+                        METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION));
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
 
@@ -453,10 +504,48 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void runTestWithSupportedVersionTestOnSupportedVersion() throws Throwable {
+    public void failTestWithSupportedVersionMissingUnsupported() throws Throwable {
+        Description testMethod = newTestMethod(new SupportedVersionTestAnnotation(""));
+
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+        assertWithMessage("exception.message").that(e).hasMessageThat()
+                .contains("missing unsupportedVersionTest");
+    }
+
+    @Test
+    public void failTestWithSupportedVersionWithWrongUnsupported() throws Throwable {
         String methodName = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName),
-                new SupportedVersionTestAnnotation());
+                new SupportedVersionTestAnnotation(
+                        METHOD_NAME_ANNOTATED_WITH_WRONG_UNSUPPORTED_VERSION_ANNOTATION));
+        mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
+        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
+
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalStateException e = assertThrows(IllegalStateException.class,
+                () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+
+        assertWithMessage("exception.message").that(e).hasMessageThat()
+                .containsMatch(".*invalid supportedVersionTest.*"
+                        + "method.*"
+                        + METHOD_NAME_ANNOTATED_WITH_WRONG_UNSUPPORTED_VERSION_ANNOTATION
+                        + ".*should be.*" + TEST_METHOD_BEING_EXECUTED);
+    }
+
+    @Test
+    public void runTestWithSupportedVersionTestOnSupportedVersion() throws Throwable {
+        String methodName = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
+        Description testMethod = newTestMethod(
+                METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION,
+                new ApiTestAnnotation(methodName),
+                new SupportedVersionTestAnnotation(
+                        METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION));
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
 
@@ -470,8 +559,11 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void ignoreTestWithSupportedVersionTestOnUnsupportedVersion() throws Throwable {
         String methodName = VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1;
-        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName),
-                new SupportedVersionTestAnnotation());
+        Description testMethod = newTestMethod(
+                METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION,
+                new ApiTestAnnotation(methodName),
+                new SupportedVersionTestAnnotation(
+                        METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION));
         mockCarGetCarVersion(CarVersion.VERSION_CODES.TIRAMISU_1);
         mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
 
@@ -480,6 +572,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         ExpectedVersionAssumptionViolationException e = assertThrows(
                 ExpectedVersionAssumptionViolationException.class,
                 () -> rule.apply(mBaseStatement, testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
 
         assertWithMessage("exception.carVersion").that(e.getCarVersion())
                 .isEqualTo(CarVersion.VERSION_CODES.TIRAMISU_1);
@@ -575,10 +668,21 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
     }
 
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
-    @SupportedVersionTest
-    public void annotatedWithSupportedVersionTest() {
+    @SupportedVersionTest(unsupportedVersionTest = METHOD_NAME_INVALID)
+    public void annotatedWithSupportedVersionAnnotationWithWrongUnsupportedField() {
+    }
+    @SupportedVersionTest(unsupportedVersionTest =
+            METHOD_NAME_ANNOTATED_WITH_RIGHT_UNSUPPORTED_VERSION_ANNOTATION)
+    public void annotatedWithSupportedVersionAnnotationWithRightUnsupportedField() {
+    }
+
+    @UnsupportedVersionTest(supportedVersionTest = METHOD_NAME_INVALID)
+    public void annotatedWithUnsupportedVersionAnnotationWithWrongSupportedField() {
+    }
+
+    @UnsupportedVersionTest(supportedVersionTest =
+            METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION)
+    public void annotatedWithUnsupportedVersionAnnotationWithRightSupportedField() {
     }
 
     ////////////////////////////////////
@@ -586,7 +690,12 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     ////////////////////////////////////
 
     private static Description newTestMethod(Annotation... annotations) {
-        return Description.createTestDescription(ApiCheckerRuleTest.class, "testAmI", annotations);
+        return newTestMethod(TEST_METHOD_BEING_EXECUTED, annotations);
+    }
+
+    private static Description newTestMethod(String methodName, Annotation... annotations) {
+        return Description.createTestDescription(ApiCheckerRuleTest.class,
+                methodName, annotations);
     }
 
     private static class SimpleStatement<T extends Exception> extends Statement {
@@ -613,6 +722,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
+    @SuppressWarnings("BadAnnotationImplementation") // We don't care about equals() / hashCode()
     private static final class UnsupportedVersionTestAnnotation implements UnsupportedVersionTest {
         private final Behavior mBehavior;
         private final String mSupportedVersionTest;
@@ -648,7 +758,13 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
+    @SuppressWarnings("BadAnnotationImplementation") // We don't care about equals() / hashCode()
     private static final class SupportedVersionTestAnnotation implements SupportedVersionTest {
+        private final String mUnsupportedVersionTest;
+
+        SupportedVersionTestAnnotation(String unsupportedVersionTest) {
+            mUnsupportedVersionTest = unsupportedVersionTest;
+        }
 
         @Override
         public Class<? extends Annotation> annotationType() {
@@ -656,11 +772,18 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         }
 
         @Override
+        public String unsupportedVersionTest() {
+            return mUnsupportedVersionTest;
+        }
+
+        @Override
         public String toString() {
-            return "@SupportedVersionTestAnnotation()";
+            return "@SupportedVersionTestAnnotation(unsupportedVersionTest="
+                    + mUnsupportedVersionTest + ")";
         }
     }
 
+    @SuppressWarnings("BadAnnotationImplementation") // We don't care about equals() / hashCode()
     private static final class ApiTestAnnotation implements ApiTest {
 
         private final String[] mApis;

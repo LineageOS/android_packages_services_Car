@@ -26,7 +26,6 @@ import android.car.CarVersion;
 import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
 import android.car.annotation.ApiRequirements;
-import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.text.TextUtils;
 import android.util.Log;
@@ -177,8 +176,8 @@ public final class ApiCheckerRule implements TestRule {
                             + " UnsupportedVersionTest: " + unsupportedVersionTest);
                 }
 
-                validateOptionalAnnotations(description.getTestClass(), supportedVersionTest,
-                        unsupportedVersionTest);
+                validateOptionalAnnotations(description.getTestClass(), description.getMethodName(),
+                        supportedVersionTest, unsupportedVersionTest);
 
                 // First check for @ApiTest annotation
                 if (apiTest == null) {
@@ -251,40 +250,109 @@ public final class ApiCheckerRule implements TestRule {
         };
     } // apply
 
-    private void validateOptionalAnnotations(Class<?> textClass,
-            @Nullable SupportedVersionTest supportedVersionTest,
-            @Nullable UnsupportedVersionTest unsupportedVersionTest) {
-        if (unsupportedVersionTest != null) {
-            if (supportedVersionTest != null) {
+    private void validateOptionalAnnotations(Class<?> testClass, String testMethodName,
+            @Nullable SupportedVersionTest supportedVersionAnnotationOnTestMethod,
+            @Nullable UnsupportedVersionTest unsupportedVersionAnnotationOnTestMethod) {
+        if (unsupportedVersionAnnotationOnTestMethod != null
+                && supportedVersionAnnotationOnTestMethod != null) {
                 throw new IllegalStateException("test must be annotated with either "
                         + "supportedVersionTest or unsupportedVersionTest, not both");
-            }
+        }
+        if (unsupportedVersionAnnotationOnTestMethod != null) {
+            validateUnsupportedVersionTest(testClass, testMethodName,
+                    unsupportedVersionAnnotationOnTestMethod);
+            return;
+        }
+        if (supportedVersionAnnotationOnTestMethod != null) {
+            validateSupportedVersionTest(testClass, testMethodName,
+                    supportedVersionAnnotationOnTestMethod);
+            return;
+        }
+    }
 
-            // Test class must have a counterpart supportedVersionTest
-            String supportedVersionTestMethod = unsupportedVersionTest.supportedVersionTest();
-            if (TextUtils.isEmpty(supportedVersionTestMethod)) {
-                throw new IllegalStateException("missing supportedVersionTest on "
-                        + supportedVersionTestMethod);
-            }
+    private void validateUnsupportedVersionTest(Class<?> testClass, String testMethodName,
+            @Nullable UnsupportedVersionTest unsupportedVersionAnnotationOnTestMethod) {
+        // Test class must have a counterpart supportedVersionTest
+        String supportedVersionMethodName = unsupportedVersionAnnotationOnTestMethod
+                .supportedVersionTest();
+        if (TextUtils.isEmpty(supportedVersionMethodName)) {
+            throw new IllegalStateException("missing supportedVersionTest on "
+                    + unsupportedVersionAnnotationOnTestMethod);
+        }
 
-            Method method = null;
-            Class<?>[] noParams = {};
-            try {
-                method = textClass.getDeclaredMethod(supportedVersionTestMethod, noParams);
-            } catch (Exception e) {
-                Log.w(TAG, "Error getting method named " + supportedVersionTestMethod
-                        + " on class " + textClass, e);
-                throw new IllegalStateException(
-                        "invalid supportedVersionTest on " + supportedVersionTestMethod + e);
-            }
-            // And it must be annotated with @SupportedVersionTest
-            SupportedVersionTest supportedVersionTestAnnotation =
-                    method.getAnnotation(SupportedVersionTest.class);
-            if (supportedVersionTestAnnotation == null) {
-                throw new IllegalStateException(
-                        "invalid supportedVersionTest on " + supportedVersionTestMethod
-                        + ": it's not annotated with @SupportedVersionTest");
-            }
+        Method supportedVersionMethod = null;
+        Class<?>[] noParams = {};
+        try {
+            supportedVersionMethod = testClass.getDeclaredMethod(supportedVersionMethodName,
+                    noParams);
+        } catch (Exception e) {
+            Log.w(TAG, "Error getting method named " + supportedVersionMethodName
+                    + " on class " + testClass, e);
+            throw new IllegalStateException("invalid supportedVersionTest on "
+                    + unsupportedVersionAnnotationOnTestMethod + ": " + e);
+        }
+        // And it must be annotated with @SupportedVersionTest
+        SupportedVersionTest supportedVersionAnnotationOnUnsupportedMethod =
+                supportedVersionMethod.getAnnotation(SupportedVersionTest.class);
+        if (supportedVersionAnnotationOnUnsupportedMethod == null) {
+            throw new IllegalStateException(
+                    "invalid supportedVersionTest method (" + supportedVersionMethodName
+                    + " on " + unsupportedVersionAnnotationOnTestMethod
+                    + ": it's not annotated with @SupportedVersionTest");
+        }
+
+        // which in turn must point to the UnsupportedVersionTest itself
+        String unsupportedVersionMethodOnSupportedAnnotation =
+                supportedVersionAnnotationOnUnsupportedMethod.unsupportedVersionTest();
+        if (!testMethodName.equals(unsupportedVersionMethodOnSupportedAnnotation)) {
+            throw new IllegalStateException(
+                    "invalid unsupportedVersionTest on "
+                            + supportedVersionAnnotationOnUnsupportedMethod
+                            + " annotation on method " + supportedVersionMethodName
+                            + ": it should be " + testMethodName);
+        }
+    }
+
+    private void validateSupportedVersionTest(Class<?> testClass, String testMethodName,
+            @Nullable SupportedVersionTest supportedVersionAnnotationOnTestMethod) {
+        // Test class must have a counterpart unsupportedVersionTest
+        String unsupportedVersionMethodName = supportedVersionAnnotationOnTestMethod
+                .unsupportedVersionTest();
+        if (TextUtils.isEmpty(unsupportedVersionMethodName)) {
+            throw new IllegalStateException("missing unsupportedVersionTest on "
+                    + supportedVersionAnnotationOnTestMethod);
+        }
+
+        Method unsupportedVersionMethod = null;
+        Class<?>[] noParams = {};
+        try {
+            unsupportedVersionMethod = testClass.getDeclaredMethod(unsupportedVersionMethodName,
+                    noParams);
+        } catch (Exception e) {
+            Log.w(TAG, "Error getting method named " + unsupportedVersionMethodName
+                    + " on class " + testClass, e);
+            throw new IllegalStateException("invalid supportedVersionTest on "
+                    + supportedVersionAnnotationOnTestMethod + ": " + e);
+        }
+        // And it must be annotated with @UnupportedVersionTest
+        UnsupportedVersionTest unsupportedVersionAnnotationOnUnsupportedMethod =
+                unsupportedVersionMethod.getAnnotation(UnsupportedVersionTest.class);
+        if (unsupportedVersionAnnotationOnUnsupportedMethod == null) {
+            throw new IllegalStateException(
+                    "invalid supportedVersionTest method (" + unsupportedVersionMethodName
+                    + " on " + supportedVersionAnnotationOnTestMethod
+                    + ": it's not annotated with @UnsupportedVersionTest");
+        }
+
+        // which in turn must point to the UnsupportedVersionTest itself
+        String supportedVersionMethodOnSupportedAnnotation =
+                unsupportedVersionAnnotationOnUnsupportedMethod.supportedVersionTest();
+        if (!testMethodName.equals(supportedVersionMethodOnSupportedAnnotation)) {
+            throw new IllegalStateException(
+                    "invalid supportedVersionTest on "
+                            + unsupportedVersionAnnotationOnUnsupportedMethod
+                            + " annotation on method " + unsupportedVersionMethodName
+                            + ": it should be " + testMethodName);
         }
     }
 
@@ -376,7 +444,8 @@ public final class ApiCheckerRule implements TestRule {
 
         /**
          * Name of the counterpart test should be run on supported versions; such test must be
-         * annoted with {@link SupportedVersionTest}.
+         * annoted with {@link SupportedVersionTest}, whith its {@code unsupportedVersionTest}
+         * value point to the test being annotated with this annotation.
          */
         String supportedVersionTest();
 
@@ -409,6 +478,13 @@ public final class ApiCheckerRule implements TestRule {
     @Target({TYPE, METHOD})
     public @interface SupportedVersionTest {
 
+        /**
+         * Name of the counterpart test should be run on unsupported versions; such test must be
+         * annoted with {@link UnsupportedVersionTest}, whith its {@code supportedVersionTest}
+         * value point to the test being annotated with this annotation.
+         */
+        String unsupportedVersionTest();
+
     }
 
     public static final class ExpectedVersionAssumptionViolationException
@@ -422,7 +498,7 @@ public final class ApiCheckerRule implements TestRule {
 
         ExpectedVersionAssumptionViolationException(Annotation annotation, CarVersion carVersion,
                 PlatformVersion platformVersion, ApiRequirements apiRequirements) {
-            super("Test annotated with @" + annotation.getClass().getCanonicalName()
+            super("Test annotated with @" + annotation.annotationType().getCanonicalName()
                     + " when running on unsupported platform: CarVersion=" + carVersion
                     + ", PlatformVersion=" + platformVersion
                     + ", ApiRequirements=" + apiRequirements);
