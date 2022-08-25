@@ -27,6 +27,7 @@ import android.car.Car;
 import android.car.CarVersion;
 import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
+import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule.ExpectedVersionAssumptionViolationException;
 import android.car.test.ApiCheckerRule.IncompatibleApiRequirementsException;
@@ -82,6 +83,8 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
             "android.car.test.ApiCheckerRuleTest#alsoRequiresCarAndPlatformTiramisu0";
     private static final String VALID_API_WITHOUT_ANNOTATIONS =
             "android.car.test.ApiCheckerRuleTest#apiYUNoAnnotated";
+    private static final String VALID_API_ADDED_IN_OR_BEFORE =
+            "android.car.test.ApiCheckerRuleTest#annotatedWithAddedInOrBefore";
 
     private final SimpleStatement<Exception> mBaseStatement = new SimpleStatement<>();
 
@@ -155,6 +158,17 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains("@ApiRequirements");
+    }
+
+    @Test
+    public void passWhenTestMethodHasValidApiTestAnnotationWithAddedInOrBefore() throws Throwable {
+        String methodName = VALID_API_ADDED_IN_OR_BEFORE;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
     }
 
     @Test
@@ -683,6 +697,11 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     @UnsupportedVersionTest(supportedVersionTest =
             METHOD_NAME_ANNOTATED_WITH_RIGHT_SUPPORTED_VERSION_ANNOTATION)
     public void annotatedWithUnsupportedVersionAnnotationWithRightSupportedField() {
+    }
+
+    @AddedInOrBefore(majorVersion = 42)
+    public void annotatedWithAddedInOrBefore() {
+
     }
 
     ////////////////////////////////////
