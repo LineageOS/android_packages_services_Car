@@ -73,7 +73,6 @@ public class CarAudioContextTest {
     private static final AudioAttributes GAME_USAGE_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_GAME).build();
 
-
     @Test
     public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
         AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();

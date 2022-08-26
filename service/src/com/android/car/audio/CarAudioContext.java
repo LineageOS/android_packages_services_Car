@@ -19,6 +19,7 @@ package com.android.car.audio;
 import static android.car.builtin.media.AudioManagerHelper.getUsageVirtualSource;
 
 import android.annotation.IntDef;
+import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.util.ArrayMap;
@@ -206,8 +207,9 @@ public final class CarAudioContext {
         CONTEXT_TO_ATTRIBUTES.put(CALL,
                 new AudioAttributes[]{
                         getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION),
+                        getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
                         getAudioAttributeFromUsage(AudioAttributes
-                                .USAGE_VOICE_COMMUNICATION_SIGNALLING)
+                                        .USAGE_VOICE_COMMUNICATION_SIGNALLING),
                 });
 
         CONTEXT_TO_ATTRIBUTES.put(ALARM,
@@ -218,12 +220,6 @@ public final class CarAudioContext {
         CONTEXT_TO_ATTRIBUTES.put(NOTIFICATION,
                 new AudioAttributes[]{
                         getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION),
-                        getAudioAttributeFromUsage(AudioAttributes
-                                .USAGE_NOTIFICATION_COMMUNICATION_REQUEST),
-                        getAudioAttributeFromUsage(AudioAttributes
-                                .USAGE_NOTIFICATION_COMMUNICATION_INSTANT),
-                        getAudioAttributeFromUsage(AudioAttributes
-                                .USAGE_NOTIFICATION_COMMUNICATION_DELAYED),
                         getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
                 });
 
@@ -279,6 +275,58 @@ public final class CarAudioContext {
     }
 
     private CarAudioContext() {
+    }
+
+    /**
+     * Checks if the audio attribute usage is valid, throws an {@link IllegalArgumentException}
+     * if the {@code usage} is not valid.
+     *
+     * @param usage audio attribute usage to check
+     * @throws IllegalArgumentException in case of invalid audio attribute usage
+     */
+    public static void checkAudioAttributeUsage(@AttributeUsage int usage)
+            throws IllegalArgumentException {
+        if (isValidAudioAttributeUsage(usage)) {
+            return;
+        }
+
+        throw new IllegalArgumentException("Invalid audio attribute " + usage);
+    }
+
+    /**
+     * Determines if the audio attribute usage is valid
+     *
+     * @param usage audio attribute usage to check
+     * @return {@code true} if valid, {@code false} otherwise
+     */
+    public static boolean isValidAudioAttributeUsage(@AttributeUsage int usage) {
+        switch (usage) {
+            case AudioAttributes.USAGE_UNKNOWN:
+            case AudioAttributes.USAGE_MEDIA:
+            case AudioAttributes.USAGE_VOICE_COMMUNICATION:
+            case AudioAttributes.USAGE_VOICE_COMMUNICATION_SIGNALLING:
+            case AudioAttributes.USAGE_ALARM:
+            case AudioAttributes.USAGE_NOTIFICATION:
+            case AudioAttributes.USAGE_NOTIFICATION_RINGTONE:
+            case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_REQUEST:
+            case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_INSTANT:
+            case AudioAttributes.USAGE_NOTIFICATION_COMMUNICATION_DELAYED:
+            case AudioAttributes.USAGE_NOTIFICATION_EVENT:
+            case AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY:
+            case AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE:
+            case AudioAttributes.USAGE_ASSISTANCE_SONIFICATION:
+            case AudioAttributes.USAGE_GAME:
+            case AudioAttributes.USAGE_ASSISTANT:
+            case AudioAttributes.USAGE_CALL_ASSISTANT:
+            case AudioAttributes.USAGE_EMERGENCY:
+            case AudioAttributes.USAGE_SAFETY:
+            case AudioAttributes.USAGE_VEHICLE_STATUS:
+            case AudioAttributes.USAGE_ANNOUNCEMENT:
+                return true;
+            default:
+                // Virtual usage is hidden and thus it must be taken care here.
+                return usage == AudioManagerHelper.getUsageVirtualSource();
+        }
     }
 
     /**

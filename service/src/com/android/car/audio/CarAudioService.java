@@ -889,6 +889,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public int getVolumeGroupIdForUsage(int zoneId, @AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        if (!CarAudioContext.isValidAudioAttributeUsage(usage)) {
+            return INVALID_VOLUME_GROUP_ID;
+        }
+
         synchronized (mImplLock) {
             return getVolumeGroupIdForAudioAttributeLocked(zoneId,
                     CarAudioContext.getAudioAttributeFromUsage(usage));
@@ -1137,10 +1141,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public String getOutputDeviceAddressForUsage(int zoneId, @AttributeUsage int usage) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         requireDynamicRouting();
+        CarAudioContext.checkAudioAttributeUsage(usage);
         int contextForUsage = CarAudioContext
                 .getContextForAudioAttribute(CarAudioContext.getAudioAttributeFromUsage(usage));
-        Preconditions.checkArgument(contextForUsage != CarAudioContext.INVALID,
-                "Invalid audio attribute usage %d", usage);
         return getCarAudioZone(zoneId).getAddressForContext(contextForUsage);
     }
 
