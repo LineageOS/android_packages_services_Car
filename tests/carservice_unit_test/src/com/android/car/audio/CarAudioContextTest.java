@@ -45,7 +45,7 @@ import static com.android.car.audio.CarAudioContext.isCriticalAudioContext;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.testng.Assert.assertThrows;
+import static org.junit.Assert.assertThrows;
 
 import android.media.AudioAttributes;
 import android.util.ArraySet;
@@ -72,7 +72,6 @@ public class CarAudioContextTest {
             new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
     private static final AudioAttributes GAME_USAGE_ATTRIBUTE =
             new AudioAttributes.Builder().setUsage(USAGE_GAME).build();
-
 
     @Test
     public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
