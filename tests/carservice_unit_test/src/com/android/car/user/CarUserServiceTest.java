@@ -83,6 +83,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
+import android.view.Display;
 
 import com.android.car.hal.HalCallback;
 import com.android.car.internal.util.DebugUtils;
@@ -2533,6 +2534,46 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
         userOpFlagTest(CarUserService.USER_OP_ERROR_RELATED_USERS_CANNOT_STOP,
                 ActivityManager.USER_OP_ERROR_RELATED_USERS_CANNOT_STOP);
     }
+
+    @Test
+    @ExpectWtf
+    public void testIsUserVisible_helperNotSet() throws Exception {
+        boolean visible = mCarUserService.isUserVisible(42);
+
+        assertWithMessage("isUserVisbile(42)").that(visible).isFalse();
+    }
+
+    @Test
+    public void testIsUserVisible_helperNotSet_remoteException() throws Exception {
+        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+        when(mICarServiceHelper.getDisplayAssignedToUser(42))
+                .thenThrow(new RemoteException("D'OH!"));
+
+        boolean visible = mCarUserService.isUserVisible(42);
+
+        assertWithMessage("isUserVisbile(42)").that(visible).isFalse();
+    }
+
+    @Test
+    public void testIsUserVisible() throws Exception {
+        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(108);
+
+        boolean visible = mCarUserService.isUserVisible(42);
+
+        assertWithMessage("isUserVisbile(42)").that(visible).isTrue();
+    }
+
+    @Test
+    public void testIsUserVisible_nope() throws Exception {
+        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+        when(mICarServiceHelper.getDisplayAssignedToUser(42)).thenReturn(Display.INVALID_DISPLAY);
+
+        boolean visible = mCarUserService.isUserVisible(42);
+
+        assertWithMessage("isUserVisbile(42)").that(visible).isFalse();
+    }
+
 
     private void mockUserPreCreationStage(int stage) {
         when(mMockedResources

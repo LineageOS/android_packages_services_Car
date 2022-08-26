@@ -1261,6 +1261,26 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     }
 
+    /**
+     * Same as {@link UserManager#isUserVisible()}, but passing the user id.
+     */
+    public boolean isUserVisible(int userId) {
+        ICarServiceHelper helper;
+        synchronized (mLockUser) {
+            if (mICarServiceHelper == null) {
+                Slogf.wtf(TAG, "isUserVisible(): mICarServiceHelper not set yet", new Exception());
+                return false;
+            }
+            helper = mICarServiceHelper;
+        }
+        try {
+            return helper.getDisplayAssignedToUser(userId) != Display.INVALID_DISPLAY;
+        } catch (RemoteException e) {
+            Slogf.e(TAG, e, "isUserVisible(%d) failed", userId);
+            return false;
+        }
+    }
+
     @Override
     public void createUser(@Nullable String name, @NonNull String userType, int flags,
             int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver) {
