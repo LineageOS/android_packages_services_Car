@@ -943,6 +943,7 @@ public final class Car {
      */
     @VisibleForHiddenApiCheck
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION =
             "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
 
