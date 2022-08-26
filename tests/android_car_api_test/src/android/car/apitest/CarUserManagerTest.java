@@ -31,6 +31,10 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.Car;
+import android.car.test.ApiCheckerRule;
+import android.car.test.ApiCheckerRule.SupportedVersionTest;
+import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
+import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -41,9 +45,13 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
+import com.android.compatibility.common.util.ApiTest;
+
 import org.junit.AfterClass;
+import org.junit.AssumptionViolatedException;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.List;
@@ -59,6 +67,11 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
 
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
+
+    // TODO(b/242350638): move to super class (although it would need to call
+    // disableAnnotationsCheck()
+    @Rule
+    public final ApiCheckerRule mApiCheckerRule = new ApiCheckerRule.Builder().build();
 
     @BeforeClass
     public static void setupMaxNumberOfUsers() {
@@ -80,6 +93,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.user.CarUserManager#createUser(String, int)"})
     public void testCreateUser() throws Exception {
         UserInfo newUser = createUser("DaNewUserInTheBlock");
         assertWithMessage("(%s).isGuest()", newUser.toFullString()).that(newUser.isGuest())
@@ -94,6 +108,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
+    @ApiTest(apis = {"android.car.user.CarUserManager#createGuest(String)"})
     public void testCreateGuest() throws Exception {
         UserInfo newGuest = createGuest("DaNewGuestInTheBlock");
         assertWithMessage("(%s).isGuest()", newGuest.toFullString()).that(newGuest.isGuest())
@@ -108,7 +123,27 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
-    public void testLifecycleUserCreatedListener() throws Exception {
+    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED"})
+    @SupportedVersionTest(unsupportedVersionTest =
+            "testLifecycleUserCreatedListener_unsupportedVersion")
+    public void testLifecycleUserCreatedListener_supportedVersion() throws Exception {
+        lifecycleUserCreatedListenerTest(/*onSupportedVersion=*/ true);
+    }
+
+    @Test
+    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED"})
+    @UnsupportedVersionTest(behavior = Behavior.EXPECT_PASS,
+            supportedVersionTest = "testLifecycleUserCreatedListener_supportedVersion")
+    public void testLifecycleUserCreatedListener_unsupportedVersion() throws Exception {
+        lifecycleUserCreatedListenerTest(/*onSupportedVersion=*/ false);
+    }
+
+    private void lifecycleUserCreatedListenerTest(boolean onSupportedVersion) throws Exception {
+        if (!onSupportedVersion) {
+            // TODO(b/235524989): implement it and remove this check
+            throw new AssumptionViolatedException("lifecycleUserCreatedListenerTest() not "
+                    + "implemented for unsupported version yet");
+        }
         Car car = Car.createCar(getContext().getApplicationContext());
         CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
 
@@ -142,7 +177,27 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
-    public void testLifecycleUserRemovedListener() throws Exception {
+    @SupportedVersionTest(unsupportedVersionTest =
+            "testLifecycleUserRemovedListener_unsupportedVersion")
+    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED"})
+    public void testLifecycleUserRemovedListener_supportedVersion() throws Exception {
+        lifecycleUserRemovedListenerTest(/*onSupportedVersion=*/ true);
+    }
+
+    @Test
+    @UnsupportedVersionTest(behavior = Behavior.EXPECT_PASS, supportedVersionTest =
+            "testLifecycleUserRemovedListener_supportedVersion")
+    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED"})
+    public void testLifecycleUserRemovedListener_unsupportedVersion() throws Exception {
+        lifecycleUserRemovedListenerTest(/*onSupportedVersion=*/ false);
+    }
+
+    private void lifecycleUserRemovedListenerTest(boolean onSupportedVersion) throws Exception {
+        if (!onSupportedVersion) {
+            // TODO(b/235524989): implement it and remove this check
+            throw new AssumptionViolatedException("lifecycleUserRemovedListenerTest() not "
+                    + "implemented for unsupported version yet");
+        }
         int newUserId = createUser("TestUserToRemove").id;
         Car car = Car.createCar(getContext().getApplicationContext());
         CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
@@ -178,6 +233,10 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
+    @ApiTest(apis = {
+            "android.car.user.CarUserManager#addListener(Executor,UserLifecycleListener)",
+            "android.car.user.CarUserManager#removeListener(UserLifecycleListener)"
+    })
     public void testLifecycleMultipleListeners() throws Exception {
         int newUserId = createUser("Test").id;
         Car car2 = Car.createCar(getContext().getApplicationContext());
@@ -271,6 +330,10 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      */
     @Ignore("b/233164303")
     @Test
+    @ApiTest(apis = {
+            "android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED",
+            "android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_SWITCHING",
+    })
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
         UserInfo guestUser = createGuest();
@@ -325,6 +388,9 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * resume to same guest user.
      */
     @Test
+    @ApiTest(apis = {
+            "android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED",
+    })
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
         UserInfo guestUser = createGuest();
@@ -363,6 +429,9 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * Tests resume behavior when current user is persistent user.
      */
     @Test
+    @ApiTest(apis = {
+            "android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED",
+    })
     public void testPersistentUserResumeToUser() throws Exception {
         int newUserId = createUser().id;
         BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
