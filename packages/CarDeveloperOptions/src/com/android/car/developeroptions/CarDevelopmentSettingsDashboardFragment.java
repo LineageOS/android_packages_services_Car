@@ -35,6 +35,7 @@ import com.android.car.ui.toolbar.ToolbarController;
 import com.android.settings.SettingsActivity;
 import com.android.settings.development.DevelopmentSettingsDashboardFragment;
 import com.android.settingslib.core.AbstractPreferenceController;
+import com.android.settingslib.drawer.CategoryKey;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +122,13 @@ public class CarDevelopmentSettingsDashboardFragment extends DevelopmentSettings
                     PackageManager.DONT_KILL_APP);
             finish();
         }
+    }
+
+    @Override
+    public String getCategoryKey() {
+        // Manually return the development category here since this class is not present in the
+        // DashboardFragmentRegistry.
+        return CategoryKey.CATEGORY_SYSTEM_DEVELOPMENT;
     }
 
     protected ToolbarController getToolbar() {
