@@ -27,6 +27,8 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.builtin.os.BuildHelper;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
@@ -56,6 +58,7 @@ import java.util.Objects;
  *
  * @hide
  */
+@SystemApi
 public final class CarUxRestrictionsConfiguration implements Parcelable {
     private static final String TAG = "CarUxRConfig";
 
@@ -118,6 +121,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      * @param currentSpeed Current speed in meter per second.
      */
     @AddedInOrBefore(majorVersion = 33)
+    @NonNull
     public CarUxRestrictions getUxRestrictions(
             @CarDrivingState int drivingState, float currentSpeed) {
         return getUxRestrictions(drivingState, currentSpeed, UX_RESTRICTION_MODE_BASELINE);
@@ -135,6 +139,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      * @param mode         Current UX Restriction mode.
      */
     @AddedInOrBefore(majorVersion = 33)
+    @NonNull
     public CarUxRestrictions getUxRestrictions(@CarDrivingState int drivingState,
             @FloatRange(from = 0f) float currentSpeed, @NonNull String mode) {
         Objects.requireNonNull(mode, "mode must not be null");
@@ -184,6 +189,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      * to default display {@link android.view.Display#DEFAULT_DISPLAY}.
      */
     @Nullable
+    @SuppressLint("AutoBoxing")
     @AddedInOrBefore(majorVersion = 33)
     public Integer getPhysicalPort() {
         return mPhysicalPort;
@@ -248,6 +254,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
     /**
      * Writes current configuration as Json.
+     * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
     public void writeJson(@NonNull JsonWriter writer) throws IOException {
@@ -335,8 +342,10 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
      *
      * <p>Supports reading files persisted in multiple JSON schemas, including the pre-R version 1
      * format, and the R format version 2.
+     * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
+    @NonNull
     public static CarUxRestrictionsConfiguration readJson(@NonNull JsonReader reader,
             int schemaVersion) throws IOException {
         Objects.requireNonNull(reader, "reader must not be null");
@@ -562,6 +571,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
     /**
      * Compares {@code this} configuration object with {@code other} on restriction parameters.
+     * @hide
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean hasSameParameters(@NonNull CarUxRestrictionsConfiguration other) {
@@ -573,6 +583,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
     /**
      * Dump the driving state to UX restrictions mapping.
+     * @hide
      */
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     @AddedInOrBefore(majorVersion = 33)
@@ -637,6 +648,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     };
 
     @AddedInOrBefore(majorVersion = 33)
+    @NonNull
     public static final Parcelable.Creator<CarUxRestrictionsConfiguration> CREATOR =
             new Parcelable.Creator<CarUxRestrictionsConfiguration>() {
 
@@ -682,7 +694,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
 
     @Override
     @AddedInOrBefore(majorVersion = 33)
-    public void writeToParcel(Parcel dest, int flags) {
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
         dest.writeInt(mRestrictionModes.size());
         for (Map.Entry<String, RestrictionModeContainer> entry : mRestrictionModes.entrySet()) {
             dest.writeString(entry.getKey());
