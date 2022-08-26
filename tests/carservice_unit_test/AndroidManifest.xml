@@ -28,7 +28,7 @@
     <uses-permission android:name="android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE" />
 
     <application android:label="@string/app_title"
-            android:debuggable="true" android:testOnly="true">
+            android:debuggable="true">
         <uses-library android:name="android.test.runner" />
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityA"/>
         <activity android:name="com.android.car.SystemActivityMonitoringServiceTest$ActivityB"/>
