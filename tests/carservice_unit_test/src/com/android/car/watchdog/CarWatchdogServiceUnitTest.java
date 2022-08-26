@@ -513,6 +513,34 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testPowerCycleStateChangesDuringSuspend() throws Exception {
+        setCarPowerState(CarPowerManager.STATE_SUSPEND_ENTER);
+        setCarPowerState(CarPowerManager.STATE_SUSPEND_EXIT);
+        setCarPowerState(CarPowerManager.STATE_ON);
+
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SUSPEND_EXIT, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_RESUME, MISSING_ARG_VALUE);
+    }
+
+    @Test
+    public void testPowerCycleStateChangesDuringHibernation() throws Exception {
+        setCarPowerState(CarPowerManager.STATE_HIBERNATION_ENTER);
+        setCarPowerState(CarPowerManager.STATE_HIBERNATION_EXIT);
+        setCarPowerState(CarPowerManager.STATE_ON);
+
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_SUSPEND_EXIT, MISSING_ARG_VALUE);
+        verify(mMockCarWatchdogDaemon).notifySystemStateChange(StateType.POWER_CYCLE,
+                PowerCycle.POWER_CYCLE_RESUME, MISSING_ARG_VALUE);
+    }
+
+    @Test
     public void testDeviceRebootBroadcast() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(Intent.ACTION_REBOOT)
