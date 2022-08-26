@@ -301,7 +301,7 @@ public final class FakeVhalConfigParser {
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = VehicleProperty.INVALID;
         List<VehicleAreaConfig> areaConfigs = new ArrayList<>();
-        RawPropValues rawPropValues = new RawPropValues();
+        RawPropValues rawPropValues = null;
         SparseArray<RawPropValues> defaultValuesByAreaId = new SparseArray<>();
 
         for (int i = 0; i < fieldNames.size(); i++) {
@@ -339,7 +339,7 @@ public final class FakeVhalConfigParser {
                 case JSON_FIELD_NAME_DEFAULT_VALUE:
                     JSONObject defaultValueObject = propertyObject.optJSONObject(fieldName);
                     if (defaultValueObject == null) {
-                        errors.add(fieldName + " doesn't have a mapped value.");
+                        Slogf.w(TAG, "%s doesn't have a mapped value.", fieldName);
                         continue;
                     }
                     rawPropValues = parseDefaultValue(defaultValueObject, errors);
@@ -361,9 +361,7 @@ public final class FakeVhalConfigParser {
                                 parseAreaConfig(areaObject, errors);
                         if (result != null) {
                             areaConfigs.add(result.first);
-                            if (result.second != null) {
-                                defaultValuesByAreaId.put(result.first.areaId, result.second);
-                            }
+                            defaultValuesByAreaId.put(result.first.areaId, result.second);
                         }
                     }
                     vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
@@ -459,7 +457,7 @@ public final class FakeVhalConfigParser {
         List<String> fieldNames = getFieldNames(defaultValue);
 
         if (fieldNames == null) {
-            errors.add("The JSONObject " + defaultValue + " is empty.");
+            Slogf.w(TAG, "The JSONObject %s is empty.", defaultValue.toString());
             return null;
         }
 

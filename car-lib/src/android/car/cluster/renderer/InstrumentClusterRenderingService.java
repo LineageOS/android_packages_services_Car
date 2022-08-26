@@ -263,7 +263,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * {@link #stopFixedActivityMode(int)} can be called to get the top activitgy out of this
      * mode.</p>
      *
-     * @param intent Should include specific {@code ComponentName}.
+     * @param intentParam Should include specific {@code ComponentName}.
      * @param options Should include target display.
      * @param userId Target user id
      * @return {@code true} if succeeded. {@code false} may mean the target component is not ready
@@ -273,8 +273,10 @@ public abstract class InstrumentClusterRenderingService extends Service {
      *         other events.
      */
     @AddedInOrBefore(majorVersion = 33)
-    public boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intent,
+    public boolean startFixedActivityModeForDisplayAndUser(@NonNull Intent intentParam,
             @NonNull ActivityOptions options, @UserIdInt int userId) {
+        Intent intent = intentParam;
+
         IInstrumentClusterHelper helper = getClusterHelper();
         if (helper == null) {
             return false;
@@ -687,7 +689,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * </ul>
      * This is a costly operation. Returned bitmaps should be fetched on a secondary thread.
      *
-     * @param uri           The URI of the bitmap
+     * @param bitmapUri     The URI of the bitmap
      * @param width         Requested width
      * @param height        Requested height
      * @param offLanesAlpha Opacity value of the off-lane images. Only used for lane guidance images
@@ -695,7 +697,9 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
-    public Bitmap getBitmap(@NonNull Uri uri, int width, int height, float offLanesAlpha) {
+    public Bitmap getBitmap(@NonNull Uri bitmapUri, int width, int height, float offLanesAlpha) {
+        Uri uri = bitmapUri;
+
         if (width <= 0 || height <= 0) {
             throw new IllegalArgumentException("Width and height must be > 0");
         }

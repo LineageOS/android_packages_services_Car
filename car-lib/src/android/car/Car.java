@@ -1887,7 +1887,9 @@ public final class Car {
         return (eventHandler.getLooper() == mainLooper) ? eventHandler : new Handler(mainLooper);
     }
 
-    private static Handler determineEventHandler(@Nullable Handler handler) {
+    private static Handler determineEventHandler(@Nullable Handler eventHandler) {
+        Handler handler = eventHandler;
+
         if (handler == null) {
             Looper looper = Looper.getMainLooper();
             handler = new Handler(looper);

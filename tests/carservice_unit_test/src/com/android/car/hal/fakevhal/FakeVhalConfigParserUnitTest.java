@@ -403,10 +403,10 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": null}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                mFakeVhalConfigParser.parseJsonConfig(tempFile));
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(286261504);
 
-        assertThat(thrown).hasMessageThat().contains("defaultValue doesn't have a mapped value.");
+        assertThat(configDeclaration.getInitialValue()).isEqualTo(null);
     }
 
     @Test
@@ -414,10 +414,10 @@ public class FakeVhalConfigParserUnitTest {
         String jsonString = "{\"properties\": [{\"property\": 286261504, \"defaultValue\": {}}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
-                mFakeVhalConfigParser.parseJsonConfig(tempFile));
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(286261504);
 
-        assertThat(thrown).hasMessageThat().contains("The JSONObject {} is empty.");
+        assertThat(configDeclaration.getInitialValue()).isEqualTo(null);
     }
 
     @Test
@@ -538,12 +538,26 @@ public class FakeVhalConfigParserUnitTest {
         SparseArray<RawPropValues> areaValuesByAreaId = new SparseArray<>();
         areaValuesByAreaId.put(vehicleAreaConfig.areaId, areaRawPropValues);
         ConfigDeclaration expectConfigDeclaration = new ConfigDeclaration(vehiclePropConfig,
-                new RawPropValues(), areaValuesByAreaId);
+                null, areaValuesByAreaId);
 
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
                 .get(286261504);
 
         assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
+    }
+
+    @Test
+    public void testParseAreaConfigWithNoValue() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 286261504, \"areas\": "
+                + "[{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 10, "
+                + "\"defaultValue\": {\"int32Values\": [0]}}, {\"areaId\": 2}]}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(286261504);
+
+        assertThat(configDeclaration.getInitialAreaValuesByAreaId().size()).isEqualTo(2);
+        assertThat(configDeclaration.getInitialAreaValuesByAreaId().get(2)).isEqualTo(null);
     }
 
     @Test

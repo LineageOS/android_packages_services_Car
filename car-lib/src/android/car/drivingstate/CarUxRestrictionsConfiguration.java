@@ -220,8 +220,10 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
     /**
      * Creates CarUxRestrictions with restrictions parameters from current configuration.
      */
-    private CarUxRestrictions createUxRestrictionsEvent(boolean requiresOpt,
+    private CarUxRestrictions createUxRestrictionsEvent(boolean requiresOptParam,
             @CarUxRestrictions.CarUxRestrictionsInfo int uxr) {
+        boolean requiresOpt = requiresOptParam;
+
         // In case the UXR is not baseline, set requiresDistractionOptimization to true since it
         // doesn't make sense to have an active non baseline restrictions without
         // requiresDistractionOptimization set to true.

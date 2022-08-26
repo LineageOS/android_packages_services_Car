@@ -109,8 +109,12 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
                     int assignedUserId = getAssignedUserIdForMainDisplay(
                             occupantZoneManager, mainDisplayId);
                     if (assignedUserId == getUserId()) {
-                        Log.i(TAG, "User" + getUserId() + " is assigned to Display"
+                        Log.i(TAG, "User" + getUserId() + " is assigned to Display#"
                                 + mainDisplayId);
+                        return;
+                    }
+                    if (assignedUserId == UserHandle.USER_NULL) {
+                        Log.w(TAG, "Can't find the assigned user for Display#" + mainDisplayId);
                         return;
                     }
                     // TODO(b/236182833): Show the profile user selection UI if no user is assigned
@@ -119,7 +123,7 @@ public final class LauncherActivity extends FragmentActivity implements AppPicke
                     intent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivityAsUser(intent, UserHandle.of(assignedUserId));
-                    Log.i(TAG, "Start HOME for User" + assignedUserId + " in Display"
+                    Log.i(TAG, "Start HOME for User" + assignedUserId + " in Display#"
                             + mainDisplayId);
                     finish();
                 });

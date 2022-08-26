@@ -409,16 +409,19 @@ public final class CarProjectionManager extends CarManagerBase {
      * Callbacks on the event handler will be run on the given {@link Executor}, or, if it is null,
      * the {@link Handler} designated to run callbacks for {@link Car}.
      *
-     * @param events        The set of key events to which to subscribe.
-     * @param executor      An {@link Executor} on which to run callbacks.
-     * @param eventHandler  The {@link ProjectionKeyEventHandler} to call when those events occur.
+     * @param events            The set of key events to which to subscribe.
+     * @param callbackExecutor  An {@link Executor} on which to run callbacks.
+     * @param eventHandler      The {@link ProjectionKeyEventHandler} to call when those events
+     *                          occur.
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     @AddedInOrBefore(majorVersion = 33)
     public void addKeyEventHandler(
             @NonNull Set<@KeyEventNum Integer> events,
-            @CallbackExecutor @Nullable Executor executor,
+            @CallbackExecutor @Nullable Executor callbackExecutor,
             @NonNull ProjectionKeyEventHandler eventHandler) {
+        Executor executor = callbackExecutor;
+
         BitSet eventMask = new BitSet();
         for (int event : events) {
             Preconditions.checkArgument(event >= 0 && event < NUM_KEY_EVENTS, "Invalid key event");

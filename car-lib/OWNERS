@@ -28,6 +28,9 @@ per-file src/android/car/content/pm/* = ycheo@google.com
 # Power
 per-file src/android/car/hardware/power/* = ericjeong@google.com
 
+# Property
+per-file src/android/car/hardware/property/* = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+
 # StorageMonitoring
 per-file src/android/car/storagemonitoring/* = lakshmana@google.com
 
