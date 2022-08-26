@@ -97,7 +97,8 @@ public class FastPairGattServer {
 
     private final FastPairAccountKeyStorage mFastPairAccountKeyStorage;
 
-    private final BluetoothGattServer mBluetoothGattServer;
+    private BluetoothGattServer mBluetoothGattServer;
+    private final BluetoothManager mBluetoothManager;
     private final BluetoothAdapter mBluetoothAdapter;
     private int mPairingPasskey = INVALID;
     private int mFailureCount = 0;
@@ -269,6 +270,9 @@ public class FastPairGattServer {
                             mRemotePairingDevice, mPairingPasskey);
                 }
                 sendPairingResponse(mPairingPasskey);
+            } else if (BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED.equals(intent.getAction())) {
+                String name = intent.getStringExtra(BluetoothAdapter.EXTRA_LOCAL_NAME);
+                updateLocalName(name);
             }
         }
     };
@@ -290,13 +294,8 @@ public class FastPairGattServer {
         mCallbacks = Objects.requireNonNull(callbacks);
         mPrivateAntiSpoof = antiSpoof;
         mAutomaticPasskeyConfirmation = automaticAcceptance;
-        BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
-        mBluetoothGattServer = bluetoothManager
-                .openGattServer(context, mBluetoothGattServerCallback);
-        if (DBG) {
-            Slogf.d(TAG, "mBTManager: %s GATT: %s", bluetoothManager, mBluetoothGattServer);
-        }
+        mBluetoothManager = context.getSystemService(BluetoothManager.class);
+        mBluetoothAdapter = mBluetoothManager.getAdapter();
         ByteBuffer modelIdBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(
                 modelId);
         mModelId = Arrays.copyOfRange(modelIdBytes.array(), 0, 3);
@@ -627,27 +626,49 @@ public class FastPairGattServer {
                 new BluetoothGattCharacteristic(DEVICE_NAME_CHARACTERISTIC_CONFIG.getUuid(),
                         BluetoothGattCharacteristic.PROPERTY_READ,
                         BluetoothGattCharacteristic.PERMISSION_READ);
-        mDeviceNameCharacteristic.setValue(mBluetoothAdapter.getName());
+        String name = mBluetoothAdapter.getName();
+        if (name == null) {
+            name = "";
+        }
+        mDeviceNameCharacteristic.setValue(name);
         mFastPairService.addCharacteristic(mDeviceNameCharacteristic);
     }
 
-    void start() {
-        if (mBluetoothGattServer == null || isStarted()) {
-            return;
+    void updateLocalName(String name) {
+        Slogf.d(TAG, "Device name changed to '%s'", name);
+        if (name != null) {
+            mDeviceNameCharacteristic.setValue(name);
+        }
+    }
+
+    boolean start() {
+        if (isStarted()) {
+            return false;
         }
 
         // Setup filter to receive pairing attempts and passkey. Make this a high priority broadcast
         // receiver so others can't intercept it before we can handle it.
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
+        filter.addAction(BluetoothAdapter.ACTION_LOCAL_NAME_CHANGED);
         filter.setPriority(IntentFilter.SYSTEM_HIGH_PRIORITY);
         mContext.registerReceiver(mPairingAttemptsReceiver, filter);
 
+        mBluetoothGattServer = mBluetoothManager
+                .openGattServer(mContext, mBluetoothGattServerCallback);
+
+        if (mBluetoothGattServer == null) {
+            Slogf.e(TAG, "Start failed, could not get a GATT server.");
+            mContext.unregisterReceiver(mPairingAttemptsReceiver);
+            return false;
+        }
+
         mBluetoothGattServer.addService(mFastPairService);
+        return true;
     }
 
     void stop() {
-        if (mBluetoothGattServer == null || !isStarted()) {
+        if (!isStarted()) {
             return;
         }
 

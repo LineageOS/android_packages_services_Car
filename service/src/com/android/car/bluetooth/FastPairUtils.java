@@ -15,67 +15,16 @@
  */
 package com.android.car.bluetooth;
 
-import static com.android.car.bluetooth.FastPairAccountKeyStorage.AccountKey;
-
 import android.car.builtin.util.Slogf;
 import android.util.Log;
-
-import java.nio.ByteBuffer;
-import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Random;
 
 class FastPairUtils {
     static final String TAG = FastPairUtils.class.getSimpleName();
     static final boolean DBG = Slogf.isLoggable("FastPair", Log.DEBUG);
     static final String THREAD_NAME = "FastPairProvider";
 
-    private static final byte SALT_FIELD_DESCRIPTOR = 0x11;
     private static final int BD_ADDR_LEN = 6;
     private static final int BD_UUID_LEN = 16;
-
-    //construct the advertisement based on stored account keys
-    static byte[] getAccountKeyAdvertisement(List<AccountKey> keys) {
-        byte[] salt = new byte[1];
-        new Random().nextBytes(salt);
-
-        //calculate bloom results
-        byte[] bloomResults = bloom(keys, salt[0]);
-        int size = bloomResults.length;
-
-        //assemble advertisement
-        ByteBuffer accountKeyAdvertisement = ByteBuffer.allocate(size + 4);
-        accountKeyAdvertisement.put((byte) 0); //reserved Flags byte
-        accountKeyAdvertisement.put((byte) (size << 4));
-        accountKeyAdvertisement.put(bloomResults);
-        accountKeyAdvertisement.put(SALT_FIELD_DESCRIPTOR);
-        accountKeyAdvertisement.put(salt);
-
-        return accountKeyAdvertisement.array();
-    }
-
-    //given a list of account keys and a salt, calculate the bloom results
-    static byte[] bloom(List<AccountKey> keys, byte salt) {
-        int size = (int) 1.2 * keys.size() + 3;
-        byte[] filter = new byte[size];
-
-        for (AccountKey key : keys) {
-            byte[] v = Arrays.copyOf(key.toBytes(), 17);
-            v[16] = salt;
-            try {
-                byte[] hashed = MessageDigest.getInstance("SHA-256").digest(v);
-                ByteBuffer byteBuffer = ByteBuffer.wrap(hashed);
-                for (int j = 0; j < 8; j++) {
-                    long k = Integer.toUnsignedLong(byteBuffer.getInt()) % (size * 8);
-                    filter[(int) (k / 8)] |= 1 << (k % 8);
-                }
-            } catch (Exception e) {
-                Slogf.e(TAG, "error calculating bloom: %s", e);
-            }
-        }
-        return filter;
-    }
 
     static byte[] getBytesFromAddress(String address) {
         int i, j = 0;

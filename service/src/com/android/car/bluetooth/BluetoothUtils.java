@@ -25,6 +25,7 @@ import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
+import android.bluetooth.le.AdvertisingSetCallback;
 import android.os.ParcelUuid;
 import android.util.SparseArray;
 
@@ -54,6 +55,9 @@ public final class BluetoothUtils {
     private static final SparseArray<String> sAdapterStates = new SparseArray<String>(4);
     private static final SparseArray<String> sBondStates = new SparseArray<String>(3);
     private static final SparseArray<String> sConnectionStates = new SparseArray<String>(4);
+    private static final SparseArray<String> sScanModes = new SparseArray<String>(3);
+    private static final SparseArray<String> sAdvertiseCallbackStatuses =
+            new SparseArray<String>(3);
     private static final SparseArray<String> sProfileNames = new SparseArray<String>(6);
     private static final HashMap<String, Integer> sProfileActions = new HashMap<String, Integer>(5);
     static {
@@ -62,6 +66,7 @@ public final class BluetoothUtils {
         sAdapterStates.put(BluetoothAdapter.STATE_OFF, "Off");
         sAdapterStates.put(BluetoothAdapter.STATE_TURNING_ON, "Turning On");
         sAdapterStates.put(BluetoothAdapter.STATE_TURNING_OFF, "Turning Off");
+        sAdapterStates.put(BluetoothAdapter.ERROR, "Error");
 
         // Device Bonding states
         sBondStates.put(BluetoothDevice.BOND_BONDED, "Bonded");
@@ -73,6 +78,27 @@ public final class BluetoothUtils {
         sConnectionStates.put(BluetoothAdapter.STATE_DISCONNECTED, "Disconnected");
         sConnectionStates.put(BluetoothAdapter.STATE_CONNECTING, "Connecting");
         sConnectionStates.put(BluetoothAdapter.STATE_DISCONNECTING, "Disconnecting");
+
+        // Scan Mode Names
+        sScanModes.put(BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE,
+                "Connectable/Discoverable");
+        sScanModes.put(BluetoothAdapter.SCAN_MODE_CONNECTABLE, "Connectable");
+        sScanModes.put(BluetoothAdapter.SCAN_MODE_NONE, "None");
+        sScanModes.put(BluetoothAdapter.ERROR, "Error");
+
+        // Advertising Callback Status Codes
+        sAdvertiseCallbackStatuses.put(AdvertisingSetCallback.ADVERTISE_FAILED_ALREADY_STARTED,
+                "ADVERTISE_FAILED_ALREADY_STARTED");
+        sAdvertiseCallbackStatuses.put(AdvertisingSetCallback.ADVERTISE_FAILED_DATA_TOO_LARGE,
+                "ADVERTISE_FAILED_DATA_TOO_LARGE");
+        sAdvertiseCallbackStatuses.put(AdvertisingSetCallback.ADVERTISE_FAILED_FEATURE_UNSUPPORTED,
+                "ADVERTISE_FAILED_FEATURE_UNSUPPORTED");
+        sAdvertiseCallbackStatuses.put(AdvertisingSetCallback.ADVERTISE_FAILED_INTERNAL_ERROR,
+                "ADVERTISE_FAILED_INTERNAL_ERROR");
+        sAdvertiseCallbackStatuses.put(AdvertisingSetCallback.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS,
+                "ADVERTISE_FAILED_TOO_MANY_ADVERTISERS");
+        sAdvertiseCallbackStatuses.put(AdvertisingSetCallback.ADVERTISE_SUCCESS,
+                "ADVERTISE_SUCCESS");
 
         // Profile Names
         sProfileNames.put(BluetoothProfile.PAN, "PAN");
@@ -115,6 +141,16 @@ public final class BluetoothUtils {
     static String getAdapterStateName(int state) {
         String name = sAdapterStates.get(state, "Unknown");
         return "(" + state + ") " + name;
+    }
+
+    static String getScanModeName(int mode) {
+        String name = sScanModes.get(mode, "Unknown");
+        return "(" + mode + ") " + name;
+    }
+
+    static String getAdvertisingCallbackStatusName(int status) {
+        String name = sAdvertiseCallbackStatuses.get(status, "Unknown");
+        return "(" + status + ") " + name;
     }
 
     static String getConnectionPolicyName(int priority) {
