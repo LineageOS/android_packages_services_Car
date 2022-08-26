@@ -24,9 +24,11 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.expr.AnnotationExpr;
+import com.github.javaparser.ast.expr.MemberValuePair;
 import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -41,12 +43,26 @@ public final class GenerateAPI {
 
     private static final boolean DBG = false;
     private static final String ANDROID_BUILD_TOP = "ANDROID_BUILD_TOP";
-    private static final String CAR_API_PATH = "/packages/services/Car/car-lib/src/android/car";
+    private static final String CAR_API_PATH =
+            "/packages/services/Car/car-lib/src/android/car";
+    private static final String CAR_BUILT_IN_API_PATH =
+            "/packages/services/Car/car-builtin-lib/src/android/car/builtin";
+    private static final String CAR_API_ANNOTATION_TEST_FILE =
+            "/packages/services/Car/tests/carservice_unit_test/res/raw/car_api_classes.txt";
+    private static final String CAR_BUILT_IN_ANNOTATION_TEST_FILE =
+            "/packages/services/Car/tests/carservice_unit_test/res/raw/"
+            + "car_built_in_api_classes.txt";
     private static final String API_TXT_SAVE_PATH =
             "/packages/services/Car/tools/GenericCarApiBuilder/";
-    private static final String COMPLETE_API_LIST = "complete_api_list.txt";
-    private static final String UN_ANNOTATED_API_LIST = "un_annotated_api_list.txt";
+    private static final String COMPLETE_CAR_API_LIST = "complete_car_api_list.txt";
+    private static final String COMPLETE_CAR_BUILT_IN_API_LIST =
+            "complete_car_built_in_api_list.txt";
     private static final String TAB = "    ";
+
+    // Arguments:
+    private static final String PRINT_CLASSES_ONLY = "--print-classes-only";
+    private static final String UPDATE_CLASSES_FOR_TEST = "--update-classes-for-test";
+    private static final String GENERATE_FULL_API_LIST = "--generate-full-api-list";
 
     /**
      * Main method for generate API txt file.
@@ -54,47 +70,81 @@ public final class GenerateAPI {
     public static void main(final String[] args) throws Exception {
         try {
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
-            String carLibPath = rootDir + CAR_API_PATH;
-            List<File> allJavaFiles = getAllFiles(new File(carLibPath));
+            List<File> allJavaFiles_carLib = getAllFiles(new File(rootDir + CAR_API_PATH));
+            List<File> allJavaFiles_carBuiltInLib = getAllFiles(
+                    new File(rootDir + CAR_BUILT_IN_API_PATH));
 
-            if  (args.length > 0 &&  args[0].equalsIgnoreCase("--classes-only")) {
-                for (int i = 0; i < allJavaFiles.size(); i++) {
-                    printAllClasses(allJavaFiles.get(i));
+            if (args.length == 0) {
+                printHelp();
+                return;
+            }
+
+            if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_CLASSES_ONLY)) {
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    printOrUpdateAllClasses(allJavaFiles_carLib.get(i), true, null);
+                }
+                for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
+                    printOrUpdateAllClasses(allJavaFiles_carBuiltInLib.get(i), true, null);
                 }
                 return;
             }
 
-            List<String> allAPIs = new ArrayList<>();
-            for (int i = 0; i < allJavaFiles.size(); i++) {
-                allAPIs.addAll(parseJavaFile(allJavaFiles.get(i), /* onlyUnannotated= */ false));
-            }
-
-            // write all APIs by default.
-            String toolPath = rootDir + API_TXT_SAVE_PATH;
-            Path file = Paths.get(toolPath + COMPLETE_API_LIST);
-            Files.write(file, allAPIs, StandardCharsets.UTF_8);
-
-            // create only un-annotated file for manual work
-            allAPIs = new ArrayList<>();
-            for (int i = 0; i < allJavaFiles.size(); i++) {
-                allAPIs.addAll(parseJavaFile(allJavaFiles.get(i), /* onlyUnannotated= */ true));
-            }
-
-            // write all un-annotated APIs.
-            if (allAPIs.size() > 0) {
-                if (args.length > 0 && args[0].equalsIgnoreCase("--write-un-annotated-to-file")) {
-                    file = Paths.get(toolPath + UN_ANNOTATED_API_LIST);
-                    Files.write(file, allAPIs, StandardCharsets.UTF_8);
-                } else {
-                    System.out.println("*********Un-annotated APIs************");
-                    for (int i = 0; i < allAPIs.size(); i++) {
-                        System.out.println(allAPIs.get(i));
-                    }
+            if (args.length > 0 && args[0].equalsIgnoreCase(UPDATE_CLASSES_FOR_TEST)) {
+                List<String> api_list = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    printOrUpdateAllClasses(allJavaFiles_carLib.get(i), false, api_list);
                 }
+                writeListToFile(rootDir + CAR_API_ANNOTATION_TEST_FILE, api_list);
+
+                List<String> built_in_api_list = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
+                    printOrUpdateAllClasses(allJavaFiles_carBuiltInLib.get(i), false,
+                            built_in_api_list);
+                }
+                writeListToFile(rootDir + CAR_BUILT_IN_ANNOTATION_TEST_FILE, built_in_api_list);
+                return;
+            }
+
+            if (args.length > 0 && args[0].equalsIgnoreCase(GENERATE_FULL_API_LIST)) {
+                List<String> allCarAPIs = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    allCarAPIs.addAll(
+                            parseJavaFile(allJavaFiles_carLib.get(i)));
+                }
+                writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_API_LIST, allCarAPIs);
+
+                List<String> allCarBuiltInAPIs = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
+                    allCarBuiltInAPIs.addAll(
+                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i)));
+                }
+                writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_BUILT_IN_API_LIST,
+                        allCarBuiltInAPIs);
+
+                return;
             }
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    private static void writeListToFile(String filePath, List<String> data) throws IOException {
+        Path file = Paths.get(filePath);
+        Files.write(file, data, StandardCharsets.UTF_8);
+    }
+
+    private static void printHelp() {
+        System.out.println("**** Help ****");
+        System.out.println("At least one argument is required. Supported arguments - ");
+        System.out.println(PRINT_CLASSES_ONLY + " : Would print the list of valid class and"
+                + " interfaces.");
+        System.out.println(UPDATE_CLASSES_FOR_TEST + " : Would update the test file with the list"
+                + " of valid class and interfaces. These files updated are"
+                + " tests/carservice_unit_test/res/raw/car_api_classes.txt and"
+                + " tests/carservice_unit_test/res/raw/car_built_in_api_classes.txt");
+        System.out.println(GENERATE_FULL_API_LIST + " : Would generate full api list including the"
+                + " hidden APIs. Results would be saved in ");
+
     }
 
     private static List<File> getAllFiles(File folderName) {
@@ -115,7 +165,12 @@ public final class GenerateAPI {
         return allFiles;
     }
 
-    private static void printAllClasses(File file) throws Exception {
+    private static void printOrUpdateAllClasses(File file, boolean print, List<String> updateList)
+            throws Exception {
+        if (!print && updateList == null) {
+            throw new Exception("update list should not be null if not printing.");
+        }
+
         CompilationUnit cu = StaticJavaParser.parse(file);
         String packageName = cu.getPackageDeclaration().get().getNameAsString();
 
@@ -128,12 +183,18 @@ public final class GenerateAPI {
 
                 String className = classOrInterfaceDeclaration.getFullyQualifiedName().get()
                         .substring(packageName.length() + 1);
-                System.out.println("\"" + packageName + "." + className.replace(".", "$") + "\",");
+                String useableClassName = packageName + "." + className.replace(".", "$");
+                if (print) {
+                    System.out.println("\"" + useableClassName + "\",");
+                } else {
+                    updateList.add(useableClassName);
+                }
+                super.visit(classOrInterfaceDeclaration, arg);
             }
         }.visit(cu, null);
     }
 
-    private static List<String> parseJavaFile(File file, boolean onlyUnannotated) throws Exception {
+    private static List<String> parseJavaFile(File file) throws Exception {
         List<String> parsedList = new ArrayList<>();
 
         // Add code to parse file
@@ -147,8 +208,8 @@ public final class GenerateAPI {
                     return;
                 }
 
-                String className =
-                        n.getFullyQualifiedName().get().substring(packageName.length() + 1);
+                String className = n.getFullyQualifiedName().get()
+                        .substring(packageName.length() + 1);
                 String classType = n.isInterface() ? "interface" : "class";
                 boolean hiddenClass = false;
 
@@ -165,7 +226,9 @@ public final class GenerateAPI {
                     }
                 }
 
-                String classDeclaration = classType + " " + (hiddenClass ? "@hide " : "")
+                String classDeclaration = classType + " "
+                        + (hiddenClass && !isClassSystemAPI ? "@hiddenOnly " : "")
+                        + (hiddenClass ? "@hide " : "")
                         + (isClassSystemAPI ? "@SystemApi " : "") + className + " package "
                         + packageName;
 
@@ -173,8 +236,6 @@ public final class GenerateAPI {
                 if (DBG) {
                     System.out.println(classDeclaration);
                 }
-
-                int originalSizeOfParseList = parsedList.size();
 
                 List<FieldDeclaration> fields = n.getFields();
                 for (int i = 0; i < fields.size(); i++) {
@@ -185,12 +246,12 @@ public final class GenerateAPI {
 
                     String fieldName = field.getVariables().get(0).getName().asString();
                     String fieldType = field.getVariables().get(0).getTypeAsString();
-                    boolean fieldInitialized =
-                            !field.getVariables().get(0).getInitializer().isEmpty();
+                    boolean fieldInitialized = !field.getVariables().get(0).getInitializer()
+                            .isEmpty();
                     String fieldInitializedValue = "";
                     if (fieldInitialized) {
-                        fieldInitializedValue =
-                                field.getVariables().get(0).getInitializer().get().toString();
+                        fieldInitializedValue = field.getVariables().get(0).getInitializer().get()
+                                .toString();
                     }
 
                     // special case
@@ -199,9 +260,8 @@ public final class GenerateAPI {
                     }
 
                     boolean isSystem = false;
-                    boolean isAddedIn = false;
-                    boolean isAddedInOrBefore = false;
                     boolean isHidden = false;
+                    String version = "";
 
                     if (!field.getJavadoc().isEmpty()) {
                         isHidden = field.getJavadoc().get().toText().contains("@hide");
@@ -214,33 +274,36 @@ public final class GenerateAPI {
                             isSystem = true;
                         }
                         if (annotationString.contains("AddedInOrBefore")) {
-                            isAddedInOrBefore = true;
+                            String major = getVersion(annotations.get(j), "majorVersion");
+                            String minor = getVersion(annotations.get(j), "minorVersion");
+                            if (!minor.equals("0")) {
+                                System.out.println("ERROR:  minor should be zero for " + field);
+                            }
+                            if (!major.equals("33")) {
+                                System.out.println("ERROR:  major should be 33 for " + field);
+                            }
+                            version = "TIRAMISU_0";
                         }
                         if (annotationString.equals("AddedIn")) {
-                            isAddedIn = true;
+                            String major = getVersion(annotations.get(j), "majorVersion");
+                            String minor = getVersion(annotations.get(j), "minorVersion");
+                            if (!major.equals("33")) {
+                                System.out.println("ERROR:  major should be 33 for " + field);
+                            }
+                            version = "TIRAMISU_" + minor;
                         }
-                    }
+                        if (annotationString.equals("ApiRequirements")) {
+                            String major = getVersion(annotations.get(j), "minCarVersion");
+                            version = major.split("\\.")[major.split("\\.").length - 1];
+                        }
 
-                    if ((isAddedInOrBefore || isAddedIn) && onlyUnannotated) {
-                        continue;
                     }
 
                     StringBuilder sb = new StringBuilder();
                     sb.append("field ");
-                    if (isHidden) {
-                        sb.append("@hide ");
-                    }
-
-                    if (isSystem) {
-                        sb.append("@SystemApi ");
-                    }
-
-                    if (isAddedInOrBefore) {
-                        sb.append("@AddedInOrBefore ");
-                    }
-
-                    if (isAddedIn) {
-                        sb.append("@AddedIn ");
+                    sb.append(version + " ");
+                    if (isHidden && !isSystem) {
+                        sb.append("@hiddenOnly ");
                     }
 
                     sb.append(fieldType);
@@ -252,7 +315,6 @@ public final class GenerateAPI {
                         sb.append(fieldInitializedValue);
                     }
                     sb.append(";");
-
 
                     if (DBG) {
                         System.out.printf("%s%s\n", TAB, sb);
@@ -271,9 +333,8 @@ public final class GenerateAPI {
                     String methodName = method.getName().asString();
 
                     boolean isSystem = false;
-                    boolean isAddedIn = false;
-                    boolean isAddedInOrBefore = false;
                     boolean isHidden = false;
+                    String version = "";
                     if (!method.getJavadoc().isEmpty()) {
                         isHidden = method.getJavadoc().get().toText().contains("@hide");
                     }
@@ -284,35 +345,38 @@ public final class GenerateAPI {
                         if (annotationString.contains("SystemApi")) {
                             isSystem = true;
                         }
+
                         if (annotationString.contains("AddedInOrBefore")) {
-                            isAddedInOrBefore = true;
+                            String major = getVersion(annotations.get(j), "majorVersion");
+                            String minor = getVersion(annotations.get(j), "minorVersion");
+                            if (!minor.equals("0")) {
+                                System.out.println("ERROR:  minor should be zero for " + method);
+                            }
+                            if (!major.equals("33")) {
+                                System.out.println("ERROR:  major should be 33 for " + method);
+                            }
+                            version = "TIRAMISU_0";
                         }
                         if (annotationString.equals("AddedIn")) {
-                            isAddedInOrBefore = true;
+                            String major = getVersion(annotations.get(j), "majorVersion");
+                            String minor = getVersion(annotations.get(j), "minorVersion");
+                            if (!major.equals("33")) {
+                                System.out.println("ERROR:  major should be 33 for " + method);
+                            }
+                            version = "TIRAMISU_" + minor;
                         }
-                    }
+                        if (annotationString.equals("ApiRequirements")) {
+                            String major = getVersion(annotations.get(j), "minCarVersion");
+                            version = major.split("\\.")[major.split("\\.").length - 1];
+                        }
 
-                    if ((isAddedInOrBefore || isAddedIn) && onlyUnannotated) {
-                        continue;
                     }
 
                     StringBuilder sb = new StringBuilder();
                     sb.append("method ");
-
-                    if (isHidden) {
-                        sb.append("@hide ");
-                    }
-
-                    if (isSystem) {
-                        sb.append("@SystemApi ");
-                    }
-
-                    if (isAddedInOrBefore) {
-                        sb.append("@AddedInOrBefore ");
-                    }
-
-                    if (isAddedIn) {
-                        sb.append("@AddedIn ");
+                    sb.append(version + " ");
+                    if (isHidden && !isSystem) {
+                        sb.append("@hiddenOnly ");
                     }
 
                     sb.append(returnType);
@@ -321,12 +385,12 @@ public final class GenerateAPI {
                     sb.append("(");
 
                     List<Parameter> parameters = method.getParameters();
-                    for (int j = 0; j < parameters.size(); j++) {
-                        Parameter parameter = parameters.get(j);
+                    for (int k = 0; k < parameters.size(); k++) {
+                        Parameter parameter = parameters.get(k);
                         sb.append(parameter.getTypeAsString());
                         sb.append(" ");
                         sb.append(parameter.getNameAsString());
-                        if (j < parameters.size() - 1) {
+                        if (k < parameters.size() - 1) {
                             sb.append(", ");
                         }
                     }
@@ -337,17 +401,23 @@ public final class GenerateAPI {
                     parsedList.add(TAB + sb);
                 }
 
-                if (parsedList.size() == originalSizeOfParseList) {
-                    // no method or field is added
-                    if (onlyUnannotated) {
-                        parsedList.remove(originalSizeOfParseList - 1);
-                    }
-                }
-
                 super.visit(n, arg);
             }
-        }.visit(cu, null);
 
+            private String getVersion(AnnotationExpr annotationExpr, String parameterName) {
+                List<MemberValuePair> children = annotationExpr
+                        .getChildNodesByType(MemberValuePair.class);
+                for (MemberValuePair memberValuePair : children) {
+                    if (parameterName.equals(memberValuePair.getNameAsString())) {
+                        if (memberValuePair.getValue() == null) {
+                            return "0";
+                        }
+                        return memberValuePair.getValue().toString();
+                    }
+                }
+                return "0";
+            }
+        }.visit(cu, null);
         return parsedList;
     }
 }
