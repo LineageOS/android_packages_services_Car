@@ -217,14 +217,6 @@
          android:label="@string/car_permission_label_access_projection_status"
          android:description="@string/car_permission_desc_access_projection_status"/>
 
-    <!-- Must be required by projection service to ensure only system can bind to it.
-         <p>Protection level: signature
-    -->
-    <permission android:name="android.car.permission.BIND_PROJECTION_SERVICE"
-         android:protectionLevel="signature"
-         android:label="@string/car_permission_label_bind_projection_service"
-         android:description="@string/car_permission_desc_bind_projection_service"/>
-
     <!-- Allows an application to emulate the vehicle HAL for testing purposes.
          <p>Protection level: signature|privileged
     -->
@@ -361,14 +353,6 @@
          android:label="@string/car_permission_label_diag_clear"
          android:description="@string/car_permission_desc_diag_clear"/>
 
-    <!-- Must be required by VMS client service to ensure only system can bind to it.
-         <p>Protection level: signature
-    -->
-    <permission android:name="android.car.permission.BIND_VMS_CLIENT"
-         android:protectionLevel="signature"
-         android:label="@string/car_permission_label_bind_vms_client"
-         android:description="@string/car_permission_desc_bind_vms_client"/>
-
     <!-- Allows an application to publich VMS messages.
          <p>Protection level: signature|privileged
     -->
@@ -459,26 +443,10 @@
          android:label="@string/car_permission_label_audio_settings"
          android:description="@string/car_permission_desc_audio_settings"/>
 
-    <!-- Must be required by instrument cluster service to ensure only system can bind to it.
-         <p>Protection level: signature
-    -->
     <permission android:name="android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS"
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_label_receive_ducking"
          android:description="@string/car_permission_desc_receive_ducking"/>
-
-    <permission android:name="android.car.permission.BIND_INSTRUMENT_CLUSTER_RENDERER_SERVICE"
-         android:protectionLevel="signature"
-         android:label="@string/car_permission_label_bind_instrument_cluster_rendering"
-         android:description="@string/car_permission_desc_bind_instrument_cluster_rendering"/>
-
-    <!-- Allows an application to handle the vehicle input events.
-         <p>Protection level: signature
-    -->
-    <permission android:name="android.car.permission.BIND_CAR_INPUT_SERVICE"
-         android:protectionLevel="signature"
-         android:label="@string/car_permission_label_bind_input_service"
-         android:description="@string/car_permission_desc_bind_input_service"/>
 
     <!-- Allows an application to declare activities to be displayed in the instrument cluster.
          <p>Protection level: signature|privileged

@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"ප්‍රක්ෂේපණ සේවාවකට බඳින්න"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"ප්‍රක්ෂේපණ සේවාවක ඉහළ-මට්ටමේ අතුරු මුහුණතට බැඳීමට ධාරකයට ඉඩ දෙයි. සාමාන්‍ය යෙදුම්වලට කිසි විටෙක අවශ්‍ය නොවෙයි."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS සේවාලාභී සේවාව"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS සේවාලාභීන්ට බඳින්න"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"උපකරණ කලප් විදහීම"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"උපකරණ කලප් දත්ත ලබා ගන්න"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"මෝටර් රථ ආදාන සේවය"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ආදාන සිදුවීම් පරිහරණ කරන්න"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"රිය පදවන අතරතුර ඔබට මෙම විශේෂාංගය භාවිත කළ නොහැකිය"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"ආරක්‍ෂිත යෙදුම් විශේෂාංග සමඟ පටන් ගැනීමට, <xliff:g id="EXIT_BUTTON">%s</xliff:g> තෝරන්න."</string>
     <string name="exit_button" msgid="3491899413031549265">"ආපසු"</string>

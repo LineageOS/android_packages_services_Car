@@ -70,10 +70,6 @@
     <string name="car_permission_label_access_projection_status">access projection status</string>
     <!-- Permission text: apps can listen car-projection status[CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_access_projection_status">Allows an app to get the status of other apps projecting to the car\u2019s display.</string>
-    <!-- Permission text: allows framework to bind to the services in projection apps[CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_bind_projection_service">bind to a projection service</string>
-    <!-- Permission text: allows framework to bind to the services in projection apps[CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_bind_projection_service">Allows the holder to bind to the top-level interface of a projection service. Should never be needed for normal apps."</string>
     <!-- Permission text: apps can control car-audio-volume [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_audio_volume">control car\u2019s audio volume</string>
     <!-- Permission text: apps can control car-audio-settings [CHAR LIMIT=NONE] -->
@@ -106,8 +102,6 @@
     <string name="car_permission_desc_car_cluster_control">Launch apps in the instrument cluster</string>
     <string name="car_permission_car_monitor_cluster_navigation_state">Instrument cluster navigation state</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state">Listen for instrument cluster navigation state changes</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
     <string name="car_permission_label_car_ux_restrictions_configuration">UX Restrictions Configuration</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration">Configure UX Restrictions</string>
     <string name="car_permission_label_access_private_display_id">Read access to private display id</string>
@@ -121,11 +115,6 @@
 
     <string name="car_permission_label_control_car_occupant_awareness_system">Control Occupant Awareness System Graph</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system">Allows controlling the start and stopping of the Occupant Awareness System detection graph</string>
-
-    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_bind_input_service">Car Input Service</string>
-    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_bind_input_service">Handle input events</string>
 
     <!-- Permission text: apps can control diagnostic data [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_diag_read">read diagnostic data</string>
@@ -146,11 +135,6 @@
     <string name="car_permission_label_vms_subscriber">VMS Subscriber</string>
     <!-- Permission text: apps can receive VMS messages from the car [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_vms_subscriber">Subscribe to VMS messages</string>
-
-    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_bind_vms_client">VMS Client Service</string>
-    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_bind_vms_client">Bind to VMS clients</string>
 
     <!-- Permission text: apps can monitor flash storage usage [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_storage_monitoring">Flash storage monitoring</string>

@@ -16,6 +16,24 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_title" translatable="false">Car service</string>
 
+    <!-- Permission text: allows framework to bind to the services in projection apps[CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_projection_service">bind to a projection service</string>
+    <!-- Permission text: allows framework to bind to the services in projection apps[CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_projection_service">Allows the holder to bind to the top-level interface of a projection service. Should never be needed for normal apps."</string>
+
+    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_vms_client">VMS Client Service</string>
+    <!-- Permission text: apps can act as VMS router core [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_vms_client">Bind to VMS clients</string>
+
+    <string name="car_permission_label_bind_instrument_cluster_rendering">Instrument Cluster Rendering</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering">Receive instrument cluster data</string>
+
+    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_bind_input_service">Car Input Service</string>
+    <!-- Permission text: apps can handle input events [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_bind_input_service">Handle input events</string>
+
     <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=120] -->
     <string name="activity_blocked_text">You can\u2019t use this feature while driving</string>
     <!-- Blocking activity: Message to accompany the exit_button that restarts the blocked app. [CHAR LIMIT=120] -->
