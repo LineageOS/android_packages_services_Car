@@ -25,6 +25,7 @@ import android.car.Car;
 import android.car.CarVersion;
 import android.car.PlatformVersion;
 import android.car.PlatformVersionMismatchException;
+import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.text.TextUtils;
@@ -54,7 +55,6 @@ public final class ApiCheckerRule implements TestRule {
 
     // TODO(b/242315785): add missing features
     // - CDD support (and its own @ApiRequirements)
-    // - Allow @AddedInOrBefore when @ApiRequirements is missing
 
     public static final String TAG = ApiCheckerRule.class.getSimpleName();
 
@@ -125,11 +125,20 @@ public final class ApiCheckerRule implements TestRule {
     }
 
     private static ApiRequirements getApiRequirements(Member member) {
+        return getAnnotation(ApiRequirements.class, member);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static AddedInOrBefore getAddedInOrBefore(Member member) {
+        return getAnnotation(AddedInOrBefore.class, member);
+    }
+
+    private static <T extends Annotation> T getAnnotation(Class<T> annotationClass, Member member) {
         if (member instanceof Field) {
-            return ((Field) member).getAnnotation(ApiRequirements.class);
+            return ((Field) member).getAnnotation(annotationClass);
         }
         if (member instanceof Method) {
-            return ((Method) member).getAnnotation(ApiRequirements.class);
+            return ((Method) member).getAnnotation(annotationClass);
         }
         throw new UnsupportedOperationException("Invalid member type for API: " + member);
     }
@@ -155,7 +164,14 @@ public final class ApiCheckerRule implements TestRule {
                 SupportedVersionTest supportedVersionTest = null;
                 UnsupportedVersionTest unsupportedVersionTest = null;
 
+                // Other relevant annotations
+                @SuppressWarnings("deprecation")
+                AddedInOrBefore addedInOrBefore = null;
+
                 for (Annotation annotation : description.getAnnotations()) {
+                    if (DBG) {
+                        Log.d(TAG, "Annotation: " + annotation);
+                    }
                     if (annotation instanceof ApiTest) {
                         apiTest = (ApiTest) annotation;
                         continue;
@@ -171,9 +187,10 @@ public final class ApiCheckerRule implements TestRule {
                 }
 
                 if (DBG) {
-                    Log.d(TAG, "ApiTest: " + apiTest
-                            + " SupportedVersionTest: " + supportedVersionTest
-                            + " UnsupportedVersionTest: " + unsupportedVersionTest);
+                    Log.d(TAG, "Relevant annotations: ApiTest=" + apiTest
+                            + " SupportedVersionTest=" + supportedVersionTest
+                            + " AddedInOrBefore=" + addedInOrBefore
+                            + " UnsupportedVersionTest=" + unsupportedVersionTest);
                 }
 
                 validateOptionalAnnotations(description.getTestClass(), description.getMethodName(),
@@ -202,6 +219,14 @@ public final class ApiCheckerRule implements TestRule {
                             continue;
                         }
                         ApiRequirements apiRequirements = getApiRequirements(member);
+                        if (apiRequirements == null && addedInOrBefore == null) {
+                            addedInOrBefore = getAddedInOrBefore(member);
+                            if (DBG) {
+                                Log.d(TAG, "No @ApiRequirements on " + api + "; trying "
+                                        + "@AddedInOrBefore instead: " + addedInOrBefore);
+                            }
+                            continue;
+                        }
                         allApiRequirements.add(apiRequirements);
                         if (firstApiRequirements == null) {
                             firstApiRequirements = apiRequirements;
@@ -227,12 +252,14 @@ public final class ApiCheckerRule implements TestRule {
 
                 }
 
-                if (firstApiRequirements == null) {
+                if (firstApiRequirements == null && addedInOrBefore == null) {
                     if (mEnforceTestApiAnnotations) {
-                        throw new IllegalStateException("Missing @ApiRequirements");
+                        throw new IllegalStateException("Missing @ApiRequirements "
+                                + "or @AddedInOrBefore");
                     } else {
                         Log.w(TAG, "Test " + description + " doesn't have required "
-                                + "@ApiRequirements, but rule is not enforcing it");
+                                + "@ApiRequirements or @AddedInOrBefore but rule is not enforcing"
+                                + " them");
                     }
                     base.evaluate();
                     return;
@@ -356,10 +383,17 @@ public final class ApiCheckerRule implements TestRule {
         }
     }
 
-    private void apply(Statement base, Description description, ApiRequirements apiRequirements,
+    private void apply(Statement base, Description description,
+            @Nullable ApiRequirements apiRequirements,
             @Nullable SupportedVersionTest supportedVersionTest,
             @Nullable UnsupportedVersionTest unsupportedVersionTest)
             throws Throwable {
+        if (apiRequirements == null) {
+            Log.w(TAG, "No @ApiRequirements on " + description.getDisplayName()
+                    + " (most likely it's annotated with @AddedInOrBefore), running it always");
+            base.evaluate();
+            return;
+        }
         if (isSupported(apiRequirements)) {
             applyOnSupportedVersion(base, description, apiRequirements, unsupportedVersionTest);
             return;
