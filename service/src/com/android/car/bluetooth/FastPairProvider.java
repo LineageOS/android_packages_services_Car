@@ -28,6 +28,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.R;
@@ -43,7 +44,8 @@ import com.android.car.internal.util.IndentingPrintWriter;
  */
 public class FastPairProvider {
     private static final String TAG = CarLog.tagFor(FastPairProvider.class);
-    private static final boolean DBG = FastPairUtils.DBG;
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
+    static final String THREAD_NAME = "FastPairProvider";
 
     private final int mModelId;
     private final String mAntiSpoofKey;
@@ -176,8 +178,21 @@ public class FastPairProvider {
                 mGattServerCallbacks, mAutomaticAcceptance, mFastPairAccountKeyStorage);
     }
 
-    private boolean isEnabled() {
+    /**
+     * Determine if Fast Pair Provider is enabled based on the configuration parameters read in.
+     */
+    boolean isEnabled() {
         return !(mModelId == 0 || TextUtils.isEmpty(mAntiSpoofKey));
+    }
+
+    /**
+     * Is the Fast Pair Provider Started
+     *
+     * Being started means our advertiser exists and we are listening for events that would signal
+     * for us to create our GATT Server/Service.
+     */
+    boolean isStarted() {
+        return mStarted;
     }
 
     /**
@@ -250,6 +265,7 @@ public class FastPairProvider {
         writer.println("Status         : " + (isEnabled() ? "Enabled" : "Disabled"));
         writer.println("Model ID       : " + mModelId);
         writer.println("Anti-Spoof Key : " + (TextUtils.isEmpty(mAntiSpoofKey) ? "N/A" : "Set"));
+        writer.println("State          : " + (isEnabled() ? "Started" : "Stopped"));
         if (isEnabled()) {
             mFastPairAdvertiser.dump(writer);
             mFastPairGattServer.dump(writer);

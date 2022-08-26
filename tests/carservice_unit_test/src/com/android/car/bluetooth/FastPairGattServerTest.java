@@ -50,12 +50,12 @@ import java.util.Base64;
 import java.util.List;
 
 /**
- * Unit tests for {@link BluetoothFastPair}
+ * Unit tests for {@link FastPairGattServer}
  *
- * Run: atest BluetoothFastPairTest
+ * Run: atest FastPairGattServerTest
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BluetoothFastPairTest {
+public class FastPairGattServerTest {
 
     static final byte[] TEST_ACCOUNT_KEY_1 = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
             (byte) 0x88, (byte) 0x99, 0x00, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD,
@@ -98,8 +98,6 @@ public class BluetoothFastPairTest {
             .encodeToString(TEST_PUBLIC_KEY_A);
     static final String TEST_PRIVATE_KEY_B_BASE64 = Base64.getEncoder()
             .encodeToString(TEST_PRIVATE_KEY_B);
-    static final String TEST_LOCAL_ADDRESS_STRING = "00:11:22:33:44:55";
-    static final byte[] TEST_LOCAL_ADDRESS = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
     static final byte[] TEST_REMOTE_ADDRESS = {0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA,
             (byte) 0xBB};
     static final byte[] TEST_PAIRING_REQUEST = {0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -171,12 +169,6 @@ public class BluetoothFastPairTest {
         mTestGattServer = new FastPairGattServer(mMockContext, TEST_MODEL_ID,
                 TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, true,
                 mMockFastPairAccountKeyStorage);
-    }
-
-    @Test
-    public void testGetBytesFromAddress() {
-        byte[] conversionResults = FastPairUtils.getBytesFromAddress(TEST_LOCAL_ADDRESS_STRING);
-        assertThat(conversionResults).isEqualTo(TEST_LOCAL_ADDRESS);
     }
 
     @Test

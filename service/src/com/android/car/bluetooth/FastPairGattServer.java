@@ -35,7 +35,9 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Base64;
+import android.util.Log;
 
+import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -84,8 +86,8 @@ public class FastPairGattServer {
             .fromString("00002902-0000-1000-8000-00805f9b34fb");
     public static final ParcelUuid DEVICE_NAME_CHARACTERISTIC_CONFIG = ParcelUuid
             .fromString("00002A00-0000-1000-8000-00805f9b34fb");
-    private static final String TAG = "FastPairGattServer";
-    private static final boolean DBG = FastPairUtils.DBG;
+    private static final String TAG = CarLog.tagFor(FastPairGattServer.class);
+    private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
     private static final int MAX_KEY_COUNT = 10;
     private static final int KEY_LIFESPAN = 10_000;
     private static final int INVALID = -1;
@@ -148,7 +150,7 @@ public class FastPairGattServer {
         }
     };
     private final Handler mHandler = new Handler(
-            CarServiceUtils.getHandlerThread(FastPairUtils.THREAD_NAME).getLooper());
+            CarServiceUtils.getHandlerThread(FastPairProvider.THREAD_NAME).getLooper());
     private BluetoothGattCharacteristic mModelIdCharacteristic;
     private BluetoothGattCharacteristic mKeyBasedPairingCharacteristic;
     private BluetoothGattCharacteristic mPasskeyCharacteristic;
@@ -489,7 +491,7 @@ public class FastPairGattServer {
         // Check that the request is either a Key-based Pairing Request or an Action Request
         if (decryptedRequest[0] == 0 || decryptedRequest[0] == 0x10) {
             String localAddress = mBluetoothAdapter.getAddress();
-            byte[] localAddressBytes = FastPairUtils.getBytesFromAddress(localAddress);
+            byte[] localAddressBytes = BluetoothUtils.getBytesFromAddress(localAddress);
             // Extract the remote address bytes from the message
             byte[] remoteAddressBytes = Arrays.copyOfRange(decryptedRequest, 2, 8);
             BluetoothDevice localDevice = mBluetoothAdapter.getRemoteDevice(localAddress);
