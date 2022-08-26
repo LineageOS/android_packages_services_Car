@@ -22,7 +22,6 @@ import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.ApiRequirements.CarVersion;
@@ -42,7 +41,6 @@ import java.util.concurrent.Executor;
  * @hide
  */
 @SystemApi
-@AddedIn(majorVersion = 33, minorVersion = 1)
 public final class CarPerformanceManager extends CarManagerBase {
 
     private final ICarPerformanceService mService;
@@ -53,7 +51,8 @@ public final class CarPerformanceManager extends CarManagerBase {
      * @hide
      */
     @SystemApi
-    @AddedIn(majorVersion = 33, minorVersion = 1)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
     public static final class SetSchedulerFailedException extends Exception {
         SetSchedulerFailedException(Throwable cause) {
             super(cause);
