@@ -31,6 +31,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.VehiclePropertyIds;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
@@ -51,9 +52,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.HardwareBuffer;
-import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleGear;
-import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
 import android.os.Bundle;
@@ -872,16 +871,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 Slogf.d(TAG_EVS, "CarEvsService listens to GEAR_SELECTION property.");
             }
 
-            if (mPropertyService == null ||
-                mPropertyService.getProperty(VehicleProperty.GEAR_SELECTION,
-                        VehicleArea.GLOBAL) == null) {
-                Slogf.e(TAG_EVS, "CarEvsService is disabled because GEAR_SELECTION is "
-                        + "unavailable.");
+            if (mPropertyService == null || mPropertyService.getPropertySafe(
+                    VehiclePropertyIds.GEAR_SELECTION, /*areaId=*/ 0) == null) {
+                Slogf.e(TAG_EVS,
+                        "CarEvsService is disabled because GEAR_SELECTION is unavailable.");
                 mUseGearSelection = false;
                 return;
             }
 
-            mPropertyService.registerListener(VehicleProperty.GEAR_SELECTION, /*rate=*/0,
+            mPropertyService.registerListenerSafe(
+                    VehiclePropertyIds.GEAR_SELECTION, /*updateRateHz=*/0,
                     mGearSelectionPropertyListener);
         }
 
@@ -899,7 +898,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             if (DBG) {
                 Slogf.d(TAG_EVS, "Unregister a property listener in release()");
             }
-            mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
+            mPropertyService.unregisterListenerSafe(VehiclePropertyIds.GEAR_SELECTION,
                     mGearSelectionPropertyListener);
         }
         mStatusListeners.kill();
@@ -1312,7 +1311,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         CarPropertyValue value = event.getCarPropertyValue();
-        if (value.getPropertyId() != VehicleProperty.GEAR_SELECTION) {
+        if (value.getPropertyId() != VehiclePropertyIds.GEAR_SELECTION) {
             // CarEvsService is interested only in the GEAR_SELECTION property.
             return;
         }

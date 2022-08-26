@@ -227,7 +227,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         mDrivingStateService.registerDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
         // subscribe to property service for speed
-        mCarPropertyService.registerListener(VehicleProperty.PERF_VEHICLE_SPEED,
+        mCarPropertyService.registerListenerSafe(VehicleProperty.PERF_VEHICLE_SPEED,
                 PROPERTY_UPDATE_RATE, mICarPropertyEventListener);
 
         initializeUxRestrictions();
