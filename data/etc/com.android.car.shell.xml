@@ -59,5 +59,6 @@
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
         <permission name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
         <permission name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
+        <permission name="android.car.permission.MANAGE_OCCUPANT_ZONE"/>
     </privapp-permissions>
 </permissions>

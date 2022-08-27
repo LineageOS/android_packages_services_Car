@@ -1150,6 +1150,18 @@ public final class Car {
             "android.car.permission.MANAGE_THREAD_PRIORITY";
 
     /**
+     * Permission necessary to modify occupant zone settings. Will be used in
+     * {@link CarOccupantZoneManager}.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    public static final String PERMISSION_MANAGE_OCCUPANT_ZONE =
+            "android.car.permission.MANAGE_OCCUPANT_ZONE";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use

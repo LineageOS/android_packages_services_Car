@@ -539,6 +539,11 @@
     <!-- Permission text: apps manage thread prioirty [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_manage_thread_priority">Manage thread priority.</string>
 
+    <!-- Permission text: apps manage occupant zone [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_manage_occupant_zone">manage occupant zone</string>
+    <!-- Permission text: apps manage occupant zone [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_manage_occupant_zone">Manage occupant zone.</string>
+
     <!-- Notification messages -->
     <!-- Notification text: Notification shown to the user when vehicle CAN bus fails -->
     <string name="car_can_bus_failure">CAN bus failed</string>
