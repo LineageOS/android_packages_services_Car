@@ -30,8 +30,10 @@ import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Pair;
 
 import com.android.compatibility.common.util.ApiTest;
+import com.android.compatibility.common.util.CddTest;
 
 import org.junit.AssumptionViolatedException;
 import org.junit.rules.TestRule;
@@ -45,16 +47,89 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Rule used to validate Car API requirements on CTS tests.
- */
-// TODO(b/242315785): document everything - including mainline versioning and include examples
-public final class ApiCheckerRule implements TestRule {
+ *
+ * <p>This rule is used to verify that all tests in a class:
+ *
+ * <ol>
+ *   <li>Indicate which API / CDD is being tested.
+ *   <li>Properly behave on supported and unsupported versions.
+ * </ol>
+ *
+ * <p>For the former, the test must be annoted with either {@link ApiTest} or {@link CddTest} (in
+ * which case it also need to be annotated with {@link ApiRequirements}, otherwise the test will
+ * fail (unless the rule was created with {@link Builder#disableAnnotationsCheck()}. An in the case
+ * of {@link ApiTest}, the rule will also asser that the underlying APIs are annotated with either
+ * {@link ApiRequirements} or {@link AddedInOrBefore}.
+ *
+ * <p>For the latter, if the API declares {@link ApiRequirements}, the rule by default will make
+ * sure the test behaves properly in the supported and unsupported platform versions:
+ * <ol>
+ *   <li>If the platform is supported, the test shold pass as usual.
+ *   <li>If the platform is not supported, the rule will assert that the test throws a
+ *   {@link PlatformVersionMismatchException}.
+ * </ol>
+ *
+ * <p>There are corner cases where the default rule behavior cannot be applied for the test, like:
+ * <ol>
+ *   <li>The test logic is too complex (or takes time) and should be simplified when running on
+ *       unsupported versions.
+ *   <li>The API being tested should behave different on supported or unsupported versions.
+ * </ol>
+ *
+ * <p>In these cases, the test should be split in 2 tests, one for the supported version and another
+ * for the unsupported version, and annotated with {@link SupportedVersionTest} or
+ * {@link UnsupportedVersionTest} respectively; these tests <b>MUST</b> be provided in pair (in
+ * fact, these annotations take an argument pointing to the pair) and they will behave this way:
+ *
+ * <ol>
+ *   <li>{@link SupportedVersionTest}: should pass on supported platform and will be ignored on
+ *       unsupported platforms (by throwing an {@link ExpectedVersionAssumptionViolationException}).
+ *   <li>{@link UnsupportedVersionTest}: by default, it will be ignored on supported platforms
+ *       (by throwing an {@link ExpectedVersionAssumptionViolationException}), but can be changed
+ *       to run on unsupported platforms as well (by setting its
+ *       {@link UnsupportedVersionTest#behavior()} to {@link Behavior#EXPECT_PASS}.
+ * </ol>
+ *
+ * <p>So, back to the examples above, the tests would be:
+ * <pre><code>
 
-    // TODO(b/242315785): add missing features
-    // - CDD support (and its own @ApiRequirements)
+  @Test
+  @ApiTest(apis = {"com.acme.Car#foo"})
+  @SupportedVersionTest(unsupportedVersionTest="testFoo_unsupported")
+  public void testFoo_supported() {
+     baz(); // takes a long time
+     foo();
+  }
+
+  @Test
+  @ApiTest(apis = {"com.acme.Car#foo"})
+  @UnsupportedVersionTest(supportedVersionTest="testFoo_supported")
+  public void testFoo_unsupported() {
+     foo(); // should throw PlatformViolationException
+  }
+
+  @Test
+  @ApiTest(apis = {"com.acme.Car#bar"})
+  @SupportedVersionTest(unsupportedVersionTest="testBar_unsupported")
+  public void testBar_supported() {
+     assertWithMessage("bar()").that(bar()).isEqualTo("BehaviorOnSupportedPlatform");
+  }
+
+  @Test
+  @ApiTest(apis = {"com.acme.Car#bar"})
+  @UnsupportedVersionTest(supportedVersionTest="testBar_supported", behavior=EXPECT_PASS)
+  public void testFoo_unsupported() {
+     assertWithMessage("bar()").that(bar()).isEqualTo("BehaviorOnUnsupportedPlatform");
+  }
+
+ * </code></pre>
+ */
+public final class ApiCheckerRule implements TestRule {
 
     public static final String TAG = ApiCheckerRule.class.getSimpleName();
 
@@ -99,7 +174,7 @@ public final class ApiCheckerRule implements TestRule {
         ApiRequirements apiRequirements = getApiRequirements(api);
 
         if (apiRequirements == null) {
-            throw new IllegalStateException("No @ApiRequirements on " + api);
+            throw new IllegalArgumentException("No @ApiRequirements on " + api);
         }
 
         return isSupported(apiRequirements);
@@ -152,13 +227,9 @@ public final class ApiCheckerRule implements TestRule {
                     Log.d(TAG, "evaluating " + description.getDisplayName());
                 }
 
-                ApiTest apiTest = null;
-
                 // Variables below are used to validate that all ApiRequirements are compatible
-                List<String> allApis = new ArrayList<>();
-                List<ApiRequirements> allApiRequirements = new ArrayList<>();
-                boolean compatibleApis = true;
-                ApiRequirements firstApiRequirements = null;
+                ApiTest apiTest = null;
+                ApiRequirements apiRequirementsOnApiUnderTest = null;
 
                 // Optional annotations that change the behavior of the rule
                 SupportedVersionTest supportedVersionTest = null;
@@ -167,6 +238,9 @@ public final class ApiCheckerRule implements TestRule {
                 // Other relevant annotations
                 @SuppressWarnings("deprecation")
                 AddedInOrBefore addedInOrBefore = null;
+                CddTest cddTest = null;
+                ApiRequirements apiRequirementsOnTest = null; // user only with CddTest
+                ApiRequirements effectiveApiRequirementsOnTest = null;
 
                 for (Annotation annotation : description.getAnnotations()) {
                     if (DBG) {
@@ -174,6 +248,14 @@ public final class ApiCheckerRule implements TestRule {
                     }
                     if (annotation instanceof ApiTest) {
                         apiTest = (ApiTest) annotation;
+                        continue;
+                    }
+                    if (annotation instanceof ApiRequirements) {
+                        apiRequirementsOnTest = (ApiRequirements) annotation;
+                        continue;
+                    }
+                    if (annotation instanceof CddTest) {
+                        cddTest = (CddTest) annotation;
                         continue;
                     }
                     if (annotation instanceof SupportedVersionTest) {
@@ -187,74 +269,57 @@ public final class ApiCheckerRule implements TestRule {
                 }
 
                 if (DBG) {
-                    Log.d(TAG, "Relevant annotations: ApiTest=" + apiTest
+                    Log.d(TAG, "Relevant annotations on test: "
+                            + "ApiTest=" + apiTest
+                            + " CddTest=" + cddTest
+                            + " ApiRequirements=" + apiRequirementsOnTest
                             + " SupportedVersionTest=" + supportedVersionTest
-                            + " AddedInOrBefore=" + addedInOrBefore
                             + " UnsupportedVersionTest=" + unsupportedVersionTest);
                 }
 
                 validateOptionalAnnotations(description.getTestClass(), description.getMethodName(),
                         supportedVersionTest, unsupportedVersionTest);
 
-                // First check for @ApiTest annotation
-                if (apiTest == null) {
-                    if (mEnforceTestApiAnnotations) {
-                        throw new IllegalStateException("Test is missing @ApiTest annotation");
-                    } else {
-                        Log.w(TAG, "Test " + description + " doesn't have required annotations, "
-                                + "but rule is not enforcing it");
-                    }
-                } else {
-                    // Then validate it
-                    String[] apis = apiTest.apis();
-                    if (apis == null || apis.length == 0) {
-                        throw new IllegalStateException("empty @ApiTest annotation");
-                    }
-                    List<String> invalidApis = new ArrayList<>();
-                    for (String api: apis) {
-                        allApis.add(api);
-                        Member member = ApiHelper.resolve(api);
-                        if (member == null) {
-                            invalidApis.add(api);
-                            continue;
-                        }
-                        ApiRequirements apiRequirements = getApiRequirements(member);
-                        if (apiRequirements == null && addedInOrBefore == null) {
-                            addedInOrBefore = getAddedInOrBefore(member);
-                            if (DBG) {
-                                Log.d(TAG, "No @ApiRequirements on " + api + "; trying "
-                                        + "@AddedInOrBefore instead: " + addedInOrBefore);
-                            }
-                            continue;
-                        }
-                        allApiRequirements.add(apiRequirements);
-                        if (firstApiRequirements == null) {
-                            firstApiRequirements = apiRequirements;
-                            continue;
-                        }
-                        // Make sure all ApiRequirements are compatible
-                        if (!apiRequirements.minCarVersion()
-                                .equals(firstApiRequirements.minCarVersion())
-                                || !apiRequirements.minPlatformVersion()
-                                        .equals(firstApiRequirements.minPlatformVersion())) {
-                            Log.w(TAG, "Found incompatible API requirement (" + apiRequirements
-                                    + ") on " + api + "(first ApiRequirements is "
-                                    + firstApiRequirements + ")");
-                            compatibleApis = false;
-                        } else {
-                            Log.d(TAG, "Multiple @ApiRequirements found but they're compatible");
-                        }
-                    }
-                    if (!invalidApis.isEmpty()) {
-                        throw new IllegalStateException("Could not resolve some APIs ("
-                                + invalidApis + ") on annotation (" + apiTest + ")");
-                    }
-
+                if (apiTest == null && cddTest != null) {
+                    validateCddAnnotations(cddTest, apiRequirementsOnTest);
+                    effectiveApiRequirementsOnTest = apiRequirementsOnTest;
                 }
 
-                if (firstApiRequirements == null && addedInOrBefore == null) {
+                if (apiTest == null && cddTest == null) {
                     if (mEnforceTestApiAnnotations) {
-                        throw new IllegalStateException("Missing @ApiRequirements "
+                        throw new IllegalArgumentException("Test is missing @ApiTest or @CddTest "
+                                + "annotation");
+                    } else {
+                        Log.w(TAG, "Test " + description + " doesn't have @ApiTest or @CddTest,"
+                                + "but rule is not enforcing it");
+                    }
+                }
+
+                if (apiTest != null) {
+                    Pair<ApiRequirements, AddedInOrBefore> pair = getApiRequirementsFromApis(
+                            description, apiTest);
+                    apiRequirementsOnApiUnderTest = pair.first;
+                    if (effectiveApiRequirementsOnTest == null) {
+                        // not set by CddTest
+                        effectiveApiRequirementsOnTest = apiRequirementsOnApiUnderTest;
+                    }
+                    addedInOrBefore = pair.second;
+                }
+
+                if (DBG) {
+                    Log.d(TAG, "Relevant annotations on APIs: "
+                            + "ApiRequirements=" + apiRequirementsOnApiUnderTest
+                            + ", AddedInOrBefore: " + addedInOrBefore);
+                }
+
+                if (apiRequirementsOnApiUnderTest != null && apiRequirementsOnTest != null) {
+                    throw new IllegalArgumentException("Test cannot be annotated with both "
+                            + "@ApiTest and @ApiRequirements");
+                }
+
+                if (effectiveApiRequirementsOnTest == null && addedInOrBefore == null) {
+                    if (mEnforceTestApiAnnotations) {
+                        throw new IllegalArgumentException("Missing @ApiRequirements "
                                 + "or @AddedInOrBefore");
                     } else {
                         Log.w(TAG, "Test " + description + " doesn't have required "
@@ -265,24 +330,114 @@ public final class ApiCheckerRule implements TestRule {
                     return;
                 }
 
-                if (!compatibleApis) {
-                    throw new IncompatibleApiRequirementsException(allApis, allApiRequirements);
-                }
-
                 // Finally, run the test and assert results depending on whether it's supported or
                 // not
-                apply(base, description, firstApiRequirements, supportedVersionTest,
+                apply(base, description, effectiveApiRequirementsOnTest, supportedVersionTest,
                         unsupportedVersionTest);
             }
+
         };
     } // apply
+
+    private void validateCddAnnotations(CddTest cddTest,
+            @Nullable ApiRequirements apiRequirements) {
+        @SuppressWarnings("deprecation")
+        String deprecatedRequirement = cddTest.requirement();
+
+        if (!TextUtils.isEmpty(deprecatedRequirement)) {
+            throw new IllegalArgumentException("Test contains " + cddTest.annotationType()
+                    + " annotation (" + cddTest + "), but it's using the"
+                    + " deprecated 'requirement' field (value=" + deprecatedRequirement + "); it "
+                    + "should use 'requirements' instead");
+        }
+
+        String[] requirements = cddTest.requirements();
+
+        if (requirements == null || requirements.length == 0) {
+            throw new IllegalArgumentException("Test contains " + cddTest.annotationType()
+            + " annotation (" + cddTest + "), but it's 'requirements' field is empty (value="
+                    + Arrays.toString(requirements) + ")");
+        }
+        for (String requirement : requirements) {
+            String trimmedRequirement = requirement == null ? "" : requirement.trim();
+            if (TextUtils.isEmpty(trimmedRequirement)) {
+                throw new IllegalArgumentException("Test contains " + cddTest.annotationType()
+                        + " annotation (" + cddTest + "), but it contains an empty requirement"
+                        + "(requirements=" + Arrays.toString(requirements) + ")");
+            }
+        }
+
+        // CddTest itself is valid, must have ApiRequirements
+        if (apiRequirements == null) {
+            throw new IllegalArgumentException("Test contains " + cddTest.annotationType()
+                    + " annotation (" + cddTest + "), but it's missing @ApiRequirements)");
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private Pair<ApiRequirements, AddedInOrBefore> getApiRequirementsFromApis(
+            Description description, ApiTest apiTest) {
+        ApiRequirements firstApiRequirements = null;
+        AddedInOrBefore addedInOrBefore = null;
+        List<String> allApis = new ArrayList<>();
+        List<ApiRequirements> allApiRequirements = new ArrayList<>();
+        boolean compatibleApis = true;
+
+        String[] apis = apiTest.apis();
+        if (apis == null || apis.length == 0) {
+            throw new IllegalArgumentException("empty @ApiTest annotation");
+        }
+        List<String> invalidApis = new ArrayList<>();
+        for (String api : apis) {
+            allApis.add(api);
+            Member member = ApiHelper.resolve(api);
+            if (member == null) {
+                invalidApis.add(api);
+                continue;
+            }
+            ApiRequirements apiRequirements = getApiRequirements(member);
+            if (apiRequirements == null && addedInOrBefore == null) {
+                addedInOrBefore = getAddedInOrBefore(member);
+                if (DBG) {
+                    Log.d(TAG, "No @ApiRequirements on " + api + "; trying "
+                            + "@AddedInOrBefore instead: " + addedInOrBefore);
+                }
+                continue;
+            }
+            allApiRequirements.add(apiRequirements);
+            if (firstApiRequirements == null) {
+                firstApiRequirements = apiRequirements;
+                continue;
+            }
+            // Make sure all ApiRequirements are compatible
+            if (!apiRequirements.minCarVersion()
+                    .equals(firstApiRequirements.minCarVersion())
+                    || !apiRequirements.minPlatformVersion()
+                            .equals(firstApiRequirements.minPlatformVersion())) {
+                Log.w(TAG, "Found incompatible API requirement (" + apiRequirements
+                        + ") on " + api + "(first ApiRequirements is "
+                        + firstApiRequirements + ")");
+                compatibleApis = false;
+            } else {
+                Log.d(TAG, "Multiple @ApiRequirements found but they're compatible");
+            }
+        }
+        if (!invalidApis.isEmpty()) {
+            throw new IllegalArgumentException("Could not resolve some APIs ("
+                    + invalidApis + ") on annotation (" + apiTest + ")");
+        }
+        if (!compatibleApis) {
+            throw new IncompatibleApiRequirementsException(allApis, allApiRequirements);
+        }
+        return new Pair<>(firstApiRequirements, addedInOrBefore);
+    }
 
     private void validateOptionalAnnotations(Class<?> testClass, String testMethodName,
             @Nullable SupportedVersionTest supportedVersionAnnotationOnTestMethod,
             @Nullable UnsupportedVersionTest unsupportedVersionAnnotationOnTestMethod) {
         if (unsupportedVersionAnnotationOnTestMethod != null
                 && supportedVersionAnnotationOnTestMethod != null) {
-                throw new IllegalStateException("test must be annotated with either "
+            throw new IllegalArgumentException("test must be annotated with either "
                         + "supportedVersionTest or unsupportedVersionTest, not both");
         }
         if (unsupportedVersionAnnotationOnTestMethod != null) {
@@ -303,7 +458,7 @@ public final class ApiCheckerRule implements TestRule {
         String supportedVersionMethodName = unsupportedVersionAnnotationOnTestMethod
                 .supportedVersionTest();
         if (TextUtils.isEmpty(supportedVersionMethodName)) {
-            throw new IllegalStateException("missing supportedVersionTest on "
+            throw new IllegalArgumentException("missing supportedVersionTest on "
                     + unsupportedVersionAnnotationOnTestMethod);
         }
 
@@ -315,14 +470,14 @@ public final class ApiCheckerRule implements TestRule {
         } catch (Exception e) {
             Log.w(TAG, "Error getting method named " + supportedVersionMethodName
                     + " on class " + testClass, e);
-            throw new IllegalStateException("invalid supportedVersionTest on "
+            throw new IllegalArgumentException("invalid supportedVersionTest on "
                     + unsupportedVersionAnnotationOnTestMethod + ": " + e);
         }
         // And it must be annotated with @SupportedVersionTest
         SupportedVersionTest supportedVersionAnnotationOnUnsupportedMethod =
                 supportedVersionMethod.getAnnotation(SupportedVersionTest.class);
         if (supportedVersionAnnotationOnUnsupportedMethod == null) {
-            throw new IllegalStateException(
+            throw new IllegalArgumentException(
                     "invalid supportedVersionTest method (" + supportedVersionMethodName
                     + " on " + unsupportedVersionAnnotationOnTestMethod
                     + ": it's not annotated with @SupportedVersionTest");
@@ -332,7 +487,7 @@ public final class ApiCheckerRule implements TestRule {
         String unsupportedVersionMethodOnSupportedAnnotation =
                 supportedVersionAnnotationOnUnsupportedMethod.unsupportedVersionTest();
         if (!testMethodName.equals(unsupportedVersionMethodOnSupportedAnnotation)) {
-            throw new IllegalStateException(
+            throw new IllegalArgumentException(
                     "invalid unsupportedVersionTest on "
                             + supportedVersionAnnotationOnUnsupportedMethod
                             + " annotation on method " + supportedVersionMethodName
@@ -346,7 +501,7 @@ public final class ApiCheckerRule implements TestRule {
         String unsupportedVersionMethodName = supportedVersionAnnotationOnTestMethod
                 .unsupportedVersionTest();
         if (TextUtils.isEmpty(unsupportedVersionMethodName)) {
-            throw new IllegalStateException("missing unsupportedVersionTest on "
+            throw new IllegalArgumentException("missing unsupportedVersionTest on "
                     + supportedVersionAnnotationOnTestMethod);
         }
 
@@ -358,14 +513,14 @@ public final class ApiCheckerRule implements TestRule {
         } catch (Exception e) {
             Log.w(TAG, "Error getting method named " + unsupportedVersionMethodName
                     + " on class " + testClass, e);
-            throw new IllegalStateException("invalid supportedVersionTest on "
+            throw new IllegalArgumentException("invalid supportedVersionTest on "
                     + supportedVersionAnnotationOnTestMethod + ": " + e);
         }
         // And it must be annotated with @UnupportedVersionTest
         UnsupportedVersionTest unsupportedVersionAnnotationOnUnsupportedMethod =
                 unsupportedVersionMethod.getAnnotation(UnsupportedVersionTest.class);
         if (unsupportedVersionAnnotationOnUnsupportedMethod == null) {
-            throw new IllegalStateException(
+            throw new IllegalArgumentException(
                     "invalid supportedVersionTest method (" + unsupportedVersionMethodName
                     + " on " + supportedVersionAnnotationOnTestMethod
                     + ": it's not annotated with @UnsupportedVersionTest");
@@ -375,7 +530,7 @@ public final class ApiCheckerRule implements TestRule {
         String supportedVersionMethodOnSupportedAnnotation =
                 unsupportedVersionAnnotationOnUnsupportedMethod.supportedVersionTest();
         if (!testMethodName.equals(supportedVersionMethodOnSupportedAnnotation)) {
-            throw new IllegalStateException(
+            throw new IllegalArgumentException(
                     "invalid supportedVersionTest on "
                             + unsupportedVersionAnnotationOnUnsupportedMethod
                             + " annotation on method " + unsupportedVersionMethodName
@@ -388,6 +543,9 @@ public final class ApiCheckerRule implements TestRule {
             @Nullable SupportedVersionTest supportedVersionTest,
             @Nullable UnsupportedVersionTest unsupportedVersionTest)
             throws Throwable {
+        if (DBG) {
+            Log.d(TAG, "Applying rule using ApiRequirements=" + apiRequirements);
+        }
         if (apiRequirements == null) {
             Log.w(TAG, "No @ApiRequirements on " + description.getDisplayName()
                     + " (most likely it's annotated with @AddedInOrBefore), running it always");
@@ -589,7 +747,8 @@ public final class ApiCheckerRule implements TestRule {
         }
     }
 
-    public static final class IncompatibleApiRequirementsException extends IllegalStateException {
+    public static final class IncompatibleApiRequirementsException
+            extends IllegalArgumentException {
 
         private static final long serialVersionUID = 1L;
 
