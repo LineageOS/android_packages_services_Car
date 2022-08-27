@@ -28,7 +28,7 @@
     <string name="factory_reset_notification_text" msgid="6051393302193696102">"ଇନଫୋଟେନମେଣ୍ଟ ସିଷ୍ଟମରେ ଥିବା ସମସ୍ତ ଡାଟା ଖାଲି ହୋଇଯିବ। ରିସେଟ୍ ହେବା ପରେ, ଆପଣ ଏକ ନୂଆ ପ୍ରୋଫାଇଲ୍ ସେଟ୍ ଅପ୍ କରିପାରିବେ।"</string>
     <string name="factory_reset_notification_button" msgid="6926734587145351076">"ଅଧିକ"</string>
     <string name="factory_reset_warning" msgid="8463356329619149262">"ଆପଣଙ୍କ ଡିଭାଇସ୍‍ ବର୍ତ୍ତମାନ ଲିଭାଯିବ"</string>
-    <string name="factory_reset_message" msgid="1972536809866779972">"ଆଡମିନ ଆପ ବ୍ୟବହାର କରାଯାଇପାରିବ ନାହିଁ। ଆପଣଙ୍କ ଡିଭାଇସର ସମସ୍ତ ଡାଟାକୁ ବର୍ତ୍ତମାନ ଖାଲି କରାଯିବ।\n\nଯଦି ଆପଣଙ୍କର କିଛି ପ୍ରଶ୍ନ ଅଛି, ତେବେ ଆପଣଙ୍କ ସଂସ୍ଥାର ଆଡମିନଙ୍କ ସହ ଯୋଗାଯୋଗ କରନ୍ତୁ।"</string>
+    <string name="factory_reset_message" msgid="1972536809866779972">"ଆଡମିନ ଆପ ବ୍ୟବହାର କରାଯାଇପାରିବ ନାହିଁ। ଆପଣଙ୍କ ଡିଭାଇସର ସମସ୍ତ ଡାଟାକୁ ବର୍ତ୍ତମାନ ଖାଲି କରାଯିବ।\n\nଯଦି ଆପଣଙ୍କର କିଛି ପ୍ରଶ୍ନ ଅଛି, ତେବେ ଆପଣଙ୍କ ସଂସ୍ଥାର ଆଡମିନଙ୍କ ସହ କଣ୍ଟାକ୍ଟ କରନ୍ତୁ।"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> ଆପଣଙ୍କ ସିଷ୍ଟମର ପରଫରମାନ୍ସକୁ ପ୍ରଭାବିତ କରୁଛି"</string>
     <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"ସିଷ୍ଟମର ପରଫରମାନ୍ସକୁ ଉନ୍ନତ କରିବା ପାଇଁ ଆପକୁ ଅକ୍ଷମ କରନ୍ତୁ। ଆପଣ ସେଟିଂସରେ ପୁଣି ଥରେ ଆପକୁ ସକ୍ଷମ କରିପାରିବେ।"</string>
     <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"ଆପ ବ୍ୟବହାର କରିବା ଜାରି ରଖିବା ପାଇଁ ଆପକୁ ପ୍ରାଥମିକତା ଦିଅନ୍ତୁ।"</string>
