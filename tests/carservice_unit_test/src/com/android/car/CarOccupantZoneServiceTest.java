@@ -475,7 +475,7 @@ public class CarOccupantZoneServiceTest {
         assertWithMessage("Visible user assigning should work").that(
                 mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
                 UserHandle.of(VISIBLE_USER), /* flags= */ 0)).isEqualTo(
-                CarOccupantZoneManager.USER_ASSIGN_RESULT_OK);
+                CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK);
 
         assertPassengerDisplaysFromDefaultConfig();
         assertDisplayAllowlist(VISIBLE_USER, new int[]{mDisplay2.getDisplayId()});

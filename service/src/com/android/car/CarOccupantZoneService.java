@@ -759,10 +759,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         try {
             if (userId == CarOccupantZoneManager.INVALID_USER_ID) {
                 return unassignOccupantZoneUnchecked(occupantZoneId)
-                        == CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+                        == CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             } else {
                 return assignVisibleUserToOccupantZoneUnchecked(occupantZoneId, user,
-                        /* flags= */ 0) == CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+                        /* flags= */ 0) == CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             }
         } finally {
             Binder.restoreCallingIdentity(token);
@@ -797,7 +797,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         if (!isUserVisible(user)) {
             Slogf.w(TAG, "Non-visible user %d cannot be allocated to zone %d", userId,
                     occupantZoneId);
-            return CarOccupantZoneManager.USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER;
+            return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER;
         }
 
         synchronized (mLock) {
@@ -809,7 +809,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (config.userId == userId && userId != CarOccupantZoneManager.INVALID_USER_ID) {
                 Slogf.w(TAG, "assignVisibleUserToOccupantZone zone:%d already set to user:%d",
                         occupantZoneId, userId);
-                return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+                return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             }
             Slogf.d(TAG, "Assigned user %d to zone %d", userId, occupantZoneId);
             config.userId = userId;
@@ -817,7 +817,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
-        if ((flags & CarOccupantZoneManager.USER_ASSIGN_FLAG_LAUNCH_HOME) != 0) {
+        if ((flags & CarOccupantZoneManager.USER_ASSIGNMENT_FLAG_LAUNCH_HOME) != 0) {
             Intent homeIntent = new Intent(Intent.ACTION_MAIN);
             int targetDisplayId = getDisplayForOccupant(occupantZoneId,
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
@@ -827,7 +827,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 Slogf.w(TAG,
                         "USER_ASSIGN_FLAG_LAUNCH_HOME ignored as there is no valid main display"
                                 + " in the zone:%d", occupantZoneId);
-                return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+                return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             } else if (targetDisplayId == Display.DEFAULT_DISPLAY) {
                 homeIntent.addCategory(Intent.CATEGORY_HOME);
             } else { // Secondary display
@@ -837,7 +837,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             mContext.startActivityAsUser(homeIntent, user);
         }
 
-        return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+        return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
 
     @Override
@@ -867,19 +867,19 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 // already unassigned
                 Slogf.w(TAG, "unassignOccupantZone for already unassigned zone:%d",
                         occupantZoneId);
-                return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+                return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
             }
             OccupantZoneInfo info = mOccupantsConfig.get(occupantZoneId);
             if (info.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
                 Slogf.w(TAG, "Cannot unassign driver zone");
-                return CarOccupantZoneManager.USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE;
+                return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE;
             }
             Slogf.d(TAG, "Unassigned zone:%d", occupantZoneId);
             config.userId = CarOccupantZoneManager.INVALID_USER_ID;
         }
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
-        return CarOccupantZoneManager.USER_ASSIGN_RESULT_OK;
+        return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
     }
 
     @Override
