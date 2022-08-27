@@ -283,8 +283,12 @@ void TelemetryServer::pushCarDataToListeners() {
     while (!pendingCarDataInternals.empty()) {
         auto status = listener->onCarDataReceived({pendingCarDataInternals.back()});
         if (!status.isOk()) {
-            LOG(WARNING) << "Failed to push CarDataInternal, will try again: "
-                         << status.getMessage();
+            LOG(WARNING) << "Failed to push CarDataInternal, will try again. Status: "
+                         << status.getStatus()
+                         << ", service-specific error: " << status.getServiceSpecificError()
+                         << ", message: " << status.getMessage()
+                         << ", exception code: " << status.getExceptionCode()
+                         << ", description: " << status.getDescription();
             sleep(kPushCarDataFailureDelaySeconds.count());
         } else {
             pendingCarDataInternals.pop_back();

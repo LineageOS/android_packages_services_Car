@@ -32,9 +32,11 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
+import android.car.Car;
 import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
+import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.TraceHelper;
@@ -2095,12 +2097,22 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
             AppLifecycleListener listener = mAppLifecycleListeners.valueAt(i);
-            // Perform target car version check to ensure only apps expecting the new
-            // lifecycle event types will have the events sent to them.
-            // TODO(b/235524989): Cache the target car version for packages in
-            // CarPackageManagerService.
             if (eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED
                     || eventType == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED) {
+                PlatformVersion platformVersion = Car.getPlatformVersion();
+                // Perform platform version check to ensure the support for these new events
+                // is consistent with the platform version declared in their ApiRequirements.
+                if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_1)) {
+                    if (DBG) {
+                        Slogf.d(TAG, "Skipping app listener %s for event %s due to unsupported"
+                                + " car platform version %s.", listener, event, platformVersion);
+                    }
+                    continue;
+                }
+                // Perform target car version check to ensure only apps expecting the new
+                // lifecycle event types will have the events sent to them.
+                // TODO(b/235524989): Cache the target car version for packages in
+                // CarPackageManagerService.
                 CarVersion targetCarVersion = mCarPackageManagerService.getTargetCarVersion(
                         listener.packageName);
                 if (!targetCarVersion.isAtLeast(CarVersion.VERSION_CODES.TIRAMISU_1)) {

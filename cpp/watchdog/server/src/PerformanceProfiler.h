@@ -151,6 +151,17 @@ public:
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
+    android::base::Result<void> onUserSwitchCollection(
+            [[maybe_unused]] time_t time,
+            [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
+            override {
+        // TODO(b/236875637): Implement method. The user switch collections should be stored in a
+        //  vector with a max capacity of 5. If the vector is full then discard the oldest user
+        //  switch event and add the newest one. Add from/to user ids to the method signature.
+        return {};
+    }
+
     android::base::Result<void> onCustomCollection(
             time_t time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,

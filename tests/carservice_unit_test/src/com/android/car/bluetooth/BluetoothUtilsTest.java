@@ -29,6 +29,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BluetoothUtilsTest {
+    static final String TEST_LOCAL_ADDRESS_STRING = "00:11:22:33:44:55";
+    static final byte[] TEST_LOCAL_ADDRESS = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
 
     @Mock
     private BluetoothDevice mMockBluetoothDevice;
@@ -40,6 +42,12 @@ public class BluetoothUtilsTest {
 
         assertThat(BluetoothUtils.getDeviceDebugInfo(mMockBluetoothDevice))
                 .isEqualTo("(name = deviceName, addr = deviceAddress)");
+    }
+
+    @Test
+    public void testGetBytesFromAddress() {
+        byte[] conversionResults = BluetoothUtils.getBytesFromAddress(TEST_LOCAL_ADDRESS_STRING);
+        assertThat(conversionResults).isEqualTo(TEST_LOCAL_ADDRESS);
     }
 
     @Test

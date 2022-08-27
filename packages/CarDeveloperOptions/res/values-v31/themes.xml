@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2022 The Android Open Source Project
   ~
@@ -14,14 +13,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="system_bar_background_pill_color">#282a2d</color>
-    <color name="status_icon_panel_bg_color">#282a2d</color>
-    <color name="status_icon_not_highlighted_color">#fff</color>
-
-    <color name="title_bar_display_area_handle_bar_color">#5f6368</color>
-    <color name="title_bar_display_area_background_color">#000000</color>
-
-    <color name="privacy_chip_light_icon_color">#ffffff</color>
-    <color name="privacy_chip_dark_icon_color">#000000</color>
+<resources>
+    <style name="CollapsingToolbarTitle.Expanded" parent="CollapsingToolbarTitle.Collapsed">
+        <item name="android:textSize">36dp</item>
+        <item name="android:textColor">@*android:color/car_body1</item>
+    </style>
 </resources>

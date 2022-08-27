@@ -96,7 +96,7 @@ public:
             const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
                     processIdentifier) = 0;
     virtual void setEnabled(bool isEnabled) = 0;
-    virtual void notifyUserStateChange(userid_t userId, bool isStarted) = 0;
+    virtual void onUserStateChange(userid_t userId, bool isStarted) = 0;
 };
 
 class WatchdogProcessService final : public WatchdogProcessServiceInterface {
@@ -143,7 +143,7 @@ public:
             const aidl::android::automotive::watchdog::internal::ProcessIdentifier&
                     processIdentifier) override;
     void setEnabled(bool isEnabled) override;
-    void notifyUserStateChange(userid_t userId, bool isStarted) override;
+    void onUserStateChange(userid_t userId, bool isStarted) override;
 
 private:
     enum ClientType {

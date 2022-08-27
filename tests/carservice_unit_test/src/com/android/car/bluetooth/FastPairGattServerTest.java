@@ -17,20 +17,14 @@
 
 package com.android.car.bluetooth;
 
-import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
-
 import static com.android.car.bluetooth.FastPairAccountKeyStorage.AccountKey;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.staticMockMarker;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -38,45 +32,30 @@ import static org.mockito.Mockito.when;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.AdvertiseData;
-import android.bluetooth.le.AdvertisingSetParameters;
-import android.bluetooth.le.BluetoothLeAdvertiser;
-import android.car.Car;
-import android.car.PlatformVersion;
-import android.car.builtin.bluetooth.le.AdvertisingSetCallbackHelper;
-import android.car.builtin.bluetooth.le.AdvertisingSetHelper;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
-import android.os.ParcelUuid;
+import android.os.Looper;
 import android.os.UserManager;
 
-import com.android.dx.mockito.inline.extended.ExtendedMockito;
-
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Unit tests for {@link BluetoothFastPair}
+ * Unit tests for {@link FastPairGattServer}
  *
- * Run: atest BluetoothFastPairTest
+ * Run: atest FastPairGattServerTest
  */
 @RunWith(MockitoJUnitRunner.class)
-public class BluetoothFastPairTest {
+public class FastPairGattServerTest {
 
     static final byte[] TEST_ACCOUNT_KEY_1 = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
             (byte) 0x88, (byte) 0x99, 0x00, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD,
@@ -85,7 +64,6 @@ public class BluetoothFastPairTest {
             0x44, 0x55, 0x55, 0x66, 0x66, 0x77, 0x77, (byte) 0x88, (byte) 0x88};
     static final byte[] TEST_ACCOUNT_KEY_3 = new byte[]{0x04, 0x11, 0x22, 0x22, 0x33, 0x33, 0x44,
             0x44, 0x55, 0x55, 0x66, 0x66, 0x77, 0x77, (byte) 0x88, (byte) 0x88};
-
 
     static final byte[] TEST_KEY_1_EXPECTED_RESULT = new byte[]{0x0A, 0x42, (byte) 0x88, 0x10};
     static final byte[] TEST_KEY_12_EXPECTED_RESULT = new byte[]{0x2F, (byte) 0xBA, 0x06, 0x42,
@@ -120,8 +98,6 @@ public class BluetoothFastPairTest {
             .encodeToString(TEST_PUBLIC_KEY_A);
     static final String TEST_PRIVATE_KEY_B_BASE64 = Base64.getEncoder()
             .encodeToString(TEST_PRIVATE_KEY_B);
-    static final String TEST_LOCAL_ADDRESS_STRING = "00:11:22:33:44:55";
-    static final byte[] TEST_LOCAL_ADDRESS = {0x00, 0x11, 0x22, 0x33, 0x44, 0x55};
     static final byte[] TEST_REMOTE_ADDRESS = {0x66, 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA,
             (byte) 0xBB};
     static final byte[] TEST_PAIRING_REQUEST = {0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -155,18 +131,9 @@ public class BluetoothFastPairTest {
     @Mock
     BluetoothDevice mMockBluetoothDevice;
 
-    @Mock
-    BluetoothLeAdvertiser mMockLeAdvertiser;
-
-    @Captor ArgumentCaptor<AdvertisingSetParameters> mAdvertisingSetParameters;
-    @Captor ArgumentCaptor<AdvertiseData> mAdvertiseData;
-
-    FastPairAdvertiser mTestFastPairAdvertiser;
     FastPairProvider mTestFastPairProvider;
     FastPairGattServer mTestGattServer;
     @Mock FastPairAccountKeyStorage mMockFastPairAccountKeyStorage;
-
-    MockitoSession mMockitoSession;
 
     @Before
     public void setUp() {
@@ -185,7 +152,6 @@ public class BluetoothFastPairTest {
         when(mMockResources.getString(anyInt())).thenReturn(TEST_PRIVATE_KEY_B_BASE64);
         when(mMockResources.getBoolean(anyInt())).thenReturn(true);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
-        when(mMockBluetoothAdapter.getBluetoothLeAdvertiser()).thenReturn(mMockLeAdvertiser);
         when(mMockBluetoothAdapter.getName()).thenReturn("name");
         when(mMockBluetoothAdapter.getAddress()).thenReturn("00:11:22:33:FF:EE");
         when(mMockBluetoothAdapter.getRemoteDevice(any(String.class))).thenReturn(
@@ -194,73 +160,15 @@ public class BluetoothFastPairTest {
                 mMockBluetoothDevice);
         when(mMockUserManager.isUserUnlocked()).thenReturn(false);
 
-        mMockitoSession = ExtendedMockito.mockitoSession()
-                .strictness(Strictness.WARN)
-                .spyStatic(BluetoothAdapter.class)
-                .spyStatic(Car.class)
-                .spyStatic(AdvertisingSetCallbackHelper.class)
-                .spyStatic(AdvertisingSetHelper.class)
-                .startMocking();
+        Looper looper = Looper.myLooper();
+        if (looper == null) {
+            Looper.prepare();
+        }
 
-        mTestFastPairAdvertiser = new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
         mTestFastPairProvider = new FastPairProvider(mMockContext);
         mTestGattServer = new FastPairGattServer(mMockContext, TEST_MODEL_ID,
                 TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, true,
                 mMockFastPairAccountKeyStorage);
-    }
-
-    @After
-    public void tearDown() {
-        mMockitoSession.finishMocking();
-    }
-
-    @Test
-    public void bloomFilterOneKeyTest() {
-        List<AccountKey> testKeys = new ArrayList();
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
-
-        byte[] bloomResults = FastPairUtils.bloom(testKeys, TEST_SALT);
-        assertThat(bloomResults).isEqualTo(TEST_KEY_1_EXPECTED_RESULT);
-    }
-
-    @Test
-    public void bloomFilterTwoKeyTest() {
-        List<AccountKey> testKeys = new ArrayList();
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_2));
-
-        byte[] bloomResults = FastPairUtils.bloom(testKeys, TEST_SALT);
-        assertThat(bloomResults).isEqualTo(TEST_KEY_12_EXPECTED_RESULT);
-    }
-
-    @Test
-    public void getAccountKeyTest() {
-        List<AccountKey> testKeys = new ArrayList();
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_2));
-
-        byte[] advertisementResults =
-                FastPairUtils.getAccountKeyAdvertisement(testKeys);
-        byte salt = advertisementResults[advertisementResults.length - 1];
-
-        byte[] bloomResults = FastPairUtils.bloom(testKeys, salt);
-        System.arraycopy(bloomResults, 0, mAdvertisementExpectedResults, 2,
-                bloomResults.length);
-        mAdvertisementExpectedResults[mAdvertisementExpectedResults.length - 1] = salt;
-
-        assertThat(advertisementResults).isEqualTo(mAdvertisementExpectedResults);
-    }
-
-    @Test
-    public void testGetBytesFromAddress() {
-        byte[] conversionResults = FastPairUtils.getBytesFromAddress(TEST_LOCAL_ADDRESS_STRING);
-        assertThat(conversionResults).isEqualTo(TEST_LOCAL_ADDRESS);
-    }
-
-    @Test
-    public void testAccountKeyCreation() {
-        AccountKey testKey = new AccountKey(TEST_ACCOUNT_KEY_1);
-        assertThat(testKey.toBytes()).isEqualTo(TEST_ACCOUNT_KEY_1);
     }
 
     @Test
@@ -424,98 +332,6 @@ public class BluetoothFastPairTest {
         verify(mMockBluetoothDevice).setPairingConfirmation(true);
         mTestGattServer.processAccountKey(encryptedAccountKey);
         verify(mMockFastPairAccountKeyStorage).add(new AccountKey(TEST_ACCOUNT_KEY_3));
-    }
-
-    @Test
-    public void testAdvertiseAccountKeys() {
-        List<AccountKey> testKeys = new ArrayList();
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_1));
-        testKeys.add(new AccountKey(TEST_ACCOUNT_KEY_2));
-        mTestFastPairAdvertiser.advertiseAccountKeys(testKeys);
-        verify(mMockLeAdvertiser).startAdvertisingSet(mAdvertisingSetParameters.capture(),
-                mAdvertiseData.capture(), any(), any(), any(), any());
-        assertThat(mAdvertisingSetParameters.getValue().getInterval())
-                .isEqualTo(AdvertisingSetParameters.INTERVAL_MEDIUM);
-        Map<ParcelUuid, byte[]> serviceData = mAdvertiseData.getValue().getServiceData();
-        assertThat(serviceData.size()).isEqualTo(1);
-        byte[] advertisementResults = serviceData.get(FastPairAdvertiser.FastPairServiceUuid);
-        byte salt = advertisementResults[advertisementResults.length - 1];
-
-        byte[] bloomResults = FastPairUtils.bloom(testKeys, salt);
-        System.arraycopy(bloomResults, 0, mAdvertisementExpectedResults, 2,
-                bloomResults.length);
-        mAdvertisementExpectedResults[mAdvertisementExpectedResults.length - 1] = salt;
-
-        assertThat(advertisementResults).isEqualTo(mAdvertisementExpectedResults);
-    }
-
-    @Test
-    public void testAdvertiseModelId() {
-        mTestFastPairAdvertiser.advertiseModelId();
-        verify(mMockLeAdvertiser).startAdvertisingSet(mAdvertisingSetParameters.capture(),
-                mAdvertiseData.capture(), any(), any(), any(), any());
-        assertThat(mAdvertisingSetParameters.getValue().getInterval())
-                .isEqualTo(AdvertisingSetParameters.INTERVAL_LOW);
-        Map<ParcelUuid, byte[]> serviceData = mAdvertiseData.getValue().getServiceData();
-        assertThat(serviceData.size()).isEqualTo(1);
-        assertThat(serviceData.get(FastPairAdvertiser.FastPairServiceUuid))
-                .isEqualTo(TEST_MODEL_ID_BYTES);
-    }
-
-    @Test
-    public void testStopAdvertisements() {
-        mTestFastPairProvider.start();
-        when(mMockBluetoothAdapter.isDiscovering()).thenReturn(true);
-        Intent scanMode = new Intent(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-        scanMode.putExtra(BluetoothAdapter.EXTRA_SCAN_MODE,
-                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-        mTestFastPairProvider.mDiscoveryModeChanged.onReceive(mMockContext, scanMode);
-
-        when(mMockBluetoothAdapter.isDiscovering()).thenReturn(false);
-        scanMode.putExtra(BluetoothAdapter.EXTRA_SCAN_MODE,
-                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-        mTestFastPairProvider.mDiscoveryModeChanged.onReceive(mMockContext, scanMode);
-        verify(mMockLeAdvertiser, timeout(ASYNC_CALL_TIMEOUT_MILLIS)).stopAdvertisingSet(any());
-    }
-
-    /**
-     * {@link AdvertisingSetCallbackHelper} and {@link AdvertisingSetHelper} were introduced in
-     * TM-QPR-1 (maj=33, min=1) to help with {@link FastPairAdvertiser} hidden API usages. A
-     * version check was added to the constructor of {@link FastPairAdvertiser} to ensure backwards
-     * compatibility with respect to the availability of these helper classes. One way to test
-     * which branch the check took is to check whether
-     * {@link AdvertisingSetCallbackHelper#createRealCallbackFromProxy} was invoked or not.
-     */
-    @Test
-    public void testFPAdvertiserBackCompat_tiramisu1_createRealCallbackFromProxyInvoked() {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_1);
-        // reset invocation count
-        clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
-
-        // version check lies in constructor
-        new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
-
-        verify(() -> AdvertisingSetCallbackHelper.createRealCallbackFromProxy(any()));
-    }
-
-    /**
-     * {@link AdvertisingSetCallbackHelper} and {@link AdvertisingSetHelper} were introduced in
-     * TM-QPR-1 (maj=33, min=1) to help with {@link FastPairAdvertiser} hidden API usages. A
-     * version check was added to the constructor of {@link FastPairAdvertiser} to ensure backwards
-     * compatibility with respect to the availability of these helper classes. One way to test
-     * which branch the check took is to check whether
-     * {@link AdvertisingSetCallbackHelper#createRealCallbackFromProxy} was invoked or not.
-     */
-    @Test
-    public void testFPAdvertiserBackCompat_tiramisu0_createRealCallbackFromProxyNotInvoked() {
-        mockCarGetPlatformVersion(PlatformVersion.VERSION_CODES.TIRAMISU_0);
-        // reset invocation count
-        clearInvocations(staticMockMarker(AdvertisingSetCallbackHelper.class));
-
-        // version check lies in constructor
-        new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
-
-        verify(() -> AdvertisingSetCallbackHelper.createRealCallbackFromProxy(any()), never());
     }
 
     void sendPairingKey(int pairingKey) {

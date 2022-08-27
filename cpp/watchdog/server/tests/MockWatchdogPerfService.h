@@ -19,6 +19,7 @@
 
 #include "WatchdogPerfService.h"
 
+#include <aidl/android/automotive/watchdog/internal/UserState.h>
 #include <android-base/result.h>
 #include <gmock/gmock.h>
 #include <utils/String16.h>
@@ -38,6 +39,10 @@ public:
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(void, setSystemState, (SystemState), (override));
     MOCK_METHOD(android::base::Result<void>, onBootFinished, (), (override));
+    MOCK_METHOD(android::base::Result<void>, onUserStateChange,
+                (userid_t userId,
+                 const aidl::android::automotive::watchdog::internal::UserState& userState),
+                (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection,
                 (int fd, const char** args, uint32_t numArgs), (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int fd), (const, override));

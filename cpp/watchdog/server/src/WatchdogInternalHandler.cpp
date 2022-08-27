@@ -315,28 +315,29 @@ ScopedAStatus WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCy
     return ScopedAStatus::ok();
 }
 
-ScopedAStatus WatchdogInternalHandler::handleUserStateChange(userid_t userId, UserState userState) {
+ScopedAStatus WatchdogInternalHandler::handleUserStateChange(userid_t userId,
+                                                             const UserState& userState) {
     std::string stateDesc;
     switch (userState) {
         case UserState::USER_STATE_STARTED:
             stateDesc = "started";
-            mWatchdogProcessService->notifyUserStateChange(userId, /*isStarted=*/true);
+            mWatchdogProcessService->onUserStateChange(userId, /*isStarted=*/true);
             break;
         case UserState::USER_STATE_SWITCHING:
             stateDesc = "switching";
-            // TODO(b/236875637): Notify Watchdog perf service the user state change.
+            mWatchdogPerfService->onUserStateChange(userId, userState);
             break;
         case UserState::USER_STATE_UNLOCKING:
             stateDesc = "unlocking";
-            // TODO(b/236875637): Notify Watchdog perf service the user state change.
+            mWatchdogPerfService->onUserStateChange(userId, userState);
             break;
         case UserState::USER_STATE_POST_UNLOCKED:
             stateDesc = "post_unlocked";
-            // TODO(b/236875637): Notify Watchdog perf service the user state change.
+            mWatchdogPerfService->onUserStateChange(userId, userState);
             break;
         case UserState::USER_STATE_STOPPED:
             stateDesc = "stopped";
-            mWatchdogProcessService->notifyUserStateChange(userId, /*isStarted=*/false);
+            mWatchdogProcessService->onUserStateChange(userId, /*isStarted=*/false);
             break;
         case UserState::USER_STATE_REMOVED:
             stateDesc = "removed";
