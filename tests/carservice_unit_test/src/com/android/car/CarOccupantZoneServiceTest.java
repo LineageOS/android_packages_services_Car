@@ -24,6 +24,8 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -43,6 +45,8 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
+import android.util.IntArray;
+import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
@@ -118,6 +122,7 @@ public class CarOccupantZoneServiceTest {
     private Display mDisplay5; // outside display config and become unknown display
 
     private static final int CURRENT_USER = 100;
+    private static final int VISIBLE_USER = 101;
     private static final int PROFILE_USER1 = 1001;
     private static final int PROFILE_USER2 = 1002;
 
@@ -165,6 +170,8 @@ public class CarOccupantZoneServiceTest {
     // Stores last changeFlags from onOccupantZoneConfigChanged call.
     private int mLastChangeFlags;
     private final Semaphore mChangeEventSignal = new Semaphore(0);
+
+    private final IntArray mVisibleUsers = new IntArray();
 
     private final ICarServiceHelperImpl mICarServiceHelper = new ICarServiceHelperImpl();
 
@@ -220,6 +227,9 @@ public class CarOccupantZoneServiceTest {
         when(mResources.getStringArray(R.array.config_occupant_display_mapping))
                 .thenReturn(DEFAULT_OCCUPANT_DISPLAY_MAPPING);
         when(mContext.getApplicationInfo()).thenReturn(new ApplicationInfo());
+        when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
+        when(mContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
+
         // Stored as static: Other tests can leave things behind and fail this test in add call.
         // So just remove as safety guard.
         CarLocalServices.removeServiceForTest(CarPropertyService.class);
@@ -239,11 +249,21 @@ public class CarOccupantZoneServiceTest {
                 mDisplay5
         });
 
+        mVisibleUsers.add(CURRENT_USER);
+
         mService = new CarOccupantZoneService(mContext, mDisplayManager, mUserManager,
                 /* enableProfileUserAssignmentForMultiDisplay= */ false, mUserHandleHelper);
         spyOn(mService);
+        // do* patten is necessary due to spyOn. Do not change them.
         doReturn(VehicleAreaSeat.SEAT_ROW_1_LEFT).when(mService).getDriverSeat();
         doReturn(CURRENT_USER).when(mService).getCurrentUser();
+        doAnswer(invocation -> {
+            UserHandle user = (UserHandle) invocation.getArgument(0);
+            int userId = user.getIdentifier();
+            boolean visible = mVisibleUsers.indexOf(userId) >= 0;
+            Log.i(TAG, "isUserVisible for user:" + userId + " result:" + visible);
+            return visible;
+        }).when(mService).isUserVisible(any());
 
         Car car = new Car(mContext, /* service= */ null, /* handler= */ null);
         mManager = new CarOccupantZoneManager(car, mService);
@@ -326,13 +346,20 @@ public class CarOccupantZoneServiceTest {
         mService = new CarOccupantZoneService(mContext, mDisplayManager, mUserManager,
                 /* enableProfileUserAssignmentForMultiDisplay= */ true, mUserHandleHelper);
         spyOn(mService);
+        mVisibleUsers.addAll(new int[]{ PROFILE_USER1, PROFILE_USER2 });
+        doAnswer(invocation -> {
+            UserHandle user = (UserHandle) invocation.getArgument(0);
+            int userId = user.getIdentifier();
+            boolean visible = mVisibleUsers.indexOf(userId) >= 0;
+            Log.i(TAG, "isUserVisible for user:" + userId + " result:" + visible);
+            return visible;
+        }).when(mService).isUserVisible(any());
         doReturn(VehicleAreaSeat.SEAT_ROW_1_LEFT).when(mService).getDriverSeat();
         doReturn(CURRENT_USER).when(mService).getCurrentUser();
         LinkedList<UserHandle> profileUsers = new LinkedList<>();
         profileUsers.add(UserHandle.of(PROFILE_USER1));
         profileUsers.add(UserHandle.of(PROFILE_USER2));
         doReturn(profileUsers).when(mUserHandleHelper).getEnabledProfiles(CURRENT_USER);
-        doReturn(true).when(mUserManager).isUserRunning(any());
 
         Car car = new Car(mContext, /* service= */ null, /* handler= */ null);
         mManager = new CarOccupantZoneManager(car, mService);
@@ -376,8 +403,8 @@ public class CarOccupantZoneServiceTest {
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER1)).isTrue();
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
         assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
+        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
     }
 
     @Test
@@ -389,7 +416,7 @@ public class CarOccupantZoneServiceTest {
         assertPassengerDisplaysFromDefaultConfig();
 
         mICarServiceHelper.mAllowlists.clear();
-        doReturn(false).when(mUserManager).isUserRunning(UserHandle.of(PROFILE_USER1));
+        removeVisibleUser(PROFILE_USER1);
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER1)).isFalse();
     }
@@ -404,15 +431,15 @@ public class CarOccupantZoneServiceTest {
                 PROFILE_USER1)).isTrue();
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
         assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
+        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
 
         mICarServiceHelper.mAllowlists.clear();
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER2)).isTrue();
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
         assertDisplayAllowlist(PROFILE_USER2, new int[]{mDisplay2.getDisplayId()});
+        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
     }
 
     @Test
@@ -425,19 +452,70 @@ public class CarOccupantZoneServiceTest {
                 PROFILE_USER1)).isTrue();
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
         assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
+        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
 
         mICarServiceHelper.mAllowlists.clear();
         int newUserId = 200;
-        doReturn(newUserId).when(mService).getCurrentUser();
+        resetVisibleUser(newUserId);
+        when(mService.getCurrentUser()).thenReturn(newUserId);
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(newUserId, new int[]{mDisplay2.getDisplayId(),
-                mDisplay4.getDisplayId()});
+        assertThat(mICarServiceHelper.mAllowlists).isEmpty();
+    }
+
+    private void assertVisibleUserAssignment() throws Exception {
+        setUpServiceWithProfileSupportEnabled();
+        mVisibleUsers.add(VISIBLE_USER);
+        mService.init();
+        mService.setCarServiceHelper(mICarServiceHelper);
+
+        assertWithMessage("Visible user assigning should work").that(
+                mManager.assignVisibleUserToOccupantZone(mZoneFrontPassengerLHD,
+                UserHandle.of(VISIBLE_USER), /* flags= */ 0)).isEqualTo(
+                CarOccupantZoneManager.USER_ASSIGN_RESULT_OK);
+
+        assertPassengerDisplaysFromDefaultConfig();
+        assertDisplayAllowlist(VISIBLE_USER, new int[]{mDisplay2.getDisplayId()});
+        assertWithMessage("Should have one allow list").that(
+                mICarServiceHelper.mAllowlists).hasSize(1);
+        assertUserForThreeZones(CURRENT_USER, VISIBLE_USER,
+                CarOccupantZoneManager.INVALID_USER_ID);
+    }
+
+    @Test
+    public void testKeepVisibleUserAfterUserSwitch() throws Exception {
+        assertVisibleUserAssignment();
+
+        mICarServiceHelper.mAllowlists.clear();
+        int newUserId = 200;
+        resetVisibleUser(newUserId);
+        mVisibleUsers.add(VISIBLE_USER);
+        when(mService.getCurrentUser()).thenReturn(newUserId);
+        mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
+
+        assertPassengerDisplaysFromDefaultConfig();
+        assertDisplayAllowlist(VISIBLE_USER, new int[]{mDisplay2.getDisplayId()});
         assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
+        assertUserForThreeZones(newUserId, VISIBLE_USER, CarOccupantZoneManager.INVALID_USER_ID);
+    }
+
+    @Test
+    public void testUnassignAfterUserStop() throws Exception {
+        assertVisibleUserAssignment();
+
+        mICarServiceHelper.mAllowlists.clear();
+        removeVisibleUser(VISIBLE_USER);
+
+        mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING, VISIBLE_USER));
+
+        assertThat(mICarServiceHelper.mAllowlists).isEmpty();
+        assertUserForThreeZones(CURRENT_USER, CarOccupantZoneManager.INVALID_USER_ID,
+                CarOccupantZoneManager.INVALID_USER_ID);
     }
 
     @Test
@@ -450,16 +528,14 @@ public class CarOccupantZoneServiceTest {
                 PROFILE_USER1)).isTrue();
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
         assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
+        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
 
         mICarServiceHelper.mAllowlists.clear();
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 UserHandle.USER_NULL)).isTrue();
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay2.getDisplayId(),
-                mDisplay4.getDisplayId()});
-        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
+        assertThat(mICarServiceHelper.mAllowlists).isEmpty();
     }
 
     @Test
@@ -469,9 +545,7 @@ public class CarOccupantZoneServiceTest {
         mService.setCarServiceHelper(mICarServiceHelper);
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay2.getDisplayId(),
-                mDisplay4.getDisplayId()});
-        assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
+        assertThat(mICarServiceHelper.mAllowlists).isEmpty();
     }
 
     private void assertDisplayInfoIncluded(
@@ -582,9 +656,11 @@ public class CarOccupantZoneServiceTest {
         assertOccupantConfig(configs.get(0), CURRENT_USER, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
-        assertOccupantConfig(configs.get(1), CURRENT_USER, new Display[]{mDisplay2},
+        assertOccupantConfig(configs.get(1), CarOccupantZoneManager.INVALID_USER_ID,
+                new Display[]{mDisplay2},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
-        assertOccupantConfig(configs.get(3), CURRENT_USER, new Display[]{mDisplay4},
+        assertOccupantConfig(configs.get(3), CarOccupantZoneManager.INVALID_USER_ID,
+                new Display[]{mDisplay4},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
     }
 
@@ -609,11 +685,14 @@ public class CarOccupantZoneServiceTest {
         assertOccupantConfig(configs.get(0), CURRENT_USER, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
-        assertOccupantConfig(configs.get(1), CURRENT_USER, new Display[]{mDisplay2},
+        assertOccupantConfig(configs.get(1), CarOccupantZoneManager.INVALID_USER_ID,
+                new Display[]{mDisplay2},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
-        assertOccupantConfig(configs.get(2), CURRENT_USER, new Display[]{mDisplay3},
+        assertOccupantConfig(configs.get(2), CarOccupantZoneManager.INVALID_USER_ID,
+                new Display[]{mDisplay3},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
-        assertOccupantConfig(configs.get(3), CURRENT_USER, new Display[]{mDisplay4},
+        assertOccupantConfig(configs.get(3), CarOccupantZoneManager.INVALID_USER_ID,
+                new Display[]{mDisplay4},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
     }
 
@@ -634,7 +713,21 @@ public class CarOccupantZoneServiceTest {
         assertOccupantConfig(configs.get(0), CURRENT_USER, new Display[]{mDisplay0, mDisplay1},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
                         CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
-        assertOccupantConfig(configs.get(1), CURRENT_USER, new Display[]{mDisplay2},
+        assertOccupantConfig(configs.get(1), CarOccupantZoneManager.INVALID_USER_ID,
+                new Display[]{mDisplay2},
+                new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
+    }
+
+    private void assertUserForThreeZones(int user0, int user1, int user2) {
+        // key : zone id
+        SparseArray<OccupantConfig> configs = mService.getActiveOccupantConfigs();
+        assertThat(configs.size()).isEqualTo(3); // driver, front passenger, one rear
+        assertOccupantConfig(configs.get(0), user0, new Display[]{mDisplay0, mDisplay1},
+                new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                        CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
+        assertOccupantConfig(configs.get(1), user1, new Display[]{mDisplay2},
+                new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
+        assertOccupantConfig(configs.get(3), user2, new Display[]{mDisplay4},
                 new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
     }
 
@@ -643,20 +736,14 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         final int newUserId = 200;
+        resetVisibleUser(newUserId);
         doReturn(newUserId).when(mService).getCurrentUser();
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
-        // key : zone id
-        SparseArray<OccupantConfig> configs = mService.getActiveOccupantConfigs();
-        assertThat(configs.size()).isEqualTo(3); // driver, front passenger, one rear
-        assertOccupantConfig(configs.get(0), newUserId, new Display[]{mDisplay0, mDisplay1},
-                new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
-                        CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER});
-        assertOccupantConfig(configs.get(1), newUserId, new Display[]{mDisplay2},
-                new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
-        assertOccupantConfig(configs.get(3), newUserId, new Display[]{mDisplay4},
-                new int[]{CarOccupantZoneManager.DISPLAY_TYPE_MAIN});
+        assertUserForThreeZones(newUserId, CarOccupantZoneManager.INVALID_USER_ID,
+                CarOccupantZoneManager.INVALID_USER_ID);
+
     }
 
     private void assertParsingFailure() {
@@ -874,10 +961,12 @@ public class CarOccupantZoneServiceTest {
         int driverUser = mManager.getUserForOccupant(mZoneDriverLHD);
         assertThat(CURRENT_USER).isEqualTo(driverUser);
 
-        //TODO update this after secondary user handling
-        assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(driverUser);
-        assertThat(mManager.getUserForOccupant(mZoneRearLeft)).isEqualTo(UserHandle.USER_NULL);
-        assertThat(mManager.getUserForOccupant(mZoneRearRight)).isEqualTo(driverUser);
+        assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(
+                CarOccupantZoneManager.INVALID_USER_ID);
+        assertThat(mManager.getUserForOccupant(mZoneRearLeft)).isEqualTo(
+                CarOccupantZoneManager.INVALID_USER_ID);
+        assertThat(mManager.getUserForOccupant(mZoneRearRight)).isEqualTo(
+                CarOccupantZoneManager.INVALID_USER_ID);
     }
 
     @Test
@@ -885,15 +974,21 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         final int newUserId = 200;
+        resetVisibleUser(newUserId);
+        // should use doReturn due to spyOn
         doReturn(newUserId).when(mService).getCurrentUser();
+
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         assertThat(newUserId).isEqualTo(mManager.getUserForOccupant(mZoneDriverLHD));
-        //TODO update this after secondary user handling
-        assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(newUserId);
-        assertThat(mManager.getUserForOccupant(mZoneRearLeft)).isEqualTo(UserHandle.USER_NULL);
-        assertThat(mManager.getUserForOccupant(mZoneRearRight)).isEqualTo(newUserId);
+
+        assertThat(mManager.getUserForOccupant(mZoneFrontPassengerLHD)).isEqualTo(
+                CarOccupantZoneManager.INVALID_USER_ID);
+        assertThat(mManager.getUserForOccupant(mZoneRearLeft)).isEqualTo(
+                CarOccupantZoneManager.INVALID_USER_ID);
+        assertThat(mManager.getUserForOccupant(mZoneRearRight)).isEqualTo(
+                CarOccupantZoneManager.INVALID_USER_ID);
     }
 
     @Test
@@ -905,8 +1000,12 @@ public class CarOccupantZoneServiceTest {
         mManager.registerOccupantZoneConfigChangeListener(mChangeListener);
 
         resetConfigChangeEventWait();
+        int newUserId = 200;
+        resetVisibleUser(newUserId);
+        // should use doReturn due to spyOn
+        doReturn(newUserId).when(mService).getCurrentUser();
         mService.mUserLifecycleListener.onEvent(new UserLifecycleEvent(
-                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, 0)); // user id does not matter.
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs,
                 CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER)).isTrue();
@@ -946,6 +1045,15 @@ public class CarOccupantZoneServiceTest {
         mService.setAudioZoneIdsForOccupantZoneIds(audioZoneIdToOccupantZoneMapping);
         assertThat(waitForConfigChangeEventAndAssertFlag(eventWaitTimeMs,
                 CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO)).isFalse();
+    }
+
+    private void removeVisibleUser(int userId) {
+        mVisibleUsers.remove(mVisibleUsers.indexOf(userId));
+    }
+
+    private void resetVisibleUser(int userId) {
+        mVisibleUsers.clear();
+        mVisibleUsers.add(userId);
     }
 
     private static class ICarServiceHelperImpl extends AbstractICarServiceHelperStub {

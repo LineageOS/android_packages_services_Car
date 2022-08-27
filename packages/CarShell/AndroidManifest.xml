@@ -85,4 +85,6 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
     <!-- Permissions required for CTS test - CarPerformanceManagerTest -->
     <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY" />
+    <!-- Permissions required for CTS test - CarOccupantZoneManagerTest -->
+    <uses-permission android:name="android.car.permission.MANAGE_OCCUPANT_ZONE" />
 </manifest>
