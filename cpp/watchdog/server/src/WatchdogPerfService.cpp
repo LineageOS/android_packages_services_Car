@@ -35,10 +35,13 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+namespace {
+
 using ::android::sp;
 using ::android::String16;
 using ::android::String8;
 using ::android::automotive::watchdog::internal::PowerCycle;
+using ::android::automotive::watchdog::internal::UserState;
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::ParseUint;
@@ -48,11 +51,9 @@ using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::android::base::WriteStringToFd;
 
-namespace {
-
 // Minimum required collection interval between subsequent collections.
 const std::chrono::nanoseconds kMinEventInterval = 1s;
-const std::chrono::seconds kDefaultBoottimeCollectionInterval = 1s;
+const std::chrono::seconds kDefaultSystemEventCollectionInterval = 1s;
 const std::chrono::seconds kDefaultPeriodicCollectionInterval = 20s;
 const std::chrono::seconds kDefaultPeriodicMonitorInterval = 5s;
 const std::chrono::nanoseconds kCustomCollectionInterval = 10s;
@@ -101,6 +102,8 @@ constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
                         return "BOOT_TIME_COLLECTION";
                     case EventType::PERIODIC_COLLECTION:
                         return "PERIODIC_COLLECTION";
+                    case EventType::USER_SWITCH_COLLECTION:
+                        return "USER_SWITCH_COLLECTION";
                     case EventType::CUSTOM_COLLECTION:
                         return "CUSTOM_COLLECTION";
                     case EventType::PERIODIC_MONITOR:
@@ -165,10 +168,10 @@ Result<void> WatchdogPerfService::start() {
         if (mCurrCollectionEvent != EventType::INIT || mCollectionThread.joinable()) {
             return Error(INVALID_OPERATION) << "Cannot start " << kServiceName << " more than once";
         }
-        std::chrono::nanoseconds boottimeCollectionInterval =
+        std::chrono::nanoseconds systemEventCollectionInterval =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
-                        std::chrono::seconds(sysprop::boottimeCollectionInterval().value_or(
-                                kDefaultBoottimeCollectionInterval.count())));
+                        std::chrono::seconds(sysprop::systemEventCollectionInterval().value_or(
+                                kDefaultSystemEventCollectionInterval.count())));
         std::chrono::nanoseconds periodicCollectionInterval =
                 std::chrono::duration_cast<std::chrono::nanoseconds>(
                         std::chrono::seconds(sysprop::periodicCollectionInterval().value_or(
@@ -179,12 +182,17 @@ Result<void> WatchdogPerfService::start() {
                                 kDefaultPeriodicMonitorInterval.count())));
         mBoottimeCollection = {
                 .eventType = EventType::BOOT_TIME_COLLECTION,
-                .interval = boottimeCollectionInterval,
+                .interval = systemEventCollectionInterval,
                 .lastUptime = 0,
         };
         mPeriodicCollection = {
                 .eventType = EventType::PERIODIC_COLLECTION,
                 .interval = periodicCollectionInterval,
+                .lastUptime = 0,
+        };
+        mUserSwitchCollection = {
+                .eventType = EventType::USER_SWITCH_COLLECTION,
+                .interval = systemEventCollectionInterval,
                 .lastUptime = 0,
         };
         mPeriodicMonitor = {
@@ -289,12 +297,65 @@ Result<void> WatchdogPerfService::onBootFinished() {
               toString(expected));
         return {};
     }
-    nsecs_t endBootCollectionTime = mHandlerLooper->now() + mPostEventDurationNs.count();
+    nsecs_t endBootCollectionTime = mHandlerLooper->now() + mPostSystemEventDurationNs.count();
     mHandlerLooper->sendMessageAtTime(endBootCollectionTime,
                                       sp<WatchdogPerfService>::fromExisting(this),
                                       SwitchMessage::END_BOOTTIME_COLLECTION);
     if (DEBUG) {
         ALOGD("Boot complete signal received.");
+    }
+    return {};
+}
+
+Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserState& userState) {
+    Mutex::Autolock lock(mMutex);
+    switch (static_cast<int>(userState)) {
+        case static_cast<int>(UserState::USER_STATE_SWITCHING): {
+            if (mCurrCollectionEvent != EventType::PERIODIC_COLLECTION) {
+                ALOGE("Unable to start %s. Current performance data collection event: %s",
+                      toString(EventType::USER_SWITCH_COLLECTION), toString(mCurrCollectionEvent));
+                return {};
+            }
+            auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+            mHandlerLooper->removeMessages(thiz);
+            mUserSwitchCollection.lastUptime = mHandlerLooper->now();
+            // End |EventType::USER_SWITCH_COLLECTION| after a timeout because the user switch end
+            // signal won't be received within a few seconds when the switch is blocked due to a
+            // keyguard event. Otherwise, polling beyond a few seconds will lead to unnecessary data
+            // collection.
+            nsecs_t uptime = mHandlerLooper->now() + mUserSwitchTimeoutNs.count();
+            mHandlerLooper->sendMessageAtTime(uptime, thiz,
+                                              SwitchMessage::END_USER_SWITCH_COLLECTION);
+            mCurrCollectionEvent = EventType::USER_SWITCH_COLLECTION;
+            mHandlerLooper->sendMessage(thiz, EventType::USER_SWITCH_COLLECTION);
+            ALOGI("Switching to %s", toString(mCurrCollectionEvent));
+            break;
+        }
+        case static_cast<int>(UserState::USER_STATE_UNLOCKING):
+            // TODO(b/236875637): Handle locked keyguard case.
+            break;
+        case static_cast<int>(UserState::USER_STATE_POST_UNLOCKED): {
+            if (EventType expected = EventType::USER_SWITCH_COLLECTION;
+                mCurrCollectionEvent != expected) {
+                ALOGE("Unable to end %s. Current performance data collection event: %s",
+                      toString(expected), toString(mCurrCollectionEvent));
+                return {};
+            }
+            auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+            mHandlerLooper->removeMessages(thiz, SwitchMessage::END_USER_SWITCH_COLLECTION);
+            nsecs_t endUserSwitchCollectionTime =
+                    mHandlerLooper->now() + mPostSystemEventDurationNs.count();
+            mHandlerLooper->sendMessageAtTime(endUserSwitchCollectionTime, thiz,
+                                              SwitchMessage::END_USER_SWITCH_COLLECTION);
+            break;
+        }
+        default:
+            ALOGE("Unsupported user state: %d", static_cast<int>(userState));
+            return {};
+    }
+    if (DEBUG) {
+        ALOGD("Handled user state change: userId = %d, userState = %d", userId,
+              static_cast<int>(userState));
     }
     return {};
 }
@@ -545,6 +606,16 @@ void WatchdogPerfService::handleMessage(const Message& message) {
         case static_cast<int>(EventType::PERIODIC_COLLECTION):
             result = processCollectionEvent(&mPeriodicCollection);
             break;
+        case static_cast<int>(EventType::USER_SWITCH_COLLECTION):
+            result = processCollectionEvent(&mUserSwitchCollection);
+            break;
+        case static_cast<int>(SwitchMessage::END_USER_SWITCH_COLLECTION):
+            mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
+            if (result = processCollectionEvent(&mUserSwitchCollection); result.ok()) {
+                Mutex::Autolock lock(mMutex);
+                switchToPeriodicLocked(/*startNow=*/false);
+            }
+            break;
         case static_cast<int>(EventType::CUSTOM_COLLECTION):
             result = processCollectionEvent(&mCustomCollection);
             break;
@@ -651,6 +722,10 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
             case EventType::PERIODIC_COLLECTION:
                 result = processor->onPeriodicCollection(now, mSystemState, mUidStatsCollector,
                                                          mProcStatCollector);
+                break;
+            case EventType::USER_SWITCH_COLLECTION:
+                result = processor->onUserSwitchCollection(now, mUidStatsCollector,
+                                                           mProcStatCollector);
                 break;
             case EventType::CUSTOM_COLLECTION:
                 result = processor->onCustomCollection(now, mSystemState, metadata->filterPackages,

@@ -122,6 +122,15 @@ public:
         return {};
     }
 
+    android::base::Result<void> onUserSwitchCollection(
+            [[maybe_unused]] time_t time,
+            [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
+            override {
+        // No I/O overuse monitoring during user switch.
+        return {};
+    }
+
     android::base::Result<void> onPeriodicCollection(
             time_t time, SystemState systemState,
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,

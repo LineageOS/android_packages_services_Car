@@ -41,6 +41,10 @@ public:
                 (time_t, SystemState, const wp<UidStatsCollectorInterface>&,
                  const wp<ProcStatCollectorInterface>&),
                 (override));
+    MOCK_METHOD(android::base::Result<void>, onUserSwitchCollection,
+                (time_t, const wp<UidStatsCollectorInterface>&,
+                 const wp<ProcStatCollectorInterface>&),
+                (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection,
                 (time_t, SystemState, const std::unordered_set<std::string>&,
                  const wp<UidStatsCollectorInterface>&, const wp<ProcStatCollectorInterface>&),
