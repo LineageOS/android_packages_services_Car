@@ -39,4 +39,11 @@ public abstract class CarUiPortraitSystemBarModule {
         return new CarUiPortraitButtonSelectionStateListener(context,
                 buttonSelectionStateController, displayAreaController);
     }
+
+    @SysUISingleton
+    @Provides
+    @CarSysUIDynamicOverride
+    static ButtonSelectionStateController provideButtonSelectionStateController(Context context) {
+        return new CarUiPortraitButtonSelectionStateController(context);
+    }
 }
