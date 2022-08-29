@@ -112,17 +112,12 @@ cc_binary {
 
 cc_fuzz {
     name: "evs_enumerator_fuzzer",
-    defaults: ["evsmanagerd_defaults"],
-    static_libs: [
-        "libbase",
-        "libbinder_random_parcel",
-        "libcutils",
-        "liblog",
+    defaults: [
+        "evsmanagerd_defaults",
+        "service_fuzzer_defaults",
     ],
-    shared_libs: [
-        "libbinder_ndk",
-        "libbinder",
-        "libutils",
+    static_libs: [
+        "liblog",
     ],
     srcs: [
         ":evsmanagerd_sources",
