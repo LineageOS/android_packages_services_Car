@@ -21,30 +21,33 @@ service carwatchdogd /system/bin/carwatchdogd
 
 on early-init && property:ro.build.type=userdebug
     # Below intervals are in seconds
-    setprop ro.carwatchdog.boottime_collection_interval 1
+    setprop ro.carwatchdog.system_event_collection_interval 1
     setprop ro.carwatchdog.periodic_collection_interval 60
     setprop ro.carwatchdog.periodic_monitor_interval 5
 
     # Below durations are in seconds
-    setprop ro.carwatchdog.post_event_duration 30
+    setprop ro.carwatchdog.post_system_event_duration 30
+    setprop ro.carwatchdog.user_switch_timeout 30
 
 on early-init && property:ro.build.type=eng
     # Below intervals are in seconds
-    setprop ro.carwatchdog.boottime_collection_interval 1
+    setprop ro.carwatchdog.system_event_collection_interval 1
     setprop ro.carwatchdog.periodic_collection_interval 60
     setprop ro.carwatchdog.periodic_monitor_interval 5
 
     # Below durations are in seconds
-    setprop ro.carwatchdog.post_event_duration 30
+    setprop ro.carwatchdog.post_system_event_duration 30
+    setprop ro.carwatchdog.user_switch_timeout 30
 
 on early-init && property:ro.build.type=user
     # Below intervals are in seconds
-    setprop ro.carwatchdog.boottime_collection_interval 20
+    setprop ro.carwatchdog.system_event_collection_interval 20
     setprop ro.carwatchdog.periodic_collection_interval 120
     setprop ro.carwatchdog.periodic_monitor_interval 5
 
     # Below durations are in seconds
-    setprop ro.carwatchdog.post_event_duration 30
+    setprop ro.carwatchdog.post_system_event_duration 30
+    setprop ro.carwatchdog.user_switch_timeout 30
 
 on init
     # Number of top stats per category

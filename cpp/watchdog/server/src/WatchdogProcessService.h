@@ -92,7 +92,7 @@ public:
             const android::automotive::watchdog::internal::ProcessIdentifier&
                     processIdentifier) = 0;
     virtual void setEnabled(bool isEnabled) = 0;
-    virtual void notifyUserStateChange(userid_t userId, bool isStarted) = 0;
+    virtual void onUserStateChange(userid_t userId, bool isStarted) = 0;
 };
 
 class WatchdogProcessService final : public WatchdogProcessServiceInterface {
@@ -133,7 +133,7 @@ public:
                     monitor,
             const android::automotive::watchdog::internal::ProcessIdentifier& processIdentifier);
     virtual void setEnabled(bool isEnabled);
-    virtual void notifyUserStateChange(userid_t userId, bool isStarted);
+    virtual void onUserStateChange(userid_t userId, bool isStarted);
 
 private:
     enum ClientType {

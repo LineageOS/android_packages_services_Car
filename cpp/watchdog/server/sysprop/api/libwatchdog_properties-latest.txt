@@ -1,16 +1,22 @@
 props {
   module: "android.automotive.watchdog.sysprop"
   prop {
-    api_name: "boottimeCollectionInterval"
+    api_name: "systemEventCollectionInterval"
     type: Integer
     scope: Internal
-    prop_name: "ro.carwatchdog.boottime_collection_interval"
+    prop_name: "ro.carwatchdog.system_event_collection_interval"
   }
   prop {
-    api_name: "postEventDuration"
+    api_name: "userSwitchTimeout"
     type: Integer
     scope: Internal
-    prop_name: "ro.carwatchdog.post_event_duration"
+    prop_name: "ro.carwatchdog.user_switch_timeout"
+  }
+  prop {
+    api_name: "postSystemEventDuration"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.post_system_event_duration"
   }
   prop {
     api_name: "periodicCollectionBufferSize"

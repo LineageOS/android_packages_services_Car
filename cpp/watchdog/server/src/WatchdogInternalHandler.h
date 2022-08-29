@@ -120,7 +120,7 @@ private:
             android::automotive::watchdog::internal::PowerCycle powerCycle);
 
     android::binder::Status handleUserStateChange(
-            userid_t userId, android::automotive::watchdog::internal::UserState userState);
+            userid_t userId, const android::automotive::watchdog::internal::UserState& userState);
 
     void setThreadPriorityController(std::unique_ptr<ThreadPriorityController> controller);
 
