@@ -27,26 +27,12 @@ import java.lang.annotation.Target;
 /**
  * Defines in which version of platform this method / type / field was added.
  *
- * <p>For items marked with this, the client must check platform version
- * using {@link android.os.Build.VERSION#SDK_INT} for major version and
- * {@link android.car.builtin.CarBuiltin#PLATFORM_VERSION_MINOR_INT} for minor version.
- *
- * <p>Annotation should be used for APIs exposed to CarService module by other car stack component
- * e.g. {@code android.car.builtin} and {@code car-frameworks-service}.
+ * <p>Annotation should be used for APIs exposed to CarService module by {@code android.car.builtin}
  *
  * @hide
  */
 @Retention(RUNTIME)
 @Target({ANNOTATION_TYPE, FIELD, TYPE, METHOD})
 public @interface AddedIn {
-    /**
-     * Major version which is equivalent to {@link android.os.Build.VERSION#SDK_INT}.
-     */
-    int majorVersion();
-
-    /**
-     * Minor version which is equivalent to
-     * {@link android.car.builtin.CarBuiltin#PLATFORM_VERSION_MINOR_INT}.
-     */
-    int minorVersion() default 0;
+    PlatformVersion value();
 }

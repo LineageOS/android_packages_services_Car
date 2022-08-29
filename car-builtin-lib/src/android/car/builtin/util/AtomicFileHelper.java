@@ -18,6 +18,7 @@ package android.car.builtin.util;
 
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.util.AtomicFile;
 
 /**
@@ -32,7 +33,7 @@ public final class AtomicFileHelper {
     }
 
     /** Check {@link AtomicFile#exists()} */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean exists(AtomicFile file) {
         return file.exists();
     }

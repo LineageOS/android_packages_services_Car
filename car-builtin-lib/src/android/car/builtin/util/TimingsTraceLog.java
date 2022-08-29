@@ -19,6 +19,7 @@ package android.car.builtin.util;
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 
 /**
  * Wrapper class for {@code android.util.TimingsTraceLog}. Check the class for API documentation.
@@ -34,19 +35,19 @@ public class TimingsTraceLog {
     }
 
     /** Check {@code android.util.Slog}. */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public void traceBegin(@NonNull String name) {
         mTimingsTraceLog.traceBegin(name);
     }
 
     /** Check {@code android.util.Slog}. */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public void traceEnd() {
         mTimingsTraceLog.traceEnd();
     }
 
     /** Check {@code android.util.Slog}. */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public void logDuration(@NonNull String name, long timeMs) {
         mTimingsTraceLog.logDuration(name, timeMs);
     }
