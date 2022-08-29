@@ -30,7 +30,6 @@ import android.annotation.TestApi;
 import android.app.Activity;
 import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.annotation.MandatoryFeature;
@@ -122,14 +121,16 @@ public final class Car {
      * @deprecated - use {@code getCarApiVersion().getMajorVersion()} instead
      */
     @Deprecated
-    @AddedIn(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int API_VERSION_MAJOR_INT = 34;
 
     /**
      * @deprecated - use {@code getCarApiVersion().getMinorVersion()} instead
      */
     @Deprecated
-    @AddedIn(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int API_VERSION_MINOR_INT = 0;
 
 
@@ -137,7 +138,8 @@ public final class Car {
      * @deprecated - use {@code getPlatformApiVersion().getMinorVersion()} instead
      */
     @Deprecated
-    @AddedIn(majorVersion = 33)
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties
             .getInt(PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
 
