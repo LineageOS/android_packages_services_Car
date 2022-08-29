@@ -274,7 +274,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mUidMapper.release();
             mTelemetryThreadTraceLog.traceEnd();
         });
-        mTelemetryThread.quitSafely();
+        CarServiceUtils.runOnLooperSync(mTelemetryThread.getLooper(), () -> {});
     }
 
     @Override
