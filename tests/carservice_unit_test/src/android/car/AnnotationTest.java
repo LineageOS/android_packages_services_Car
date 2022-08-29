@@ -18,7 +18,6 @@ package android.car;
 
 import static android.car.test.util.AnnotationHelper.checkForAnnotation;
 
-import android.car.annotation.AddedIn;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 
@@ -30,23 +29,18 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
-/*
- * TODO(b/243164930): Add logic to populate car_api_classes automatically.
- */
+
 public final class AnnotationTest {
     private static final String TAG = AnnotationTest.class.getSimpleName();
 
-
     @Test
     public void testCarAPIApiRequirementsAnnotation() throws Exception {
-        // TODO(b/240343308): remove @AddedIn once all usages have been replaced
         checkForAnnotation(readFile(R.raw.car_api_classes), ApiRequirements.class,
-                AddedInOrBefore.class, AddedIn.class);
+                AddedInOrBefore.class);
     }
 
     @Test
     public void testCarBuiltInAPIAddedInAnnotation() throws Exception {
-        // TODO(b/240343308): replace by @ApiRequirements / rename test method
         checkForAnnotation(readFile(R.raw.car_built_in_api_classes),
                 android.car.builtin.annotation.AddedIn.class);
     }
