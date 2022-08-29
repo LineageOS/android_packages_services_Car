@@ -37,6 +37,7 @@ import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.pm.UserInfo;
 import android.os.Process;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
@@ -272,6 +273,9 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     @Ignore("b/233164303")
     @Test
     public void testGuestUserResumeToNewGuestUser() throws Exception {
+        // TODO(b/241837415): Create a host-side test and move this test there.
+        if (!isDeviceEmulator()) return;
+
         // Create new guest user
         UserInfo guestUser = createGuest();
         int guestUserId = guestUser.id;
@@ -326,6 +330,9 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      */
     @Test
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
+        // TODO(b/241837415): Create a host-side test and move this test there.
+        if (!isDeviceEmulator()) return;
+
         // Create new guest user
         UserInfo guestUser = createGuest();
         int guestUserId = guestUser.id;
@@ -364,6 +371,9 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      */
     @Test
     public void testPersistentUserResumeToUser() throws Exception {
+        // TODO(b/241837415): Create a host-side test and move this test there.
+        if (!isDeviceEmulator()) return;
+
         int newUserId = createUser().id;
         BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
                 .forSpecificEvents()
@@ -385,5 +395,9 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         } finally {
             mCarUserManager.removeListener(listener);
         }
+    }
+
+    private static boolean isDeviceEmulator() {
+        return SystemProperties.get("ro.product.system.device").equals("generic");
     }
 }
