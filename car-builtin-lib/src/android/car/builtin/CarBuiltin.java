@@ -18,6 +18,7 @@ package android.car.builtin;
 
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.os.SystemProperties;
 
 /**
@@ -45,7 +46,7 @@ public final class CarBuiltin {
      * the same {@link android.os.Build.VERSION#SDK_INT}. Client should check this version to use
      * APIs which were added in a minor only version update.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static final int PLATFORM_VERSION_MINOR_INT = SystemProperties.getInt(
             PROPERTY_PLATFORM_MINOR_VERSION, /* def= */ 0);
 
