@@ -480,6 +480,10 @@ Result<void> WatchdogPerfService::onDump(int fd) const {
                                       kDumpMajorDelimiter.c_str(), std::string(33, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mBoottimeCollection.toString(), fd) ||
+        !WriteStringToFd(StringPrintf("\nUser-switch collection information:\n%s\n",
+                                      std::string(35, '=').c_str()),
+                         fd) ||
+        !WriteStringToFd(mUserSwitchCollection.toString(), fd) ||
         !WriteStringToFd(StringPrintf("\nPeriodic collection information:\n%s\n",
                                       std::string(32, '=').c_str()),
                          fd) ||

@@ -96,6 +96,15 @@ prop {
     prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
 }
 
+# Max cache size of user-switch events.
+prop {
+    api_name: "maxUserSwitchEvents"
+    type: Integer
+    scope: Internal
+    access: Readonly
+    prop_name: "ro.carwatchdog.max_user_switch_events"
+}
+
 # Percentage of I/O overuse threshold.
 prop {
     api_name: "ioOveruseWarnPercentage"
