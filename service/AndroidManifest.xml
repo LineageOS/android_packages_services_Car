@@ -915,8 +915,7 @@
         android:label="@string/car_permission_label_manage_thread_priority"
         android:description="@string/car_permission_desc_manage_thread_priority"/>
 
-    <!-- Allows applications to assign / un-assign zones to users
-    -->
+    <!-- Allows applications to assign / un-assign zones to users -->
     <permission android:name="android.car.permission.MANAGE_OCCUPANT_ZONE"
                 android:protectionLevel="signature|privileged"
                 android:label="@string/car_permission_label_manage_occupant_zone"
