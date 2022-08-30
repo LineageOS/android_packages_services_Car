@@ -277,17 +277,23 @@ ScopedAStatus Enumerator::getCameraList(std::vector<CameraDesc>* _aidl_return) {
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
     }
 
-    auto status = mHwEnumerator->getCameraList(_aidl_return);
-    if (status.isOk()) {
+    {
+        std::lock_guard lock(mLock);
+        auto status = mHwEnumerator->getCameraList(_aidl_return);
+        if (!status.isOk()) {
+            return status;
+        }
+
         for (auto&& desc : *_aidl_return) {
             mCameraDevices.insert_or_assign(desc.id, desc);
         }
-    }
 
-    return status;
+        return status;
+    }
 }
 
 ScopedAStatus Enumerator::getStreamList(const CameraDesc& desc, std::vector<Stream>* _aidl_return) {
+    std::shared_lock lock(mLock);
     return mHwEnumerator->getStreamList(desc, _aidl_return);
 }
 
@@ -302,37 +308,40 @@ ScopedAStatus Enumerator::closeCamera(const std::shared_ptr<IEvsCamera>& cameraO
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
     }
 
-    // All our client cameras are actually VirtualCamera objects
-    VirtualCamera* virtualCamera = reinterpret_cast<VirtualCamera*>(cameraObj.get());
+    {
+        std::lock_guard lock(mLock);
+        // All our client cameras are actually VirtualCamera objects
+        VirtualCamera* virtualCamera = reinterpret_cast<VirtualCamera*>(cameraObj.get());
 
-    // Find the parent camera that backs this virtual camera
-    for (auto&& halCamera : virtualCamera->getHalCameras()) {
-        // Tell the virtual camera's parent to clean it up and drop it
-        // NOTE:  The camera objects will only actually destruct when the sp<> ref counts get to
-        //        zero, so it is important to break all cyclic references.
-        halCamera->disownVirtualCamera(virtualCamera);
+        // Find the parent camera that backs this virtual camera
+        for (auto&& halCamera : virtualCamera->getHalCameras()) {
+            // Tell the virtual camera's parent to clean it up and drop it
+            // NOTE:  The camera objects will only actually destruct when the sp<> ref counts get to
+            //        zero, so it is important to break all cyclic references.
+            halCamera->disownVirtualCamera(virtualCamera);
 
-        // Did we just remove the last client of this camera?
-        if (halCamera->getClientCount() == 0) {
-            // Take this now unused camera out of our list
-            // NOTE:  This should drop our last reference to the camera, resulting in its
-            //        destruction.
-            mActiveCameras.erase(halCamera->getId());
-            auto status = mHwEnumerator->closeCamera(halCamera->getHwCamera());
-            if (!status.isOk()) {
-                LOG(WARNING) << "Failed to close a camera with id = " << halCamera->getId()
-                             << ", error = " << status.getServiceSpecificError();
-            }
-            if (mMonitorEnabled) {
-                mClientsMonitor->unregisterClientToMonitor(halCamera->getId());
+            // Did we just remove the last client of this camera?
+            if (halCamera->getClientCount() == 0) {
+                // Take this now unused camera out of our list
+                // NOTE:  This should drop our last reference to the camera, resulting in its
+                //        destruction.
+                mActiveCameras.erase(halCamera->getId());
+                auto status = mHwEnumerator->closeCamera(halCamera->getHwCamera());
+                if (!status.isOk()) {
+                    LOG(WARNING) << "Failed to close a camera with id = " << halCamera->getId()
+                                 << ", error = " << status.getServiceSpecificError();
+                }
+                if (mMonitorEnabled) {
+                    mClientsMonitor->unregisterClientToMonitor(halCamera->getId());
+                }
             }
         }
+
+        // Make sure the virtual camera's stream is stopped
+        virtualCamera->stopVideoStream();
+
+        return ScopedAStatus::ok();
     }
-
-    // Make sure the virtual camera's stream is stopped
-    virtualCamera->stopVideoStream();
-
-    return ScopedAStatus::ok();
 }
 
 ScopedAStatus Enumerator::openCamera(const std::string& id, const Stream& cfg,
@@ -348,79 +357,84 @@ ScopedAStatus Enumerator::openCamera(const std::string& id, const Stream& cfg,
     std::vector<std::shared_ptr<HalCamera>> sourceCameras;
     bool success = true;
 
-    // 1. Try to open inactive camera devices.
-    for (auto&& id : physicalCameras) {
-        auto it = mActiveCameras.find(id);
-        if (it == mActiveCameras.end()) {
-            std::shared_ptr<IEvsCamera> device;
-            auto status = mHwEnumerator->openCamera(id, cfg, &device);
-            if (!status.isOk()) {
-                LOG(ERROR) << "Failed to open hardware camera " << id
-                           << ", error = " << status.getServiceSpecificError();
-                success = false;
-                break;
-            }
+    {
+        std::lock_guard lock(mLock);
+        // 1. Try to open inactive camera devices.
+        for (auto&& id : physicalCameras) {
+            auto it = mActiveCameras.find(id);
+            if (it == mActiveCameras.end()) {
+                std::shared_ptr<IEvsCamera> device;
+                auto status = mHwEnumerator->openCamera(id, cfg, &device);
+                if (!status.isOk()) {
+                    LOG(ERROR) << "Failed to open hardware camera " << id
+                               << ", error = " << status.getServiceSpecificError();
+                    success = false;
+                    break;
+                }
 
-            // Calculates the usage statistics record identifier
-            auto fn = mCameraDevices.hash_function();
-            auto recordId = fn(id) & 0xFF;
-            std::shared_ptr<HalCamera> hwCamera =
-                    ::ndk::SharedRefBase::make<HalCamera>(device, id, recordId, cfg);
-            if (!hwCamera) {
-                LOG(ERROR) << "Failed to allocate camera wrapper object";
-                mHwEnumerator->closeCamera(device);
-                success = false;
-                break;
-            }
+                // Calculates the usage statistics record identifier
+                auto fn = mCameraDevices.hash_function();
+                auto recordId = fn(id) & 0xFF;
+                std::shared_ptr<HalCamera> hwCamera =
+                        ::ndk::SharedRefBase::make<HalCamera>(device, id, recordId, cfg);
+                if (!hwCamera) {
+                    LOG(ERROR) << "Failed to allocate camera wrapper object";
+                    mHwEnumerator->closeCamera(device);
+                    success = false;
+                    break;
+                }
 
-            // Add the hardware camera to our list, which will keep it alive via ref count
-            mActiveCameras.insert_or_assign(id, hwCamera);
-            if (mMonitorEnabled) {
-                mClientsMonitor->registerClientToMonitor(hwCamera);
-            }
-            sourceCameras.push_back(std::move(hwCamera));
-        } else {
-            if (it->second->getStreamConfig().id != cfg.id) {
-                LOG(WARNING) << "Requested camera is already active in different configuration.";
+                // Add the hardware camera to our list, which will keep it alive via ref count
+                mActiveCameras.insert_or_assign(id, hwCamera);
+                if (mMonitorEnabled) {
+                    mClientsMonitor->registerClientToMonitor(hwCamera);
+                }
+                sourceCameras.push_back(std::move(hwCamera));
             } else {
-                sourceCameras.push_back(it->second);
+                if (it->second->getStreamConfig().id != cfg.id) {
+                    LOG(WARNING)
+                            << "Requested camera is already active in different configuration.";
+                } else {
+                    sourceCameras.push_back(it->second);
+                }
             }
         }
-    }
 
-    if (!success || sourceCameras.size() < 1) {
-        LOG(ERROR) << "Failed to open any physical camera device";
-        return Utils::buildScopedAStatusFromEvsResult(EvsResult::UNDERLYING_SERVICE_ERROR);
-    }
-
-    // TODO(b/147170360): Implement a logic to handle a failure.
-    // 3. Create a proxy camera object
-    std::shared_ptr<VirtualCamera> clientCamera =
-            ::ndk::SharedRefBase::make<VirtualCamera>(sourceCameras);
-    if (!clientCamera) {
-        // TODO(b/213108625): Any resource needs to be cleaned up explicitly?
-        LOG(ERROR) << "Failed to create a client camera object";
-        return Utils::buildScopedAStatusFromEvsResult(EvsResult::UNDERLYING_SERVICE_ERROR);
-    }
-
-    if (physicalCameras.size() > 1) {
-        // VirtualCamera, which represents a logical device, caches its
-        // descriptor.
-        clientCamera->setDescriptor(&mCameraDevices[id]);
-    }
-
-    // 4. Owns created proxy camera object
-    for (auto&& hwCamera : sourceCameras) {
-        if (!hwCamera->ownVirtualCamera(clientCamera)) {
-            // TODO(b/213108625): Remove a reference to this camera from a virtual camera
-            // object.
-            LOG(ERROR) << hwCamera->getId() << " failed to own a created proxy camera object.";
+        if (!success || sourceCameras.size() < 1) {
+            LOG(ERROR) << "Failed to open any physical camera device";
+            return Utils::buildScopedAStatusFromEvsResult(EvsResult::UNDERLYING_SERVICE_ERROR);
         }
-    }
 
-    // Send the virtual camera object back to the client by strong pointer which will keep it alive
-    *cameraObj = std::move(clientCamera);
-    return ScopedAStatus::ok();
+        // TODO(b/147170360): Implement a logic to handle a failure.
+        // 3. Create a proxy camera object
+        std::shared_ptr<VirtualCamera> clientCamera =
+                ::ndk::SharedRefBase::make<VirtualCamera>(sourceCameras);
+        if (!clientCamera) {
+            // TODO(b/213108625): Any resource needs to be cleaned up explicitly?
+            LOG(ERROR) << "Failed to create a client camera object";
+            return Utils::buildScopedAStatusFromEvsResult(EvsResult::UNDERLYING_SERVICE_ERROR);
+        }
+
+        if (physicalCameras.size() > 1) {
+            // VirtualCamera, which represents a logical device, caches its
+            // descriptor.
+            clientCamera->setDescriptor(&mCameraDevices[id]);
+        }
+
+        // 4. Owns created proxy camera object
+        for (auto&& hwCamera : sourceCameras) {
+            if (!hwCamera->ownVirtualCamera(clientCamera)) {
+                // TODO(b/213108625): Remove a reference to this camera from a virtual camera
+                // object.
+                LOG(ERROR) << hwCamera->getId() << " failed to own a created proxy camera object.";
+            }
+        }
+
+        // Send the virtual camera object back to the client by strong pointer which will keep it
+        // alive
+        *cameraObj = std::move(clientCamera);
+        return ScopedAStatus::ok();
+    }
 }
 
 ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* displayObj) {
@@ -429,46 +443,51 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
     }
 
-    if (mDisplayOwnedExclusively) {
-        if (!mActiveDisplay.expired()) {
-            LOG(ERROR) << "Display is owned exclusively by another client.";
-            return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_BUSY);
-        } else {
-            mDisplayOwnedExclusively = false;
+    {
+        std::lock_guard lock(mLock);
+        if (mDisplayOwnedExclusively) {
+            if (!mActiveDisplay.expired()) {
+                LOG(ERROR) << "Display is owned exclusively by another client.";
+                return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_BUSY);
+            } else {
+                mDisplayOwnedExclusively = false;
+            }
         }
+
+        if (id == kExclusiveMainDisplayId) {
+            // The client requests to open the primary display exclusively.
+            id = mInternalDisplayPort;
+            mDisplayOwnedExclusively = true;
+            LOG(DEBUG) << "EvsDisplay is now owned exclusively by process "
+                       << AIBinder_getCallingPid();
+        } else if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) ==
+                   mDisplayPorts.end()) {
+            LOG(ERROR) << "No display is available on the port " << id;
+            return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
+        }
+
+        // We simply keep track of the most recently opened display instance.
+        // In the underlying layers we expect that a new open will cause the previous
+        // object to be destroyed.  This avoids any race conditions associated with
+        // create/destroy order and provides a cleaner restart sequence if the previous owner
+        // is non-responsive for some reason.
+        // Request exclusive access to the EVS display
+        std::shared_ptr<IEvsDisplay> displayHandle;
+        if (auto status = mHwEnumerator->openDisplay(id, &displayHandle);
+            !status.isOk() || !displayHandle) {
+            LOG(ERROR) << "EVS Display unavailable";
+            return status;
+        }
+
+        // Remember (via weak pointer) who we think the most recently opened display is so that
+        // we can proxy state requests from other callers to it.
+        std::shared_ptr<IEvsDisplay> pHalDisplay =
+                ::ndk::SharedRefBase::make<HalDisplay>(displayHandle, id);
+        *displayObj = pHalDisplay;
+        mActiveDisplay = pHalDisplay;
+
+        return ScopedAStatus::ok();
     }
-
-    if (id == kExclusiveMainDisplayId) {
-        // The client requests to open the primary display exclusively.
-        id = mInternalDisplayPort;
-        mDisplayOwnedExclusively = true;
-        LOG(DEBUG) << "EvsDisplay is now owned exclusively by process " << AIBinder_getCallingPid();
-    } else if (std::find(mDisplayPorts.begin(), mDisplayPorts.end(), id) == mDisplayPorts.end()) {
-        LOG(ERROR) << "No display is available on the port " << id;
-        return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
-    }
-
-    // We simply keep track of the most recently opened display instance.
-    // In the underlying layers we expect that a new open will cause the previous
-    // object to be destroyed.  This avoids any race conditions associated with
-    // create/destroy order and provides a cleaner restart sequence if the previous owner
-    // is non-responsive for some reason.
-    // Request exclusive access to the EVS display
-    std::shared_ptr<IEvsDisplay> displayHandle;
-    if (auto status = mHwEnumerator->openDisplay(id, &displayHandle);
-        !status.isOk() || !displayHandle) {
-        LOG(ERROR) << "EVS Display unavailable";
-        return status;
-    }
-
-    // Remember (via weak pointer) who we think the most recently opened display is so that
-    // we can proxy state requests from other callers to it.
-    std::shared_ptr<IEvsDisplay> pHalDisplay =
-            ::ndk::SharedRefBase::make<HalDisplay>(displayHandle, id);
-    *displayObj = pHalDisplay;
-    mActiveDisplay = pHalDisplay;
-
-    return ScopedAStatus::ok();
 }
 
 ScopedAStatus Enumerator::closeDisplay(const std::shared_ptr<IEvsDisplay>& displayObj) {
@@ -479,19 +498,23 @@ ScopedAStatus Enumerator::closeDisplay(const std::shared_ptr<IEvsDisplay>& displ
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
     }
 
-    // Drop the active display
-    std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
-    if (pActiveDisplay != displayObj) {
-        LOG(WARNING) << "Ignoring call to closeDisplay with unrecognized display object.";
-    } else {
+    {
+        std::lock_guard lock(mLock);
+        // Drop the active display
+        std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
+        if (pActiveDisplay != displayObj) {
+            LOG(WARNING) << "Ignoring call to closeDisplay with unrecognized display object.";
+            return ScopedAStatus::ok();
+        }
+
         // Pass this request through to the hardware layer
         HalDisplay* halDisplay = reinterpret_cast<HalDisplay*>(pActiveDisplay.get());
         mHwEnumerator->closeDisplay(halDisplay->getHwDisplay());
         mActiveDisplay.reset();
         mDisplayOwnedExclusively = false;
-    }
 
-    return ScopedAStatus::ok();
+        return ScopedAStatus::ok();
+    }
 }
 
 ScopedAStatus Enumerator::getDisplayState(DisplayState* _aidl_return) {
@@ -500,19 +523,23 @@ ScopedAStatus Enumerator::getDisplayState(DisplayState* _aidl_return) {
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
     }
 
-    // Do we have a display object we think should be active?
-    std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
-    if (pActiveDisplay) {
-        // Pass this request through to the hardware layer
-        return pActiveDisplay->getDisplayState(_aidl_return);
-    } else {
-        // We don't have a live display right now
-        mActiveDisplay.reset();
-        return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_NOT_AVAILABLE);
+    {
+        std::lock_guard lock(mLock);
+        // Do we have a display object we think should be active?
+        std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
+        if (pActiveDisplay) {
+            // Pass this request through to the hardware layer
+            return pActiveDisplay->getDisplayState(_aidl_return);
+        } else {
+            // We don't have a live display right now
+            mActiveDisplay.reset();
+            return Utils::buildScopedAStatusFromEvsResult(EvsResult::RESOURCE_NOT_AVAILABLE);
+        }
     }
 }
 
 ScopedAStatus Enumerator::getDisplayIdList(std::vector<uint8_t>* _aidl_return) {
+    std::shared_lock lock(mLock);
     return mHwEnumerator->getDisplayIdList(_aidl_return);
 }
 

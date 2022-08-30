@@ -27,6 +27,7 @@
 #include <system/camera_metadata.h>
 
 #include <list>
+#include <shared_mutex>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -131,11 +132,10 @@ private:
     std::shared_ptr<EvsDeviceStatusCallbackImpl> mDeviceStatusCallback;
 
     // Mutex to protect resources related with a device status callback
-    mutable std::mutex mLock;
+    mutable std::shared_mutex mLock;
 
     // Clients to forward device status callback messages
-    std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks
-            GUARDED_BY(mLock);
+    std::set<std::shared_ptr<aidlevs::IEvsEnumeratorStatusCallback>> mDeviceStatusCallbacks;
 
     bool mDisablePermissionCheck = false;
 };
