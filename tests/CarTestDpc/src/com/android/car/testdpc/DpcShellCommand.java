@@ -73,12 +73,13 @@ final class DpcShellCommand {
         mContext = context;
         mDpm = context.getSystemService(DevicePolicyManager.class);
         mAdmin = new ComponentName(context, DpcReceiver.class.getName());
-        Log.d(TAG, "Created for user " + Process.myUserHandle() + " and component " + mAdmin
-                + " for command " + Arrays.toString(args));
         mWriter = writer;
         mArgs = args;
-
         mDpcFactory = dpcFactory;
+
+        Log.d(TAG, "user=" + Process.myUserHandle() + ", component=" + mAdmin
+                + ", command= " + Arrays.toString(args));
+
         mDeviceOwner = mDpcFactory.getDevicePolicyManager(
                 UserHandle.getUserHandleForUid(UserHandle.USER_SYSTEM)
         );
@@ -133,7 +134,7 @@ final class DpcShellCommand {
                     break;
                 default:
                     mWriter.println("Invalid command: " + cmd);
-                    runHelp();
+                    showHelp();
                     return;
             }
         } catch (Exception e) {
@@ -154,7 +155,7 @@ final class DpcShellCommand {
         mWriter.printf("%s\n", CMD_GET_USER_RESTRICTIONS);
         mWriter.println("\tDisplay all active user restrictions.");
         mWriter.printf("%s (<affiliation-ids>)\n", CMD_SET_AFFILIATION_IDS);
-        mWriter.println("\tSet affiliation ids (space separated list of strings)");
+        mWriter.println("\tSet affiliation id(s) (space separated list of strings)");
         mWriter.println("\tfor a specified user. An empty list clears the ids.");
         mWriter.printf("%s\n", CMD_GET_AFFILIATION_IDS);
         mWriter.println("\tGet affiliation id(s) for a specified user.");
@@ -204,7 +205,7 @@ final class DpcShellCommand {
     private void addUserRestrictionPO(UserHandle target, String restriction) {
         if (mDeviceOwner.getUser().equals(target)) {
             Log.d(TAG, mDeviceOwner.getUser() + ": addUserRestriction("
-                    + mAdmin.flattenToShortString() + ", " + restriction);
+                    + mAdmin.flattenToShortString() + ", " + restriction + ")");
             mDeviceOwner.addUserRestriction(restriction);
             return;
         }
@@ -243,12 +244,11 @@ final class DpcShellCommand {
         mWriter.printf("%d affiliation ids: ", ids.size());
         for (int i = 0; i < idsList.size(); i++) {
             if (i == idsList.size() - 1) {
-                mWriter.printf("%s", idsList.get(i));
+                mWriter.printf("%s\n", idsList.get(i));
             } else {
                 mWriter.printf("%s, ", idsList.get(i));
             }
         }
-        mWriter.printf("\n");
     }
 
     private void runSetAffiliationIds() {

@@ -91,7 +91,6 @@ public final class DpcActivity extends Activity {
         mUserId = findViewById(R.id.edit_user_id);
         mKey = findViewById(R.id.edit_key);
 
-        // TODO(b/241449634) Modify this to use KitchenSink UserSpinner
         String userId = mUserId.getText().toString();
         String restriction = mKey.getText().toString();
 
@@ -126,7 +125,6 @@ public final class DpcActivity extends Activity {
 
     }
 
-    // TODO(b/241449634) Replace this with KitchenSink UserSpinner
     @Nullable
     public UserHandle getUserHandleFromUserId(String userId) {
         UserHandle targetUser = null;
@@ -139,7 +137,6 @@ public final class DpcActivity extends Activity {
     }
 
     public void showToast(@StringRes int text) {
-        Log.i(TAG, "Toast");
         Toast.makeText(mContext, text, Toast.LENGTH_LONG).show();
     }
 
