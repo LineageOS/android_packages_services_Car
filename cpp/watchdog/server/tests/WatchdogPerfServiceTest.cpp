@@ -61,7 +61,7 @@ constexpr std::chrono::seconds kTestPeriodicCollectionInterval = 5s;
 constexpr std::chrono::seconds kTestCustomCollectionInterval = 3s;
 constexpr std::chrono::seconds kTestCustomCollectionDuration = 11s;
 constexpr std::chrono::seconds kTestPeriodicMonitorInterval = 2s;
-constexpr std::chrono::seconds kTestUserSwitchTimeout = 10s;
+constexpr std::chrono::seconds kTestUserSwitchTimeout = 15s;
 
 namespace internal {
 
@@ -614,11 +614,15 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollection) {
 
     ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
 
+    userid_t fromUserId = 0;
+    userid_t toUserId = 100;
+
     // #1 Start user switch collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
-                onUserSwitchCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_SWITCHING));
@@ -635,7 +639,8 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
-                onUserSwitchCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mLooperStub->pollCache());
@@ -654,13 +659,14 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollection) {
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(maxIterations);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(maxIterations);
     EXPECT_CALL(*mMockDataProcessor,
-                onUserSwitchCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
             .Times(maxIterations);
 
     ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_POST_UNLOCKED));
 
     // Poll all post user switch collections except last
-    for (int i = 0; i < maxIterations - 1; i++) {
+    for (int i = 0; i < maxIterations - 1; ++i) {
         ASSERT_RESULT_OK(mLooperStub->pollCache());
 
         ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
@@ -682,16 +688,20 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollection) {
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
 }
 
-TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionWithNoPostUnlocked) {
+TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionWithDelayedUnlocking) {
     ASSERT_NO_FATAL_FAILURE(startService());
 
     ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    userid_t fromUserId = 0;
+    userid_t toUserId = 100;
 
     // #1 Start user switch collection
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
     EXPECT_CALL(*mMockDataProcessor,
-                onUserSwitchCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
             .Times(1);
 
     ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_SWITCHING));
@@ -711,10 +721,9 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionWithNoPostUnlocked) {
     EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(maxIterations);
     EXPECT_CALL(*mMockProcStatCollector, collect()).Times(maxIterations);
     EXPECT_CALL(*mMockDataProcessor,
-                onUserSwitchCollection(_, Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
             .Times(maxIterations);
-
-    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_POST_UNLOCKED));
 
     // Poll all user switch collections except last
     for (int i = 0; i < maxIterations - 1; i++) {
@@ -734,6 +743,317 @@ TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionWithNoPostUnlocked) {
     ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
             << "Last user switch collection didn't happen immediately after sending "
             << "END_USER_SWITCH_COLLECTION message";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #3 Start user switch collection with unlocking signal
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_UNLOCKING));
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "User switch collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #4 User switch collections after unlocking
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Subsequent user switch collection didn't happen at "
+            << kTestSystemEventCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #5 Post system event collection - user switch
+    maxIterations = static_cast<int>(kTestPostSystemEventDuration.count() /
+                                     kTestSystemEventCollectionInterval.count());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(maxIterations);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_POST_UNLOCKED));
+
+    // Poll all post user switch collections except last
+    for (int i = 0; i < maxIterations - 1; ++i) {
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+        ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+                << "Subsequent post user switch collection didn't happen at "
+                << kTestSystemEventCollectionInterval.count() << " seconds interval";
+        ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+                << "Invalid collection event";
+    }
+
+    // Poll the last post user switch collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Last user switch collection didn't happen immediately after sending "
+            << "END_USER_SWITCH_COLLECTION message";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestUserSwitchEventDuringUserSwitchCollection) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    userid_t fromUserId = 0;
+    userid_t toUserId = 100;
+
+    // #1 Start user switch collection
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(2);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(2);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(2);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(toUserId, UserState::USER_STATE_SWITCHING));
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "User switch collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+
+    // #2 User switch collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Subsequent user switch collection didn't happen at "
+            << kTestSystemEventCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #3 Start new user switch collection during prev user switch event
+    userid_t newFromUserId = 100;
+    userid_t newToUserId = 101;
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(newFromUserId), Eq(newToUserId),
+                                       Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(newToUserId, UserState::USER_STATE_SWITCHING));
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "New user switch collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #4 New user switch collection
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(newFromUserId), Eq(newToUserId),
+                                       Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Subsequent new user switch collection didn't happen at "
+            << kTestSystemEventCollectionInterval.count() << " seconds interval";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #5 Post system event collection - new user switch
+    int maxIterations = static_cast<int>(kTestPostSystemEventDuration.count() /
+                                         kTestSystemEventCollectionInterval.count());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(newFromUserId), Eq(newToUserId),
+                                       Eq(mMockUidStatsCollector), Eq(mMockProcStatCollector)))
+            .Times(maxIterations);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(newToUserId, UserState::USER_STATE_POST_UNLOCKED));
+
+    // Poll all post user switch collections except last
+    for (int i = 0; i < maxIterations - 1; ++i) {
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+        ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+                << "Subsequent post system event collection -  new user switch didn't happen at "
+                << kTestSystemEventCollectionInterval.count() << " seconds interval";
+        ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+                << "Invalid collection event";
+    }
+
+    // Poll the last post system event collection - user switch. The last user switch collection
+    // event should switch to periodic collection.
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Last new user switch collection didn't happen immediately after sending "
+            << "END_USER_SWITCH_COLLECTION message";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionWithTwoTimeouts) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+
+    userid_t fromUserId = 0;
+    userid_t toUserId = 100;
+
+    // #1 Start user switch collection
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_SWITCHING));
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "User switch collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #2 User switch collections before timeout
+    int maxIterations = static_cast<int>(kTestUserSwitchTimeout.count() /
+                                         kTestSystemEventCollectionInterval.count());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(maxIterations);
+
+    // Poll all user switch collections except last
+    for (int i = 0; i < maxIterations - 1; ++i) {
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+        ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+                << "Subsequent post user switch collection didn't happen at "
+                << kTestSystemEventCollectionInterval.count() << " seconds interval";
+        ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+                << "Invalid collection event";
+    }
+
+    // Poll the last user switch collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Last user switch collection didn't happen immediately after sending "
+            << "END_USER_SWITCH_COLLECTION message";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #3 Start user switch collection with unlocking signal
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(1);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_UNLOCKING));
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 0)
+            << "User switch collection didn't start immediately";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+
+    // #4 User switch collections after unlocking
+    maxIterations = static_cast<int>(kTestUserSwitchTimeout.count() /
+                                     kTestSystemEventCollectionInterval.count());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(maxIterations);
+    EXPECT_CALL(*mMockDataProcessor,
+                onUserSwitchCollection(_, Eq(fromUserId), Eq(toUserId), Eq(mMockUidStatsCollector),
+                                       Eq(mMockProcStatCollector)))
+            .Times(maxIterations);
+
+    // Poll all post user switch collections except last
+    for (int i = 0; i < maxIterations - 1; ++i) {
+        ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+        ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+                << "Subsequent post user switch collection didn't happen at "
+                << kTestSystemEventCollectionInterval.count() << " seconds interval";
+        ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::USER_SWITCH_COLLECTION)
+                << "Invalid collection event";
+    }
+
+    // Poll the last post user switch collection
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), kTestSystemEventCollectionInterval.count())
+            << "Last user switch collection didn't happen immediately after sending "
+            << "END_USER_SWITCH_COLLECTION message";
+    ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
+            << "Invalid collection event";
+    ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());
+}
+
+TEST_F(WatchdogPerfServiceTest, TestUserSwitchCollectionUserUnlockingWithNoPrevTimeout) {
+    ASSERT_NO_FATAL_FAILURE(startService());
+    ASSERT_NO_FATAL_FAILURE(startPeriodicCollection());
+    ASSERT_NO_FATAL_FAILURE(skipPeriodicMonitorEvents());
+
+    EXPECT_CALL(*mMockUidStatsCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockProcStatCollector, collect()).Times(1);
+    EXPECT_CALL(*mMockDataProcessor,
+                onPeriodicCollection(_, SystemState::NORMAL_MODE, Eq(mMockUidStatsCollector),
+                                     Eq(mMockProcStatCollector)))
+            .Times(1);
+    EXPECT_CALL(*mMockDataProcessor, onUserSwitchCollection(_, _, _, _, _)).Times(0);
+
+    ASSERT_RESULT_OK(mService->onUserStateChange(100, UserState::USER_STATE_UNLOCKING));
+
+    ASSERT_RESULT_OK(mLooperStub->pollCache());
+
+    ASSERT_EQ(mLooperStub->numSecondsElapsed(), 1)
+            << "First periodic collection didn't happen at 1 second interval";
     ASSERT_EQ(mServicePeer->getCurrCollectionEvent(), EventType::PERIODIC_COLLECTION)
             << "Invalid collection event";
     ASSERT_NO_FATAL_FAILURE(verifyAndClearExpectations());

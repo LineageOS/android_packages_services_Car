@@ -92,7 +92,8 @@ public:
             const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
     // Callback to process the data collected during user switch.
     virtual android::base::Result<void> onUserSwitchCollection(
-            time_t time, const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            time_t time, userid_t from, userid_t to,
+            const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) = 0;
     /**
      * Callback to process the data collected on custom collection and filter the results only to
@@ -254,6 +255,13 @@ private:
         std::string toString() const;
     };
 
+    struct UserSwitchEventMetadata : WatchdogPerfService::EventMetadata {
+        // User id of user being switched from.
+        userid_t from = 0;
+        // User id of user being switched to.
+        userid_t to = 0;
+    };
+
     // Dumps the collectors' status when they are disabled.
     android::base::Result<void> dumpCollectorsStatusLocked(int fd) const;
 
@@ -278,6 +286,9 @@ private:
      * collection running or when a dump couldn't be generated from the custom collection.
      */
     android::base::Result<void> endCustomCollection(int fd);
+
+    // Start a user switch collection.
+    android::base::Result<void> startUserSwitchCollection();
 
     // Handles the messages received by the lopper.
     void handleMessage(const Message& message) override;
@@ -322,7 +333,7 @@ private:
     EventMetadata mPeriodicCollection GUARDED_BY(mMutex);
 
     // Info for the |EventType::USER_SWITCH_COLLECTION| collection event.
-    EventMetadata mUserSwitchCollection GUARDED_BY(mMutex);
+    UserSwitchEventMetadata mUserSwitchCollection GUARDED_BY(mMutex);
 
     // Info for the |EventType::CUSTOM_COLLECTION| collection event. The info is cleared at the end
     // of every custom collection.
