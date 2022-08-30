@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.os.Parcel;
 import android.util.ArraySet;
 
@@ -36,34 +37,34 @@ public final class ParcelHelper {
 
     /** Reads array of string from the passed parcel */
     @Nullable
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static String[] readStringArray(@NonNull Parcel parcel) {
         return parcel.readStringArray();
     }
 
     /** Reads a Blob */
     @Nullable
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static byte[] readBlob(@NonNull Parcel parcel) {
         return parcel.readBlob();
     }
 
     /** Writes the byte array to the Parcel */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void writeBlob(@NonNull Parcel parcel, @Nullable byte[] b) {
         parcel.writeBlob(b);
     }
 
     /** Reads ArraySet */
     @Nullable
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static ArraySet<? extends Object> readArraySet(@NonNull Parcel parcel,
             @Nullable ClassLoader loader) {
         return parcel.readArraySet(loader);
     }
 
     /** Writes ArraySet */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void writeArraySet(@NonNull Parcel parcel,
             @Nullable ArraySet<? extends Object> val) {
         parcel.writeArraySet(val);
