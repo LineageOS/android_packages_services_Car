@@ -29,8 +29,8 @@ namespace unit {
 namespace {
 
 template <typename T>
-bool hasIntegerArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, T rawInputArray,
-                     const int arrayLength) {
+bool hasValidNumberArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key,
+                         T rawInputArray, const int arrayLength, bool checkIsInteger) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     scriptexecutor::LuaEngine* engine =
             reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
@@ -53,9 +53,12 @@ bool hasIntegerArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstring ke
             bool is_equal = true;
             for (int i = 0; i < arrayLength; ++i) {
                 lua_rawgeti(luaState, -1, i + 1);
-                if (!lua_isinteger(luaState, /* index = */ -1) ||
-                    (lua_tointeger(luaState, /* index = */ -1) != rawInputArray[i])) {
-                    is_equal = false;
+                if (checkIsInteger) {
+                    is_equal = lua_isinteger(luaState, /* idx = */ -1) &&
+                            lua_tointeger(luaState, /* idx = */ -1) == rawInputArray[i];
+                } else {
+                    is_equal = lua_isnumber(luaState, /* idx = */ -1) &&
+                            lua_tonumber(luaState, /* idx = */ -1) == rawInputArray[i];
                 }
                 lua_pop(luaState, 1);
                 if (!is_equal) break;
@@ -189,7 +192,8 @@ Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasIntArrayValue
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jintArray value) {
     jint* rawInputArray = env->GetIntArrayElements(value, nullptr);
     const auto kInputLength = env->GetArrayLength(value);
-    bool result = hasIntegerArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength);
+    bool result = hasValidNumberArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength,
+                                      /* checkIsInteger= */ true);
     env->ReleaseIntArrayElements(value, rawInputArray, JNI_ABORT);
     return result;
 }
@@ -199,8 +203,20 @@ Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasLongArrayValu
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jlongArray value) {
     jlong* rawInputArray = env->GetLongArrayElements(value, nullptr);
     const auto kInputLength = env->GetArrayLength(value);
-    bool result = hasIntegerArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength);
+    bool result = hasValidNumberArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength,
+                                      /* checkIsInteger= */ true);
     env->ReleaseLongArrayElements(value, rawInputArray, JNI_ABORT);
+    return result;
+}
+
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasDoubleArrayValue(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jdoubleArray value) {
+    jdouble* rawInputArray = env->GetDoubleArrayElements(value, nullptr);
+    const auto kInputLength = env->GetArrayLength(value);
+    bool result = hasValidNumberArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength,
+                                      /* checkIsInteger= */ false);
+    env->ReleaseDoubleArrayElements(value, rawInputArray, JNI_ABORT);
     return result;
 }
 
