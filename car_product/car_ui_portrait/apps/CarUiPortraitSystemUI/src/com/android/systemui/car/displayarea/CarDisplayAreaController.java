@@ -490,6 +490,17 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mApplicationContext.startActivityAsUser(intent, UserHandle.CURRENT);
     }
 
+    @Override
+    public void animateCollapsePanels(int flags, boolean force) {
+        if (mIsForegroundDaFullScreen) {
+            return;
+        }
+        Intent homeActivityIntent = new Intent(Intent.ACTION_MAIN);
+        homeActivityIntent.addCategory(Intent.CATEGORY_HOME);
+        homeActivityIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mApplicationContext.startActivityAsUser(homeActivityIntent, UserHandle.CURRENT);
+    }
+
     /**
      * Returns options that specify the {@link RootDisplayArea} to attach the confirmation window.
      * {@code null} if the {@code rootDisplayAreaId} is {@link FEATURE_UNDEFINED}.
