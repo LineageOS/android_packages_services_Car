@@ -26,6 +26,7 @@ import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.car.builtin.util.Slogf;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -40,7 +41,7 @@ import java.util.concurrent.Callable;
 public final class ActivityManagerHelper {
 
     /** Invalid task ID. */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static final int INVALID_TASK_ID = ActivityTaskManager.INVALID_TASK_ID;
 
     private static final String TAG = "CAR.AM";  // CarLog.TAG_AM
@@ -63,7 +64,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean startUserInBackground(@UserIdInt int userId) {
         return runRemotely(() -> getActivityManager().startUserInBackground(userId),
                 "error while startUserInBackground %d", userId);
@@ -74,7 +75,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean startUserInForeground(@UserIdInt int userId) {
         return runRemotely(
                 () -> getActivityManager().startUserInForegroundWithListener(
@@ -87,7 +88,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static int stopUserWithDelayedLocking(@UserIdInt int userId, boolean force) {
         return runRemotely(
                 () -> getActivityManager().stopUserWithDelayedLocking(
@@ -100,7 +101,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean unlockUser(@UserIdInt int userId) {
         return runRemotely(() -> getActivityManager().unlockUser(userId,
                 /* token= */ null, /* secret= */ null, /* listener= */ null),
@@ -112,7 +113,7 @@ public final class ActivityManagerHelper {
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void stopAllTasksForUser(@UserIdInt int userId) {
         try {
             IActivityManager am = getActivityManager();
@@ -135,7 +136,7 @@ public final class ActivityManagerHelper {
      * Creates an ActivityOptions from the Bundle generated from ActivityOptions.
      */
     @NonNull
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static ActivityOptions createActivityOptions(@NonNull Bundle bOptions) {
         return new ActivityOptions(bOptions);
     }
@@ -158,7 +159,7 @@ public final class ActivityManagerHelper {
     /**
      * Makes the root task of the given taskId focused.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void setFocusedRootTask(int taskId) {
         try {
             getActivityManager().setFocusedRootTask(taskId);
@@ -170,7 +171,7 @@ public final class ActivityManagerHelper {
     /**
      * Removes the given task.
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static boolean removeTask(int taskId) {
         try {
             return getActivityManager().removeTask(taskId);
@@ -185,14 +186,14 @@ public final class ActivityManagerHelper {
      */
     public abstract static class ProcessObserverCallback {
         /** Called when the foreground Activities are changed. */
-        @AddedIn(majorVersion = 33)
+        @AddedIn(PlatformVersion.TIRAMISU_0)
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
         }
         /** Called when the Process is died. */
-        @AddedIn(majorVersion = 33)
+        @AddedIn(PlatformVersion.TIRAMISU_0)
         public void onProcessDied(int pid, int uid) {}
 
-        @AddedIn(majorVersion = 33)
+        @AddedIn(PlatformVersion.TIRAMISU_0)
         final IProcessObserver.Stub mIProcessObserver = new IProcessObserver.Stub() {
             @Override
             public void onForegroundActivitiesChanged(
@@ -218,7 +219,7 @@ public final class ActivityManagerHelper {
      * Registers a callback to be invoked when the process states are changed.
      * @param callback a callback to register
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void registerProcessObserverCallback(ProcessObserverCallback callback) {
         try {
             getActivityManager().registerProcessObserver(callback.mIProcessObserver);
@@ -232,7 +233,7 @@ public final class ActivityManagerHelper {
      * Unregisters the given callback.
      * @param callback a callback to unregister
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
         try {
             getActivityManager().unregisterProcessObserver(callback.mIProcessObserver);
@@ -245,7 +246,7 @@ public final class ActivityManagerHelper {
     /**
      * Same as {@link ActivityManager#checkComponentPermission(String, int, int, boolean).
      */
-    @AddedIn(majorVersion = 33)
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static int checkComponentPermission(@NonNull String permission, int uid, int owningUid,
             boolean exported) {
         return ActivityManager.checkComponentPermission(permission, uid, owningUid, exported);
