@@ -47,9 +47,14 @@ namespace {
 
 constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
+constexpr int32_t kDefaultMaxUserSwitchEvents = 5;
 constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time performance report:\n%s\n";
 constexpr const char kPeriodicCollectionTitle[] = "%s\nLast N minutes performance report:\n%s\n";
+constexpr const char kUserSwitchCollectionTitle[] =
+        "%s\nUser-switch events performance report:\n%s\n";
+constexpr const char kUserSwitchCollectionSubtitle[] = "Number of user switch events: %zu\n";
 constexpr const char kCustomCollectionTitle[] = "%s\nCustom performance data report:\n%s\n";
+constexpr const char kUserSwitchEventTitle[] = "\nEvent %zu: From: %d To: %d\n%s\n";
 constexpr const char kCollectionTitle[] =
         "Collection duration: %.f seconds\nNumber of collections: %zu\n";
 constexpr const char kRecordTitle[] = "\nCollection %zu: <%s>\n%s\n%s";
@@ -351,6 +356,8 @@ Result<void> PerformanceProfiler::init() {
             sysprop::topNStatsPerCategory().value_or(kDefaultTopNStatsPerCategory));
     mTopNStatsPerSubcategory = static_cast<int>(
             sysprop::topNStatsPerSubcategory().value_or(kDefaultTopNStatsPerSubcategory));
+    mMaxUserSwitchEvents = static_cast<size_t>(
+            sysprop::maxUserSwitchEvents().value_or(kDefaultMaxUserSwitchEvents));
     size_t periodicCollectionBufferSize = static_cast<size_t>(
             sysprop::periodicCollectionBufferSize().value_or(kDefaultPeriodicCollectionBufferSize));
     mBoottimeCollection = {
@@ -379,6 +386,8 @@ void PerformanceProfiler::terminate() {
     mPeriodicCollection.records.clear();
     mPeriodicCollection = {};
 
+    mUserSwitchCollections.clear();
+
     mCustomCollection.records.clear();
     mCustomCollection = {};
 }
@@ -388,13 +397,17 @@ Result<void> PerformanceProfiler::onDump(int fd) const {
     if (!WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
                          fd) ||
-        !WriteStringToFd(mBoottimeCollection.toString(), fd) ||
-        !WriteStringToFd(StringPrintf(kPeriodicCollectionTitle, std::string(75, '-').c_str(),
+        !WriteStringToFd(mBoottimeCollection.toString(), fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the boot-time collection report.";
+    }
+    if (const auto& result = onUserSwitchCollectionDump(fd); !result.ok()) {
+        return result.error();
+    }
+    if (!WriteStringToFd(StringPrintf(kPeriodicCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(38, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mPeriodicCollection.toString(), fd)) {
-        return Error(FAILED_TRANSACTION)
-                << "Failed to dump the boot-time and periodic collection reports.";
+        return Error(FAILED_TRANSACTION) << "Failed to dump the periodic collection report.";
     }
     return {};
 }
@@ -447,6 +460,36 @@ Result<void> PerformanceProfiler::onPeriodicCollection(
     Mutex::Autolock lock(mMutex);
     return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
                          procStatCollectorSp, &mPeriodicCollection);
+}
+
+Result<void> PerformanceProfiler::onUserSwitchCollection(
+        time_t time, userid_t from, userid_t to,
+        const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+        const android::wp<ProcStatCollectorInterface>& procStatCollector) {
+    const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
+    const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
+    auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
+    if (!result.ok()) {
+        return result;
+    }
+    Mutex::Autolock lock(mMutex);
+    if (mUserSwitchCollections.empty() || mUserSwitchCollections.back().from != from ||
+        mUserSwitchCollections.back().to != to) {
+        UserSwitchCollectionInfo userSwitchCollection = {
+                {
+                        .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                        .records = {},
+                },
+                .from = from,
+                .to = to,
+        };
+        mUserSwitchCollections.push_back(userSwitchCollection);
+    }
+    if (mUserSwitchCollections.size() > mMaxUserSwitchEvents) {
+        mUserSwitchCollections.erase(mUserSwitchCollections.begin());
+    }
+    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
+                         procStatCollectorSp, &mUserSwitchCollections.back());
 }
 
 Result<void> PerformanceProfiler::onCustomCollection(
@@ -571,6 +614,32 @@ void PerformanceProfiler::processProcStatLocked(
     systemSummaryStats->contextSwitchesCount = procStatInfo.contextSwitchesCount;
     systemSummaryStats->ioBlockedProcessCount = procStatInfo.ioBlockedProcessCount;
     systemSummaryStats->totalProcessCount = procStatInfo.totalProcessCount();
+}
+
+Result<void> PerformanceProfiler::onUserSwitchCollectionDump(int fd) const {
+    if (!WriteStringToFd(StringPrintf(kUserSwitchCollectionTitle, std::string(75, '-').c_str(),
+                                      std::string(38, '=').c_str()),
+                         fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+    }
+    if (!mUserSwitchCollections.empty() &&
+        !WriteStringToFd(StringPrintf(kUserSwitchCollectionSubtitle, mUserSwitchCollections.size()),
+                         fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+    }
+    if (mUserSwitchCollections.empty() && !WriteStringToFd(kEmptyCollectionMessage, fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+    }
+    for (size_t i = 0; i < mUserSwitchCollections.size(); ++i) {
+        const auto& userSwitchCollection = mUserSwitchCollections[i];
+        if (!WriteStringToFd(StringPrintf(kUserSwitchEventTitle, i, userSwitchCollection.from,
+                                          userSwitchCollection.to, std::string(26, '=').c_str()),
+                             fd) ||
+            !WriteStringToFd(userSwitchCollection.toString(), fd)) {
+            return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+        }
+    }
+    return {};
 }
 
 }  // namespace watchdog

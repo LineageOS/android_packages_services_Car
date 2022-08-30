@@ -56,6 +56,9 @@ on init
     # Number of top stats per sub-category
     setprop ro.carwatchdog.top_n_stats_per_subcategory 5
 
+    # Cache size for the user switch events
+    setprop ro.carwatchdog.max_user_switch_events 5
+
     # Cache size for the periodically collected records
     setprop ro.carwatchdog.periodic_collection_buffer_size 180
 
