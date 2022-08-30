@@ -152,7 +152,8 @@ public:
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
     android::base::Result<void> onUserSwitchCollection(
-            [[maybe_unused]] time_t time,
+            [[maybe_unused]] time_t time, [[maybe_unused]] userid_t from,
+            [[maybe_unused]] userid_t to,
             [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
             override {
