@@ -94,7 +94,11 @@ public class CarOccupantZoneManagerPermissionTest {
         SecurityException thrown = assertThrows(SecurityException.class,
                 () -> mCarOccupantZoneManager.assignProfileUserToOccupantZone(
                         mAnyOccupantZone, /* audioZoneId = */ ANY_ZONE_ID));
-        assertThat(thrown.getMessage()).isEqualTo(
-                "requires permission " + android.Manifest.permission.MANAGE_USERS);
+        assertThat(thrown.getMessage()).isEqualTo(getPermissionFailureMsg());
+    }
+
+    private String getPermissionFailureMsg() {
+        return "requires any of [android.permission.MANAGE_USERS, android.car.permission"
+                + ".MANAGE_OCCUPANT_ZONE]";
     }
 }
