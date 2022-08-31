@@ -273,7 +273,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_SET_PROCESS_GROUP = "set-process-group";
     private static final String COMMAND_GET_PROCESS_GROUP = "get-process-group";
 
-    private static final String COMMAND_GET_USER_DISPLAY = "get-user-display";
+    private static final String COMMAND_GET_DISPLAY_BY_USER = "get-display-by-user";
+    private static final String COMMAND_GET_USER_BY_DISPLAY = "get-user-by-display";
 
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
@@ -312,7 +313,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SET_START_BG_USERS_ON_GARAGE_MODE,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
-        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_USER_DISPLAY,
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_DISPLAY_BY_USER,
+                CREATE_OR_MANAGE_OR_QUERY_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_USER_BY_DISPLAY,
                 CREATE_OR_MANAGE_OR_QUERY_USERS_PERMISSIONS);
     }
 
@@ -797,8 +800,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t Get the CPU group of a process. Check android.os.Process.getProcessGroup "
                 + "for details on the parameters.");
 
-        pw.printf("\t%s <USER>", COMMAND_GET_USER_DISPLAY);
+        pw.printf("\t%s <USER>", COMMAND_GET_DISPLAY_BY_USER);
         pw.println("\t Gets the display associated to the given user");
+        pw.printf("\t%s <USER>", COMMAND_GET_USER_BY_DISPLAY);
+        pw.println("\t Gets the user associated with the given display");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1184,8 +1189,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
             case COMMAND_GET_PROCESS_GROUP:
                 getProcessGroup(args, writer);
                 break;
-            case COMMAND_GET_USER_DISPLAY:
-                getUserDisplay(args, writer);
+            case COMMAND_GET_DISPLAY_BY_USER:
+                getDisplayByUser(args, writer);
+                break;
+            case COMMAND_GET_USER_BY_DISPLAY:
+                getUserByDisplay(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -3426,7 +3434,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.printf("%d\n", group);
     }
 
-    private void getUserDisplay(String[] args, IndentingPrintWriter writer) {
+    private void getDisplayByUser(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
             showInvalidArguments(writer);
             return;
@@ -3463,6 +3471,39 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         } catch (RemoteException e) {
             writer.printf("isUserVisible(%d) failed: %s\n", userId, e);
+        }
+    }
+
+    private void getUserByDisplay(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        int displayId;
+        String displayArg = args[1];
+        try {
+            displayId = Integer.parseInt(displayArg);
+        } catch (NumberFormatException e) {
+            writer.printf("Invalid displayId id: %s\n", displayArg);
+            return;
+        }
+
+        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
+        if (helper == null) {
+            writer.printf("  CarServiceHelper not connected yet");
+            return;
+        }
+
+        try {
+            int userId = helper.getUserAssignedToDisplay(displayId);
+            if (userId == UserManagerHelper.USER_NULL) {
+                writer.println("none");
+                return;
+            }
+            writer.println(userId);
+        } catch (RemoteException e) {
+            writer.printf("getUserByDisplay(%d) failed: %s\n", displayId, e);
         }
     }
 
