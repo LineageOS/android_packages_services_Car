@@ -17,6 +17,9 @@
 package android.car.hardware.property;
 
 import android.annotation.Nullable;
+import android.car.annotation.ApiRequirements;
+import android.car.annotation.ApiRequirements.CarVersion;
+import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.car.hardware.CarPropertyValue;
 import android.os.Parcelable;
 
@@ -57,22 +60,29 @@ public final class GetValueResult implements Parcelable {
     //   Settings > Editor > Code Style > Formatter Control
     //@formatter:off
 
-
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getRequestId() {
         return mRequestId;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @Nullable CarPropertyValue getCarPropertyValue() {
         return mCarPropertyValue;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @CarPropertyManager.ErrorCode int getErrorCode() {
         return mErrorCode;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
@@ -87,6 +97,8 @@ public final class GetValueResult implements Parcelable {
         dest.writeInt(mErrorCode);
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
@@ -110,6 +122,8 @@ public final class GetValueResult implements Parcelable {
         // onConstructed(); // You can define this method to get a callback
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @android.annotation.NonNull Parcelable.Creator<GetValueResult> CREATOR
             = new Parcelable.Creator<GetValueResult>() {

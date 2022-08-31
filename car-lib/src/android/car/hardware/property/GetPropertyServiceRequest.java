@@ -16,6 +16,9 @@
 
 package android.car.hardware.property;
 
+import android.car.annotation.ApiRequirements;
+import android.car.annotation.ApiRequirements.CarVersion;
+import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
@@ -53,21 +56,29 @@ public final class GetPropertyServiceRequest implements Parcelable {
     //@formatter:off
 
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getRequestId() {
         return mRequestId;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getPropertyId() {
         return mPropertyId;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getAreaId() {
         return mAreaId;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
@@ -79,6 +90,8 @@ public final class GetPropertyServiceRequest implements Parcelable {
         dest.writeInt(mAreaId);
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
@@ -100,7 +113,8 @@ public final class GetPropertyServiceRequest implements Parcelable {
 
         // onConstructed(); // You can define this method to get a callback
     }
-
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @android.annotation.NonNull Parcelable.Creator<GetPropertyServiceRequest> CREATOR
             = new Parcelable.Creator<GetPropertyServiceRequest>() {

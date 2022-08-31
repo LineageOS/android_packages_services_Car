@@ -168,11 +168,15 @@ public class CarPropertyManager extends CarManagerBase {
         /**
          * Method called when {@link GetPropertyRequest} successfully gets a result.
          */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public abstract void onSuccess(@NonNull GetPropertyResult getPropertyResult);
 
         /**
          * Method called when {@link GetPropertyRequest} returns an error.
          */
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public abstract void onFailure(@NonNull GetPropertyError getPropertyError);
     }
 
@@ -200,14 +204,20 @@ public class CarPropertyManager extends CarManagerBase {
          */
         private final int mAreaId;
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getRequestId() {
             return mRequestId;
         }
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getPropertyId() {
             return mPropertyId;
         }
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getAreaId() {
             return mAreaId;
         }
@@ -231,10 +241,14 @@ public class CarPropertyManager extends CarManagerBase {
         private final int mRequestId;
         private final CarPropertyValue mCarPropertyValue;
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getRequestId() {
             return mRequestId;
         }
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         @NonNull
         public CarPropertyValue getCarPropertyValue() {
             return mCarPropertyValue;
@@ -327,12 +341,16 @@ public class CarPropertyManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class GetPropertyError {
         private final int mRequestId;
-        @ErrorCode int mErrorCode;
+        private @ErrorCode int mErrorCode;
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getRequestId() {
             return mRequestId;
         }
 
+        @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+                         minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
         public int getErrorCode() {
             return mErrorCode;
         }
