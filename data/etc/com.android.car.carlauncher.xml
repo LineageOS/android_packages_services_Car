@@ -25,5 +25,6 @@
         <permission name="android.permission.PACKAGE_USAGE_STATS"/>
         <permission name="android.car.permission.ACCESS_CAR_PROJECTION_STATUS"/>
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
+        <permission name="android.permission.FORCE_STOP_PACKAGES"/>
     </privapp-permissions>
 </permissions>
