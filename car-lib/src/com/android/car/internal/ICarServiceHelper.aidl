@@ -63,7 +63,7 @@ interface ICarServiceHelper {
     int setPersistentActivity(in ComponentName activity, int displayId, int featureId) = 5;
 
     /**
-     * Saves initial user information in System Server. If car service crashes, Car service helepr
+     * Saves initial user information in System Server. If car service crashes, Car service helper
      * service would send back this information.
      */
     void sendInitialUser(in UserHandle user) = 6;
@@ -73,4 +73,7 @@ interface ICarServiceHelper {
 
     /** Check {@link android.os.Process#getProcessGroup(int)}. */
     int getProcessGroup(int pid) = 8;
+
+    /** Same as {@code UserManagerInternal#getDisplayAssignedToUser()} */
+    int getDisplayAssignedToUser(int userId) = 9;
 }
