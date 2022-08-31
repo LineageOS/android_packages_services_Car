@@ -238,7 +238,7 @@ CarPowerPolicyServer::CarPowerPolicyServer() :
       mSilentModeHandler(this),
       mIsPowerPolicyLocked(false),
       mIsCarServiceInOperation(false),
-      mIsFirstConnectionToVhal(false) {
+      mIsFirstConnectionToVhal(true) {
     mMessageHandler = new MessageHandlerImpl(this);
     mDeathRecipient = ScopedAIBinder_DeathRecipient(
             AIBinder_DeathRecipient_new(&CarPowerPolicyServer::onBinderDied));
