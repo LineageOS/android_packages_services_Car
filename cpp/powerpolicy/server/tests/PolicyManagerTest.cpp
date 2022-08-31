@@ -220,6 +220,13 @@ void checkInvalidPolicies(const PolicyManager& policyManager) {
     ASSERT_TRUE(isEqual(*policyMeta->powerPolicy, kSystemPowerPolicyNoUserInteraction));
 }
 
+void assertDefaultPolicies(const PolicyManager& policyManager) {
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdSuspendPrep).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdNoUserInteraction).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdinitialOn).ok());
+    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdinitialAllOn).ok());
+}
+
 }  // namespace test
 
 namespace internal {
@@ -227,7 +234,7 @@ namespace internal {
 class PolicyManagerPeer {
 public:
     explicit PolicyManagerPeer(PolicyManager* manager) : mManager(manager) {
-        manager->initRegularPowerPolicy();
+        manager->initRegularPowerPolicy(/*override=*/true);
         manager->initPreemptivePowerPolicy();
     }
 
@@ -343,10 +350,15 @@ TEST_F(PolicyManagerTest, TestDefaultPowerPolicies) {
     PolicyManager policyManager;
     internal::PolicyManagerPeer policyManagerPeer(&policyManager);
 
-    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdSuspendPrep).ok());
-    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdNoUserInteraction).ok());
-    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdinitialOn).ok());
-    ASSERT_TRUE(policyManager.getPowerPolicy(kSystemPolicyIdinitialAllOn).ok());
+    assertDefaultPolicies(policyManager);
+}
+
+TEST_F(PolicyManagerTest, TestValidXml_DefaultPowerPolicies) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyXmlFile);
+
+    assertDefaultPolicies(policyManager);
 }
 
 TEST_F(PolicyManagerTest, TestInvalidPowerPolicyXml) {
