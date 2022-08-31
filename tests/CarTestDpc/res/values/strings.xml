@@ -28,4 +28,7 @@
     <string name="adding_user_restriction" translatable="false">adding user restriction (key) to (user)... </string>
     <string name="user_not_found" translatable="false">Error: could not find user</string>
     <string name="target_user_not_found" translatable="false">Error: Could not parse target user id (see logs)</string>
+    <string name="display_user_restrictions" translatable="false">No restrictions.</string>
+    <string name="get_user_restrictions" translatable="false">Get user restrictions for current user: </string>
+    <string name="no_dpm" translatable="false">Could not find a DevicePolicyManager for this user.</string>
 </resources>

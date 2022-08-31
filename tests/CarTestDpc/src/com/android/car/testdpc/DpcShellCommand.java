@@ -339,7 +339,7 @@ final class DpcShellCommand {
      * See {@link android.apps.gsa.shared.util.Util#bundleToString(Bundle)}
      */
     @NonNull
-    private static String bundleToString(@NonNull Bundle bundle) {
+    public static String bundleToString(@NonNull Bundle bundle) {
         StringBuilder sb = new StringBuilder();
         sb.append('{');
         boolean first = true;
