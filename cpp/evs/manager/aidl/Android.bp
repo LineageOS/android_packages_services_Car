@@ -20,6 +20,7 @@ package {
 
 cc_defaults {
     name: "evsmanagerd_defaults",
+    defaults: ["android.hardware.graphics.common-ndk_static"],
     shared_libs: [
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
@@ -36,7 +37,6 @@ cc_defaults {
     static_libs: [
         "android.hardware.automotive.evs-V1-ndk",
         "android.hardware.common-V2-ndk",
-        "android.hardware.graphics.common-V3-ndk",
         "libaidlcommonsupport",
         "libc++fs",
         "libcutils",

@@ -286,7 +286,7 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int USER_ASSIGN_RESULT_OK = 0;
+    public static final int USER_ASSIGNMENT_RESULT_OK = 0;
 
     /**
      * The operation has failed as the user is already assigned to other zone. If the goal is to
@@ -297,17 +297,17 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED = 1;
+    public static final int USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED = 1;
 
     /**
-     * The assigned user is not {@link UserManager#isUserVisible() visible user}.
+     * The assigned user is not a {@link UserManager#isUserVisible() visible user}.
      *
      * @hide
      */
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER = 2;
+    public static final int USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER = 2;
 
     /**
      * Assigning non-current user to driver zone or un-assigning driver zone will fail with this
@@ -318,17 +318,17 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE = 3;
+    public static final int USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE = 3;
 
     /** @hide */
-    @IntDef(flag = false, prefix = { "USER_ASSIGN_RESULT_" }, value = {
-            USER_ASSIGN_RESULT_OK,
-            USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED,
-            USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER,
-            USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE,
+    @IntDef(flag = false, prefix = { "USER_ASSIGNMENT_RESULT_" }, value = {
+            USER_ASSIGNMENT_RESULT_OK,
+            USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED,
+            USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER,
+            USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface UserAssignResult {}
+    @interface UserAssignmentResult {}
 
     /**
      * Launch home with category of {@link android.content.Intent#CATEGORY_HOME} or
@@ -339,14 +339,14 @@ public class CarOccupantZoneManager extends CarManagerBase {
     @SystemApi
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int USER_ASSIGN_FLAG_LAUNCH_HOME = 0x1;
+    public static final int USER_ASSIGNMENT_FLAG_LAUNCH_HOME = 0x1;
 
     /** @hide */
-    @IntDef(flag = true, prefix = { "USER_ASSIGN_FLAG_" }, value = {
-            USER_ASSIGN_FLAG_LAUNCH_HOME,
+    @IntDef(flag = true, prefix = { "USER_ASSIGNMENT_FLAG_" }, value = {
+            USER_ASSIGNMENT_FLAG_LAUNCH_HOME,
     })
     @Retention(RetentionPolicy.SOURCE)
-    @interface UserAssignFlags {}
+    @interface UserAssignmentFlags {}
 
     /**
      * Invalid user ID. Zone with this user ID has no allocated user. Should have the same value
@@ -588,14 +588,14 @@ public class CarOccupantZoneManager extends CarManagerBase {
      *
      * <p>This API can take a long time, so it is recommended to call this from non-main thread.
      *
-     * <p> The return value is {@link #USER_ASSIGN_RESULT_OK} when the assignment succeeds or if
+     * <p> The return value is {@link #USER_ASSIGNMENT_RESULT_OK} when the assignment succeeds or if
      * the user is already allocated to the zone. Note that new error code can be added in the
      * future. For now, following error codes will be returned for a Failure:
      * <ul>
-     *   <li>{@link #USER_ASSIGN_RESULT_FAIL_NON_VISIBLE_USER} for non-visible user.
-     *   <li>{@link #USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED} if the user is already assigned to
-     *       other zone. New error code can be added in future.
-     *   <li>{@link #USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE} if non-current user is assigned to the
+     *   <li>{@link #USER_ASSIGNMENT_RESULT_FAIL_NON_VISIBLE_USER} for non-visible user.
+     *   <li>{@link #USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED} if the user is already assigned
+     *       to other zone. New error code can be added in future.
+     *   <li>{@link #USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE} if non-current user is assigned to the
      *       driver zone.
      * </ul>
      *
@@ -616,15 +616,16 @@ public class CarOccupantZoneManager extends CarManagerBase {
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @UserAssignResult
+    @UserAssignmentResult
     public int assignVisibleUserToOccupantZone(@NonNull OccupantZoneInfo occupantZone,
-            @NonNull UserHandle user, @UserAssignFlags int flags) {
+            @NonNull UserHandle user, @UserAssignmentFlags int flags) {
         assertNonNullOccupant(occupantZone);
         try {
             return mService.assignVisibleUserToOccupantZone(occupantZone.zoneId, user, flags);
         } catch (RemoteException e) {
             // Return any error code if car service is gone.
-            return handleRemoteExceptionFromCarService(e, USER_ASSIGN_RESULT_FAIL_ALREADY_ASSIGNED);
+            return handleRemoteExceptionFromCarService(e,
+                    USER_ASSIGNMENT_RESULT_FAIL_ALREADY_ASSIGNED);
         }
     }
 
@@ -633,9 +634,9 @@ public class CarOccupantZoneManager extends CarManagerBase {
      * {@link #INVALID_USER_ID} for {@link #getUserForOccupant(OccupantZoneInfo)} after this call.
      *
      * @param occupantZone Zone to unassign.
-     * @return {@link #USER_ASSIGN_RESULT_OK} if the zone is unassigned by the call or was already
-     *         unassigned. Error code of {@link #USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE} will be
-     *         returned if driver zone is asked.
+     * @return {@link #USER_ASSIGNMENT_RESULT_OK} if the zone is unassigned by the call or was
+     *         already unassigned. Error code of {@link #USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE}
+     *         will be returned if driver zone is asked.
      *
      * @hide
      */
@@ -644,13 +645,13 @@ public class CarOccupantZoneManager extends CarManagerBase {
             Car.PERMISSION_MANAGE_OCCUPANT_ZONE})
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    @UserAssignResult
+    @UserAssignmentResult
     public int unassignOccupantZone(@NonNull OccupantZoneInfo occupantZone) {
         try {
             return mService.unassignOccupantZone(occupantZone.zoneId);
         } catch (RemoteException e) {
             // Return any error code if car service is gone.
-            return handleRemoteExceptionFromCarService(e, USER_ASSIGN_RESULT_FAIL_DRIVER_ZONE);
+            return handleRemoteExceptionFromCarService(e, USER_ASSIGNMENT_RESULT_FAIL_DRIVER_ZONE);
         }
     }
 

@@ -20,6 +20,7 @@ package {
 
 cc_library_shared {
     name: "libcarservicejni",
+    defaults: ["android.hardware.graphics.common-ndk_shared"],
     srcs: [
         "JniLoader.cpp",
         "evs/*.cpp",
@@ -28,7 +29,6 @@ cc_library_shared {
     shared_libs: [
         "android.hardware.automotive.evs-V1-ndk",
         "android.hardware.common-V2-ndk",
-        "android.hardware.graphics.common-V3-ndk",
         "libandroid",
         "libbase",
         "libbinder_ndk",
