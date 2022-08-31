@@ -32,7 +32,7 @@
   </style>
 
   <style name="TextAppearance.BugReportUi.Body" parent="android:TextAppearance.DeviceDefault">
-    <item name="android:textColor">@*android:color/car_body1</item>
+    <item name="android:textColor">?android:attr/textColorPrimary</item>
     <item name="android:textSize">@dimen/bug_report_small_text_size</item>
   </style>
 </resources>
