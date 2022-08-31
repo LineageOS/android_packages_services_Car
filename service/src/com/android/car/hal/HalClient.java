@@ -290,8 +290,8 @@ final class HalClient {
      */
     public void getValuesAsync(
             List<VehicleStub.GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            VehicleStub.GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+            VehicleStub.GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         // TODO(b/239744386): implement retry logic
-        mVehicle.getAsync(getVehicleStubAsyncRequests, getAsyncVehicleStubCallback);
+        mVehicle.getAsync(getVehicleStubAsyncRequests, getVehicleStubAsyncCallback);
     }
 }
