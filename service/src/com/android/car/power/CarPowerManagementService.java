@@ -668,18 +668,20 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void applyDefaultPowerPolicyForState(@CarPowerManager.CarPowerState int state,
             @Nullable String fallbackPolicyId) {
+        Slogf.i(TAG, "Applying the default power policy for %s (fallback policy = %s)",
+                powerStateToString(state), fallbackPolicyId);
         CarPowerPolicy policy;
         synchronized (mLock) {
             policy = mPolicyReader
                     .getDefaultPowerPolicyForState(mCurrentPowerPolicyGroupId, state);
         }
         if (policy == null && fallbackPolicyId == null) {
-            Slogf.w(TAG, "No default power policy for %s is found",
-                    PolicyReader.vhalPowerStateToString(state));
+            Slogf.w(TAG, "No default power policy for %s is found", powerStateToString(state));
             return;
         }
         String policyId = policy == null ? fallbackPolicyId : policy.getPolicyId();
-        applyPowerPolicy(policyId, /* upToDaemon= */ true, /* force= */ false);
+        applyPowerPolicy(policyId, /* delayNotification= */ false, /* upToDaemon= */ true,
+                /* force= */ false);
     }
 
     /**
@@ -1285,7 +1287,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandleMainDisplayStateChange(boolean on) {
-        Slogf.w(TAG, "Unimplemented:  doHandleMainDisplayStateChange() - on = %b", on);
+        Slogf.w(TAG, "Unimplemented: doHandleMainDisplayStateChange() - on = %b", on);
+    }
+
+    private void doHandlePowerPolicyNotification(String policyId) {
+        // Sending notification of power policy change triggered through CarPowerManager API.
+        notifyPowerPolicyChange(policyId, /* upToDaemon= */ true, /* force= */ false);
     }
 
     /**
@@ -1439,10 +1446,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         Preconditions.checkArgument(policyId != null, "policyId cannot be null");
         Preconditions.checkArgument(!policyId.startsWith(PolicyReader.SYSTEM_POWER_POLICY_PREFIX),
                 "System power policy cannot be applied by apps");
-        int status = applyPowerPolicy(policyId, /* upToDaemon= */ true, /* force= */ false);
+        int status = applyPowerPolicy(policyId, /* delayNotification= */ true,
+                /* upToDaemon= */ true, /* force= */ false);
         if (status != PolicyOperationStatus.OK) {
             throw new IllegalArgumentException(PolicyOperationStatus.errorCodeToString(status));
         }
+        Slogf.d(TAG, "Queueing power policy notification (id: %s) in the handler", policyId);
+        mHandler.handlePowerPolicyNotification(policyId);
     }
 
     /**
@@ -1577,12 +1587,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // the power policy or the policy group passed from car power policy daemon, and notifies
         // the current power policy to the daemon.
         if (currentPowerPolicyId == null || currentPowerPolicyId.isEmpty()) {
-            int status = applyPowerPolicy(state.policyId, /* upToDaemon= */ false,
-                    /* force= */ false);
+            Slogf.i(TAG, "Attempting to apply the power policy(%s) from the daemon",
+                    state.policyId);
+            int status = applyPowerPolicy(state.policyId, /* delayNotification= */ false,
+                    /* upToDaemon= */ false, /* force= */ false);
             if (status != PolicyOperationStatus.OK) {
                 Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
             }
         } else {
+            Slogf.i(TAG, "CPMS applied power policy(%s) before connecting to the daemon. Notifying "
+                    + "to the daemon...", currentPowerPolicyId);
             notifyPowerPolicyChangeToDaemon(currentPowerPolicyId, /* force= */ true);
         }
         if (currentPolicyGroupId == null || currentPolicyGroupId.isEmpty()) {
@@ -1609,7 +1623,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     @PolicyOperationStatus.ErrorCode
-    private int applyPowerPolicy(@Nullable String policyId, boolean upToDaemon, boolean force) {
+    private int applyPowerPolicy(@Nullable String policyId, boolean delayNotification,
+            boolean upToDaemon, boolean force) {
         CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
             int error = PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
@@ -1626,7 +1641,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mCurrentPowerPolicyId = policyId;
         }
         mPowerComponentHandler.applyPowerPolicy(policy);
-        notifyPowerPolicyChange(policyId, upToDaemon, force);
+        if (!delayNotification) {
+            notifyPowerPolicyChange(policyId, upToDaemon, force);
+        }
         Slogf.i(TAG, "The current power policy is %s", policyId);
         return PolicyOperationStatus.OK;
     }
@@ -1665,7 +1682,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mPendingPowerPolicyId = null;
         }
         if (policyId != null) { // Pending policy exist
-            int status = applyPowerPolicy(policyId, /* upToDaemon= */ true, /* force= */ true);
+            int status = applyPowerPolicy(policyId, /* delayNotification= */ false,
+                    /* upToDaemon= */ true, /* force= */ true);
             if (status != PolicyOperationStatus.OK) {
                 Slogf.w(TAG, "Failed to cancel system power policy: %s",
                         PolicyOperationStatus.errorCodeToString(status));
@@ -1853,6 +1871,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         private static final int MSG_DISPLAY_BRIGHTNESS_CHANGE = 1;
         private static final int MSG_MAIN_DISPLAY_STATE_CHANGE = 2;
         private static final int MSG_PROCESSING_COMPLETE = 3;
+        private static final int MSG_POWER_POLICY_NOTIFICATION = 4;
 
         // Do not handle this immediately but with some delay as there can be a race between
         // display off due to rear view camera and delivery to here.
@@ -1891,11 +1910,17 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             removeMessages(MSG_PROCESSING_COMPLETE);
         }
 
+        private void handlePowerPolicyNotification(String policyId) {
+            Message msg = obtainMessage(MSG_POWER_POLICY_NOTIFICATION, policyId);
+            sendMessage(msg);
+        }
+
         private void cancelAll() {
             removeMessages(MSG_POWER_STATE_CHANGE);
             removeMessages(MSG_DISPLAY_BRIGHTNESS_CHANGE);
             removeMessages(MSG_MAIN_DISPLAY_STATE_CHANGE);
             removeMessages(MSG_PROCESSING_COMPLETE);
+            removeMessages(MSG_POWER_POLICY_NOTIFICATION);
         }
 
         @Override
@@ -1917,6 +1942,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     break;
                 case MSG_PROCESSING_COMPLETE:
                     service.doHandleProcessingComplete();
+                    break;
+                case MSG_POWER_POLICY_NOTIFICATION:
+                    service.doHandlePowerPolicyNotification((String) msg.obj);
                     break;
             }
         }
@@ -2277,7 +2305,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         boolean isPreemptive = mPolicyReader.isPreemptivePowerPolicy(powerPolicyId);
         int status = isPreemptive ? applyPreemptivePowerPolicy(powerPolicyId)
-                : applyPowerPolicy(powerPolicyId, /* upToDaemon= */ true, /* force= */ false);
+                : applyPowerPolicy(powerPolicyId, /* delayNotification= */ false,
+                        /* upToDaemon= */ true, /* force= */ false);
         if (status != PolicyOperationStatus.OK) {
             writer.println(PolicyOperationStatus.errorCodeToString(status));
             return false;

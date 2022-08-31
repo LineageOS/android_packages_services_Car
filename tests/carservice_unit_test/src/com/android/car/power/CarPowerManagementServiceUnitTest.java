@@ -90,6 +90,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
@@ -587,16 +588,21 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testApplyPowerPolicy() throws Exception {
         grantPowerPolicyPermission();
-        // Power policy which doesn't change any components.
-        String policyId = "policy_id_no_changes";
-        mService.definePowerPolicy(policyId, new String[0], new String[0]);
+        String policyId = "policy_id_audio_on";
+        mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[0]);
+        MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener();
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.AUDIO).build();
+        mService.addPowerPolicyListener(filterAudio, listenerToWait);
 
         mService.applyPowerPolicy(policyId);
 
         CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        assertThat(policy).isNotNull();
         assertThat(policy.getPolicyId()).isEqualTo(policyId);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
         assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
+        assertThat(listenerToWait.getCurrentPowerPolicy()).isNotNull();
+        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
     }
 
     @Test
@@ -688,7 +694,9 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         mService.addPowerPolicyListener(filterWifi, listenerWifi);
         mService.applyPowerPolicy(policyId);
 
+        assertThat(listenerAudio.getCurrentPowerPolicy()).isNotNull();
         assertThat(listenerAudio.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
+        assertThat(listenerWifi.getCurrentPowerPolicy()).isNotNull();
         assertThat(listenerWifi.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
         assertThat(listenerLocation.getCurrentPowerPolicy()).isNull();
     }
@@ -1135,16 +1143,24 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     private final class MockedPowerPolicyListener extends ICarPowerPolicyListener.Stub {
+        private static final int NOTIFICATION_TIMEOUT_SEC = 5;
+
+        private final CountDownLatch mLatch = new CountDownLatch(1);
         private CarPowerPolicy mCurrentPowerPolicy;
 
         @Override
         public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                 CarPowerPolicy accumulatedPolicy) {
             mCurrentPowerPolicy = accumulatedPolicy;
+            mLatch.countDown();
         }
 
-        public CarPowerPolicy getCurrentPowerPolicy() {
-            return mCurrentPowerPolicy;
+        public CarPowerPolicy getCurrentPowerPolicy() throws Exception {
+            if (mLatch.await(NOTIFICATION_TIMEOUT_SEC, TimeUnit.SECONDS)) {
+                return mCurrentPowerPolicy;
+            }
+
+            return null;
         }
     }
 }
