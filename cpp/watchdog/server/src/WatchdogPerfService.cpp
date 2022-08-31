@@ -189,11 +189,11 @@ Result<void> WatchdogPerfService::start() {
                 .interval = periodicCollectionInterval,
                 .lastUptime = 0,
         };
-        mUserSwitchCollection = {
+        mUserSwitchCollection = {{
                 .eventType = EventType::USER_SWITCH_COLLECTION,
                 .interval = systemEventCollectionInterval,
                 .lastUptime = 0,
-        };
+        }};
         mPeriodicMonitor = {
                 .eventType = EventType::PERIODIC_MONITOR,
                 .interval = periodicMonitorInterval,
@@ -309,35 +309,46 @@ Result<void> WatchdogPerfService::onBootFinished() {
 Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserState& userState) {
     Mutex::Autolock lock(mMutex);
     switch (static_cast<int>(userState)) {
-        case static_cast<int>(UserState::USER_STATE_SWITCHING): {
-            if (mCurrCollectionEvent != EventType::PERIODIC_COLLECTION) {
+        case static_cast<int>(UserState::USER_STATE_SWITCHING):
+            // TODO(b/243984863): Handle multi-user switching scenario.
+            mUserSwitchCollection.from = mUserSwitchCollection.to;
+            mUserSwitchCollection.to = userId;
+            if (mCurrCollectionEvent != EventType::PERIODIC_COLLECTION &&
+                mCurrCollectionEvent != EventType::USER_SWITCH_COLLECTION) {
                 ALOGE("Unable to start %s. Current performance data collection event: %s",
                       toString(EventType::USER_SWITCH_COLLECTION), toString(mCurrCollectionEvent));
                 return {};
             }
-            auto thiz = sp<WatchdogPerfService>::fromExisting(this);
-            mHandlerLooper->removeMessages(thiz);
-            mUserSwitchCollection.lastUptime = mHandlerLooper->now();
-            // End |EventType::USER_SWITCH_COLLECTION| after a timeout because the user switch end
-            // signal won't be received within a few seconds when the switch is blocked due to a
-            // keyguard event. Otherwise, polling beyond a few seconds will lead to unnecessary data
-            // collection.
-            nsecs_t uptime = mHandlerLooper->now() + mUserSwitchTimeoutNs.count();
-            mHandlerLooper->sendMessageAtTime(uptime, thiz,
-                                              SwitchMessage::END_USER_SWITCH_COLLECTION);
-            mCurrCollectionEvent = EventType::USER_SWITCH_COLLECTION;
-            mHandlerLooper->sendMessage(thiz, EventType::USER_SWITCH_COLLECTION);
-            ALOGI("Switching to %s", toString(mCurrCollectionEvent));
+            startUserSwitchCollection();
+            ALOGI("Switching to %s (userIds: from = %d, to = %d)", toString(mCurrCollectionEvent),
+                  mUserSwitchCollection.from, mUserSwitchCollection.to);
             break;
-        }
         case static_cast<int>(UserState::USER_STATE_UNLOCKING):
-            // TODO(b/236875637): Handle locked keyguard case.
+            if (mCurrCollectionEvent != EventType::PERIODIC_COLLECTION) {
+                if (mCurrCollectionEvent != EventType::USER_SWITCH_COLLECTION) {
+                    ALOGE("Unable to start %s. Current performance data collection event: %s",
+                          toString(EventType::USER_SWITCH_COLLECTION),
+                          toString(mCurrCollectionEvent));
+                }
+                return {};
+            }
+            if (mUserSwitchCollection.to != userId) {
+                return {};
+            }
+            startUserSwitchCollection();
+            ALOGI("Switching to %s (userId: %d)", toString(mCurrCollectionEvent), userId);
             break;
         case static_cast<int>(UserState::USER_STATE_POST_UNLOCKED): {
-            if (EventType expected = EventType::USER_SWITCH_COLLECTION;
-                mCurrCollectionEvent != expected) {
-                ALOGE("Unable to end %s. Current performance data collection event: %s",
-                      toString(expected), toString(mCurrCollectionEvent));
+            if (mCurrCollectionEvent != EventType::USER_SWITCH_COLLECTION) {
+                ALOGE("Ignoring USER_STATE_POST_UNLOCKED because no user switch collection in "
+                      "progress. Current performance data collection event: %s.",
+                      toString(mCurrCollectionEvent));
+                return {};
+            }
+            if (mUserSwitchCollection.to != userId) {
+                ALOGE("Ignoring USER_STATE_POST_UNLOCKED signal for user id: %d. "
+                      "Current user being switched to: %d",
+                      userId, mUserSwitchCollection.to);
                 return {};
             }
             auto thiz = sp<WatchdogPerfService>::fromExisting(this);
@@ -356,6 +367,21 @@ Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserS
         ALOGD("Handled user state change: userId = %d, userState = %d", userId,
               static_cast<int>(userState));
     }
+    return {};
+}
+
+Result<void> WatchdogPerfService::startUserSwitchCollection() {
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+    mHandlerLooper->removeMessages(thiz);
+    mUserSwitchCollection.lastUptime = mHandlerLooper->now();
+    // End |EventType::USER_SWITCH_COLLECTION| after a timeout because the user switch end
+    // signal won't be received within a few seconds when the switch is blocked due to a
+    // keyguard event. Otherwise, polling beyond a few seconds will lead to unnecessary data
+    // collection.
+    nsecs_t uptime = mHandlerLooper->now() + mUserSwitchTimeoutNs.count();
+    mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_USER_SWITCH_COLLECTION);
+    mCurrCollectionEvent = EventType::USER_SWITCH_COLLECTION;
+    mHandlerLooper->sendMessage(thiz, EventType::USER_SWITCH_COLLECTION);
     return {};
 }
 
@@ -720,10 +746,14 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
                 result = processor->onPeriodicCollection(now, mSystemState, mUidStatsCollector,
                                                          mProcStatCollector);
                 break;
-            case EventType::USER_SWITCH_COLLECTION:
-                result = processor->onUserSwitchCollection(now, mUidStatsCollector,
-                                                           mProcStatCollector);
+            case EventType::USER_SWITCH_COLLECTION: {
+                WatchdogPerfService::UserSwitchEventMetadata* userSwitchMetadata =
+                        static_cast<WatchdogPerfService::UserSwitchEventMetadata*>(metadata);
+                result = processor->onUserSwitchCollection(now, userSwitchMetadata->from,
+                                                           userSwitchMetadata->to,
+                                                           mUidStatsCollector, mProcStatCollector);
                 break;
+            }
             case EventType::CUSTOM_COLLECTION:
                 result = processor->onCustomCollection(now, mSystemState, metadata->filterPackages,
                                                        mUidStatsCollector, mProcStatCollector);
