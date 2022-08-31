@@ -654,11 +654,8 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
     }
 
     static boolean isPropertySubscribable(HalPropConfig config) {
-        if ((config.getAccess() & VehiclePropertyAccess.READ) == 0
-                || (config.getChangeMode() == VehiclePropertyChangeMode.STATIC)) {
-            return false;
-        }
-        return true;
+        return (config.getAccess() & VehiclePropertyAccess.READ) != 0
+                && (config.getChangeMode() != VehiclePropertyChangeMode.STATIC);
     }
 
     /**

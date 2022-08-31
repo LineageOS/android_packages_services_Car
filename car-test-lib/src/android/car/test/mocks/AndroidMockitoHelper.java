@@ -553,11 +553,8 @@ public final class AndroidMockitoHelper {
                 return false;
             }
 
-            if (!request.getUserType().equals(mUserType)) return false;
-
-            if (!Objects.equals(request.getName(), mName)) return false;
-
-            return true;
+            return request.getUserType().equals(mUserType)
+                    && Objects.equals(request.getName(), mName);
         }
     }
 }
