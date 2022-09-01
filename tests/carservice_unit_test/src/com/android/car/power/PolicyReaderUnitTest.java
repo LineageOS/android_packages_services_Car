@@ -67,6 +67,8 @@ public final class PolicyReaderUnitTest {
     private static final String NO_USER_INTERACTION_POLICY_ID =
             "system_power_policy_no_user_interaction";
     private static final String SUSPEND_PREP_POLICY_ID = "system_power_policy_suspend_prep";
+    private static final String ALL_ON_POLICY_ID = "system_power_policy_all_on";
+    private static final String INITIAL_ON_POLICY_ID = "system_power_policy_initial_on";
 
     private static final CarPowerPolicy POLICY_OTHER_OFF = new CarPowerPolicy(POLICY_ID_OTHER_OFF,
             new int[]{WIFI},
@@ -205,6 +207,26 @@ public final class PolicyReaderUnitTest {
     @Test
     public void testInvalidXml_incorrectSystemPolicyId() throws Exception {
         assertInvalidXml(R.raw.invalid_system_power_policy_incorrect_id);
+    }
+
+    @Test
+    public void testDefaultPolicies() throws Exception {
+        assertDefaultPolicies();
+    }
+
+    @Test
+    public void testDefaultPoliciesWithCustomVendorPolicies() throws Exception {
+        readPowerPolicyXml(R.raw.valid_power_policy);
+
+        assertDefaultPolicies();
+    }
+
+    private void assertDefaultPolicies() {
+        assertThat(mPolicyReader.getPowerPolicy(ALL_ON_POLICY_ID)).isNotNull();
+        assertThat(mPolicyReader.getPreemptivePowerPolicy(NO_USER_INTERACTION_POLICY_ID))
+                .isNotNull();
+        assertThat(mPolicyReader.getPowerPolicy(INITIAL_ON_POLICY_ID)).isNotNull();
+        assertThat(mPolicyReader.getPreemptivePowerPolicy(SUSPEND_PREP_POLICY_ID)).isNotNull();
     }
 
     private void assertValidPolicyPart() throws Exception {
