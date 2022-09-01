@@ -185,7 +185,7 @@ public final class GenerateAPI {
                         .substring(packageName.length() + 1);
                 String useableClassName = packageName + "." + className.replace(".", "$");
                 if (print) {
-                    System.out.println("\"" + useableClassName + "\",");
+                    System.out.println(useableClassName);
                 } else {
                     updateList.add(useableClassName);
                 }
