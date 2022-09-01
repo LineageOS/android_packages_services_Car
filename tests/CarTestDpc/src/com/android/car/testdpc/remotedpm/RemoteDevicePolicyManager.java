@@ -16,19 +16,19 @@
 
 package com.android.car.testdpc.remotedpm;
 
-import android.annotation.Nullable;
 import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.testdpc.DpcReceiver;
-import com.android.internal.annotations.GuardedBy;
 
 import com.google.errorprone.annotations.FormatMethod;
 
@@ -50,16 +50,11 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
     private final ComponentName mAdmin;
     private final Context mContext;
     private final DevicePolicyManager mDpm;
-    private final Object mLock = new Object();
+    private final HandlerThread mHandlerThread;
+    private final Handler mHandler;
 
-    private boolean mBound;
     private UserHandle mTargetUserHandle;
 
-    /**
-     * Service used to call cross-user calls to other user device policy managers
-     */
-    @Nullable
-    @GuardedBy("mLock")
     private IRemoteDevicePolicyManager mRemoteDpm;
 
     private ServiceConnection mServiceConnection =
@@ -68,22 +63,17 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
                 public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
                     Log.i(TAG, "onServiceConnected(ComponentName: " + componentName.toShortString()
                             + ", Binder: " + iBinder + ")");
-                    synchronized (mLock) {
-                        mRemoteDpm = IRemoteDevicePolicyManager.Stub.asInterface(iBinder);
-                    }
+                    mRemoteDpm = IRemoteDevicePolicyManager.Stub.asInterface(iBinder);
                 }
 
                 @Override
                 public void onServiceDisconnected(ComponentName componentName) {
                     Log.i(TAG, "onServiceDisconnected(ComponentName: "
                             + componentName.toShortString() + ")");
-                    synchronized (mLock) {
-                        mRemoteDpm = null;
-                    }
+                    mRemoteDpm = null;
                 }
             };
 
-    // TODO(b/243543739): Add an init method to remoteDpm
     public RemoteDevicePolicyManager(ComponentName admin, Context context, UserHandle target) {
         mAdmin = admin;
         mContext = context;
@@ -91,16 +81,20 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
 
         mTargetUserHandle = target;
 
-        waitForBinding();
+        mHandlerThread = new HandlerThread(TAG + "Thread");
+        mHandlerThread.start();
 
-        Log.i(TAG, "Binding successful with " + mTargetUserHandle + "? " + mBound);
+        mHandler = new Handler(mHandlerThread.getLooper());
+
+        mHandler.post(() -> handleWaitForBinding());
     }
 
-    private void waitForBinding() {
+    private void handleWaitForBinding() {
         int totalTime = 0;
         // User must be running and affiliated to move forward (exit loop)
-        while (!(mBound = bindRemoteDpm())) {
+        while (!isBound()) {
             try {
+                handleBindRemoteDpm();
                 Thread.sleep(THREAD_SLEEP_TIME);
                 totalTime += THREAD_SLEEP_TIME;
                 if (totalTime > THREAD_SLEEP_MAX) {
@@ -115,19 +109,16 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
         }
     }
 
-    private boolean bindRemoteDpm() {
+    private void handleBindRemoteDpm() {
         try {
-            boolean success =
-                    mDpm.bindDeviceAdminServiceAsUser(
-                            DpcReceiver.getComponentName(mContext),
-                            new Intent(mContext, RemoteDevicePolicyManagerService.class),
-                            mServiceConnection,
-                            Context.BIND_AUTO_CREATE,
-                            mTargetUserHandle);
-            return success;
+            mDpm.bindDeviceAdminServiceAsUser(
+                    DpcReceiver.getComponentName(mContext),
+                    new Intent(mContext, RemoteDevicePolicyManagerService.class),
+                    mServiceConnection,
+                    Context.BIND_AUTO_CREATE,
+                    mTargetUserHandle);
         } catch (SecurityException | IllegalArgumentException e) {
             Log.e(TAG, "Cannot bind to user mTargetUserHandle: " + mTargetUserHandle, e);
-            return false;
         }
     }
 
@@ -143,43 +134,39 @@ public final class RemoteDevicePolicyManager implements DevicePolicyManagerInter
      */
     @Override
     public void reboot() {
-        IRemoteDevicePolicyManager remoteDpm;
-        remoteDpm = getBoundRemoteDpm();
-        run(() -> remoteDpm.reboot(mAdmin), "reboot(%s)", mAdmin);
+        run(remotedpm -> remotedpm.reboot(mAdmin), "reboot(%s)", mAdmin);
     }
 
     @Override
     public void addUserRestriction(String key) {
-        IRemoteDevicePolicyManager remoteDpm;
-        remoteDpm = getBoundRemoteDpm();
-        run(() -> remoteDpm.addUserRestriction(mAdmin, key),
+        run(remotedpm -> remotedpm.addUserRestriction(mAdmin, key),
                 "addUserRestriction(%s, %s)", mAdmin, key);
     }
 
-    @FormatMethod
-    private void run(RemoteRunnable cmd, String cmdFormat, Object... cmdArgs) {
-        String cmdString = String.format(cmdFormat, cmdArgs);
-        Log.i(TAG, "running " + cmdString + " on user " + mTargetUserHandle);
-        try {
-            cmd.run();
-        } catch (RuntimeException | RemoteException e) {
-            Log.e(TAG, "Failure running " + cmdString, e);
-            throw new RuntimeException("Failed to run " + cmdString, e);
-        }
+    @Override
+    public void startUserInBackground(UserHandle target) {
+        // Device owner should make this call as itself... Do nothing if
+        // it's a remote call
+        run(remotedpm -> mDpm.startUserInBackground(mAdmin, target),
+                "startUserInBackground(%s, %s)", mAdmin, target);
     }
 
-    private IRemoteDevicePolicyManager getBoundRemoteDpm() {
-        synchronized (mLock) {
-            if (mRemoteDpm == null) {
-                throw new IllegalStateException("RemoteDpm was not bound");
+    // TODO(b/245927102): Make this return a value
+    @FormatMethod
+    private void run(RemoteRunnable cmd, String cmdFormat, Object... cmdArgs) {
+        mHandler.post(() -> {
+            String cmdString = String.format(cmdFormat, cmdArgs);
+            Log.i(TAG, "running " + cmdString + " on user " + mTargetUserHandle);
+
+            try {
+                cmd.run(mRemoteDpm);
+            } catch (RuntimeException | RemoteException e) {
+                Log.e(TAG, "Failure running " + cmdString, e);
             }
-            return mRemoteDpm;
-        }
+        });
     }
 
     public boolean isBound() {
-        synchronized (mLock) {
-            return mRemoteDpm != null;
-        }
+        return mRemoteDpm != null;
     }
 }
