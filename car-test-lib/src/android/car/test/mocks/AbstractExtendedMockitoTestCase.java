@@ -374,6 +374,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }).when(() -> Slog.wtf(anyString(), anyString()));
         doAnswer((invocation) -> {
             return addWtf(invocation);
+        }).when(() -> Slog.wtf(anyString(), any(Throwable.class)));
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
         }).when(() -> Slog.wtf(anyString(), anyString(), any(Throwable.class)));
         // NOTE: android.car.builtin.util.Slogf calls android.util.Slog behind the scenes, so no
         // need to check for calls of the former...
@@ -386,7 +389,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         if (mLogTags != null && mLogTags.contains(actualTag)) {
             mWtfs.add(new IllegalStateException(message));
         } else if (VERBOSE) {
-            Log.v(TAG, "ignoring WTF invocation on tag " + actualTag);
+            Log.v(TAG, "ignoring WTF invocation on tag " + actualTag + ". mLogTags=" + mLogTags);
         }
         return null;
     }
@@ -397,6 +400,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     private void verifyWtfNeverLogged() {
         int size = mWtfs.size();
+        if (VERBOSE) {
+            Log.v(TAG, "verifyWtfNeverLogged(): mWtfs=" + mWtfs);
+        }
 
         switch (size) {
             case 0:
