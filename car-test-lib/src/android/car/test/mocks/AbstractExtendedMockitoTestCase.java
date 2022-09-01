@@ -171,14 +171,27 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     @After
     public final void finishSession() {
-        beginTrace("finishSession()");
-        completeAllHandlerThreadTasks();
-        if (mSession != null) {
-            beginTrace("finishMocking()");
-            mSession.finishMocking();
-            endTrace();
-        } else {
+        // mSession.finishMocking() must ALWAYS be called (hence the over-protective try/finally
+        // statements), otherwise it would cause failures on future tests as mockito
+        // cannot start a session when a previous one is not finished
+        try {
+            beginTrace("finishSession()");
+            completeAllHandlerThreadTasks();
+        } finally {
+            finishSessionMocking();
+        }
+        endTrace();
+    }
+
+    private void finishSessionMocking() {
+        if (mSession == null) {
             Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
+            return;
+        }
+        try {
+            beginTrace("finishMocking()");
+        } finally {
+            mSession.finishMocking();
         }
         endTrace();
     }
