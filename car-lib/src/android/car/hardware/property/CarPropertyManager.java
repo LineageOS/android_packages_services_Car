@@ -23,6 +23,7 @@ import android.annotation.FloatRange;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.annotation.SuppressLint;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.VehicleAreaType;
@@ -35,7 +36,6 @@ import android.os.Build;
 import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArraySet;
@@ -65,13 +65,17 @@ public class CarPropertyManager extends CarManagerBase {
     private static final boolean DBG = false;
     private static final String TAG = "CarPropertyManager";
     private static final int MSG_GENERIC_EVENT = 0;
+    /**
+     * The default timeout in MS for {@link CarPropertyManager#getPropertiesAsync}.
+     */
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
+
     private final SingleMessageHandler<CarPropertyEvent> mHandler;
     private final ICarProperty mService;
     private final int mAppTargetSdk;
     private final AtomicInteger mRequestIdCounter = new AtomicInteger(0);
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final long ASYNC_GET_DEFAULT_TIMEOUT_MS = 10_000;
     @GuardedBy("mLock")
     private final SparseArray<GetAsyncPropertyClientInfo> mRequestIdToClientInfo =
             new SparseArray<>();
@@ -164,20 +168,22 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public abstract static class GetPropertyCallback {
+    // TODO(b/243057322): Remove this if/once lint is fixed.
+    @SuppressLint("CallbackInterface")
+    public interface GetPropertyCallback {
         /**
          * Method called when {@link GetPropertyRequest} successfully gets a result.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public abstract void onSuccess(@NonNull GetPropertyResult getPropertyResult);
+        void onSuccess(@NonNull GetPropertyResult getPropertyResult);
 
         /**
          * Method called when {@link GetPropertyRequest} returns an error.
          */
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-        public abstract void onFailure(@NonNull GetPropertyError getPropertyError);
+        void onFailure(@NonNull GetPropertyError getPropertyError);
     }
 
     /**
@@ -223,9 +229,9 @@ public class CarPropertyManager extends CarManagerBase {
         }
 
         /**
-         * Get an instance for GetPropertyRequest.
+         * Internal use only. Users should use {@link generateGetPropertyRequest} instead.
          */
-        public GetPropertyRequest(int requestId, int propertyId, int areaId) {
+        private GetPropertyRequest(int requestId, int propertyId, int areaId) {
             mRequestId = requestId;
             mPropertyId = propertyId;
             mAreaId = areaId;
@@ -289,7 +295,7 @@ public class CarPropertyManager extends CarManagerBase {
                 Executor callbackExecutor = getAsyncPropertyClientInfo.getCallbackExecutor();
                 GetPropertyCallback getPropertyCallback =
                         getAsyncPropertyClientInfo.getGetPropertyCallback();
-                @ErrorCode
+                @CarPropertyAsyncErrorCode
                 int errorCode = getValueResult.getErrorCode();
                 if (errorCode == STATUS_OK) {
                     callbackExecutor.execute(() -> getPropertyCallback.onSuccess(
@@ -341,7 +347,7 @@ public class CarPropertyManager extends CarManagerBase {
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public static final class GetPropertyError {
         private final int mRequestId;
-        private @ErrorCode int mErrorCode;
+        private @CarPropertyAsyncErrorCode int mErrorCode;
 
         @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
                          minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
@@ -355,7 +361,7 @@ public class CarPropertyManager extends CarManagerBase {
             return mErrorCode;
         }
 
-        public GetPropertyError(int requestId, @ErrorCode int errorCode) {
+        public GetPropertyError(int requestId, @CarPropertyAsyncErrorCode int errorCode) {
             mRequestId = requestId;
             mErrorCode = errorCode;
         }
@@ -409,6 +415,17 @@ public class CarPropertyManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN = 5;
 
+    /** @hide */
+    @IntDef(prefix = {"CAR_SET_PROPERTY_ERROR_CODE_"}, value = {
+            CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN,
+            CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG,
+            CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE,
+            CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED,
+            CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface CarSetPropertyErrorCode {}
+
     /**
      * Status indicating no error.
      *
@@ -440,17 +457,6 @@ public class CarPropertyManager extends CarManagerBase {
     public static final int STATUS_ERROR_TIMEOUT = 3;
 
     /** @hide */
-    @IntDef(prefix = {"CAR_SET_PROPERTY_ERROR_CODE_"}, value = {
-            CAR_SET_PROPERTY_ERROR_CODE_TRY_AGAIN,
-            CAR_SET_PROPERTY_ERROR_CODE_INVALID_ARG,
-            CAR_SET_PROPERTY_ERROR_CODE_PROPERTY_NOT_AVAILABLE,
-            CAR_SET_PROPERTY_ERROR_CODE_ACCESS_DENIED,
-            CAR_SET_PROPERTY_ERROR_CODE_UNKNOWN,
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CarSetPropertyErrorCode {}
-
-    /** @hide */
     @IntDef(prefix = {"STATUS_"}, value = {
             STATUS_OK,
             STATUS_ERROR_INTERNAL_ERROR,
@@ -458,7 +464,7 @@ public class CarPropertyManager extends CarManagerBase {
             STATUS_ERROR_TIMEOUT
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface ErrorCode {}
+    public @interface CarPropertyAsyncErrorCode {}
 
     /**
      * Get an instance of the CarPropertyManager.
@@ -1266,8 +1272,8 @@ public class CarPropertyManager extends CarManagerBase {
      * callback functions are called is equal to the number of requests if this function does not
      * throw an exception. It is guaranteed that none of the callback functions are called if an
      * exception is thrown. If the {@code callbackExecutor} is {@code null}, the callback will be
-     * executed on the main thread. If the callback is doing heavy work, it is recommended that
-     * the {@code callbackExecutor} is provided.
+     * executed on the default event handler thread. If the callback is doing heavy work, it is
+     * recommended that the {@code callbackExecutor} is provided.
      *
      * @param getPropertyRequests The property ID and the optional area ID for the property to get
      * @param timeoutInMs The timeout for the operation, in milliseconds
@@ -1292,7 +1298,7 @@ public class CarPropertyManager extends CarManagerBase {
         SparseArray<GetAsyncPropertyClientInfo> currentRequestIdToClientInfo =
                 new SparseArray<>();
         if (callbackExecutor == null) {
-            callbackExecutor = new HandlerExecutor(new Handler(Looper.getMainLooper()));
+            callbackExecutor = new HandlerExecutor(getEventHandler());
         }
         for (int i = 0; i < getPropertyRequests.size(); i++) {
             GetPropertyRequest getPropertyRequest = getPropertyRequests.get(i);

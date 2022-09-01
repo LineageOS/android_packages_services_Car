@@ -17,7 +17,6 @@
 package com.android.car;
 
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
-import static android.car.VehiclePropertyIds.PERF_VEHICLE_SPEED;
 import static android.car.hardware.property.CarPropertyManager.SENSOR_RATE_ONCHANGE;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -170,38 +169,6 @@ public final class CarPropertyManagerUnitTest {
         assertThat(argumentCaptor.getValue().get(0).getPropertyId())
                 .isEqualTo(HVAC_TEMPERATURE_SET);
         assertThat(argumentCaptor.getValue().get(0).getAreaId()).isEqualTo(0);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void getPropertiesAsync_sameRequestIdMultipleCalls() throws RemoteException {
-        mCarPropertyManager.getPropertiesAsync(List.of(createPropertyRequest()), null, null,
-                mGetPropertyCallback);
-
-        ArgumentCaptor<List<GetPropertyServiceRequest>> argumentCaptor = ArgumentCaptor.forClass(
-                List.class);
-        verify(mICarProperty).getPropertiesAsync(argumentCaptor.capture(), any());
-        assertThat(argumentCaptor.getValue().get(0).getRequestId()).isEqualTo(0);
-        assertThat(argumentCaptor.getValue().get(0).getPropertyId())
-                .isEqualTo(HVAC_TEMPERATURE_SET);
-
-        // Request with same request ID
-        CarPropertyManager.GetPropertyRequest getPropertyRequest =
-                new CarPropertyManager.GetPropertyRequest(0, PERF_VEHICLE_SPEED, 0);
-
-        mCarPropertyManager.getPropertiesAsync(List.of(getPropertyRequest), null, null,
-                mGetPropertyCallback);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void getPropertiesAsync_sameRequestIdSameCall() {
-        List<CarPropertyManager.GetPropertyRequest> getPropertyRequests = new ArrayList<>();
-        getPropertyRequests.add(createPropertyRequest());
-        // Request with same request ID
-        getPropertyRequests.add(
-                new CarPropertyManager.GetPropertyRequest(0, HVAC_TEMPERATURE_SET, 0));
-
-        mCarPropertyManager.getPropertiesAsync(getPropertyRequests, null, null,
-                mGetPropertyCallback);
     }
 
     @Test(expected = IllegalArgumentException.class)
