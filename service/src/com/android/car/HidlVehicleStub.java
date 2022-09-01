@@ -204,7 +204,7 @@ final class HidlVehicleStub extends VehicleStub {
 
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         mExecutor.execute(() -> {
             for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
                 GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
@@ -216,21 +216,21 @@ final class HidlVehicleStub extends VehicleStub {
                         halPropValue = get(getVehicleStubAsyncRequest.getHalPropValue());
                     } catch (ServiceSpecificException e) {
                         callGetAsyncErrorCallbacks(convertHalToCarPropertyManagerError(e.errorCode),
-                                serviceRequestId, getAsyncVehicleStubCallback);
+                                serviceRequestId, getVehicleStubAsyncCallback);
                         return;
                     }
                     if (halPropValue == null) {
                         callGetAsyncErrorCallbacks(CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE,
-                                serviceRequestId, getAsyncVehicleStubCallback);
+                                serviceRequestId, getVehicleStubAsyncCallback);
                         return;
                     }
-                    getAsyncVehicleStubCallback.onGetAsyncResults(
+                    getVehicleStubAsyncCallback.onGetAsyncResults(
                             List.of(new GetVehicleStubAsyncResult(serviceRequestId, halPropValue)));
                 } catch (RemoteException e) {
                     Slogf.w(CarLog.TAG_SERVICE,
                             "Received RemoteException from VHAL. VHAL is likely dead.");
                     callGetAsyncErrorCallbacks(CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR,
-                            serviceRequestId, getAsyncVehicleStubCallback);
+                            serviceRequestId, getVehicleStubAsyncCallback);
                 }
             }
         });
@@ -238,8 +238,8 @@ final class HidlVehicleStub extends VehicleStub {
 
     private void callGetAsyncErrorCallbacks(
             @CarPropertyManager.ErrorCode int errorCodeCarPropertyManager, int serviceRequestId,
-            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
-        getAsyncVehicleStubCallback.onGetAsyncResults(
+            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+        getVehicleStubAsyncCallback.onGetAsyncResults(
                 List.of(new GetVehicleStubAsyncResult(serviceRequestId,
                         errorCodeCarPropertyManager)));
     }

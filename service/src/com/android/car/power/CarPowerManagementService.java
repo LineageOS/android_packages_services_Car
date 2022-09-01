@@ -569,6 +569,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // TODO(b/177478420): Restore Wifi, Audio, Location, and Bluetooth, if they are artificially
         // modified for S2R.
         mSilentModeHandler.querySilentModeHwState();
+
+        applyDefaultPowerPolicyForState(CarPowerManager.STATE_WAIT_FOR_VHAL,
+                    PolicyReader.POWER_POLICY_ID_INITIAL_ON);
+
+        if (!mSilentModeHandler.isSilentMode()) {
+            cancelPreemptivePowerPolicy();
+        }
+
         sendPowerManagerEvent(carPowerStateListenerState, INVALID_TIMEOUT);
         // Inspect CarPowerStateListenerState to decide which message to send via VHAL
         switch (carPowerStateListenerState) {
@@ -1625,7 +1633,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             boolean upToDaemon, boolean force) {
         CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
-            int error = PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+            int error = PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
             Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId));
             return error;
         }

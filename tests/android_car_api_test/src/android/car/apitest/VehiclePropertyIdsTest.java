@@ -46,7 +46,8 @@ public class VehiclePropertyIdsTest {
                     "EVS_SERVICE_REQUEST",
                     "HW_CUSTOM_INPUT",
                     "HW_ROTARY_INPUT",
-                    "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION");
+                    "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION",
+                    "SUPPORTED_PROPERTY_IDS");
 
 
     @Test

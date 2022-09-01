@@ -80,10 +80,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
 
     @Override
     public boolean supportsFeature(int feature) {
-        if (feature == AUDIOCONTROL_FEATURE_AUDIO_FOCUS) {
-            return true;
-        }
-        return false;
+        return feature == AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
     }
 
     @Override

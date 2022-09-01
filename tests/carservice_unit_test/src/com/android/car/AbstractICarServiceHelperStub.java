@@ -23,6 +23,7 @@ import android.content.ComponentName;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+import android.view.Display;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
@@ -95,5 +96,12 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
         Log.d(TAG, "getProcessGroup, pid=" + pid);
 
         return 0;
+    }
+
+    @Override
+    public int getDisplayAssignedToUser(int userId) {
+        Log.d(TAG, "getDisplayAssignedToUser(" + userId + ")");
+
+        return Display.INVALID_DISPLAY;
     }
 }

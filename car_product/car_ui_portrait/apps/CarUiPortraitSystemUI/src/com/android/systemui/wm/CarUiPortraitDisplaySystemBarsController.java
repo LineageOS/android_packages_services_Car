@@ -162,6 +162,7 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
         private final int[] mImmersiveVisibilities = new int[] {0, WindowInsets.Type.systemBars()};
         private final List<Callback> mCallbacks = new ArrayList<>();
         private InsetsVisibilities mWindowRequestedVisibilities;
+        private InsetsVisibilities mAppliedVisibilities = new InsetsVisibilities();
         private boolean mImmersiveOverride = false;
         private boolean mImmersiveForSUW = false;
 
@@ -209,6 +210,13 @@ public class CarUiPortraitDisplaySystemBarsController extends DisplaySystemBarsC
                     : BarControlPolicy.getBarVisibilities(mPackageName);
             updateRequestedVisibilities(barVisibilities[0], /* visible= */ true);
             updateRequestedVisibilities(barVisibilities[1], /* visible= */ false);
+
+            // Return if the requested visibility is already applied.
+            if (mAppliedVisibilities.equals(mRequestedVisibilities)) {
+                return;
+            }
+            mAppliedVisibilities.set(mRequestedVisibilities);
+
             showInsets(barVisibilities[0], /* fromIme= */ false);
             hideInsets(barVisibilities[1], /* fromIme= */ false);
 

@@ -648,7 +648,6 @@ public class CarPropertyManager extends CarManagerBase {
         int[] propIds = new int[propertyIds.size()];
         int idx = 0;
         for (int propId : propertyIds) {
-            checkSupportedProperty(propId);
             propIds[idx++] = propId;
         }
         List<CarPropertyConfig> configs;
@@ -671,7 +670,6 @@ public class CarPropertyManager extends CarManagerBase {
     @Nullable
     @AddedInOrBefore(majorVersion = 33)
     public CarPropertyConfig<?> getCarPropertyConfig(int propId) {
-        checkSupportedProperty(propId);
         List<CarPropertyConfig> configs;
         try {
             configs = mService.getPropertyConfigList(new int[] {propId});
@@ -693,8 +691,6 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public int getAreaId(int propId, int area) {
-        checkSupportedProperty(propId);
-
         CarPropertyConfig<?> propConfig = getCarPropertyConfig(propId);
         if (propConfig == null) {
             throw new IllegalArgumentException("The property propId: 0x" + toHexString(propId)
@@ -727,7 +723,6 @@ public class CarPropertyManager extends CarManagerBase {
         if (DBG) {
             Log.d(TAG, "getReadPermission, propId: 0x" + toHexString(propId));
         }
-        checkSupportedProperty(propId);
         try {
             return mService.getReadPermission(propId);
         } catch (RemoteException e) {
@@ -748,7 +743,6 @@ public class CarPropertyManager extends CarManagerBase {
         if (DBG) {
             Log.d(TAG, "getWritePermission, propId: 0x" + toHexString(propId));
         }
-        checkSupportedProperty(propId);
         try {
             return mService.getWritePermission(propId);
         } catch (RemoteException e) {
@@ -765,7 +759,6 @@ public class CarPropertyManager extends CarManagerBase {
      */
     @AddedInOrBefore(majorVersion = 33)
     public boolean isPropertyAvailable(int propId, int area) {
-        checkSupportedProperty(propId);
         try {
             CarPropertyValue propValue = mService.getProperty(propId, area);
             return (propValue != null)
@@ -1037,7 +1030,6 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "getProperty, propId: " + VehiclePropertyIds.toString(propId)
                     + ", areaId: 0x" + toHexString(areaId));
         }
-        checkSupportedProperty(propId);
 
         try {
             return (CarPropertyValue<E>) mService.getProperty(propId, areaId);
@@ -1108,7 +1100,6 @@ public class CarPropertyManager extends CarManagerBase {
             Log.d(TAG, "setProperty, propId: 0x" + toHexString(propId)
                     + ", areaId: 0x" + toHexString(areaId) + ", class: " + clazz + ", val: " + val);
         }
-        checkSupportedProperty(propId);
         try {
             mService.setProperty(new CarPropertyValue<>(propId, areaId, val),
                     mCarPropertyEventToService);
@@ -1191,28 +1182,6 @@ public class CarPropertyManager extends CarManagerBase {
                 throw new CarInternalErrorException(propId, areaId);
             default:
                 Log.e(TAG, "Invalid errorCode: " + errorCode + " in CarService");
-        }
-    }
-
-    /**
-     * Checks if the given property can be exposed to by this manager.
-     *
-     * <p>For example, properties related to user management should only be manipulated by
-     * {@code UserHalService}.
-     *
-     * @param propId property to be checked
-     *
-     * @throws IllegalArgumentException if the property is not supported
-     */
-    private void checkSupportedProperty(int propId) {
-        switch (propId) {
-            case VehiclePropertyIds.INITIAL_USER_INFO:
-            case VehiclePropertyIds.SWITCH_USER:
-            case VehiclePropertyIds.CREATE_USER:
-            case VehiclePropertyIds.REMOVE_USER:
-            case VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION:
-                throw new IllegalArgumentException("Unsupported property: "
-                        + VehiclePropertyIds.toString(propId) + " (" + propId + ")");
         }
     }
 

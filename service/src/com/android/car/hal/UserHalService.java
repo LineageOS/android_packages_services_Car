@@ -270,9 +270,7 @@ public final class UserHalService extends HalServiceBase {
      */
     public boolean isUserAssociationSupported() {
         synchronized (mLock) {
-            if (mProperties == null) return false;
-            if (mProperties.get(USER_IDENTIFICATION_ASSOCIATION) == null) return false;
-            return true;
+            return mProperties != null && mProperties.get(USER_IDENTIFICATION_ASSOCIATION) != null;
         }
     }
 

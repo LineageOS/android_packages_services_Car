@@ -107,7 +107,7 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public String dumpVhal(List<String> options, long waitTimeoutMs) {
         try {
@@ -125,7 +125,7 @@ public final class CarTestManager extends CarManagerBase {
      */
     @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     public boolean hasAidlVhal() throws RemoteException {
         return mService.hasAidlVhal();

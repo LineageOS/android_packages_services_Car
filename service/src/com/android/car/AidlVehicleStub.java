@@ -92,20 +92,20 @@ final class AidlVehicleStub extends VehicleStub {
 
     private static class AsyncClientInfo {
         private final int mServiceRequestId;
-        private final GetAsyncVehicleStubCallback mGetAsyncVehicleStubCallback;
+        private final GetVehicleStubAsyncCallback mGetVehicleStubAsyncCallback;
 
         private AsyncClientInfo(int serviceRequestId,
-                GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+                GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
             mServiceRequestId = serviceRequestId;
-            mGetAsyncVehicleStubCallback = getAsyncVehicleStubCallback;
+            mGetVehicleStubAsyncCallback = getVehicleStubAsyncCallback;
         }
 
         public int getServiceRequestId() {
             return mServiceRequestId;
         }
 
-        public GetAsyncVehicleStubCallback getGetAsyncVehicleStubCallback() {
-            return mGetAsyncVehicleStubCallback;
+        public GetVehicleStubAsyncCallback getGetVehicleStubAsyncCallback() {
+            return mGetVehicleStubAsyncCallback;
         }
     }
 
@@ -299,7 +299,7 @@ final class AidlVehicleStub extends VehicleStub {
 
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback) {
+            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         GetValueRequest[] getValueRequests =
                 new GetValueRequest[getVehicleStubAsyncRequests.size()];
         synchronized (mLock) {
@@ -309,7 +309,7 @@ final class AidlVehicleStub extends VehicleStub {
                 long vhalRequestId = mRequestId.getAndIncrement();
                 mPendingAsyncGetValueCallbacksByVhalRequestId.put(vhalRequestId,
                         new AsyncClientInfo(getVehicleStubAsyncRequest.getServiceRequestId(),
-                                getAsyncVehicleStubCallback));
+                                getVehicleStubAsyncCallback));
                 GetValueRequest vhalRequest = new GetValueRequest();
                 vhalRequest.requestId = vhalRequestId;
                 vhalRequest.prop = (VehiclePropValue) getVehicleStubAsyncRequest.getHalPropValue()
@@ -327,10 +327,10 @@ final class AidlVehicleStub extends VehicleStub {
         try {
             mAidlVehicle.getValues(mGetSetValuesCallback, requests);
         } catch (RemoteException e) {
-            handleExceptionFromVhal(requests, getAsyncVehicleStubCallback,
+            handleExceptionFromVhal(requests, getVehicleStubAsyncCallback,
                     CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         } catch (ServiceSpecificException e) {
-            handleExceptionFromVhal(requests, getAsyncVehicleStubCallback,
+            handleExceptionFromVhal(requests, getVehicleStubAsyncCallback,
                     convertHalToCarPropertyManagerError(e.errorCode));
         }
     }
@@ -342,7 +342,7 @@ final class AidlVehicleStub extends VehicleStub {
      * where the caller is.
      */
     private void handleExceptionFromVhal(GetValueRequests requests,
-            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback, int errorCode) {
+            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback, int errorCode) {
         Slogf.w(CarLog.TAG_SERVICE,
                 "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
                         + "dead.");
@@ -363,7 +363,7 @@ final class AidlVehicleStub extends VehicleStub {
                         new GetVehicleStubAsyncResult(clientInfo.getServiceRequestId(), errorCode));
             }
         }
-        getAsyncVehicleStubCallback.onGetAsyncResults(getVehicleStubAsyncResults);
+        getVehicleStubAsyncCallback.onGetAsyncResults(getVehicleStubAsyncResults);
     }
 
     /**
@@ -523,7 +523,7 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void onGetAsyncPropertyResult(GetValueResult result, long vhalRequestId,
-            Map<GetAsyncVehicleStubCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
+            Map<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
         AsyncClientInfo clientInfo;
         synchronized (mLock) {
             clientInfo = mPendingAsyncGetValueCallbacksByVhalRequestId.get(vhalRequestId);
@@ -546,24 +546,24 @@ final class AidlVehicleStub extends VehicleStub {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
                     mPropValueBuilder.build(result.prop));
         }
-        GetAsyncVehicleStubCallback getAsyncVehicleStubCallback;
-        getAsyncVehicleStubCallback = clientInfo.getGetAsyncVehicleStubCallback();
-        if (getAsyncVehicleStubCallback == null) {
+        GetVehicleStubAsyncCallback getVehicleStubAsyncCallback;
+        getVehicleStubAsyncCallback = clientInfo.getGetVehicleStubAsyncCallback();
+        if (getVehicleStubAsyncCallback == null) {
             Slogf.w(CarLog.TAG_SERVICE,
                     "No pending request for ID: %s, possibly already timed out", vhalRequestId);
             return;
         }
-        if (callbackToResult.get(getAsyncVehicleStubCallback) == null) {
-            callbackToResult.put(getAsyncVehicleStubCallback, new ArrayList<>());
+        if (callbackToResult.get(getVehicleStubAsyncCallback) == null) {
+            callbackToResult.put(getVehicleStubAsyncCallback, new ArrayList<>());
         }
-        callbackToResult.get(getAsyncVehicleStubCallback).add(getVehicleStubAsyncResult);
+        callbackToResult.get(getVehicleStubAsyncCallback).add(getVehicleStubAsyncResult);
     }
 
     private void onGetValues(GetValueResults responses) {
         GetValueResults origResponses = (GetValueResults)
                 LargeParcelable.reconstructStableAIDLParcelable(responses,
                         /* keepSharedMemory= */ false);
-        Map<GetAsyncVehicleStubCallback, List<GetVehicleStubAsyncResult>> callbackToResult =
+        Map<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult =
                 new ArrayMap<>();
         synchronized (mLock) {
             for (GetValueResult result : origResponses.payloads) {
@@ -579,11 +579,11 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void callGetAsyncCallbacks(
-            Map<GetAsyncVehicleStubCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
-        for (Map.Entry<GetAsyncVehicleStubCallback, List<GetVehicleStubAsyncResult>> entry :
+            Map<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
+        for (Map.Entry<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> entry :
                 callbackToResult.entrySet()) {
-            GetAsyncVehicleStubCallback getAsyncVehicleStubCallback = entry.getKey();
-            getAsyncVehicleStubCallback.onGetAsyncResults(entry.getValue());
+            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback = entry.getKey();
+            getVehicleStubAsyncCallback.onGetAsyncResults(entry.getValue());
         }
     }
 

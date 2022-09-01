@@ -34,7 +34,6 @@ import android.car.hardware.property.PropertyAccessDeniedSecurityException;
 import android.car.hardware.property.PropertyNotAvailableAndRetryException;
 import android.car.hardware.property.PropertyNotAvailableException;
 import android.car.hardware.property.VehicleHalStatusCode;
-import android.car.test.util.Visitor;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleArea;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
@@ -45,7 +44,6 @@ import android.hardware.automotive.vehicle.VehicleVendorPermission;
 import android.os.Build;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
-import android.util.ArraySet;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -730,99 +728,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testUserHal_getProperty() {
-        userHalPropertiesTest("getProperty()", (prop) ->
-                mManager.getProperty(prop, /* areaId= */ 0));
-    }
-
-    @Test
-    public void testUserHal_getBooleanProperty() {
-        userHalPropertiesTest("getBooleanProperty()", (prop) ->
-                mManager.getBooleanProperty(prop, /* areaId= */ 0));
-    }
-
-    @Test
-    public void testUserHal_getIntProperty() {
-        userHalPropertiesTest("getIntProperty()", (prop) ->
-                mManager.getIntProperty(prop, /* areaId= */ 0));
-    }
-
-    @Test
-    public void testUserHal_getIntArrayProperty() {
-        userHalPropertiesTest("getIntArrayProperty()", (prop) ->
-                mManager.getIntArrayProperty(prop, /* areaId= */ 0));
-    }
-
-    @Test
-    public void testUserHal_getFloatProperty() {
-        userHalPropertiesTest("getFloatProperty()", (prop) ->
-                mManager.getFloatProperty(prop, /* areaId= */ 0));
-    }
-
-    @Test
-    public void testUserHal_getPropertyList() {
-        userHalPropertiesTest("getPropertyList()", (prop) -> {
-            ArraySet<Integer> list = new ArraySet<>();
-            list.add(prop);
-            mManager.getPropertyList(list);
-        });
-    }
-
-    @Test
-    public void testUserHal_getCarPropertyConfig() {
-        userHalPropertiesTest("getCarPropertyConfig()", (prop) ->
-                mManager.getCarPropertyConfig(prop));
-    }
-
-    @Test
-    public void testUserHal_getAreaId() {
-        userHalPropertiesTest("getAreaId()", (prop) ->
-                mManager.getAreaId(prop, /* areaId= */ 0));
-    }
-
-    @Test
-    public void testUserHal_getReadPermission() {
-        userHalPropertiesTest("getReadPermission()", (prop) ->
-                mManager.getReadPermission(prop));
-    }
-
-    @Test
-    public void testUserHal_getWritePermission() {
-        userHalPropertiesTest("getWritePermission()", (prop) ->
-                mManager.getWritePermission(prop));
-    }
-
-    @Test
-    public void testUserHal_isPropertyAvailable() {
-        userHalPropertiesTest("isPropertyAvailable()", (prop) ->
-                mManager.isPropertyAvailable(prop, /* area= */ 0));
-    }
-
-    @Test
-    public void testUserHal_setProperty() {
-        userHalPropertiesTest("setProperty()", (prop) ->
-                mManager.setProperty(Object.class, prop, /* areaId= */ 0, /* val= */ null));
-    }
-
-    @Test
-    public void testUserHal_setBooleanProperty() {
-        userHalPropertiesTest("setBooleanProperty()", (prop) ->
-                mManager.setBooleanProperty(prop, /* areaId= */ 0, /* val= */ true));
-    }
-
-    @Test
-    public void testUserHal_setFloatProperty() {
-        userHalPropertiesTest("setFloatProperty()", (prop) ->
-                mManager.setFloatProperty(prop, /* areaId= */ 0, /* val= */ 0.0F));
-    }
-
-    @Test
-    public void testUserHal_setIntProperty() {
-        userHalPropertiesTest("setIntProperty()", (prop) ->
-                mManager.setIntProperty(prop, /* areaId= */ 0, /* val= */ 0));
-    }
-
-    @Test
     public void registerCallback_handlesContinuousPropertyUpdateRate() {
         float wheelLeftFrontValue = 11.11f;
         long wheelLeftFrontTimestampNanos = Duration.ofSeconds(1).toNanos();
@@ -908,21 +813,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertTirePressureCarPropertyValue(carPropertyValues.get(3),
                 VehicleAreaWheel.WHEEL_RIGHT_REAR, wheelRightRearValue,
                 wheelRightRearTimestampNanos);
-    }
-
-    private void userHalPropertiesTest(String method, Visitor<Integer> visitor) {
-        List<String> failedProperties = new ArrayList<>();
-        for (int propertyId : USER_HAL_PROPERTIES) {
-            try {
-                visitor.visit(propertyId);
-                failedProperties.add(propToString(propertyId));
-            } catch (IllegalArgumentException e) {
-                // expected
-            }
-        }
-        if (!failedProperties.isEmpty()) {
-            fail(method + " should not support these properties: " + failedProperties);
-        }
     }
 
     @Override

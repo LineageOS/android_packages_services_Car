@@ -144,11 +144,8 @@ public class UsbAoapHostActivity extends Activity
     }
 
     private static boolean isDevicesMatching(UsbDevice l, UsbDevice r) {
-        if (l.getVendorId() == r.getVendorId() && l.getProductId() == r.getProductId()
-                && TextUtils.equals(l.getSerialNumber(), r.getSerialNumber())) {
-            return true;
-        }
-        return false;
+        return l.getVendorId() == r.getVendorId() && l.getProductId() == r.getProductId()
+                && TextUtils.equals(l.getSerialNumber(), r.getSerialNumber());
     }
 
     private class UsbStateReceiver extends BroadcastReceiver {

@@ -93,11 +93,8 @@ public final class AudioManagerHelper {
                     + address);
         }
 
-        int r = AudioManager.setAudioPortGain(deviceInfo.getPort(), audioGainConfig);
-        if (r == AudioManager.SUCCESS) {
-            return true;
-        }
-        return false;
+        return AudioManager.setAudioPortGain(deviceInfo.getPort(), audioGainConfig)
+                == AudioManager.SUCCESS;
     }
 
     private static AudioDeviceInfo getAudioDeviceInfo(@NonNull AudioManager audioManager,

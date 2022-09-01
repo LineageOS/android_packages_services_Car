@@ -106,6 +106,7 @@ import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.SparseArray;
+import android.view.Display;
 import android.view.KeyEvent;
 
 import com.android.car.am.FixedActivityService;
@@ -272,9 +273,18 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_SET_PROCESS_GROUP = "set-process-group";
     private static final String COMMAND_GET_PROCESS_GROUP = "get-process-group";
 
+    private static final String COMMAND_GET_USER_DISPLAY = "get-user-display";
+
+
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
             android.Manifest.permission.MANAGE_USERS
+    };
+
+    private static final String[] CREATE_OR_MANAGE_OR_QUERY_USERS_PERMISSIONS = new String[] {
+            android.Manifest.permission.CREATE_USERS,
+            android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.QUERY_USERS
     };
 
     // List of commands allowed in user build. All these command should be protected with
@@ -302,6 +312,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SET_START_BG_USERS_ON_GARAGE_MODE,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_USER_DISPLAY,
+                CREATE_OR_MANAGE_OR_QUERY_USERS_PERMISSIONS);
     }
 
     // List of commands allowed in user build. All these command should be protected with
@@ -782,6 +794,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.printf("\t%s <PID>", COMMAND_GET_PROCESS_GROUP);
         pw.println("\t Get the CPU group of a process. Check android.os.Process.getProcessGroup "
                 + "for details on the parameters.");
+
+        pw.printf("\t%s <USER>", COMMAND_GET_USER_DISPLAY);
+        pw.println("\t Gets the display associated to the given user");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -1166,6 +1181,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_GET_PROCESS_GROUP:
                 getProcessGroup(args, writer);
+                break;
+            case COMMAND_GET_USER_DISPLAY:
+                getUserDisplay(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -3404,6 +3422,46 @@ final class CarShellCommand extends BasicShellCommandHandler {
             throw new RuntimeException(e);
         }
         writer.printf("%d\n", group);
+    }
+
+    private void getUserDisplay(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        // TODO(b/234499460): move --user logic to private helper / support 'all' and 'current'
+        String userIdArg = args[1];
+        int userId;
+
+        if ("current".equals(userIdArg) || "cur".equals(userIdArg)) {
+            userId = ActivityManager.getCurrentUser();
+        } else {
+            try {
+                userId = Integer.parseInt(userIdArg);
+            } catch (NumberFormatException e) {
+                writer.printf("Invalid user id: %s\n", userIdArg);
+                return;
+            }
+        }
+
+
+        ICarServiceHelper helper = CarLocalServices.getService(ICarServiceHelper.class);
+        if (helper == null) {
+            writer.printf("  CarServiceHelper not connected yet");
+            return;
+        }
+
+        try {
+            int displayId = helper.getDisplayAssignedToUser(userId);
+            if (displayId == Display.INVALID_DISPLAY) {
+                writer.println("none");
+            } else {
+                writer.println(displayId);
+            }
+        } catch (RemoteException e) {
+            writer.printf("isUserVisible(%d) failed: %s\n", userId, e);
+        }
     }
 
     // Check if the given property is global
