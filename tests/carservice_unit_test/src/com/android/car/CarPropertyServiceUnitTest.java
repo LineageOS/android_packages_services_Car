@@ -350,7 +350,27 @@ public final class CarPropertyServiceUnitTest {
         List<CarPropertyEvent> events = List.of(new CarPropertyEvent(0, value));
         mService.onPropertyChange(events);
 
-        assertThat(listener.getEvents()).isEqualTo(events);
+        List<CarPropertyEvent> actualEvents = listener.getEvents();
+
+        assertThat(actualEvents.size()).isEqualTo(events.size());
+        for (int i = 0; i < events.size(); i++) {
+            CarPropertyEvent actualEvent = actualEvents.get(i);
+            CarPropertyEvent expectedEvent = events.get(i);
+            assertThat(actualEvent.getEventType()).isEqualTo(expectedEvent.getEventType());
+            assertThat(actualEvent.getErrorCode()).isEqualTo(expectedEvent.getErrorCode());
+            CarPropertyValue actualCarPropertyValue = actualEvent.getCarPropertyValue();
+            CarPropertyValue expectedCarPropertyValue = expectedEvent.getCarPropertyValue();
+            assertThat(actualCarPropertyValue.getPropertyId()).isEqualTo(
+                    expectedCarPropertyValue.getPropertyId());
+            assertThat(actualCarPropertyValue.getAreaId()).isEqualTo(
+                    expectedCarPropertyValue.getAreaId());
+            assertThat(actualCarPropertyValue.getStatus()).isEqualTo(
+                    expectedCarPropertyValue.getStatus());
+            assertThat(actualCarPropertyValue.getTimestamp()).isEqualTo(
+                    expectedCarPropertyValue.getTimestamp());
+            assertThat(actualCarPropertyValue.getValue()).isEqualTo(
+                    expectedCarPropertyValue.getValue());
+        }
     }
 
     @Test
