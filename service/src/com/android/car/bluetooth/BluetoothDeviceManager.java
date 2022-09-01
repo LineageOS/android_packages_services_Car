@@ -482,14 +482,17 @@ public final class BluetoothDeviceManager {
                     || getDeviceConnectionPriority(device) == priority) {
                 return;
             }
+            int priorityToSet = priority;
             if (mPrioritizedDevices.contains(device)) {
                 mPrioritizedDevices.remove(device);
-                if (priority > mPrioritizedDevices.size()) priority = mPrioritizedDevices.size();
+                if (priorityToSet > mPrioritizedDevices.size()) {
+                    priorityToSet = mPrioritizedDevices.size();
+                }
             }
             if (DBG) {
-                Slogf.d(TAG, "Set connection priority of %s to %d", device, priority);
+                Slogf.d(TAG, "Set connection priority of %s to %d", device, priorityToSet);
             }
-            mPrioritizedDevices.add(priority, device);
+            mPrioritizedDevices.add(priorityToSet, device);
             commit();
         }
     }

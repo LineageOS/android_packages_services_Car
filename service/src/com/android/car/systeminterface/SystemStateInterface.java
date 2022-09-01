@@ -148,7 +148,8 @@ public interface SystemStateInterface {
         }
 
         @Override
-        public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
+        public void scheduleActionForBootCompleted(Runnable action, Duration bootCompleteDelay) {
+            Duration delay = bootCompleteDelay;
             if (MIN_BOOT_COMPLETE_ACTION_DELAY.compareTo(delay) < 0) {
                 // TODO: consider adding some degree of randomness here
                 delay = MIN_BOOT_COMPLETE_ACTION_DELAY;

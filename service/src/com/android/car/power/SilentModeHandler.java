@@ -87,10 +87,11 @@ final class SilentModeHandler {
         mKernelSilentModeFileName = kernelSilentModeFileName == null
                 ? SYSFS_FILENAME_KERNEL_SILENTMODE
                 : kernelSilentModeFileName;
-        if (bootReason == null) {
-            bootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
+        String reason = bootReason;
+        if (reason == null) {
+            reason = SystemProperties.get(SYSTEM_BOOT_REASON);
         }
-        switch (bootReason) {
+        switch (reason) {
             case FORCED_SILENT:
                 Slogf.i(TAG, "Starting in forced silent mode");
                 mForcedMode = true;

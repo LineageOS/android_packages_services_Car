@@ -338,13 +338,14 @@ public class PropertyHalService extends HalServiceBase {
      *
      * @throws IllegalArgumentException thrown if property is not supported by VHAL.
      */
-    public void subscribeProperty(int mgrPropId, float rate) throws IllegalArgumentException {
+    public void subscribeProperty(int mgrPropId, float updateRate) throws IllegalArgumentException {
         if (mDbg) {
             Slogf.d(TAG, "subscribeProperty propId: %s, rate=%f",
-                    VehiclePropertyIds.toString(mgrPropId), rate);
+                    VehiclePropertyIds.toString(mgrPropId), updateRate);
         }
         int halPropId = managerToHalPropId(mgrPropId);
         assertPropertySupported(halPropId);
+        float rate = updateRate;
         synchronized (mLock) {
             HalPropConfig halPropConfig = mHalPropIdToPropConfig.get(halPropId);
             if (rate > halPropConfig.getMaxSampleRate()) {

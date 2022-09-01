@@ -1175,14 +1175,15 @@ public final class HalPropValueBuilder {
         return byteValues;
     }
 
-    private static void setMixedTypeValues(int indexOfValues, Object[]values, int[] configArray,
-            ArrayList<Integer> int32Values, ArrayList<Float> floatValues,
+    private static void setMixedTypeValues(int indexOfValues, Object[]values,
+            int[] configArray, ArrayList<Integer> int32Values, ArrayList<Float> floatValues,
             ArrayList<Long> int64Values, ArrayList<Byte> byteValues) {
 
+        int index = indexOfValues;
         if (configArray[CONFIG_ARRAY_INDEX_BOOLEAN] != 0) {
             // Add a boolean value
-            int32Values.add((Boolean) values[indexOfValues] ? 1 : 0); // in HAL, 1 indicates true
-            indexOfValues++;
+            int32Values.add((Boolean) values[index] ? 1 : 0); // in HAL, 1 indicates true
+            index++;
         }
 
         /*
@@ -1192,8 +1193,8 @@ public final class HalPropValueBuilder {
         int integerSize =
                 configArray[CONFIG_ARRAY_INDEX_INT] + configArray[CONFIG_ARRAY_INDEX_INT_ARRAY];
         while (integerSize != 0) {
-            int32Values.add((Integer) values[indexOfValues]);
-            indexOfValues++;
+            int32Values.add((Integer) values[index]);
+            index++;
             integerSize--;
         }
         /* configArray[4], 1 indicates the property has a Long value .
@@ -1202,8 +1203,8 @@ public final class HalPropValueBuilder {
         int longSize =
                 configArray[CONFIG_ARRAY_INDEX_LONG] + configArray[CONFIG_ARRAY_INDEX_LONG_ARRAY];
         while (longSize != 0) {
-            int64Values.add((Long) values[indexOfValues]);
-            indexOfValues++;
+            int64Values.add((Long) values[index]);
+            index++;
             longSize--;
         }
         /* configArray[6], 1 indicates the property has a Float value .
@@ -1212,16 +1213,16 @@ public final class HalPropValueBuilder {
         int floatSize =
                 configArray[CONFIG_ARRAY_INDEX_FLOAT] + configArray[CONFIG_ARRAY_INDEX_FLOAT_ARRAY];
         while (floatSize != 0) {
-            floatValues.add((Float) values[indexOfValues]);
-            indexOfValues++;
+            floatValues.add((Float) values[index]);
+            index++;
             floatSize--;
         }
 
         /* configArray[8], the number indicates the size of byte[] in the property. */
         int byteSize = configArray[CONFIG_ARRAY_INDEX_BYTES];
         while (byteSize != 0) {
-            byteValues.add((Byte) values[indexOfValues]);
-            indexOfValues++;
+            byteValues.add((Byte) values[index]);
+            index++;
             byteSize--;
         }
     }

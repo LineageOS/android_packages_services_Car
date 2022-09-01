@@ -367,10 +367,12 @@ public class PowerHalService extends HalServiceBase {
      * @param brightness value from 0 to 100.
      */
     public void sendDisplayBrightness(int brightness) {
-        if (brightness < 0) {
-            brightness = 0;
-        } else if (brightness > 100) {
-            brightness = 100;
+        int brightnessToSet = brightness;
+
+        if (brightnessToSet < 0) {
+            brightnessToSet = 0;
+        } else if (brightnessToSet > 100) {
+            brightnessToSet = 100;
         }
         synchronized (mLock) {
             if (mProperties.get(DISPLAY_BRIGHTNESS) == null) {
@@ -378,8 +380,8 @@ public class PowerHalService extends HalServiceBase {
             }
         }
         try {
-            mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, 0).to(brightness);
-            Slogf.i(CarLog.TAG_POWER, "send display brightness = " + brightness);
+            mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, 0).to(brightnessToSet);
+            Slogf.i(CarLog.TAG_POWER, "send display brightness = " + brightnessToSet);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
             Slogf.e(CarLog.TAG_POWER, "cannot set DISPLAY_BRIGHTNESS", e);
         }
