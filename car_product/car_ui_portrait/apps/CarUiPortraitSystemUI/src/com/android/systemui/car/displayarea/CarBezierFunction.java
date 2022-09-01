@@ -79,8 +79,9 @@ public final class CarBezierFunction {
      * Gets the derivative of the bezier value at given {@code t}. Since {@link #getValue} becomes
      * linear outside the range [0, 1], the derivative outside this range is constant.
      */
-    public static double getDerivative(double t, double a, double b, double c, double d) {
+    public static double getDerivative(double tParam, double a, double b, double c, double d) {
         // Clamp to [0, 1] to make values linear outside this range.
+        double t = tParam;
         t = Math.max(0, t);
         t = Math.min(1, t);
         return 3 * square(1 - t) * (b - a) + 3 * 2 * (1 - t) * t * (c - b) + 3 * square(t) * (d

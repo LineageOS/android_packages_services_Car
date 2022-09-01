@@ -207,7 +207,8 @@ public class CarUiPortraitTemperatureControlView extends LinearLayout implements
         mContext.getMainExecutor().execute(this::updateTemperatureViewUiThread);
     }
 
-    private void setTemperature(float tempC) {
+    private void setTemperature(float tempCParam) {
+        float tempC = tempCParam;
         tempC = Math.min(tempC, mMaxTempC);
         tempC = Math.max(tempC, mMinTempC);
         if (isTemperatureAvailableForChange()) {
