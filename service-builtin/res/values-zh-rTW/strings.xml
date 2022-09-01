@@ -16,14 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"繫結至投影服務"</string>
-<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"允許應用程式繫結至投放服務的頂層介面 (一般應用程式並不需要)。"</string>
-<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS 用戶端服務"</string>
-<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"繫結至 VMS 用戶端"</string>
-<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"儀錶板轉譯"</string>
-<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"接收儀錶板資料"</string>
-<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"車輛輸入服務"</string>
-<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"處理輸入事件"</string>
+    <string name="car_permission_label_bind_projection_service" msgid="6976251734714662552">"繫結至投影服務"</string>
+    <string name="car_permission_desc_bind_projection_service" msgid="4610418233070289810">"允許應用程式繫結至投放服務的頂層介面 (一般應用程式並不需要)。"</string>
+    <string name="car_permission_label_bind_vms_client" msgid="1298928874094319701">"VMS 用戶端服務"</string>
+    <string name="car_permission_desc_bind_vms_client" msgid="7758142590449847602">"繫結至 VMS 用戶端"</string>
+    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="6723392540805279625">"儀錶板轉譯"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="2583711303360788080">"接收儀錶板資料"</string>
+    <string name="car_permission_label_bind_input_service" msgid="6647238478703096557">"車輛輸入服務"</string>
+    <string name="car_permission_desc_bind_input_service" msgid="8460218104132496613">"處理輸入事件"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"開車時無法使用這項功能"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"如要使用安全應用程式功能重新啟動，請選取「離開」按鈕 <xliff:g id="EXIT_BUTTON">%s</xliff:g>。"</string>
     <string name="exit_button" msgid="3491899413031549265">"返回"</string>
