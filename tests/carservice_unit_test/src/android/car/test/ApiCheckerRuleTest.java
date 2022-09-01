@@ -30,6 +30,7 @@ import android.car.PlatformVersionMismatchException;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule.ExpectedVersionAssumptionViolationException;
+import android.car.test.ApiCheckerRule.IgnoreInvalidApi;
 import android.car.test.ApiCheckerRule.IncompatibleApiRequirementsException;
 import android.car.test.ApiCheckerRule.PlatformVersionMismatchExceptionNotThrownException;
 import android.car.test.ApiCheckerRule.SupportedVersionTest;
@@ -109,7 +110,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void passWhenTestMethodHasApiTestAnnotationButItsNull() throws Throwable {
+    public void failWhenTestMethodHasApiTestAnnotationButItsNull() throws Throwable {
         Description testMethod = newTestMethod(new ApiTestAnnotation((String[]) null));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
@@ -122,7 +123,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void passWhenTestMethodHasApiTestAnnotationButItsEmpty() throws Throwable {
+    public void failWhenTestMethodHasApiTestAnnotationButItsEmpty() throws Throwable {
         Description testMethod = newTestMethod(new ApiTestAnnotation(new String[0]));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
@@ -135,7 +136,7 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void passWhenTestMethodHasApiTestAnnotationButItsInvalid() throws Throwable {
+    public void failWhenTestMethodHasApiTestAnnotationButItsInvalid() throws Throwable {
         String methodName = INVALID_API;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
@@ -146,6 +147,39 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
                 .contains(methodName);
+    }
+
+    @Test
+    public void failWhenTestMethodHasInvalidApiTestAnnotatedWithIgnoreInvalidApiButWithoutApiRequirements()
+            throws Throwable {
+        String methodName = INVALID_API;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName),
+                new IgnoreInvalidApiAnnotation("I validate, therefore am!"));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> rule.apply(new SimpleStatement<>(), testMethod).evaluate());
+        Log.d(TAG, "Exception: " + e);
+
+        assertWithMessage("exception (%s) message", e).that(e).hasMessageThat()
+                .matches(".*contains @IgnoreInvalidApi.*missing.*@ApiRequirements.*");
+    }
+
+    @Test
+    public void
+            passWhenTestMethodHasInvalidApiTestButAnnotatedWithIgnoreInvalidApiAndApiRequirements()
+                    throws Throwable {
+        String methodName = INVALID_API;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName),
+                new IgnoreInvalidApiAnnotation("I validate, therefore am!"),
+                new ApiRequirementsAnnotation(ApiRequirements.CarVersion.TIRAMISU_1,
+                        ApiRequirements.PlatformVersion.TIRAMISU_1));
+
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
     }
 
     @Test
@@ -1033,6 +1067,31 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
         public String toString() {
             return "@CddTestAnnotation(requirement='" + mRequirement + "', requirements="
                     + Arrays.toString(mRequirements) + ")";
+        }
+    }
+
+    @SuppressWarnings("BadAnnotationImplementation") // We don't care about equals() / hashCode()
+    private static final class IgnoreInvalidApiAnnotation implements IgnoreInvalidApi {
+
+        private final String mReason;
+
+        IgnoreInvalidApiAnnotation(String reason) {
+            mReason = reason;
+        }
+
+        @Override
+        public Class<? extends Annotation> annotationType() {
+            return IgnoreInvalidApi.class;
+        }
+
+        @Override
+        public String reason() {
+            return mReason;
+        }
+
+        @Override
+        public String toString() {
+            return "@IgnoreInvalidApiAnnotation(reason='" + mReason + ")";
         }
     }
 }
