@@ -67,6 +67,11 @@ public class VehiclePropertyIdsTest {
                 expectedCarServiceNames.add("EPOCH_TIME");
                 continue;
             }
+            if (vhalName.equals("GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT")) {
+                // We renamed this property in Car Service.
+                expectedCarServiceNames.add("GENERAL_SAFETY_REGULATION_COMPLIANCE");
+                continue;
+            }
             expectedCarServiceNames.add(vhalName);
         }
 
@@ -99,6 +104,11 @@ public class VehiclePropertyIdsTest {
             if (carServiceName.equals("ANDROID_EPOCH_TIME")) {
                 // This is renamed in AIDL VHAL.
                 carServiceName = "EPOCH_TIME";
+            }
+            if (carServiceName.equals("GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT")) {
+                // We renamed this property in Car Service.
+                carServiceName = "GENERAL_SAFETY_REGULATION_COMPLIANCE";
+                continue;
             }
             int carServicePropId = getValue(VehiclePropertyIds.class, carServiceName);
 
