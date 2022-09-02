@@ -80,7 +80,7 @@ public final class PlatformVersionMismatchException extends UnsupportedOperation
     @DataClass.Generated.Member
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public @NonNull PlatformVersion getExpectedPlatformApiVersion() {
+    public @NonNull PlatformVersion getMinimumPlatformApiVersion() {
         return mExpectedPlatformApiVersion;
     }
 
