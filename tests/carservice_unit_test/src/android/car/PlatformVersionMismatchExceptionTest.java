@@ -32,7 +32,7 @@ public final class PlatformVersionMismatchExceptionTest {
                 PlatformVersion.forMajorAndMinorVersions(expectedMajorVersion,
                         expectedMinorVersion));
 
-        PlatformVersion expectedApiVersion = exception.getExpectedPlatformApiVersion();
+        PlatformVersion expectedApiVersion = exception.getMinimumPlatformApiVersion();
 
         assertThat(expectedApiVersion.getMajorVersion()).isEqualTo(expectedMajorVersion);
         assertThat(expectedApiVersion.getMinorVersion()).isEqualTo(expectedMinorVersion);
@@ -61,8 +61,8 @@ public final class PlatformVersionMismatchExceptionTest {
             PlatformVersionMismatchException exceptionFromParcel =
                     PlatformVersionMismatchException.CREATOR.createFromParcel(parcel);
 
-            assertThat(exceptionFromParcel.getExpectedPlatformApiVersion())
-                    .isEqualTo(exception.getExpectedPlatformApiVersion());
+            assertThat(exceptionFromParcel.getMinimumPlatformApiVersion())
+                    .isEqualTo(exception.getMinimumPlatformApiVersion());
         } finally {
             parcel.recycle();
         }

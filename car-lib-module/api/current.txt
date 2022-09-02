@@ -227,7 +227,7 @@ package android.car {
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
     ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformVersion);
     method public int describeContents();
-    method @NonNull public android.car.PlatformVersion getExpectedPlatformApiVersion();
+    method @NonNull public android.car.PlatformVersion getMinimumPlatformApiVersion();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersionMismatchException> CREATOR;
   }
