@@ -17,9 +17,14 @@
 package android.car.hardware.property;
 
 import android.annotation.Nullable;
+import android.car.annotation.ApiRequirements;
+import android.car.annotation.ApiRequirements.CarVersion;
+import android.car.annotation.ApiRequirements.PlatformVersion;
 import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.os.Parcelable;
 
+import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -30,14 +35,14 @@ public final class GetValueResult implements Parcelable {
     private final int mRequestId;
     @Nullable
     private final CarPropertyValue mCarPropertyValue;
-    @CarPropertyManager.ErrorCode
+    @CarPropertyAsyncErrorCode
     private final int mErrorCode;
 
     /**
      * Get an instance for GetValueResult.
      */
     public GetValueResult(int requestId, @Nullable CarPropertyValue carPropertyValue,
-            @CarPropertyManager.ErrorCode int errorCode) {
+            @CarPropertyAsyncErrorCode int errorCode) {
         mRequestId = requestId;
         mCarPropertyValue = carPropertyValue;
         mErrorCode = errorCode;
@@ -57,22 +62,29 @@ public final class GetValueResult implements Parcelable {
     //   Settings > Editor > Code Style > Formatter Control
     //@formatter:off
 
-
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public int getRequestId() {
         return mRequestId;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public @Nullable CarPropertyValue getCarPropertyValue() {
         return mCarPropertyValue;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
-    public @CarPropertyManager.ErrorCode int getErrorCode() {
+    public @CarPropertyAsyncErrorCode int getErrorCode() {
         return mErrorCode;
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public void writeToParcel(@android.annotation.NonNull android.os.Parcel dest, int flags) {
@@ -87,6 +99,8 @@ public final class GetValueResult implements Parcelable {
         dest.writeInt(mErrorCode);
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @Override
     @DataClass.Generated.Member
     public int describeContents() { return 0; }
@@ -106,10 +120,14 @@ public final class GetValueResult implements Parcelable {
         this.mRequestId = requestId;
         this.mCarPropertyValue = carPropertyValue;
         this.mErrorCode = errorCode;
+        AnnotationValidations.validate(
+                CarPropertyAsyncErrorCode.class, null, mErrorCode);
 
         // onConstructed(); // You can define this method to get a callback
     }
 
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+                     minPlatformVersion = PlatformVersion.TIRAMISU_0)
     @DataClass.Generated.Member
     public static final @android.annotation.NonNull Parcelable.Creator<GetValueResult> CREATOR
             = new Parcelable.Creator<GetValueResult>() {
@@ -125,10 +143,10 @@ public final class GetValueResult implements Parcelable {
     };
 
     @DataClass.Generated(
-            time = 1659570543545L,
+            time = 1660959588450L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/property/GetValueResult.java",
-            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final @android.car.hardware.property.CarPropertyManager.ErrorCode int mErrorCode\nclass GetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
+            inputSignatures = "private final  int mRequestId\nprivate final @android.annotation.Nullable android.car.hardware.CarPropertyValue mCarPropertyValue\nprivate final @android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode int mErrorCode\nclass GetValueResult extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genConstructor=false)")
     @Deprecated
     private void __metadata() {}
 

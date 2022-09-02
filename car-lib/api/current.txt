@@ -773,10 +773,9 @@ package android.car.hardware.property {
     method public default void onErrorEvent(int, int, int);
   }
 
-  public abstract static class CarPropertyManager.GetPropertyCallback {
-    ctor public CarPropertyManager.GetPropertyCallback();
-    method public abstract void onFailure(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyError);
-    method public abstract void onSuccess(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyResult);
+  public static interface CarPropertyManager.GetPropertyCallback {
+    method public void onFailure(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyError);
+    method public void onSuccess(@NonNull android.car.hardware.property.CarPropertyManager.GetPropertyResult);
   }
 
   public static final class CarPropertyManager.GetPropertyError {
@@ -786,7 +785,6 @@ package android.car.hardware.property {
   }
 
   public static final class CarPropertyManager.GetPropertyRequest {
-    ctor public CarPropertyManager.GetPropertyRequest(int, int, int);
     method public int getAreaId();
     method public int getPropertyId();
     method public int getRequestId();

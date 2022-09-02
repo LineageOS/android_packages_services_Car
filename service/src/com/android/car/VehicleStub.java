@@ -19,6 +19,7 @@ package com.android.car;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
@@ -91,7 +92,7 @@ public abstract class VehicleStub {
         private final int mServiceRequestId;
         @Nullable
         private final HalPropValue mHalPropValue;
-        @CarPropertyManager.ErrorCode
+        @CarPropertyAsyncErrorCode
         private final int mErrorCode;
 
         public int getServiceRequestId() {
@@ -103,7 +104,7 @@ public abstract class VehicleStub {
             return mHalPropValue;
         }
 
-        @CarPropertyManager.ErrorCode
+        @CarPropertyAsyncErrorCode
         public int getErrorCode() {
             return mErrorCode;
         }
@@ -121,7 +122,7 @@ public abstract class VehicleStub {
          * Constructs an instance for GetVehicleStubAsyncResult when error.
          */
         public GetVehicleStubAsyncResult(int serviceRequestId,
-                @CarPropertyManager.ErrorCode int errorCode) {
+                @CarPropertyAsyncErrorCode int errorCode) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = null;
             mErrorCode = errorCode;

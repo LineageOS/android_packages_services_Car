@@ -21,6 +21,7 @@ import static com.android.car.CarServiceUtils.subscribeOptionsToHidl;
 import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
@@ -237,7 +238,7 @@ final class HidlVehicleStub extends VehicleStub {
     }
 
     private void callGetAsyncErrorCallbacks(
-            @CarPropertyManager.ErrorCode int errorCodeCarPropertyManager, int serviceRequestId,
+            @CarPropertyAsyncErrorCode int errorCodeCarPropertyManager, int serviceRequestId,
             GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         getVehicleStubAsyncCallback.onGetAsyncResults(
                 List.of(new GetVehicleStubAsyncResult(serviceRequestId,

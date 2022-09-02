@@ -57,7 +57,8 @@ public final class DebugUtils {
      *
      * @hide
      */
-    public static String flagsToString(Class<?> clazz, String prefix, int flags) {
+    public static String flagsToString(Class<?> clazz, String prefix, int flagsToConvert) {
+        int flags = flagsToConvert;
         final StringBuilder res = new StringBuilder();
         boolean flagsWasZero = flags == 0;
 

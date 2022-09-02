@@ -230,6 +230,7 @@ public final class ApiCheckerRule implements TestRule {
                 // Variables below are used to validate that all ApiRequirements are compatible
                 ApiTest apiTest = null;
                 ApiRequirements apiRequirementsOnApiUnderTest = null;
+                IgnoreInvalidApi ignoreInvalidApi = null;
 
                 // Optional annotations that change the behavior of the rule
                 SupportedVersionTest supportedVersionTest = null;
@@ -266,6 +267,10 @@ public final class ApiCheckerRule implements TestRule {
                         unsupportedVersionTest = (UnsupportedVersionTest) annotation;
                         continue;
                     }
+                    if (annotation instanceof IgnoreInvalidApi) {
+                        ignoreInvalidApi = (IgnoreInvalidApi) annotation;
+                        continue;
+                    }
                 }
 
                 if (DBG) {
@@ -274,7 +279,8 @@ public final class ApiCheckerRule implements TestRule {
                             + " CddTest=" + cddTest
                             + " ApiRequirements=" + apiRequirementsOnTest
                             + " SupportedVersionTest=" + supportedVersionTest
-                            + " UnsupportedVersionTest=" + unsupportedVersionTest);
+                            + " UnsupportedVersionTest=" + unsupportedVersionTest
+                            + " IgnoreInvalidApi=" + ignoreInvalidApi);
                 }
 
                 validateOptionalAnnotations(description.getTestClass(), description.getMethodName(),
@@ -297,11 +303,14 @@ public final class ApiCheckerRule implements TestRule {
 
                 if (apiTest != null) {
                     Pair<ApiRequirements, AddedInOrBefore> pair = getApiRequirementsFromApis(
-                            description, apiTest);
+                            description, apiTest, ignoreInvalidApi);
                     apiRequirementsOnApiUnderTest = pair.first;
                     if (effectiveApiRequirementsOnTest == null) {
                         // not set by CddTest
                         effectiveApiRequirementsOnTest = apiRequirementsOnApiUnderTest;
+                    }
+                    if (effectiveApiRequirementsOnTest == null && ignoreInvalidApi != null) {
+                        effectiveApiRequirementsOnTest = apiRequirementsOnTest;
                     }
                     addedInOrBefore = pair.second;
                 }
@@ -317,14 +326,24 @@ public final class ApiCheckerRule implements TestRule {
                             + "@ApiTest and @ApiRequirements");
                 }
 
-                if (effectiveApiRequirementsOnTest == null && addedInOrBefore == null) {
-                    if (mEnforceTestApiAnnotations) {
-                        throw new IllegalArgumentException("Missing @ApiRequirements "
-                                + "or @AddedInOrBefore");
-                    } else {
-                        Log.w(TAG, "Test " + description + " doesn't have required "
-                                + "@ApiRequirements or @AddedInOrBefore but rule is not enforcing"
-                                + " them");
+                if (effectiveApiRequirementsOnTest == null) {
+                    if (ignoreInvalidApi != null) {
+                        if (mEnforceTestApiAnnotations) {
+                            throw new IllegalArgumentException("Test contains @IgnoreInvalidApi but"
+                                    + " is missing @ApiRequirements");
+                        } else {
+                            Log.w(TAG, "Test " + description + " contains @IgnoreInvalidApi and is "
+                                    + "missing @ApiRequirements, but rule is not enforcing them");
+                        }
+                    } else if (addedInOrBefore == null) {
+                        if (mEnforceTestApiAnnotations) {
+                            throw new IllegalArgumentException("Missing @ApiRequirements "
+                                    + "or @AddedInOrBefore");
+                        } else {
+                            Log.w(TAG, "Test " + description + " doesn't have required "
+                                    + "@ApiRequirements or @AddedInOrBefore but rule is not "
+                                    + "enforcing them");
+                        }
                     }
                     base.evaluate();
                     return;
@@ -335,7 +354,6 @@ public final class ApiCheckerRule implements TestRule {
                 apply(base, description, effectiveApiRequirementsOnTest, supportedVersionTest,
                         unsupportedVersionTest);
             }
-
         };
     } // apply
 
@@ -376,7 +394,7 @@ public final class ApiCheckerRule implements TestRule {
 
     @SuppressWarnings("deprecation")
     private Pair<ApiRequirements, AddedInOrBefore> getApiRequirementsFromApis(
-            Description description, ApiTest apiTest) {
+            Description description, ApiTest apiTest, @Nullable IgnoreInvalidApi ignoreInvalidApi) {
         ApiRequirements firstApiRequirements = null;
         AddedInOrBefore addedInOrBefore = null;
         List<String> allApis = new ArrayList<>();
@@ -423,10 +441,14 @@ public final class ApiCheckerRule implements TestRule {
             }
         }
         if (!invalidApis.isEmpty()) {
-            throw new IllegalArgumentException("Could not resolve some APIs ("
-                    + invalidApis + ") on annotation (" + apiTest + ")");
-        }
-        if (!compatibleApis) {
+            if (ignoreInvalidApi != null) {
+                Log.i(TAG, "Could not resolve some APIs (" + invalidApis + ") on annotation ("
+                        + apiTest + "), but letting it go due to " + ignoreInvalidApi);
+            } else {
+                throw new IllegalArgumentException("Could not resolve some APIs ("
+                        + invalidApis + ") on annotation (" + apiTest + ")");
+            }
+        } else if (!compatibleApis) {
             throw new IncompatibleApiRequirementsException(allApis, allApiRequirements);
         }
         return new Pair<>(firstApiRequirements, addedInOrBefore);
@@ -677,6 +699,25 @@ public final class ApiCheckerRule implements TestRule {
          */
         String unsupportedVersionTest();
 
+    }
+
+    /***
+     * Tells the rule to ignore an invalid API passed to {@link ApiTest}.
+     *
+     * <p>Should be used in cases where the API is being indirectly tested (for example, through a
+     * shell command) and hence is not available in the test's classpath.
+     *
+     * <p>Should be used in conjunction with {@link ApiRequirements}.
+     *
+     */
+    @Retention(RUNTIME)
+    @Target({TYPE, METHOD})
+    public @interface IgnoreInvalidApi {
+
+        /**
+         * Reason why the invalid API should be ignored.
+         */
+        String reason();
     }
 
     public static final class ExpectedVersionAssumptionViolationException
