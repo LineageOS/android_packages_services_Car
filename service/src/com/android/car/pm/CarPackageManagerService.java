@@ -87,6 +87,7 @@ import android.util.ArraySet;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.util.SparseLongArray;
 import android.view.Display;
 import android.view.accessibility.AccessibilityEvent;
@@ -170,6 +171,11 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     private Map<String, Set<String>> mConfiguredBlocklistMap;
 
     private final List<String> mAllowedAppInstallSources;
+
+    // A SparseBooleanArray to handle the already blocked display IDs when iterating on the visible
+    // tasks. This is defined as an instance variable to avoid frequent creations.
+    // This Array is cleared everytime before its use.
+    private final SparseBooleanArray mBlockedDisplayIds = new SparseBooleanArray();
 
     @GuardedBy("mLock")
     private final SparseArray<ComponentName> mTopActivityWithDialogPerDisplay = new SparseArray<>();
@@ -1288,17 +1294,33 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     }
 
     private void blockTopActivitiesIfNecessary() {
-        List<? extends TaskInfo> topTasks = mActivityService.getVisibleTasks();
-        for (TaskInfo topTask : topTasks) {
+        List<? extends TaskInfo> visibleTasks = mActivityService.getVisibleTasks();
+        mBlockedDisplayIds.clear();
+        for (TaskInfo topTask : visibleTasks) {
             if (topTask == null) {
                 Slogf.e(TAG, "Top tasks contains null.");
                 continue;
             }
-            blockTopActivityIfNecessary(topTask);
+
+            int displayIdOfTask = TaskInfoHelper.getDisplayId(topTask);
+            if (mBlockedDisplayIds.indexOfKey(displayIdOfTask) != -1) {
+                if (DBG) {
+                    Slogf.d(TAG, "This display has already been blocked.");
+                }
+                continue;
+            }
+
+            boolean blocked = blockTopActivityIfNecessary(topTask);
+            if (blocked) {
+                mBlockedDisplayIds.append(displayIdOfTask, true);
+            }
         }
     }
 
-    private void blockTopActivityIfNecessary(TaskInfo topTask) {
+    /**
+     * @return {@code True} if the {@code topTask} was blocked, {@code False} otherwise.
+     */
+    private boolean blockTopActivityIfNecessary(TaskInfo topTask) {
         int displayId = TaskInfoHelper.getDisplayId(topTask);
         synchronized (mLock) {
             if (!Objects.equals(mActivityBlockingActivity, topTask.topActivity)
@@ -1310,30 +1332,34 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             }
         }
         if (isUxRestrictedOnDisplay(displayId)) {
-            doBlockTopActivityIfNotAllowed(displayId, topTask);
+            return doBlockTopActivityIfNotAllowed(displayId, topTask);
         }
+        return false;
     }
 
-    private void doBlockTopActivityIfNotAllowed(int displayId, TaskInfo topTask) {
+    /**
+     * @return {@code True} if the {@code topTask} was blocked, {@code False} otherwise.
+     */
+    private boolean doBlockTopActivityIfNotAllowed(int displayId, TaskInfo topTask) {
         if (topTask.topActivity == null) {
-            return;
+            return false;
         }
         if (topTask.topActivity.equals(mActivityBlockingActivity)) {
             mBlockingActivityLaunchTimes.put(displayId, 0);
             mBlockingActivityTargets.put(displayId, null);
-            return;
+            return false;
         }
         boolean allowed = isActivityAllowed(topTask);
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "new activity:" + topTask.toString() + " allowed:" + allowed);
         }
         if (allowed) {
-            return;
+            return false;
         }
         if (!mEnableActivityBlocking) {
             Slogf.d(TAG, "Current activity " + topTask.topActivity
                     + " not allowed, blocking disabled.");
-            return;
+            return false;
         }
         if (Slogf.isLoggable(TAG, Log.DEBUG)) {
             Slogf.d(TAG, "Current activity " + topTask.topActivity
@@ -1348,7 +1374,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
             long blockingActivityLaunchTime = mBlockingActivityLaunchTimes.get(displayId);
             if (SystemClock.uptimeMillis() - blockingActivityLaunchTime < ABA_LAUNCH_TIMEOUT_MS) {
                 Slogf.d(TAG, "Waiting for BlockingActivity to be shown: displayId=%d", displayId);
-                return;
+                return false;
             }
         }
 
@@ -1375,6 +1401,7 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
         mBlockingActivityLaunchTimes.put(displayId, SystemClock.uptimeMillis());
         mBlockingActivityTargets.put(displayId, topTask.topActivity);
         mActivityService.blockActivity(topTask, newActivityIntent);
+        return true;
     }
 
     private boolean isActivityAllowed(TaskInfo topTaskInfoContainer) {
