@@ -30,7 +30,7 @@ import android.os.Bundle;
  * @hide
  */
 @SystemApi
-public class ClusterActivityState {
+public final class ClusterActivityState {
     private static final String KEY_VISIBLE = "android.car:activityState.visible";
     private static final String KEY_UNOBSCURED_BOUNDS = "android.car:activityState.unobscured";
     private static final String KEY_EXTRAS = "android.car:activityState.extras";
