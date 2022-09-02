@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class VehiclePropertyIdsTest {
     // IDs that only exist in CarPropertyManager, not VHAL.
     private static final List<String> MISSING_VHAL_IDS = List.of(
-                    "GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT");
+                    "GENERAL_SAFETY_REGULATION_COMPLIANCE");
 
     // IDs that only exist in VHAL, not exposed by CarPropertyManager.
     private static final List<String> MISSING_VEHICLE_PROPERTY_IDS = List.of(

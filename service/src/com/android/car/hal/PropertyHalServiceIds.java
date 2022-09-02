@@ -112,7 +112,7 @@ public class PropertyHalServiceIds {
     private static final Set<Integer> TRAILER_PRESENT =
             new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
 
-    // This is the property ID for GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT added in
+    // This is the property ID for GENERAL_SAFETY_REGULATION_COMPLIANCE added in
     // API version 34. We cannot change API for this version now, so we have to hard code the
     // property ID here.
     //
@@ -122,7 +122,7 @@ public class PropertyHalServiceIds {
     // <ul>
     // <li> 0: GSR_COMPLIANCE_NOT_REQUIRED
     // <li> 1: GSR_COMPLIANCE_REQUIRED_V1
-    private static final int PROP_GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT = 0x11400F47;
+    private static final int PROP_GENERAL_SAFETY_REGULATION_COMPLIANCE = 0x11400F47;
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -611,7 +611,7 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.TRAILER_PRESENT, new Pair<>(
                 Car.PERMISSION_PRIVILEGED_CAR_INFO, null));
 
-        mProps.put(PROP_GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
+        mProps.put(PROP_GENERAL_SAFETY_REGULATION_COMPLIANCE,
                 new Pair<>(Car.PERMISSION_CAR_INFO, null));
         // mPropToValidValue should contain all properties which has @data_enum in types.hal
         mPropToValidValue.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);

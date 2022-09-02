@@ -2244,14 +2244,14 @@ public final class VehiclePropertyIds {
      * EU's General security regulation compliance requirement.
      *
      * <p>Returns whether general security regulation compliance is required, if
-     * so, what type of requirement. See {@link GsrComplianceRequirementTYpe} for possible enums.
+     * so, what type of requirement. See {@link GsrComplianceType} for possible enums.
      *
      * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_CAR_INFO))
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT = 289410887;
+    public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887;
 
     /*
      * Used to cache the mapping of property Id integer values into property name strings. This
