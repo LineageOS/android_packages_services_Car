@@ -56,6 +56,10 @@ using ::testing::Test;
 using ::testing::UnorderedElementsAreArray;
 using ::testing::VariantWith;
 
+constexpr int kTestTopNStatsPerCategory = 5;
+constexpr int kTestTopNStatsPerSubcategory = 5;
+constexpr int kTestMaxUserSwitchEvents = 3;
+
 MATCHER_P(IoStatsEq, expected, "") {
     return ExplainMatchResult(AllOf(Field("bytes", &UserPackageStats::IoStats::bytes,
                                           ElementsAreArray(expected.bytes)),
@@ -205,6 +209,26 @@ MATCHER_P(CollectionInfoEq, expected, "") {
                                           ElementsAreArray(constructPerfStatsRecordMatchers(
                                                   expected.records)))),
                               arg, result_listener);
+}
+
+MATCHER_P(UserSwitchCollectionInfoEq, expected, "") {
+    return ExplainMatchResult(AllOf(Field("from", &UserSwitchCollectionInfo::from,
+                                          Eq(expected.from)),
+                                    Field("to", &UserSwitchCollectionInfo::to, Eq(expected.to)),
+                                    Field("maxCacheSize", &UserSwitchCollectionInfo::maxCacheSize,
+                                          Eq(expected.maxCacheSize)),
+                                    Field("records", &UserSwitchCollectionInfo::records,
+                                          ElementsAreArray(constructPerfStatsRecordMatchers(
+                                                  expected.records)))),
+                              arg, result_listener);
+}
+
+MATCHER_P(UserSwitchCollectionsEq, expected, "") {
+    std::vector<Matcher<const UserSwitchCollectionInfo&>> userSwitchCollectionMatchers;
+    for (const auto& curCollection : expected) {
+        userSwitchCollectionMatchers.push_back(UserSwitchCollectionInfoEq(curCollection));
+    }
+    return ExplainMatchResult(ElementsAreArray(userSwitchCollectionMatchers), arg, result_listener);
 }
 
 int countOccurrences(std::string str, std::string subStr) {
@@ -417,6 +441,8 @@ public:
 
     void setTopNStatsPerSubcategory(int value) { mCollector->mTopNStatsPerSubcategory = value; }
 
+    void setMaxUserSwitchEvents(int value) { mCollector->mMaxUserSwitchEvents = value; }
+
     const CollectionInfo& getBoottimeCollectionInfo() {
         Mutex::Autolock lock(mCollector->mMutex);
         return mCollector->mBoottimeCollection;
@@ -425,6 +451,11 @@ public:
     const CollectionInfo& getPeriodicCollectionInfo() {
         Mutex::Autolock lock(mCollector->mMutex);
         return mCollector->mPeriodicCollection;
+    }
+
+    const std::vector<UserSwitchCollectionInfo>& getUserSwitchCollectionInfos() {
+        Mutex::Autolock lock(mCollector->mMutex);
+        return mCollector->mUserSwitchCollections;
     }
 
     const CollectionInfo& getCustomCollectionInfo() {
@@ -446,8 +477,9 @@ protected:
         mCollector = sp<IoPerfCollection>::make();
         mCollectorPeer = sp<internal::IoPerfCollectionPeer>::make(mCollector);
         ASSERT_RESULT_OK(mCollectorPeer->init());
-        mCollectorPeer->setTopNStatsPerCategory(5);
-        mCollectorPeer->setTopNStatsPerSubcategory(5);
+        mCollectorPeer->setTopNStatsPerCategory(kTestTopNStatsPerCategory);
+        mCollectorPeer->setTopNStatsPerSubcategory(kTestTopNStatsPerSubcategory);
+        mCollectorPeer->setMaxUserSwitchEvents(kTestMaxUserSwitchEvents);
     }
 
     void TearDown() override {
@@ -516,8 +548,178 @@ TEST_F(IoPerfCollectionTest, TestOnBoottimeCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/1))
-            << "Periodic collection shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
+            << "Periodic and user-switch collections shouldn't be reported";
+}
+
+TEST_F(IoPerfCollectionTest, TestOnUserSwitchCollection) {
+    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(procStatInfo));
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, 100, 101, mMockUidStatsCollector,
+                                                        mMockProcStatCollector));
+
+    const auto& actualInfos = mCollectorPeer->getUserSwitchCollectionInfos();
+    const auto& actual = actualInfos[0];
+
+    UserSwitchCollectionInfo expected{
+            {
+                    .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                    .records = {{
+                            .systemSummaryStats = systemSummaryStats,
+                            .userPackageSummaryStats = userPackageSummaryStats,
+                    }},
+            },
+            .from = 100,
+            .to = 101,
+    };
+
+    EXPECT_THAT(actualInfos.size(), 1);
+
+    EXPECT_THAT(actual, UserSwitchCollectionInfoEq(expected))
+            << "User switch collection info doesn't match.\nExpected:\n"
+            << expected.toString() << "\nActual:\n"
+            << actual.toString();
+
+    // Continuation of the previous user switch collection
+    std::vector<UidStats> nextUidStats = {
+            {.packageInfo = constructPackageInfo("mount", 1009),
+             .ioStats = {/*fgRdBytes=*/0,
+                         /*bgRdBytes=*/5'000,
+                         /*fgWrBytes=*/0,
+                         /*bgWrBytes=*/3'000,
+                         /*fgFsync=*/0, /*bgFsync=*/50},
+             .procStats = {.cpuTimeMillis = 50,
+                           .totalMajorFaults = 6'000,
+                           .totalTasksCount = 1,
+                           .ioBlockedTasksCount = 2,
+                           .processStatsByPid = {{/*pid=*/100,
+                                                  {/*comm=*/"disk I/O", /*startTime=*/234,
+                                                   /*cpuTimeMillis=*/50,
+                                                   /*totalMajorFaults=*/6'000,
+                                                   /*totalTasksCount=*/1,
+                                                   /*ioBlockedTasksCount=*/2}}}}}};
+
+    UserPackageSummaryStats nextUserPackageSummaryStats = {
+            .topNIoReads = {{1009, "mount", UserPackageStats::IoStats{{0, 5'000}, {0, 50}}}},
+            .topNIoWrites = {{1009, "mount", UserPackageStats::IoStats{{0, 3'000}, {0, 50}}}},
+            .topNIoBlocked = {{1009, "mount", UserPackageStats::ProcStats{2, {{"disk I/O", 2}}}}},
+            .topNMajorFaults = {{1009, "mount",
+                                 UserPackageStats::ProcStats{6'000, {{"disk I/O", 6'000}}}}},
+            .totalIoStats = {{0, 5'000}, {0, 3'000}, {0, 50}},
+            .taskCountByUid = {{1009, 1}},
+            .totalCpuTimeMillis = 48'376,
+            .totalMajorFaults = 6'000,
+            .majorFaultsPercentChange = (6'000.0 - 84'345.0) / 84'345.0 * 100.0,
+    };
+
+    ProcStatInfo nextProcStatInfo = procStatInfo;
+    SystemSummaryStats nextSystemSummaryStats = systemSummaryStats;
+
+    nextProcStatInfo.contextSwitchesCount = 300;
+    nextSystemSummaryStats.contextSwitchesCount = 300;
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillOnce(Return(nextUidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillOnce(Return(nextProcStatInfo));
+
+    now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, 100, 101, mMockUidStatsCollector,
+                                                        mMockProcStatCollector));
+
+    auto& continuationActualInfos = mCollectorPeer->getUserSwitchCollectionInfos();
+    auto& continuationActual = continuationActualInfos[0];
+
+    expected = {
+            {
+                    .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                    .records = {{.systemSummaryStats = systemSummaryStats,
+                                 .userPackageSummaryStats = userPackageSummaryStats},
+                                {.systemSummaryStats = nextSystemSummaryStats,
+                                 .userPackageSummaryStats = nextUserPackageSummaryStats}},
+            },
+            .from = 100,
+            .to = 101,
+    };
+
+    EXPECT_THAT(continuationActualInfos.size(), 1);
+
+    EXPECT_THAT(continuationActual, UserSwitchCollectionInfoEq(expected))
+            << "User switch collection info after continuation doesn't match.\nExpected:\n"
+            << expected.toString() << "\nActual:\n"
+            << actual.toString();
+
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
+            << "Boottime and Periodic collections shouldn't be reported";
+}
+
+TEST_F(IoPerfCollectionTest, TestUserSwitchCollectionsMaxCacheSize) {
+    auto [uidStats, userPackageSummaryStats] = sampleUidStats();
+    auto [procStatInfo, systemSummaryStats] = sampleProcStat();
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats()).WillRepeatedly(Return(uidStats));
+    EXPECT_CALL(*mMockProcStatCollector, deltaStats()).WillRepeatedly(Return(procStatInfo));
+
+    std::vector<UserSwitchCollectionInfo> expectedEvents;
+    for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
+        expectedEvents.push_back({
+                {
+                        .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                        .records = {{
+                                .systemSummaryStats = systemSummaryStats,
+                                .userPackageSummaryStats = userPackageSummaryStats,
+                        }},
+                },
+                .from = userId,
+                .to = userId + 1,
+        });
+    }
+
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+
+    for (userid_t userId = 100; userId < 100 + kTestMaxUserSwitchEvents; ++userId) {
+        ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, userId, userId + 1,
+                                                            mMockUidStatsCollector,
+                                                            mMockProcStatCollector));
+    }
+
+    const auto& actual = mCollectorPeer->getUserSwitchCollectionInfos();
+
+    EXPECT_THAT(actual.size(), kTestMaxUserSwitchEvents);
+
+    EXPECT_THAT(actual, UserSwitchCollectionsEq(expectedEvents))
+            << "User switch collection infos don't match.";
+
+    // Add new user switch event with max cache size. The oldest user switch event should be dropped
+    // and the new one added to the cache.
+    userid_t userId = 100 + kTestMaxUserSwitchEvents;
+
+    expectedEvents.push_back({
+            {
+                    .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                    .records = {{
+                            .systemSummaryStats = systemSummaryStats,
+                            .userPackageSummaryStats = userPackageSummaryStats,
+                    }},
+            },
+            .from = userId,
+            .to = userId + 1,
+    });
+    expectedEvents.erase(expectedEvents.begin());
+
+    ASSERT_RESULT_OK(mCollector->onUserSwitchCollection(now, userId, userId + 1,
+                                                        mMockUidStatsCollector,
+                                                        mMockProcStatCollector));
+
+    const auto& actualInfos = mCollectorPeer->getUserSwitchCollectionInfos();
+
+    EXPECT_THAT(actualInfos.size(), kTestMaxUserSwitchEvents);
+
+    EXPECT_THAT(actualInfos, UserSwitchCollectionsEq(expectedEvents))
+            << "User switch collection infos don't match.";
 }
 
 TEST_F(IoPerfCollectionTest, TestOnPeriodicCollection) {
@@ -548,8 +750,8 @@ TEST_F(IoPerfCollectionTest, TestOnPeriodicCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/1))
-            << "Boot-time collection shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
+            << "Boot-time and user-switch collections shouldn't be reported";
 }
 
 TEST_F(IoPerfCollectionTest, TestOnCustomCollectionWithoutPackageFilter) {
@@ -712,8 +914,8 @@ TEST_F(IoPerfCollectionTest, TestOnPeriodicCollectionWithTrimmingStatsAfterTopN)
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/1))
-            << "Boot-time collection shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
+            << "Boot-time and user-switch collections shouldn't be reported";
 }
 
 TEST_F(IoPerfCollectionTest, TestConsecutiveOnPeriodicCollection) {
@@ -760,8 +962,8 @@ TEST_F(IoPerfCollectionTest, TestConsecutiveOnPeriodicCollection) {
             << expected.toString() << "\nActual:\n"
             << actual.toString();
 
-    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/1))
-            << "Boot-time collection shouldn't be reported";
+    ASSERT_NO_FATAL_FAILURE(checkDumpContents(/*wantedEmptyCollectionInstances=*/2))
+            << "Boot-time and user-switch collection shouldn't be reported";
 }
 
 }  // namespace watchdog

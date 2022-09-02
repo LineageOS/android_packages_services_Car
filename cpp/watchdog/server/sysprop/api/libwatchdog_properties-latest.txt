@@ -42,4 +42,10 @@ props {
     scope: Internal
     prop_name: "ro.carwatchdog.top_n_stats_per_subcategory"
   }
+  prop {
+    api_name: "maxUserSwitchEvents"
+    type: Integer
+    scope: Internal
+    prop_name: "ro.carwatchdog.max_user_switch_events"
+  }
 }
