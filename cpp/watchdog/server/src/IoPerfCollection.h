@@ -126,14 +126,22 @@ struct CollectionInfo {
     std::string toString() const;
 };
 
+// Group of performance records collected for a user switch collection event.
+struct UserSwitchCollectionInfo : CollectionInfo {
+    userid_t from = 0;
+    userid_t to = 0;
+};
+
 // IoPerfCollection implements the I/O performance data collection module.
 class IoPerfCollection final : public DataProcessorInterface {
 public:
     IoPerfCollection() :
           mTopNStatsPerCategory(0),
           mTopNStatsPerSubcategory(0),
+          mMaxUserSwitchEvents(0),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
+          mUserSwitchCollections({}),
           mCustomCollection({}),
           mLastMajorFaults(0) {}
 
@@ -152,16 +160,9 @@ public:
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
     android::base::Result<void> onUserSwitchCollection(
-            [[maybe_unused]] time_t time, [[maybe_unused]] userid_t from,
-            [[maybe_unused]] userid_t to,
-            [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
-            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
-            override {
-        // TODO(b/236875637): Implement method. The user switch collections should be stored in a
-        //  vector with a max capacity of 5. If the vector is full then discard the oldest user
-        //  switch event and add the newest one. Add from/to user ids to the method signature.
-        return {};
-    }
+            time_t time, userid_t from, userid_t to,
+            const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
     android::base::Result<void> onCustomCollection(
             time_t time, SystemState systemState,
@@ -205,11 +206,17 @@ private:
     void processProcStatLocked(const android::sp<ProcStatCollectorInterface>& procStatCollector,
                                SystemSummaryStats* systemSummaryStats) const;
 
+    // Dump the user switch collection
+    android::base::Result<void> onUserSwitchCollectionDump(int fd) const;
+
     // Top N per-UID stats per category.
     int mTopNStatsPerCategory;
 
     // Top N per-process stats per subcategory.
     int mTopNStatsPerSubcategory;
+
+    // Max amount of user switch events cached in |mUserSwitchCollections|.
+    size_t mMaxUserSwitchEvents;
 
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
@@ -217,22 +224,19 @@ private:
     // Info for the boot-time collection event. The cache is persisted until system shutdown/reboot.
     CollectionInfo mBoottimeCollection GUARDED_BY(mMutex);
 
-    /**
-     * Info for the periodic collection event. The cache size is limited by
-     * |ro.carwatchdog.periodic_collection_buffer_size|.
-     */
+    // Info for the periodic collection event. The cache size is limited by
+    // |ro.carwatchdog.periodic_collection_buffer_size|.
     CollectionInfo mPeriodicCollection GUARDED_BY(mMutex);
 
-    /**
-     * Info for the custom collection event. The info is cleared at the end of every custom
-     * collection.
-     */
+    // Cache for user switch collection events. Events are cached from oldest to newest.
+    std::vector<UserSwitchCollectionInfo> mUserSwitchCollections GUARDED_BY(mMutex);
+
+    // Info for the custom collection event. The info is cleared at the end of every custom
+    // collection.
     CollectionInfo mCustomCollection GUARDED_BY(mMutex);
 
-    /**
-     * Major faults delta from last collection. Useful when calculating the percentage change in
-     * major faults since last collection.
-     */
+    // Major faults delta from last collection. Useful when calculating the percentage change in
+    // major faults since last collection.
     uint64_t mLastMajorFaults GUARDED_BY(mMutex);
 
     friend class WatchdogPerfService;
