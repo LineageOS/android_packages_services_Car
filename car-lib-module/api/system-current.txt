@@ -215,6 +215,10 @@ package android.car {
     field public static final int WRITE = 2; // 0x2
   }
 
+  public final class VehiclePropertyIds {
+    field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+  }
+
   public final class VehicleUnit {
     field public static final int DEGREES = 128; // 0x80
     field public static final int HERTZ = 3; // 0x3
