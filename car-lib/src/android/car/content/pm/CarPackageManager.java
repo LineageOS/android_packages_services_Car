@@ -186,12 +186,9 @@ public final class CarPackageManager extends CarManagerBase {
      * <p>And for {@link Build.VERSION_CODES#TIRAMISU Android 13} first update:
      *
      * <code><meta-data android:name="android.car.targetCarVersion" android:value="33:1"/></code>
-     *
-     * @hide
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    @SystemApi
     public static final String MANIFEST_METADATA_TARGET_CAR_VERSION =
             "android.car.targetCarVersion";
 
