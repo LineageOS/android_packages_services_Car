@@ -38,9 +38,11 @@ import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
+import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.pm.UserInfo;
 import android.os.Process;
+import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -49,11 +51,11 @@ import android.util.Log;
 import com.android.compatibility.common.util.ApiTest;
 
 import org.junit.AfterClass;
-import org.junit.AssumptionViolatedException;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class CarUserManagerTest extends CarMultiUserTestBase {
@@ -127,23 +129,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     @SupportedVersionTest(unsupportedVersionTest =
             "testLifecycleUserCreatedListener_unsupportedVersion")
     public void testLifecycleUserCreatedListener_supportedVersion() throws Exception {
-        lifecycleUserCreatedListenerTest(/*onSupportedVersion=*/ true);
-    }
-
-    @Test
-    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED"})
-    @UnsupportedVersionTest(behavior = Behavior.EXPECT_PASS,
-            supportedVersionTest = "testLifecycleUserCreatedListener_supportedVersion")
-    public void testLifecycleUserCreatedListener_unsupportedVersion() throws Exception {
-        lifecycleUserCreatedListenerTest(/*onSupportedVersion=*/ false);
-    }
-
-    private void lifecycleUserCreatedListenerTest(boolean onSupportedVersion) throws Exception {
-        if (!onSupportedVersion) {
-            // TODO(b/235524989): implement it and remove this check
-            throw new AssumptionViolatedException("lifecycleUserCreatedListenerTest() not "
-                    + "implemented for unsupported version yet");
-        }
         Car car = Car.createCar(getContext().getApplicationContext());
         CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
 
@@ -153,12 +138,13 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                 .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_CREATED)
                 .build();
 
+        int newUserId = UserHandle.USER_NULL;
         try {
             Log.d(TAG, "registering listener: " + listener);
             mgr.addListener(Runnable::run, listener);
             Log.v(TAG, "ok");
 
-            int newUserId = createUser("TestUserToCreate").id;
+            newUserId = createUser("TestUserToCreate").id;
 
             Log.d(TAG, "Waiting for events");
             List<UserLifecycleEvent> events = listener.waitForEvents();
@@ -173,6 +159,41 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
             Log.d(TAG, "unregistering listener: " + listener);
             mgr.removeListener(listener);
             Log.v(TAG, "ok");
+
+            if (newUserId != UserHandle.USER_NULL) {
+                removeUser(newUserId);
+            }
+        }
+    }
+
+    @Test
+    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED"})
+    @UnsupportedVersionTest(behavior = Behavior.EXPECT_PASS,
+            supportedVersionTest = "testLifecycleUserCreatedListener_supportedVersion")
+    public void testLifecycleUserCreatedListener_unsupportedVersion() throws Exception {
+        Car car = Car.createCar(getContext().getApplicationContext());
+        CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+
+        LifecycleListener listener = new LifecycleListener();
+
+        int newUserId = UserHandle.USER_NULL;
+        try {
+            mgr.addListener(Runnable::run, listener);
+            Log.v(TAG, "ok");
+
+            newUserId = createUser("TestUserToCreate").id;
+
+            Log.d(TAG, "Waiting for events");
+            listener.assertEventNotReceived(
+                    newUserId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED);
+        } finally {
+            Log.d(TAG, "unregistering listener: " + listener);
+            mgr.removeListener(listener);
+            Log.v(TAG, "ok");
+
+            if (newUserId != UserHandle.USER_NULL) {
+                removeUser(newUserId);
+            }
         }
     }
 
@@ -181,23 +202,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
             "testLifecycleUserRemovedListener_unsupportedVersion")
     @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED"})
     public void testLifecycleUserRemovedListener_supportedVersion() throws Exception {
-        lifecycleUserRemovedListenerTest(/*onSupportedVersion=*/ true);
-    }
-
-    @Test
-    @UnsupportedVersionTest(behavior = Behavior.EXPECT_PASS, supportedVersionTest =
-            "testLifecycleUserRemovedListener_supportedVersion")
-    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED"})
-    public void testLifecycleUserRemovedListener_unsupportedVersion() throws Exception {
-        lifecycleUserRemovedListenerTest(/*onSupportedVersion=*/ false);
-    }
-
-    private void lifecycleUserRemovedListenerTest(boolean onSupportedVersion) throws Exception {
-        if (!onSupportedVersion) {
-            // TODO(b/235524989): implement it and remove this check
-            throw new AssumptionViolatedException("lifecycleUserRemovedListenerTest() not "
-                    + "implemented for unsupported version yet");
-        }
         int newUserId = createUser("TestUserToRemove").id;
         Car car = Car.createCar(getContext().getApplicationContext());
         CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
@@ -225,6 +229,34 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
                     .isEqualTo(USER_LIFECYCLE_EVENT_TYPE_REMOVED);
             assertWithMessage("user id on %s", event).that(event.getUserId())
                     .isEqualTo(newUserId);
+        } finally {
+            Log.d(TAG, "unregistering listener: " + listener);
+            mgr.removeListener(listener);
+            Log.v(TAG, "ok");
+        }
+    }
+
+    @Test
+    @UnsupportedVersionTest(behavior = Behavior.EXPECT_PASS, supportedVersionTest =
+            "testLifecycleUserRemovedListener_supportedVersion")
+    @ApiTest(apis = {"android.car.user.CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED"})
+    public void testLifecycleUserRemovedListener_unsupportedVersion() throws Exception {
+        int newUserId = createUser("TestUserToRemove").id;
+        Car car = Car.createCar(getContext().getApplicationContext());
+        CarUserManager mgr = (CarUserManager) car.getCarManager(Car.CAR_USER_SERVICE);
+
+        LifecycleListener listener = new LifecycleListener();
+
+        try {
+            Log.d(TAG, "registering listener: " + listener);
+            mgr.addListener(Runnable::run, listener);
+            Log.v(TAG, "ok");
+
+            removeUser(newUserId);
+
+            Log.d(TAG, "Waiting for events");
+            listener.assertEventNotReceived(
+                    newUserId, CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED);
         } finally {
             Log.d(TAG, "unregistering listener: " + listener);
             mgr.removeListener(listener);
@@ -466,5 +498,50 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
 
     private static boolean isDeviceEmulator() {
         return SystemProperties.get("ro.product.system.device").equals("generic");
+    }
+
+    // TODO(b/244594590): Clean this listener up once BlockingUserLifecycleListener supports
+    // no events received.
+    private final class LifecycleListener implements UserLifecycleListener {
+        private static final int TIMEOUT_MS = 60_000;
+        private static final int WAIT_TIME_MS = 1_000;
+
+        private final List<UserLifecycleEvent> mEvents =
+                new ArrayList<CarUserManager.UserLifecycleEvent>();
+
+        private final Object mLock = new Object();
+
+        @Override
+        public void onEvent(UserLifecycleEvent event) {
+            Log.d(TAG, "Event received: " + event);
+            synchronized (mLock) {
+                mEvents.add(event);
+            }
+        }
+
+        public void assertEventNotReceived(int userId, int eventType)
+                throws InterruptedException {
+            long startTime = SystemClock.elapsedRealtime();
+            while (SystemClock.elapsedRealtime() - startTime < TIMEOUT_MS) {
+                boolean result = checkEvent(userId, eventType);
+                if (result) {
+                    fail("Event" + eventType
+                            + " was not expected but was received within timeoutMs: " + TIMEOUT_MS);
+                }
+                Thread.sleep(WAIT_TIME_MS);
+            }
+        }
+
+        private boolean checkEvent(int userId, int eventType) {
+            synchronized (mLock) {
+                for (int i = 0; i < mEvents.size(); i++) {
+                    if (mEvents.get(i).getUserHandle().getIdentifier() == userId
+                            && mEvents.get(i).getEventType() == eventType) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }
