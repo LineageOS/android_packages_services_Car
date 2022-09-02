@@ -67,8 +67,9 @@ struct CarPowerPolicyMeta {
 /**
  * PolicyManager manages power policies, power policy mapping to power transision, and system power
  * policy.
- * It reads vendor policy information from /vendor/etc/power_policy.xml. If the XML file is invalid,
- * no power policy is registered and the system power policy is set to default.
+ * It reads vendor policy information from /vendor/etc/automotive/power_policy.xml.
+ * If the XML file is invalid, no power policy is registered and the system power policy is set to
+ * default.
  */
 class PolicyManager {
 public:

@@ -546,8 +546,9 @@ public class CarPowerManager extends CarManagerBase {
      * Applies the given power policy.
      *
      * <p>Power components are turned on or off as specified in the given power policy. Power
-     * policies are defined at {@code /vendor/etc/power_policy.xml}. If the given power policy
-     * doesn't exist, this method throws {@link java.lang.IllegalArgumentException}.
+     * policies are defined at {@code /vendor/etc/automotive/power_policy.xml}.
+     * If the given power policy doesn't exist, this method throws
+     * {@link java.lang.IllegalArgumentException}.
      *
      * @param policyId ID of power policy.
      * @throws IllegalArgumentException if {@code policyId} is null.
