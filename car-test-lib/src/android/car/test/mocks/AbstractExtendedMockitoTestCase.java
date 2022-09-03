@@ -171,14 +171,27 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     @After
     public final void finishSession() {
-        beginTrace("finishSession()");
-        completeAllHandlerThreadTasks();
-        if (mSession != null) {
-            beginTrace("finishMocking()");
-            mSession.finishMocking();
-            endTrace();
-        } else {
+        // mSession.finishMocking() must ALWAYS be called (hence the over-protective try/finally
+        // statements), otherwise it would cause failures on future tests as mockito
+        // cannot start a session when a previous one is not finished
+        try {
+            beginTrace("finishSession()");
+            completeAllHandlerThreadTasks();
+        } finally {
+            finishSessionMocking();
+        }
+        endTrace();
+    }
+
+    private void finishSessionMocking() {
+        if (mSession == null) {
             Log.w(TAG, getClass().getSimpleName() + ".finishSession(): no session");
+            return;
+        }
+        try {
+            beginTrace("finishMocking()");
+        } finally {
+            mSession.finishMocking();
         }
         endTrace();
     }
@@ -374,6 +387,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }).when(() -> Slog.wtf(anyString(), anyString()));
         doAnswer((invocation) -> {
             return addWtf(invocation);
+        }).when(() -> Slog.wtf(anyString(), any(Throwable.class)));
+        doAnswer((invocation) -> {
+            return addWtf(invocation);
         }).when(() -> Slog.wtf(anyString(), anyString(), any(Throwable.class)));
         // NOTE: android.car.builtin.util.Slogf calls android.util.Slog behind the scenes, so no
         // need to check for calls of the former...
@@ -386,7 +402,7 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         if (mLogTags != null && mLogTags.contains(actualTag)) {
             mWtfs.add(new IllegalStateException(message));
         } else if (VERBOSE) {
-            Log.v(TAG, "ignoring WTF invocation on tag " + actualTag);
+            Log.v(TAG, "ignoring WTF invocation on tag " + actualTag + ". mLogTags=" + mLogTags);
         }
         return null;
     }
@@ -397,6 +413,9 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
 
     private void verifyWtfNeverLogged() {
         int size = mWtfs.size();
+        if (VERBOSE) {
+            Log.v(TAG, "verifyWtfNeverLogged(): mWtfs=" + mWtfs);
+        }
 
         switch (size) {
             case 0:

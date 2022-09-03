@@ -46,9 +46,6 @@ public final class DpcFactory {
 
     private final Map<UserHandle, DevicePolicyManagerInterface> mDevicePolicyManagers;
 
-    private List<DevicePolicyManagerInterface> mPoInterfaces;
-    private DevicePolicyManagerInterface mDoInterface;
-
     private final ComponentName mAdmin;
     private final Context mContext;
     private final DevicePolicyManager mDpm;
@@ -150,7 +147,7 @@ public final class DpcFactory {
                 return;
             }
 
-            // Stop user knowing command has executed without exception
+            // Stop user after knowing command has executed without exception
             int statusStop = mDpm.stopUser(mAdmin, targetUser);
             boolean succeedStop = statusStop == UserManager.USER_OPERATION_SUCCESS;
             removeProfileOwnerDpm(targetUser);

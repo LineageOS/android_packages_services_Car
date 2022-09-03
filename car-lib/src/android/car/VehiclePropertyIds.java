@@ -19,6 +19,7 @@ package android.car;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.RequiresPermission;
+import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.hardware.CarPropertyValue;
@@ -1028,9 +1029,12 @@ public final class VehiclePropertyIds {
      * ELECTRIC DEFROSTER
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_CLIMATE.
+     *
+     * @hide
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     @AddedInOrBefore(majorVersion = 33)
+    @SystemApi
     public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556;
     /**
      * Distance units for display.

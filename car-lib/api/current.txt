@@ -227,7 +227,7 @@ package android.car {
   public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
     ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformVersion);
     method public int describeContents();
-    method @NonNull public android.car.PlatformVersion getExpectedPlatformApiVersion();
+    method @NonNull public android.car.PlatformVersion getMinimumPlatformApiVersion();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersionMismatchException> CREATOR;
   }
@@ -358,7 +358,6 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_AUTO_RECIRC_ON = 354419986; // 0x15200512
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_DEFROSTER = 320865540; // 0x13200504
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_DUAL_ON = 354419977; // 0x15200509
-    field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_FAN_DIRECTION = 356517121; // 0x15400501
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_FAN_DIRECTION_AVAILABLE = 356582673; // 0x15410511
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_FAN_SPEED = 356517120; // 0x15400500
@@ -488,6 +487,7 @@ package android.car.content.pm {
     method public boolean isActivityDistractionOptimized(String, String);
     method public boolean isPendingIntentDistractionOptimized(@NonNull android.app.PendingIntent);
     method public boolean isServiceDistractionOptimized(String, String);
+    field public static final String MANIFEST_METADATA_TARGET_CAR_VERSION = "android.car.targetCarVersion";
   }
 
 }

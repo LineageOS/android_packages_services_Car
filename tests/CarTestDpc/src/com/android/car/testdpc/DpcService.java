@@ -51,7 +51,6 @@ public final class DpcService extends DeviceAdminService {
         super.onCreate();
 
         Log.d(TAG, "Service created (on user " + Process.myUserHandle() + ")");
-        // Create PO/DO DPM and set each to local/remote based on UserHandle
 
         mContext = getApplicationContext();
         mAdmin = DpcReceiver.getComponentName(mContext);
@@ -81,7 +80,7 @@ public final class DpcService extends DeviceAdminService {
 
     private void printInternalState(PrintWriter writer) {
         writer.printf("Current User: %s\n", Process.myUserHandle());
-        writer.printf("mAdminComponentName: %s\n", mAdmin.flattenToShortString());
+        writer.printf("Admin Component Name: %s\n", mAdmin.flattenToShortString());
         writer.printf("isProfileOwner()? %b\n", mDpm.isProfileOwnerApp(mContext.getPackageName()));
         writer.printf("isDeviceOwner()? %b\n", mDpm.isDeviceOwnerApp(mContext.getPackageName()));
         writer.printf("AFFILIATION_IDS=%s\n\n", AFFILIATION_IDS);

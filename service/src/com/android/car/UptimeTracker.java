@@ -105,8 +105,9 @@ public class UptimeTracker {
     // a mock version. This is mostly useful for testing purposes.
     @VisibleForTesting
     UptimeTracker(File file,
-            long snapshotInterval,
+            long snapShotIntervalMs,
             TimeInterface timeInterface) {
+        long snapshotInterval = snapShotIntervalMs;
         snapshotInterval = Math.max(snapshotInterval, MINIMUM_SNAPSHOT_INTERVAL_MS);
         mUptimeFile = Objects.requireNonNull(file);
         mTimeInterface = timeInterface;

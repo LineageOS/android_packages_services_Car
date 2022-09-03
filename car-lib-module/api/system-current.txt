@@ -215,6 +215,10 @@ package android.car {
     field public static final int WRITE = 2; // 0x2
   }
 
+  public final class VehiclePropertyIds {
+    field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+  }
+
   public final class VehicleUnit {
     field public static final int DEGREES = 128; // 0x80
     field public static final int HERTZ = 3; // 0x3
@@ -289,7 +293,7 @@ package android.car.cluster {
     method @Deprecated public void onClusterActivityStateChanged(String, android.os.Bundle);
   }
 
-  public class ClusterActivityState {
+  public final class ClusterActivityState {
     method @NonNull public static android.car.cluster.ClusterActivityState create(boolean, @NonNull android.graphics.Rect);
     method @NonNull public static android.car.cluster.ClusterActivityState fromBundle(@NonNull android.os.Bundle);
     method @Nullable public android.os.Bundle getExtras();
@@ -382,7 +386,6 @@ package android.car.content.pm {
     field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
     field @Deprecated public static final int FLAG_SET_POLICY_REMOVE = 4; // 0x4
     field @Deprecated public static final int FLAG_SET_POLICY_WAIT_FOR_CHANGE = 1; // 0x1
-    field public static final String MANIFEST_METADATA_TARGET_CAR_VERSION = "android.car.targetCarVersion";
   }
 
 }
