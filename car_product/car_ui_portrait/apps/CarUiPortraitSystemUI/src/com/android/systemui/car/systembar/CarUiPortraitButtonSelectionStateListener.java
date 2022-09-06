@@ -16,8 +16,6 @@
 
 package com.android.systemui.car.systembar;
 
-import static android.view.Display.DEFAULT_DISPLAY;
-
 import static com.android.systemui.car.displayarea.DisplayAreaComponent.DISPLAY_AREA_VISIBILITY_CHANGED;
 
 import android.content.BroadcastReceiver;
@@ -47,14 +45,5 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
         };
         LocalBroadcastManager.getInstance(context).registerReceiver(displayAreaVisibilityReceiver,
                 new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED));
-    }
-
-    @Override
-    public void onTaskStackChanged() {
-        if (!mDisplayAreaController.isHostingDefaultApplicationDisplayAreaVisible()) {
-            mButtonSelectionStateController.clearAllSelectedButtons(DEFAULT_DISPLAY);
-            return;
-        }
-        super.onTaskStackChanged();
     }
 }
