@@ -166,6 +166,10 @@
     <string name="car_permission_desc_control_car_app_launch" msgid="4245527461733374198">"Upravljanje pokretanjem aplikacija."</string>
     <string name="car_permission_label_manage_thread_priority" msgid="6775846409863509575">"upravljanje prioritetom niti"</string>
     <string name="car_permission_desc_manage_thread_priority" msgid="3833845502119615929">"Upravljanje prioritetom niti."</string>
+    <!-- no translation found for car_permission_label_manage_occupant_zone (1390420387640478679) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_manage_occupant_zone (1641484205694436465) -->
+    <skip />
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Greška CAN busa"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ne reagira. Isključite i ponovo uključite glavnu jedinicu i ponovo pokrenite automobil"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Moj uređaj"</string>
