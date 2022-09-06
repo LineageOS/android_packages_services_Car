@@ -285,6 +285,9 @@ public final class CarActivityService extends ICarActivityService.Stub
         cleanUpToken(token);
     }
 
+    /**
+     * Returns all the visible tasks. The order is not guaranteed.
+     */
     @Override
     public List<ActivityManager.RunningTaskInfo> getVisibleTasks() {
         ArrayList<ActivityManager.RunningTaskInfo> tasksToReturn = new ArrayList<>();
