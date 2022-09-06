@@ -17,6 +17,9 @@ import os
 import subprocess
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
+if (rootDir is None):
+    print("\nANDROID_BUILD_TOP not set. Run source and lunch.\n")
+    sys.exit(1)
 
 # Generate class list using tool
 java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
