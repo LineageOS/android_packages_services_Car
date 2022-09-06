@@ -18,7 +18,9 @@ package com.android.car.hal.fakevhal;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -72,6 +74,13 @@ public class FakeVehicleStubUnitTest {
             + "\"defaultValue\": {\"int32Values\": [\"VehicleOilLevel::NORMAL\"]},"
             + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
             + "\"changeMode\": \"VehiclePropertyChangeMode::ON_CHANGE\"}";
+    private static final String PROPERTY_CONFIG_STRING_CONTINUOUS = "{\"property\":"
+            + "\"VehicleProperty::FUEL_LEVEL\","
+            + "\"defaultValue\": {\"floatValues\": [100]},"
+            + "\"access\": \"VehiclePropertyAccess::READ\","
+            + "\"changeMode\": \"VehiclePropertyChangeMode::CONTINUOUS\","
+            + "\"maxSampleRate\": 100.0,"
+            + "\"minSampleRate\": 1.0}";
 
     @Mock
     private VehicleStub mMockRealVehicleStub;
@@ -559,6 +568,95 @@ public class FakeVehicleStubUnitTest {
 
         verify(callback1, times(1)).onPropertyEvent(any(ArrayList.class));
         verify(callback2, times(1)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeContinuousProp() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.FUEL_LEVEL;
+        option.sampleRate = 100f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+
+        verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeContinuousPropDifferentRate() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option1 = new SubscribeOptions();
+        option1.propId = VehicleProperty.FUEL_LEVEL;
+        option1.sampleRate = 100f;
+        SubscribeOptions[] options1 = new SubscribeOptions[]{option1};
+        SubscribeOptions option2 = new SubscribeOptions();
+        option2.propId = VehicleProperty.FUEL_LEVEL;
+        option2.sampleRate = 50f;
+        SubscribeOptions[] options2 = new SubscribeOptions[]{option2};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options1);
+
+        verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+        clearInvocations(callback);
+
+        client.subscribe(options2);
+
+        verify(callback, timeout(200).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeContinuousPropRateTooLarge() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.FUEL_LEVEL;
+        option.sampleRate = 200f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+
+        verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeContinuousPropRateTooSmall() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.FUEL_LEVEL;
+        option.sampleRate = -50f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+
+        verify(callback, timeout(100).atLeast(1)).onPropertyEvent(any(ArrayList.class));
     }
 
     @Test
