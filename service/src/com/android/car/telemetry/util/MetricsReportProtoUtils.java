@@ -32,7 +32,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 /** Utility class for working with {@link com.android.car.telemetry.MetricsReportProto}. */
-public class MetricsReportProtoUtils {
+public final class MetricsReportProtoUtils {
 
     private MetricsReportProtoUtils() { }
 

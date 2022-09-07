@@ -41,7 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * @hide
  */
-public class ConcurrentUtils {
+public final class ConcurrentUtils {
 
     private ConcurrentUtils() {
     }

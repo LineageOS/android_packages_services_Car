@@ -27,7 +27,7 @@ import android.util.Log;
 /**
  * Utils for CarDisplayArea package.
  */
-public class CarDisplayAreaUtils {
+public final class CarDisplayAreaUtils {
 
     private static final String TAG = "CarDisplayAreaUtils";
 

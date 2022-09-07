@@ -55,7 +55,7 @@ import java.util.Objects;
  * A Bluetooth Device Connection policy that is specific to the use cases of a Car. Contains policy
  * for deciding when to trigger connection and disconnection events.
  */
-public class BluetoothDeviceConnectionPolicy {
+public final class BluetoothDeviceConnectionPolicy {
     private static final String TAG = CarLog.tagFor(BluetoothDeviceConnectionPolicy.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 

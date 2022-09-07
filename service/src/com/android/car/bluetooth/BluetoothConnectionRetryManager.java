@@ -48,7 +48,7 @@ import java.util.Objects;
  * MAX_RETRY_ATTEMPTS} attempts. It stops tracking a device if all expected profiles successfully
  * connect for the first time, or if the device unbonds, or if the Bluetooth stack is torn down.
  */
-public class BluetoothConnectionRetryManager {
+public final class BluetoothConnectionRetryManager {
     private static final String TAG = CarLog.tagFor(BluetoothConnectionRetryManager.class);
     private static final boolean DBG = Slogf.isLoggable(TAG, Log.DEBUG);
 
