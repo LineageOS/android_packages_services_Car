@@ -277,17 +277,21 @@ ScopedAStatus Enumerator::getCameraList(std::vector<CameraDesc>* _aidl_return) {
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
     }
 
+    std::lock_guard lock(mLock);
     auto status = mHwEnumerator->getCameraList(_aidl_return);
-    if (status.isOk()) {
-        for (auto&& desc : *_aidl_return) {
-            mCameraDevices.insert_or_assign(desc.id, desc);
-        }
+    if (!status.isOk()) {
+        return status;
+    }
+
+    for (auto&& desc : *_aidl_return) {
+        mCameraDevices.insert_or_assign(desc.id, desc);
     }
 
     return status;
 }
 
 ScopedAStatus Enumerator::getStreamList(const CameraDesc& desc, std::vector<Stream>* _aidl_return) {
+    std::shared_lock lock(mLock);
     return mHwEnumerator->getStreamList(desc, _aidl_return);
 }
 
@@ -302,6 +306,7 @@ ScopedAStatus Enumerator::closeCamera(const std::shared_ptr<IEvsCamera>& cameraO
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
     }
 
+    std::lock_guard lock(mLock);
     // All our client cameras are actually VirtualCamera objects
     VirtualCamera* virtualCamera = reinterpret_cast<VirtualCamera*>(cameraObj.get());
 
@@ -348,6 +353,7 @@ ScopedAStatus Enumerator::openCamera(const std::string& id, const Stream& cfg,
     std::vector<std::shared_ptr<HalCamera>> sourceCameras;
     bool success = true;
 
+    std::lock_guard lock(mLock);
     // 1. Try to open inactive camera devices.
     for (auto&& id : physicalCameras) {
         auto it = mActiveCameras.find(id);
@@ -418,7 +424,8 @@ ScopedAStatus Enumerator::openCamera(const std::string& id, const Stream& cfg,
         }
     }
 
-    // Send the virtual camera object back to the client by strong pointer which will keep it alive
+    // Send the virtual camera object back to the client by strong pointer which will keep it
+    // alive
     *cameraObj = std::move(clientCamera);
     return ScopedAStatus::ok();
 }
@@ -429,6 +436,7 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
     }
 
+    std::lock_guard lock(mLock);
     if (mDisplayOwnedExclusively) {
         if (!mActiveDisplay.expired()) {
             LOG(ERROR) << "Display is owned exclusively by another client.";
@@ -474,17 +482,24 @@ ScopedAStatus Enumerator::openDisplay(int32_t id, std::shared_ptr<IEvsDisplay>* 
 ScopedAStatus Enumerator::closeDisplay(const std::shared_ptr<IEvsDisplay>& displayObj) {
     LOG(DEBUG) << __FUNCTION__;
 
+    if (!displayObj) {
+        LOG(WARNING) << "Ignoring a call with an invalid display object";
+        return Utils::buildScopedAStatusFromEvsResult(EvsResult::INVALID_ARG);
+    }
+
+    std::lock_guard lock(mLock);
     // Drop the active display
     std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
     if (pActiveDisplay != displayObj) {
         LOG(WARNING) << "Ignoring call to closeDisplay with unrecognized display object.";
-    } else {
-        // Pass this request through to the hardware layer
-        HalDisplay* halDisplay = reinterpret_cast<HalDisplay*>(pActiveDisplay.get());
-        mHwEnumerator->closeDisplay(halDisplay->getHwDisplay());
-        mActiveDisplay.reset();
-        mDisplayOwnedExclusively = false;
+        return ScopedAStatus::ok();
     }
+
+    // Pass this request through to the hardware layer
+    HalDisplay* halDisplay = reinterpret_cast<HalDisplay*>(pActiveDisplay.get());
+    mHwEnumerator->closeDisplay(halDisplay->getHwDisplay());
+    mActiveDisplay.reset();
+    mDisplayOwnedExclusively = false;
 
     return ScopedAStatus::ok();
 }
@@ -495,6 +510,7 @@ ScopedAStatus Enumerator::getDisplayState(DisplayState* _aidl_return) {
         return Utils::buildScopedAStatusFromEvsResult(EvsResult::PERMISSION_DENIED);
     }
 
+    std::lock_guard lock(mLock);
     // Do we have a display object we think should be active?
     std::shared_ptr<IEvsDisplay> pActiveDisplay = mActiveDisplay.lock();
     if (pActiveDisplay) {
@@ -508,6 +524,7 @@ ScopedAStatus Enumerator::getDisplayState(DisplayState* _aidl_return) {
 }
 
 ScopedAStatus Enumerator::getDisplayIdList(std::vector<uint8_t>* _aidl_return) {
+    std::shared_lock lock(mLock);
     return mHwEnumerator->getDisplayIdList(_aidl_return);
 }
 
