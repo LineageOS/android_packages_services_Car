@@ -17,6 +17,7 @@
 package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 
@@ -43,6 +44,7 @@ import java.util.concurrent.TimeUnit;
 @SmallTest
 public final class CarTest extends AbstractExpectableTestCase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
+    private static final String CODENAME_REL = "REL";
 
     private final Context mContext = InstrumentationRegistry.getInstrumentation()
             .getTargetContext();
@@ -135,11 +137,15 @@ public final class CarTest extends AbstractExpectableTestCase {
         expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Build.VERSION.SDK_INT)).isTrue();
         expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                Build.VERSION.SDK_INT + 1)).isFalse();
-        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT)).isTrue();
-        expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
-                Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
+
+        // SDK + 1 only works for released platform.
+        if (CODENAME_REL.equals(Build.VERSION.CODENAME)) {
+            expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+                    Build.VERSION.SDK_INT + 1)).isFalse();
+            expectThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+                    Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
+        }
     }
 
     @Test
@@ -157,7 +163,38 @@ public final class CarTest extends AbstractExpectableTestCase {
         PlatformVersion platformVersion = Car.getPlatformVersion();
 
         assertThat(platformVersion).isNotNull();
-        assertThat(platformVersion.getMajorVersion()).isEqualTo(Build.VERSION.SDK_INT);
+        assertThat(platformVersion.getMajorVersion()).isEqualTo(
+                CODENAME_REL.equals(Build.VERSION.CODENAME) ? Build.VERSION.SDK_INT
+                        : Build.VERSION_CODES.CUR_DEVELOPMENT);
         assertThat(platformVersion.getMinorVersion()).isAtLeast(0);
+    }
+
+    /**
+     * Tests if {@link Car#getPlatformVersion()} is returning the right version defined
+     * in {@link PlatformVersion.VERSION_CODES}. All {@code isAtLeast} checks are there to
+     * identify the right {@link PlatformVersion.VERSION_CODES} to compare.
+     */
+    @Test
+    public void testPlatformVersionMatch() throws Exception {
+        PlatformVersion platformVersion = Car.getPlatformVersion();
+
+        assertWithMessage("Platform should be at least T").that(
+                platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_0)).isTrue();
+
+        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.TIRAMISU_1)) {
+            assertWithMessage("platformVersion should be T_0").that(platformVersion).isEqualTo(
+                    PlatformVersion.VERSION_CODES.TIRAMISU_0);
+            return;
+        }
+        // If it has passed all previous version checks but it not the next version, assert
+        // the version before the next one.
+        if (!platformVersion.isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            assertWithMessage("platformVersion should be T_1").that(platformVersion).isEqualTo(
+                    PlatformVersion.VERSION_CODES.TIRAMISU_1);
+            return;
+        }
+        // should be U_0. This part should be updated when we have a newer version.
+        assertWithMessage("platformVersion should be U_0").that(platformVersion).isEqualTo(
+                PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0);
     }
 }
