@@ -34,6 +34,7 @@
         android:id="@+id/car_ui_base_layout_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="136dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"/>
 

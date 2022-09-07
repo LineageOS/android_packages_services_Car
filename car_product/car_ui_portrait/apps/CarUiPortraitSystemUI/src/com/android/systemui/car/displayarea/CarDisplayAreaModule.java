@@ -18,14 +18,11 @@ package com.android.systemui.car.displayarea;
 
 import android.content.Context;
 import android.os.Handler;
+import android.window.DisplayAreaOrganizer;
 
-import com.android.systemui.car.CarDeviceProvisionedController;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.dagger.SysUISingleton;
-import com.android.systemui.qs.QSHost;
 import com.android.systemui.statusbar.CommandQueue;
-import com.android.systemui.statusbar.policy.ConfigurationController;
-import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.common.HandlerExecutor;
 import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.common.SyncTransactionQueue;
@@ -42,25 +39,12 @@ public abstract class CarDisplayAreaModule {
 
     @Provides
     @SysUISingleton
-    static CarDisplayAreaOrganizer provideCarDisplayAreaOrganizer(
-            ShellExecutor mainExecutor, Context context,
-            SyncTransactionQueue syncQueue) {
-        return new CarDisplayAreaOrganizer(mainExecutor, context, syncQueue);
-    }
-
-    @Provides
-    @SysUISingleton
     static CarDisplayAreaController provideCarDisplayAreaController(Context context,
-            SyncTransactionQueue syncQueue, CarFullscreenTaskListener carFullscreenTaskListener,
-            ConfigurationController configurationController, QSHost host,
+            CarFullscreenTaskListener carFullscreenTaskListener,
             ShellExecutor mainExecutor, CarServiceProvider carServiceProvider,
-            CarDisplayAreaOrganizer organizer, CarUiPortraitDisplaySystemBarsController
-            carUiPortraitDisplaySystemBarsController, CommandQueue commandQueue,
-            CarDeviceProvisionedController deviceProvisionedController) {
-        return new CarDisplayAreaController(context, syncQueue, carFullscreenTaskListener,
-                mainExecutor, configurationController, host, carServiceProvider, organizer,
-                carUiPortraitDisplaySystemBarsController, commandQueue,
-                deviceProvisionedController);
+            DisplayAreaOrganizer organizer, CommandQueue commandQueue) {
+        return new CarDisplayAreaController(context, carFullscreenTaskListener,
+                mainExecutor, carServiceProvider, organizer, commandQueue);
     }
 
     @Provides

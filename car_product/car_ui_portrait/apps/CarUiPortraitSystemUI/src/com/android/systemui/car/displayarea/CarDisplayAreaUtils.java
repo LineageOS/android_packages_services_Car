@@ -21,7 +21,6 @@ import static android.view.Display.DEFAULT_DISPLAY;
 import android.car.app.CarActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.Resources;
 import android.util.Log;
 
@@ -33,14 +32,6 @@ public class CarDisplayAreaUtils {
     private static final String TAG = "CarDisplayAreaUtils";
 
     private CarDisplayAreaUtils() {
-    }
-
-    static Intent getMapsIntent(Context context) {
-        Intent defaultIntent =
-                Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_MAPS);
-        defaultIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-
-        return defaultIntent;
     }
 
     static boolean isCustomDisplayPolicyDefined(Context context) {

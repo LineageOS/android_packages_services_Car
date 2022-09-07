@@ -43,33 +43,8 @@
         <item>com.android.systemui.car.displayarea.DisplayAreaComponent</item>
     </string-array>
 
-    <string-array name="config_foregroundDAComponents" translatable="false">
-        <item>com.android.car.carlauncher/.AppGridActivity</item>
-        <item>com.android.car.notification/.CarNotificationCenterActivity</item>
-    </string-array>
-
-    <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
-        <item>com.android.car.settings/.FallbackHome</item>
-        <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
-        <item>com.google.android.car.setupwizard/.CarSetupWizardActivity</item>
-        <item>com.google.android.car.setupwizard/.welcome.WelcomeActivity</item>
-        <item>com.google.android.car.setupwizard/.libs.uicommon.TrampolineActivity</item>
-        <item>com.google.android.apps.maps/com.google.android.apps.gmm.car.embedded.auxiliarymap.EmbeddedClusterActivity</item>
-    </string-array>
-
-    <string name="config_controlBarActivity" translatable="false">
-        com.android.car.carlauncher/.ControlBarActivity
-    </string>
     <string name="config_notificationCenterActivity" translatable="false">
         com.android.car.notification/.CarNotificationCenterActivity
     </string>
-    <string name="config_homeActivity" translatable="false">
-        com.android.car.carlauncher/.CarLauncher
-    </string>
-    <!--  default relaunch will be the first item  -->
-    <string-array name="config_backgroundActivities" translatable="false">
-        <item>com.google.android.apps.maps/com.google.android.maps.MapsActivity</item>
-        <item>com.android.car.ui.paintbooth/.MainActivity</item>
-        <item>android.accessibilityservice.cts/android.accessibilityservice.cts.AccessibilityGestureDispatchTest$GestureDispatchActivity</item>
-    </string-array>
+
 </resources>
