@@ -847,6 +847,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             Slogf.d(TAG_EVS, "Initializing the service");
         }
 
+        if (!mHalWrapper.init()) {
+            Slogf.e(TAG_EVS, "Failed to initialize a service handle");
+            return;
+        }
+
         if (mEvsHalService.isEvsServiceRequestSupported()) {
             try {
                 mEvsHalService.setListener(this);
@@ -876,18 +881,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
             mPropertyService.registerListener(VehicleProperty.GEAR_SELECTION, /*rate=*/0,
                     mGearSelectionPropertyListener);
-        }
-
-        if (!mHalWrapper.init()) {
-            Slogf.e(TAG_EVS, "Failed to initialize a service handle");
-            if (mUseGearSelection && mPropertyService != null) {
-                if (DBG) {
-                    Slogf.d(TAG_EVS, "Unregister a property listener on init() failure.");
-                }
-                mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
-                        mGearSelectionPropertyListener);
-            }
-            return;
         }
 
         // Attempts to transit to the INACTIVE state
@@ -1294,10 +1287,18 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return;
         }
 
+
+        boolean isReverseGear = (Integer) value.getValue() == VehicleGear.GEAR_REVERSE;
+        mLastEvsHalEvent = new EvsHalEvent(timestamp, CarEvsManager.SERVICE_TYPE_REARVIEW,
+                isReverseGear);
+
+        if (mStateEngine.getState() == SERVICE_STATE_UNAVAILABLE) {
+            return;
+        }
+
         // TODO(b/179029031): CarEvsService may need to process VehicleGear.GEAR_PARK when
         // Surround View service is integrated.
-        int gear = (Integer) value.getValue();
-        if (gear == VehicleGear.GEAR_REVERSE) {
+        if (isReverseGear) {
             // Request to start the rearview activity when the gear is shifted into the reverse
             // position.
             if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_REQUESTED,
@@ -1313,9 +1314,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 Slogf.d(TAG_EVS, "Failed to stop the rearview activity.");
             }
         }
-
-        mLastEvsHalEvent = new EvsHalEvent(timestamp, CarEvsManager.SERVICE_TYPE_REARVIEW,
-                gear == VehicleGear.GEAR_REVERSE);
     }
 
     /** Processes a streaming event and propagates it to registered clients */
