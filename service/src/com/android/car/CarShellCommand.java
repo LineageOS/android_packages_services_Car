@@ -714,7 +714,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Components should be comma-separated without space.");
 
         pw.printf("\t%s <POLICY_ID>\n", COMMAND_APPLY_POWER_POLICY);
-        pw.println("\t  Applies power policy which is defined in /vendor/etc/power_policy.xml or");
+        pw.println("\t  Applies power policy which is defined in "
+                + "/vendor/etc/automotive/power_policy.xml or");
         pw.printf("\t  by %s command\n", COMMAND_DEFINE_POWER_POLICY);
 
         pw.printf("\t%s <POLICY_GROUP_ID> [%s:<POLICY_ID>] [%s:<POLICY_ID>]\n",
@@ -722,7 +723,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  Defines a power policy group. The policy ID must be defined in advance.");
 
         pw.printf("\t%s <POLICY_GROUP_ID>\n", COMMAND_SET_POWER_POLICY_GROUP);
-        pw.println("\t  Sets power policy group which is defined in /vendor/etc/power_policy.xml ");
+        pw.println("\t  Sets power policy group which is defined in "
+                + "/vendor/etc/automotive/power_policy.xml ");
         pw.printf("\t  or by %s command\n", COMMAND_DEFINE_POWER_POLICY_GROUP);
 
         pw.printf("\t%s\n", COMMAND_APPLY_CTS_VERIFIER_POWER_OFF_POLICY);
