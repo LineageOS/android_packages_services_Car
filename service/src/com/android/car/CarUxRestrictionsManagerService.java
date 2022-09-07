@@ -21,6 +21,7 @@ import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_UNKNOWN;
+import static android.car.drivingstate.CarUxRestrictionsConfiguration.Builder.SpeedRange.MAX_SPEED;
 import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_MODE_BASELINE;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -757,11 +758,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             logd("Speed null when driving state is: " + drivingState);
             handleDispatchUxRestrictionsLocked(drivingState, /* speed= */ 0f);
         } else {
-            // If we get here with driving state != parked or unknown && speed == null,
-            // something is wrong.  CarDrivingStateService could not have inferred idling or moving
-            // when speed is not available
+            // If we get here, it means the car is moving while the speed is unavailable.
+            // This only happens in the case of a fault. We should take the safest route by assuming
+            // the car is moving at a speed in the highest speed range.
             Slogf.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
-            return;
+            logd("Treating speed null when driving state is: " + drivingState
+                    + " as in highest speed range");
+            handleDispatchUxRestrictionsLocked(DRIVING_STATE_MOVING, /* speed= */ MAX_SPEED);
         }
     }
 
@@ -804,6 +807,9 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     /**
      * Handle dispatching UX restrictions change.
+     *
+     * <p> This method also handles the special case when the car is moving but its speed
+     * is unavailable in which case highest speed will be assumed.
      *
      * @param currentDrivingState driving state of the vehicle
      * @param speed               speed of the vehicle

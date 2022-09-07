@@ -210,12 +210,40 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
             return restrictions.get(0);
         }
 
+        if (currentSpeed >= Builder.SpeedRange.MAX_SPEED) {
+            return findUxRestrictionsInHighestSpeedRange(restrictions);
+        }
+
         for (RestrictionsPerSpeedRange r : restrictions) {
             if (r.mSpeedRange != null && r.mSpeedRange.includes(currentSpeed)) {
                 return r;
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the restrictions in the highest speed range.
+     *
+     * <p>Returns {@code null} if {@code restrictions} is an empty list.
+     */
+    @Nullable
+    private static RestrictionsPerSpeedRange findUxRestrictionsInHighestSpeedRange(
+            List<RestrictionsPerSpeedRange> restrictions) {
+        RestrictionsPerSpeedRange restrictionsInHighestSpeedRange = null;
+        for (int i = 0; i < restrictions.size(); ++i) {
+            RestrictionsPerSpeedRange r = restrictions.get(i);
+            if (r.mSpeedRange != null) {
+                if (restrictionsInHighestSpeedRange == null) {
+                    restrictionsInHighestSpeedRange = r;
+                } else if (r.mSpeedRange.compareTo(
+                        restrictionsInHighestSpeedRange.mSpeedRange) > 0) {
+                    restrictionsInHighestSpeedRange = r;
+                }
+            }
+        }
+
+        return restrictionsInHighestSpeedRange;
     }
 
     private CarUxRestrictions createDefaultUxRestrictionsEvent() {
