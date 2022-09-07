@@ -17,16 +17,25 @@
 package com.android.car.hal.fakevhal;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slogf;
+import android.hardware.automotive.vehicle.RawPropValues;
+import android.hardware.automotive.vehicle.StatusCode;
+import android.hardware.automotive.vehicle.VehicleArea;
+import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
+import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.hal.AidlHalPropConfig;
+import com.android.car.hal.HalAreaConfig;
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
@@ -59,7 +68,7 @@ public final class FakeVehicleStub extends VehicleStub {
     private final VehicleStub mRealVehicle;
     private final HalPropValueBuilder mHalPropValueBuilder;
     private final FakeVhalConfigParser mParser;
-    private final List<String> mCustomConfigFilenames;
+    private final List<String> mCustomConfigFiles;
 
     /**
      * Checks if fake mode is enabled.
@@ -86,19 +95,19 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @param realVehicle The real Vhal to be connected to handle special properties.
      * @param parser The parser to parse config files.
-     * @param customConfigFilenames The {@link List} of custom config file names.
+     * @param customConfigFiles The {@link List} of custom config files.
      * @throws IOException if unable to read the config file stream.
      * @throws IllegalArgumentException if a JSONException is caught or some parsing error occurred.
      */
     @VisibleForTesting
     FakeVehicleStub(VehicleStub realVehicle, FakeVhalConfigParser parser,
-            List<String> customConfigFilenames) throws IOException, IllegalArgumentException {
+            List<String> customConfigFiles) throws IOException, IllegalArgumentException {
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         mParser = parser;
-        mCustomConfigFilenames = customConfigFilenames;
+        mCustomConfigFiles = customConfigFiles;
         mConfigDeclarationsByPropId = parseConfigFiles();
-        mPropConfigsByPropId = getPropConfigs(mConfigDeclarationsByPropId);
-        mPropValuesByAreaIdByPropId = getPropValues(mConfigDeclarationsByPropId);
+        mPropConfigsByPropId = extractPropConfigs(mConfigDeclarationsByPropId);
+        mPropValuesByAreaIdByPropId = extractPropValues(mConfigDeclarationsByPropId);
         mRealVehicle = realVehicle;
     }
 
@@ -215,11 +224,45 @@ public final class FakeVehicleStub extends VehicleStub {
     @Override
     @Nullable
     public HalPropValue get(HalPropValue requestedPropValue) {
-        // TODO(b/238646350) Set a property value.
-        if (isSpecialProperty(requestedPropValue.getPropId())) {
-            // TODO(b/241006476) Handle special properties.
+        int propId = requestedPropValue.getPropId();
+        // Check if the property config exists.
+        if (!mPropConfigsByPropId.contains(propId)) {
+            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The propId: " + propId
+                + " is not supported.");
         }
-        return null;
+        int areaId = isPropertyGlobal(propId) ? 0 : requestedPropValue.getAreaId();
+        // For global property, areaId is ignored.
+        // For non-global property, if property config exists, check if areaId is supported.
+        if (!isPropertyGlobal(propId) && !getAllSupportedAreaId(propId).contains(areaId)) {
+            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
+                + " is not supported.");
+        }
+
+        // Check access permission.
+        int access = mPropConfigsByPropId.get(propId).getAccess();
+        if (access != VehiclePropertyAccess.READ && access != VehiclePropertyAccess.READ_WRITE) {
+            throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
+                    + " doesn't have read permission.");
+        }
+
+        if (isSpecialProperty(propId)) {
+            // TODO(b/241006476) Handle special properties.
+            Slogf.w(TAG, "Special property is not supported.");
+            return null;
+        }
+        // PropId config exists but the value map doesn't have this propId, this may be caused by:
+        // 1. This property is a global property, and it doesn't have default prop value.
+        // 2. This property has area configs, and it has neither default prop value nor area value.
+        if (mPropValuesByAreaIdByPropId.size() == 0
+                || !mPropValuesByAreaIdByPropId.contains(propId)) {
+            if (isPropertyGlobal(propId)) {
+                throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
+                    "propId: " + propId + " has no property value.");
+            }
+            throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
+                    "propId: " + propId + ", areaId: " + areaId + " has no property value.");
+        }
+        return mPropValuesByAreaIdByPropId.get(propId).get(areaId);
     }
 
     /**
@@ -259,30 +302,30 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     private SparseArray<ConfigDeclaration> parseConfigFiles() throws IOException,
             IllegalArgumentException {
-        InputStream mDefaultConfigInputStream = mParser.getClass().getClassLoader()
+        InputStream defaultConfigInputStream = mParser.getClass().getClassLoader()
                 .getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
         SparseArray<ConfigDeclaration> configDeclarations;
 
         // Parse default config file.
-        configDeclarations = mParser.parseJsonConfig(mDefaultConfigInputStream);
+        configDeclarations = mParser.parseJsonConfig(defaultConfigInputStream);
 
         // Parse all custom config files.
-        for (int i = 0; i < mCustomConfigFilenames.size(); i++) {
+        for (int i = 0; i < mCustomConfigFiles.size(); i++) {
             combineConfigDeclarations(configDeclarations,
-                    mParser.parseJsonConfig(new File(mCustomConfigFilenames.get(i))));
+                    mParser.parseJsonConfig(new File(mCustomConfigFiles.get(i))));
         }
 
         return configDeclarations;
     }
 
     /**
-     * Gets all custom config file names which are going to be parsed.
+     * Gets all custom config files which are going to be parsed.
      *
-     * @return a {@link List} of file names.
+     * @return a {@link List} of files.
      */
     private static List<String> getCustomConfigFiles() {
         List<String> customConfigFileList = new ArrayList<>();
-        // TODO(b/238646350) Read ENABLE file, get the filenames of all files listed in ENABLE file.
+        // TODO(b/238646350) Read ENABLE file, get all files listed in ENABLE file.
         return customConfigFileList;
     }
 
@@ -307,7 +350,7 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param configDeclarationsByPropId The parsing result.
      * @return a {@link SparseArray} mapped from propId to its configs.
      */
-    private SparseArray<HalPropConfig> getPropConfigs(SparseArray<ConfigDeclaration>
+    private SparseArray<HalPropConfig> extractPropConfigs(SparseArray<ConfigDeclaration>
             configDeclarationsByPropId) {
         SparseArray<HalPropConfig> propConfigsByPropId =
                 new SparseArray<>(/* initialCapacity= */ 0);
@@ -325,10 +368,92 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param configDeclarationsByPropId The parsing result.
      * @return a {@link SparseArray} mapped from propId to a map from areaId to its value.
      */
-    private SparseArray<SparseArray<HalPropValue>> getPropValues(SparseArray<ConfigDeclaration>
+    private SparseArray<SparseArray<HalPropValue>> extractPropValues(SparseArray<ConfigDeclaration>
             configDeclarationsByPropId) {
-        // TODO(b/238646350) Implement this method to extract prop values for each property.
-        return null;
+        long timestamp = SystemClock.elapsedRealtimeNanos();
+        SparseArray<SparseArray<HalPropValue>> propValuesByAreaIdByPropId = new SparseArray<>();
+        for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
+            // Get configDeclaration of a property.
+            ConfigDeclaration configDeclaration = configDeclarationsByPropId.valueAt(i);
+            // Get propId.
+            int propId = configDeclaration.getConfig().prop;
+            // Get areaConfigs array to know what areaIds are supported.
+            VehicleAreaConfig[] areaConfigs = configDeclaration.getConfig().areaConfigs;
+            // Get default rawPropValues.
+            RawPropValues defaultRawPropValues = configDeclaration.getInitialValue();
+            // Get area rawPropValues map.
+            SparseArray<RawPropValues> rawPropValuesByAreaId = configDeclaration
+                    .getInitialAreaValuesByAreaId();
+            // Create a map from areaId to its prop value.
+            SparseArray<HalPropValue> halPropValuesByAreaId = new SparseArray<>();
+
+            // If this property is a global property.
+            if (isPropertyGlobal(propId)) {
+                // If no default prop value exists, this propId won't be added to the
+                // propValuesByAreaIdByPropId map. Get this propId value will throw
+                // ServiceSpecificException with StatusCode.INVALID_ARG.
+                if (defaultRawPropValues == null) {
+                    continue;
+                }
+                // Set the areaId to be 0.
+                halPropValuesByAreaId.put(/* areaId= */ 0, buildHalPropValue(propId,
+                        /* areaId= */ 0, timestamp, defaultRawPropValues));
+                propValuesByAreaIdByPropId.put(propId, halPropValuesByAreaId);
+                continue;
+            }
+
+            // If this property has supported area configs.
+            for (int j = 0; j < areaConfigs.length; j++) {
+                // Get areaId.
+                int areaId = areaConfigs[j].areaId;
+                // Set default area prop value to be defaultRawPropValues. If area value doesn't
+                // exist, then use the property default value.
+                RawPropValues areaRawPropValues = defaultRawPropValues;
+                // If area prop value exists, then use area value.
+                if (rawPropValuesByAreaId.contains(areaId)) {
+                    areaRawPropValues = rawPropValuesByAreaId.get(areaId);
+                }
+                // Neither area prop value nor default prop value exists. This propId won't be in
+                // the value map. Get this propId value will throw ServiceSpecificException
+                // with StatusCode.INVALID_ARG.
+                if (areaRawPropValues == null) {
+                    continue;
+                }
+                halPropValuesByAreaId.put(areaId, buildHalPropValue(propId, areaId,
+                        timestamp, areaRawPropValues));
+                propValuesByAreaIdByPropId.put(propId, halPropValuesByAreaId);
+            }
+        }
+        return propValuesByAreaIdByPropId;
+    }
+
+    /**
+     * Checks if a property is a global property.
+     *
+     * @param propId The property to be checked.
+     * @return {@code true} if this property is a global property.
+     */
+    private boolean isPropertyGlobal(int propId) {
+        return (propId & VehicleArea.MASK) == VehicleArea.GLOBAL;
+    }
+
+    /**
+     * Builds a {@link HalPropValue}.
+     *
+     * @param propId The propId of the prop value to be built.
+     * @param areaId The areaId of the prop value to be built.
+     * @param timestamp The elapsed time in nanoseconds when mPropConfigsByPropId is initialized.
+     * @param rawPropValues The {@link RawPropValues} contains property values.
+     * @return a {@link HalPropValue} built by propId, areaId, timestamp and value.
+     */
+    private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,
+            RawPropValues rawPropValues) {
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = propId;
+        propValue.areaId = areaId;
+        propValue.timestamp = timestamp;
+        propValue.value = rawPropValues;
+        return mHalPropValueBuilder.build(propValue);
     }
 
     /**
@@ -337,7 +462,22 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param propId to be checked.
      * @return {@code true} if the property is special.
      */
-    private boolean isSpecialProperty(int propId) {
+    private static boolean isSpecialProperty(int propId) {
         return SPECIAL_PROPERTIES.contains(propId);
+    }
+
+    /**
+     * Generates a list of all supported areaId for a certain property.
+     *
+     * @param propId The property to get all supported areaIds.
+     * @return A {@link List} of all supported areaId.
+     */
+    private List<Integer> getAllSupportedAreaId(int propId) {
+        List<Integer> allSupportedAreaId = new ArrayList<>();
+        HalAreaConfig[] areaConfigs = mPropConfigsByPropId.get(propId).getAreaConfigs();
+        for (int i = 0; i < areaConfigs.length; i++) {
+            allSupportedAreaId.add(areaConfigs[i].getAreaId());
+        }
+        return allSupportedAreaId;
     }
 }
