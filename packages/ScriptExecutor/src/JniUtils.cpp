@@ -188,6 +188,28 @@ void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle) {
     }
 }
 
+void pushBundleListToLuaTable(JNIEnv* env, lua_State* lua, jobject bundleList) {
+    // Creates a new table as the encompassing array to contain the converted bundles.
+    // Pushed to top of stack.
+    lua_newtable(lua);
+
+    ScopedLocalRef<jclass> listClass(env, env->FindClass("java/util/List"));
+    jmethodID sizeMethod = env->GetMethodID(listClass.get(), "size", "()I");
+    jmethodID getMethod = env->GetMethodID(listClass.get(), "get", "(I)Ljava/lang/Object;");
+
+    const auto listSize = env->CallIntMethod(bundleList, sizeMethod);
+    // For each bundle in the bundleList set a converted Lua table into the table array.
+    for (int i = 0; i < listSize; i++) {
+        // Push to stack the index at which the next Lua table will be at. Lua index start at 1.
+        lua_pushnumber(lua, i + 1);
+        // Convert the bundle at i into Lua table and push to top of stack.
+        pushBundleToLuaTable(env, lua, env->CallObjectMethod(bundleList, getMethod, i));
+        // table[k] = v, table should be at the given index (-3), and expects v the value to be
+        // at the top of the stack, and k the key to be just below the top.
+        lua_settable(lua, /* idx= */ -3);
+    }
+}
+
 Result<void> convertLuaTableToBundle(JNIEnv* env, lua_State* lua, BundleWrapper* bundleWrapper) {
     // Iterate over Lua table which is expected to be at the top of Lua stack.
     // lua_next call pops the key from the top of the stack and finds the next

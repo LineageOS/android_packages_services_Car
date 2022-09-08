@@ -69,8 +69,12 @@ public class CarTelemetryTestFragment extends Fragment {
     /** Vehicle property via gear change section. */
     private static final String LUA_SCRIPT_ON_GEAR_CHANGE =
             "function onGearChange(published_data, state)\n"
-                    + "    local result = {data = 'Hello World!'}\n"
-                    + "    on_script_finished(result)\n"
+                    + "    t = {}\n"
+                    + "    for k, v in ipairs(published_data) do\n"
+                    + "        t['#' .. k] = 'Gear: ' .. v['intVal'] \n"
+                    + "        log(v[\"intVal\"])\n"
+                    + "    end\n"
+                    + "    on_metrics_report(t)\n"
                     + "end\n";
 
     private static final TelemetryProto.Publisher VEHICLE_PROPERTY_PUBLISHER =
@@ -90,7 +94,7 @@ public class CarTelemetryTestFragment extends Fragment {
                             TelemetryProto.Subscriber.newBuilder()
                                     .setHandler("onGearChange")
                                     .setPublisher(VEHICLE_PROPERTY_PUBLISHER)
-                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_LOW))
+                                    .setPriority(SCRIPT_EXECUTION_PRIORITY_HIGH))
                     .build();
     private static final String ON_GEAR_CHANGE_CONFIG_NAME =
             METRICS_CONFIG_ON_GEAR_CHANGE_V1.getName();

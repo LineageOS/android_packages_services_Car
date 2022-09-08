@@ -196,6 +196,7 @@ android_library {
 filegroup {
     name: "iscriptexecutor_aidl",
     srcs: [
+        "src/com/android/car/telemetry/scriptexecutorinterface/BundleList.aidl",
         "src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutor.aidl",
         "src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl",
     ],
