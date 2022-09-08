@@ -381,9 +381,6 @@ public abstract class AbstractExtendedMockitoTestCase extends AbstractExpectable
         }).when(() -> Log.wtf(anyString(), anyString(), any(Throwable.class)));
         doAnswer((invocation) -> {
             return addWtf(invocation);
-        }).when(() -> Slog.wtf(anyString(), any(Throwable.class)));
-        doAnswer((invocation) -> {
-            return addWtf(invocation);
         }).when(() -> Slog.wtf(anyString(), anyString()));
         doAnswer((invocation) -> {
             return addWtf(invocation);
