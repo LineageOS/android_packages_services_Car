@@ -81,6 +81,7 @@ public class VehiclePropertyPublisherTest {
     private static final int PROP_BYTES_ID = 0x00700000;
     private static final int PROP_MIXED_ID = 0x00e00000;
     private static final int AREA_ID = 20;
+    private static final int STATUS = 0;
     private static final float PROP_READ_RATE = 0.0f;
     private static final CarPropertyEvent PROP_STRING_EVENT =
             new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
@@ -234,7 +235,7 @@ public class VehiclePropertyPublisherTest {
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build();
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
-            new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.IMMEDIATE);
+            new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.QUEUEING);
     private final FakePublisherListener mFakePublisherListener = new FakePublisherListener();
 
     @Mock
@@ -264,6 +265,8 @@ public class VehiclePropertyPublisherTest {
     private ArgumentCaptor<ICarPropertyEventListener> mCarPropertyCallbackCaptor;
     @Captor
     private ArgumentCaptor<PersistableBundle> mBundleCaptor;
+    @Captor
+    private ArgumentCaptor<List<PersistableBundle>> mBundleListCaptor;
 
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
 
@@ -384,18 +387,23 @@ public class VehiclePropertyPublisherTest {
     public void testOnNewCarPropertyEvent_pushesValueToDataSubscriber() throws Exception {
         doNothing().when(mMockCarPropertyService).registerListener(
                 anyInt(), anyFloat(), mCarPropertyCallbackCaptor.capture());
+        mVehiclePropertyPublisher.setBatchIntervalMillis(0L);
         mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
 
         mCarPropertyCallbackCaptor.getValue().onEvent(Collections.singletonList(PROP_INT_EVENT));
+        mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch immediately posted messages
+        mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch delay posted messages
 
-        verify(mMockIntDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+        verify(mMockIntDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().size()).isEqualTo(1);
+        assertThat(mBundleListCaptor.getValue().get(0).getInt(BUNDLE_INT_KEY)).isEqualTo(1);
     }
 
     @Test
     public void testOnNewCarPropertyEvent_parsesValueCorrectly() throws Exception {
         doNothing().when(mMockCarPropertyService).registerListener(
                 anyInt(), anyFloat(), mCarPropertyCallbackCaptor.capture());
+        mVehiclePropertyPublisher.setBatchIntervalMillis(1L);
         mVehiclePropertyPublisher.addDataSubscriber(mMockStringDataSubscriber);
         mVehiclePropertyPublisher.addDataSubscriber(mMockBoolDataSubscriber);
         mVehiclePropertyPublisher.addDataSubscriber(mMockIntDataSubscriber);
@@ -407,6 +415,7 @@ public class VehiclePropertyPublisherTest {
         mVehiclePropertyPublisher.addDataSubscriber(mMockBytesDataSubscriber);
         mVehiclePropertyPublisher.addDataSubscriber(mMockMixedDataSubscriber);
         ICarPropertyEventListener eventListener = mCarPropertyCallbackCaptor.getValue();
+
         eventListener.onEvent(Collections.singletonList(PROP_STRING_EVENT));
         eventListener.onEvent(Collections.singletonList(PROP_BOOLEAN_EVENT));
         eventListener.onEvent(Collections.singletonList(PROP_INT_EVENT));
@@ -417,51 +426,89 @@ public class VehiclePropertyPublisherTest {
         eventListener.onEvent(Collections.singletonList(PROP_FLOAT_VEC_EVENT));
         eventListener.onEvent(Collections.singletonList(PROP_BYTES_EVENT));
         eventListener.onEvent(Collections.singletonList(PROP_MIXED_EVENT));
+        mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch immediately posted messages
+        mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch delay posted messages
 
-        verify(mMockStringDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getString(BUNDLE_STRING_KEY)).isEqualTo("hi");
+        verify(mMockStringDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_STRING_KEY))
+            .isEqualTo("hi");
 
-        verify(mMockBoolDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
+        verify(mMockBoolDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
 
-        verify(mMockIntDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+        verify(mMockIntDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getInt(BUNDLE_INT_KEY)).isEqualTo(1);
 
-        verify(mMockIntVecDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getIntArray(BUNDLE_INT_ARRAY_KEY))
+        verify(mMockIntVecDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getIntArray(BUNDLE_INT_ARRAY_KEY))
             .isEqualTo(new int[] {1, 2});
 
-        verify(mMockLongDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getLong(BUNDLE_LONG_KEY)).isEqualTo(10L);
+        verify(mMockLongDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getLong(BUNDLE_LONG_KEY)).isEqualTo(10L);
 
-        verify(mMockLongVecDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getLongArray(BUNDLE_LONG_ARRAY_KEY))
+        verify(mMockLongVecDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getLongArray(BUNDLE_LONG_ARRAY_KEY))
             .isEqualTo(new long[] {10L, 20L});
 
-        verify(mMockFloatDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(1d);
+        verify(mMockFloatDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(1d);
 
-        verify(mMockFloatVecDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
+        verify(mMockFloatVecDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
             .isEqualTo(new double[] {1d, 2d});
 
-        verify(mMockBytesDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getString(BUNDLE_BYTE_ARRAY_KEY))
+        verify(mMockBytesDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_BYTE_ARRAY_KEY))
             .isEqualTo(new String(new byte[] {(byte) 1, (byte) 2}, StandardCharsets.UTF_8));
 
-        verify(mMockMixedDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getString(BUNDLE_STRING_KEY)).isEqualTo("test");
-        assertThat(mBundleCaptor.getValue().getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
-        assertThat(mBundleCaptor.getValue().getInt(BUNDLE_INT_KEY)).isEqualTo(1);
-        assertThat(mBundleCaptor.getValue().getIntArray(BUNDLE_INT_ARRAY_KEY))
+        verify(mMockMixedDataSubscriber).push(mBundleListCaptor.capture());
+        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_STRING_KEY))
+            .isEqualTo("test");
+        assertThat(mBundleListCaptor.getValue().get(0).getBoolean(BUNDLE_BOOLEAN_KEY)).isTrue();
+        assertThat(mBundleListCaptor.getValue().get(0).getInt(BUNDLE_INT_KEY)).isEqualTo(1);
+        assertThat(mBundleListCaptor.getValue().get(0).getIntArray(BUNDLE_INT_ARRAY_KEY))
             .isEqualTo(new int[] {2, 3, 4});
-        assertThat(mBundleCaptor.getValue().getLong(BUNDLE_LONG_KEY)).isEqualTo(2L);
-        assertThat(mBundleCaptor.getValue().getLongArray(BUNDLE_LONG_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0).getLong(BUNDLE_LONG_KEY)).isEqualTo(2L);
+        assertThat(mBundleListCaptor.getValue().get(0).getLongArray(BUNDLE_LONG_ARRAY_KEY))
             .isEqualTo(new long[] {5L, 6L});
-        assertThat(mBundleCaptor.getValue().getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(3d);
-        assertThat(mBundleCaptor.getValue().getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0).getDouble(BUNDLE_FLOAT_KEY)).isEqualTo(3d);
+        assertThat(mBundleListCaptor.getValue().get(0).getDoubleArray(BUNDLE_FLOAT_ARRAY_KEY))
             .isEqualTo(new double[] {7d, 8d});
-        assertThat(mBundleCaptor.getValue().getString(BUNDLE_BYTE_ARRAY_KEY))
+        assertThat(mBundleListCaptor.getValue().get(0).getString(BUNDLE_BYTE_ARRAY_KEY))
             .isEqualTo(new String(new byte[] {(byte) 5, (byte) 6}, StandardCharsets.UTF_8));
+    }
+
+    @Test
+    public void testOnNewCarPropertyEvents_batchIsPushedAfterDelay() throws Exception {
+        doNothing().when(mMockCarPropertyService).registerListener(
+                anyInt(), anyFloat(), mCarPropertyCallbackCaptor.capture());
+        mVehiclePropertyPublisher.setBatchIntervalMillis(10L);  // Batch interval 10 milliseconds
+        mVehiclePropertyPublisher.addDataSubscriber(mMockStringDataSubscriber);
+        ICarPropertyEventListener eventListener = mCarPropertyCallbackCaptor.getValue();
+        CarPropertyEvent propEvent1 = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestamp= */ 0L,
+                        "first"));
+        CarPropertyEvent propEvent2 = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestamp= */ 5L,
+                        "second"));
+        CarPropertyEvent propEvent3 = new CarPropertyEvent(PROPERTY_EVENT_PROPERTY_CHANGE,
+                new CarPropertyValue<>(PROP_STRING_ID, AREA_ID, STATUS, /* timestamp= */ 7L,
+                        "third"));
+
+        eventListener.onEvent(Collections.singletonList(propEvent1));
+        eventListener.onEvent(Collections.singletonList(propEvent2));
+        eventListener.onEvent(Collections.singletonList(propEvent3));
+        mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch immediately posted messages
+        mFakeHandlerWrapper.dispatchQueuedMessages();  // Dispatch delay posted messages
+
+        verify(mMockStringDataSubscriber).push(mBundleListCaptor.capture());
+        List<PersistableBundle> bundleList = mBundleListCaptor.getValue();
+        assertThat(bundleList.size()).isEqualTo(3);
+        assertThat(bundleList.get(0).getString(BUNDLE_STRING_KEY))
+            .isEqualTo("first");
+        assertThat(bundleList.get(1).getString(BUNDLE_STRING_KEY))
+            .isEqualTo("second");
+        assertThat(bundleList.get(2).getString(BUNDLE_STRING_KEY))
+            .isEqualTo("third");
     }
 }
