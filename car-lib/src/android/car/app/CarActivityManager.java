@@ -236,7 +236,7 @@ public final class CarActivityManager extends CarManagerBase {
     }
 
     /**
-     * Returns all the visible tasks ordered in top to bottom manner.
+     * Returns all the visible tasks. The order is not guaranteed.
      * @hide
      */
     @RequiresPermission(android.Manifest.permission.MANAGE_ACTIVITY_TASKS)

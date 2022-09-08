@@ -26,7 +26,9 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -44,6 +46,9 @@ import android.hardware.automotive.vehicle.SetValueResult;
 import android.hardware.automotive.vehicle.SetValueResults;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.SubscribeOptions;
+import android.hardware.automotive.vehicle.V2_0.IVehicle.getCallback;
+import android.hardware.automotive.vehicle.V2_0.IVehicle.getPropConfigsCallback;
+import android.hardware.automotive.vehicle.V2_0.VehiclePropertyStatus;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropConfigs;
 import android.hardware.automotive.vehicle.VehiclePropError;
@@ -55,11 +60,13 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
+import android.util.SparseArray;
 
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.HidlHalPropConfig;
 import com.android.car.internal.LargeParcelable;
 import com.android.compatibility.common.util.PollingCheck;
 
@@ -73,6 +80,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -84,6 +92,8 @@ public class VehicleStubTest {
     private static final int TEST_VALUE = 3;
     private static final int TEST_AREA = 4;
     private static final int TEST_STATUS = 5;
+
+    private static final int VHAL_PROP_SUPPORTED_PROPERTY_IDS = 0x11410F48;
 
     @Mock
     private IVehicle mAidlVehicle;
@@ -206,6 +216,12 @@ public class VehicleStubTest {
         hidlConfig.access = TEST_ACCESS;
         hidlConfigs.add(hidlConfig);
 
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            callback.onValues(StatusCode.INVALID_ARG, /* configs = */ null);
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
         when(mHidlVehicle.getAllPropConfigs()).thenReturn(hidlConfigs);
 
         HalPropConfig[] configs = mHidlVehicleStub.getAllPropConfigs();
@@ -213,6 +229,210 @@ public class VehicleStubTest {
         assertThat(configs.length).isEqualTo(1);
         assertThat(configs[0].getPropId()).isEqualTo(TEST_PROP);
         assertThat(configs[0].getAccess()).isEqualTo(TEST_ACCESS);
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequests() throws Exception {
+        ArrayList<Integer> supportedPropIds = new ArrayList(Arrays.asList(
+                VHAL_PROP_SUPPORTED_PROPERTY_IDS, 1, 2, 3, 4));
+        int numConfigsPerRequest = 2;
+        android.hardware.automotive.vehicle.V2_0.VehiclePropValue requestPropValue =
+                new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
+        requestPropValue.prop = VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+
+        SparseArray<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig>
+                expectedConfigsById = new SparseArray<>();
+        for (int i = 0; i < supportedPropIds.size(); i++) {
+            int propId = supportedPropIds.get(i);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+            config.prop = propId;
+            if (propId == VHAL_PROP_SUPPORTED_PROPERTY_IDS) {
+                config.configArray = new ArrayList(Arrays.asList(numConfigsPerRequest));
+            }
+            expectedConfigsById.put(propId, config);
+        }
+
+        // Return the supported IDs in get().
+        doAnswer(inv -> {
+            getCallback callback = (getCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue propValue =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
+            propValue.prop =
+                    ((android.hardware.automotive.vehicle.V2_0.VehiclePropValue) inv.getArgument(0))
+                    .prop;
+            propValue.value.int32Values = supportedPropIds;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK, propValue);
+            return null;
+        }).when(mHidlVehicle).get(eq(requestPropValue), any());
+
+        // Return the appropriate configs in getPropConfigs().
+        doAnswer(inv -> {
+            ArrayList<Integer> requestPropIds = (ArrayList<Integer>) inv.getArgument(0);
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig> configs =
+                    new ArrayList<>();
+            for (int j = 0; j < requestPropIds.size(); j++) {
+                int propId = requestPropIds.get(j);
+                configs.add(expectedConfigsById.get(propId));
+            }
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK, configs);
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(any(), any());
+
+        HalPropConfig[] configs = mHidlVehicleStub.getAllPropConfigs();
+
+        HalPropConfig[] expectedConfigs = new HalPropConfig[expectedConfigsById.size()];
+        for (int i = 0; i < expectedConfigsById.size(); i++) {
+            expectedConfigs[i] = new HidlHalPropConfig(expectedConfigsById.valueAt(i));
+        }
+        // Order does not matter.
+        Comparator<HalPropConfig> configCmp =
+                (config1, config2) -> (config1.getPropId() - config2.getPropId());
+        Arrays.sort(configs, configCmp);
+        Arrays.sort(expectedConfigs, configCmp);
+
+        assertThat(configs.length).isEqualTo(expectedConfigs.length);
+        for (int i = 0; i < configs.length; i++) {
+            assertThat(configs[i].getPropId()).isEqualTo(expectedConfigs[i].getPropId());
+        }
+        verify(mHidlVehicle, never()).getAllPropConfigs();
+        ArgumentCaptor<ArrayList<Integer>> captor = ArgumentCaptor.forClass(ArrayList.class);
+        // The first request to check whether the property is supported.
+        // Next 3 requests are sub requests.
+        verify(mHidlVehicle, times(4)).getPropConfigs(captor.capture(), any());
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequestsNoConfig() throws Exception {
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+            // No config array.
+            config.prop = VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK,
+                    new ArrayList(Arrays.asList(config)));
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+
+        assertThrows(IllegalArgumentException.class, () -> mHidlVehicleStub.getAllPropConfigs());
+        verify(mHidlVehicle, never()).getAllPropConfigs();
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequestsInvalidConfig() throws Exception {
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+            // NumConfigsPerRequest is not a valid number.
+            config.configArray = new ArrayList(Arrays.asList(0));
+            config.prop = VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK,
+                    new ArrayList(Arrays.asList(config)));
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+
+        assertThrows(IllegalArgumentException.class, () -> mHidlVehicleStub.getAllPropConfigs());
+        verify(mHidlVehicle, never()).getAllPropConfigs();
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequestsGetValueInvalidArg() throws Exception {
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+            config.configArray = new ArrayList(Arrays.asList(1));
+            config.prop = VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK,
+                    new ArrayList(Arrays.asList(config)));
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+
+        doAnswer(inv -> {
+            getCallback callback = (getCallback) inv.getArgument(1);
+            callback.onValues(
+                    android.hardware.automotive.vehicle.V2_0.StatusCode.INVALID_ARG,
+                    /* configs= */ null);
+            return null;
+        }).when(mHidlVehicle).get(any(), any());
+
+        assertThrows(ServiceSpecificException.class, () -> mHidlVehicleStub.getAllPropConfigs());
+        verify(mHidlVehicle, never()).getAllPropConfigs();
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequestsNoConfigReturned() throws Exception {
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK,
+                    new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig>());
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+
+        assertThrows(IllegalStateException.class, () -> mHidlVehicleStub.getAllPropConfigs());
+        verify(mHidlVehicle, never()).getAllPropConfigs();
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequestsGetValueError() throws Exception {
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+            config.configArray = new ArrayList(Arrays.asList(1));
+            config.prop = VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK,
+                    new ArrayList(Arrays.asList(config)));
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+
+        doAnswer(inv -> {
+            getCallback callback = (getCallback) inv.getArgument(1);
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.INTERNAL_ERROR,
+                    null);
+            return null;
+        }).when(mHidlVehicle).get(any(), any());
+
+        assertThrows(ServiceSpecificException.class, () -> mHidlVehicleStub.getAllPropConfigs());
+        verify(mHidlVehicle, never()).getAllPropConfigs();
+    }
+
+    @Test
+    public void testGetAllPropConfigsHidlMultipleRequestsGetValueUnavailable() throws Exception {
+        doAnswer(inv -> {
+            getPropConfigsCallback callback = (getPropConfigsCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropConfig config =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropConfig();
+            config.configArray = new ArrayList(Arrays.asList(1));
+            config.prop = VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK,
+                    new ArrayList(Arrays.asList(config)));
+            return null;
+        }).when(mHidlVehicle).getPropConfigs(
+                eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+
+        doAnswer(inv -> {
+            getCallback callback = (getCallback) inv.getArgument(1);
+            android.hardware.automotive.vehicle.V2_0.VehiclePropValue value =
+                    new android.hardware.automotive.vehicle.V2_0.VehiclePropValue();
+            value.status = VehiclePropertyStatus.UNAVAILABLE;
+            callback.onValues(android.hardware.automotive.vehicle.V2_0.StatusCode.OK, value);
+            return null;
+        }).when(mHidlVehicle).get(any(), any());
+
+        ServiceSpecificException exception = assertThrows(ServiceSpecificException.class,
+                () -> mHidlVehicleStub.getAllPropConfigs());
+        assertThat(exception.errorCode).isEqualTo(
+                android.hardware.automotive.vehicle.V2_0.StatusCode.INTERNAL_ERROR);
+        verify(mHidlVehicle, never()).getAllPropConfigs();
     }
 
     @Test

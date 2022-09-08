@@ -73,7 +73,6 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -176,9 +175,9 @@ public final class Car {
                 Log.i(TAG_CAR, "Emulating PLATFORM_VERSION version: " + emulated);
             }
         }
-        PLATFORM_VERSION = emulated != null ? emulated : PlatformVersion
-                .newInstance("Car.PLATFORM_VERSION",
-                        Build.VERSION.SDK_INT, PLATFORM_VERSION_MINOR_INT);
+        PLATFORM_VERSION =
+                emulated != null ? emulated : PlatformVersion.getCurrentPlatformVersionForMinor(
+                        "Car.PLATFORM_VERSION", PLATFORM_VERSION_MINOR_INT);
     }
 
     // Car service registry information.
@@ -1492,8 +1491,8 @@ public final class Car {
     /**
      * Defines the {@link CarVersion version} of the {@code Car} APIs in the device.
      *
-     * <p>Starting on {@link Build.VERSION_CODES#TIRAMISU Android 13}, the {@code Car} APIs can be
-     * upgraded without an OTA, so it's possible that these APIs are higher than the
+     * <p>Starting on {@link android.os.Build.VERSION_CODES#TIRAMISU Android 13}, the {@code Car}
+     * APIs can be upgraded without an OTA, so it's possible that these APIs are higher than the
      * {@link #getPlatformVersion() platform's}.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
@@ -1507,9 +1506,9 @@ public final class Car {
      * Defines the {@link PlatformVersion version} of the standard {@code SDK} APIs in the
      * device.
      *
-     * <p>Its {@link ApiVersion#getMajorVersion() major version} will always be the same as
-     * {@link Build.VERSION#SDK_INT}, but its {@link ApiVersion#getMinorVersion() minor version}
-     * will reflect the incremental, quarterly releases.
+     * <p>Its {@link ApiVersion#getMajorVersion() major version} will be the same as
+     * {@link android.os.Build.VERSION#SDK_INT} for released build but will be
+     * {@link android.os.Build.VERSION_CODES#CUR_DEVELOPMENT} for platform still under development.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
             minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)

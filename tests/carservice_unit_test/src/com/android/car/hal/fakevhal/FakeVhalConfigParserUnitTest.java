@@ -20,6 +20,8 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 
+import android.hardware.automotive.vehicle.AccessForVehicleProperty;
+import android.hardware.automotive.vehicle.ChangeModeForVehicleProperty;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
@@ -139,7 +141,9 @@ public class FakeVhalConfigParserUnitTest {
 
     @Test
     public void testParsePropertyIdWithIntValue() throws Exception {
-        String jsonString = "{\"properties\": [{\"property\": 123}]}";
+        String jsonString = "{\"properties\": [{\"property\": 123,"
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile)
@@ -270,7 +274,9 @@ public class FakeVhalConfigParserUnitTest {
 
     @Test
     public void testParsePropertyIdFromConstantsMap() throws Exception {
-        String jsonString = "{\"properties\": [{\"property\": \"Constants::DOOR_1_LEFT\"}]}";
+        String jsonString = "{\"properties\": [{\"property\": \"Constants::DOOR_1_LEFT\","
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         int propId = mFakeVhalConfigParser.parseJsonConfig(tempFile).get(DOOR_1_LEFT).getConfig()
@@ -315,8 +321,10 @@ public class FakeVhalConfigParserUnitTest {
 
     @Test
     public void testParseFloatValueIsString() throws Exception {
-        String jsonString = "{\"properties\": [{\"property\": 123, \"minSampleRate\": "
-                + "\"VehicleUnit::FAHRENHEIT\"}]}";
+        String jsonString = "{\"properties\": [{\"property\": 123, "
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\","
+                + "\"minSampleRate\": \"VehicleUnit::FAHRENHEIT\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         float minSampleRate = mFakeVhalConfigParser.parseJsonConfig(tempFile).get(123).getConfig()
@@ -339,7 +347,10 @@ public class FakeVhalConfigParserUnitTest {
 
     @Test
     public void testParseFloatValueIsInt() throws Exception {
-        String jsonString = "{\"properties\": [{\"property\": 123, \"minSampleRate\": 456}]}";
+        String jsonString = "{\"properties\": [{\"property\": 123,"
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\","
+                + "\"minSampleRate\": 456}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         float minSampleRate = mFakeVhalConfigParser.parseJsonConfig(tempFile).get(123).getConfig()
@@ -349,28 +360,82 @@ public class FakeVhalConfigParserUnitTest {
     }
 
     @Test
-    public void testParseAccessField() throws Exception {
+    public void testParseAccessFieldOverride() throws Exception {
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::INFO_VIN\", "
-                + "\"access\": \"VehiclePropertyAccess::READ\"}]}";
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         int access = mFakeVhalConfigParser.parseJsonConfig(tempFile).get(VehicleProperty.INFO_VIN)
                 .getConfig().access;
 
-        assertThat(access).isEqualTo(1);
+        assertThat(access).isEqualTo(VehiclePropertyAccess.READ_WRITE);
+        assertThat(access).isNotEqualTo(AccessForVehicleProperty.values
+                .get(VehicleProperty.INFO_VIN));
     }
 
     @Test
-    public void testParseChangeModeField() throws Exception {
+    public void testParseAccessFieldNotSpecifiedDefaultAccessValueExist() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::INFO_VIN\"}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        int access = mFakeVhalConfigParser.parseJsonConfig(tempFile).get(VehicleProperty.INFO_VIN)
+                .getConfig().access;
+
+        assertThat(access).isEqualTo(AccessForVehicleProperty.values.get(VehicleProperty.INFO_VIN));
+    }
+
+    @Test
+    public void testParseAccessFieldNotSpecifiedDefaultAccessValueNotExist() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 123,"
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\"}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile));
+
+        assertThat(thrown).hasMessageThat().contains("Access field is not set for this property");
+    }
+
+    @Test
+    public void testParseChangeModeFieldOverride() throws Exception {
         String jsonString = "{\"properties\": [{\"property\": "
                 + "\"VehicleProperty::PERF_VEHICLE_SPEED_DISPLAY\", "
-                + "\"changeMode\": \"VehiclePropertyChangeMode::CONTINUOUS\"}]}";
+                + "\"changeMode\": \"VehiclePropertyChangeMode::ON_CHANGE\"}]}";
         File tempFile = createTempFileWithContent(jsonString);
 
         int changeMode = mFakeVhalConfigParser.parseJsonConfig(tempFile)
                 .get(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY).getConfig().changeMode;
 
-        assertThat(changeMode).isEqualTo(2);
+        assertThat(changeMode).isEqualTo(VehiclePropertyChangeMode.ON_CHANGE);
+        assertThat(changeMode).isNotEqualTo(ChangeModeForVehicleProperty.values
+                .get(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY));
+    }
+
+    @Test
+    public void testParseChangeModeFieldNotSpecifiedDefaultChangeModeValueExist() throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": "
+                + "\"VehicleProperty::PERF_VEHICLE_SPEED_DISPLAY\"}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        int changeMode = mFakeVhalConfigParser.parseJsonConfig(tempFile)
+                .get(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY).getConfig().changeMode;
+
+        assertThat(changeMode).isEqualTo(ChangeModeForVehicleProperty.values
+                .get(VehicleProperty.PERF_VEHICLE_SPEED_DISPLAY));
+    }
+
+    @Test
+    public void testParseChangeModeFieldNotSpecifiedDefaultChangeModeValueNotExist()
+            throws Exception {
+        String jsonString = "{\"properties\": [{\"property\": 123,"
+                + "\"access\": \"VehiclePropertyAccess::READ\"}]}";
+        File tempFile = createTempFileWithContent(jsonString);
+
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () ->
+                mFakeVhalConfigParser.parseJsonConfig(tempFile));
+
+        assertThat(thrown).hasMessageThat().contains("ChangeMode field is not set for this "
+                + "property");
     }
 
     @Test
@@ -528,6 +593,7 @@ public class FakeVhalConfigParserUnitTest {
         File tempFile = createTempFileWithContent(jsonString);
         VehiclePropConfig vehiclePropConfig = new VehiclePropConfig();
         vehiclePropConfig.prop = 286261504;
+        vehiclePropConfig.access = AccessForVehicleProperty.values.get(286261504);
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.areaId = 1;
         vehicleAreaConfig.minInt32Value = 0;
@@ -543,7 +609,7 @@ public class FakeVhalConfigParserUnitTest {
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
                 .get(286261504);
 
-        assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
+        assertThat(configDeclaration).isEqualTo(expectConfigDeclaration);
     }
 
     @Test
@@ -556,8 +622,9 @@ public class FakeVhalConfigParserUnitTest {
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
                 .get(286261504);
 
-        assertThat(configDeclaration.getInitialAreaValuesByAreaId().size()).isEqualTo(2);
-        assertThat(configDeclaration.getInitialAreaValuesByAreaId().get(2)).isEqualTo(null);
+        assertThat(configDeclaration.getInitialAreaValuesByAreaId().size()).isEqualTo(1);
+        assertThat(configDeclaration.getInitialAreaValuesByAreaId().get(1).int32Values[0])
+                .isEqualTo(0);
     }
 
     @Test
@@ -631,6 +698,7 @@ public class FakeVhalConfigParserUnitTest {
         ConfigDeclaration configDeclaration = mFakeVhalConfigParser.parseJsonConfig(tempFile)
                 .get(VehicleProperty.WHEEL_TICK);
 
+        assertThat(expectConfigDeclaration.getConfig().changeMode).isEqualTo(0);
         assertThat(expectConfigDeclaration).isEqualTo(configDeclaration);
     }
 

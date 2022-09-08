@@ -44,6 +44,8 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
     private static final String DEVELOPMENT_PLATFORM_CODENAME = "UpsideDownCake";
     private static final PlatformVersion DEVELOPMENT_PLATFORM = VERSION_CODES.UPSIDE_DOWN_CAKE_0;
 
+    private static final String CODENAME_REL = "REL";
+
     /**
      * Contains pre-defined versions matching Car releases.
      */
@@ -94,6 +96,19 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
     }
 
     /**
+     * Returns the current platform version with given {@code minorVersion}.
+     */
+    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    static PlatformVersion getCurrentPlatformVersionForMinor(String versionName, int minorVersion) {
+        // For un-released version, CUR_DEVELOPMENT should be used instead of SDK_INT.
+        // ex) VERSION_CODES.T is CUR_DEVELOPMENT first then becomes 33 (=SDK_INT) when SDK is
+        // finalized.
+        return new PlatformVersion(versionName,
+                CODENAME_REL.equals(Build.VERSION.CODENAME) ? Build.VERSION.SDK_INT
+                        : Build.VERSION_CODES.CUR_DEVELOPMENT, minorVersion);
+    }
+    /**
      * Creates a new instance with the given major and minor versions.
      */
     @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
@@ -134,7 +149,7 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
     Boolean isAtLeastLatestPlatform(@NonNull PlatformVersion requiredVersion) {
         // Update this code for each release while development on master branch.
         if (requiredVersion.equals(DEVELOPMENT_PLATFORM)) {
-            if ("REL".equals(CODENAME)) {
+            if (CODENAME_REL.equals(CODENAME)) {
                 return false;
             }
             return CODENAME.compareTo(DEVELOPMENT_PLATFORM_CODENAME) >= 0;
