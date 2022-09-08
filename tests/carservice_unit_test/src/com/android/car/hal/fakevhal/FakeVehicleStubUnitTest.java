@@ -21,14 +21,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import android.hardware.automotive.vehicle.FuelType;
+import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
+import android.hardware.automotive.vehicle.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.VehicleAreaWindow;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
+import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.os.ServiceSpecificException;
+import android.os.SystemClock;
 import android.util.SparseArray;
 
 import com.android.car.VehicleStub;
@@ -56,6 +60,7 @@ public class FakeVehicleStubUnitTest {
 
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
+    private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
 
     @Mock
     private VehicleStub mMockRealVehicleStub;
@@ -320,6 +325,139 @@ public class FakeVehicleStubUnitTest {
 
         expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
         expect.that(thrown).hasMessageThat().contains("areaId: 0 is not supported");
+    }
+
+    @Test
+    public void testSetMethodPropConfigNotExist() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
+                + "\"defaultValue\": {\"int32Values\": [0]},"
+                + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAdil= */ true)
+                .build(/* propId= */ 123456, /* areaId= */ 0);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.set(requestPropValue));
+
+        expect.that(thrown).hasMessageThat().contains("The propId: 123456 is not supported.");
+    }
+
+    @Test
+    public void testSetMethodPropDefaultValueExist() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::INFO_FUEL_CAPACITY\","
+                + "\"defaultValue\": {\"floatValues\": [100.0]},"
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\"}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.floatValues = new float[]{10};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        HalPropValue oldPropValue = fakeVehicleStub.get(requestPropValue);
+        fakeVehicleStub.set(requestPropValue);
+        HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(updatedPropValue.getFloatValue(0)).isEqualTo(10.0f);
+        expect.that(updatedPropValue.getFloatValue(0)).isNotEqualTo(oldPropValue.getFloatValue(0));
+        expect.that(updatedPropValue.getTimestamp()).isNotEqualTo(oldPropValue.getTimestamp());
+    }
+
+    @Test
+    public void testSetMethodPropDefaultValueNotExist() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::INFO_FUEL_CAPACITY\","
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\"}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{32};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.INFO_FUEL_CAPACITY, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        expect.that(thrown).hasMessageThat().contains("has no property value");
+
+        fakeVehicleStub.set(requestPropValue);
+        HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(32);
+    }
+
+    @Test
+    public void testSetMethodValueOutOfRange() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::SEAT_BELT_HEIGHT_POS\","
+                + "\"defaultValue\": {\"int32Values\": [10]},"
+                + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\","
+                + "\"minInt32Value\": 0, \"maxInt32Value\": 10}]}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{15};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.SEAT_BELT_HEIGHT_POS, /* areaId= */ SEAT_1_LEFT,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.set(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The set value is outside the range");
+    }
+
+    @Test
+    public void testSetMethodAreaConfigHasNoLimit() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
+                + "\"defaultValue\": {\"int32Values\": [0]},"
+                + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{32};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.SEAT_BELT_BUCKLED, /* areaId= */ SEAT_1_LEFT,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        HalPropValue oldPropValue = fakeVehicleStub.get(requestPropValue);
+        fakeVehicleStub.set(requestPropValue);
+        HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(oldPropValue.getInt32Value(0)).isEqualTo(0);
+        expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(32);
+    }
+
+    private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,
+            RawPropValues rawPropValues) {
+        VehiclePropValue propValue = new VehiclePropValue();
+        propValue.prop = propId;
+        propValue.areaId = areaId;
+        propValue.timestamp = timestamp;
+        propValue.value = rawPropValues;
+        return new HalPropValueBuilder(/* isAidl= */ true).build(propValue);
     }
 
     private SparseArray<ConfigDeclaration> createParseResult(int propId, float maxSampleRate,
