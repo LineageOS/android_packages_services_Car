@@ -23,6 +23,7 @@ import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.os.CarPerformanceManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
@@ -70,6 +71,7 @@ import com.google.android.car.kitchensink.insets.WindowInsetsFullScreenFragment;
 import com.google.android.car.kitchensink.mainline.CarMainlineFragment;
 import com.google.android.car.kitchensink.notification.NotificationFragment;
 import com.google.android.car.kitchensink.orientation.OrientationTestFragment;
+import com.google.android.car.kitchensink.os.CarPerformanceTestFragment;
 import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
@@ -233,6 +235,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("notification", NotificationFragment.class),
             new FragmentMenuEntry("orientation test", OrientationTestFragment.class),
             new FragmentMenuEntry("package info", PackageInfoFragment.class),
+            new FragmentMenuEntry("performance", CarPerformanceTestFragment.class),
             new FragmentMenuEntry("power test", PowerTestFragment.class),
             new FragmentMenuEntry("profile_user", ProfileUserFragment.class),
             new FragmentMenuEntry("projection", ProjectionFragment.class),
@@ -265,6 +268,7 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarProjectionManager mCarProjectionManager;
     private CarTelemetryManager mCarTelemetryManager;
     private CarWatchdogManager mCarWatchdogManager;
+    private CarPerformanceManager mCarPerformanceManager;
     private Object mPropertyManagerReady = new Object();
 
     public KitchenSinkActivity() {
@@ -297,6 +301,10 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     public CarWatchdogManager getCarWatchdogManager() {
         return mCarWatchdogManager;
+    }
+
+    public CarPerformanceManager getPerformanceManager() {
+        return mCarPerformanceManager;
     }
 
     /* Open any tab directly:
@@ -541,6 +549,8 @@ public class KitchenSinkActivity extends FragmentActivity {
                     (CarTelemetryManager) car.getCarManager(Car.CAR_TELEMETRY_SERVICE);
             mCarWatchdogManager =
                     (CarWatchdogManager) car.getCarManager(Car.CAR_WATCHDOG_SERVICE);
+            mCarPerformanceManager =
+                    (CarPerformanceManager) car.getCarManager(Car.CAR_PERFORMANCE_SERVICE);
             mPropertyManagerReady.notifyAll();
         }
     }

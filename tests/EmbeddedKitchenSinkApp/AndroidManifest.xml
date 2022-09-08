@@ -104,6 +104,8 @@
     <uses-permission android:name="android.permission.LOCATION_HARDWARE"/>
     <uses-permission android:name="android.permission.MANAGE_USB"/>
     <uses-permission android:name="android.permission.MANAGE_USERS"/>
+    <!-- use for CarPerformanceTestFragment -->
+    <uses-permission android:name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING"/>
