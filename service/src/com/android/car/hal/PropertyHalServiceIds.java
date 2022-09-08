@@ -112,7 +112,7 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(EvRegenerativeBrakingState.class));
     private static final Set<Integer> TRAILER_PRESENT =
             new HashSet<>(getIntegersFromDataEnums(TrailerState.class));
-    private static final Set<Integer> GSR_COMP_REQ_TYPE =
+    private static final Set<Integer> GSR_COMP_TYPE =
             new HashSet<>(getIntegersFromDataEnums(GsrComplianceRequirementType.class));
 
     // default vendor permission
@@ -641,7 +641,7 @@ public class PropertyHalServiceIds {
                 TRAILER_PRESENT);
         mHalPropIdToValidValues.put(
                 VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT,
-                GSR_COMP_REQ_TYPE);
+                GSR_COMP_TYPE);
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mHalPropIdToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);

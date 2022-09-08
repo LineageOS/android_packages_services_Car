@@ -205,9 +205,9 @@ package android.car {
     field public static final int UNLEADED = 1; // 0x1
   }
 
-  public final class GsrComplianceRequirementType {
-    field public static final int GSR_COMPLIANCE_NOT_REQUIRED = 0; // 0x0
-    field public static final int GSR_COMPLIANCE_REQUIRED_V1 = 1; // 0x1
+  public final class GsrComplianceType {
+    field public static final int GSR_COMPLIANCE_TYPE_NOT_REQUIRED = 0; // 0x0
+    field public static final int GSR_COMPLIANCE_TYPE_REQUIRED_V1 = 1; // 0x1
   }
 
   public final class PlatformVersion extends android.car.ApiVersion<android.car.PlatformVersion> implements android.os.Parcelable {
@@ -345,7 +345,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int FUEL_LEVEL_LOW = 287310853; // 0x11200405
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513; // 0x11400601
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int GEAR_SELECTION = 289408000; // 0x11400400
-    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_INFO)) public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT = 289410887; // 0x11400f47
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_INFO)) public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887; // 0x11400f47
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int HAZARD_LIGHTS_STATE = 289410563; // 0x11400e03
     field @RequiresPermission("android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS") public static final int HAZARD_LIGHTS_SWITCH = 289410579; // 0x11400e13
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int HEADLIGHTS_STATE = 289410560; // 0x11400e00
