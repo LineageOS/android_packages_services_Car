@@ -18,12 +18,13 @@ import subprocess
 
 rootDir = os.getenv("ANDROID_BUILD_TOP")
 if (rootDir is None):
-    print("\nANDROID_BUILD_TOP not set. Run source and lunch.\n")
-    sys.exit(1)
+    # env variable is not set. Then use the arg passed as Git root
+    rootDir = sys.argv[1]
 
 # Generate class list using tool
 java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
-                                    "/GenericCarApiBuilder.jar --print-classes-only "
+                                    "/GenericCarApiBuilder.jar --print-classes-only " \
+                                    "--ANDROID-BUILD-TOP " + rootDir
 new_class_list = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
 
 # Read current class list
@@ -46,7 +47,7 @@ error = ""
 if len(extra_deleted_classes) > 0:
     error = error + "Following Classes are deleted \n" + "\n".join(extra_deleted_classes)
 if len(extra_new_classes) > 0:
-    error = error + "Following new classes are added \n" + "\n".join(extra_new_classes)
+    error = error + "\n\nFollowing new classes are added \n" + "\n".join(extra_new_classes)
 
 if error != "":
     print(error)
