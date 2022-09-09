@@ -81,6 +81,7 @@ import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -668,6 +669,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
+    @Ignore("b/245555537")
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
         String policyIdEnableAudioWifi = "policy_id_enable_audio_wifi";

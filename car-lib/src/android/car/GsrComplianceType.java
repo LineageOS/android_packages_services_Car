@@ -23,31 +23,31 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Used by
- * {@link VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE_REQUIREMENT} to
+ * {@link VehicleProperty.GENERAL_SAFETY_REGULATION_COMPLIANCE} to
  * indicate what kind of general safety regulation compliance requirement is
  * enforced.
  */
-public final class GsrComplianceRequirementType {
+public final class GsrComplianceType {
     /**
      * GSR compliance is not required.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int GSR_COMPLIANCE_NOT_REQUIRED = 0;
+    public static final int GSR_COMPLIANCE_TYPE_NOT_REQUIRED = 0;
     /**
      * GSR compliance is required and the requirement solution version is 1.
      */
     @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
              minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
-    public static final int GSR_COMPLIANCE_REQUIRED_V1 = 1;
+    public static final int GSR_COMPLIANCE_TYPE_REQUIRED_V1 = 1;
 
     /** @hide */
     @IntDef({
-        GSR_COMPLIANCE_NOT_REQUIRED,
-        GSR_COMPLIANCE_REQUIRED_V1
+        GSR_COMPLIANCE_TYPE_NOT_REQUIRED,
+        GSR_COMPLIANCE_TYPE_REQUIRED_V1
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface Enum {}
 
-    private GsrComplianceRequirementType() {}
+    private GsrComplianceType() {}
 }

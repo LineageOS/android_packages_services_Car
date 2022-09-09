@@ -46,7 +46,8 @@
 
     <application android:label="@string/app_title"
          android:name=".CarServiceTestApp"
-         android:debuggable="true">
+         android:debuggable="true"
+         android:testOnly="true">
         <uses-library android:name="android.test.runner"/>
         <service android:name="com.android.car.TestAppBlockingPolicyService"
              android:permission="android.car.permission.CONTROL_APP_BLOCKING"
