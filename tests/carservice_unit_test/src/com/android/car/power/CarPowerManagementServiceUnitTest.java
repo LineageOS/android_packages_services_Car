@@ -32,6 +32,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
+import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.ICarResultReceiver;
@@ -81,7 +82,6 @@ import com.android.internal.annotations.GuardedBy;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.Spy;
@@ -585,17 +585,21 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     @Test
     public void testApplyPowerPolicy() throws Exception {
         grantPowerPolicyPermission();
-        // Power policy which doesn't change any components.
-        String policyId = "policy_id_no_changes";
-        mService.definePowerPolicy(policyId, new String[0], new String[0]);
+        String policyId = "policy_id_audio_off";
+        mService.definePowerPolicy(policyId, new String[]{}, new String[]{"AUDIO"});
+        MockedPowerPolicyListener listenerToWait = new MockedPowerPolicyListener(/* count= */ 1);
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.AUDIO).build();
+        mService.addPowerPolicyListener(filterAudio, listenerToWait);
 
         mService.applyPowerPolicy(policyId);
 
         CarPowerPolicy policy = mService.getCurrentPowerPolicy();
         assertThat(policy).isNotNull();
         assertThat(policy.getPolicyId()).isEqualTo(policyId);
-        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
         assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
+        assertThat(listenerToWait.getCurrentPowerPolicy()).isNotNull();
+        assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
     }
 
     @Test
@@ -669,13 +673,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     }
 
     @Test
-    @Ignore("b/245555537")
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
         String policyIdEnableAudioWifi = "policy_id_enable_audio_wifi";
-        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
-        MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener();
-        MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener(/* count= */ 2);
+        MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener(/* count= */ 1);
+        MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener(/* count= */ 1);
 
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(PowerComponent.AUDIO).build();
@@ -717,7 +720,7 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
         grantPowerPolicyPermission();
         String policyId = "policy_id_enable_audio_disable_wifi";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
-        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener(/* count= */ 1);
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(PowerComponent.AUDIO).build();
 
@@ -1173,8 +1176,12 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
     private final class MockedPowerPolicyListener extends ICarPowerPolicyListener.Stub {
         private static final int NOTIFICATION_TIMEOUT_SEC = 5;
 
-        private final CountDownLatch mLatch = new CountDownLatch(1);
+        private final CountDownLatch mLatch;
         private CarPowerPolicy mCurrentPowerPolicy;
+
+        private MockedPowerPolicyListener(int count) {
+            mLatch = new CountDownLatch(count);
+        }
 
         @Override
         public void onPolicyChanged(CarPowerPolicy appliedPolicy,
@@ -1183,12 +1190,17 @@ public final class CarPowerManagementServiceUnitTest extends AbstractExtendedMoc
             mLatch.countDown();
         }
 
-        public CarPowerPolicy getCurrentPowerPolicy() {
-            try {
-                mLatch.await(NOTIFICATION_TIMEOUT_SEC, TimeUnit.SECONDS);
-            } catch (InterruptedException ignored) { }
+        /**
+         * This method returns {@code null} if timeout occurs.
+         */
+        @Nullable
+        public CarPowerPolicy getCurrentPowerPolicy() throws Exception {
+            if (mLatch.await(NOTIFICATION_TIMEOUT_SEC, TimeUnit.SECONDS)) {
+                return mCurrentPowerPolicy;
+            }
 
-            return mCurrentPowerPolicy;
+            Log.w(TAG, "getCurrentPowerPolicy() timed out");
+            return null;
         }
     }
 }
