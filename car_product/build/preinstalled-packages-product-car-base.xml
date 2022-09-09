@@ -409,4 +409,8 @@
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
+    <!-- Mainline module -->
+    <install-in-user-type package="com.android.healthconnect.controller">
+        <install-in user-type="FULL" />
+    </install-in-user-type>
 </config>
