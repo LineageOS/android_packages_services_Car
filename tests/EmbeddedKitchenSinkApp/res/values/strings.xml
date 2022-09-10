@@ -416,4 +416,15 @@
     <string name="non_recurring_io_overuse" translatable="false">Non-recurring I/O overuse</string>
     <string name="recurring_io_overuse" translatable="false">Recurring I/O overuse</string>
     <string name="long_running_recurring_io_overuse" translatable="false">Long-running recurring I/O overuse</string>
+
+    <!-- Thread Priority Test -->
+    <string name="get_thread_priority" translatable="false">Get current thread priority</string>
+    <string name="set_thread_priority" translatable="false">Set current thread priority</string>
+    <string name="priority_input_hint" translatable="false">Thread Priority (int)</string>
+    <string name="policy_input_hint" translatable="false">Thread Policy</string>
+    <string-array name="thread_policy_list" translatable="false">
+        <item>Default</item>
+        <item>FIFO</item>
+        <item>Round-Robin</item>
+    </string-array>
 </resources>
