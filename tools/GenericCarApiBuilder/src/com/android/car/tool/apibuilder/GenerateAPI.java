@@ -34,6 +34,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -69,15 +70,25 @@ public final class GenerateAPI {
      */
     public static void main(final String[] args) throws Exception {
         try {
-            String rootDir = System.getenv(ANDROID_BUILD_TOP);
-            List<File> allJavaFiles_carLib = getAllFiles(new File(rootDir + CAR_API_PATH));
-            List<File> allJavaFiles_carBuiltInLib = getAllFiles(
-                    new File(rootDir + CAR_BUILT_IN_API_PATH));
-
             if (args.length == 0) {
                 printHelp();
                 return;
             }
+
+            String rootDir = System.getenv(ANDROID_BUILD_TOP);
+            if (rootDir == null || rootDir.isEmpty()) {
+                // check for second optional argument
+                if (args.length > 2 && args[1].equalsIgnoreCase("--ANDROID-BUILD-TOP")) {
+                    rootDir = args[2];
+                } else {
+                    printHelp();
+                    return;
+                }
+            }
+
+            List<File> allJavaFiles_carLib = getAllFiles(new File(rootDir + CAR_API_PATH));
+            List<File> allJavaFiles_carBuiltInLib = getAllFiles(
+                    new File(rootDir + CAR_BUILT_IN_API_PATH));
 
             if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_CLASSES_ONLY)) {
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
@@ -144,7 +155,9 @@ public final class GenerateAPI {
                 + " tests/carservice_unit_test/res/raw/car_built_in_api_classes.txt");
         System.out.println(GENERATE_FULL_API_LIST + " : Would generate full api list including the"
                 + " hidden APIs. Results would be saved in ");
-
+        System.out.println("Second optional argument is value of Git Root Directory. By default, "
+                + "it is environment variable ANDROID_BUILD_TOP. If environment variable is not set"
+                + "then provide using --ANDROID-BUILD-TOP <directory>");
     }
 
     private static List<File> getAllFiles(File folderName) {
@@ -162,6 +175,8 @@ public final class GenerateAPI {
                 allFiles.addAll(getAllFiles(files[i]));
             }
         }
+        // List files doesn't guarantee fixed order on all systems. It is better to sort the list.
+        Collections.sort(allFiles);
         return allFiles;
     }
 

@@ -24,7 +24,6 @@ import android.os.Bundle;
 import android.os.Process;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.DebugUtils;
 import android.util.Log;
 
 import com.android.car.testdpc.remotedpm.DevicePolicyManagerInterface;
@@ -303,8 +302,7 @@ final class DpcShellCommand {
         String userId = mArgs[2];
         UserHandle user = UserHandle.of(Integer.parseInt(userId));
         int status = mDpm.startUserInBackground(mAdmin, user);
-        mWriter.printf("Result of starting user %s: %s\n",
-                userId, userOperationStatusToString(status));
+        processStatusCode(userId, status);
 
         if (status == UserManager.USER_OPERATION_SUCCESS) {
             mDpcFactory.addProfileOwnerDpm(user);
@@ -319,8 +317,7 @@ final class DpcShellCommand {
         String userId = mArgs[2];
         UserHandle user = UserHandle.of(Integer.parseInt(userId));
         int status = mDpm.stopUser(mAdmin, user);
-        mWriter.printf("Result of stopping user %s: %s\n",
-                userId, userOperationStatusToString(status));
+        processStatusCode(userId, status);
 
         if (status == UserManager.USER_OPERATION_SUCCESS) {
             mDpcFactory.removeProfileOwnerDpm(user);
@@ -373,7 +370,14 @@ final class DpcShellCommand {
         mWriter.printf("args: %s", Arrays.toString(mArgs));
     }
 
-    private String userOperationStatusToString(int status) {
-        return DebugUtils.valueToString(UserManager.class, "USER_OPERATION_", status);
+    private void processStatusCode(String userId, int status) {
+        if (status == UserManager.USER_OPERATION_SUCCESS) {
+            mWriter.printf("Result of stopping user %s: success\n",
+                    userId);
+            return;
+        }
+
+        mWriter.printf("Result of stopping user %s: error with code %d\n",
+                userId, status);
     }
 }
