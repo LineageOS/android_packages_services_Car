@@ -101,5 +101,7 @@
         <permission name="android.car.permission.USE_CAR_EVS_CAMERA" />
         <permission name="android.car.permission.MONITOR_CAR_EVS_STATUS" />
         <permission name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
+        <!-- use for CarPerformanceTestFragment -->
+        <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
     </privapp-permissions>
 </permissions>
