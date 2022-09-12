@@ -19,6 +19,7 @@ package com.android.car.testdpc;
 import android.annotation.Nullable;
 import android.annotation.StringRes;
 import android.app.Activity;
+import android.app.admin.DevicePolicyManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.os.Bundle;
@@ -47,8 +48,11 @@ public final class DpcActivity extends Activity {
     private TextView mCurrentUserTitle;
     private TextView mThisUser;
     private TextView mAddUserRestriction;
+    private TextView mGetUserRestrictions;
+    private TextView mDisplayUserRestrictions;
     private Button mRebootButton;
     private Button mAddUserRestrictionButton;
+    private Button mGetUserRestrictionsButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +61,7 @@ public final class DpcActivity extends Activity {
         mContext = getApplicationContext();
         mAdmin = DpcReceiver.getComponentName(mContext);
 
-        Log.d(TAG, "onCreate(): user= " + mContext.getUser() + ", admin=" + mAdmin);
+        Log.d(TAG, "onCreate(): user= " + Process.myUserHandle() + ", admin=" + mAdmin);
 
         mDpcFactory = new DpcFactory(mContext);
         mDoInterface = mDpcFactory.getDevicePolicyManager(
@@ -80,6 +84,15 @@ public final class DpcActivity extends Activity {
 
         mAddUserRestrictionButton = findViewById(R.id.add_user_restriction_button);
         mAddUserRestrictionButton.setOnClickListener(this::uiAddUserRestriction);
+
+        mGetUserRestrictions = findViewById(R.id.get_user_restriction_title);
+        mGetUserRestrictions.setText(R.string.get_user_restrictions);
+
+        mDisplayUserRestrictions = findViewById(R.id.display_user_restriction_title);
+        mDisplayUserRestrictions.setText(R.string.display_user_restrictions);
+
+        mGetUserRestrictionsButton = findViewById(R.id.get_user_restriction_button);
+        mGetUserRestrictionsButton.setOnClickListener(this::uiDisplayUserRestrictions);
     }
 
     public void uiReboot(View v) {
@@ -100,29 +113,36 @@ public final class DpcActivity extends Activity {
             return;
         }
 
-        if (mDoInterface.getUser().equals(target)) {
-            try {
-                mDoInterface.addUserRestriction(restriction);
-                showToast("%s: addUserRestriction(%s)",
-                        mDoInterface.getUser(), restriction);
-            } catch (RuntimeException e) {
-                showToast(e, "Exception when calling addUserRestriction(%s)", restriction);
-                return;
-            }
+        DevicePolicyManagerInterface targetDpm = mDpcFactory.getDevicePolicyManager(target);
 
+        if (targetDpm == null) {
+            showToast(R.string.no_dpm);
             return;
         }
 
-        DevicePolicyManagerInterface profileOwner = mDpcFactory.getDevicePolicyManager(target);
         try {
-            profileOwner.addUserRestriction(restriction);
-            showToast("%s: addUserRestriction(%s)",
-                    profileOwner.getUser(), restriction);
+            targetDpm.addUserRestriction(restriction);
+            showToast("%s: addUserRestriction(%s)", targetDpm.getUser(), restriction);
         } catch (RuntimeException e) {
             showToast(e, "Exception when calling addUserRestriction(%s)", restriction);
             return;
         }
+    }
 
+    public void uiDisplayUserRestrictions(View v) {
+        DevicePolicyManager dpm = mContext.getSystemService(DevicePolicyManager.class);
+        Bundle restrictions;
+        try {
+            restrictions = dpm.getUserRestrictions(mAdmin);
+            showToast("%s: getUserRestrictions()",
+                    Process.myUserHandle());
+        } catch (RuntimeException e) {
+            showToast(e, "Exception when calling getUserRestrictions()");
+            return;
+        }
+
+        mDisplayUserRestrictions.setText(restrictions.isEmpty() ? "No restrictions." :
+                DpcShellCommand.bundleToString(restrictions));
     }
 
     @Nullable
