@@ -26,6 +26,7 @@ import android.car.annotation.ApiRequirements;
 import android.car.builtin.util.Slogf;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.os.Binder;
 import android.os.IBinder;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -51,6 +52,7 @@ public abstract class OemCarService extends Service {
             "android.car.permission.BIND_OEM_CAR_SERVICE";
 
     // OEM Service components
+    // Note: Change the size as more components are added.
     @GuardedBy("mLock")
     private final ArrayMap<Class<?>, OemCarServiceComponent> mOemCarServiceComponents =
             new ArrayMap<Class<?>, OemCarServiceComponent>(1);
@@ -95,8 +97,8 @@ public abstract class OemCarService extends Service {
         private void assertPermission() {
             if (checkCallingPermission(
                     PERMISSION_BIND_OEM_CAR_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-                String errorMsg = "Caller doesn't have permission "
-                        + PERMISSION_BIND_OEM_CAR_SERVICE;
+                String errorMsg = "Caller with uid:" + Binder.getCallingUid()
+                        + " doesn't have permission " + PERMISSION_BIND_OEM_CAR_SERVICE;
                 Slogf.e(TAG, errorMsg);
                 throw new SecurityException(errorMsg);
             }
@@ -106,9 +108,9 @@ public abstract class OemCarService extends Service {
     /**
      * {@inheritDoc}
      * <p>
-     * OEM should override this method and do the initialization. OEM should also call super as
-     * this method would call {@link OemCarServiceComponent#init()} for each component implemented
-     * by OEM.
+     * OEM should override this method and do the initialization. OEM should also call super as this
+     * method would call {@link OemCarServiceComponent#init()} for each component implemented by
+     * OEM.
      * <p>
      * Car Service will not be available at the time of this initialization. If the OEM needs
      * anything from CarService, they should wait for the CarServiceReady() call. It is expected
@@ -203,7 +205,6 @@ public abstract class OemCarService extends Service {
 
     /**
      * Dumps OEM Car Service.
-     *
      * <p>
      * OEM should override this method to dump. OEM should also call super as this method would call
      * {@link OemCarServiceComponent#dump(FileDescriptor, PrintWriter, String[])} for each component
@@ -242,7 +243,6 @@ public abstract class OemCarService extends Service {
 
     /**
      * Informs OEM service that CarService is now ready for communication.
-     *
      * <p>
      * OEM should override this method and do the necessary initialization depending on CarService.
      * OEM should also call super as this method would call
