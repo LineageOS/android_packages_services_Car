@@ -44,11 +44,16 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.GuardedBy;
 
+import com.android.car.internal.evs.CarEvsGLSurfaceView;
+import com.android.car.internal.evs.GLES20CarEvsBufferRenderer;
+
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class CarEvsCameraPreviewActivity extends Activity {
+public class CarEvsCameraPreviewActivity extends Activity
+        implements CarEvsGLSurfaceView.BufferCallback {
+
     private static final String TAG = CarEvsCameraPreviewActivity.class.getSimpleName();
 
     /**
@@ -88,7 +93,7 @@ public class CarEvsCameraPreviewActivity extends Activity {
     private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
 
     /** GL backed surface view to render the camera preview */
-    private CarEvsCameraGLSurfaceView mEvsView;
+    private CarEvsGLSurfaceView mEvsView;
     private ViewGroup mRootView;
     private LinearLayout mPreviewContainer;
 
@@ -133,7 +138,7 @@ public class CarEvsCameraPreviewActivity extends Activity {
                 if (mStreamState == STREAM_STATE_INVISIBLE) {
                     // When the activity becomes invisible (e.g. goes background), we immediately
                     // returns received frame buffers instead of stopping a video stream.
-                    returnBufferLocked(buffer);
+                    doneWithBufferLocked(buffer);
                 } else {
                     // Enqueues a new frame and posts a rendering job
                     mBufferQueue.add(buffer);
@@ -235,7 +240,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
         Car.createCar(getApplicationContext(), /* handler = */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
 
-        mEvsView = new CarEvsCameraGLSurfaceView(getApplication(), this);
+        mEvsView = CarEvsGLSurfaceView.create(getApplication(), this, getApplicationContext()
+                .getResources().getInteger(R.integer.config_evsRearviewCameraInPlaneRotationAngle));
         mRootView = (ViewGroup) LayoutInflater.from(this).inflate(
                 R.layout.evs_preview_activity, /* root= */ null);
         mPreviewContainer = mRootView.findViewById(R.id.evs_preview_container);
@@ -419,8 +425,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
         return state;
     }
 
-    /** Get a new frame */
-    CarEvsBufferDescriptor getNewFrame() {
+    @Override
+    public CarEvsBufferDescriptor onBufferRequested() {
         synchronized (mLock) {
             if (mBufferQueue.isEmpty()) {
                 return null;
@@ -435,15 +441,15 @@ public class CarEvsCameraPreviewActivity extends Activity {
         }
     }
 
-    /** Request to return a buffer we're done with */
-    void returnBuffer(CarEvsBufferDescriptor buffer) {
+    @Override
+    public void onBufferProcessed(CarEvsBufferDescriptor buffer) {
         synchronized (mLock) {
-            returnBufferLocked(buffer);
+            doneWithBufferLocked(buffer);
         }
     }
 
     @GuardedBy("mLock")
-    private void returnBufferLocked(CarEvsBufferDescriptor buffer) {
+    private void doneWithBufferLocked(CarEvsBufferDescriptor buffer) {
         try {
             mEvsManager.returnFrameBuffer(buffer);
         } catch (Exception e) {
