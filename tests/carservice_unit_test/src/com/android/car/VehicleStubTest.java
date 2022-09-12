@@ -375,9 +375,14 @@ public class VehicleStubTest {
             return null;
         }).when(mHidlVehicle).getPropConfigs(
                 eq(new ArrayList<>(Arrays.asList(VHAL_PROP_SUPPORTED_PROPERTY_IDS))), any());
+        when(mHidlVehicle.getAllPropConfigs()).thenReturn(
+                new ArrayList<android.hardware.automotive.vehicle.V2_0.VehiclePropConfig>());
 
-        assertThrows(IllegalStateException.class, () -> mHidlVehicleStub.getAllPropConfigs());
-        verify(mHidlVehicle, never()).getAllPropConfigs();
+        mHidlVehicleStub.getAllPropConfigs();
+
+        // Must fall back to getAllPropConfigs when no config is returned for
+        // VHAL_PROP_SUPPORTED_PROPERTY_IDS;
+        verify(mHidlVehicle).getAllPropConfigs();
     }
 
     @Test

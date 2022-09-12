@@ -162,17 +162,19 @@ final class HidlVehicleStub extends VehicleStub {
             return vehiclePropConfigsToHalPropConfigs(mHidlVehicle.getAllPropConfigs());
         }
 
+        if (configForSupportedProps.size() == 0) {
+            Slogf.w(TAG, "getPropConfigs[VHAL_PROP_SUPPORTED_IDS] returns 0 config"
+                    + "assume it is not supported, fall back to getAllPropConfigs.");
+            return vehiclePropConfigsToHalPropConfigs(mHidlVehicle.getAllPropConfigs());
+        }
+
         // If the VHAL_PROP_SUPPORTED_PROPERTY_IDS is supported, VHAL has
         // too many property configs that cannot be returned in getAllPropConfigs() in one binder
         // transaction.
         // We need to get the property list and then divide the list into smaller requests.
         Slogf.d(TAG, "VHAL_PROP_SUPPORTED_PROPERTY_IDS is supported, "
                 + "use multiple getPropConfigs to fetch all property configs");
-        if (configForSupportedProps.size() != 1) {
-            throw new IllegalStateException("If no exception is thrown for "
-                    + "getPropConfigs([VHAL_PROP_SUPPORTED_IDS], the result must contain exactly"
-                    + " one config, got: " + configForSupportedProps.size());
-        }
+
         return getAllPropConfigsThroughMultipleRequests(configForSupportedProps.get(0));
     }
 
