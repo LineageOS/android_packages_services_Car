@@ -19,5 +19,5 @@ package com.android.car.testdpc.remotedpm;
 import android.os.RemoteException;
 
 public interface RemoteRunnable {
-    void run() throws RemoteException;
+    void run(IRemoteDevicePolicyManager rdpm) throws RemoteException;
 }

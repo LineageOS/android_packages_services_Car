@@ -42,6 +42,13 @@ public final class LocalDevicePolicyManager implements DevicePolicyManagerInterf
     }
 
     @Override
+    public void startUserInBackground(UserHandle target) {
+        int status = mDpm.startUserInBackground(mAdmin, target);
+        Log.i(TAG, "User Started status code: " + status);
+
+    }
+
+    @Override
     public void reboot() {
         Log.d(TAG, "Calling local reboot(" + mAdmin + ")");
         mDpm.reboot(mAdmin);

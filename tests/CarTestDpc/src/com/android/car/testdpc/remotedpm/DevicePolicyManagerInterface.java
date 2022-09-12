@@ -22,6 +22,8 @@ public interface DevicePolicyManagerInterface {
 
     UserHandle getUser();
 
+    void startUserInBackground(UserHandle target);
+
     void reboot();
 
     void addUserRestriction(String key);
