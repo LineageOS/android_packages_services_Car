@@ -84,6 +84,7 @@ public:
             const std::string& policyId, const std::vector<std::string>& enabledComponents,
             const std::vector<std::string>& disabledComponents);
     android::base::Result<void> dump(int fd, const android::Vector<String16>& args);
+    std::string getDefaultPolicyGroup() const;
 
 private:
     void initRegularPowerPolicy(bool override);
@@ -96,6 +97,7 @@ private:
     std::unordered_map<std::string, CarPowerPolicyPtr> mRegisteredPowerPolicies;
     std::unordered_map<std::string, CarPowerPolicyPtr> mPreemptivePowerPolicies;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
+    std::string mDefaultPolicyGroup;
 
     // For unit tests.
     friend class internal::PolicyManagerPeer;
