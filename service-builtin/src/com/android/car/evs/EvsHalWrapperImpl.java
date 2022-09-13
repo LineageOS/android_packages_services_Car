@@ -83,6 +83,10 @@ public final class EvsHalWrapperImpl extends EvsHalWrapper {
 
     @Override
     public boolean connectToHalServiceIfNecessary() {
+        if (!isConnected() && !init()) {
+            return false;
+        }
+
         return nativeConnectToHalServiceIfNecessary(getNativeHandle());
     }
 
