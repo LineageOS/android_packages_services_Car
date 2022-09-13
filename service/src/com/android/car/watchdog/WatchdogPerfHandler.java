@@ -385,6 +385,7 @@ public final class WatchdogPerfHandler {
          * TODO(b/183436216): Implement this method.
          */
         synchronized (mLock) {
+            writer.println("Current UX state: " + toUxStateString(mCurrentUxState));
             writer.println("List of disabled packages per user due to resource overuse: "
                     + mDisabledUserPackagesByUserId);
         }
@@ -2681,6 +2682,19 @@ public final class WatchdogPerfHandler {
                 return "COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED";
             default:
                 return "UNKNOWN COMPONENT ENABLED STATE";
+        }
+    }
+
+    private static String toUxStateString(@UxStateType int uxState) {
+        switch (uxState) {
+            case UX_STATE_NO_DISTRACTION:
+                return "UX_STATE_NO_DISTRACTION";
+            case UX_STATE_USER_NOTIFICATION:
+                return "UX_STATE_USER_NOTIFICATION";
+            case UX_STATE_NO_INTERACTION:
+                return "UX_STATE_NO_INTERACTION";
+            default:
+                return "UNKNOWN UX STATE";
         }
     }
 
