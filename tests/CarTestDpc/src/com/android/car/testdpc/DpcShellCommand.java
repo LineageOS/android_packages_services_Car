@@ -189,36 +189,18 @@ final class DpcShellCommand {
         }
 
         String restriction = mArgs[3];
-        UserManager manager = mContext.getSystemService(UserManager.class);
 
-        if (mDeviceOwner.getUser().equals(Process.myUserHandle())
-                && !manager.isUserRunning(target)) {
-            mDpcFactory.runOnOfflineUser(() -> addUserRestrictionPO(target, restriction), target,
-                    "addUserRestriction(%s)", restriction);
+        // restriction on specified device or profile owner
+        DevicePolicyManagerInterface targetDpm = mDpcFactory.getDevicePolicyManager(target);
+
+        if (targetDpm == null) {
+            showHelp();
             return;
         }
 
-        addUserRestrictionPO(target, restriction);
-    }
+        Log.d(TAG, targetDpm.getUser() + ": addUserRestriction(" + restriction + ")");
 
-    private void addUserRestrictionPO(UserHandle target, String restriction) {
-        if (mDeviceOwner.getUser().equals(target)) {
-            Log.d(TAG, mDeviceOwner.getUser() + ": addUserRestriction("
-                    + mAdmin.flattenToShortString() + ", " + restriction + ")");
-            mDeviceOwner.addUserRestriction(restriction);
-            return;
-        }
-
-        DevicePolicyManagerInterface profileOwner = mDpcFactory.getDevicePolicyManager(target);
-        Log.d(TAG, profileOwner.getUser() + ": addUserRestriction(" + restriction + ")");
-
-        if (profileOwner == null) {
-            mWriter.println("User not found");
-            return;
-        }
-
-        Log.d(TAG, target + ": addUserRestriction(" + restriction + ")");
-        profileOwner.addUserRestriction(restriction);
+        targetDpm.addUserRestriction(restriction);
     }
 
     private void runClearUserRestriction() {
@@ -336,7 +318,7 @@ final class DpcShellCommand {
      * See {@link android.apps.gsa.shared.util.Util#bundleToString(Bundle)}
      */
     @NonNull
-    private static String bundleToString(@NonNull Bundle bundle) {
+    public static String bundleToString(@NonNull Bundle bundle) {
         StringBuilder sb = new StringBuilder();
         sb.append('{');
         boolean first = true;
