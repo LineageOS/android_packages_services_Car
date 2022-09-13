@@ -201,6 +201,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_INJECT_ROTARY = "inject-rotary";
     private static final String COMMAND_INJECT_CUSTOM_INPUT = "inject-custom-input";
     private static final String COMMAND_CHECK_LOCK_IS_SECURE = "check-lock-is-secure";
+    private static final String COMMAND_CHECK_FAKE_VHAL = "check-fake-vhal";
     private static final String COMMAND_GET_INITIAL_USER_INFO = "get-initial-user-info";
     private static final String COMMAND_SWITCH_USER = "switch-user";
     private static final String COMMAND_LOGOUT_USER = "logout-user";
@@ -1165,6 +1166,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_CHECK_LOCK_IS_SECURE:
                 checkLockIsSecure(args, writer);
+                break;
+            case COMMAND_CHECK_FAKE_VHAL:
+                writer.printf("Car Service connects to FakeVehicleStub: %b\n",
+                        mHal.isFakeModeEnabled());
                 break;
             case COMMAND_LIST_VHAL_PROPS:
                 listVhalProps(writer);

@@ -80,6 +80,7 @@ public final class FakeVhalConfigParser {
     private static final String JSON_FIELD_NAME_MAX_FLOAT_VALUE = "maxFloatValue";
     private static final String JSON_FIELD_NAME_ACCESS = "access";
     private static final String JSON_FIELD_NAME_CHANGE_MODE = "changeMode";
+    private static final String JSON_FIELD_NAME_COMMENT = "comment";
     // Following values are defined in PropertyUtils.h file
     // (hardware/interfaces/automotive/vehicle/aidl/impl/utils/common/include/PropertyUtils.h).
     private static final int DOOR_1_RIGHT = VehicleAreaDoor.ROW_1_RIGHT;
@@ -374,6 +375,10 @@ public final class FakeVhalConfigParser {
                         }
                     }
                     vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
+                    break;
+                case JSON_FIELD_NAME_COMMENT:
+                    // The "comment" field is used for comment in the config files and is ignored
+                    // by the parser.
                     break;
                 default:
                     Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
