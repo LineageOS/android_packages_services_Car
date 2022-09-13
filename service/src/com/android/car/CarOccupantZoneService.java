@@ -44,7 +44,6 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserLifecycleEventFilter;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
@@ -818,7 +817,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_USER);
 
         if ((flags & CarOccupantZoneManager.USER_ASSIGNMENT_FLAG_LAUNCH_HOME) != 0) {
-            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
             int targetDisplayId = getDisplayForOccupant(occupantZoneId,
                     CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
             // TODO(b/243967195) Add other error code so that the client can know the partial
@@ -828,13 +826,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                         "USER_ASSIGN_FLAG_LAUNCH_HOME ignored as there is no valid main display"
                                 + " in the zone:%d", occupantZoneId);
                 return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
-            } else if (targetDisplayId == Display.DEFAULT_DISPLAY) {
-                homeIntent.addCategory(Intent.CATEGORY_HOME);
-            } else { // Secondary display
-                homeIntent.addCategory(Intent.CATEGORY_SECONDARY_HOME);
             }
-            // TODO(b/243815672) Launch after user is unlocked if it is not direct boot aware.
-            mContext.startActivityAsUser(homeIntent, user);
+            // TODO(b/243967195) check failure
+            CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, targetDisplayId);
         }
 
         return CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK;
@@ -947,6 +941,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     public void setCarServiceHelper(ICarServiceHelper helper) {
         doSyncWithCarServiceHelper(helper, /* updateDisplay= */ true, /* updateUser= */ true,
                 /* updateConfig= */ true);
+    }
+
+    /** Returns number of passenger zones in the device. */
+    public int getNumberOfPassengerZones() {
+        synchronized (mLock) {
+            boolean hasDriver = mDriverZoneId != OccupantZoneInfo.INVALID_ZONE_ID;
+            return mActiveOccupantConfigs.size() - (hasDriver ? 1 : 0);
+        }
     }
 
     private void doSyncWithCarServiceHelper(@Nullable ICarServiceHelper helper,
@@ -1369,9 +1371,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    /**
+     * Checks if the given user is visible. This works in pre-U as well.
+     */
     @VisibleForTesting
     @SuppressLint("NewApi")
-    boolean isUserVisible(UserHandle user) {
+    public boolean isUserVisible(@NonNull UserHandle user) {
         if (Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
             // createContextAsUser throw exception if user does not exist. So it is not a reliable
             // way to query it from car service. We need to catch the exception.
