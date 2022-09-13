@@ -36,28 +36,6 @@ import java.io.IOException;
 public final class CarServiceHelperServiceSystemTest extends CarApiTestBase {
 
     @Test
-    @ApiTest(apis = {"com.android.internal.car.CarServiceHelperService#dump(PrintWriter,String[])"})
-    public void testCarServiceHelperServiceDump() throws Exception {
-        assumeSystemServerDumpSupported();
-
-        assertWithMessage("System server dumper")
-                .that(executeShellCommand("dumpsys system_server_dumper --list"))
-                .contains("CarServiceHelper");
-    }
-
-    @Test
-    @ApiTest(apis = {
-            "com.android.internal.car.CarServiceHelperServiceUpdatable#dump(PrintWriter,String[])"
-    })
-    public void testCarServiceHelperServiceDump_carServiceProxy() throws Exception {
-        assumeSystemServerDumpSupported();
-
-        assertWithMessage("CarServiceHelperService dump")
-                .that(executeShellCommand("dumpsys system_server_dumper --name CarServiceHelper"))
-                .contains("CarServiceProxy");
-    }
-
-    @Test
     @ApiTest(apis = {"com.android.internal.car.CarServiceHelperInterface#setSafetyMode(boolean)"})
     public void testCarServiceHelperServiceDump_safeMode() throws Exception {
         assumeSystemServerDumpSupported();
@@ -114,18 +92,6 @@ public final class CarServiceHelperServiceSystemTest extends CarApiTestBase {
         } finally {
             executeShellCommand("cmd car_service emulate-driving-state park");
         }
-    }
-
-    @Test
-    @ApiTest(apis = {
-            "com.android.internal.car.CarServiceHelperServiceUpdatable#dump(PrintWriter,String[])"
-    })
-    public void testCarServiceHelperServiceDump_serviceStacks() throws Exception {
-        assumeSystemServerDumpSupported();
-
-        assertWithMessage("CarServiceHelperService dump")
-                .that(dumpCarServiceHelper("--dump-service-stacks"))
-                .contains("dumpServiceStacks ANR file path=/data/anr/anr_");
     }
 
     private static void assumeSystemServerDumpSupported() throws IOException {
