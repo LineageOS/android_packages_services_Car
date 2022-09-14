@@ -43,6 +43,7 @@ public:
                 (userid_t userId,
                  const aidl::android::automotive::watchdog::internal::UserState& userState),
                 (override));
+    MOCK_METHOD(android::base::Result<void>, onSuspendExit, (), (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection,
                 (int fd, const char** args, uint32_t numArgs), (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int fd), (const, override));
