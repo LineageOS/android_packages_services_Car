@@ -25,9 +25,9 @@ import android.annotation.FloatRange;
 import android.car.Car;
 import android.car.CarBugreportManager;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
-import android.os.CancellationSignal;
 import android.os.FileUtils;
 import android.os.ParcelFileDescriptor;
+import android.os.SystemProperties;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -207,7 +207,10 @@ public class CarBugreportManagerTest extends CarApiTestBase {
                 try (InputStream entryStream = zipFile.getInputStream(entry)) {
                     String data = streamToText(entryStream, /* maxSizeBytes= */ 1024);
                     assertThat(data).contains("== dumpstate: ");
-                    assertThat(data).contains("dry_run=1");
+                    // TODO(b/244668890): Delete this isCuttlefish check after the bug is fixed.
+                    if (!isCuttlefish(SystemProperties.get("ro.product.name"))) {
+                        assertThat(data).contains("dry_run=1");
+                    }
                     assertThat(data).contains("Build fingerprint: ");
                 }
                 return;
@@ -216,14 +219,19 @@ public class CarBugreportManagerTest extends CarApiTestBase {
         fail("bugreport-TIMESTAMP.txt not found in the final zip file.");
     }
 
-    private static String streamToText(InputStream in, long maxSizeBytes) throws IOException {
+    private static String streamToText(InputStream in, int maxSizeBytes) throws IOException {
+        assertThat(maxSizeBytes).isGreaterThan(0);
+
         ByteArrayOutputStream result = new ByteArrayOutputStream();
-        CancellationSignal cancelSignal = new CancellationSignal();
-        FileUtils.copy(in, result, cancelSignal, /* executor= */ null, (progressBytes) -> {
-            if (progressBytes >= maxSizeBytes) {
-                cancelSignal.cancel();
-            }
-        });
+        byte[] data = new byte[maxSizeBytes];
+        int nRead;
+        int totalRead = 0;
+
+        while ((nRead = in.read(data, 0, data.length)) != -1 && totalRead <= maxSizeBytes) {
+            result.write(data, 0, nRead);
+            totalRead += maxSizeBytes;
+        }
+
         return result.toString(StandardCharsets.UTF_8.name());
     }
 
@@ -231,6 +239,14 @@ public class CarBugreportManagerTest extends CarApiTestBase {
         return ParcelFileDescriptor.open(
                 new File("/dev/null"),
                 ParcelFileDescriptor.MODE_WRITE_ONLY | ParcelFileDescriptor.MODE_APPEND);
+    }
+
+    private static boolean isCuttlefish(String productName) {
+        return (null != productName)
+                && (productName.startsWith("aosp_cf_x86")
+                || productName.startsWith("aosp_cf_arm")
+                || productName.startsWith("cf_x86")
+                || productName.startsWith("cf_arm"));
     }
 
     /**
