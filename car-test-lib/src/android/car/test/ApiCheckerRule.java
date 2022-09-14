@@ -136,12 +136,14 @@ public final class ApiCheckerRule implements TestRule {
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private final boolean mEnforceTestApiAnnotations;
+    private final boolean mEnforceApiRequirements;
 
     /**
      * Builder.
      */
     public static final class Builder {
         private boolean mEnforceTestApiAnnotations = true;
+        private boolean mEnforceApiRequirements = true;
 
         /**
          * Creates a new rule.
@@ -157,10 +159,23 @@ public final class ApiCheckerRule implements TestRule {
             mEnforceTestApiAnnotations = false;
             return this;
         }
+
+        /**
+         * Don't fail the test if it could not infer its {@link ApiRequirements}.
+         *
+         * <p>Typically used on tests for built-in APIs.
+         */
+        public Builder disableApiRequirementsCheck() {
+            mEnforceApiRequirements = false;
+            return this;
+        }
     }
 
     private ApiCheckerRule(Builder builder) {
         mEnforceTestApiAnnotations = builder.mEnforceTestApiAnnotations;
+        mEnforceApiRequirements = mEnforceTestApiAnnotations
+                ? builder.mEnforceApiRequirements
+                : false;
     }
 
     /**
@@ -336,7 +351,7 @@ public final class ApiCheckerRule implements TestRule {
                                     + "missing @ApiRequirements, but rule is not enforcing them");
                         }
                     } else if (addedInOrBefore == null) {
-                        if (mEnforceTestApiAnnotations) {
+                        if (mEnforceApiRequirements) {
                             throw new IllegalArgumentException("Missing @ApiRequirements "
                                     + "or @AddedInOrBefore");
                         } else {
