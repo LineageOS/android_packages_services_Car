@@ -211,7 +211,7 @@ Status WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCycle) {
             break;
         case PowerCycle::POWER_CYCLE_SUSPEND_EXIT:
             ALOGI("Received SUSPEND_EXIT power cycle");
-            // TODO(b/236876940): Notify Watchdog perf service the power cycle change.
+            mWatchdogPerfService->onSuspendExit();
             break;
         case PowerCycle::POWER_CYCLE_RESUME:
             ALOGI("Received RESUME power cycle");

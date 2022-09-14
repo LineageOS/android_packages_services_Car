@@ -164,6 +164,16 @@ public:
             const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
             const android::wp<ProcStatCollectorInterface>& procStatCollector) override;
 
+    android::base::Result<void> onWakeUpCollection(
+            [[maybe_unused]] time_t time,
+            [[maybe_unused]] const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+            [[maybe_unused]] const android::wp<ProcStatCollectorInterface>& procStatCollector)
+            override {
+        // TODO(b/236876940): Cache the system resource data during a wake up event. Clear any
+        //  previous wakeup collections when starting a new wake up event.
+        return {};
+    }
+
     android::base::Result<void> onCustomCollection(
             time_t time, SystemState systemState,
             const std::unordered_set<std::string>& filterPackages,

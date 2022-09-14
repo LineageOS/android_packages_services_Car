@@ -75,7 +75,7 @@ constexpr const char* kHelpText =
         "behavior is to list the results for the top N packages.\n"
         "%s: Stops custom performance data collection and generates a dump of "
         "the collection report.\n\n"
-        "When no options are specified, the carwatchdog report contains the performance data "
+        "When no options are specified, the car watchdog report contains the performance data "
         "collected during boot-time and over the last few minutes before the report generation.\n";
 
 Result<std::chrono::seconds> parseSecondsFlag(const Vector<String16>& args, size_t pos) {
@@ -104,6 +104,8 @@ constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
                         return "PERIODIC_COLLECTION";
                     case EventType::USER_SWITCH_COLLECTION:
                         return "USER_SWITCH_COLLECTION";
+                    case EventType::WAKE_UP_COLLECTION:
+                        return "WAKE_UP_COLLECTION";
                     case EventType::CUSTOM_COLLECTION:
                         return "CUSTOM_COLLECTION";
                     case EventType::PERIODIC_MONITOR:
@@ -112,6 +114,10 @@ constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
                         return "LAST_EVENT";
                     case SwitchMessage::END_BOOTTIME_COLLECTION:
                         return "END_BOOTTIME_COLLECTION";
+                    case SwitchMessage::END_USER_SWITCH_COLLECTION:
+                        return "END_USER_SWITCH_COLLECTION";
+                    case SwitchMessage::END_WAKE_UP_COLLECTION:
+                        return "END_WAKE_UP_COLLECTION";
                     case SwitchMessage::END_CUSTOM_COLLECTION:
                         return "END_CUSTOM_COLLECTION";
                     default:
@@ -195,6 +201,11 @@ Result<void> WatchdogPerfService::start() {
                 .interval = systemEventCollectionInterval,
                 .lastUptime = 0,
         }};
+        mWakeUpCollection = {
+                .eventType = EventType::WAKE_UP_COLLECTION,
+                .interval = systemEventCollectionInterval,
+                .lastUptime = 0,
+        };
         mPeriodicMonitor = {
                 .eventType = EventType::PERIODIC_MONITOR,
                 .interval = periodicMonitorInterval,
@@ -253,7 +264,7 @@ void WatchdogPerfService::terminate() {
             ALOGE("%s was terminated already", kServiceName);
             return;
         }
-        ALOGE("Terminating %s as carwatchdog is terminating", kServiceName);
+        ALOGE("Terminating %s as car watchdog is terminating", kServiceName);
         if (mCurrCollectionEvent != EventType::INIT) {
             /*
              * Looper runs only after EventType::INIT has completed so remove looper messages
@@ -386,6 +397,29 @@ Result<void> WatchdogPerfService::startUserSwitchCollection() {
     mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_USER_SWITCH_COLLECTION);
     mCurrCollectionEvent = EventType::USER_SWITCH_COLLECTION;
     mHandlerLooper->sendMessage(thiz, EventType::USER_SWITCH_COLLECTION);
+    return {};
+}
+
+Result<void> WatchdogPerfService::onSuspendExit() {
+    Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION) {
+        ALOGE("Unable to start %s. Current performance data collection event: %s",
+              toString(EventType::WAKE_UP_COLLECTION), toString(mCurrCollectionEvent));
+        return {};
+    }
+    if (mCurrCollectionEvent == EventType::WAKE_UP_COLLECTION) {
+        ALOGE("The current performance data collection event is already %s",
+              toString(EventType::WAKE_UP_COLLECTION));
+        return {};
+    }
+    auto thiz = sp<WatchdogPerfService>::fromExisting(this);
+    mHandlerLooper->removeMessages(thiz);
+    mWakeUpCollection.lastUptime = mHandlerLooper->now();
+    nsecs_t uptime = mHandlerLooper->now() + mWakeUpDurationNs.count();
+    mHandlerLooper->sendMessageAtTime(uptime, thiz, SwitchMessage::END_WAKE_UP_COLLECTION);
+    mCurrCollectionEvent = EventType::WAKE_UP_COLLECTION;
+    mHandlerLooper->sendMessage(thiz, EventType::WAKE_UP_COLLECTION);
+    ALOGI("Switching to %s", toString(mCurrCollectionEvent));
     return {};
 }
 
@@ -642,13 +676,22 @@ void WatchdogPerfService::handleMessage(const Message& message) {
         case static_cast<int>(EventType::USER_SWITCH_COLLECTION):
             result = processCollectionEvent(&mUserSwitchCollection);
             break;
+        case static_cast<int>(EventType::WAKE_UP_COLLECTION):
+            result = processCollectionEvent(&mWakeUpCollection);
+            break;
         case static_cast<int>(SwitchMessage::END_USER_SWITCH_COLLECTION):
+        case static_cast<int>(SwitchMessage::END_WAKE_UP_COLLECTION): {
             mHandlerLooper->removeMessages(sp<WatchdogPerfService>::fromExisting(this));
-            if (result = processCollectionEvent(&mUserSwitchCollection); result.ok()) {
+            EventMetadata* eventMetadata =
+                    message.what == static_cast<int>(SwitchMessage::END_USER_SWITCH_COLLECTION)
+                    ? &mUserSwitchCollection
+                    : &mWakeUpCollection;
+            if (result = processCollectionEvent(eventMetadata); result.ok()) {
                 Mutex::Autolock lock(mMutex);
                 switchToPeriodicLocked(/*startNow=*/false);
             }
             break;
+        }
         case static_cast<int>(EventType::CUSTOM_COLLECTION):
             result = processCollectionEvent(&mCustomCollection);
             break;
@@ -764,6 +807,9 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
                                                            mUidStatsCollector, mProcStatCollector);
                 break;
             }
+            case EventType::WAKE_UP_COLLECTION:
+                result = processor->onWakeUpCollection(now, mUidStatsCollector, mProcStatCollector);
+                break;
             case EventType::CUSTOM_COLLECTION:
                 result = processor->onCustomCollection(now, mSystemState, metadata->filterPackages,
                                                        mUidStatsCollector, mProcStatCollector);
