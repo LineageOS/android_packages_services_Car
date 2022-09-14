@@ -26,6 +26,7 @@ import android.car.builtin.annotation.PlatformVersion;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.os.SystemClock;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
@@ -43,10 +44,25 @@ public final class AssistUtilsHelper {
 
     private static final String TAG = AssistUtilsHelper.class.getSimpleName();
 
+    /**
+     * Used as a boolean extra field on show the session for the currently active voice interaction
+     * service, {@code true} indicates that the service was launch from a key event,
+     * {@code false} otherwise.
+     */
     @VisibleForTesting
     @AddedIn(PlatformVersion.TIRAMISU_0)
     static final String EXTRA_CAR_PUSH_TO_TALK =
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
+
+    /**
+     * Used as a long extra field on show the session for the currently active voice interaction
+     * service, the value indicates the button press time measured in milliseconds since the last
+     * boot up.
+     */
+    @VisibleForTesting
+    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
+    static final String EXTRA_TRIGGER_TIMESTAMP_PUSH_TO_TALK_MS =
+            "com.android.car.input.EXTRA_TRIGGER_TIMESTAMP_PUSH_TO_TALK_MS";
 
     /**
      * Determines if there is a voice interaction session running.
@@ -114,6 +130,7 @@ public final class AssistUtilsHelper {
 
         Bundle args = new Bundle();
         args.putBoolean(EXTRA_CAR_PUSH_TO_TALK, true);
+        args.putLong(EXTRA_TRIGGER_TIMESTAMP_PUSH_TO_TALK_MS, SystemClock.elapsedRealtime());
 
         IVoiceInteractionSessionShowCallback callbackWrapper =
                 new InternalVoiceInteractionSessionShowCallback(callback);
