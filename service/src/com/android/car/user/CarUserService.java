@@ -33,12 +33,15 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.Car;
+import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
@@ -60,6 +63,7 @@ import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -87,16 +91,21 @@ import android.os.NewUserRequest;
 import android.os.NewUserResponse;
 import android.os.Process;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Log;
 import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 import android.view.Display;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
+import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
@@ -116,6 +125,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
+import com.android.car.util.Utils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -134,6 +144,16 @@ import java.util.concurrent.TimeUnit;
  * User service for cars.
  */
 public final class CarUserService extends ICarUserService.Stub implements CarServiceBase {
+
+    /**
+     * When this is positive, create specified number of users and assign them to passenger zones.
+     *
+     * <p>If there are other users in the system, those users will be reused. This is only used
+     * for non-user build for development purpose.
+     */
+    @VisibleForTesting
+    static final String PROP_NUMBER_AUTO_POPULATED_USERS =
+            "com.android.car.internal.debug.num_auto_populated_users";
 
     @VisibleForTesting
     static final String TAG = CarLog.tagFor(CarUserService.class);
@@ -185,6 +205,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     static final String ERROR_TEMPLATE_DISALLOW_ADD_USER =
             "Cannot create user because calling user %s has the '%s' restriction";
 
+    /** Timeout for pre-populating users. */
+    private static final int USER_CREATION_TIMEOUT_MS = 5_000;
+
+    private static final String BG_HANDLER_THREAD_NAME = "UserService.BG";
+
     private final Context mContext;
     private final ActivityManager mAm;
     private final UserManager mUserManager;
@@ -215,6 +240,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             HANDLER_THREAD_NAME);
     private final Handler mHandler;
+
+    /** This Handler is for running background tasks which can wait. */
+    @VisibleForTesting
+    final Handler mBgHandler = new Handler(
+            CarServiceUtils.getHandlerThread(BG_HANDLER_THREAD_NAME).getLooper());
 
     /**
      * Internal listeners to be notified on new user activities events.
@@ -313,6 +343,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private final UserHandleHelper mUserHandleHelper;
 
+    /**
+     * Keeps assigned users for zones and is used to launch home. This will not include the current
+     * user as current user's home launch is already done by ActivityManagerService.
+     */
+    @GuardedBy("mLockUser")
+    private final ArraySet<Integer> mAssignedUsers = new ArraySet<>();
+
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
             int maxRunningUsers,
@@ -406,8 +443,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             writer.printf("Start Background Users On Garage Mode=%s\n",
                     mStartBackgroundUsersOnGarageMode);
             writer.printf("Initial user: %s\n", mInitialUser);
+            writer.printf("Assigned passenger users:%s\n", mAssignedUsers);
         }
-
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
         writer.printf("PreCreateUserStages: %s\n", preCreationStageToString(mPreCreationStage));
         writer.printf("PreCreationDelayMs: %s\n", mPreCreationDelayMs);
@@ -434,6 +471,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.increaseIndent();
         dumpGlobalProperty(writer, CarSettings.Global.LAST_ACTIVE_USER_ID);
         dumpGlobalProperty(writer, CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID);
+        writer.decreaseIndent();
+
+        writer.println("Relevant System properties");
+        writer.increaseIndent();
+        writer.printf("%s=%d\n", PROP_NUMBER_AUTO_POPULATED_USERS, getNumberOfAutoPopulatedUsers());
         writer.decreaseIndent();
 
         mInitialUserSetter.dump(writer);
@@ -1862,6 +1904,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
             }
         }
+
+        startUsersOrHomeOnSecondaryDisplays(userId);
+    }
+
+    private void startUsersOrHomeOnSecondaryDisplays(@UserIdInt int userId) {
+        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+            return;
+        }
+        // Run from here only when CMUMD is supported.
+        if (userId == ActivityManager.getCurrentUser()) {
+            mBgHandler.post(() -> startOtherUsers(/* currentUserId= */ userId));
+        } else {
+            mBgHandler.post(() -> startLauncherForVisibleUser(userId));
+        }
     }
 
     /**
@@ -2063,6 +2119,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED:
                 onUserUnlocked(userId);
                 break;
+            case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING:
+                handleStoppingVisibleUser(userId);
+                break;
             case CarUserManager.USER_LIFECYCLE_EVENT_TYPE_REMOVED:
                 onUserRemoved(UserHandle.of(userId));
                 break;
@@ -2080,6 +2139,341 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 handleNotifyAppUserLifecycleListeners(event);
             }
         });
+    }
+
+    // value format: , separated zoneId:userId
+    @VisibleForTesting
+    SparseIntArray parseUserAssignmentSettingValue(String settingKey, String value) {
+        Slogf.d(TAG, "Use %s for starting users", settingKey);
+        SparseIntArray mapping = new SparseIntArray();
+        try {
+            String[] entries = value.split(",");
+            for (String entry : entries) {
+                String[] pair = entry.split(":");
+                if (pair.length != 2) {
+                    throw new IllegalArgumentException("Expecting zoneId:userId");
+                }
+                int zoneId = Integer.parseInt(pair[0]);
+                int userId = Integer.parseInt(pair[1]);
+                if (mapping.indexOfKey(zoneId) >= 0) {
+                    throw new IllegalArgumentException("Multiple use of zone id:" + zoneId);
+                }
+                if (mapping.indexOfValue(userId) >= 0) {
+                    throw new IllegalArgumentException("Multiple use of user id:" + userId);
+                }
+                mapping.append(zoneId, userId);
+            }
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "Setting %s has invalid value: ", settingKey, value);
+            // Parsing error, ignore all.
+            mapping.clear();
+        }
+        return mapping;
+    }
+
+    /** Returns the number of auto-populated users from {@link #PROP_NUMBER_AUTO_POPULATED_USERS}.*/
+    @VisibleForTesting
+    int getNumberOfAutoPopulatedUsers() {
+        return SystemProperties.getInt(PROP_NUMBER_AUTO_POPULATED_USERS, -1);
+    }
+
+    private void populateUsersForDevelopment(@UserIdInt int currentUserId) {
+        int numUsers = getNumberOfAutoPopulatedUsers();
+        if (numUsers <= 0) {
+            return;
+        }
+        final CarOccupantZoneService zoneService = CarLocalServices.getService(
+                CarOccupantZoneService.class);
+        int numPassengerZones = zoneService.getNumberOfPassengerZones();
+        if (numPassengerZones <= 0) {
+            Slogf.w(TAG, "populateUsersForDevelopment(): Property set %d but no passenger zone",
+                    numUsers);
+            return;
+        }
+        final int numUsersToAssign = Math.min(numUsers, numPassengerZones);
+        Slogf.i(TAG, "populateUsersForDevelopment(): will assign %d users", numUsersToAssign);
+
+        List<UserHandle> users = mUserManager.getUserHandles(/* excludeDying = */ true);
+        final ArraySet<Integer> usersToAssign = new ArraySet<>();
+        for (UserHandle user : users) {
+            int userId = user.getIdentifier();
+            if (userId == currentUserId) {
+                continue;
+            }
+            if (UserManagerHelper.isSecondaryUser(mUserManager, user)) {
+                usersToAssign.add(userId);
+            }
+            if  (usersToAssign.size() == numUsersToAssign) { // got all necessary users
+                break;
+            }
+        }
+        Slogf.i(TAG, "populateUsersForDevelopment(): will re-use %d of  existing %d users",
+                usersToAssign.size(), users.size());
+        // User creation takes time. Do it in background thread.
+        mBgHandler.post(() -> {
+            int usersToCreate = numUsersToAssign - usersToAssign.size();
+            for (int i = 0; i < usersToCreate; i++) {
+                String name = "Test-" + currentUserId + "-" + i;
+                Slogf.i(TAG, "populateUsersForDevelopment(): will create user %s", name);
+                AndroidFuture<UserCreationResult> resultFuture = new AndroidFuture<>();
+                createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, /* flags= */ 0,
+                        USER_CREATION_TIMEOUT_MS, resultFuture);
+                try {
+                    UserCreationResult result = resultFuture.get();
+                    if (!result.isSuccess()) {
+                        Slogf.w(TAG, "Cannot create pre-populated user, status:",
+                                result.getStatus());
+                        continue;
+                    }
+                    usersToAssign.add(result.getUser().getIdentifier());
+                } catch (Exception e) {
+                    Slogf.w(TAG, "Cannot create pre-populated user", e);
+                }
+            }
+            if (usersToAssign.isEmpty()) {
+                Slogf.w(TAG, "populateUsersForDevelopment(): Cannot create any user");
+                return;
+            }
+            // Now all users are there. Update zone assignment for the user
+            StringBuilder sb = new StringBuilder();
+            List<OccupantZoneInfo> zones = zoneService.getAllOccupantZones();
+            int zonesAssigned = 0;
+            for (OccupantZoneInfo zone : zones) {
+                if (zone.occupantType == CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER) {
+                    continue;
+                }
+                if (zonesAssigned != 0) {
+                    sb.append(',');
+                }
+                int userId = usersToAssign.valueAt(zonesAssigned);
+                sb.append(zone.zoneId);
+                sb.append(':');
+                sb.append(userId);
+                zonesAssigned++;
+                if (zonesAssigned >= usersToAssign.size()) {
+                    break;
+                }
+            }
+            String settingValue = sb.toString();
+            Slogf.i(TAG, "populateUsersForDevelopment(): add new assignment setting:%s",
+                    settingValue);
+            writePerUserVisibleUserAllocationSetting(
+                    Utils.getContentResolverForUser(mContext, currentUserId), settingValue);
+
+            // Now start users again but re-check the current user as current user might have
+            // changed.
+            startOtherUsers(ActivityManager.getCurrentUser());
+        });
+    }
+
+    private boolean isSystemUserInHeadlessSystemUserMode(@UserIdInt int userId) {
+        return userId == UserHandle.SYSTEM.getIdentifier()
+                && mUserManager.isHeadlessSystemUserMode();
+    }
+
+    @VisibleForTesting
+    @Nullable String getGlobalVisibleUserAllocationSetting(ContentResolver resolver) {
+        return Settings.Global.getString(resolver,
+                CarSettings.Global.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE);
+    }
+
+    @VisibleForTesting
+    @Nullable String getPerUserVisibleUserAllocationSetting(ContentResolver resolver) {
+        return Settings.Secure.getString(resolver,
+                CarSettings.Secure.VISIBLE_USER_ALLOCATION_PER_ZONE);
+    }
+
+    @VisibleForTesting
+    void writePerUserVisibleUserAllocationSetting(ContentResolver resolver, String value) {
+        Settings.Secure.putString(
+                resolver,
+                CarSettings.Secure.VISIBLE_USER_ALLOCATION_PER_ZONE,
+                value);
+    }
+
+    @VisibleForTesting
+    void startOtherUsers(@UserIdInt int currentUserId) {
+        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            return;
+        }
+        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (isSystemUserInHeadlessSystemUserMode(currentUserId)) {
+            return;
+        }
+        UserHandle user = UserHandle.of(currentUserId);
+        // Do not start users for guest or ephemeral current user
+        if (UserManagerHelper.isGuestUser(mUserManager, user) || UserManagerHelper.isEphemeralUser(
+                mUserManager, user)) {
+            return;
+        }
+        SparseIntArray mapping = null; // key: zone, value: user id
+        String userSetting = getPerUserVisibleUserAllocationSetting(
+                Utils.getContentResolverForUser(mContext, currentUserId));
+        if (userSetting != null) {
+            mapping = parseUserAssignmentSettingValue(
+                    CarSettings.Secure.VISIBLE_USER_ALLOCATION_PER_ZONE,
+                    userSetting);
+        } else { // get global one only when current user's setting does not exist.
+            String globalSetting = getGlobalVisibleUserAllocationSetting(
+                    mContext.getContentResolver());
+            if (globalSetting != null) {
+                mapping = parseUserAssignmentSettingValue(
+                        CarSettings.Global.GLOBAL_VISIBLE_USER_ALLOCATION_PER_ZONE, globalSetting);
+            }
+        }
+        // Populate only when there is no setting. Invalid setting does not trigger population.
+        if (mapping == null) {
+            if (!BuildHelper.isUserBuild()) {
+                // Development only feature
+                populateUsersForDevelopment(currentUserId);
+            }
+            return;
+        }
+        ICarServiceHelper carServiceHelper = null;
+        synchronized (mLockUser) {
+            carServiceHelper = mICarServiceHelper;
+            for (int i = mapping.size() - 1; i >= 0; i--) {
+                int userId = mapping.valueAt(i);
+                if (mAssignedUsers.contains(userId)) { // user already assigned before
+                    Slogf.i(TAG, "startOtherUsers(): user %d already assigned", userId);
+                    mapping.removeAt(i);
+                }
+            }
+        }
+        if (carServiceHelper == null) {
+            Slogf.wtf(TAG, "startOtherUsers(): mICarServiceHelper not set yet",
+                    new Exception());
+            return;
+        }
+
+        CarOccupantZoneService zoneService = CarLocalServices.getService(
+                CarOccupantZoneService.class);
+        int driverZoneId = OccupantZoneInfo.INVALID_ZONE_ID;
+        boolean hasDriverZone = zoneService.hasDriverZone();
+        if (hasDriverZone) {
+            driverZoneId = zoneService.getOccupantZone(
+                    CarOccupantZoneManager.OCCUPANT_TYPE_DRIVER, /* seat= */ 0).zoneId;
+        }
+        // After this, mapping only keep the valid zone - user pair
+        for (int i = mapping.size() - 1; i >= 0; i--) {
+            int zoneId = mapping.keyAt(i);
+            int userId = mapping.valueAt(i);
+            // We will ignore current user
+            if (userId == currentUserId) {
+                Slogf.i(TAG, "startOtherUsers(): cannot assign current user %d to zone %d",
+                        userId, zoneId);
+                mapping.removeAt(i);
+                continue;
+            }
+            // Ignore if the target zone is the driver zone
+            if (hasDriverZone && zoneId == driverZoneId) {
+                Slogf.i(TAG, "startOtherUsers(): cannot use driver zone %d",
+                        zoneId);
+                mapping.removeAt(i);
+                continue;
+            }
+            // Ignore zone-user pair if the zone is already assigned to other user or the
+            // user is already assigned as we do not want to move currently used passenger.
+            int assignedZoneId = zoneService.getOccupantZoneIdForUserId(userId);
+            if (assignedZoneId != CarOccupantZoneManager.OccupantZoneInfo.INVALID_ZONE_ID) {
+                Slogf.i(TAG, "startOtherUsers(): user %d already assigned to zone %d",
+                        userId, assignedZoneId);
+                mapping.removeAt(i);
+                continue;
+            }
+            int assignedUserId = zoneService.getUserForOccupant(zoneId);
+            if (userId == assignedUserId) {
+                Slogf.i(TAG, "startOtherUsers(): zone %d already assigned to user %d",
+                        zoneId, assignedUserId);
+                mapping.removeAt(i);
+                continue;
+            }
+        }
+        // Now good to start user and assign zone
+        for (int i = mapping.size() - 1; i >= 0; i--) {
+            int zoneId = mapping.keyAt(i);
+            int userId = mapping.valueAt(i);
+            int displayId = zoneService.getDisplayForOccupant(zoneId,
+                    CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+            boolean userStarted = false;
+            Slogf.i(TAG, "startOtherUsers(): start user %d for display %d", userId,
+                    displayId);
+            try {
+                userStarted = carServiceHelper.startUserInBackgroundOnSecondaryDisplay(userId,
+                        displayId);
+            } catch (Exception e) {
+                Slogf.w(TAG, "startUserInBackgroundOnSecondaryDisplay failed", e);
+                // move over to !userStarted case.
+            }
+            if (!userStarted) {
+                Slogf.w(TAG, "startOtherUsers(): Cannot start and assign user %d to display %d",
+                        userId, displayId);
+                mapping.removeAt(i);
+                continue;
+            }
+            int assignResult = zoneService.assignVisibleUserToOccupantZone(zoneId,
+                    UserHandle.of(userId), /* flags= */ 0);
+            if (assignResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
+                Slogf.w(TAG, "startOtherUsers(): zone assignment failed %d", assignResult);
+                mapping.removeAt(i);
+                break;
+            }
+        }
+        synchronized (mLockUser) {
+            for (int i = 0; i < mapping.size(); i++) {
+                mAssignedUsers.add(mapping.valueAt(i));
+            }
+            // Make sure to drop current user as it could be left behind from a user switching.
+            mAssignedUsers.remove(currentUserId);
+        }
+    }
+
+    /** Should be called for non-current user only */
+    private void startLauncherForVisibleUser(@UserIdInt int userId) {
+        if (!Car.getPlatformVersion().isAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)) {
+            return;
+        }
+        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+            return;
+        }
+        if (isSystemUserInHeadlessSystemUserMode(userId)) {
+            return;
+        }
+        CarOccupantZoneService zoneService = CarLocalServices.getService(
+                CarOccupantZoneService.class);
+        boolean shouldStartLauncher = false;
+        int zoneId = zoneService.getOccupantZoneIdForUserId(userId);
+        int displayId = zoneService.getDisplayForOccupant(zoneId,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+        synchronized (mLockUser) {
+            if (mAssignedUsers.contains(userId)) {
+                if (displayId == Display.INVALID_DISPLAY) {
+                    Slogf.w(TAG, "User assignment for user %d invalid for zone %d", userId,
+                            zoneId);
+                    mAssignedUsers.remove(userId);
+                } else {
+                    shouldStartLauncher = true;
+                }
+            }
+        }
+        if (shouldStartLauncher) {
+            if (!CarServiceUtils.startHomeForUserAndDisplay(mContext, userId, displayId)) {
+                Slogf.w(TAG,
+                        "Cannot launch home for assigned user %d, display %d, will stop the user",
+                        userId, displayId);
+                stopUser(userId, new AndroidFuture<UserStopResult>());
+            }
+        }
+    }
+
+    private void handleStoppingVisibleUser(@UserIdInt int userId) {
+        synchronized (mLockUser) {
+            mAssignedUsers.remove(userId);
+        }
+        // OccupantZoneService will un-assign user.
+        // TODO(b/244370727) Show user picker.
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {

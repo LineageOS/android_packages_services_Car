@@ -4628,11 +4628,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             int userId = userIds[i];
             UserHandle userHandle = UserHandle.of(userId);
 
-            mBroadcastReceiver
-                    .onReceive(mMockContext, new Intent(ACTION_RESOURCE_OVERUSE_DISABLE_APP)
-                    .putExtra(Intent.EXTRA_PACKAGE_NAME, packageName)
-                    .putExtra(Intent.EXTRA_USER, userHandle)
-                    .putExtra(INTENT_EXTRA_NOTIFICATION_ID, RESOURCE_OVERUSE_NOTIFICATION_BASE_ID));
+            mCarWatchdogService.performResourceOveruseKill(packageName, userId);
 
             verify(mSpiedPackageManager, atLeastOnce())
                     .getApplicationEnabledSetting(packageName, userId);

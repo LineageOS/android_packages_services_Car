@@ -18,15 +18,20 @@ package com.android.car.hal.fakevhal;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.hardware.automotive.vehicle.FuelType;
 import android.hardware.automotive.vehicle.RawPropValues;
 import android.hardware.automotive.vehicle.StatusCode;
+import android.hardware.automotive.vehicle.SubscribeOptions;
 import android.hardware.automotive.vehicle.VehicleAreaConfig;
 import android.hardware.automotive.vehicle.VehicleAreaDoor;
 import android.hardware.automotive.vehicle.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.VehicleAreaWindow;
+import android.hardware.automotive.vehicle.VehicleOilLevel;
 import android.hardware.automotive.vehicle.VehiclePropConfig;
 import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.hardware.automotive.vehicle.VehicleProperty;
@@ -36,6 +41,7 @@ import android.os.SystemClock;
 import android.util.SparseArray;
 
 import com.android.car.VehicleStub;
+import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
@@ -61,6 +67,11 @@ public class FakeVehicleStubUnitTest {
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
     private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
+    private static final String PROPERTY_CONFIG_STRING = "{\"property\":"
+            + "\"VehicleProperty::ENGINE_OIL_LEVEL\","
+            + "\"defaultValue\": {\"int32Values\": [\"VehicleOilLevel::NORMAL\"]},"
+            + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+            + "\"changeMode\": \"VehiclePropertyChangeMode::ON_CHANGE\"}";
 
     @Mock
     private VehicleStub mMockRealVehicleStub;
@@ -448,6 +459,176 @@ public class FakeVehicleStubUnitTest {
 
         expect.that(oldPropValue.getInt32Value(0)).isEqualTo(0);
         expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(32);
+    }
+
+    @Test
+    public void testSubscribeOnChangePropOneClientSubscribeOnePorpManyTime() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING + "]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options array.
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.ENGINE_OIL_LEVEL;
+        option.sampleRate = 0.5f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        // Create set value
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{VehicleOilLevel.LOW};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+        client.subscribe(options);
+        client.subscribe(options);
+        fakeVehicleStub.set(requestPropValue);
+
+        verify(callback, times(1)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeOnChangePropOneClientSubscribeTwoProp() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING + ","
+                + "{\"property\": \"VehicleProperty::NIGHT_MODE\","
+                + "\"defaultValue\": {\"int32Values\": [0]},"
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::ON_CHANGE\"}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option1 = new SubscribeOptions();
+        option1.propId = VehicleProperty.ENGINE_OIL_LEVEL;
+        option1.sampleRate = 0.5f;
+        SubscribeOptions option2 = new SubscribeOptions();
+        option2.propId = VehicleProperty.NIGHT_MODE;
+        option2.sampleRate = 0.5f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option1, option2};
+        // Create set value
+        RawPropValues rawPropValues1 = new RawPropValues();
+        rawPropValues1.int32Values = new int[]{VehicleOilLevel.LOW};
+        HalPropValue requestPropValue1 = buildHalPropValue(
+                /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues1);
+        RawPropValues rawPropValues2 = new RawPropValues();
+        rawPropValues2.int32Values = new int[]{0};
+        HalPropValue requestPropValue2 = buildHalPropValue(
+                /* propId= */ VehicleProperty.NIGHT_MODE, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues2);
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+        fakeVehicleStub.set(requestPropValue1);
+        fakeVehicleStub.set(requestPropValue2);
+
+        verify(callback, times(2)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeOnChangePropTwoClientSubscribeSameProp() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING + "]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.ENGINE_OIL_LEVEL;
+        option.sampleRate = 2f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        // Create set value
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{VehicleOilLevel.LOW};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.ENGINE_OIL_LEVEL, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalClientCallback callback1 = mock(HalClientCallback.class);
+        HalClientCallback callback2 = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client1 = fakeVehicleStub.newSubscriptionClient(callback1);
+        VehicleStub.SubscriptionClient client2 = fakeVehicleStub.newSubscriptionClient(callback2);
+        client1.subscribe(options);
+        client2.subscribe(options);
+        fakeVehicleStub.set(requestPropValue);
+
+        verify(callback1, times(1)).onPropertyEvent(any(ArrayList.class));
+        verify(callback2, times(1)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
+    public void testSubscribeNonSupportPropID() throws Exception {
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = 123;
+        option.sampleRate = 0f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> client.subscribe(options));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The propId: 123 is not supported.");
+    }
+
+    @Test
+    public void testSubscribeNonSupportAreaId() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
+                + "\"defaultValue\": {\"int32Values\": [0]}}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.SEAT_BELT_BUCKLED;
+        option.areaIds = new int[]{SEAT_1_LEFT};
+        option.sampleRate = 1f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> client.subscribe(options));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The areaId: " + SEAT_1_LEFT
+                + " is not supported.");
+    }
+
+    @Test
+    public void testSubscribeStaticPropThrowException() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::INFO_FUEL_CAPACITY\","
+                + "\"defaultValue\": {\"floatValues\": [150000.0]},"
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\"}]}";
+        List<String> customFileList = createFilenameList(jsonString);
+        // Create subscribe options
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.INFO_FUEL_CAPACITY;
+        option.sampleRate = 0f;
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> client.subscribe(options));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("Static property cannot be subscribed.");
     }
 
     private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,

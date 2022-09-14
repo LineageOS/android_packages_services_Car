@@ -24,9 +24,9 @@ import static com.android.car.user.MockedUserHandleBuilder.expectAdminUserExists
 import static com.android.car.user.MockedUserHandleBuilder.expectGuestUserExists;
 import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExists;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
-import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doThrow;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -37,6 +37,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -49,6 +50,7 @@ import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -92,6 +94,8 @@ import android.view.Display;
 
 import androidx.test.InstrumentationRegistry;
 
+import com.android.car.CarLocalServices;
+import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.hal.HalCallback;
@@ -107,6 +111,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.internal.R;
 import com.android.internal.util.Preconditions;
 
+import org.junit.After;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
@@ -160,6 +165,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     @Mock protected Handler mMockedHandler;
     @Mock protected UserHandleHelper mMockedUserHandleHelper;
     @Mock protected CarPackageManagerService mCarPackageManagerService;
+    @Mock protected CarOccupantZoneService mCarOccupantZoneService;
 
     protected final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.forAnyEvent().build();
@@ -203,6 +209,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         super(logTags);
     }
 
+    // User assignment related stuffs. Default values disable it.
+    protected int mNumberOfAutoPopulatedUsers = -1;
+    // Accessed from separate thread
+    protected volatile String mGlobalVisibleUserAllocationSetting;
+    protected volatile String mPerUserVisibleUserAllocationSetting;
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
@@ -215,7 +227,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 .spyStatic(UserHelper.class)
                 .spyStatic(UserHelperLite.class)
                 .spyStatic(CarSystemProperties.class)
-                .spyStatic(Binder.class);
+                .spyStatic(Binder.class)
+                .spyStatic(UserManagerHelper.class);
     }
 
     /**
@@ -239,8 +252,28 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         mockUserHalUserAssociationSupported(true);
         doReturn(Optional.of(mAsyncCallTimeoutMs)).when(
                 () -> CarSystemProperties.getUserHalTimeout());
+        CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
 
         mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+        // TODO (b/246365046) Replace when we get Injector pattern to replace them.
+        spyOn(mCarUserService);
+        doAnswer(
+                inv -> {
+                    return mNumberOfAutoPopulatedUsers;
+                }).when(mCarUserService).getNumberOfAutoPopulatedUsers();
+        doAnswer(
+                inv -> {
+                    return mGlobalVisibleUserAllocationSetting;
+                }).when(mCarUserService).getGlobalVisibleUserAllocationSetting(any());
+        doAnswer(
+                inv -> {
+                    return mPerUserVisibleUserAllocationSetting;
+                }).when(mCarUserService).getPerUserVisibleUserAllocationSetting(any());
+        doAnswer(
+                inv -> {
+                    mPerUserVisibleUserAllocationSetting = inv.getArgument(/* index= */ 1);
+                    return null;
+                }).when(mCarUserService).writePerUserVisibleUserAllocationSetting(any(), any());
     }
 
     @Before
@@ -262,6 +295,31 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         mAnotherRegularUserId = mAnotherRegularUser.getIdentifier();
     }
 
+    @Before
+    public void configureUserType() {
+        doAnswer(
+                inv -> {
+                    UserHandle user = (UserHandle) inv.getArgument(1);
+                    if (user == null) {
+                        return false;
+                    }
+                    int userId = user.getIdentifier();
+                    return userId == mAdminUserId || userId == mAnotherAdminUserId
+                            || userId == mRegularUserId || userId == mAnotherRegularUserId;
+                }
+        ).when(() -> UserManagerHelper.isSecondaryUser(any(), any()));
+        doAnswer(
+                inv -> {
+                    UserHandle user = (UserHandle) inv.getArgument(1);
+                    if (user == null) {
+                        return false;
+                    }
+                    int userId = user.getIdentifier();
+                    return userId == mGuestUserId;
+                }
+        ).when(() -> UserManagerHelper.isGuestUser(any(), any()));
+    }
+
     // The responses must never contain null values.
     @Before
     public void fillInDefaultValues() {
@@ -269,6 +327,11 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                 new android.hardware.automotive.vehicle.UserInfo();
         mGetUserInfoResponse.userLocales = new String();
         mGetUserInfoResponse.userNameToCreate = new String();
+    }
+
+    @After
+    public void tearDown() {
+        CarLocalServices.removeAllServices();
     }
 
     protected ICarUxRestrictionsChangeListener initService() {
@@ -504,6 +567,10 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
             @NonNull UserHandle currentUser) throws Exception {
         mockExistingUsers(existingUsers);
         mockCurrentUser(currentUser);
+    }
+
+    protected void mockNonDyingExistingUsers(@NonNull List<UserHandle> existingUsers) {
+        mockUmGetUserHandles(mMockedUserManager, /* excludeDying= */ true, existingUsers);
     }
 
     protected void mockExistingUsers(@NonNull List<UserHandle> existingUsers) {

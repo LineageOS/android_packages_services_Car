@@ -16,9 +16,14 @@
 
 package com.android.car;
 
+import android.annotation.NonNull;
+import android.annotation.UserIdInt;
+import android.app.ActivityOptions;
 import android.car.Car;
+import android.car.builtin.content.ContextHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -29,7 +34,9 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.util.ArrayMap;
+import android.view.Display;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -427,5 +434,29 @@ public final class CarServiceUtils {
         hidlOptions.flags = android.hardware.automotive.vehicle.V2_0.SubscribeFlags.EVENTS_FROM_CAR;
         // HIDL backend does not support area IDs, so we ignore options.areaId field.
         return hidlOptions;
+    }
+
+    /**
+     * Starts Activity for the given {@code userId} and {@code displayId}.
+     *
+     * @return {@code true} when starting activity succeeds. It can fail in situation like secondary
+     *         home package not existing.
+     */
+    public static boolean startHomeForUserAndDisplay(@NonNull Context context,
+            @UserIdInt int userId, int displayId) {
+        Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+        String category = (displayId == Display.DEFAULT_DISPLAY) ? Intent.CATEGORY_HOME
+                : Intent.CATEGORY_SECONDARY_HOME;
+        homeIntent.addCategory(category);
+        ActivityOptions activityOptions = ActivityOptions.makeBasic()
+                .setLaunchDisplayId(displayId);
+        try {
+            ContextHelper.startActivityAsUser(context, homeIntent, activityOptions.toBundle(),
+                    UserHandle.of(userId));
+            return true;
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "Cannot start HOME for user: %d, display:%d", userId, displayId);
+            return false;
+        }
     }
 }

@@ -76,4 +76,9 @@ interface ICarServiceHelper {
 
     /** Same as {@code UserManagerInternal#getDisplayAssignedToUser()} */
     int getDisplayAssignedToUser(int userId) = 9;
+
+    /**
+     * Check {@link android.app.AcitivityManager#startUserInBackgroundOnSecondaryDisplay(int, int)}
+     */
+    boolean startUserInBackgroundOnSecondaryDisplay(int userId, int displayId) = 10;
 }
