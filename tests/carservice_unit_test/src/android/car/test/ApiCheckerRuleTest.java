@@ -309,10 +309,21 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforced() throws Throwable {
+    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforcedByDisableAnnotationsCheck() throws Throwable {
         String methodName = VALID_API_WITHOUT_ANNOTATIONS;
         Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
         ApiCheckerRule rule = new ApiCheckerRule.Builder().disableAnnotationsCheck().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    @Test
+    public void passWhenTestMethodIsMissingApiRequirementsButItsNotEnforcedByDisableApiRequirementsCheck() throws Throwable {
+        String methodName = VALID_API_WITHOUT_ANNOTATIONS;
+        Description testMethod = newTestMethod(new ApiTestAnnotation(methodName));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().disableApiRequirementsCheck().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
 
