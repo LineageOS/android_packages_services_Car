@@ -105,17 +105,15 @@ public final class UserManagerHelper {
 
     /** Checks if the user is guest. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static boolean isGuestUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
+    public static boolean isGuestUser(@NonNull UserManager userManager, @NonNull UserHandle user) {
         return userManager.isGuestUser(user.getIdentifier());
     }
 
-    /** Checks if the user is not the system user. */
+    /** Checks if the user is a full user. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
-    public static boolean isSecondaryUser(@NonNull UserManager userManager,
-            @NonNull UserHandle user) {
+    public static boolean isFullUser(@NonNull UserManager userManager, @NonNull UserHandle user) {
         UserInfo info = userManager.getUserInfo(user.getIdentifier());
-        return info != null && info.isFull() && !info.isPrimary();
+        return info != null && info.isFull();
     }
 
     /**
