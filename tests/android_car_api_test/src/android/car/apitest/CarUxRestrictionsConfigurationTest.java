@@ -595,6 +595,76 @@ public class CarUxRestrictionsConfigurationTest {
     }
 
     @Test
+    public void testGetUxRestrictions_MaxSpeed_SingleSpeedRange() {
+        CarUxRestrictionsConfiguration config = new Builder()
+                .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 1f)))
+                .build();
+
+        CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING,
+                MAX_SPEED, UX_RESTRICTION_MODE_PASSENGER);
+        assertThat(movingRestrictions.isRequiresDistractionOptimization()).isTrue();
+        assertThat(movingRestrictions.getActiveRestrictions()).isEqualTo(
+                UX_RESTRICTIONS_NO_VIDEO);
+    }
+
+    @Test
+    public void testGetUxRestrictions_MaxSpeed_MultiSpeedRangesHighestClosed() {
+        Builder builder = new Builder();
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 1f)));
+
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(1f, 2f)));
+
+        CarUxRestrictionsConfiguration config = builder.build();
+
+        CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING,
+                MAX_SPEED, UX_RESTRICTION_MODE_PASSENGER);
+        assertThat(movingRestrictions.isRequiresDistractionOptimization()).isTrue();
+        assertThat(movingRestrictions.getActiveRestrictions()).isEqualTo(
+                UX_RESTRICTIONS_FULLY_RESTRICTED);
+    }
+
+    @Test
+    public void testGetUxRestrictions_MaxSpeed_MultiSpeedRangesHighestOpen() {
+        Builder builder = new Builder();
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(0f, 1f)));
+
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_NO_VIDEO)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(1f, 2f)));
+
+        builder.setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
+                        .setDistractionOptimizationRequired(true)
+                        .setRestrictions(UX_RESTRICTIONS_FULLY_RESTRICTED)
+                        .setMode(UX_RESTRICTION_MODE_PASSENGER)
+                        .setSpeedRange(new Builder.SpeedRange(2f)));
+        CarUxRestrictionsConfiguration config = builder.build();
+
+        CarUxRestrictions movingRestrictions = config.getUxRestrictions(DRIVING_STATE_MOVING,
+                MAX_SPEED, UX_RESTRICTION_MODE_PASSENGER);
+        assertThat(movingRestrictions.isRequiresDistractionOptimization()).isTrue();
+        assertThat(movingRestrictions.getActiveRestrictions()).isEqualTo(
+                UX_RESTRICTIONS_FULLY_RESTRICTED);
+    }
+
+    @Test
     public void testPassengerMode_GetMovingWhenNotDefined_FallbackToBaseline() {
         CarUxRestrictionsConfiguration config = new Builder()
                 .setUxRestrictions(DRIVING_STATE_MOVING, new DrivingStateRestrictions()
