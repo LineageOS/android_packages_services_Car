@@ -159,4 +159,29 @@ public class AudioControlWrapperV2Test {
                 .that(thrown).hasMessageThat()
                 .contains("unsupported for IAudioControl@2.0");
     }
+
+    @Test
+    public void registerAudioGainCallback_throws() {
+        AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
+        HalAudioGainCallback gainCallback = mock(HalAudioGainCallback.class);
+
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> audioControlWrapperV2.registerAudioGainCallback(gainCallback));
+
+        assertWithMessage("UnsupportedOperationException thrown by registerAudioGainCallback")
+                .that(thrown).hasMessageThat()
+                .contains("Audio Gain Callback is unsupported for IAudioControl@2.0");
+    }
+
+    @Test
+    public void unregisterAudioGainCallback_throws() {
+        AudioControlWrapperV2 audioControlWrapperV2 = new AudioControlWrapperV2(mAudioControlV2);
+
+        UnsupportedOperationException thrown = assertThrows(UnsupportedOperationException.class,
+                () -> audioControlWrapperV2.unregisterAudioGainCallback());
+
+        assertWithMessage("UnsupportedOperationException thrown by unregisterAudioGainCallback")
+                .that(thrown).hasMessageThat()
+                .contains("Audio Gain Callback is unsupported for IAudioControl@2.0");
+    }
 }
