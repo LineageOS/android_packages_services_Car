@@ -110,12 +110,12 @@ public final class UserManagerHelper {
         return userManager.isGuestUser(user.getIdentifier());
     }
 
-    /** Checks if the user is {@link UserManager#USER_TYPE_FULL_SECONDARY}. */
+    /** Checks if the user is not the system user. */
     @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     public static boolean isSecondaryUser(@NonNull UserManager userManager,
             @NonNull UserHandle user) {
         UserInfo info = userManager.getUserInfo(user.getIdentifier());
-        return info != null && info.isFull() && user.equals(UserHandle.SYSTEM);
+        return info != null && info.isFull() && !info.isPrimary();
     }
 
     /**
