@@ -304,10 +304,9 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                         return false;
                     }
                     int userId = user.getIdentifier();
-                    return userId == mAdminUserId || userId == mAnotherAdminUserId
-                            || userId == mRegularUserId || userId == mAnotherRegularUserId;
+                    return userId != UserHandle.USER_SYSTEM;
                 }
-        ).when(() -> UserManagerHelper.isSecondaryUser(any(), any()));
+        ).when(() -> UserManagerHelper.isFullUser(any(), any()));
         doAnswer(
                 inv -> {
                     UserHandle user = (UserHandle) inv.getArgument(1);
