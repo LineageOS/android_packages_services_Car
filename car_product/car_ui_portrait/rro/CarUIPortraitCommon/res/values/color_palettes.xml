@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2022 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<resources>
+
+    <!--primary colors -->
+    <color name="car_primary">@color/car_primary_40</color>
+    <color name="car_on_primary">@color/car_primary_100</color>
+    <color name="car_primary_container">@color/car_primary_90</color>
+    <color name="car_on_primary_container">@color/car_primary_10</color>
+
+    <!--secondary colors -->
+    <color name="car_secondary">@color/car_secondary_40</color>
+    <color name="car_on_secondary">@color/car_secondary_100</color>
+    <color name="car_secondary_container">@color/car_secondary_90</color>
+    <color name="car_on_secondary_container">@color/car_secondary_10</color>
+
+    <!--tertiary colors -->
+    <color name="car_tertiary">@color/car_tertiary_40</color>
+    <color name="car_on_tertiary">@color/car_tertiary_100</color>
+    <color name="car_tertiary_container">@color/car_tertiary_90</color>
+    <color name="car_on_tertiary_container">@color/car_tertiary_10</color>
+
+    <!--error colors -->
+    <color name="car_error">@color/car_error_40</color>
+    <color name="car_on_error">@color/car_error_100</color>
+    <color name="car_error_container">@color/car_error_90</color>
+    <color name="car_on_error_container">@color/car_error_10</color>
+
+    <!--background colors -->
+    <color name="car_background">@color/car_neutral_99</color>
+    <color name="car_on_background">@color/car_neutral_10</color>
+
+    <!--surface colors -->
+    <color name="car_surface">@color/car_neutral_99</color>
+    <color name="car_on_surface">@color/car_neutral_10</color>
+    <color name="car_surface_variant">@color/car_neutral_variant_90</color>
+    <color name="car_on_surface_variant">@color/car_neutral_variant_30</color>
+    <color name="car_outline">@color/car_neutral_variant_50</color>
+
+</resources>
