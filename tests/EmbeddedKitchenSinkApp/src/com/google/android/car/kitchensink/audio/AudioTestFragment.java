@@ -51,6 +51,8 @@ import android.car.Car;
 import android.car.CarAppFocusManager;
 import android.car.CarAppFocusManager.OnAppFocusChangedListener;
 import android.car.CarAppFocusManager.OnAppFocusOwnershipCallback;
+import android.car.CarOccupantZoneManager;
+import android.car.input.CarInputManager;
 import android.car.media.CarAudioManager;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -65,6 +67,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -177,6 +180,8 @@ public class AudioTestFragment extends Fragment {
             mAppFocusManager.abandonAppFocus(mOwnershipCallbacks, APP_FOCUS_TYPE_NAVIGATION);
         }
     };
+
+    private VolumeKeyEventsButtonManager mVolumeKeyEventHandler;
 
     private void connectCar() {
         mContext = getContext();
@@ -337,6 +342,24 @@ public class AudioTestFragment extends Fragment {
                 .setOnClickListener(v -> stopAudioTrack());
 
         mDelayedStatusText = view.findViewById(R.id.media_delayed_player_status);
+
+        mVolumeKeyEventHandler = new VolumeKeyEventsButtonManager(
+                mCar.getCarManager(CarInputManager.class),
+                mCar.getCarManager(CarOccupantZoneManager.class));
+
+        Button upButton = view.findViewById(R.id.volume_plus_key_event_button);
+        upButton.setOnClickListener((v) -> mVolumeKeyEventHandler
+                .sendClickEvent(KeyEvent.KEYCODE_VOLUME_UP,  /* repeatCount= */ 2));
+
+        Button downButton = view.findViewById(R.id.volume_minus_key_event_button);
+        downButton.setOnClickListener(
+                (v) -> mVolumeKeyEventHandler
+                        .sendClickEvent(KeyEvent.KEYCODE_VOLUME_DOWN, /* repeatCount= */ 2));
+
+        Button muteButton = view.findViewById(R.id.volume_mute_key_event_button);
+        muteButton.setOnClickListener(
+                (v) -> mVolumeKeyEventHandler
+                        .sendClickEvent(KeyEvent.KEYCODE_VOLUME_MUTE,  /* repeatCount= */ 0));
 
         return view;
     }
