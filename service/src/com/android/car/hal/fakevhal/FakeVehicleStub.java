@@ -29,13 +29,17 @@ import android.hardware.automotive.vehicle.VehicleProperty;
 import android.hardware.automotive.vehicle.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.VehiclePropertyType;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.Pair;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.hal.AidlHalPropConfig;
@@ -54,6 +58,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -67,6 +72,7 @@ public final class FakeVehicleStub extends VehicleStub {
     private static final String FAKE_VHAL_CONFIG_DIRECTORY = "/data/system/car/fake_vhal_config/";
     private static final String DEFAULT_CONFIG_FILE_NAME = "DefaultProperties.json";
     private static final String FAKE_MODE_ENABLE_FILE_NAME = "ENABLE";
+    private static final int AREA_ID_GLOBAL = 0;
 
     private final SparseArray<ConfigDeclaration> mConfigDeclarationsByPropId;
     private final SparseArray<HalPropConfig> mPropConfigsByPropId;
@@ -74,13 +80,17 @@ public final class FakeVehicleStub extends VehicleStub {
     private final HalPropValueBuilder mHalPropValueBuilder;
     private final FakeVhalConfigParser mParser;
     private final List<String> mCustomConfigFiles;
+    private final Handler mHandler;
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final SparseArray<SparseArray<HalPropValue>> mPropValuesByAreaIdByPropId;
+    private final Map<Pair<Integer, Integer>, HalPropValue> mPropValuesByPropIdAreaId;
     @GuardedBy("mLock")
-    private final SparseArray<SparseArray<Set<FakeVhalSubscriptionClient>>>
-            mOnChangeSubscribeClientByAreaIdByPropId;
+    private final Map<Pair<Integer, Integer>, Set<FakeVhalSubscriptionClient>>
+            mOnChangeSubscribeClientByPropIdAreaId;
+    @GuardedBy("mLock")
+    private final Map<FakeVhalSubscriptionClient,
+            Map<Pair<Integer, Integer>, ContinuousPropUpdater>> mUpdaterByPropIdAreaIdByClient;
 
     /**
      * Checks if fake mode is enabled.
@@ -119,9 +129,12 @@ public final class FakeVehicleStub extends VehicleStub {
         mCustomConfigFiles = customConfigFiles;
         mConfigDeclarationsByPropId = parseConfigFiles();
         mPropConfigsByPropId = extractPropConfigs(mConfigDeclarationsByPropId);
-        mPropValuesByAreaIdByPropId = extractPropValues(mConfigDeclarationsByPropId);
+        mPropValuesByPropIdAreaId = extractPropValues(mConfigDeclarationsByPropId);
         mRealVehicle = realVehicle;
-        mOnChangeSubscribeClientByAreaIdByPropId = new SparseArray<>();
+        mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
+                .getLooper());
+        mOnChangeSubscribeClientByPropIdAreaId = new ArrayMap<>();
+        mUpdaterByPropIdAreaIdByClient = new ArrayMap<>();
     }
 
     /**
@@ -235,7 +248,7 @@ public final class FakeVehicleStub extends VehicleStub {
     public HalPropValue get(HalPropValue requestedPropValue) throws ServiceSpecificException {
         int propId = requestedPropValue.getPropId();
         checkPropIdSupported(propId);
-        int areaId = isPropertyGlobal(propId) ? 0 : requestedPropValue.getAreaId();
+        int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : requestedPropValue.getAreaId();
         checkAreaIdSupported(propId, areaId);
         // Check access permission.
         int access = mPropConfigsByPropId.get(propId).getAccess();
@@ -249,20 +262,21 @@ public final class FakeVehicleStub extends VehicleStub {
             Slogf.w(TAG, "Special property is not supported.");
             return null;
         }
+
         // PropId config exists but the value map doesn't have this propId, this may be caused by:
         // 1. This property is a global property, and it doesn't have default prop value.
         // 2. This property has area configs, and it has neither default prop value nor area value.
+        Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
         synchronized (mLock) {
-            if (mPropValuesByAreaIdByPropId.size() == 0
-                    || !mPropValuesByAreaIdByPropId.contains(propId)) {
+            if (!mPropValuesByPropIdAreaId.containsKey(propIdAreaId)) {
                 if (isPropertyGlobal(propId)) {
                     throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
                         "propId: " + propId + " has no property value.");
                 }
                 throw new ServiceSpecificException(StatusCode.NOT_AVAILABLE,
-                        "propId: " + propId + ", areaId: " + areaId + " has no property value.");
+                    "propId: " + propId + ", areaId: " + areaId + " has no property value.");
             }
-            return mPropValuesByAreaIdByPropId.get(propId).get(areaId);
+            return mPropValuesByPropIdAreaId.get(propIdAreaId);
         }
     }
 
@@ -276,7 +290,7 @@ public final class FakeVehicleStub extends VehicleStub {
     public void set(HalPropValue propValue) throws ServiceSpecificException {
         int propId = propValue.getPropId();
         checkPropIdSupported(propId);
-        int areaId = isPropertyGlobal(propId) ? 0 : propValue.getAreaId();
+        int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : propValue.getAreaId();
         checkAreaIdSupported(propId, areaId);
         // Check access permission.
         int access = mPropConfigsByPropId.get(propId).getAccess();
@@ -301,20 +315,13 @@ public final class FakeVehicleStub extends VehicleStub {
 
         HalPropValue updatedValue = buildHalPropValue(propId, areaId,
                 SystemClock.elapsedRealtimeNanos(), rawPropValues);
-        SparseArray<HalPropValue> propValueByAreaId;
+        Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
         Set<FakeVhalSubscriptionClient> clients = new ArraySet<>();
 
         synchronized (mLock) {
-            // Default value of this property exists.
-            if (!mPropValuesByAreaIdByPropId.contains(propId)) {
-                mPropValuesByAreaIdByPropId.put(propId, new SparseArray<>());
-            }
-            propValueByAreaId = mPropValuesByAreaIdByPropId.get(propId);
-            propValueByAreaId.put(areaId, updatedValue);
-
-            if (mOnChangeSubscribeClientByAreaIdByPropId.contains(propId)
-                    && mOnChangeSubscribeClientByAreaIdByPropId.get(propId).contains(areaId)) {
-                clients = mOnChangeSubscribeClientByAreaIdByPropId.get(propId).get(areaId);
+            mPropValuesByPropIdAreaId.put(propIdAreaId, updatedValue);
+            if (mOnChangeSubscribeClientByPropIdAreaId.containsKey(propIdAreaId)) {
+                clients = mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId);
             }
         }
         clients.forEach(c -> c.onPropertyEvent(updatedValue));
@@ -336,12 +343,9 @@ public final class FakeVehicleStub extends VehicleStub {
 
     private final class FakeVhalSubscriptionClient implements SubscriptionClient {
         private final HalClientCallback mCallBack;
-        @GuardedBy("mLock")
-        private final SparseArray<SparseArray<Float>> mSubscriptionRateByAreaIdByPropId;
 
         FakeVhalSubscriptionClient(HalClientCallback callback) {
             mCallBack = callback;
-            mSubscriptionRateByAreaIdByPropId = new SparseArray<>();
         }
 
         public void onPropertyEvent(HalPropValue value) {
@@ -350,36 +354,7 @@ public final class FakeVehicleStub extends VehicleStub {
 
         @Override
         public void subscribe(SubscribeOptions[] options) {
-            if (isSpecialProperty(/* propId= */ VehicleProperty.INVALID)) {
-                // TODO(b/241006476) Handle special properties.
-                Slogf.w(TAG, "Special property is not supported.");
-                return;
-            }
-
-            for (SubscribeOptions option : options) {
-                int propId = option.propId;
-
-                // Check if this propId is supported.
-                checkPropIdSupported(propId);
-
-                // If propId is global, areaId is ignored.
-                int[] areaIds = isPropertyGlobal(propId) ? new int[]{0} : option.areaIds;
-
-                int changeMode = mPropConfigsByPropId.get(propId).getChangeMode();
-                switch (changeMode) {
-                    case VehiclePropertyChangeMode.STATIC:
-                        throw new ServiceSpecificException(StatusCode.INVALID_ARG,
-                                "Static property cannot be subscribed.");
-                    case VehiclePropertyChangeMode.ON_CHANGE:
-                        subscribeOnChangeProp(propId, areaIds);
-                        break;
-                    case VehiclePropertyChangeMode.CONTINUOUS:
-                        //TODO(238646350) continuous mode will be implemented later.
-                        break;
-                    default:
-                        Slogf.w(TAG, "This change mode: %d is not supported.", changeMode);
-                }
-            }
+            FakeVehicleStub.this.subscribe(this, options);
         }
 
         @Override
@@ -388,32 +363,27 @@ public final class FakeVehicleStub extends VehicleStub {
                 // TODO(b/241006476) Handle special properties.
             }
         }
+    }
 
-        private void subscribeOnChangeProp(int propId, int[] areaIds) {
-            float sampleRate = 0;
-            synchronized (mLock) {
-                for (int areaId : areaIds) {
-                    checkAreaIdSupported(propId, areaId);
-                    if (!mSubscriptionRateByAreaIdByPropId.contains(propId)) {
-                        mSubscriptionRateByAreaIdByPropId.put(propId,
-                                new SparseArray<>());
-                    }
-                    mSubscriptionRateByAreaIdByPropId.get(propId).put(areaId,
-                            sampleRate);
+    private final class ContinuousPropUpdater implements Runnable {
+        private final FakeVhalSubscriptionClient mClient;
+        private final int mPropId;
+        private final int mAreaId;
+        private final float mSampleRate;
 
-                    // Update propId to client map.
-                    if (!mOnChangeSubscribeClientByAreaIdByPropId.contains(propId)) {
-                        mOnChangeSubscribeClientByAreaIdByPropId.put(propId,
-                                new SparseArray<>());
-                    }
-                    SparseArray<Set<FakeVhalSubscriptionClient>> clientSetByAreaId =
-                            mOnChangeSubscribeClientByAreaIdByPropId.get(propId);
-                    if (!clientSetByAreaId.contains(areaId)) {
-                        clientSetByAreaId.put(areaId, new ArraySet<>());
-                    }
-                    clientSetByAreaId.get(areaId).add(this);
-                }
-            }
+        ContinuousPropUpdater(FakeVhalSubscriptionClient client, int propId, int areaId,
+                float sampleRate) {
+            mClient = client;
+            mPropId = propId;
+            mAreaId = areaId;
+            mSampleRate = sampleRate;
+            run();
+        }
+
+        @Override
+        public void run() {
+            mClient.onPropertyEvent(updateTimeStamp(mPropId, mAreaId));
+            mHandler.postDelayed(this, (long) (1000 / mSampleRate));
         }
     }
 
@@ -489,12 +459,12 @@ public final class FakeVehicleStub extends VehicleStub {
      * Extracts {@link HalPropValue} for all properties from the parsing result.
      *
      * @param configDeclarationsByPropId The parsing result.
-     * @return a {@link SparseArray} mapped from propId to a map from areaId to its value.
+     * @return a {@link Map} mapped from propId, areaId to its value.
      */
-    private SparseArray<SparseArray<HalPropValue>> extractPropValues(SparseArray<ConfigDeclaration>
-            configDeclarationsByPropId) {
+    private Map<Pair<Integer, Integer>, HalPropValue> extractPropValues(
+            SparseArray<ConfigDeclaration> configDeclarationsByPropId) {
         long timestamp = SystemClock.elapsedRealtimeNanos();
-        SparseArray<SparseArray<HalPropValue>> propValuesByAreaIdByPropId = new SparseArray<>();
+        Map<Pair<Integer, Integer>, HalPropValue> propValuesByPropIdAreaId = new ArrayMap<>();
         for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
             // Get configDeclaration of a property.
             ConfigDeclaration configDeclaration = configDeclarationsByPropId.valueAt(i);
@@ -507,8 +477,6 @@ public final class FakeVehicleStub extends VehicleStub {
             // Get area rawPropValues map.
             SparseArray<RawPropValues> rawPropValuesByAreaId = configDeclaration
                     .getInitialAreaValuesByAreaId();
-            // Create a map from areaId to its prop value.
-            SparseArray<HalPropValue> halPropValuesByAreaId = new SparseArray<>();
 
             // If this property is a global property.
             if (isPropertyGlobal(propId)) {
@@ -519,9 +487,8 @@ public final class FakeVehicleStub extends VehicleStub {
                     continue;
                 }
                 // Set the areaId to be 0.
-                halPropValuesByAreaId.put(/* areaId= */ 0, buildHalPropValue(propId,
-                        /* areaId= */ 0, timestamp, defaultRawPropValues));
-                propValuesByAreaIdByPropId.put(propId, halPropValuesByAreaId);
+                propValuesByPropIdAreaId.put(Pair.create(propId, AREA_ID_GLOBAL),
+                        buildHalPropValue(propId, AREA_ID_GLOBAL, timestamp, defaultRawPropValues));
                 continue;
             }
 
@@ -542,12 +509,11 @@ public final class FakeVehicleStub extends VehicleStub {
                 if (areaRawPropValues == null) {
                     continue;
                 }
-                halPropValuesByAreaId.put(areaId, buildHalPropValue(propId, areaId,
-                        timestamp, areaRawPropValues));
-                propValuesByAreaIdByPropId.put(propId, halPropValuesByAreaId);
+                propValuesByPropIdAreaId.put(Pair.create(propId, areaId), buildHalPropValue(propId,
+                        areaId, timestamp, areaRawPropValues));
             }
         }
-        return propValuesByAreaIdByPropId;
+        return propValuesByPropIdAreaId;
     }
 
     /**
@@ -677,10 +643,21 @@ public final class FakeVehicleStub extends VehicleStub {
         return true;
     }
 
+    /**
+     * Gets the type of property.
+     *
+     * @param propId The property to get the type.
+     * @return The type.
+     */
     private static int getPropType(int propId) {
         return propId & VehiclePropertyType.MASK;
     }
 
+    /**
+     * Checks if a property is supported. If not, throw a {@link ServiceSpecificException}.
+     *
+     * @param propId The property to be checked.
+     */
     private void checkPropIdSupported(int propId) {
         // Check if the property config exists.
         if (!mPropConfigsByPropId.contains(propId)) {
@@ -689,12 +666,161 @@ public final class FakeVehicleStub extends VehicleStub {
         }
     }
 
+    /**
+     * Checks if an areaId of a property is supported. For global property, the areaId is ignored.
+     *
+     * @param propId The property to be checked.
+     * @param areaId The area to be checked.
+     */
     private void checkAreaIdSupported(int propId, int areaId) {
         // For global property, areaId is ignored.
         // For non-global property, if property config exists, check if areaId is supported.
         if (!isPropertyGlobal(propId) && !getAllSupportedAreaId(propId).contains(areaId)) {
             throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
                 + " is not supported.");
+        }
+    }
+
+    /**
+     * Subscribes properties.
+     *
+     * @param client The client subscribes properties.
+     * @param options The array of subscribe options.
+     */
+    private void subscribe(FakeVhalSubscriptionClient client, SubscribeOptions[] options) {
+        for (int i = 0; i < options.length; i++) {
+            int propId = options[i].propId;
+
+            // Check if this propId is supported.
+            checkPropIdSupported(propId);
+
+            // Check if this propId is a special property.
+            if (isSpecialProperty(/* propId= */ VehicleProperty.INVALID)) {
+                // TODO(b/241006476) Handle special properties.
+                Slogf.w(TAG, "Special property is not supported.");
+                return;
+            }
+
+            // If propId is global, areaId is ignored.
+            int[] areaIds = isPropertyGlobal(propId) ? new int[]{AREA_ID_GLOBAL}
+                : options[i].areaIds;
+
+            int changeMode = mPropConfigsByPropId.get(propId).getChangeMode();
+            switch (changeMode) {
+                case VehiclePropertyChangeMode.STATIC:
+                    throw new ServiceSpecificException(StatusCode.INVALID_ARG,
+                        "Static property cannot be subscribed.");
+                case VehiclePropertyChangeMode.ON_CHANGE:
+                    subscribeOnChangeProp(client, propId, areaIds);
+                    break;
+                case VehiclePropertyChangeMode.CONTINUOUS:
+                    // Check if sample rate is within minSampleRate and maxSampleRate, and
+                    // return a valid sample rate.
+                    float sampleRate = getSampleRateWithinRange(options[i].sampleRate, propId);
+                    subscribeContinuousProp(client, propId, areaIds, sampleRate);
+                    break;
+                default:
+                    Slogf.w(TAG, "This change mode: %d is not supported.", changeMode);
+            }
+        }
+    }
+
+    /**
+     * Subscribes an ON_CHANGE property.
+     *
+     * @param client The client that subscribes a property.
+     * @param propId The property to be subscribed.
+     * @param areaIds The list of areaIds to be subscribed.
+     */
+    private void subscribeOnChangeProp(FakeVhalSubscriptionClient client, int propId,
+            int[] areaIds) {
+        synchronized (mLock) {
+            for (int areaId : areaIds) {
+                checkAreaIdSupported(propId, areaId);
+                Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
+                // Update the map from propId, areaId to client set in FakeVehicleStub.
+                if (!mOnChangeSubscribeClientByPropIdAreaId.containsKey(propIdAreaId)) {
+                    mOnChangeSubscribeClientByPropIdAreaId.put(propIdAreaId, new ArraySet<>());
+                }
+                mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId).add(client);
+            }
+        }
+    }
+
+    /**
+     * Subscribes a CONTINUOUS property.
+     *
+     * @param client The client that subscribes a property.
+     * @param propId The property to be subscribed.
+     * @param areaIds The list of areaIds to be subscribed.
+     * @param sampleRate The rate of subscription.
+     */
+    private void subscribeContinuousProp(FakeVhalSubscriptionClient client, int propId,
+            int[] areaIds, float sampleRate) {
+        synchronized (mLock) {
+            for (int areaId : areaIds) {
+                checkAreaIdSupported(propId, areaId);
+                Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
+
+                // Check if this client has subscribed CONTINUOUS properties.
+                if (!mUpdaterByPropIdAreaIdByClient.containsKey(client)) {
+                    mUpdaterByPropIdAreaIdByClient.put(client, new ArrayMap<>());
+                }
+                Map<Pair<Integer, Integer>, ContinuousPropUpdater> updaterByPropIdAreaId =
+                        mUpdaterByPropIdAreaIdByClient.get(client);
+                // Check if this client subscribes the propId, areaId pair
+                if (updaterByPropIdAreaId.containsKey(propIdAreaId)) {
+                    // If current subscription rate is same as the new sample rate.
+                    ContinuousPropUpdater oldUpdater = updaterByPropIdAreaId.get(propIdAreaId);
+                    if (oldUpdater.mSampleRate == sampleRate) {
+                        Slogf.w(TAG, "Sample rate is same as current rate. No update.");
+                        continue;
+                    }
+                    // If sample rate is not same. Remove old updater from mHandler's message queue.
+                    mHandler.removeCallbacks(oldUpdater);
+                    updaterByPropIdAreaId.remove(propIdAreaId);
+                }
+                ContinuousPropUpdater updater = new ContinuousPropUpdater(client, propId, areaId,
+                        sampleRate);
+                updaterByPropIdAreaId.put(propIdAreaId, updater);
+            }
+        }
+    }
+
+    /**
+     * Gets the subscription sample rate within range.
+     *
+     * @param sampleRate The requested sample rate.
+     * @param propId The property to be subscribed.
+     * @return The valid sample rate.
+     */
+    private float getSampleRateWithinRange(float sampleRate, int propId) {
+        float minSampleRate = mPropConfigsByPropId.get(propId).getMinSampleRate();
+        float maxSampleRate = mPropConfigsByPropId.get(propId).getMaxSampleRate();
+        if (sampleRate < minSampleRate) {
+            sampleRate = minSampleRate;
+        }
+        if (sampleRate > maxSampleRate) {
+            sampleRate = maxSampleRate;
+        }
+        return sampleRate;
+    }
+
+    /**
+     * Updates the timeStamp of a property.
+     *
+     * @param propId The property gets current timeStamp.
+     * @param areaId The property with specific area gets current timeStamp.
+     */
+    private HalPropValue updateTimeStamp(int propId, int areaId) {
+        synchronized (mLock) {
+            Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
+            HalPropValue propValue = mPropValuesByPropIdAreaId.get(propIdAreaId);
+            RawPropValues rawPropValues = ((VehiclePropValue) propValue.toVehiclePropValue()).value;
+            HalPropValue updatedValue = buildHalPropValue(propId, areaId,
+                    SystemClock.elapsedRealtimeNanos(), rawPropValues);
+            mPropValuesByPropIdAreaId.put(propIdAreaId, updatedValue);
+            return updatedValue;
         }
     }
 }
