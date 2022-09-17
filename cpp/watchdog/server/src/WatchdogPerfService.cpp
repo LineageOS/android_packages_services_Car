@@ -309,6 +309,9 @@ Result<void> WatchdogPerfService::onBootFinished() {
 
 Result<void> WatchdogPerfService::onUserStateChange(userid_t userId, const UserState& userState) {
     Mutex::Autolock lock(mMutex);
+    if (mCurrCollectionEvent == EventType::BOOT_TIME_COLLECTION) {
+        return {};
+    }
     switch (static_cast<int>(userState)) {
         case static_cast<int>(UserState::USER_STATE_SWITCHING):
             // TODO(b/243984863): Handle multi-user switching scenario.
