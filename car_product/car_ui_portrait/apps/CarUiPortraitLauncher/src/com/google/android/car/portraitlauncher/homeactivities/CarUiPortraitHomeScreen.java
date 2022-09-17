@@ -33,8 +33,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.graphics.Region;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
@@ -383,6 +385,18 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             transaction.replace(cardModule.getCardResId(), cardModule.getCardView());
         }
         transaction.commitNow();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        initializeCards();
+        refreshGrabBar();
+    }
+
+    private void refreshGrabBar() {
+        Drawable background = getResources().getDrawable(R.drawable.title_bar_background);
+        mGripBar.setBackground(background);
     }
 
     @Override

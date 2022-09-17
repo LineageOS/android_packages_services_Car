@@ -41,10 +41,9 @@
             android:background="@drawable/title_bar_background">
             <View
                 android:id="@+id/title_handle_bar"
-                android:layout_width="160dp"
+                android:layout_width="@dimen/grip_bar_width"
                 android:layout_height="6dp"
-                android:background="#9aa0a6"
-                android:layout_marginTop="25dp"
+                android:background="@color/car_surface_variant"
                 android:layout_centerInParent="true"/>
         </RelativeLayout>
 
@@ -53,7 +52,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            app:cardBackgroundColor="@android:color/white"/>
+            app:cardBackgroundColor="@color/car_background"/>
 
     </LinearLayout>
 

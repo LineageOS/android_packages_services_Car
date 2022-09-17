@@ -21,9 +21,9 @@ import static androidx.car.app.activity.CarAppActivity.ACTION_START_SECOND_INSTA
 import static androidx.car.app.activity.CarAppActivity.SECOND_INSTANCE_TITLE;
 
 import static com.google.common.truth.Truth.assertThat;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assume.assumeTrue;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
@@ -142,7 +142,8 @@ public class CarPackageManagerServiceTest {
         assertThat(mDevice.wait(Until.findObject(By.text(
                 CarAppActivity.class.getSimpleName())),
                 UI_TIMEOUT_MS)).isNotNull();
-        getContext().sendBroadcast(new Intent().setAction(ACTION_START_SECOND_INSTANCE));
+        getContext().sendBroadcast(new Intent().setAction(ACTION_START_SECOND_INSTANCE)
+                .setPackage(getTestContext().getPackageName()));
         assertThat(mDevice.wait(Until.findObject(By.text(
                 SECOND_INSTANCE_TITLE)),
                 UI_TIMEOUT_MS)).isNotNull();
@@ -161,7 +162,8 @@ public class CarPackageManagerServiceTest {
                 CarAppActivity.class.getName()
         )).isTrue();
 
-        getContext().sendBroadcast(new Intent().setAction(ACTION_SHOW_DIALOG));
+        getContext().sendBroadcast(new Intent().setAction(ACTION_SHOW_DIALOG)
+                .setPackage(getTestContext().getPackageName()));
 
         assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
                 UI_TIMEOUT_MS)).isNotNull();
@@ -344,10 +346,10 @@ public class CarPackageManagerServiceTest {
         mDevice.pressHome();
         final String launcherPackage = mDevice.getLauncherPackageName();
         assertNotNull(launcherPackage);
-        assertWithMessage(
-                "Home is not displayed even after " + HOME_DISPLAYED_TIMEOUT_MS + "ms.").that(
+
+        assumeTrue("Home is not displayed even after " + HOME_DISPLAYED_TIMEOUT_MS + "ms.",
                 mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)),
-                        HOME_DISPLAYED_TIMEOUT_MS)).isTrue();
+                        HOME_DISPLAYED_TIMEOUT_MS));
     }
 
     private void setDrivingStateMoving() {

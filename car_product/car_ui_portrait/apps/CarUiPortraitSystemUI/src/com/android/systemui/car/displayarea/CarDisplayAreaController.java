@@ -218,8 +218,7 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     }
 
     private void updateForegroundDaVisibility(ActivityManager.RunningTaskInfo taskInfo) {
-        if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null
-        ) {
+        if (taskInfo.baseIntent == null || taskInfo.baseIntent.getComponent() == null) {
             return;
         }
 

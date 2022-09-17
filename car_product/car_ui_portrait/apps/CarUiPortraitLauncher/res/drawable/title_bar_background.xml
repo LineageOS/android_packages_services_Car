@@ -16,7 +16,8 @@
   -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <solid android:color="#FFFFFF"/>
-    <corners android:topLeftRadius="48dp" android:topRightRadius="48dp"
+    <solid android:color="@color/car_background"/>
+    <corners android:topLeftRadius="@dimen/corner_radius"
+             android:topRightRadius="@dimen/corner_radius"
              android:bottomLeftRadius="0dp" android:bottomRightRadius="0dp"/>
 </shape>

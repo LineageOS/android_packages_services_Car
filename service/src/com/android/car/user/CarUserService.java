@@ -2200,7 +2200,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (userId == currentUserId) {
                 continue;
             }
-            if (UserManagerHelper.isSecondaryUser(mUserManager, user)) {
+            if (UserManagerHelper.isFullUser(mUserManager, user) && !user.isSystem()) {
                 usersToAssign.add(userId);
             }
             if  (usersToAssign.size() == numUsersToAssign) { // got all necessary users

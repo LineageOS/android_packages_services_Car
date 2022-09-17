@@ -29,9 +29,9 @@ PRODUCT_PACKAGES += \
     CarUiPortraitNotificationRRO \
     CarUiPortraitCarServiceRRO \
     CarUiPortraitFrameworkResRRO \
-    CarUiPortraitFrameworkResRROTest \
     CarUiPortraitLauncherMediaRRO \
-    CarUiPortraitLauncherAppsRRO
+    CarUiPortraitLauncherAppsRRO \
+    CarUiPortraitCommon
 
 ifneq ($(INCLUDE_SEAHAWK_ONLY_RROS),)
 PRODUCT_PACKAGES += \
