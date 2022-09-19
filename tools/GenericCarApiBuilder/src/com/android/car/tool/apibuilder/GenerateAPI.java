@@ -53,6 +53,9 @@ public final class GenerateAPI {
     private static final String CAR_BUILT_IN_ANNOTATION_TEST_FILE =
             "/packages/services/Car/tests/carservice_unit_test/res/raw/"
             + "car_built_in_api_classes.txt";
+    private static final String CAR_HIDDEN_API_FILE =
+            "/packages/services/Car/tests/carservice_unit_test/res/raw/"
+            + "car_hidden_apis.txt";
     private static final String API_TXT_SAVE_PATH =
             "/packages/services/Car/tools/GenericCarApiBuilder/";
     private static final String COMPLETE_CAR_API_LIST = "complete_car_api_list.txt";
@@ -64,6 +67,8 @@ public final class GenerateAPI {
     private static final String PRINT_CLASSES_ONLY = "--print-classes-only";
     private static final String UPDATE_CLASSES_FOR_TEST = "--update-classes-for-test";
     private static final String GENERATE_FULL_API_LIST = "--generate-full-api-list";
+    private static final String UPDATE_HIDDEN_API_FOR_TEST = "--update-hidden-api-for-test";
+    private static final String PRINT_HIDDEN_API_FOR_TEST = "--print-hidden-api-for-test";
 
     /**
      * Main method for generate API txt file.
@@ -78,7 +83,7 @@ public final class GenerateAPI {
             String rootDir = System.getenv(ANDROID_BUILD_TOP);
             if (rootDir == null || rootDir.isEmpty()) {
                 // check for second optional argument
-                if (args.length > 2 && args[1].equalsIgnoreCase("--ANDROID-BUILD-TOP")) {
+                if (args.length > 2 && args[1].equalsIgnoreCase("--android-build-top")) {
                     rootDir = args[2];
                 } else {
                     printHelp();
@@ -116,18 +121,38 @@ public final class GenerateAPI {
                 return;
             }
 
+            if (args.length > 0 && args[0].equalsIgnoreCase(UPDATE_HIDDEN_API_FOR_TEST)) {
+                List<String> allCarAPIs = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    allCarAPIs.addAll(
+                            parseJavaFile(allJavaFiles_carLib.get(i), true));
+                }
+                writeListToFile(rootDir + CAR_HIDDEN_API_FILE, allCarAPIs);
+                return;
+            }
+
+            if (args.length > 0 && args[0].equalsIgnoreCase(PRINT_HIDDEN_API_FOR_TEST)) {
+                List<String> allCarAPIs = new ArrayList<>();
+                for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
+                    allCarAPIs.addAll(
+                            parseJavaFile(allJavaFiles_carLib.get(i), true));
+                }
+                print(allCarAPIs);
+                return;
+            }
+
             if (args.length > 0 && args[0].equalsIgnoreCase(GENERATE_FULL_API_LIST)) {
                 List<String> allCarAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carLib.size(); i++) {
                     allCarAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carLib.get(i)));
+                            parseJavaFile(allJavaFiles_carLib.get(i), false));
                 }
                 writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_API_LIST, allCarAPIs);
 
                 List<String> allCarBuiltInAPIs = new ArrayList<>();
                 for (int i = 0; i < allJavaFiles_carBuiltInLib.size(); i++) {
                     allCarBuiltInAPIs.addAll(
-                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i)));
+                            parseJavaFile(allJavaFiles_carBuiltInLib.get(i), false));
                 }
                 writeListToFile(rootDir + API_TXT_SAVE_PATH + COMPLETE_CAR_BUILT_IN_API_LIST,
                         allCarBuiltInAPIs);
@@ -136,6 +161,12 @@ public final class GenerateAPI {
             }
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    private static void print(List<String> data) {
+        for (String string : data) {
+            System.out.println(string);
         }
     }
 
@@ -150,14 +181,18 @@ public final class GenerateAPI {
         System.out.println(PRINT_CLASSES_ONLY + " : Would print the list of valid class and"
                 + " interfaces.");
         System.out.println(UPDATE_CLASSES_FOR_TEST + " : Would update the test file with the list"
-                + " of valid class and interfaces. These files updated are"
+                + " of valid class and interfaces. These files are updated"
                 + " tests/carservice_unit_test/res/raw/car_api_classes.txt and"
                 + " tests/carservice_unit_test/res/raw/car_built_in_api_classes.txt");
         System.out.println(GENERATE_FULL_API_LIST + " : Would generate full api list including the"
                 + " hidden APIs. Results would be saved in ");
+        System.out.println(PRINT_HIDDEN_API_FOR_TEST + " : Would generate hidden api list for"
+                + " testing. Results would be printed.");
+        System.out.println(UPDATE_HIDDEN_API_FOR_TEST + " : Would generate hidden api list for"
+                + " testing. Results would be updated in " + CAR_HIDDEN_API_FILE);
         System.out.println("Second optional argument is value of Git Root Directory. By default, "
                 + "it is environment variable ANDROID_BUILD_TOP. If environment variable is not set"
-                + "then provide using --ANDROID-BUILD-TOP <directory>");
+                + "then provide using --android-build-top <directory>");
     }
 
     private static List<File> getAllFiles(File folderName) {
@@ -209,7 +244,8 @@ public final class GenerateAPI {
         }.visit(cu, null);
     }
 
-    private static List<String> parseJavaFile(File file) throws Exception {
+    private static List<String> parseJavaFile(File file, boolean writeHiddenOnlyApi)
+            throws Exception {
         List<String> parsedList = new ArrayList<>();
 
         // Add code to parse file
@@ -247,7 +283,11 @@ public final class GenerateAPI {
                         + (isClassSystemAPI ? "@SystemApi " : "") + className + " package "
                         + packageName;
 
-                parsedList.add(classDeclaration);
+                boolean wholeClassIsHidden = hiddenClass && !isClassSystemAPI;
+                if (!writeHiddenOnlyApi) {
+                    parsedList.add(classDeclaration);
+                }
+
                 if (DBG) {
                     System.out.println(classDeclaration);
                 }
@@ -334,7 +374,15 @@ public final class GenerateAPI {
                     if (DBG) {
                         System.out.printf("%s%s\n", TAB, sb);
                     }
-                    parsedList.add(TAB + sb);
+
+                    if (!writeHiddenOnlyApi) {
+                        parsedList.add(TAB + sb);
+                    } else {
+                        if (wholeClassIsHidden || (isHidden && !isSystem)) {
+                            parsedList.add(packageName + " " + className + " "
+                                    + fieldType + " " + fieldName);
+                        }
+                    }
                 }
 
                 // get all the methods
@@ -397,23 +445,36 @@ public final class GenerateAPI {
                     sb.append(returnType);
                     sb.append(" ");
                     sb.append(methodName);
-                    sb.append("(");
+
+                    StringBuilder parametersString = new StringBuilder();
+
+                    parametersString.append("(");
 
                     List<Parameter> parameters = method.getParameters();
                     for (int k = 0; k < parameters.size(); k++) {
                         Parameter parameter = parameters.get(k);
-                        sb.append(parameter.getTypeAsString());
-                        sb.append(" ");
-                        sb.append(parameter.getNameAsString());
+                        parametersString.append(parameter.getTypeAsString());
+                        parametersString.append(" ");
+                        parametersString.append(parameter.getNameAsString());
                         if (k < parameters.size() - 1) {
-                            sb.append(", ");
+                            parametersString.append(", ");
                         }
                     }
-                    sb.append(");");
+                    parametersString.append(")");
+
+                    sb.append(parametersString);
+
                     if (DBG) {
                         System.out.printf("%s%s\n", TAB, sb);
                     }
-                    parsedList.add(TAB + sb);
+                    if (!writeHiddenOnlyApi) {
+                        parsedList.add(TAB + sb);
+                    } else {
+                        if (wholeClassIsHidden || (isHidden && !isSystem)) {
+                            parsedList.add(packageName + " " + className + " "
+                                    + returnType + " " + methodName + parametersString.toString());
+                        }
+                    }
                 }
 
                 super.visit(n, arg);
