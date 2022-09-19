@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"మీ పరికరంలోని డేటా తొలగించబడుతుంది"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"అడ్మిన్ యాప్‌ను ఉపయోగించడం సాధ్యపడదు. మీ పరికరంలోని డేటా ఇప్పుడు ఫ్యాక్టరీ రీసెట్ చేయబడుతుంది.\n\nమీకు ప్రశ్నలు ఉంటే, మీ సంస్థ అడ్మిన్‌ను సంప్రదించండి."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g>, మీ సిస్టమ్ పనితీరును ప్రభావితం చేస్తోంది"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"సిస్టమ్ పనితీరును మెరుగుపరచడానికి యాప్‌ను డిజేబుల్ చేయండి. మీరు సెట్టింగ్‌లలో యాప్‌ను మరోసారి ఎనేబుల్ చేయవచ్చు."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"యాప్‌ను ఉపయోగించడాన్ని కొనసాగించడానికి యాప్‌నకు ప్రాధాన్యత ఇవ్వండి."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"సిస్టమ్ పనితీరును మెరుగుపరచడానికి యాప్‌ను అన్‌ఇన్‌స్టాల్ చేయండి."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"యాప్‌ను డిజేబుల్ చేయండి"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ఈ యాప్ బ్యాక్‌గ్రౌండ్‌లో రన్ కాకుండా నిరోధించబడింది. బ్యాక్‌గ్రౌండ్ వినియోగాన్ని కొనసాగించడానికి యాప్‌నకు ప్రాధాన్యత ఇవ్వండి."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"మూసివేయండి"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"యాప్‌నకు ప్రాధాన్యత ఇవ్వండి"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"యాప్‌ను అన్‌ఇన్‌స్టాల్ చేయండి"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> డిజేబుల్ చేయబడింది. మీరు సెట్టింగ్‌లలో దీన్ని మళ్లీ ఎనేబుల్ చేయవచ్చు."</string>
 </resources>
