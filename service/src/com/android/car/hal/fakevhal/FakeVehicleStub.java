@@ -726,9 +726,8 @@ public final class FakeVehicleStub extends VehicleStub {
                 return;
             }
 
-            // If propId is global, areaId is ignored.
             int[] areaIds = isPropertyGlobal(propId) ? new int[]{AREA_ID_GLOBAL}
-                : options[i].areaIds;
+                : getSubscribedAreaIds(propId, options[i].areaIds);
 
             int changeMode = mPropConfigsByPropId.get(propId).getChangeMode();
             switch (changeMode) {
@@ -762,8 +761,8 @@ public final class FakeVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (int areaId : areaIds) {
                 checkAreaIdSupported(propId, areaId);
-                Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes propId: %d, areaId: %d.",
-                        propId, areaId);
+                Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes ON_CHANGE property, "
+                        + "propId: %d,  areaId: ", propId, areaId);
                 Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
                 // Update the map from propId, areaId to client set in FakeVehicleStub.
                 if (!mOnChangeSubscribeClientByPropIdAreaId.containsKey(propIdAreaId)) {
@@ -787,8 +786,8 @@ public final class FakeVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (int areaId : areaIds) {
                 checkAreaIdSupported(propId, areaId);
-                Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes propId: %d, areaId: %d.",
-                        propId, areaId);
+                Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes CONTINUOUS property, "
+                        + "propId: %d,  areaId: %d", propId, areaId);
                 Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
 
                 // Check if this client has subscribed CONTINUOUS properties.
@@ -854,6 +853,8 @@ public final class FakeVehicleStub extends VehicleStub {
                     Set<FakeVhalSubscriptionClient> clientSet =
                             mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId);
                     clientSet.remove(client);
+                    Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes ON_CHANGE property, "
+                            + "propId: %d, areaId: %d", propId, propIdAreaId.second);
                     if (clientSet.isEmpty()) {
                         deletePairs.add(propIdAreaId);
                     }
@@ -883,6 +884,8 @@ public final class FakeVehicleStub extends VehicleStub {
             for (Pair<Integer, Integer> propIdAreaId : updaterByPropIdAreaId.keySet()) {
                 if (propIdAreaId.first == propId) {
                     mHandler.removeCallbacks(updaterByPropIdAreaId.get(propIdAreaId));
+                    Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes CONTINUOUS property,"
+                            + " propId: %d,  areaId: %d", propId, propIdAreaId.second);
                     deletePairs.add(propIdAreaId);
                 }
             }
@@ -893,6 +896,21 @@ public final class FakeVehicleStub extends VehicleStub {
                 mUpdaterByPropIdAreaIdByClient.remove(client);
             }
         }
+    }
+
+    /**
+     * Gets the array of subscribed areaIds.
+     *
+     * @param propId The property to be subscribed.
+     * @param areaIds The areaIds from SubscribeOptions.
+     * @return an {@code array} of subscribed areaIds.
+     */
+    private int[] getSubscribedAreaIds(int propId, int[] areaIds) {
+        if (areaIds != null && areaIds.length != 0) {
+            return areaIds;
+        }
+        // If areaIds field  is empty or null, subscribe all supported areaIds.
+        return CarServiceUtils.toIntArray(getAllSupportedAreaId(propId));
     }
 
     /**
