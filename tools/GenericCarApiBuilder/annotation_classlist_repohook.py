@@ -57,3 +57,29 @@ if error != "":
     print("\nThen run following test to make sure classes are properly annotated")
     print("atest CarServiceUnitTest:android.car.AnnotationTest")
     sys.exit(1)
+
+# Class list is okay. Check if any hidden API is modified or removed.
+java_cmd = "java -jar " + rootDir + "/packages/services/Car/tools/GenericCarApiBuilder" \
+                                    "/GenericCarApiBuilder.jar --print-hidden-api-for-test " \
+                                    "--ANDROID-BUILD-TOP " + rootDir
+new_hidden_apis = subprocess.check_output(java_cmd, shell=True).decode('utf-8').strip().split("\n")
+
+# read existing hidden APIs
+previous_hidden_apis_path = rootDir + "/packages/services/Car/tests/carservice_unit_test/res/raw" \
+                             "/car_hidden_apis.txt"
+previous_hidden_apis = []
+with open(previous_hidden_apis_path) as f:
+    previous_hidden_apis.extend(f.read().splitlines())
+
+# All new_hidden_apis should be in previous_hidden_apis. There can be some entry in previous_hidden_apis
+# which is not in new_hidden_apis. It is okay as some APIs might have been promoted.
+modified_or_added_hidden_api = []
+for api in new_hidden_apis:
+    if api not in previous_hidden_apis:
+        modified_or_added_hidden_api.append(api)
+
+if len(modified_or_added_hidden_api) > 0:
+    print("\nHidden APIs can't be added or modified. Following Hidden APIs are modified:")
+    print("\n".join(modified_or_added_hidden_api))
+    print("\n")
+    sys.exit(1)
