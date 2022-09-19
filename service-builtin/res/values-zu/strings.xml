@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Idivayisi yakho izosulwa"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"I-app yomlawuli ayikwazi ukusetshenziswa. Idivayisi yakho manje izosuswa.\n\nUma unemibuzo, xhumana nomlawuli wenhlangano yakho."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"I-<xliff:g id="ID_1">^1</xliff:g> ithinta ukusebenza kwesistimu yakho"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Khubaza i-app ukuze uthuthukise ukusebenza kwesistimu. Ungaphinda unike i-app amandla futhi Kumasethingi."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Yenza kubaluleke i-app ukuze uqhubeke usebenzisa i-app."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Khipha i-app ukuze uthuthukise ukusebenza kwesistimu."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Khubaza i-app"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Le app ivinjiwe ukuthi isebenze ingemuva. Beka kuqala i-app ukuze uqhubeke nokusetshenziswa okungemuva."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Vala"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Yenza kubaluleke i-app"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Khipha i-app"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"I-<xliff:g id="ID_1">^1</xliff:g> ikhutshaziwe. Ungayinika amandla futhi Kumasethingi."</string>
 </resources>

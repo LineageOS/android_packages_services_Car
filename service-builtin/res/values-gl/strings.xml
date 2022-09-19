@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Borrarase o teu dispositivo"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Non se pode utilizar a aplicación de administración. Borrarase o teu dispositivo.\n\nSe tes preguntas, contacta co administrador da organización."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> está prexudicando o rendemento do sistema"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Desactiva a aplicación para mellorar o rendemento do sistema. Podes activala de novo en Configuración."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Prioriza a aplicación para seguir usándoa."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Desinstala a aplicación para mellorar o rendemento do sistema."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Desactivar aplicación"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Impediuse que esta aplicación se execute en segundo plano. Priorízaa para que poida usarse segundo queres."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Pechar"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Priorizar aplicación"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Desinstalar aplicación"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Desactivouse a aplicación <xliff:g id="ID_1">^1</xliff:g>. Podes activala de novo en Configuración."</string>
 </resources>

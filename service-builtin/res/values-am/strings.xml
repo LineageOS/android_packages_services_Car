@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"የእርስዎ መሣሪያ ይደመሰሳል"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"የአስተዳዳሪ መተግበሪያ ስራ ላይ ሊውል አይችልም። የእርስዎ መሣሪያ አሁን ይደመሰሳል።\n\nጥያቄዎች ካለዎት የድርጅትዎን አስተዳዳሪ ያነጋግሩ።"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> በስርዓትዎ አፈጻጸም ላይ ተጽዕኖ እያሳረፈ ነው"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"የስርዓት አፈጻጸምን ለማሻሻል መተግበሪያን ያሰናክሉ። በቅንብሮች ውስጥ መተግበሪያውን እንደገና ማንቃት ይችላሉ።"</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"መተግበሪያን መጠቀሙን ለመቀጠል ለመተግበሪያ ቅድሚያ ይስጡ።"</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"የስርዓት አፈጻጸምን ለማሻሻል መተግበሪያን ያራግፉ።"</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"መተግበሪያን አሰናክል"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ይህ መተግበሪያ ከበስተጀርባ እንዳያሄድ ተከልክሏል። የበስተጀርባ አጠቃቀምን ለመቀጠል መተግበሪያን ያስቀድሙ።"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"ዝጋ"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ለመተግበሪያ ቅድሚያ ስጥ"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"መተግበሪያን አራግፍ"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> ተሰናክሏል። በቅንብሮች ውስጥ እንደገና ሊያነቁት ይችላሉ።"</string>
 </resources>
