@@ -263,10 +263,6 @@ ScopedAStatus WatchdogInternalHandler::notifySystemStateChange(StateType type, i
     switch (type) {
         case StateType::POWER_CYCLE: {
             PowerCycle powerCycle = static_cast<PowerCycle>(static_cast<uint32_t>(arg1));
-            if (powerCycle >= PowerCycle::NUM_POWER_CYLES) {
-                return toScopedAStatus(EX_ILLEGAL_ARGUMENT,
-                                       StringPrintf("Invalid power cycle %d", powerCycle));
-            }
             return handlePowerCycleChange(powerCycle);
         }
         case StateType::GARAGE_MODE: {
@@ -303,6 +299,10 @@ ScopedAStatus WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCy
         case PowerCycle::POWER_CYCLE_SHUTDOWN_ENTER:
             ALOGI("Received SHUTDOWN_ENTER power cycle");
             mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
+            break;
+        case PowerCycle::POWER_CYCLE_SUSPEND_EXIT:
+            ALOGI("Received SUSPEND_EXIT power cycle");
+            // TODO(b/236876940): Notify Watchdog perf service the power cycle change.
             break;
         case PowerCycle::POWER_CYCLE_RESUME:
             ALOGI("Received RESUME power cycle");

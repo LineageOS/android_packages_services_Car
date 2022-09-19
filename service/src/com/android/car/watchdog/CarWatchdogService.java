@@ -233,6 +233,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     // to database until after shutdown enter.
                     mWatchdogPerfHandler.writeToDatabase();
                     break;
+                case PowerCycle.POWER_CYCLE_SUSPEND_EXIT:
+                    break;
                 // ON covers resume.
                 case PowerCycle.POWER_CYCLE_RESUME:
                     // There might be outdated & incorrect info. We should reset them before
@@ -595,8 +597,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     private void notifyPowerCycleChange(@PowerCycle int powerCycle) {
-        if (powerCycle == PowerCycle.NUM_POWER_CYLES) {
-            Slogf.e(TAG, "Skipping notifying invalid power cycle (%d)", powerCycle);
+        // TODO(b/236876940): Change version check to TIRAMISU_2 when cherry picking to T-QPR2.
+        if (!Car.getPlatformVersion().isAtLeast(VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+                && powerCycle == PowerCycle.POWER_CYCLE_SUSPEND_EXIT) {
             return;
         }
         try {
@@ -657,7 +660,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         if (powerService != null) {
             int powerState = powerService.getPowerState();
             int powerCycle = carPowerStateToPowerCycle(powerState);
-            if (powerCycle != PowerCycle.NUM_POWER_CYLES) {
+            if (powerCycle >= 0) {
                 notifyPowerCycleChange(powerCycle);
             } else {
                 Slogf.i(TAG, "Skipping notifying %d power state", powerState);
@@ -807,7 +810,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 Context.RECEIVER_NOT_EXPORTED);
     }
 
-    private static @PowerCycle int carPowerStateToPowerCycle(int powerState) {
+    private static int carPowerStateToPowerCycle(int powerState) {
         switch (powerState) {
             // SHUTDOWN_PREPARE covers suspend and shutdown.
             case CarPowerManager.STATE_SHUTDOWN_PREPARE:
@@ -816,11 +819,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             case CarPowerManager.STATE_SUSPEND_ENTER:
             case CarPowerManager.STATE_HIBERNATION_ENTER:
                 return PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
+            case CarPowerManager.STATE_SUSPEND_EXIT:
+            case CarPowerManager.STATE_HIBERNATION_EXIT:
+                return PowerCycle.POWER_CYCLE_SUSPEND_EXIT;
             // ON covers resume.
             case CarPowerManager.STATE_ON:
                 return PowerCycle.POWER_CYCLE_RESUME;
         }
-        return PowerCycle.NUM_POWER_CYLES;
+        return -1;
     }
 
     private static String toGarageModeString(@GarageMode int garageMode) {
