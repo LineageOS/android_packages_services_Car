@@ -32,7 +32,7 @@ import java.util.function.Supplier;
  *
  * @hide
  */
-public class FunctionalUtils {
+public final class FunctionalUtils {
     private FunctionalUtils() {}
 
     /**

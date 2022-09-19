@@ -40,7 +40,7 @@ import java.lang.annotation.Annotation;
  *
  * @hide
  */
-public class AnnotationValidations {
+public final class AnnotationValidations {
     private AnnotationValidations() {
     }
 
