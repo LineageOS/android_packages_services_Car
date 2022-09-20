@@ -150,6 +150,7 @@
     <string name="start_recording" translatable="false">Start Recording</string>
     <string name="start_service" translatable="false">Start Service</string>
     <string name="stop_service" translatable="false">Stop Service</string>
+    <string name="volume_key_events" translatable="false">Key Events</string>
 
     <!-- Audio Input-->
     <string name="play_audio_input" translatable="false">Play</string>
