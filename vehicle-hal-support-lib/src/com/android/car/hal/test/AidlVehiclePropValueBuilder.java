@@ -22,7 +22,7 @@ import android.hardware.automotive.vehicle.VehiclePropValue;
 import android.os.SystemClock;
 
 /** A builder class for {@link VehiclePropValue} */
-public class AidlVehiclePropValueBuilder {
+public final class AidlVehiclePropValueBuilder {
     private final VehiclePropValue mPropValue;
 
     /**

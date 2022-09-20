@@ -21,7 +21,7 @@ package com.android.car;
  *
  * <p> This is for tracking all dependencies done through java reflection.
  */
-public class UpdatablePackageDependency {
+public final class UpdatablePackageDependency {
     private UpdatablePackageDependency() {}
 
     /** {@code com.android.car.CarServiceImpl} class */

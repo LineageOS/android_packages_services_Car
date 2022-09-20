@@ -47,7 +47,7 @@ import java.util.function.IntFunction;
  *
  * @hide
  */
-public class ArrayUtils {
+public final class ArrayUtils {
     private static final int CACHE_SIZE = 73;
     private static Object[] sCache = new Object[CACHE_SIZE];
 
