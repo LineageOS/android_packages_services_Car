@@ -505,12 +505,16 @@ public class FakeVehicleStubUnitTest {
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        client.subscribe(options);
-        client.subscribe(options);
-        client.subscribe(options);
-        fakeVehicleStub.set(requestPropValue);
+        try {
+            client.subscribe(options);
+            client.subscribe(options);
+            client.subscribe(options);
+            fakeVehicleStub.set(requestPropValue);
 
-        verify(callback, times(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback, times(1)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client.unsubscribe(VehicleProperty.ENGINE_OIL_LEVEL);
+        }
     }
 
     @Test
@@ -546,11 +550,16 @@ public class FakeVehicleStubUnitTest {
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        client.subscribe(options);
-        fakeVehicleStub.set(requestPropValue1);
-        fakeVehicleStub.set(requestPropValue2);
+        try {
+            client.subscribe(options);
+            fakeVehicleStub.set(requestPropValue1);
+            fakeVehicleStub.set(requestPropValue2);
 
-        verify(callback, times(2)).onPropertyEvent(any(ArrayList.class));
+            verify(callback, times(2)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client.unsubscribe(VehicleProperty.ENGINE_OIL_LEVEL);
+            client.unsubscribe(VehicleProperty.NIGHT_MODE);
+        }
     }
 
     @Test
@@ -576,12 +585,17 @@ public class FakeVehicleStubUnitTest {
 
         VehicleStub.SubscriptionClient client1 = fakeVehicleStub.newSubscriptionClient(callback1);
         VehicleStub.SubscriptionClient client2 = fakeVehicleStub.newSubscriptionClient(callback2);
-        client1.subscribe(options);
-        client2.subscribe(options);
-        fakeVehicleStub.set(requestPropValue);
+        try {
+            client1.subscribe(options);
+            client2.subscribe(options);
+            fakeVehicleStub.set(requestPropValue);
 
-        verify(callback1, times(1)).onPropertyEvent(any(ArrayList.class));
-        verify(callback2, times(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback1, times(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback2, times(1)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client1.unsubscribe(VehicleProperty.ENGINE_OIL_LEVEL);
+            client2.unsubscribe(VehicleProperty.ENGINE_OIL_LEVEL);
+        }
     }
 
     @Test
@@ -599,9 +613,13 @@ public class FakeVehicleStubUnitTest {
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        client.subscribe(options);
+        try {
+            client.subscribe(options);
 
-        verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client.unsubscribe(VehicleProperty.FUEL_LEVEL);
+        }
     }
 
     @Test
@@ -623,14 +641,18 @@ public class FakeVehicleStubUnitTest {
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        client.subscribe(options1);
+        try {
+            client.subscribe(options1);
 
-        verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
-        clearInvocations(callback);
+            verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            clearInvocations(callback);
 
-        client.subscribe(options2);
+            client.subscribe(options2);
 
-        verify(callback, timeout(200).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            verify(callback, timeout(200).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client.unsubscribe(VehicleProperty.FUEL_LEVEL);
+        }
     }
 
     @Test
@@ -643,14 +665,18 @@ public class FakeVehicleStubUnitTest {
         option.propId = VehicleProperty.FUEL_LEVEL;
         option.sampleRate = 200f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
+
         HalClientCallback callback = mock(HalClientCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
-
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        client.subscribe(options);
+        try {
+            client.subscribe(options);
 
-        verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            verify(callback, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client.unsubscribe(VehicleProperty.FUEL_LEVEL);
+        }
     }
 
     @Test
@@ -668,9 +694,13 @@ public class FakeVehicleStubUnitTest {
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        client.subscribe(options);
+        try {
+            client.subscribe(options);
 
-        verify(callback, timeout(100).atLeast(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback, timeout(100).atLeast(1)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client.unsubscribe(VehicleProperty.FUEL_LEVEL);
+        }
     }
 
     @Test
@@ -709,8 +739,12 @@ public class FakeVehicleStubUnitTest {
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
-        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
-                () -> client.subscribe(options));
+        ServiceSpecificException thrown;
+        try {
+            thrown = assertThrows(ServiceSpecificException.class, () -> client.subscribe(options));
+        } finally {
+            client.unsubscribe(VehicleProperty.SEAT_BELT_BUCKLED);
+        }
 
         expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
         expect.that(thrown).hasMessageThat().contains("The areaId: " + SEAT_1_LEFT
@@ -845,18 +879,22 @@ public class FakeVehicleStubUnitTest {
 
         VehicleStub.SubscriptionClient client1 = fakeVehicleStub.newSubscriptionClient(callback1);
         VehicleStub.SubscriptionClient client2 = fakeVehicleStub.newSubscriptionClient(callback2);
-        client1.subscribe(options);
-        client2.subscribe(options);
+        try {
+            client1.subscribe(options);
+            client2.subscribe(options);
 
-        verify(callback1, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
-        verify(callback2, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            verify(callback1, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            verify(callback2, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
 
-        client1.unsubscribe(VehicleProperty.FUEL_LEVEL);
-        clearInvocations(callback1);
-        clearInvocations(callback2);
+            client1.unsubscribe(VehicleProperty.FUEL_LEVEL);
+            clearInvocations(callback1);
+            clearInvocations(callback2);
 
-        verify(callback1, after(100).atMost(1)).onPropertyEvent(any(ArrayList.class));
-        verify(callback2, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+            verify(callback1, after(100).atMost(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback2, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
+        } finally {
+            client2.unsubscribe(VehicleProperty.FUEL_LEVEL);
+        }
     }
 
     @Test
@@ -931,9 +969,10 @@ public class FakeVehicleStubUnitTest {
         List<String> customFileList = new ArrayList<>();
         File tempFile = File.createTempFile("custom_config_", ".json");
         tempFile.deleteOnExit();
-        FileOutputStream os = new FileOutputStream(tempFile);
-        os.write(fileContent.getBytes());
-        customFileList.add(tempFile.getPath());
+        try (FileOutputStream os = new FileOutputStream(tempFile)) {
+            os.write(fileContent.getBytes());
+            customFileList.add(tempFile.getPath());
+        }
         return customFileList;
     }
 }

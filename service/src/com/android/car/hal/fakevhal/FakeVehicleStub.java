@@ -384,7 +384,8 @@ public final class FakeVehicleStub extends VehicleStub {
             mPropId = propId;
             mAreaId = areaId;
             mSampleRate = sampleRate;
-            run();
+            mHandler.post(this);
+            Slogf.d(TAG, "A runnable updater is created for CONTINUOUS property.");
         }
 
         @Override
