@@ -271,10 +271,12 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             }
             writer.println("Current Driving State: " + mCurrentDrivingState.eventValue);
             if (mSupportedGears != null) {
-                writer.println("Supported gears:");
+                writer.print("Supported gears:");
                 for (Integer gear : mSupportedGears) {
-                    writer.print("Gear:" + gear);
+                    writer.print(' ');
+                    writer.print(gear);
                 }
+                writer.println();
             }
         }
     }
