@@ -55,15 +55,11 @@ TelemetryServer::TelemetryServer(LooperWrapper* looper,
       mRingBuffer(maxBufferSize),
       mMessageHandler(new MessageHandlerImpl(this)) {}
 
-Result<void> TelemetryServer::setListener(const std::shared_ptr<ICarDataListener>& listener) {
+void TelemetryServer::setListener(const std::shared_ptr<ICarDataListener>& listener) {
     const std::scoped_lock<std::mutex> lock(mMutex);
-    if (mCarDataListener != nullptr) {
-        return Error(EX_ILLEGAL_STATE) << "ICarDataListener is already set";
-    }
     mCarDataListener = listener;
     mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
                                 kMsgPushCarDataToListener);
-    return {};
 }
 
 void TelemetryServer::clearListener() {
@@ -255,7 +251,6 @@ void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t p
 
 // Runs on the main thread.
 void TelemetryServer::pushCarDataToListeners() {
-    std::shared_ptr<ICarDataListener> listener;
     std::vector<CarDataInternal> pendingCarDataInternals;
     {
         const std::scoped_lock<std::mutex> lock(mMutex);
@@ -264,7 +259,6 @@ void TelemetryServer::pushCarDataToListeners() {
         if (mCarDataListener == nullptr || mRingBuffer.size() == 0) {
             return;
         }
-        listener = mCarDataListener;
         // Push elements to pendingCarDataInternals in reverse order so we can send data
         // from the back of the pendingCarDataInternals vector.
         while (mRingBuffer.size() > 0) {
@@ -276,12 +270,21 @@ void TelemetryServer::pushCarDataToListeners() {
         }
     }
 
-    // Now the mutex is unlocked, we can do the heavy work.
-
     // TODO(b/186477983): send data in batch to improve performance, but careful sending too
     //                    many data at once, as it could clog the Binder - it has <1MB limit.
     while (!pendingCarDataInternals.empty()) {
-        auto status = listener->onCarDataReceived({pendingCarDataInternals.back()});
+        ndk::ScopedAStatus status = ndk::ScopedAStatus::ok();
+        {
+            const std::scoped_lock<std::mutex> lock(mMutex);
+            if (mCarDataListener != nullptr) {
+                status = mCarDataListener->onCarDataReceived({pendingCarDataInternals.back()});
+            } else {
+                status = ndk::ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(EX_NULL_POINTER,
+                                                            "mCarDataListener is currently set to "
+                                                            "null, will try again.");
+            }
+        }
         if (!status.isOk()) {
             LOG(WARNING) << "Failed to push CarDataInternal, will try again. Status: "
                          << status.getStatus()

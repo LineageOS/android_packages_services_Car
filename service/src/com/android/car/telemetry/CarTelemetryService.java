@@ -79,7 +79,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -231,9 +230,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                     CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
             mTelemetryThreadTraceLog.traceBegin("init");
             SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
-            // starts metrics collection after boot complete
-            systemInterface.scheduleActionForBootCompleted(
-                    this::startMetricsCollection, Duration.ZERO);
+            // starts metrics collection after CarService initializes.
+            CarServiceUtils.runOnMain(this::startMetricsCollection);
             // full root directory path is /data/system/car/telemetry
             File rootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
             // initialize all necessary components
