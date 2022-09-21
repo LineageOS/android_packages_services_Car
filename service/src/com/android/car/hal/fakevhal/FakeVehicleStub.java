@@ -358,17 +358,10 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         @Override
-        public void unsubscribe(int propId) {
-            // Check if this propId is supported.
-            checkPropIdSupported(propId);
-
-            // Check if this propId is a special property.
-            if (isSpecialProperty(VehicleProperty.INVALID)) {
+        public void unsubscribe(int prop) {
+            if (isSpecialProperty(/* propId= */ VehicleProperty.INVALID)) {
                 // TODO(b/241006476) Handle special properties.
-                Slogf.w(TAG, "Special property is not supported.");
-                return;
             }
-            FakeVehicleStub.this.unsubscribe(this, propId);
         }
     }
 
@@ -702,7 +695,7 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropIdSupported(propId);
 
             // Check if this propId is a special property.
-            if (isSpecialProperty(VehicleProperty.INVALID)) {
+            if (isSpecialProperty(/* propId= */ VehicleProperty.INVALID)) {
                 // TODO(b/241006476) Handle special properties.
                 Slogf.w(TAG, "Special property is not supported.");
                 return;
@@ -790,85 +783,6 @@ public final class FakeVehicleStub extends VehicleStub {
                 ContinuousPropUpdater updater = new ContinuousPropUpdater(client, propId, areaId,
                         sampleRate);
                 updaterByPropIdAreaId.put(propIdAreaId, updater);
-            }
-        }
-    }
-
-    /**
-     * Unsubscribes a property.
-     *
-     * @param client The client that unsubscribes this property.
-     * @param propId The property to be unsubscribed.
-     */
-    private void unsubscribe(FakeVhalSubscriptionClient client, int propId) {
-        int changeMode = mPropConfigsByPropId.get(propId).getChangeMode();
-        switch (changeMode) {
-            case VehiclePropertyChangeMode.STATIC:
-                throw new ServiceSpecificException(StatusCode.INVALID_ARG,
-                    "Static property cannot be unsubscribed.");
-            case VehiclePropertyChangeMode.ON_CHANGE:
-                unsubscribeOnChangeProp(client, propId);
-                break;
-            case VehiclePropertyChangeMode.CONTINUOUS:
-                unsubscribeContinuousProp(client, propId);
-                break;
-            default:
-                Slogf.w(TAG, "This change mode: %d is not supported.", changeMode);
-        }
-    }
-
-    /**
-     * Unsubscribes ON_CHANGE property.
-     *
-     * @param client The client that unsubscribes this property.
-     * @param propId The property to be unsubscribed.
-     */
-    private void unsubscribeOnChangeProp(FakeVhalSubscriptionClient client, int propId) {
-        synchronized (mLock) {
-            List<Pair<Integer, Integer>> deletePairs = new ArrayList<>();
-            for (Pair<Integer, Integer> propIdAreaId
-                    : mOnChangeSubscribeClientByPropIdAreaId.keySet()) {
-                if (propIdAreaId.first == propId) {
-                    Set<FakeVhalSubscriptionClient> clientSet =
-                            mOnChangeSubscribeClientByPropIdAreaId.get(propIdAreaId);
-                    clientSet.remove(client);
-                    if (clientSet.isEmpty()) {
-                        deletePairs.add(propIdAreaId);
-                    }
-                }
-            }
-            for (int i = 0; i < deletePairs.size(); i++) {
-                mOnChangeSubscribeClientByPropIdAreaId.remove(deletePairs.get(i));
-            }
-        }
-    }
-
-    /**
-     * Unsubscribes CONTINUOUS property.
-     *
-     * @param client The client that unsubscribes this property.
-     * @param propId The property to be unsubscribed.
-     */
-    private void unsubscribeContinuousProp(FakeVhalSubscriptionClient client, int propId) {
-        synchronized (mLock) {
-            if (!mUpdaterByPropIdAreaIdByClient.containsKey(client)) {
-                Slogf.w(TAG, "This client hasn't subscribed any CONTINUOUS property.");
-                return;
-            }
-            List<Pair<Integer, Integer>> deletePairs = new ArrayList<>();
-            Map<Pair<Integer, Integer>, ContinuousPropUpdater> updaterByPropIdAreaId =
-                    mUpdaterByPropIdAreaIdByClient.get(client);
-            for (Pair<Integer, Integer> propIdAreaId : updaterByPropIdAreaId.keySet()) {
-                if (propIdAreaId.first == propId) {
-                    mHandler.removeCallbacks(updaterByPropIdAreaId.get(propIdAreaId));
-                    deletePairs.add(propIdAreaId);
-                }
-            }
-            for (int i = 0; i < deletePairs.size(); i++) {
-                updaterByPropIdAreaId.remove(deletePairs.get(i));
-            }
-            if (updaterByPropIdAreaId.isEmpty()) {
-                mUpdaterByPropIdAreaIdByClient.remove(client);
             }
         }
     }
