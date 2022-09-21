@@ -17,6 +17,7 @@
 package android.car.apitest;
 
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
@@ -52,9 +53,30 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
 
-    private Listener[] mListeners = {
-            // listeners[0]: any events for any user. Expects to receive 3 events.
-            new Listener(BlockingUserLifecycleListener.forSpecificEvents()
+    // Any events for any user. Expect to receive 4 events.
+    private Listener mListenerForAllEventsOnAnyUser = new Listener(
+            BlockingUserLifecycleListener.forSpecificEvents()
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_CREATED)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
+                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
+                    .build(), /* filter= */ null);
+
+    // Any events except for user CREATED for the current user.
+    // The user CREATED event is deliberately filtered out when current user is specified
+    // because the latency of its event delivery might vary.
+    // When the latency is long, its event delivery might happen after the 1st user switch.
+    // When the latency is short, its event delivery might happen before the 1st user
+    // switch. These two scenarios will lead to different results when the current user
+    // filter is applied, causing the test to become flaky.
+    // Expect to receive 2 events.
+    // TODO(b/246959046): Investigate the root cause of user CREATED event received when the
+    // current user filter is in place.
+    private Listener mListenerForAllEventsOnCurrentUsers = new Listener(
+            BlockingUserLifecycleListener.forSpecificEvents()
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
@@ -62,40 +84,51 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
                     .build(),
-                    new UserLifecycleEventFilter.Builder().addUser(UserHandle.CURRENT).build()),
-            // listeners[1]: any events for current user. Expects to receive 3 events.
-            new Listener(BlockingUserLifecycleListener.forSpecificEvents()
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
-                    .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
-                    .build(),
-                    new UserLifecycleEventFilter.Builder().addUser(UserHandle.CURRENT).build()),
-            // listener[2]: starting events for any user. Expects to receive 1 events.
-            new Listener(BlockingUserLifecycleListener.forSpecificEvents()
+                    new UserLifecycleEventFilter.Builder()
+                            .addUser(UserHandle.CURRENT)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
+                            .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
+                            .build());
+
+    // Starting events for any user. Expect to receive 1 event.
+    private Listener mListenerForStartingEventsOnAnyUser = new Listener(
+            BlockingUserLifecycleListener.forSpecificEvents()
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
                     .build(),
                     new UserLifecycleEventFilter.Builder()
                             .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
-                            .build()),
-            // listener[3]: stopping/stopped events for any user. Expects to receive 0 events.
-            new Listener(BlockingUserLifecycleListener.forSpecificEvents()
+                            .build());
+
+    // Stopping/stopped events for any user. Expect to receive 0 event.
+    private Listener mListenerForStoppingEventsOnAnyUser = new Listener(
+            BlockingUserLifecycleListener.forSpecificEvents()
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
                     .build(),
                     new UserLifecycleEventFilter.Builder()
                             .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
                             .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
-                            .build()),
-            // listener[4]: switching events for any user. Expects to receive 2 events.
-            new Listener(BlockingUserLifecycleListener.forSpecificEvents()
+                            .build());
+
+    // Switching events for any user. Expect to receive 2 events.
+    private Listener mListenerForSwitchingEventsOnAnyUser = new Listener(
+            BlockingUserLifecycleListener.forSpecificEvents()
                     .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
                     .build(),
                     new UserLifecycleEventFilter.Builder()
                             .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
-                            .build())};
+                            .build());
+
+    private Listener[] mListeners = {
+            mListenerForAllEventsOnAnyUser,
+            mListenerForAllEventsOnCurrentUsers,
+            mListenerForStartingEventsOnAnyUser,
+            mListenerForStoppingEventsOnAnyUser,
+            mListenerForSwitchingEventsOnAnyUser};
 
     @BeforeClass
     public static void setupMaxNumberOfUsers() {
@@ -116,10 +149,10 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
         }
     }
 
+    // TODO(246989094): Add the platform unsupported version of the test.
     @Test(timeout = 100_000)
     public void testUserLifecycleEventFilter() throws Exception {
         int initialUserId = getCurrentUserId();
-        int newUserId = createUser().id;
 
         for (Listener listener : mListeners) {
             Log.d(TAG, "registering listener:" + listener.listener + "%s, with filter:"
@@ -131,7 +164,10 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
             }
         }
 
-        // Switch while listener is registered
+        // Create a new user while the listeners are registered.
+        int newUserId = createUser().id;
+
+        // Switch while the listeners are registered.
         switchUser(newUserId);
 
         // Switch back to the initial user
@@ -139,9 +175,11 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
 
         // Wait for all listeners to receive all expected events.
         waitUntil("Listeners have not received all expected events", EVENTS_TIMEOUT_MS,
-                () -> (mListeners[0].listener.getAllReceivedEvents().size() == 3
-                        && mListeners[1].listener.getAllReceivedEvents().size() == 3
-                        && mListeners[4].listener.getAllReceivedEvents().size() == 2));
+                () -> (mListenerForAllEventsOnAnyUser.listener.getAllReceivedEvents().size() == 4
+                        && mListenerForAllEventsOnCurrentUsers.listener
+                                .getAllReceivedEvents().size() == 3
+                        && mListenerForSwitchingEventsOnAnyUser.listener
+                                .getAllReceivedEvents().size() == 2));
 
         // unregister listeners.
         for (Listener listener : mListeners) {
@@ -150,21 +188,31 @@ public final class CarUserManagerLifecycleEventFilterTest extends CarMultiUserTe
             mCarUserManager.removeListener(listener.listener);
         }
 
-        // The expected events are (in order): STARTING, SWITCHING, SWITCHING
+        // TODO(b/246959046): Listen to the user removed event after investigating why some
+        // other events, e,g. stopping, stopped and removed are out of order.
+        // Remove the new user for cleanup.
+        removeUser(newUserId);
+
+        // The expected events are (in order): CREATED, STARTING, SWITCHING, SWITCHING.
         UserLifecycleEvent[] events = buildExpectedEvents(initialUserId, newUserId);
 
-        assertThat(mListeners[0].listener.getAllReceivedEvents()).containsExactlyElementsIn(events)
+        assertThat(mListenerForAllEventsOnAnyUser.listener.getAllReceivedEvents())
+                .containsExactlyElementsIn(events)
                 .inOrder();
-        assertThat(mListeners[1].listener.getAllReceivedEvents()).containsExactlyElementsIn(events)
+        assertThat(mListenerForAllEventsOnCurrentUsers.listener.getAllReceivedEvents())
+                .containsExactly(events[1], events[2], events[3])
                 .inOrder();
-        assertThat(mListeners[2].listener.getAllReceivedEvents()).containsExactly(events[0]);
-        assertThat(mListeners[3].listener.getAllReceivedEvents()).isEmpty();
-        assertThat(mListeners[4].listener.getAllReceivedEvents())
-                .containsExactly(events[1], events[2]).inOrder();
+        assertThat(mListenerForStartingEventsOnAnyUser.listener.getAllReceivedEvents())
+                .containsExactly(events[1]);
+        assertThat(mListenerForStoppingEventsOnAnyUser.listener.getAllReceivedEvents()).isEmpty();
+        assertThat(mListenerForSwitchingEventsOnAnyUser.listener.getAllReceivedEvents())
+                .containsExactly(events[2], events[3])
+                .inOrder();
     }
 
     private UserLifecycleEvent[] buildExpectedEvents(int initialUserId, int newUserId) {
         return new UserLifecycleEvent[] {
+                new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_CREATED, newUserId),
                 new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING, newUserId),
                 new UserLifecycleEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING,
                         /* from= */initialUserId, /* to= */newUserId),
