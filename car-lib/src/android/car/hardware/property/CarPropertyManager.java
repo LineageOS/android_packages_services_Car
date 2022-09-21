@@ -637,10 +637,10 @@ public class CarPropertyManager extends CarManagerBase {
         if (carPropertyEventCallbackController == null) {
             return;
         }
-        boolean allCallbacksRemoved = carPropertyEventCallbackController.remove(
-                carPropertyEventCallback);
-        if (allCallbacksRemoved) {
-            synchronized (mLock) {
+        synchronized (mLock) {
+            boolean allCallbacksRemoved = carPropertyEventCallbackController.remove(
+                    carPropertyEventCallback);
+            if (allCallbacksRemoved) {
                 mPropertyIdToCarPropertyEventCallbackController.remove(propertyId);
             }
         }

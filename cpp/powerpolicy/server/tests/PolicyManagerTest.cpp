@@ -46,10 +46,15 @@ constexpr const char* kValidPowerPolicyPowerPoliciesOnlyXmlFile =
         "valid_power_policy_policies_only.xml";
 constexpr const char* kValidPowerPolicySystemPowerPolicyOnlyXmlFile =
         "valid_power_policy_system_power_policy_only.xml";
+constexpr const char* kValidPowerPolicyWithDefaultPolicyGroup =
+        "valid_power_policy_default_policy_group.xml";
+constexpr const char* kValidPowerPolicyWithInvalidDefaultPolicyGroup =
+        "invalid_system_power_policy_incorrect_default_power_policy_group_id.xml";
 const std::vector<const char*> kInvalidPowerPolicyXmlFiles =
         {"invalid_power_policy_incorrect_id.xml",
          "invalid_power_policy_incorrect_othercomponent.xml",
-         "invalid_power_policy_incorrect_value.xml", "invalid_power_policy_unknown_component.xml"};
+         "invalid_power_policy_incorrect_value.xml", "invalid_power_policy_unknown_component.xml",
+         "invalid_system_power_policy_incorrect_default_power_policy_group_id.xml"};
 const std::vector<const char*> kInvalidPowerPolicyGroupXmlFiles =
         {"invalid_power_policy_group_incorrect_state.xml",
          "invalid_power_policy_group_missing_policy.xml"};
@@ -69,6 +74,7 @@ constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no
 constexpr const char* kSystemPolicyIdinitialOn = "system_power_policy_initial_on";
 constexpr const char* kSystemPolicyIdinitialAllOn = "system_power_policy_all_on";
 constexpr const char* kSystemPolicyIdSuspendPrep = "system_power_policy_suspend_prep";
+constexpr const char* kMixedPolicyGroupName = "mixed_policy_group";
 
 const VehicleApPowerStateReport kExistingTransition = VehicleApPowerStateReport::WAIT_FOR_VHAL;
 const VehicleApPowerStateReport kNonExistingTransition = static_cast<VehicleApPowerStateReport>(-1);
@@ -344,6 +350,27 @@ TEST_F(PolicyManagerTest, TestValidXml_SystemPowerPolicyOnly) {
                     .getDefaultPowerPolicyForState(kValidPowerPolicyGroupId, kNonExistingTransition)
                     .ok());
     checkSystemPowerPolicy(policyManager, kModifiedSystemPowerPolicy);
+}
+
+TEST_F(PolicyManagerTest, TestValidXml_TestDefaultPowerPolicyGroupId) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyWithDefaultPolicyGroup);
+
+    ASSERT_TRUE(policyManager.getDefaultPolicyGroup() == kMixedPolicyGroupName);
+}
+
+TEST_F(PolicyManagerTest, TestValidXml_TestInvalidDefaultPowerPolicyGroupId) {
+    PolicyManager policyManager;
+    internal::PolicyManagerPeer policyManagerPeer(&policyManager);
+    policyManagerPeer.expectValidPowerPolicyXML(kValidPowerPolicyWithInvalidDefaultPolicyGroup);
+
+    ASSERT_EQ(policyManager.getDefaultPolicyGroup(), "");
+
+    ASSERT_FALSE(
+            policyManager
+                    .getDefaultPowerPolicyForState(kInvalidPowerPolicyGroupId, kExistingTransition)
+                    .ok());
 }
 
 TEST_F(PolicyManagerTest, TestDefaultPowerPolicies) {
