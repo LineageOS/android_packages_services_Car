@@ -18,9 +18,12 @@ package com.android.car.internal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.apitest.CarLessApiTestBase;
 import android.car.apitest.StableAIDLTestLargeParcelable;
+import android.car.test.ApiCheckerRule.Builder;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.test.filters.SmallTest;
 
@@ -29,11 +32,20 @@ import com.android.car.internal.LargeParcelable;
 import org.junit.Test;
 
 @SmallTest
-public final class LargeParcelableJavaStableAIDLCompTest {
+public final class LargeParcelableJavaStableAIDLCompTest extends CarLessApiTestBase {
+
+    private static final String TAG = LargeParcelableJavaStableAIDLCompTest.class.getSimpleName();
 
     private static final int ARRAY_LENGTH_SMALL = 2048;
     // The current threshold is 4096.
     private static final int ARRAY_LENGTH_BIG = 4099;
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
+    }
 
     @Test
     public void testTestLargeParcelableToStableAIDLTestLargeParcelableSmall() throws Exception {

@@ -24,6 +24,7 @@ import static org.junit.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
+import android.car.test.ApiCheckerRule.Builder;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
@@ -42,7 +43,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 @MediumTest
-public class CarAppFocusManagerTest extends CarApiTestBase {
+public final class CarAppFocusManagerTest extends CarApiTestBase {
     private static final String TAG = CarAppFocusManagerTest.class.getSimpleName();
 
     private static final long NEGATIVE_CASE_WAIT_TIMEOUT_MS = 100L;
@@ -50,6 +51,13 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
     private CarAppFocusManager mManager;
 
     private final LooperThread mEventThread = new LooperThread();
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
+    }
 
     @Before
     public void setUp() throws Exception {

@@ -18,9 +18,11 @@ package com.android.car.internal.test;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.apitest.CarLessApiTestBase;
 import android.car.apitest.IStableAIDLTestBinder;
 import android.car.apitest.IStableAIDLTestCallback;
 import android.car.apitest.StableAIDLTestLargeParcelable;
+import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.ComponentName;
 import android.content.Context;
@@ -28,9 +30,9 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.util.Log;
 
 import androidx.test.filters.SmallTest;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.internal.LargeParcelable;
 
@@ -41,14 +43,14 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 
 @SmallTest
-public final class LargeParcelableJavaStableAIDLTest {
+public final class LargeParcelableJavaStableAIDLTest extends CarLessApiTestBase {
+
+    private static final String TAG = LargeParcelableJavaStableAIDLTest.class.getSimpleName();
+
     private static final long DEFAULT_TIMEOUT_MS = 60_000;
     private static final int ARRAY_LENGTH_SMALL = 2048;
     // The current threshold is 4096.
     private static final int ARRAY_LENGTH_BIG = 4099;
-
-    private final Context mContext = InstrumentationRegistry.getInstrumentation()
-            .getTargetContext();
 
     private final TestServiceConnection mServiceConnection = new TestServiceConnection();
 
@@ -65,6 +67,13 @@ public final class LargeParcelableJavaStableAIDLTest {
         }
 
         private StableAIDLTestLargeParcelable mResult;
+    }
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
     }
 
     @Before

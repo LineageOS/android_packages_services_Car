@@ -28,8 +28,10 @@ import static org.junit.Assume.assumeTrue;
 
 import android.car.apitest.CarApiTestBase;
 import android.car.media.CarAudioManager;
+import android.car.test.ApiCheckerRule.Builder;
 import android.media.AudioDeviceInfo;
 import android.os.Process;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -40,11 +42,20 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
-public class CarAudioManagerTest extends CarApiTestBase {
+public final class CarAudioManagerTest extends CarApiTestBase {
+
+    private static final String TAG  = CarAudioManagerTest.class.getSimpleName();
 
     private static final int TEST_FLAGS = 0;
 
     private CarAudioManager mCarAudioManager;
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
+    }
 
     @Before
     public void setUp() throws Exception {

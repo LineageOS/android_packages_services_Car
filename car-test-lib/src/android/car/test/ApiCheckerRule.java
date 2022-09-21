@@ -138,6 +138,9 @@ public final class ApiCheckerRule implements TestRule {
     private final boolean mEnforceTestApiAnnotations;
     private final boolean mEnforceApiRequirements;
 
+    @Nullable
+    private String mTestMethodName;
+
     /**
      * Builder.
      */
@@ -195,6 +198,14 @@ public final class ApiCheckerRule implements TestRule {
         return isSupported(apiRequirements);
     }
 
+    /**
+     * Gets the name of the test being executed.
+     */
+    @Nullable
+    public String getTestMethodName() {
+        return mTestMethodName;
+    }
+
     private boolean isSupported(ApiRequirements apiRequirements) {
         PlatformVersion platformVersion = Car.getPlatformVersion();
         boolean isSupported = platformVersion
@@ -238,6 +249,15 @@ public final class ApiCheckerRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                mTestMethodName = description.getMethodName();
+                try {
+                    evaluateInternal();
+                } finally {
+                    mTestMethodName = null;
+                }
+            }
+
+            private void evaluateInternal() throws Throwable {
                 if (DBG) {
                     Log.d(TAG, "evaluating " + description.getDisplayName());
                 }

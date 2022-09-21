@@ -34,6 +34,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.DrivingStateRestrictions;
+import android.car.test.ApiCheckerRule;
 import android.os.Parcel;
 import android.util.JsonReader;
 import android.util.JsonWriter;
@@ -53,9 +54,15 @@ import java.io.StringReader;
  * Unit test for UXR config and its subclasses.
  */
 @SmallTest
-public class CarUxRestrictionsConfigurationTest {
+public final class CarUxRestrictionsConfigurationTest extends CarLessApiTestBase {
 
     private static final String UX_RESTRICTION_MODE_PASSENGER = "passenger";
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(ApiCheckerRule.Builder builder) {
+        builder.disableAnnotationsCheck();
+    }
 
     // This test verifies the expected way to build config would succeed.
     @Test
