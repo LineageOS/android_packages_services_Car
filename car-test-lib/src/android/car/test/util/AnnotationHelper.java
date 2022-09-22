@@ -41,13 +41,14 @@ public class AnnotationHelper {
             for (int j = 0; j < fields.length; j++) {
                 Field field = fields[j];
                 boolean isAnnotated = containsAddedInAnnotation(field, annotationClasses);
-                boolean isPrivate = Modifier.isPrivate(field.getModifiers());
+                boolean shouldBeAnnotated = Modifier.isPublic(field.getModifiers())
+                        || Modifier.isProtected(field.getModifiers());
 
-                if (isPrivate && isAnnotated) {
+                if (!shouldBeAnnotated && isAnnotated) {
                     errorsExtraAnnotation.add(className + " FIELD: " + field.getName());
                 }
 
-                if (!isPrivate && !isAnnotated) {
+                if (shouldBeAnnotated && !isAnnotated) {
                     errorsNoAnnotation.add(className + " FIELD: " + field.getName());
                 }
             }
@@ -60,13 +61,14 @@ public class AnnotationHelper {
                 if (method.getName().contains("$")) continue;
 
                 boolean isAnnotated = containsAddedInAnnotation(method, annotationClasses);
-                boolean isPrivate = Modifier.isPrivate(method.getModifiers());
+                boolean shouldBeAnnotated = Modifier.isPublic(method.getModifiers())
+                        || Modifier.isProtected(method.getModifiers());
 
-                if (isPrivate && isAnnotated) {
+                if (!shouldBeAnnotated && isAnnotated) {
                     errorsExtraAnnotation.add(className + " METHOD: " + method.getName());
                 }
 
-                if (!isPrivate && !isAnnotated) {
+                if (shouldBeAnnotated && !isAnnotated) {
                     errorsNoAnnotation.add(className + " METHOD: " + method.getName());
                 }
             }
@@ -74,15 +76,14 @@ public class AnnotationHelper {
 
         StringBuilder errorFlatten = new StringBuilder();
         if (!errorsNoAnnotation.isEmpty()) {
-            // TODO(b/240343308): remove @AddedIn once all usages have been replaced
-            errorFlatten.append("Errors:\nMissing ApiRequirements (or AddedIn) annotation for-\n");
+            errorFlatten.append("Errors:\nMissing ApiRequirements annotation for-\n");
             errorFlatten.append(String.join("\n", errorsNoAnnotation));
         }
 
         if (!errorsExtraAnnotation.isEmpty()) {
             // TODO(b/240343308): remove @AddedIn once all usages have been replaced
-            errorFlatten.append("\nErrors:\nApiRequirements (or AddedIn) annotation used for "
-                    + "private members/methods-\n");
+            errorFlatten.append("\nErrors:\nApiRequirements annotation used for "
+                    + "private or package scoped members or methods-\n");
             errorFlatten.append(String.join("\n", errorsExtraAnnotation));
         }
 

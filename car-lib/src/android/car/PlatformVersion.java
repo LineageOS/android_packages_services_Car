@@ -89,8 +89,6 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
      * Creates a named instance with the given major and minor versions.
      */
     // TODO(b/243429779): should not need @ApiRequirements as it's package-protected
-    @ApiRequirements(minCarVersion = CarVersion.TIRAMISU_1,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     static PlatformVersion newInstance(String versionName, int majorVersion, int minorVersion) {
         return new PlatformVersion(versionName, majorVersion, minorVersion);
     }
@@ -98,8 +96,6 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
     /**
      * Returns the current platform version with given {@code minorVersion}.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     static PlatformVersion getCurrentPlatformVersionForMinor(String versionName, int minorVersion) {
         // For un-released version, CUR_DEVELOPMENT should be used instead of SDK_INT.
         // ex) VERSION_CODES.T is CUR_DEVELOPMENT first then becomes 33 (=SDK_INT) when SDK is
@@ -143,8 +139,6 @@ public final class PlatformVersion extends ApiVersion<PlatformVersion> implement
      * false if code name doesn't match. If the required platform is not a development platform,
      * then return null.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Override
     Boolean isAtLeastLatestPlatform(@NonNull PlatformVersion requiredVersion) {
         // Update this code for each release while development on master branch.
