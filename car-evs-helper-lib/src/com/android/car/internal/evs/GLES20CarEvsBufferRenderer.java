@@ -14,37 +14,36 @@
  * limitations under the License.
  */
 
-package com.google.android.car.evs;
+package com.android.car.internal.evs;
 
 import static android.opengl.GLU.gluErrorString;
 
+import android.annotation.NonNull;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.drawable.Drawable;
 import android.hardware.HardwareBuffer;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
-import android.opengl.GLUtils;
 import android.util.Log;
 
-import androidx.annotation.GuardedBy;
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.util.Preconditions;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.util.Random;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 /**
- * GLES20 SurfaceView Renderer
+ * GLES20 SurfaceView Renderer for CarEvsBufferDescriptor.
  */
-public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Renderer {
-    private static final String TAG = GLES20CarEvsCameraPreviewRenderer.class.getSimpleName();
+public final class GLES20CarEvsBufferRenderer implements GLSurfaceView.Renderer {
+
+    private static final String TAG = GLES20CarEvsBufferRenderer.class.getSimpleName()
+            .replace("GLES20", "");
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     private static final int FLOAT_SIZE_BYTES = 4;
 
     private static final float[] sVertCarPosData = {
@@ -86,25 +85,38 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         "}                                      \n";
 
     private final Object mLock = new Object();
+    private final CarEvsGLSurfaceView.BufferCallback mCallback;
+    private final Context mContext;
+    private final FloatBuffer mVertCarPos;
+    private final FloatBuffer mVertCarTex;
 
-    private CarEvsCameraPreviewActivity mActivity;
+    private int mProgram;
+    private int mTextureId;
+    private int mWidth;
+    private int mHeight;
 
+    // Native method to update the texture with a received frame buffer
     @GuardedBy("mLock")
-    private CarEvsBufferDescriptor mBufferInUse = null;
+    private CarEvsBufferDescriptor mBufferInUse;
 
-    public GLES20CarEvsCameraPreviewRenderer(Context context,
-            CarEvsCameraPreviewActivity activity) {
+    /** Load jni on initialization. */
+    static {
+        System.loadLibrary("carevsglrenderer_jni");
+    }
+
+    public GLES20CarEvsBufferRenderer(@NonNull Context context,
+            @NonNull CarEvsGLSurfaceView.BufferCallback callback, int angleInDegree) {
+
+        Preconditions.checkArgument(context != null, "Context cannot be null.");
+        Preconditions.checkArgument(callback != null, "Callback cannot be null.");
 
         mContext = context;
-        mActivity = activity;
+        mCallback = callback;
 
         mVertCarPos = ByteBuffer.allocateDirect(sVertCarPosData.length * FLOAT_SIZE_BYTES)
                 .order(ByteOrder.nativeOrder()).asFloatBuffer();
         mVertCarPos.put(sVertCarPosData).position(0);
 
-        // Rotates the matrix in counter-clockwise
-        int angleInDegree = mContext.getResources().getInteger(
-                R.integer.config_evsRearviewCameraInPlaneRotationAngle);
         double angleInRadian = Math.toRadians(angleInDegree);
         float[] rotated = {0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f};
         float sin = (float)Math.sin(angleInRadian);
@@ -136,7 +148,7 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         }
 
         // bufferToReturn is not null here.
-        mActivity.returnBuffer(bufferToReturn);
+        mCallback.onBufferProcessed(bufferToReturn);
     }
 
     @Override
@@ -145,7 +157,8 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
 
         CarEvsBufferDescriptor bufferToRender = null;
         CarEvsBufferDescriptor bufferToReturn = null;
-        CarEvsBufferDescriptor newFrame = mActivity.getNewFrame();
+        CarEvsBufferDescriptor newFrame = mCallback.onBufferRequested();
+
         synchronized (mLock) {
             if (newFrame != null) {
                 // If a new frame has not been delivered yet, we're using a previous frame.
@@ -157,8 +170,15 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
             bufferToRender = mBufferInUse;
         }
 
+        if (bufferToRender == null) {
+            if (DBG) {
+                Log.d(TAG, "No buffer to draw.");
+            }
+            return;
+        }
+
         if (bufferToReturn != null) {
-            mActivity.returnBuffer(bufferToReturn);
+            mCallback.onBufferProcessed(bufferToReturn);
         }
 
         // Specify a shader program to use
@@ -171,22 +191,13 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         }
         GLES20.glUniformMatrix4fv(matrix, 1, false, sIdentityMatrix, 0);
 
-        if (bufferToRender == null) {
-            // Show the default screen
-            drawDefaultScreen();
-        } else {
-            // Retrieve a hardware buffer from a descriptor and update the texture
-            HardwareBuffer buffer = bufferToRender.getHardwareBuffer();
-            if (buffer == null) {
-                Log.e(TAG, "HardwareBuffer is invalid.");
-                drawDefaultScreen();
-            } else {
-                // Update the texture with a given hardware buffer
-                if (!nUpdateTexture(buffer, mTextureId)) {
-                    throw new RuntimeException(
-                            "Failed to update the texture with the preview frame");
-                }
-            }
+        // Retrieve a hardware buffer from a descriptor and update the texture
+        HardwareBuffer buffer = bufferToRender.getHardwareBuffer();
+
+        // Update the texture with a given hardware buffer
+        if (!nUpdateTexture(buffer, mTextureId)) {
+            throw new RuntimeException(
+                    "Failed to update the texture with the preview frame");
         }
 
         GLES20.glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -235,7 +246,8 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         mHeight = height;
     }
 
-    @Override public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
+    @Override
+    public void onSurfaceCreated(GL10 glUnused, EGLConfig config) {
         // Use the GLES20 class's static methods instead of a passed GL10 interface.
         mProgram = buildShaderProgram(mVertexShader, mFragmentShader);
         if (mProgram == 0) {
@@ -264,34 +276,6 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
                 GLES20.GL_CLAMP_TO_EDGE);
         GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T,
                 GLES20.GL_CLAMP_TO_EDGE);
-    }
-
-    public void setTextLocation(float x, float y) {
-        mTextX = x;
-        mTextY = y;
-    }
-
-    private void drawDefaultScreen() {
-        Drawable drawable = mContext.getResources().getDrawable(R.drawable.rearview);
-        Bitmap bitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_4444);
-        Canvas canvas = new Canvas(bitmap);
-        drawable.setBounds(0, 0, mWidth, mHeight);
-        drawable.draw(canvas);
-
-        Paint fontColor = new Paint();
-        fontColor.setTextSize(Math.min(mWidth, mHeight) * 0.10f);
-        fontColor.setAntiAlias(true);
-
-        // Pick a font color randomly
-        fontColor.setColor((0xFF << 24) + (mRandom.nextInt(0xFF) << 16)
-                + (mRandom.nextInt(0xFF) << 8) + mRandom.nextInt(0xFF));
-
-        // Set a location of the text relative to the surface size
-        canvas.drawText("The rearview is not available.", mTextX, mTextY, fontColor);
-
-        // Draw
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, /* level = */ 0, bitmap, /* border = */ 0);
-        bitmap.recycle();
     }
 
     private int loadShader(int shaderType, String source) {
@@ -363,21 +347,5 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         }
     }
 
-    private Context mContext;
-    private int mProgram;
-    private int mTextureId;
-    private FloatBuffer mVertCarPos;
-    private FloatBuffer mVertCarTex;
-    private int mWidth;
-    private int mHeight;
-    private float mTextX;
-    private float mTextY;
-    private Random mRandom = new Random();
-
-    static {
-        System.loadLibrary("carevsglrenderer_jni");
-    }
-
-    // Native method to update the texture with a received frame buffer
     private native boolean nUpdateTexture(HardwareBuffer buffer, int textureId);
 }
