@@ -18,6 +18,7 @@ package android.car.test;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarIsApiVersionAtLeast;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -37,6 +38,7 @@ import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.os.Build;
 import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
@@ -291,6 +293,19 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     public void passWhenTestMethodHasValidApiTestAnnotation() throws Throwable {
         Description testMethod = newTestMethod(new ApiTestAnnotation(
                 VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    // NOTE: ideally we should test it for versions < T as all (for ATS), but unfortunately that's
+    // not possible because Build.VERSION.SDK_INT cannot be mocked
+    @Test
+    public void passWhenTestMethodIsMissingAnnotationsButPlatformIsNotSupported() throws Throwable {
+        mockCarIsApiVersionAtLeast(Build.VERSION_CODES.TIRAMISU, /* minor= */ 1, /* isIt =*/ false);
+        Description testMethod = newTestMethod();
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();

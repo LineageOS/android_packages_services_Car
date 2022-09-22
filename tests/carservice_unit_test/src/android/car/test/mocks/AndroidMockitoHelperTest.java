@@ -21,6 +21,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUserHandle;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarIsApiVersionAtLeast;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextCheckCallingOrSelfPermission;
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockDpmLogoutUser;
@@ -280,6 +281,12 @@ public final class AndroidMockitoHelperTest {
         assertThat(Car.getPlatformVersion()).isSameInstanceAs(platformVersion);
     }
 
+    @Test
+    public void testMockCarIsApiVersionAtLeast() {
+        mockCarIsApiVersionAtLeast(66, 6, true);
+
+        assertThat(Car.isApiVersionAtLeast(66, 6)).isTrue();
+    }
 
     @Test
     public void mockContextCheckCallingOrSelfPermission_returnsPermissionDenied() {
