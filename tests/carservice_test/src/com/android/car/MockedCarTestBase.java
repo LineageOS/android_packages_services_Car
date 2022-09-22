@@ -462,6 +462,8 @@ public class MockedCarTestBase {
         cpms.getHandler().runWithScissors(() -> {}, STATE_HANDLING_TIMEOUT);
     }
 
+    @SuppressWarnings("CollectionIncompatibleType") // HidlVehiclePropConfigBuilder does not
+                                                    // implement equals
     private void setHidlConfigBuilder(HidlVehiclePropConfigBuilder builder,
             HidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         int propId = builder.build().prop;
@@ -477,6 +479,8 @@ public class MockedCarTestBase {
         }
     }
 
+    @SuppressWarnings("CollectionIncompatibleType") // AidlVehiclePropConfigBuilder does not
+                                                    // implement equals
     private void setAidlConfigBuilder(AidlVehiclePropConfigBuilder builder,
             AidlMockedVehicleHal.VehicleHalPropertyHandler propertyHandler) {
         int propId = builder.build().prop;
