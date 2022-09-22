@@ -31,7 +31,6 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.Car;
-import android.car.test.ApiCheckerRule;
 import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
@@ -53,7 +52,6 @@ import com.android.compatibility.common.util.ApiTest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -70,11 +68,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
 
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
-
-    // TODO(b/242350638): move to super class (although it would need to call
-    // disableAnnotationsCheck()
-    @Rule
-    public final ApiCheckerRule mApiCheckerRule = new ApiCheckerRule.Builder().build();
 
     @BeforeClass
     public static void setupMaxNumberOfUsers() {

@@ -28,7 +28,7 @@ import org.junit.Test;
  * Unit tests for {@link CarPropertyValue}
  */
 @MediumTest
-public class CarPropertyValueTest extends CarPropertyTestBase {
+public final class CarPropertyValueTest extends CarPropertyTestBase {
     private static final int PROPERTY_ID = 1234;
     private static final int AREA_ID = 5678;
     private static final int STATUS = CarPropertyValue.STATUS_AVAILABLE;

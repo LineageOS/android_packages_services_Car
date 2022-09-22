@@ -26,28 +26,23 @@ import android.car.CarVersion;
 import android.car.ICar;
 import android.car.PlatformVersion;
 import android.car.hardware.CarSensorManager;
-import android.car.test.AbstractExpectableTestCase;
+import android.car.test.ApiCheckerRule.Builder;
 import android.content.ComponentName;
-import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Build;
 import android.os.IBinder;
 import android.test.suitebuilder.annotation.SmallTest;
-
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
+// NOTE: not really "CarLess", but it's handling the Car connection itself
 @SmallTest
-public final class CarTest extends AbstractExpectableTestCase {
+public final class CarTest extends CarLessApiTestBase {
     private static final long DEFAULT_WAIT_TIMEOUT_MS = 3000;
     private static final String CODENAME_REL = "REL";
-
-    private final Context mContext = InstrumentationRegistry.getInstrumentation()
-            .getTargetContext();
 
     private final Semaphore mConnectionWait = new Semaphore(0);
 
@@ -70,6 +65,12 @@ public final class CarTest extends AbstractExpectableTestCase {
 
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
+    }
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
     }
 
     @Test

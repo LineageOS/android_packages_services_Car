@@ -19,6 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.hardware.property.EvChargingConnectorType;
+import android.car.test.ApiCheckerRule.Builder;
 import android.hardware.automotive.vehicle.EvConnectorType;
 import android.test.suitebuilder.annotation.SmallTest;
 
@@ -29,7 +30,13 @@ import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class EvChargingConnectorTypeTest {
+public final class EvChargingConnectorTypeTest extends CarLessApiTestBase {
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
+    }
 
     @Test
     public void testMatchWithVehicleHal() {

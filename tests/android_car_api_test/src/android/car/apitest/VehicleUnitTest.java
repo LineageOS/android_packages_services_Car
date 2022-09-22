@@ -19,6 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehicleUnit;
+import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
@@ -30,9 +31,15 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public final class VehicleUnitTest {
+public final class VehicleUnitTest extends CarLessApiTestBase {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
+    }
 
     public VehicleUnitTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;

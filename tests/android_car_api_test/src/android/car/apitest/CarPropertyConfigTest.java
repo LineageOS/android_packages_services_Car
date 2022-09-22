@@ -35,7 +35,7 @@ import java.util.List;
  * Unit tests for {@link CarPropertyConfig}
  */
 @MediumTest
-public class CarPropertyConfigTest extends CarPropertyTestBase {
+public final class CarPropertyConfigTest extends CarPropertyTestBase {
 
     @Test
     public void testCarPropertyConfigBuilder() {

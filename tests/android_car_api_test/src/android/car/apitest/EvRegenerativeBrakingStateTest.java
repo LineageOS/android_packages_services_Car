@@ -18,6 +18,7 @@ package android.car.apitest;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import org.junit.Test;
@@ -29,13 +30,19 @@ import java.util.Collection;
 
 @SmallTest
 @RunWith(Parameterized.class)
-public final class EvRegenerativeBrakingStateTest {
+public final class EvRegenerativeBrakingStateTest extends CarLessApiTestBase {
     private final int mJavaConstantValue;
     private final int mHalConstantValue;
 
     public EvRegenerativeBrakingStateTest(int javaConstantValue, int halConstantValue) {
         mJavaConstantValue = javaConstantValue;
         mHalConstantValue = halConstantValue;
+    }
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
     }
 
     @Parameterized.Parameters

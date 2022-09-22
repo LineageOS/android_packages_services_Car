@@ -28,6 +28,8 @@ import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.app.UiAutomation;
 import android.car.Car;
+import android.car.test.AbstractExpectableTestCase;
+import android.car.test.ApiCheckerRule;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ServiceConnection;
@@ -45,7 +47,6 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
-import org.junit.rules.TestName;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -58,7 +59,13 @@ import java.util.Collection;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-public abstract class CarApiTestBase {
+/**
+ * Base class for tests that don't need to connect to a {@link android.car.Car} object.
+ *
+ * <p>For tests that don't need a {@link android.car.Car} object, use
+ * {@link CarLessApiTestBase} instead.
+ */
+public abstract class CarApiTestBase extends AbstractExpectableTestCase {
 
     private static final String TAG = CarApiTestBase.class.getSimpleName();
 
@@ -82,13 +89,30 @@ public abstract class CarApiTestBase {
     protected final DefaultServiceConnectionListener mConnectionListener =
             new DefaultServiceConnectionListener();
 
-    // NOTE: public as required by JUnit; tests should call getTestName() instead
+    // TODO(b/242350638): temporary hack to allow subclasses to disable checks - should be removed
+    // when not needed anymore
+    private final ApiCheckerRule.Builder mApiCheckerRuleBuilder = new ApiCheckerRule.Builder();
+
     @Rule
-    public final TestName mTestName = new TestName();
+    public final ApiCheckerRule mApiCheckerRule;
+
+    // TODO(b/242350638): temporary hack to allow subclasses to disable checks - should be removed
+    // when not needed anymore
+    protected CarApiTestBase() {
+        configApiCheckerRule(mApiCheckerRuleBuilder);
+        mApiCheckerRule = mApiCheckerRuleBuilder.build();
+    }
+
+    // TODO(b/242350638): temporary hack to allow subclasses to disable checks - should be removed
+    // when not needed anymore
+    protected void configApiCheckerRule(ApiCheckerRule.Builder builder) {
+        Log.v(TAG, "Good News, Everyone! Class " + getClass()
+                + " doesn't override configApiCheckerRule()");
+    }
 
     @Before
     public final void setFixturesAndConnectToCar() throws Exception {
-        Log.d(TAG, "setFixturesAndConnectToCar() for " + mTestName.getMethodName());
+        Log.d(TAG, "setFixturesAndConnectToCar() for " + getTestName());
 
         mCar = Car.createCar(getContext(), mConnectionListener);
         mCar.connect();
@@ -97,7 +121,7 @@ public abstract class CarApiTestBase {
 
     @Before
     public final void dontStopUserOnSwitch() throws Exception {
-        Log.d(TAG, "Calling am.setStopUserOnSwitch(false) for " + mTestName.getMethodName());
+        Log.d(TAG, "Calling am.setStopUserOnSwitch(false) for " + getTestName());
         getContext().getSystemService(ActivityManager.class)
                 .setStopUserOnSwitch(ActivityManager.STOP_USER_ON_SWITCH_FALSE);
     }
@@ -113,7 +137,7 @@ public abstract class CarApiTestBase {
 
     @After
     public final void resetStopUserOnSwitch() throws Exception {
-        Log.d(TAG, "Calling am.setStopUserOnSwitch(default) for " + mTestName.getMethodName());
+        Log.d(TAG, "Calling am.setStopUserOnSwitch(default) for " + getTestName());
         getContext().getSystemService(ActivityManager.class)
                 .setStopUserOnSwitch(ActivityManager.STOP_USER_ON_SWITCH_DEFAULT);
     }
@@ -252,7 +276,7 @@ public abstract class CarApiTestBase {
     }
 
     protected String getTestName() {
-        return getClass().getSimpleName() + "." + mTestName.getMethodName();
+        return getClass().getSimpleName() + "." + mApiCheckerRule.getTestMethodName();
     }
 
     protected static void fail(String format, Object...args) {

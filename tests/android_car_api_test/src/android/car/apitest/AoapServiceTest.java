@@ -19,6 +19,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.AoapService;
+import android.car.test.ApiCheckerRule.Builder;
 import android.hardware.usb.UsbDevice;
 
 import org.junit.Before;
@@ -28,12 +29,18 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-public final class AoapServiceTest {
+public final class AoapServiceTest extends CarLessApiTestBase {
 
     private AoapService mAoapService;
 
     @Mock
     private UsbDevice mDevice;
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
+    }
 
     @Before
     public void setUp() {

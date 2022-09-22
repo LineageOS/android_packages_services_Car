@@ -17,6 +17,7 @@
 package android.car.apitest;
 
 import android.car.FuelType;
+import android.car.test.ApiCheckerRule.Builder;
 import android.test.suitebuilder.annotation.SmallTest;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -24,7 +25,14 @@ import static com.google.common.truth.Truth.assertThat;
 import org.junit.Test;
 
 @SmallTest
-public final class FuelTypeTest {
+public final class FuelTypeTest extends CarLessApiTestBase {
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
+    }
+
     @Test
     public void testMatchWithVehicleHal() {
         assertThat(FuelType.UNKNOWN)

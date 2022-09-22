@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import android.car.Car;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.hvac.CarHvacManager;
+import android.car.test.ApiCheckerRule.Builder;
 import android.hardware.automotive.vehicle.VehicleHvacFanDirection;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.util.Log;
@@ -34,10 +35,17 @@ import java.util.List;
 import java.util.Set;
 
 @MediumTest
-public class CarHvacManagerTest extends CarApiTestBase {
+public final class CarHvacManagerTest extends CarApiTestBase {
     private static final String TAG = CarHvacManagerTest.class.getSimpleName();
 
     private CarHvacManager mHvacManager;
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
+    }
 
     @Before
     public void setUp() throws Exception {
