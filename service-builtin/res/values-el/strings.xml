@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Η συσκευή σας θα διαγραφεί"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Δεν είναι δυνατή η χρήση της εφαρμογής διαχειριστή. Η συσκευή σας θα διαγραφεί.\n\nΕάν έχετε ερωτήσεις, επικοινωνήστε με τον διαχειριστή του οργανισμού σας."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"Η εφαρμογή <xliff:g id="ID_1">^1</xliff:g> επηρεάζει την απόδοση του συστήματος"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Απενεργοποιήστε την εφαρμογή για βελτίωση της απόδοσης του συστήματος. Μπορείτε να ενεργοποιήσετε ξανά την εφαρμογή στις Ρυθμίσεις."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Δώστε προτεραιότητα στην εφαρμογή για να συνεχίσετε τη χρήση της."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Απεγκαταστήστε την εφαρμογή για βελτίωση της απόδοσης του συστήματος."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Απενεργοποίηση εφαρμογής"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Δεν επιτράπηκε η εκτέλεση αυτής της εφαρμογής στο παρασκήνιο. Δώστε προτεραιότητα στην εφαρμογή για να συνεχίσετε τη χρήση της στο παρασκήνιο."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Κλείσιμο"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Προτεραιότητα εφαρμογής"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Απεγκατάσταση εφαρμογής"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"Η εφαρμογή <xliff:g id="ID_1">^1</xliff:g> έχει απενεργοποιηθεί. Μπορείτε να την ενεργοποιήσετε ξανά στις Ρυθμίσεις."</string>
 </resources>

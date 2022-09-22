@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"നിങ്ങളുടെ ഉപകരണം മായ്‌ക്കും"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"അഡ്‌മിൻ ആപ്പ് ഉപയോഗിക്കാനാകില്ല. നിങ്ങളുടെ ഉപകരണം ഇപ്പോൾ മായ്ക്കും.\n\nനിങ്ങൾക്ക് ചോദ്യങ്ങൾ ഉണ്ടെങ്കിൽ, നിങ്ങളുടെ സ്ഥാപനത്തിന്റെ അഡ്‌മിനെ ബന്ധപ്പെടുക."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"നിങ്ങളുടെ സിസ്റ്റത്തിന്റെ പ്രകടനത്തെ <xliff:g id="ID_1">^1</xliff:g> ബാധിക്കുന്നു"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"സിസ്‌റ്റത്തിന്റെ പ്രകടനം മെച്ചപ്പെടുത്താൻ ആപ്പ് പ്രവർത്തനരഹിതമാക്കുക. ക്രമീകരണത്തിൽ ആപ്പ് നിങ്ങൾക്ക് വീണ്ടും പ്രവർത്തനക്ഷമമാക്കാം."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"ആപ്പ് ഉപയോഗിക്കുന്നത് തുടരാൻ അതിന് മുൻഗണന നൽകുക."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"സിസ്‌റ്റത്തിന്റെ പ്രകടനം മെച്ചപ്പെടുത്താൻ ആപ്പ് അണ്‍ഇൻസ്റ്റാള്‍ ചെയ്യുക."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"ആപ്പ് പ്രവർത്തനരഹിതമാക്കുക"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"ഈ ആപ്പ് പശ്ചാത്തലത്തിൽ പ്രവർത്തിക്കുന്നത് തടഞ്ഞിരിക്കുന്നു. പശ്ചാത്തല ഉപയോഗം തുടരുന്നതിന് ആപ്പിന് മുൻഗണന നൽകുക."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"അടയ്ക്കുക"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"ആപ്പിന് മുൻഗണന നൽകുക"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"ആപ്പ് അൺഇൻസ്‌റ്റാൾ ചെയ്യുക"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> പ്രവർത്തനരഹിതമാക്കി. ക്രമീകരണത്തിൽ ഇത് നിങ്ങൾക്ക് വീണ്ടും പ്രവർത്തനക്ഷമമാക്കാം."</string>
 </resources>

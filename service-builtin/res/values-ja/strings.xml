@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"デバイスのデータが消去されます"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"管理アプリを使用できません。デバイスのデータはこれから消去されます。\n\nご不明な点がある場合は、組織の管理者にお問い合わせください。"</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> がシステムのパフォーマンスに影響しています"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"システムのパフォーマンスを改善するには、アプリを無効にしてください。[設定] でアプリを有効に戻すことができます。"</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"アプリを引き続き使用するには、優先アプリとして指定してください。"</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"システムのパフォーマンスを改善するには、アプリをアンインストールしてください。"</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"アプリを無効にする"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"このアプリはバックグラウンドでの実行を許可されていません。バックグラウンドで使用するには、優先アプリとして指定してください。"</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"閉じる"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"優先アプリとして指定する"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"アプリをアンインストールする"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> を無効にしました。[設定] で有効に戻すことができます。"</string>
 </resources>

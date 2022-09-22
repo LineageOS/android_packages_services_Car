@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Datele de pe dispozitiv vor fi șterse"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"Aplicația de administrare nu poate fi folosită. Dispozitivul va fi șters.\n\nDacă aveți întrebări, contactați administratorul organizației dvs."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> afectează performanța sistemului dvs."</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Dezactivați aplicația pentru a îmbunătăți performanța sistemului. Puteți activa din nou aplicația din Setări."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Prioritizați aplicația pentru a o folosi în continuare."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Dezinstalați aplicația pentru a îmbunătăți performanța sistemului."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"Dezactivați aplicația"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Nu s-a permis rularea aplicației în fundal. Acordă prioritate aplicației ca să continui utilizarea în fundal."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Închide"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"Prioritizați aplicația"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"Dezinstalați aplicația"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> a fost dezactivată. O puteți activa din nou din Setări."</string>
 </resources>

@@ -38,11 +38,8 @@
     <string name="factory_reset_warning" msgid="8463356329619149262">"Je apparaat wordt gewist"</string>
     <string name="factory_reset_message" msgid="1972536809866779972">"De beheer-app kan niet worden gebruikt. Je apparaat wordt nu gewist.\n\nNeem contact op met de beheerder van je organisatie als je vragen hebt."</string>
     <string name="resource_overuse_notification_title" msgid="1622015333965744463">"<xliff:g id="ID_1">^1</xliff:g> is van invloed op je systeemprestaties"</string>
-    <string name="resource_overuse_notification_text_disable_app" msgid="6230392052741662158">"Zet de app uit om de systeemprestaties te verbeteren. Je kunt de app weer aanzetten via Instellingen."</string>
-    <string name="resource_overuse_notification_text_prioritize_app" msgid="5712958688473220136">"Prioriteer de app als je deze wilt blijven gebruiken."</string>
-    <string name="resource_overuse_notification_text_uninstall_app" msgid="7571808726595158942">"Verwijder de app om de systeemprestaties te verbeteren."</string>
-    <string name="resource_overuse_notification_button_disable_app" msgid="7366883746281232189">"App uitzetten"</string>
+    <string name="resource_overuse_notification_text_disabled_app" msgid="9058683477901746549">"Uitvoering op de achtergrond is geblokkeerd voor deze app. Prioriteer de app om door te gaan met gebruik op de achtergrond."</string>
+    <string name="resource_overuse_notification_button_close_app" msgid="131355952730826999">"Sluiten"</string>
     <string name="resource_overuse_notification_button_prioritize_app" msgid="1093325910457794796">"App prioriteren"</string>
-    <string name="resource_overuse_notification_button_uninstall_app" msgid="5259756814713178196">"App verwijderen"</string>
     <string name="resource_overuse_toast_disable_app_now" msgid="5020071090614971772">"<xliff:g id="ID_1">^1</xliff:g> is uitgezet. Je kunt de app weer aanzetten via Instellingen."</string>
 </resources>
