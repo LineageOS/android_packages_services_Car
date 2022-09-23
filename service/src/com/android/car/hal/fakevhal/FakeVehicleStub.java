@@ -417,13 +417,21 @@ public final class FakeVehicleStub extends VehicleStub {
         InputStream defaultConfigInputStream = this.getClass().getClassLoader()
                 .getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
         SparseArray<ConfigDeclaration> configDeclarations;
+        SparseArray<ConfigDeclaration> customConfigDeclarations;
         // Parse default config file.
         configDeclarations = mParser.parseJsonConfig(defaultConfigInputStream);
 
         // Parse all custom config files.
         for (int i = 0; i < mCustomConfigFiles.size(); i++) {
-            combineConfigDeclarations(configDeclarations,
-                    mParser.parseJsonConfig(mCustomConfigFiles.get(i)));
+            File customFile = mCustomConfigFiles.get(i);
+            try {
+                customConfigDeclarations = mParser.parseJsonConfig(customFile);
+            } catch (Exception e) {
+                Slogf.w(TAG, e, "Failed to parse custom config file: %s",
+                        customFile.getPath());
+                continue;
+            }
+            combineConfigDeclarations(configDeclarations, customConfigDeclarations);
         }
 
         return configDeclarations;
