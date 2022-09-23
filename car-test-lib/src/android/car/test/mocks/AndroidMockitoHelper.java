@@ -432,6 +432,14 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks a call to {@link Car#isApiVersionAtLeast()
+     */
+    public static void mockCarIsApiVersionAtLeast(int major, int minor, boolean isIt) {
+        Log.d(TAG, "mockCarIsApiVersionAtLeast(" + major + ", " + minor + "): " + isIt);
+        doReturn(isIt).when(() -> Car.isApiVersionAtLeast(major, minor));
+    }
+
+    /**
      * Mocks a call to {@link Context#getSystemService(Class)}.
      */
     public static <T> void mockContextGetService(Context context,

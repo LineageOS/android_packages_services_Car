@@ -22,9 +22,11 @@ import static org.junit.Assert.assertThrows;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarProjectionManager;
+import android.car.test.ApiCheckerRule.Builder;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -59,6 +61,13 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
             }
             return mBinder;
         }
+    }
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        Log.w(TAG, "Disabling API requirements check");
+        builder.disableAnnotationsCheck();
     }
 
     @Before

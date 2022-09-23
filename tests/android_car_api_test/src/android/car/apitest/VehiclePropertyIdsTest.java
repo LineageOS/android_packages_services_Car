@@ -18,6 +18,7 @@ package android.car.apitest;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.VehiclePropertyIds;
+import android.car.test.ApiCheckerRule.Builder;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.SparseArray;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
-public class VehiclePropertyIdsTest {
+public final class VehiclePropertyIdsTest extends CarLessApiTestBase {
     // IDs that only exist in CarPropertyManager, not VHAL.
     private static final List<String> MISSING_VHAL_IDS = List.of();
 
@@ -49,6 +50,11 @@ public class VehiclePropertyIdsTest {
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION",
                     "SUPPORTED_PROPERTY_IDS");
 
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
+    }
 
     @Test
     public void testMatchingVehiclePropertyNamesInVehicleHal() {

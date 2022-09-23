@@ -28,6 +28,7 @@ import android.car.PlatformVersionMismatchException;
 import android.car.annotation.AddedInOrBefore;
 import android.car.annotation.ApiRequirements;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.Pair;
@@ -138,6 +139,9 @@ public final class ApiCheckerRule implements TestRule {
     private final boolean mEnforceTestApiAnnotations;
     private final boolean mEnforceApiRequirements;
 
+    @Nullable
+    private String mTestMethodName;
+
     /**
      * Builder.
      */
@@ -195,6 +199,14 @@ public final class ApiCheckerRule implements TestRule {
         return isSupported(apiRequirements);
     }
 
+    /**
+     * Gets the name of the test being executed.
+     */
+    @Nullable
+    public String getTestMethodName() {
+        return mTestMethodName;
+    }
+
     private boolean isSupported(ApiRequirements apiRequirements) {
         PlatformVersion platformVersion = Car.getPlatformVersion();
         boolean isSupported = platformVersion
@@ -238,8 +250,24 @@ public final class ApiCheckerRule implements TestRule {
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
+                mTestMethodName = description.getMethodName();
+                try {
+                    evaluateInternal();
+                } finally {
+                    mTestMethodName = null;
+                }
+            }
+
+            private void evaluateInternal() throws Throwable {
                 if (DBG) {
                     Log.d(TAG, "evaluating " + description.getDisplayName());
+                }
+
+                // Need to do a basic version check first, as the rule could be used on ATS tests
+                // running on pre-mainline versions
+                if (!isPlatformSupported(description)) {
+                    base.evaluate();
+                    return;
                 }
 
                 // Variables below are used to validate that all ApiRequirements are compatible
@@ -371,6 +399,21 @@ public final class ApiCheckerRule implements TestRule {
             }
         };
     } // apply
+
+    protected boolean isPlatformSupported(Description description) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+            Log.d(TAG, "Running " + description.getDisplayName() + " as-is on pre-TM platform build"
+                    + " (" + Build.VERSION.SDK_INT + ")");
+            return false;
+        }
+        if (!Car.isApiVersionAtLeast(Build.VERSION_CODES.TIRAMISU, /* minor= */ 1)) {
+            Log.d(TAG, "Running " + description.getDisplayName() + " as-is on pre-TM-QPR1 Car build"
+                    + " (major=" + Car.API_VERSION_MAJOR_INT
+                    + ", minor=" + Car.API_VERSION_MINOR_INT + ")");
+            return false;
+        }
+        return true;
+    }
 
     private void validateCddAnnotations(CddTest cddTest,
             @Nullable ApiRequirements apiRequirements) {

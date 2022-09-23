@@ -18,10 +18,13 @@ package android.car.test;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetCarVersion;
 import static android.car.test.mocks.AndroidMockitoHelper.mockCarGetPlatformVersion;
+import static android.car.test.mocks.AndroidMockitoHelper.mockCarIsApiVersionAtLeast;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
 
 import android.car.Car;
 import android.car.CarVersion;
@@ -37,6 +40,7 @@ import android.car.test.ApiCheckerRule.SupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest;
 import android.car.test.ApiCheckerRule.UnsupportedVersionTest.Behavior;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.os.Build;
 import android.util.Log;
 
 import com.android.compatibility.common.util.ApiTest;
@@ -291,6 +295,19 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
     public void passWhenTestMethodHasValidApiTestAnnotation() throws Throwable {
         Description testMethod = newTestMethod(new ApiTestAnnotation(
                 VALID_API_THAT_REQUIRES_CAR_AND_PLATFORM_TIRAMISU_1));
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
+
+        rule.apply(mBaseStatement, testMethod).evaluate();
+
+        mBaseStatement.assertEvaluated();
+    }
+
+    // NOTE: ideally we should test it for versions < T as all (for ATS), but unfortunately that's
+    // not possible because Build.VERSION.SDK_INT cannot be mocked
+    @Test
+    public void passWhenTestMethodIsMissingAnnotationsButPlatformIsNotSupported() throws Throwable {
+        mockCarIsApiVersionAtLeast(Build.VERSION_CODES.TIRAMISU, /* minor= */ 1, /* isIt =*/ false);
+        Description testMethod = newTestMethod();
         ApiCheckerRule rule = new ApiCheckerRule.Builder().build();
 
         rule.apply(mBaseStatement, testMethod).evaluate();
@@ -832,6 +849,27 @@ public final class ApiCheckerRuleTest extends AbstractExtendedMockitoTestCase {
 
         assertWithMessage("isApiSupported(%s) when CarVersion and PlatformVersion are supported",
                 api).that(rule.isApiSupported(api)).isTrue();
+    }
+
+    @Test
+    public void testGetTestName() throws Throwable {
+        Description testMethod = newTestMethod();
+        ApiCheckerRule rule = new ApiCheckerRule.Builder().disableAnnotationsCheck().build();
+        expectWithMessage("rule.getTestName() before test").that(rule.getTestMethodName()).isNull();
+
+        // Need to save the name while the Statements is being executed
+        StringBuilder testNameDuringTest = new StringBuilder();
+        Statement statement = mock(Statement.class);
+        doAnswer((i) -> {
+            testNameDuringTest.append(rule.getTestMethodName());
+            return null;
+        }).when(statement).evaluate();
+
+        rule.apply(statement, testMethod).evaluate();
+
+        expectWithMessage("rule.getTestName() during test").that(testNameDuringTest.toString())
+                .isEqualTo(TEST_METHOD_BEING_EXECUTED);
+        expectWithMessage("rule.getTestName() after test").that(rule.getTestMethodName()).isNull();
     }
 
     ////////////////////////////////////

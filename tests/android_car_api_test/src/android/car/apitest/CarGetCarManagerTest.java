@@ -45,16 +45,13 @@ import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.os.CarPerformanceManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
-import android.car.test.AbstractExpectableTestCase;
+import android.car.test.ApiCheckerRule.Builder;
 import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
 import android.car.user.ExperimentalCarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
 import android.car.watchdog.CarWatchdogManager;
-import android.content.Context;
-
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.compatibility.common.util.ApiTest;
 
@@ -66,16 +63,20 @@ import java.util.Arrays;
 import java.util.List;
 
 @RunWith(Parameterized.class)
-public final class CarGetCarManagerTest extends AbstractExpectableTestCase {
+public final class CarGetCarManagerTest extends CarLessApiTestBase {
 
-    private final Context mContext = InstrumentationRegistry.getInstrumentation()
-            .getTargetContext();
     private final Class<?> mCarManagerClass;
     private final String mCarServiceName;
 
     public CarGetCarManagerTest(Class<?> managerClass, String serviceName) {
         this.mCarManagerClass = managerClass;
         this.mCarServiceName = serviceName;
+    }
+
+    // TODO(b/242350638): add missing annotations, remove (on child bug of 242350638)
+    @Override
+    protected void configApiCheckerRule(Builder builder) {
+        builder.disableAnnotationsCheck();
     }
 
     @Parameterized.Parameters
