@@ -227,7 +227,8 @@ public final class GenerateAPI {
         new VoidVisitorAdapter<Object>() {
             @Override
             public void visit(ClassOrInterfaceDeclaration classOrInterfaceDeclaration, Object arg) {
-                if (classOrInterfaceDeclaration.isPrivate()) {
+                if (!classOrInterfaceDeclaration.isPublic()
+                        && !classOrInterfaceDeclaration.isProtected()) {
                     return;
                 }
 
@@ -255,7 +256,7 @@ public final class GenerateAPI {
         new VoidVisitorAdapter<Object>() {
             @Override
             public void visit(ClassOrInterfaceDeclaration n, Object arg) {
-                if (n.isPrivate()) {
+                if (!n.isPublic() && !n.isProtected()) {
                     return;
                 }
 
@@ -295,7 +296,7 @@ public final class GenerateAPI {
                 List<FieldDeclaration> fields = n.getFields();
                 for (int i = 0; i < fields.size(); i++) {
                     FieldDeclaration field = fields.get(i);
-                    if (field.isPrivate()) {
+                    if (!field.isPublic() && !field.isProtected()) {
                         continue;
                     }
 
@@ -389,7 +390,7 @@ public final class GenerateAPI {
                 List<MethodDeclaration> methods = n.getMethods();
                 for (int i = 0; i < methods.size(); i++) {
                     MethodDeclaration method = methods.get(i);
-                    if (method.isPrivate()) {
+                    if (!method.isPublic() && !method.isProtected()) {
                         continue;
                     }
                     String returnType = method.getTypeAsString();

@@ -1,6 +1,5 @@
 android.car.AoapService
 android.car.ApiVersion
-android.car.ApiVersion$ApiVersionFactory
 android.car.Car
 android.car.Car$CarServiceLifecycleListener
 android.car.CarAppFocusManager
@@ -216,7 +215,6 @@ android.car.user.CarUserManager
 android.car.user.CarUserManager$UserLifecycleEvent
 android.car.user.CarUserManager$UserLifecycleListener
 android.car.user.CarUserManager$UserSwitchUiCallback
-android.car.user.CommonResults
 android.car.user.ExperimentalCarUserManager
 android.car.user.OperationResult
 android.car.user.UserCreationResult

@@ -50,7 +50,6 @@ public final class AssistUtilsHelper {
      * {@code false} otherwise.
      */
     @VisibleForTesting
-    @AddedIn(PlatformVersion.TIRAMISU_0)
     static final String EXTRA_CAR_PUSH_TO_TALK =
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
 
@@ -60,7 +59,6 @@ public final class AssistUtilsHelper {
      * boot up.
      */
     @VisibleForTesting
-    @AddedIn(PlatformVersion.UPSIDE_DOWN_CAKE_0)
     static final String EXTRA_TRIGGER_TIMESTAMP_PUSH_TO_TALK_MS =
             "com.android.car.input.EXTRA_TRIGGER_TIMESTAMP_PUSH_TO_TALK_MS";
 

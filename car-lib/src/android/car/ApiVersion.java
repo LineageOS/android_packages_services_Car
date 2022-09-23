@@ -107,8 +107,6 @@ public abstract class ApiVersion<T extends ApiVersion<?>> {
      * required version is latest development platform and platform version is also same, returns
      * false otherwise.
      */
-    @ApiRequirements(minCarVersion = CarVersion.UPSIDE_DOWN_CAKE_0,
-            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
     @Nullable
     Boolean isAtLeastLatestPlatform(T requiredVersion) {
         return null;
