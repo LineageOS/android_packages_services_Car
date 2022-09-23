@@ -298,7 +298,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             } else {
                 AudioManagerHelper.unregisterVolumeAndMuteReceiver(mContext,
                         mLegacyVolumeChangedHelper);
-
             }
 
             mCarVolumeCallbackHandler.release();
@@ -351,12 +350,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
             if (mUseDynamicRouting) {
                 writer.printf("Volume Group Mute Enabled? %b\n", mUseCarVolumeGroupMuting);
-                synchronized (mImplLock) {
-                    for (int i = 0; i < mCarAudioZones.size(); i++) {
-                        CarAudioZone zone = mCarAudioZones.valueAt(i);
-                        zone.dump(writer);
-                    }
+                for (int i = 0; i < mCarAudioZones.size(); i++) {
+                    CarAudioZone zone = mCarAudioZones.valueAt(i);
+                    zone.dump(writer);
                 }
+
                 writer.println();
                 writer.println("UserId to Zone Mapping:");
                 writer.increaseIndent();
@@ -638,7 +636,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         CarAudioPolicyVolumeCallback
                 .addVolumeCallbackToPolicy(builder, volumeCallbackInternal, mAudioManager,
                         new CarVolumeInfoWrapper(this), mUseCarVolumeGroupMuting);
-
 
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
         if (mUseHalDuckingSignals) {
