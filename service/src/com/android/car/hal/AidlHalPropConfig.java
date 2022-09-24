@@ -39,6 +39,9 @@ public final class AidlHalPropConfig extends HalPropConfig {
         if (mConfig.configString == null) {
             mConfig.configString = new String();
         }
+        if (mConfig.configArray == null) {
+            mConfig.configArray = new int[0];
+        }
     }
 
     /**

@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.annotation.Nullable;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.CarPropertyManager.CarPropertyAsyncErrorCode;
@@ -28,6 +29,7 @@ import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
 import com.android.car.hal.HalPropValueBuilder;
+import com.android.car.hal.fakevhal.FakeVehicleStub;
 
 import java.io.FileDescriptor;
 import java.util.List;
@@ -163,6 +165,15 @@ public abstract class VehicleStub {
     public static VehicleStub newVehicleStub() throws IllegalStateException {
         VehicleStub stub = new AidlVehicleStub();
         if (stub.isValid()) {
+            if ((BuildHelper.isUserDebugBuild() || BuildHelper.isEngBuild())
+                    && FakeVehicleStub.doesEnableFileExist()) {
+                try {
+                    return new FakeVehicleStub(stub);
+                } catch (Exception e) {
+                    Slogf.e(CarLog.TAG_SERVICE, e, "Failed to create FakeVehicleStub. "
+                            + "Fallback to using real VehicleStub.");
+                }
+            }
             return stub;
         }
 
@@ -269,4 +280,13 @@ public abstract class VehicleStub {
      */
     public abstract void dump(FileDescriptor fd, List<String> args)
             throws RemoteException, ServiceSpecificException;
+
+    /**
+     * Checks if fake VHAL is enabled.
+     *
+     * @return {@code true} if a FakeVehicleStub instance is created.
+     */
+    public boolean isFakeModeEnabled() {
+        return false;
+    }
 }

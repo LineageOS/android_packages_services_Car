@@ -19,7 +19,6 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.NonNull;
 import android.car.annotation.ApiRequirements;
-import android.car.annotation.MinimumPlatformSdkVersion;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -30,7 +29,7 @@ import com.android.car.internal.util.DataClass;
 /**
  * Exception thrown when an App tries to calls an API not supported in the platform version.
  *
- * <p>Apps are expected to check the {@link MinimumPlatformSdkVersion} for each API. If the API is
+ * <p>Apps are expected to check the {@link ApiRequirements} for each API. If the API is
  * not supported for the current platform, the API should not be called. Apps can use
  * {@link Car#getPlatformVersion()} to get the current platform version.
  */

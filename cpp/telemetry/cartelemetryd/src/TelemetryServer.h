@@ -124,13 +124,11 @@ public:
             const std::shared_ptr<ICarTelemetryCallback>& callback);
 
     /**
-     * Sets the listener. If the listener already set, it returns an error.
+     * Sets the listener and overrides the previous listener if it exists.
      *
      * <p>Expected to be called from a binder thread pool.
-     *
-     * @return An empty okay result on success or an error result if the listener is already set.
      */
-    android::base::Result<void> setListener(
+    void setListener(
             const std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>&
                     listener);
 

@@ -34,7 +34,6 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -513,36 +512,15 @@ public class CarTelemetryServiceTest extends AbstractExtendedMockitoCarServiceTe
     }
 
     @Test
-    public void testOnBootCompleted_shouldStartMetricsCollection() {
-        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
-        ArgumentCaptor<Runnable> mRunnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-
-        // verify that startsMetricsCollection() is scheduled to run on boot complete
-        verify(mMockSystemInterface).scheduleActionForBootCompleted(
-                mRunnableCaptor.capture(), any());
-        // run startMetricsCollection()
-        mRunnableCaptor.getValue().run();
-
+    public void testOnInitCompleted_shouldStartMetricsCollection() {
+        // Metrics collection start is dispatched to main thread.
+        // We force it to run.
+        CarServiceUtils.runOnMainSync(() -> { });
         CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
-        verify(mMockDataBroker).addMetricsConfig(eq(METRICS_CONFIG_NAME), eq(METRICS_CONFIG_V1));
+
+        // SessionController.initSession() is called after all logic in
+        // startMetricCollection executes.
         verify(mMockSessionController).initSession();
-    }
-
-    @Test
-    public void testStartMetricsCollection_shouldReportFailure() {
-        mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_V1);
-        doThrow(IllegalArgumentException.class)
-                .when(mMockDataBroker).addMetricsConfig(any(), any());
-        ArgumentCaptor<Runnable> mRunnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        // startsMetricsCollection() is scheduled to run on boot complete
-        verify(mMockSystemInterface).scheduleActionForBootCompleted(
-                mRunnableCaptor.capture(), any());
-
-        mRunnableCaptor.getValue().run(); // run startMetricsCollection()
-
-        CarServiceUtils.runOnLooperSync(mTelemetryHandler.getLooper(), () -> { });
-        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
-        assertThat(mResultStore.getErrorResult(METRICS_CONFIG_NAME, false)).isNotNull();
     }
 
     // TODO(b/233973826): Uncomment once SystemMonitor is tuned-up.

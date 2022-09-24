@@ -71,6 +71,7 @@ public class FakeVehicleStubUnitTest {
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
     private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
+    private static final int SEAT_1_RIGHT = VehicleAreaSeat.ROW_1_RIGHT;
     private static final String PROPERTY_CONFIG_STRING_ON_CHANGE = "{\"property\":"
             + "\"VehicleProperty::ENGINE_OIL_LEVEL\","
             + "\"defaultValue\": {\"int32Values\": [\"VehicleOilLevel::NORMAL\"]},"
@@ -111,7 +112,8 @@ public class FakeVehicleStubUnitTest {
 
     @Test
     public void testGetAllPropConfigsWithoutCustomConfig() throws Exception {
-        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
 
         HalPropConfig[] allPropConfig = fakeVehicleStub.getAllPropConfigs();
         HalPropConfig propConfigInfo = getPropConfigByPropId(allPropConfig,
@@ -131,7 +133,7 @@ public class FakeVehicleStubUnitTest {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::TIRE_PRESSURE\","
                 + "\"defaultValue\": {\"floatValues\": [200.0]}, \"maxSampleRate\": 2.5}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
 
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -151,7 +153,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
                 + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\","
                 + "\"maxSampleRate\": 5.0}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
 
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -160,8 +162,8 @@ public class FakeVehicleStubUnitTest {
 
         expect.that(propConfig.getPropId()).isEqualTo(123);
         expect.that(propConfig.getMaxSampleRate()).isEqualTo(5.0f);
-        expect.that(allPropConfig.length).isEqualTo(
-                new FakeVehicleStub(mMockRealVehicleStub).getAllPropConfigs().length + 1);
+        expect.that(allPropConfig.length).isEqualTo(new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>()).getAllPropConfigs().length + 1);
     }
 
     @Test
@@ -217,7 +219,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [{\"property\": "
                 + "\"VehicleProperty::ANDROID_EPOCH_TIME\","
                 + "\"access\": \"VehiclePropertyAccess::WRITE\"}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* propId= */ VehicleProperty.ANDROID_EPOCH_TIME, /* areaId= */ 0);
@@ -237,7 +239,7 @@ public class FakeVehicleStubUnitTest {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\": "
                 + "\"VehicleProperty::VEHICLE_MAP_SERVICE\"}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* propId= */ VehicleProperty.VEHICLE_MAP_SERVICE, /* areaId= */ 123);
@@ -259,7 +261,7 @@ public class FakeVehicleStubUnitTest {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::INFO_FUEL_TYPE\","
                 + "\"defaultValue\": {\"int32Values\": [\"FuelType::FUEL_TYPE_UNLEADED\"]}}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 123);
@@ -280,7 +282,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::WINDOW_POS\","
                 + "\"areas\": [{\"areaId\": \"Constants::WINDOW_1_LEFT\", \"minInt32Value\": 0,"
                 + "\"maxInt32Value\": 10}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* propId= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
@@ -304,7 +306,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::WINDOW_POS\","
                 + "\"defaultValue\": {\"int32Values\": [0]},\"areas\": [{\"areaId\":"
                 + "\"Constants::WINDOW_1_LEFT\", \"minInt32Value\": 0, \"maxInt32Value\": 10}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* propId= */ VehicleProperty.WINDOW_POS, /* areaId= */ WINDOW_1_LEFT);
@@ -326,7 +328,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::DOOR_LOCK\","
                 + "\"areas\": [{\"defaultValue\": {\"int32Values\": [1]}, \"areaId\":"
                 + "\"Constants::DOOR_1_LEFT\"}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(VehicleProperty.DOOR_LOCK, DOOR_1_LEFT);
@@ -347,7 +349,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
                 + "\"defaultValue\": {\"int32Values\": [0]},"
                 + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
                 .build(/* propId= */ VehicleProperty.SEAT_BELT_BUCKLED, /* areaId= */ 0);
@@ -368,7 +370,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
                 + "\"defaultValue\": {\"int32Values\": [0]},"
                 + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         HalPropValue requestPropValue = new HalPropValueBuilder(/* isAdil= */ true)
                 .build(/* propId= */ 123456, /* areaId= */ 0);
@@ -388,7 +390,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"VehicleProperty::INFO_FUEL_CAPACITY\","
                 + "\"defaultValue\": {\"floatValues\": [100.0]},"
                 + "\"access\": \"VehiclePropertyAccess::READ_WRITE\"}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         RawPropValues rawPropValues = new RawPropValues();
         rawPropValues.floatValues = new float[]{10};
@@ -413,7 +415,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [{\"property\":"
                 + "\"VehicleProperty::INFO_FUEL_CAPACITY\","
                 + "\"access\": \"VehiclePropertyAccess::READ_WRITE\"}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         RawPropValues rawPropValues = new RawPropValues();
         rawPropValues.int32Values = new int[]{32};
@@ -442,7 +444,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"defaultValue\": {\"int32Values\": [10]},"
                 + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\","
                 + "\"minInt32Value\": 0, \"maxInt32Value\": 10}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         RawPropValues rawPropValues = new RawPropValues();
         rawPropValues.int32Values = new int[]{15};
@@ -466,7 +468,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
                 + "\"defaultValue\": {\"int32Values\": [0]},"
                 + "\"areas\": [{\"areaId\": \"Constants::SEAT_1_LEFT\"}]}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create a request prop value.
         FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -488,7 +490,7 @@ public class FakeVehicleStubUnitTest {
     public void testSubscribeOnChangePropOneClientSubscribeOnePropManyTime() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_ON_CHANGE + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options array.
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.ENGINE_OIL_LEVEL;
@@ -525,7 +527,7 @@ public class FakeVehicleStubUnitTest {
                 + "\"defaultValue\": {\"int32Values\": [0]},"
                 + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
                 + "\"changeMode\": \"VehiclePropertyChangeMode::ON_CHANGE\"}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option1 = new SubscribeOptions();
         option1.propId = VehicleProperty.ENGINE_OIL_LEVEL;
@@ -563,10 +565,48 @@ public class FakeVehicleStubUnitTest {
     }
 
     @Test
+    public void testSubscribeAreaPropertyWithEmptyOptionsAreaIds() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\": "
+                + "\"VehicleProperty::SEAT_HEADREST_ANGLE_POS\","
+                + "\"defaultValue\": {\"int32Values\": [0]},"
+                + "\"areas\":["
+                + "{\"areaId\": \"Constants::SEAT_1_LEFT\", \"minInt32Value\": -10,"
+                + "\"maxInt32Value\": 10},"
+                + "{\"areaId\": \"Constants::SEAT_1_RIGHT\",\"minInt32Value\": -10,"
+                + "\"maxInt32Value\": 10}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create subscribe options array.
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.SEAT_HEADREST_ANGLE_POS;
+        // option.areaId array is null.
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        // Create set value
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{10};
+        HalPropValue requestPropValue1 = buildHalPropValue(
+                /* propId= */ VehicleProperty.SEAT_HEADREST_ANGLE_POS, SEAT_1_LEFT,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalPropValue requestPropValue2 = buildHalPropValue(
+                /* propId= */ VehicleProperty.SEAT_HEADREST_ANGLE_POS, SEAT_1_RIGHT,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+        fakeVehicleStub.set(requestPropValue1);
+        fakeVehicleStub.set(requestPropValue2);
+
+        verify(callback, times(2)).onPropertyEvent(any(ArrayList.class));
+    }
+
+    @Test
     public void testSubscribeOnChangePropTwoClientSubscribeSameProp() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_ON_CHANGE + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.ENGINE_OIL_LEVEL;
@@ -602,7 +642,7 @@ public class FakeVehicleStubUnitTest {
     public void testSubscribeContinuousProp() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.FUEL_LEVEL;
@@ -626,7 +666,7 @@ public class FakeVehicleStubUnitTest {
     public void testSubscribeContinuousPropDifferentRate() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option1 = new SubscribeOptions();
         option1.propId = VehicleProperty.FUEL_LEVEL;
@@ -659,7 +699,7 @@ public class FakeVehicleStubUnitTest {
     public void testSubscribeContinuousPropRateTooLarge() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.FUEL_LEVEL;
@@ -683,7 +723,7 @@ public class FakeVehicleStubUnitTest {
     public void testSubscribeContinuousPropRateTooSmall() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.FUEL_LEVEL;
@@ -711,7 +751,8 @@ public class FakeVehicleStubUnitTest {
         option.sampleRate = 0f;
         SubscribeOptions[] options = new SubscribeOptions[]{option};
         HalClientCallback callback = mock(HalClientCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -727,7 +768,7 @@ public class FakeVehicleStubUnitTest {
         String jsonString = "{\"properties\": [{\"property\":"
                 + "\"VehicleProperty::SEAT_BELT_BUCKLED\","
                 + "\"defaultValue\": {\"int32Values\": [0]}}]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.SEAT_BELT_BUCKLED;
@@ -755,7 +796,7 @@ public class FakeVehicleStubUnitTest {
     public void testSubscribeStaticPropThrowException() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_STATIC + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.INFO_FUEL_CAPACITY;
@@ -776,7 +817,8 @@ public class FakeVehicleStubUnitTest {
     @Test
     public void testUnsubscribePropIdNotSupport() throws Exception {
         HalClientCallback callback = mock(HalClientCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
         ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
@@ -790,7 +832,7 @@ public class FakeVehicleStubUnitTest {
     public void testUnsubscribeStaticProp() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_STATIC + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         HalClientCallback callback = mock(HalClientCallback.class);
         FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
@@ -807,7 +849,7 @@ public class FakeVehicleStubUnitTest {
     public void testUnsubscribeOnChangeProp() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_ON_CHANGE + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options array.
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.ENGINE_OIL_LEVEL;
@@ -841,7 +883,7 @@ public class FakeVehicleStubUnitTest {
     public void testUnsubscribeContinuousPropOneClient() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.FUEL_LEVEL;
@@ -866,7 +908,7 @@ public class FakeVehicleStubUnitTest {
     public void testUnsubscribeContinuousPropTwoClient() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option = new SubscribeOptions();
         option.propId = VehicleProperty.FUEL_LEVEL;
@@ -902,7 +944,7 @@ public class FakeVehicleStubUnitTest {
         // Create a custom config file.
         String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_CONTINUOUS + ", "
                 + PROPERTY_CONFIG_STRING_CONTINUOUS_2 + "]}";
-        List<String> customFileList = createFilenameList(jsonString);
+        List<File> customFileList = createFilenameList(jsonString);
         // Create subscribe options
         SubscribeOptions option1 = new SubscribeOptions();
         option1.propId = VehicleProperty.FUEL_LEVEL;
@@ -912,7 +954,7 @@ public class FakeVehicleStubUnitTest {
         option2.sampleRate = 100f;
         SubscribeOptions[] options = new SubscribeOptions[]{option1, option2};
         HalClientCallback callback = mock(HalClientCallback.class);
-        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), customFileList);
 
         VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
@@ -965,13 +1007,13 @@ public class FakeVehicleStubUnitTest {
         return propConfigValue;
     }
 
-    private List<String> createFilenameList(String fileContent) throws Exception {
-        List<String> customFileList = new ArrayList<>();
+    private List<File> createFilenameList(String fileContent) throws Exception {
+        List<File> customFileList = new ArrayList<>();
         File tempFile = File.createTempFile("custom_config_", ".json");
         tempFile.deleteOnExit();
         try (FileOutputStream os = new FileOutputStream(tempFile)) {
             os.write(fileContent.getBytes());
-            customFileList.add(tempFile.getPath());
+            customFileList.add(tempFile);
         }
         return customFileList;
     }

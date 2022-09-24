@@ -80,6 +80,7 @@ public final class FakeVhalConfigParser {
     private static final String JSON_FIELD_NAME_MAX_FLOAT_VALUE = "maxFloatValue";
     private static final String JSON_FIELD_NAME_ACCESS = "access";
     private static final String JSON_FIELD_NAME_CHANGE_MODE = "changeMode";
+    private static final String JSON_FIELD_NAME_COMMENT = "comment";
     // Following values are defined in PropertyUtils.h file
     // (hardware/interfaces/automotive/vehicle/aidl/impl/utils/common/include/PropertyUtils.h).
     private static final int DOOR_1_RIGHT = VehicleAreaDoor.ROW_1_RIGHT;
@@ -115,9 +116,9 @@ public final class FakeVhalConfigParser {
     private static final int FAN_DIRECTION_FACE = VehicleHvacFanDirection.FACE;
     private static final int FAN_DIRECTION_DEFROST = VehicleHvacFanDirection.DEFROST;
     private static final int FUEL_DOOR_REAR_LEFT = PortLocationType.REAR_LEFT;
-    // TODO(b/241984846) Removed SEAT_2_CENTER from HVAC_LEFT here. May need to change the HVAC_LEFT
-    //  values in other places to make it consistent.
-    private static final int HVAC_LEFT = SEAT_1_LEFT | SEAT_2_LEFT;
+    // TODO(b/241984846) Keep SEAT_2_CENTER from HVAC_LEFT here. May have a new design to handle
+    //  HVAC zone ids.
+    private static final int HVAC_LEFT = SEAT_1_LEFT | SEAT_2_LEFT | SEAT_2_CENTER;
     private static final int HVAC_RIGHT = SEAT_1_RIGHT | SEAT_2_RIGHT;
     private static final int HVAC_ALL = HVAC_LEFT | HVAC_RIGHT;
     private static final int LIGHT_STATE_ON = VehicleLightState.ON;
@@ -374,6 +375,10 @@ public final class FakeVhalConfigParser {
                         }
                     }
                     vehiclePropConfig.areaConfigs = areaConfigs.toArray(new VehicleAreaConfig[0]);
+                    break;
+                case JSON_FIELD_NAME_COMMENT:
+                    // The "comment" field is used for comment in the config files and is ignored
+                    // by the parser.
                     break;
                 default:
                     Slogf.i(TAG, "%s is an unknown field name. It didn't get parsed.", fieldName);
