@@ -86,6 +86,18 @@ java_library {
     sdk_version: "module_current",
 }
 
+// TODO(b/248635421): these annotations are part of android.car, but
+// they're still need on ATS
+java_library_static {
+    name: "android.car.annotations.compile-only",
+    srcs: [
+       "src/android/car/annotation/*",
+       "src/android/car/ApiVersion.java",
+       "src/android/car/CarVersion.java",
+       "src/android/car/PlatformVersion.java",
+    ],
+}
+
 stubs_defaults {
     name: "android.car-docs-default",
     srcs: [
