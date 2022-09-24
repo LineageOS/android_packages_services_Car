@@ -71,6 +71,7 @@ public class FakeVehicleStubUnitTest {
     private static final int DOOR_1_LEFT = VehicleAreaDoor.ROW_1_LEFT;
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
     private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
+    private static final int SEAT_1_RIGHT = VehicleAreaSeat.ROW_1_RIGHT;
     private static final String PROPERTY_CONFIG_STRING_ON_CHANGE = "{\"property\":"
             + "\"VehicleProperty::ENGINE_OIL_LEVEL\","
             + "\"defaultValue\": {\"int32Values\": [\"VehicleOilLevel::NORMAL\"]},"
@@ -561,6 +562,44 @@ public class FakeVehicleStubUnitTest {
             client.unsubscribe(VehicleProperty.ENGINE_OIL_LEVEL);
             client.unsubscribe(VehicleProperty.NIGHT_MODE);
         }
+    }
+
+    @Test
+    public void testSubscribeAreaPropertyWithEmptyOptionsAreaIds() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\": "
+                + "\"VehicleProperty::SEAT_HEADREST_ANGLE_POS\","
+                + "\"defaultValue\": {\"int32Values\": [0]},"
+                + "\"areas\":["
+                + "{\"areaId\": \"Constants::SEAT_1_LEFT\", \"minInt32Value\": -10,"
+                + "\"maxInt32Value\": 10},"
+                + "{\"areaId\": \"Constants::SEAT_1_RIGHT\",\"minInt32Value\": -10,"
+                + "\"maxInt32Value\": 10}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create subscribe options array.
+        SubscribeOptions option = new SubscribeOptions();
+        option.propId = VehicleProperty.SEAT_HEADREST_ANGLE_POS;
+        // option.areaId array is null.
+        SubscribeOptions[] options = new SubscribeOptions[]{option};
+        // Create set value
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{10};
+        HalPropValue requestPropValue1 = buildHalPropValue(
+                /* propId= */ VehicleProperty.SEAT_HEADREST_ANGLE_POS, SEAT_1_LEFT,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalPropValue requestPropValue2 = buildHalPropValue(
+                /* propId= */ VehicleProperty.SEAT_HEADREST_ANGLE_POS, SEAT_1_RIGHT,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+        HalClientCallback callback = mock(HalClientCallback.class);
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        VehicleStub.SubscriptionClient client = fakeVehicleStub.newSubscriptionClient(callback);
+        client.subscribe(options);
+        fakeVehicleStub.set(requestPropValue1);
+        fakeVehicleStub.set(requestPropValue2);
+
+        verify(callback, times(2)).onPropertyEvent(any(ArrayList.class));
     }
 
     @Test
