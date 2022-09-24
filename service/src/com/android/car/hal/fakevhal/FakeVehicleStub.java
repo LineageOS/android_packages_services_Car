@@ -51,8 +51,10 @@ import com.android.car.hal.HalPropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileDescriptor;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -79,7 +81,7 @@ public final class FakeVehicleStub extends VehicleStub {
     private final VehicleStub mRealVehicle;
     private final HalPropValueBuilder mHalPropValueBuilder;
     private final FakeVhalConfigParser mParser;
-    private final List<String> mCustomConfigFiles;
+    private final List<File> mCustomConfigFiles;
     private final Handler mHandler;
 
     private final Object mLock = new Object();
@@ -97,7 +99,7 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @return {@code true} if ENABLE file exists.
      */
-    public static boolean fakeModeEnabled() {
+    public static boolean doesEnableFileExist() {
         return new File(FAKE_VHAL_CONFIG_DIRECTORY + FAKE_MODE_ENABLE_FILE_NAME).exists();
     }
 
@@ -108,7 +110,7 @@ public final class FakeVehicleStub extends VehicleStub {
      * @throws IOException if unable to read the config file stream.
      * @throws IllegalArgumentException if a JSONException is caught or some parsing error occurred.
      */
-    FakeVehicleStub(VehicleStub realVehicle) throws IOException, IllegalArgumentException {
+    public FakeVehicleStub(VehicleStub realVehicle) throws IOException, IllegalArgumentException {
         this(realVehicle, new FakeVhalConfigParser(), getCustomConfigFiles());
     }
 
@@ -123,7 +125,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @VisibleForTesting
     FakeVehicleStub(VehicleStub realVehicle, FakeVhalConfigParser parser,
-            List<String> customConfigFiles) throws IOException, IllegalArgumentException {
+            List<File> customConfigFiles) throws IOException, IllegalArgumentException {
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         mParser = parser;
         mCustomConfigFiles = customConfigFiles;
@@ -135,6 +137,7 @@ public final class FakeVehicleStub extends VehicleStub {
                 .getLooper());
         mOnChangeSubscribeClientByPropIdAreaId = new ArrayMap<>();
         mUpdaterByPropIdAreaIdByClient = new ArrayMap<>();
+        Slogf.d(TAG, "A FakeVehicleStub instance is created.");
     }
 
     /**
@@ -186,8 +189,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public String getInterfaceDescriptor() throws IllegalStateException {
-        // TODO(b/238646350)
-        return null;
+        return "com.android.car.hal.fakevhal.FakeVehicleStub";
     }
 
     /**
@@ -341,11 +343,20 @@ public final class FakeVehicleStub extends VehicleStub {
         // TODO(b/238646350)
     }
 
+    /**
+     * @return {@code true} if car service is connected to FakeVehicleStub.
+     */
+    @Override
+    public boolean isFakeModeEnabled() {
+        return true;
+    }
+
     private final class FakeVhalSubscriptionClient implements SubscriptionClient {
         private final HalClientCallback mCallBack;
 
         FakeVhalSubscriptionClient(HalClientCallback callback) {
             mCallBack = callback;
+            Slogf.d(TAG, "A FakeVhalSubscriptionClient instance is created.");
         }
 
         public void onPropertyEvent(HalPropValue value) {
@@ -361,7 +372,6 @@ public final class FakeVehicleStub extends VehicleStub {
         public void unsubscribe(int propId) {
             // Check if this propId is supported.
             checkPropIdSupported(propId);
-
             // Check if this propId is a special property.
             if (isSpecialProperty(VehicleProperty.INVALID)) {
                 // TODO(b/241006476) Handle special properties.
@@ -404,7 +414,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     private SparseArray<ConfigDeclaration> parseConfigFiles() throws IOException,
             IllegalArgumentException {
-        InputStream defaultConfigInputStream = mParser.getClass().getClassLoader()
+        InputStream defaultConfigInputStream = this.getClass().getClassLoader()
                 .getResourceAsStream(DEFAULT_CONFIG_FILE_NAME);
         SparseArray<ConfigDeclaration> configDeclarations;
         // Parse default config file.
@@ -413,7 +423,7 @@ public final class FakeVehicleStub extends VehicleStub {
         // Parse all custom config files.
         for (int i = 0; i < mCustomConfigFiles.size(); i++) {
             combineConfigDeclarations(configDeclarations,
-                    mParser.parseJsonConfig(new File(mCustomConfigFiles.get(i))));
+                    mParser.parseJsonConfig(mCustomConfigFiles.get(i)));
         }
 
         return configDeclarations;
@@ -424,9 +434,16 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @return a {@link List} of files.
      */
-    private static List<String> getCustomConfigFiles() {
-        List<String> customConfigFileList = new ArrayList<>();
-        // TODO(b/238646350) Read ENABLE file, get all files listed in ENABLE file.
+    private static List<File> getCustomConfigFiles() throws IOException {
+        List<File> customConfigFileList = new ArrayList<>();
+        File file = new File(FAKE_VHAL_CONFIG_DIRECTORY + FAKE_MODE_ENABLE_FILE_NAME);
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                customConfigFileList.add(new File(FAKE_VHAL_CONFIG_DIRECTORY
+                        + line.replaceAll("\\.\\.", "").replaceAll("\\/", "")));
+            }
+        }
         return customConfigFileList;
     }
 
@@ -745,6 +762,8 @@ public final class FakeVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (int areaId : areaIds) {
                 checkAreaIdSupported(propId, areaId);
+                Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes propId: %d, areaId: %d.",
+                        propId, areaId);
                 Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
                 // Update the map from propId, areaId to client set in FakeVehicleStub.
                 if (!mOnChangeSubscribeClientByPropIdAreaId.containsKey(propIdAreaId)) {
@@ -768,6 +787,8 @@ public final class FakeVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (int areaId : areaIds) {
                 checkAreaIdSupported(propId, areaId);
+                Slogf.d(TAG, "FakeVhalSubscriptionClient subscribes propId: %d, areaId: %d.",
+                        propId, areaId);
                 Pair<Integer, Integer> propIdAreaId = Pair.create(propId, areaId);
 
                 // Check if this client has subscribed CONTINUOUS properties.

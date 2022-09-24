@@ -104,6 +104,10 @@ java_defaults {
     },
 
     sdk_version: "module_current",
+
+    java_resources: [
+        ":VehicleHalDefaultProperties_JSON",
+    ],
 }
 
 java_defaults {

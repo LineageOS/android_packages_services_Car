@@ -872,6 +872,15 @@ public class VehicleHal implements HalClientCallback, CarSystemService {
         return mVehicleStub.isAidlVhal();
     }
 
+    /**
+     * Checks if fake VHAL mode is enabled.
+     *
+     * @return {@code true} if car service is connected to FakeVehicleStub.
+     */
+    public boolean isFakeModeEnabled() {
+        return mVehicleStub.isFakeModeEnabled();
+    }
+
     private static void dumpPropHelper(PrintWriter pw, int propId) {
         pw.printf("Id: %d // 0x%x, name: %s ", propId, propId, VehiclePropertyIds.toString(propId));
     }
