@@ -116,9 +116,9 @@ public final class FakeVhalConfigParser {
     private static final int FAN_DIRECTION_FACE = VehicleHvacFanDirection.FACE;
     private static final int FAN_DIRECTION_DEFROST = VehicleHvacFanDirection.DEFROST;
     private static final int FUEL_DOOR_REAR_LEFT = PortLocationType.REAR_LEFT;
-    // TODO(b/241984846) Removed SEAT_2_CENTER from HVAC_LEFT here. May need to change the HVAC_LEFT
-    //  values in other places to make it consistent.
-    private static final int HVAC_LEFT = SEAT_1_LEFT | SEAT_2_LEFT;
+    // TODO(b/241984846) Keep SEAT_2_CENTER from HVAC_LEFT here. May have a new design to handle
+    //  HVAC zone ids.
+    private static final int HVAC_LEFT = SEAT_1_LEFT | SEAT_2_LEFT | SEAT_2_CENTER;
     private static final int HVAC_RIGHT = SEAT_1_RIGHT | SEAT_2_RIGHT;
     private static final int HVAC_ALL = HVAC_LEFT | HVAC_RIGHT;
     private static final int LIGHT_STATE_ON = VehicleLightState.ON;
