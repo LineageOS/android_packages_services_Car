@@ -227,6 +227,9 @@ public abstract class VehicleStub {
     /**
      * Gets a new {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      *
+     * Caller MUST unsubscribe all subscribed properties before discarding the client to prevent
+     * resource leak.
+     *
      * @param callback A callback that could be used to receive events.
      * @return a {@code SubscriptionClient} that could be used to subscribe/unsubscribe.
      */

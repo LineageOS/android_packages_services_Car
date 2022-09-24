@@ -193,7 +193,6 @@ public final class ActivityManagerHelper {
         @AddedIn(PlatformVersion.TIRAMISU_0)
         public void onProcessDied(int pid, int uid) {}
 
-        @AddedIn(PlatformVersion.TIRAMISU_0)
         final IProcessObserver.Stub mIProcessObserver = new IProcessObserver.Stub() {
             @Override
             public void onForegroundActivitiesChanged(

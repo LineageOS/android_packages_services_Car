@@ -9,7 +9,6 @@ android.car ApiVersion int hashCode()
 android.car ApiVersion String toString()
 android.car ApiVersion void writeToParcel(Parcel dest)
 android.car ApiVersion T readFromParcel(Parcel source, ApiVersionFactory<T> factory)
-android.car ApiVersion.ApiVersionFactory T newInstance(String name, int major, int minor)
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MAJOR
 android.car Car String PROPERTY_EMULATED_PLATFORM_VERSION_MINOR
 android.car Car String CAR_SERVICE_BINDER_SERVICE_NAME
@@ -37,8 +36,6 @@ android.car CarAppFocusManager void onCarDisconnected()
 android.car CarBugreportManager void requestBugreportForTesting(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput, CarBugreportManagerCallback callback)
 android.car CarBugreportManager void onCarDisconnected()
 android.car CarFeatures String FEATURE_CAR_USER_NOTICE_SERVICE
-android.car CarFeatures boolean isFeatureEnabled(ICar service, String featureName)
-android.car CarFeatures void resetCache()
 android.car CarInfoManager int BASIC_INFO_KEY_MANUFACTURER
 android.car CarInfoManager int BASIC_INFO_KEY_MODEL
 android.car CarInfoManager int BASIC_INFO_KEY_MODEL_YEAR
@@ -499,7 +496,6 @@ android.car.occupantawareness SystemStatusEvent String toString()
 android.car.os CarPerformanceManager void onCarDisconnected()
 android.car.os CarPerformanceManager void addCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityMonitoringConfig config, CpuAvailabilityChangeListener listener)
 android.car.os CarPerformanceManager void removeCpuAvailabilityChangeListener(Executor executor, CpuAvailabilityChangeListener listener)
-android.car.os CarPerformanceManager.CpuAvailabilityChangeListener void onCpuAvailabilityChange(CpuAvailabilityInfo info)
 android.car.os CpuAvailabilityInfo Parcelable.Creator<CpuAvailabilityInfo> CREATOR
 android.car.os CpuAvailabilityInfo int getCpuset()
 android.car.os CpuAvailabilityInfo int getAverageAvailabilityPercent()
@@ -599,7 +595,6 @@ android.car.user CarUserManager String lifecycleEventTypeToString(int type)
 android.car.user CarUserManager boolean isValidUser(int userId)
 android.car.user CarUserManager.UserLifecycleEvent int getUserId()
 android.car.user CarUserManager.UserLifecycleEvent int getPreviousUserId()
-android.car.user CarUserManager.UserSwitchUiCallback void showUserSwitchDialog(int userId)
 android.car.user ExperimentalCarUserManager String TAG
 android.car.user ExperimentalCarUserManager AndroidFuture<UserCreationResult> createDriver(String name, boolean admin)
 android.car.user ExperimentalCarUserManager int createPassenger(String name, int driverId)
@@ -609,7 +604,6 @@ android.car.user ExperimentalCarUserManager List<Integer> getPassengers(int driv
 android.car.user ExperimentalCarUserManager boolean startPassenger(int passengerId, int zoneId)
 android.car.user ExperimentalCarUserManager boolean stopPassenger(int passengerId)
 android.car.user ExperimentalCarUserManager void onCarDisconnected()
-android.car.user OperationResult boolean isSuccess()
 android.car.user UserCreationResult int STATUS_SUCCESSFUL
 android.car.user UserCreationResult int STATUS_ANDROID_FAILURE
 android.car.user UserCreationResult int STATUS_HAL_FAILURE
@@ -711,9 +705,7 @@ android.car.util.concurrent AndroidFuture boolean cancel(boolean mayInterruptIfR
 android.car.util.concurrent AndroidFuture void onCompleted(T res, Throwable err)
 android.car.util.concurrent AndroidFuture AndroidFuture<T> whenComplete(BiConsumer<? super T,? super Throwable> action)
 android.car.util.concurrent AndroidFuture AndroidFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor)
-android.car.util.concurrent AndroidFuture void callListener(BiConsumer<? super TT,? super Throwable> listener, TT res, Throwable err)
 android.car.util.concurrent AndroidFuture AndroidFuture<T> orTimeout(long timeout, TimeUnit unit)
-android.car.util.concurrent AndroidFuture void triggerTimeout()
 android.car.util.concurrent AndroidFuture AndroidFuture<T> cancelTimeout()
 android.car.util.concurrent AndroidFuture AndroidFuture<T> setTimeoutHandler(Handler h)
 android.car.util.concurrent AndroidFuture AndroidFuture<U> thenCompose(Function<? super T,? extends CompletionStage<U>> fn)
@@ -725,14 +717,9 @@ android.car.util.concurrent AndroidFuture AndroidFuture<T> thenCombine(Completio
 android.car.util.concurrent AndroidFuture AndroidFuture<T> supply(Supplier<T> supplier)
 android.car.util.concurrent AndroidFuture AndroidFuture<T> supplyAsync(Supplier<T> supplier, Executor executor)
 android.car.util.concurrent AndroidFuture void writeToParcel(Parcel dest, int flags)
-android.car.util.concurrent AndroidFuture Throwable unwrapExecutionException(Throwable t)
 android.car.util.concurrent AndroidFuture int describeContents()
-android.car.util.concurrent AsyncFuture T get()
-android.car.util.concurrent AsyncFuture T get(long timeout, TimeUnit unit)
-android.car.util.concurrent AsyncFuture AsyncFuture<T> whenCompleteAsync(BiConsumer<? super T,? super Throwable> action, Executor executor)
 android.car.vms VmsClient void register()
 android.car.vms VmsClient void unregister()
-android.car.vms VmsClientManager void registerVmsClientCallback(Executor executor, VmsClientCallback callback, boolean legacyClient)
 android.car.vms VmsClientManager void onCarDisconnected()
 android.car.vms VmsOperationRecorder.Writer boolean isEnabled()
 android.car.vms VmsOperationRecorder.Writer void write(String msg)
