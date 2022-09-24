@@ -202,12 +202,12 @@ TEST_F(TelemetryServerTest, SetListenerReturnsOk) {
     EXPECT_TRUE(status.isOk()) << status.getMessage();
 }
 
-TEST_F(TelemetryServerTest, SetListenerFailsWhenAlreadySubscribed) {
+TEST_F(TelemetryServerTest, SetListenerAllowedWhenAlreadySubscribed) {
     mTelemetryInternal->setListener(mMockCarDataListener);
 
     auto status = mTelemetryInternal->setListener(ndk::SharedRefBase::make<MockCarDataListener>());
 
-    EXPECT_EQ(status.getExceptionCode(), ::EX_ILLEGAL_STATE) << status.getMessage();
+    EXPECT_TRUE(status.isOk()) << status.getMessage();
 }
 
 TEST_F(TelemetryServerTest, ClearListenerWorks) {
