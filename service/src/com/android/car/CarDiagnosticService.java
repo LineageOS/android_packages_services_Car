@@ -497,9 +497,15 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
 
         @Override
         public boolean equals(Object o) {
-            return o instanceof DiagnosticClient
-                && mListener.asBinder()
-                == ((DiagnosticClient) o).mListener.asBinder();
+            if (this == o) return true;
+            if (!(o instanceof DiagnosticClient)) return false;
+            DiagnosticClient that = (DiagnosticClient) o;
+            return mListener.asBinder() == (that.mListener.asBinder());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mListener.asBinder());
         }
 
         boolean isHoldingListenerBinder(IBinder listenerBinder) {

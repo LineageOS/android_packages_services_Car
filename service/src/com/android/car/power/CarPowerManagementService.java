@@ -93,6 +93,7 @@ import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
@@ -2150,6 +2151,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     && this.mShutdownType == that.mShutdownType
                     && this.mCanPostpone == that.mCanPostpone
                     && this.mCarPowerStateListenerState == that.mCarPowerStateListenerState;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(mCanPostpone, mShutdownType, mCarPowerStateListenerState, mState);
         }
 
         // PowerPolicyHostTest uses the dump output of {@code CarPowerManagementService}. If the

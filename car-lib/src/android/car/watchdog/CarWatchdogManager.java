@@ -1079,5 +1079,10 @@ public final class CarWatchdogManager extends CarManagerBase {
             ResourceOveruseListenerInfo listenerInfo = (ResourceOveruseListenerInfo) obj;
             return listenerInfo.listener == listener;
         }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(listener);
+        }
     }
 }
