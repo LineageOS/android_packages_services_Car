@@ -58,7 +58,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -69,8 +68,20 @@ import java.util.Set;
 public final class FakeVehicleStub extends VehicleStub {
 
     private static final String TAG = CarLog.tagFor(FakeVehicleStub.class);
-    // TODO(b/241006476) Add a list of all special properties to constant SPECIAL_PROPERTIES.
-    private static final List<Integer> SPECIAL_PROPERTIES = Arrays.asList();
+    private static final List<Integer> SPECIAL_PROPERTIES = List.of(
+            VehicleProperty.VHAL_HEARTBEAT,
+            VehicleProperty.INITIAL_USER_INFO,
+            VehicleProperty.SWITCH_USER,
+            VehicleProperty.CREATE_USER,
+            VehicleProperty.REMOVE_USER,
+            VehicleProperty.USER_IDENTIFICATION_ASSOCIATION,
+            VehicleProperty.AP_POWER_STATE_REPORT,
+            VehicleProperty.AP_POWER_STATE_REQ,
+            VehicleProperty.VEHICLE_MAP_SERVICE,
+            VehicleProperty.OBD2_FREEZE_FRAME_CLEAR,
+            VehicleProperty.OBD2_FREEZE_FRAME,
+            VehicleProperty.OBD2_FREEZE_FRAME_INFO
+    );
     private static final String FAKE_VHAL_CONFIG_DIRECTORY = "/data/system/car/fake_vhal_config/";
     private static final String DEFAULT_CONFIG_FILE_NAME = "DefaultProperties.json";
     private static final String FAKE_MODE_ENABLE_FILE_NAME = "ENABLE";
@@ -235,7 +246,8 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public SubscriptionClient newSubscriptionClient(HalClientCallback callback) {
-        return new FakeVhalSubscriptionClient(callback);
+        return new FakeVhalSubscriptionClient(callback,
+                mRealVehicle.newSubscriptionClient(callback));
     }
 
     /**
@@ -243,11 +255,13 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @param requestedPropValue The property to get.
      * @return the property value.
+     * @throws RemoteException if the remote operation through mRealVehicle fails.
      * @throws ServiceSpecificException if propId or areaId is not supported.
      */
     @Override
     @Nullable
-    public HalPropValue get(HalPropValue requestedPropValue) throws ServiceSpecificException {
+    public HalPropValue get(HalPropValue requestedPropValue) throws RemoteException,
+            ServiceSpecificException {
         int propId = requestedPropValue.getPropId();
         checkPropIdSupported(propId);
         int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : requestedPropValue.getAreaId();
@@ -260,9 +274,7 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         if (isSpecialProperty(propId)) {
-            // TODO(b/241006476) Handle special properties.
-            Slogf.w(TAG, "Special property is not supported.");
-            return null;
+            return mRealVehicle.get(requestedPropValue);
         }
 
         // PropId config exists but the value map doesn't have this propId, this may be caused by:
@@ -286,10 +298,12 @@ public final class FakeVehicleStub extends VehicleStub {
      * Sets a property value.
      *
      * @param propValue The property to set.
+     * @throws RemoteException if the remote operation through mRealVehicle fails.
      * @throws ServiceSpecificException if propId or areaId is not supported.
      */
     @Override
-    public void set(HalPropValue propValue) throws ServiceSpecificException {
+    public void set(HalPropValue propValue) throws RemoteException,
+                ServiceSpecificException {
         int propId = propValue.getPropId();
         checkPropIdSupported(propId);
         int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : propValue.getAreaId();
@@ -302,8 +316,7 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         if (isSpecialProperty(propValue.getPropId())) {
-            // TODO(b/241006476) Handle special properties.
-            Slogf.w(TAG, "Special property is not supported.");
+            mRealVehicle.set(propValue);
             return;
         }
 
@@ -353,9 +366,12 @@ public final class FakeVehicleStub extends VehicleStub {
 
     private final class FakeVhalSubscriptionClient implements SubscriptionClient {
         private final HalClientCallback mCallBack;
+        private final SubscriptionClient mRealClient;
 
-        FakeVhalSubscriptionClient(HalClientCallback callback) {
+        FakeVhalSubscriptionClient(HalClientCallback callback,
+                SubscriptionClient realVehicleClient) {
             mCallBack = callback;
+            mRealClient = realVehicleClient;
             Slogf.d(TAG, "A FakeVhalSubscriptionClient instance is created.");
         }
 
@@ -364,18 +380,17 @@ public final class FakeVehicleStub extends VehicleStub {
         }
 
         @Override
-        public void subscribe(SubscribeOptions[] options) {
+        public void subscribe(SubscribeOptions[] options) throws RemoteException {
             FakeVehicleStub.this.subscribe(this, options);
         }
 
         @Override
-        public void unsubscribe(int propId) {
+        public void unsubscribe(int propId) throws RemoteException {
             // Check if this propId is supported.
             checkPropIdSupported(propId);
             // Check if this propId is a special property.
-            if (isSpecialProperty(VehicleProperty.INVALID)) {
-                // TODO(b/241006476) Handle special properties.
-                Slogf.w(TAG, "Special property is not supported.");
+            if (isSpecialProperty(propId)) {
+                mRealClient.unsubscribe(propId);
                 return;
             }
             FakeVehicleStub.this.unsubscribe(this, propId);
@@ -738,8 +753,10 @@ public final class FakeVehicleStub extends VehicleStub {
      *
      * @param client The client subscribes properties.
      * @param options The array of subscribe options.
+     * @throws RemoteException if remote operation through real SubscriptionClient fails.
      */
-    private void subscribe(FakeVhalSubscriptionClient client, SubscribeOptions[] options) {
+    private void subscribe(FakeVhalSubscriptionClient client, SubscribeOptions[] options)
+            throws RemoteException {
         for (int i = 0; i < options.length; i++) {
             int propId = options[i].propId;
 
@@ -747,9 +764,8 @@ public final class FakeVehicleStub extends VehicleStub {
             checkPropIdSupported(propId);
 
             // Check if this propId is a special property.
-            if (isSpecialProperty(VehicleProperty.INVALID)) {
-                // TODO(b/241006476) Handle special properties.
-                Slogf.w(TAG, "Special property is not supported.");
+            if (isSpecialProperty(propId)) {
+                client.mRealClient.subscribe(new SubscribeOptions[]{options[i]});
                 return;
             }
 
