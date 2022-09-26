@@ -1,0 +1,445 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.google.android.car.kitchensink.users;
+
+import android.annotation.Nullable;
+import android.app.ActivityManager;
+import android.app.IActivityManager;
+import android.car.Car;
+import android.car.CarOccupantZoneManager;
+import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.content.Context;
+import android.content.pm.UserInfo;
+import android.graphics.Color;
+import android.hardware.display.DisplayManager;
+import android.os.Bundle;
+import android.os.Process;
+import android.os.RemoteException;
+import android.os.UserHandle;
+import android.os.UserManager;
+import android.util.Log;
+import android.view.Display;
+import android.view.DisplayAddress;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.TextView;
+
+import androidx.fragment.app.Fragment;
+
+import com.google.android.car.kitchensink.KitchenSinkActivity;
+import com.google.android.car.kitchensink.R;
+import com.google.android.car.kitchensink.UserPickerActivity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public final class SimpleUserPickerFragment extends Fragment {
+
+    private static final String TAG = SimpleUserPickerFragment.class.getSimpleName();
+
+    private static final int ERROR_MESSAGE = 0;
+    private static final int WARN_MESSAGE = 1;
+    private static final int INFO_MESSAGE = 2;
+
+    private SpinnerWrapper mUsersSpinner;
+    private SpinnerWrapper mDisplaysSpinner;
+
+    private Button mStartUserButton;
+    private Button mStopUserButton;
+    private Button mSwitchUserButton;
+
+    private TextView mUserIdText;
+    private TextView mZoneInfoText;
+    private TextView mErrorMessageText;
+
+    private ActivityManager mActivityManager;
+    private UserManager mUserManager;
+    private DisplayManager mDisplayManager;
+    private CarOccupantZoneManager mZoneManager;
+
+    // The logical display to which the view's window has been attached.
+    private Display mDisplayAttached;
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.simple_user_picker, container, false);
+    }
+
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        mActivityManager = getContext().getSystemService(ActivityManager.class);
+        mUserManager = getContext().getSystemService(UserManager.class);
+        mDisplayManager = getContext().getSystemService(DisplayManager.class);
+
+        Object host = getHost();
+        if (host instanceof KitchenSinkActivity) {
+            Car car = ((KitchenSinkActivity) getHost()).getCar();
+            mZoneManager = (CarOccupantZoneManager) car.getCarManager(
+                    Car.CAR_OCCUPANT_ZONE_SERVICE);
+        } else if (host instanceof UserPickerActivity) {
+            mZoneManager = ((UserPickerActivity) host).getCarOccupantZoneManager();
+        } else {
+            Log.e(TAG, "cannot get CarOccupantZoneManager due to unknown activity");
+            throw new RuntimeException("Unknown activity that hosts this fragment");
+        }
+
+        mDisplayAttached = getContext().getDisplay();
+
+        mUserIdText = view.findViewById(R.id.textView_state);
+        mZoneInfoText = view.findViewById(R.id.textView_zoneinfo);
+        updateTextInfo();
+
+        mUsersSpinner = SpinnerWrapper.create(getContext(),
+                view.findViewById(R.id.spinner_users), getUnassignedUsers());
+        mDisplaysSpinner = SpinnerWrapper.create(getContext(),
+                view.findViewById(R.id.spinner_displays), getDisplays());
+
+        mStartUserButton = view.findViewById(R.id.button_start_user);
+        mStartUserButton.setOnClickListener(v -> startUser());
+        mStopUserButton = view.findViewById(R.id.button_stop_user);
+        mStopUserButton.setOnClickListener(v -> stopUser());
+        mSwitchUserButton = view.findViewById(R.id.button_switch_user);
+        mSwitchUserButton.setOnClickListener(v -> switchUser());
+
+        mErrorMessageText = view.findViewById(R.id.status_message_text_view);
+    }
+
+    private void updateTextInfo() {
+        int currentUserId = ActivityManager.getCurrentUser();
+        int myUserId = UserHandle.myUserId();
+        mUserIdText.setText("Current userId:" + currentUserId + " myUserId:" + myUserId);
+        StringBuilder zoneStatebuilder = new StringBuilder();
+        zoneStatebuilder.append("Zone-User-Displays:");
+        List<CarOccupantZoneManager.OccupantZoneInfo> zonelist = mZoneManager.getAllOccupantZones();
+        for (CarOccupantZoneManager.OccupantZoneInfo zone : zonelist) {
+            zoneStatebuilder.append(zone.zoneId);
+            zoneStatebuilder.append("-");
+            zoneStatebuilder.append(mZoneManager.getUserForOccupant(zone));
+            zoneStatebuilder.append("-");
+            List<Display> displays = mZoneManager.getAllDisplaysForOccupant(zone);
+            for (Display display : displays) {
+                zoneStatebuilder.append(display.getDisplayId());
+                zoneStatebuilder.append(",");
+            }
+            zoneStatebuilder.append(":");
+        }
+        mZoneInfoText.setText(zoneStatebuilder.toString());
+    }
+
+    // startUser starts a selected user on a selected secondary display.
+    private void startUser() {
+        int userId = getSelectedUser();
+        if (userId == UserHandle.USER_NULL) {
+            return;
+        }
+
+        int displayId = getSelectedDisplay();
+        if (displayId == Display.INVALID_DISPLAY) {
+            return;
+        }
+
+        // Start the user on display.
+        Log.i(TAG, "start user: " + userId + " in background on secondary display " + displayId);
+        boolean started = mActivityManager.startUserInBackgroundOnSecondaryDisplay(
+                userId, displayId);
+        if (!started) {
+            setMessage(ERROR_MESSAGE, "Cannot start user " + userId + " on display " + displayId);
+            return;
+        }
+
+        // Assign the user to the occupant zone that has this display.
+        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
+        if (zoneInfo == null) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot find occupant zone info associated with display " + displayId);
+            return;
+        }
+
+        int assignmentResult = mZoneManager.assignVisibleUserToOccupantZone(
+                zoneInfo, UserHandle.of(userId), 0);
+        if (assignmentResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot assign user " + userId + " to occupant zone " + zoneInfo.zoneId);
+            return;
+        }
+
+        setMessage(INFO_MESSAGE,
+                "Started user " + userId + " on display " + displayId
+                + " and assigned user to zone " + zoneInfo.zoneId);
+        mUsersSpinner.updateEntries(getUnassignedUsers());
+        updateTextInfo();
+    }
+
+    // stopUser stops the visible user on this secondary display.
+    private void stopUser() {
+        if (mDisplayAttached == null) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot obtain the display attached to the view to get occupant zone");
+            return;
+        }
+
+        int displayId = mDisplayAttached.getDisplayId();
+        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
+        if (zoneInfo == null) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot find occupant zone info associated with display " + displayId);
+            return;
+        }
+
+        int userId = mZoneManager.getUserForOccupant(zoneInfo);
+        if (userId == CarOccupantZoneManager.INVALID_USER_ID) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot find the user assigned to the occupant zone " + zoneInfo.zoneId);
+            return;
+        }
+
+        int currentUser = ActivityManager.getCurrentUser();
+        if (userId == currentUser) {
+            setMessage(WARN_MESSAGE, "Can not change current user");
+            return;
+        }
+
+        if (!mUserManager.isUserRunning(userId)) {
+            setMessage(WARN_MESSAGE, "User " + userId + " is already stopped");
+            return;
+        }
+
+        // Unassigning user from zone will happen in CarUserService.handleStoppingVisibleUser
+        // after getting the zone for the user and then the display in that zone
+        // so that this display can be used for starting user picker in
+        // CarUserService.handleStoppingVisibleUser.
+        IActivityManager am = ActivityManager.getService();
+        Log.i(TAG, "stop user:" + userId);
+        try {
+            // Use stopUserWithDelayedLocking instead of stopUser to make the call more efficient.
+            am.stopUserWithDelayedLocking(userId, /* force= */ false, /* callback= */ null);
+        } catch (RemoteException e) {
+            setMessage(ERROR_MESSAGE, "Cannot stop user " + userId, e);
+            return;
+        }
+
+        setMessage(INFO_MESSAGE, "Stopped user " + userId);
+        mUsersSpinner.updateEntries(getUnassignedUsers());
+        updateTextInfo();
+    }
+
+    private void switchUser() {
+        // Pick an unassigned user to switch to on this display.
+        int userId = getSelectedUser();
+        if (userId == UserHandle.USER_NULL) {
+            return;
+        }
+
+        if (mDisplayAttached == null) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot obtain the display attached to the view to get occupant zone");
+            return;
+        }
+
+        int displayId = mDisplayAttached.getDisplayId();
+        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
+        if (zoneInfo == null) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot find occupant zone info associated with display " + displayId);
+            return;
+        }
+
+        Log.i(TAG, "start user: " + userId + " in background on secondary display: " + displayId);
+        boolean started = mActivityManager.startUserInBackgroundOnSecondaryDisplay(
+                userId, displayId);
+        if (!started) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot start user " + userId + " on secondary display " + displayId);
+            return;
+        }
+
+        int zoneId = zoneInfo.zoneId;
+        Log.i(TAG, "assigning user:" + userId + " to zone:" + zoneId);
+        int assignmentResult = mZoneManager.assignVisibleUserToOccupantZone(
+                zoneInfo, UserHandle.of(userId), 0);
+        if (assignmentResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
+            setMessage(ERROR_MESSAGE,
+                    "Cannot assign user " + userId + " to occupant zone " + zoneInfo.zoneId);
+            return;
+        }
+
+        setMessage(INFO_MESSAGE, "Assigned user " + userId + " to zone " + zoneId);
+        mUsersSpinner.updateEntries(getUnassignedUsers());
+        updateTextInfo();
+    }
+
+    // TODO(b/248608281): Use API from CarOccupantZoneManager for convenience.
+    @Nullable
+    private OccupantZoneInfo getOccupantZoneForDisplayId(int displayId) {
+        List<OccupantZoneInfo> occupantZoneInfos = mZoneManager.getAllOccupantZones();
+        for (int index = 0; index < occupantZoneInfos.size(); index++) {
+            OccupantZoneInfo occupantZoneInfo = occupantZoneInfos.get(index);
+            List<Display> displays = mZoneManager.getAllDisplaysForOccupant(
+                    occupantZoneInfo);
+            for (int displayIndex = 0; displayIndex < displays.size(); displayIndex++) {
+                if (displays.get(displayIndex).getDisplayId() == displayId) {
+                    return occupantZoneInfo;
+                }
+            }
+        }
+        return null;
+    }
+
+    private void setMessage(int messageType, String title, Exception e) {
+        StringBuilder messageTextBuilder = new StringBuilder()
+                .append(title)
+                .append(": ")
+                .append(e.getMessage());
+        setMessage(messageType, messageTextBuilder.toString());
+    }
+
+    private void setMessage(int messageType, String message) {
+        int textColor;
+        switch (messageType) {
+            case ERROR_MESSAGE:
+                Log.e(TAG, message);
+                textColor = Color.RED;
+                break;
+            case WARN_MESSAGE:
+                Log.w(TAG, message);
+                textColor = Color.GREEN;
+                break;
+            case INFO_MESSAGE:
+            default:
+                Log.i(TAG, message);
+                textColor = Color.WHITE;
+        }
+        mErrorMessageText.setTextColor(textColor);
+        mErrorMessageText.setText(message);
+    }
+
+    @Nullable
+    private CarOccupantZoneManager.OccupantZoneInfo getZoneInfoForId(int zoneId) {
+        List<CarOccupantZoneManager.OccupantZoneInfo> zonelist = mZoneManager.getAllOccupantZones();
+        for (CarOccupantZoneManager.OccupantZoneInfo zone : zonelist) {
+            if (zone.zoneId == zoneId) {
+                return zone;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private int getSelectedDisplay() {
+        String displayStr = mDisplaysSpinner.getSelectedEntry();
+        if (displayStr == null) {
+            Log.w(TAG, "getSelectedDisplay, no display selected", new RuntimeException());
+            return Display.INVALID_DISPLAY;
+        }
+        return Integer.parseInt(displayStr.split(",")[0]);
+    }
+
+    private int getSelectedUser() {
+        String userStr = mUsersSpinner.getSelectedEntry();
+        if (userStr == null) {
+            Log.w(TAG, "getSelectedUser, user not selected", new RuntimeException());
+            return UserHandle.USER_NULL;
+        }
+        return Integer.parseInt(userStr.split(",")[0]);
+    }
+
+    // format: id,type
+    private ArrayList<String> getUnassignedUsers() {
+        ArrayList<String> users = new ArrayList<>();
+        List<UserInfo> aliveUsers = mUserManager.getAliveUsers();
+        List<UserHandle> visibleUsers = mUserManager.getVisibleUsers();
+        // Exclude visible users and only show unassigned users.
+        for (int i = 0; i < aliveUsers.size(); ++i) {
+            UserInfo u = aliveUsers.get(i);
+            if (!isIncluded(u.id, visibleUsers)) {
+                users.add(Integer.toString(u.id) + "," + u.userType);
+            }
+        }
+
+        return users;
+    }
+
+    // format: displayId,[P,]?,address]
+    private ArrayList<String> getDisplays() {
+        ArrayList<String> displays = new ArrayList<>();
+        Display[] disps = mDisplayManager.getDisplays();
+        int uidSelf = Process.myUid();
+        for (Display disp : disps) {
+            if (!disp.hasAccess(uidSelf)) {
+                continue;
+            }
+            StringBuilder builder = new StringBuilder()
+                    .append(disp.getDisplayId())
+                    .append(",");
+            DisplayAddress address = disp.getAddress();
+            if (address instanceof  DisplayAddress.Physical) {
+                builder.append("P,");
+            }
+            builder.append(address);
+            displays.add(builder.toString());
+        }
+        return displays;
+    }
+
+    private static boolean isIncluded(int userId, List<UserHandle> visibleUsers) {
+        for (int i = 0; i < visibleUsers.size(); ++i) {
+            if (userId == visibleUsers.get(i).getIdentifier()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final class SpinnerWrapper {
+        private final Spinner mSpinner;
+        private final ArrayList<String> mEntries;
+        private final ArrayAdapter<String> mAdapter;
+
+        private static SpinnerWrapper create(Context context, Spinner spinner,
+                ArrayList<String> entries) {
+            SpinnerWrapper wrapper = new SpinnerWrapper(context, spinner, entries);
+            wrapper.init();
+            return wrapper;
+        }
+
+        private SpinnerWrapper(Context context, Spinner spinner, ArrayList<String> entries) {
+            mSpinner = spinner;
+            mEntries = new ArrayList<>(entries);
+            mAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item,
+                    mEntries);
+        }
+
+        private void init() {
+            mAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            mSpinner.setAdapter(mAdapter);
+        }
+
+        private void updateEntries(ArrayList<String> entries) {
+            mEntries.clear();
+            mEntries.addAll(entries);
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Nullable
+        private String getSelectedEntry() {
+            return (String) mSpinner.getSelectedItem();
+        }
+    }
+}
