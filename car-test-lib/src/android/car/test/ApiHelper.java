@@ -22,7 +22,9 @@ import android.util.Log;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 // TODO(b/242571576): move this class to com.android.compatibility.common.util
@@ -105,37 +107,21 @@ public final class ApiHelper {
                     + ", signature=" + methodSignature);
         }
 
-        Class<?> clazz = null;
-        try {
-            clazz = Class.forName(className);
-            String methodName = methodSignature;
-            if (clazz != null) {
-                if (methodSignature.contains("(") && methodSignature.endsWith(")")) {
-                    int openingIndex = methodSignature.indexOf('(');
-                    methodName = methodSignature.substring(0, openingIndex);
-                    String types = methodSignature.substring(openingIndex + 1,
-                            methodSignature.length() - 1);
-                    String[] paramTypesNames = types.split(",");
-                    if (DBG) {
-                        Log.d(TAG, "Method name after stripping (): " + methodName + ". Types: "
-                                + Arrays.toString(paramTypesNames));
-                    }
-                    return getMethodWithParameters(clazz, methodName, paramTypesNames);
-                } // methodSignature.contains....
-                if (DBG) {
-                    Log.d(TAG, "Getting method without params: " + methodName);
-                }
-                Class<?>[] noParams = {};
-                return clazz.getDeclaredMethod(methodName, noParams);
-            } // clazz != null
-        } catch (NoSuchMethodException e) {
-            Log.d(TAG, "getMethod(" + fullyQualifiedMethodName + ") failed: " + e);
+        Class<?> clazz = Class.forName(className);
+        String methodName = methodSignature;
+        if (methodSignature.contains("(") && methodSignature.endsWith(")")) {
+            int openingIndex = methodSignature.indexOf('(');
+            methodName = methodSignature.substring(0, openingIndex);
+            String types = methodSignature.substring(openingIndex + 1,
+                    methodSignature.length() - 1);
+            String[] paramTypesNames = types.split(",");
             if (DBG) {
-                Log.d(TAG, "Methods of " + clazz + ": "
-                        + Arrays.toString(clazz.getDeclaredMethods()));
+                Log.d(TAG, "Method name after stripping (): " + methodName + ". Types: "
+                        + Arrays.toString(paramTypesNames));
             }
+            return getMethodWithParameters(clazz, methodName, paramTypesNames);
         }
-        return null;
+        return getMethodWithoutParameters(clazz, methodName);
     }
 
     @Nullable
@@ -185,6 +171,33 @@ public final class ApiHelper {
                 Log.d(TAG, "Found method :"  + method);
             }
             return method;
+        }
+        return null;
+    }
+
+    @Nullable
+    private static Method getMethodWithoutParameters(Class<?> clazz, String methodName) {
+        if (DBG) {
+            Log.d(TAG, "Getting method without params: " + methodName);
+        }
+        List<Method> methods = new ArrayList<>();
+        for (Method method : clazz.getDeclaredMethods()) {
+            if (methodName.equals(method.getName())) {
+                if (DBG) {
+                    Log.d(TAG, "Found " + methodName + ": " + method);
+                }
+                methods.add(method);
+            }
+        }
+        if (methods.size() == 1) {
+            return methods.get(0);
+        }
+        if (DBG) {
+            if (methods.isEmpty()) {
+                Log.d(TAG, "No method named " + methodName + " on " + clazz);
+            } else {
+                Log.d(TAG, "Found " + methods.size() + " methods on " + clazz + ": " + methods);
+            }
         }
         return null;
     }
