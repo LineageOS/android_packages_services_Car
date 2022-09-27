@@ -40,12 +40,7 @@ CarTelemetryInternalImpl::CarTelemetryInternalImpl(TelemetryServer* server) :
 ndk::ScopedAStatus CarTelemetryInternalImpl::setListener(
         const std::shared_ptr<ICarDataListener>& listener) {
     LOG(VERBOSE) << "Received a setListener call";
-    auto result = mTelemetryServer->setListener(listener);
-    if (!result.ok()) {
-        LOG(WARNING) << __func__ << ": " << result.error().message();
-        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(result.error().code(),
-                                                                result.error().message().c_str());
-    }
+    mTelemetryServer->setListener(listener);
 
     // If passed a local binder, AIBinder_linkToDeath will do nothing and return
     // STATUS_INVALID_OPERATION. We ignore this case because we only use local binders in tests
