@@ -45,9 +45,10 @@ import com.google.android.car.kitchensink.R;
 import java.util.List;
 
 public class HvacTestFragment extends Fragment {
-    private final boolean DBG = true;
-    private final String TAG = "HvacTestFragment";
+    private static final boolean DBG = true;
+    private static final String TAG = HvacTestFragment.class.getSimpleName();
     private static final float TEMP_STEP = 0.5f;
+
     private RadioButton mRbFanPositionFace;
     private RadioButton mRbFanPositionFloor;
     private RadioButton mRbFanPositionFaceAndFloor;

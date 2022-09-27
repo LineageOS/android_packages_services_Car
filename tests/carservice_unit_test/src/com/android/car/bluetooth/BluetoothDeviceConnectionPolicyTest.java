@@ -156,7 +156,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
                 .thenReturn(new CarPropertyValue<Integer>(VehiclePropertyIds.INFO_DRIVER_SEAT,
                 0 /*areaId*/, new Integer(DRIVER_SEAT)));
 
-        mPolicy = BluetoothDeviceConnectionPolicy.create(mMockContext, mUserId,
+        mPolicy = BluetoothDeviceConnectionPolicy.create(mMockContext, USER_ID,
                 mMockBluetoothService);
         Assert.assertTrue(mPolicy != null);
 
@@ -470,7 +470,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
                 .thenReturn(null);
 
         BluetoothDeviceConnectionPolicy policyUnderTest = BluetoothDeviceConnectionPolicy.create(
-                mMockContext, mUserId, mMockBluetoothService);
+                mMockContext, USER_ID, mMockBluetoothService);
         Assert.assertTrue(policyUnderTest != null);
     }
 
