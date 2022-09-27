@@ -179,7 +179,7 @@ public class FakeVehicleStubUnitTest {
     }
 
     @Test
-    public void testCustomFileNotExist() throws Exception {
+    public void testNoCustomFile() throws Exception {
         SparseArray<ConfigDeclaration> defaultParseResult = createParseResult(
                 /* propId= */ 123, /* maxSampleRate= */ 10.0f,
                 /* access= */ VehiclePropertyAccess.NONE, /* areaId= */ 0);
@@ -190,6 +190,53 @@ public class FakeVehicleStubUnitTest {
         HalPropConfig[] allPropConfig = fakeVehicleStub.getAllPropConfigs();
 
         expect.that(allPropConfig.length).isEqualTo(defaultParseResult.size());
+    }
+
+    @Test
+    public void testCustomFileParseFailure() throws Exception {
+        // Parse this custom config file will throw an IllegalArgumentException with message
+        // "properties field value is not a valid JSONArray."
+        String jsonString = "{\"property\": 123,"
+                + "\"defaultValue\": {\"floatValues\": [200.0]}, "
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\","
+                + "\"maxSampleRate\": 5.0}";
+        List<File> customFileList = createFilenameList(jsonString);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        expect.that(fakeVehicleStub.isFakeModeEnabled()).isEqualTo(true);
+    }
+
+    @Test
+    public void testCustomFilesOneParseSuccessOneParseFailure() throws Exception {
+        String validJsonString = "{\"properties\":["
+                + "{\"property\": \"VehicleProperty::INFO_FUEL_TYPE\","
+                + "\"defaultValue\": {\"floatValues\": [200.0]}, "
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\","
+                + "\"maxSampleRate\": 5.0}]}";
+        List<File> customFileList = createFilenameList(validJsonString);
+        // Parse this custom config file will throw an IllegalArgumentException with message
+        // "properties field value is not a valid JSONArray."
+        String invalidJsonString = "{\"property\": 123,"
+                + "\"defaultValue\": {\"floatValues\": [200.0]}, "
+                + "\"access\": \"VehiclePropertyAccess::READ_WRITE\","
+                + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\","
+                + "\"maxSampleRate\": 5.0}";
+        customFileList.addAll(createFilenameList(invalidJsonString));
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.INFO_FUEL_TYPE, /* areaId= */ 0);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        expect.that(fakeVehicleStub.isFakeModeEnabled()).isEqualTo(true);
+        expect.that(fakeVehicleStub.get(requestPropValue).getPropId())
+                .isEqualTo(VehicleProperty.INFO_FUEL_TYPE);
+        expect.that(fakeVehicleStub.get(requestPropValue).getFloatValue(0)).isEqualTo(200);
     }
 
     @Test
