@@ -381,7 +381,8 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
     public void testRemovePowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
 
-        applyInitialPolicyForTest(/* policyName= */ "audio_off", /* enabledComponents= */
+        String initialPolicyId = "audio_off";
+        applyInitialPolicyForTest(initialPolicyId, /* enabledComponents= */
                 new String[]{}, /* disabledComponents= */ new String[]{"AUDIO"});
 
         String policyId = "audio_on_wifi_off";
@@ -396,8 +397,12 @@ public final class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCa
         mCarPowerManager.removePowerPolicyListener(listenerOne);
         mCarPowerManager.applyPowerPolicy(policyId);
 
-        assertThat(listenerOne.getCurrentPolicyId()).isNull();
-        assertThat(listenerTwo.getCurrentPolicyId()).isEqualTo(policyId);
+        String receivedPolicyId = listenerOne.getCurrentPolicyId();
+        assertWithMessage("Policy ID received after removing listeners")
+                .that(receivedPolicyId == null || receivedPolicyId.equals(initialPolicyId))
+                .isTrue();
+        assertPowerPolicyId(listenerTwo, policyId, "Current policy ID of listenerTwo is not "
+                + policyId);
     }
 
     private void applyInitialPolicyForTest(String policyName, String[] enabledComponents,
