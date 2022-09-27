@@ -40,11 +40,17 @@
             android:layout_height="@dimen/grip_bar_height"
             android:background="@drawable/title_bar_background">
             <View
-                android:id="@+id/title_handle_bar"
+                android:id="@+id/grip_bar_view"
                 android:layout_width="@dimen/grip_bar_width"
                 android:layout_height="6dp"
                 android:background="@color/car_surface_variant"
                 android:layout_centerInParent="true"/>
+            <ImageView
+                android:id="@+id/immersive_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:visibility="gone"/>
         </RelativeLayout>
 
         <FrameLayout

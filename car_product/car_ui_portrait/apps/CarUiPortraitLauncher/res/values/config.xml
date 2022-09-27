@@ -49,4 +49,7 @@
     <string-array name="config_homeCardModuleClasses" translatable="false">
         <item>com.android.car.carlauncher.homescreen.audio.AudioCard</item>
     </string-array>
+
+    <bool name="config_setInsetsOnUpperTaskView">false</bool>
+
 </resources>

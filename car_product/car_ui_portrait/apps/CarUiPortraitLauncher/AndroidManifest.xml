@@ -16,7 +16,8 @@
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.android.car.portraitlauncher">
+    package="com.android.car.portraitlauncher"
+    coreApp="true">
 
     <application
         android:label="@string/app_title"
