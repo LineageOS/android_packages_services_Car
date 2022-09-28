@@ -78,23 +78,25 @@ final class AidlVehicleStub extends VehicleStub {
     private final HandlerThread mHandlerThread;
     private final Handler mHandler;
     private final AtomicLong mRequestId = new AtomicLong(0);
-    private long mTimeoutMs = DEFAULT_TIMEOUT_MS;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private final LongSparseArray<AndroidFuture<GetValueResult>>
             mPendingSyncGetValueRequestsByVhalRequestId = new LongSparseArray();
     @GuardedBy("mLock")
-    private final LongSparseArray<AsyncClientInfo> mPendingAsyncClientsByRequestId =
+    private final LongSparseArray<AsyncRequestInfo> mPendingAsyncRequestsByVhalRequestId =
             new LongSparseArray();
     @GuardedBy("mLock")
     private final LongSparseArray<AndroidFuture<SetValueResult>>
             mPendingSyncSetValueRequestsByVhalRequestId = new LongSparseArray();
 
-    private static class AsyncClientInfo {
+    // This might be modifed during tests.
+    private long mSyncOpTimeoutInMs = DEFAULT_TIMEOUT_MS;
+
+    private static class AsyncRequestInfo {
         private final int mServiceRequestId;
         private final IGetVehicleStubAsyncCallback mGetAsyncCallback;
 
-        private AsyncClientInfo(int serviceRequestId,
+        private AsyncRequestInfo(int serviceRequestId,
                 IGetVehicleStubAsyncCallback getAsyncCallback) {
             mServiceRequestId = serviceRequestId;
             mGetAsyncCallback = getAsyncCallback;
@@ -115,9 +117,15 @@ final class AidlVehicleStub extends VehicleStub {
 
     @VisibleForTesting
     AidlVehicleStub(IVehicle aidlVehicle) {
+        this(aidlVehicle,
+                CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName()));
+    }
+
+    @VisibleForTesting
+    AidlVehicleStub(IVehicle aidlVehicle, HandlerThread handlerThread) {
         mAidlVehicle = aidlVehicle;
         mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
-        mHandlerThread = CarServiceUtils.getHandlerThread(AidlVehicleStub.class.getSimpleName());
+        mHandlerThread = handlerThread;
         mHandler = new Handler(mHandlerThread.getLooper());
         mGetSetValuesCallback = new GetSetValuesCallback();
     }
@@ -126,8 +134,8 @@ final class AidlVehicleStub extends VehicleStub {
      * Sets the timeout for getValue/setValue requests in milliseconds.
      */
     @VisibleForTesting
-    void setTimeoutMs(long timeoutMs) {
-        mTimeoutMs = timeoutMs;
+    void setSyncOpTimeoutInMs(long timeoutMs) {
+        mSyncOpTimeoutInMs = timeoutMs;
     }
 
     @VisibleForTesting
@@ -272,7 +280,8 @@ final class AidlVehicleStub extends VehicleStub {
 
         AndroidAsyncFuture<GetValueResult> asyncResultFuture = new AndroidAsyncFuture(resultFuture);
         try {
-            GetValueResult result = asyncResultFuture.get(mTimeoutMs, TimeUnit.MILLISECONDS);
+            GetValueResult result = asyncResultFuture.get(mSyncOpTimeoutInMs,
+                    TimeUnit.MILLISECONDS);
             if (result.status != StatusCode.OK) {
                 throw new ServiceSpecificException(
                         result.status, "failed to get value: " + request.prop);
@@ -302,6 +311,7 @@ final class AidlVehicleStub extends VehicleStub {
             IGetVehicleStubAsyncCallback getCallback) {
         GetValueRequest[] getValueRequests =
                 new GetValueRequest[getVehicleStubAsyncRequests.size()];
+        LongSparseArray<List<Long>> vhalRequestIdsByTimeoutInMs = new LongSparseArray<>();
 
         synchronized (mLock) {
             // Add the death recipient so that all client info for a dead callback will be cleaned
@@ -323,9 +333,16 @@ final class AidlVehicleStub extends VehicleStub {
                 GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
                         getVehicleStubAsyncRequests.get(i);
                 long vhalRequestId = mRequestId.getAndIncrement();
-                mPendingAsyncClientsByRequestId.put(vhalRequestId,
-                        new AsyncClientInfo(getVehicleStubAsyncRequest.getServiceRequestId(),
-                                getCallback));
+                AsyncRequestInfo requestInfo = new AsyncRequestInfo(
+                        getVehicleStubAsyncRequest.getServiceRequestId(), getCallback);
+                mPendingAsyncRequestsByVhalRequestId.put(vhalRequestId, requestInfo);
+
+                long timeoutInMs = getVehicleStubAsyncRequest.getTimeoutInMs();
+                if (vhalRequestIdsByTimeoutInMs.get(timeoutInMs) == null) {
+                    vhalRequestIdsByTimeoutInMs.put(timeoutInMs, new ArrayList<Long>());
+                }
+                vhalRequestIdsByTimeoutInMs.get(timeoutInMs).add(vhalRequestId);
+
                 GetValueRequest vhalRequest = new GetValueRequest();
                 vhalRequest.requestId = vhalRequestId;
                 vhalRequest.prop = (VehiclePropValue) getVehicleStubAsyncRequest.getHalPropValue()
@@ -333,6 +350,7 @@ final class AidlVehicleStub extends VehicleStub {
                 getValueRequests[i] = vhalRequest;
             }
         }
+
         GetValueRequests requests = new GetValueRequests();
         requests.payloads = getValueRequests;
         requests = (GetValueRequests) LargeParcelable.toLargeParcelable(requests, () -> {
@@ -349,6 +367,10 @@ final class AidlVehicleStub extends VehicleStub {
             handleExceptionFromVhal(requests, getCallback,
                     convertHalToCarPropertyManagerError(e.errorCode));
         }
+
+        // Register the timeout handlers for the added requests. Only register if the requests
+        // are sent successfully.
+        addTimeoutHandlers(vhalRequestIdsByTimeoutInMs);
     }
 
     /**
@@ -366,16 +388,16 @@ final class AidlVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (int i = 0; i < requests.payloads.length; i++) {
                 long vhalRequestId = requests.payloads[i].requestId;
-                AsyncClientInfo clientInfo = mPendingAsyncClientsByRequestId.get(vhalRequestId);
-                mPendingAsyncClientsByRequestId.remove(vhalRequestId);
-                if (clientInfo == null) {
+                AsyncRequestInfo requestInfo = getAndRemovePendingRequestInfoLocked(vhalRequestId);
+                if (requestInfo == null) {
                     Slogf.w(CarLog.TAG_SERVICE,
                             "No pending request for ID: %s, possibly already timed out or "
                             + "the client already died", vhalRequestId);
                     continue;
                 }
                 getVehicleStubAsyncResults.add(
-                        new GetVehicleStubAsyncResult(clientInfo.getServiceRequestId(), errorCode));
+                        new GetVehicleStubAsyncResult(requestInfo.getServiceRequestId(),
+                        errorCode));
             }
         }
         getCallback.onGetAsyncResults(getVehicleStubAsyncResults);
@@ -412,7 +434,8 @@ final class AidlVehicleStub extends VehicleStub {
 
         AndroidAsyncFuture<SetValueResult> asyncResultFuture = new AndroidAsyncFuture(resultFuture);
         try {
-            SetValueResult result = asyncResultFuture.get(mTimeoutMs, TimeUnit.MILLISECONDS);
+            SetValueResult result = asyncResultFuture.get(mSyncOpTimeoutInMs,
+                    TimeUnit.MILLISECONDS);
             if (result.status != StatusCode.OK) {
                 throw new ServiceSpecificException(
                         result.status, "failed to set value: " + request.value);
@@ -539,18 +562,17 @@ final class AidlVehicleStub extends VehicleStub {
 
     private void onGetAsyncPropertyResult(GetValueResult result, long vhalRequestId,
             Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
-        AsyncClientInfo clientInfo;
+        AsyncRequestInfo requestInfo;
         synchronized (mLock) {
-            clientInfo = mPendingAsyncClientsByRequestId.get(vhalRequestId);
-            mPendingAsyncClientsByRequestId.remove(vhalRequestId);
+            requestInfo = getAndRemovePendingRequestInfoLocked(vhalRequestId);
         }
-        if (clientInfo == null) {
+        if (requestInfo == null) {
             Slogf.w(CarLog.TAG_SERVICE,
                     "No pending request for ID: %s, possibly already timed out"
                     + " or the client already died", vhalRequestId);
             return;
         }
-        int serviceRequestId = clientInfo.getServiceRequestId();
+        int serviceRequestId = requestInfo.getServiceRequestId();
         GetVehicleStubAsyncResult getVehicleStubAsyncResult;
         if (result.status != StatusCode.OK) {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
@@ -564,7 +586,7 @@ final class AidlVehicleStub extends VehicleStub {
                     mPropValueBuilder.build(result.prop));
         }
         IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
-                clientInfo.getGetAsyncCallback();
+                requestInfo.getGetAsyncCallback();
         if (callbackToResult.get(getVehicleStubAsyncCallback) == null) {
             callbackToResult.put(getVehicleStubAsyncCallback, new ArrayList<>());
         }
@@ -580,7 +602,7 @@ final class AidlVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (GetValueResult result : origResponses.payloads) {
                 long vhalRequestId = result.requestId;
-                if (mPendingAsyncClientsByRequestId.get(vhalRequestId) == null) {
+                if (mPendingAsyncRequestsByVhalRequestId.get(vhalRequestId) == null) {
                     onGetSyncPropertyResult(result, vhalRequestId);
                 } else {
                     onGetAsyncPropertyResult(result, vhalRequestId, callbackToResult);
@@ -674,16 +696,59 @@ final class AidlVehicleStub extends VehicleStub {
         synchronized (mLock) {
             List<Long> requestIdsToRemove = new ArrayList<>();
 
-            for (int i = 0; i < mPendingAsyncClientsByRequestId.size(); i++) {
-                if (mPendingAsyncClientsByRequestId.valueAt(i).getGetAsyncCallback()
+            for (int i = 0; i < mPendingAsyncRequestsByVhalRequestId.size(); i++) {
+                if (mPendingAsyncRequestsByVhalRequestId.valueAt(i).getGetAsyncCallback()
                         == getCallback) {
-                    requestIdsToRemove.add(mPendingAsyncClientsByRequestId.keyAt(i));
+                    requestIdsToRemove.add(mPendingAsyncRequestsByVhalRequestId.keyAt(i));
                 }
             }
 
             for (int i = 0; i < requestIdsToRemove.size(); i++) {
-                mPendingAsyncClientsByRequestId.delete(requestIdsToRemove.get(i));
+                mPendingAsyncRequestsByVhalRequestId.delete(requestIdsToRemove.get(i));
             }
         }
+    }
+
+    private void addTimeoutHandlers(LongSparseArray<List<Long>> vhalRequestIdsByTimeoutInMs) {
+        for (int i = 0; i < vhalRequestIdsByTimeoutInMs.size(); i++) {
+            long timeoutInMs = vhalRequestIdsByTimeoutInMs.keyAt(i);
+            List<Long> vhalRequestIds = vhalRequestIdsByTimeoutInMs.valueAt(i);
+            mHandler.postDelayed(() -> {
+                requestsTimedout(vhalRequestIds);
+            }, timeoutInMs);
+        }
+    }
+
+    private void requestsTimedout(List<Long> vhalRequestIds) {
+        Map<IGetVehicleStubAsyncCallback, List<Integer>> timedoutServiceRequestIdsByCallback =
+                new ArrayMap<>();
+        synchronized (mLock) {
+            for (int i = 0; i < vhalRequestIds.size(); i++) {
+                long vhalRequestId = vhalRequestIds.get(i);
+                AsyncRequestInfo requestInfo = getAndRemovePendingRequestInfoLocked(
+                        vhalRequestId);
+                if (requestInfo == null) {
+                    // We already finished the request or the callback is already dead, ignore.
+                    continue;
+                }
+                IGetVehicleStubAsyncCallback getAsyncCallback = requestInfo.getGetAsyncCallback();
+                if (timedoutServiceRequestIdsByCallback.get(getAsyncCallback) == null) {
+                    timedoutServiceRequestIdsByCallback.put(getAsyncCallback, new ArrayList<>());
+                }
+                timedoutServiceRequestIdsByCallback.get(getAsyncCallback).add(
+                        requestInfo.getServiceRequestId());
+            }
+        }
+
+        for (IGetVehicleStubAsyncCallback callback : timedoutServiceRequestIdsByCallback.keySet()) {
+            callback.onRequestsTimeout(timedoutServiceRequestIdsByCallback.get(callback));
+        }
+    }
+
+    @GuardedBy("mLock")
+    private @Nullable AsyncRequestInfo getAndRemovePendingRequestInfoLocked(long vhalRequestId) {
+        AsyncRequestInfo requestInfo = mPendingAsyncRequestsByVhalRequestId.get(vhalRequestId);
+        mPendingAsyncRequestsByVhalRequestId.remove(vhalRequestId);
+        return requestInfo;
     }
 }

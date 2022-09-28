@@ -84,6 +84,7 @@ public abstract class VehicleStub {
     public static class GetVehicleStubAsyncRequest {
         private final int mServiceRequestId;
         private final HalPropValue mHalPropValue;
+        private final long mTimeoutInMs;
 
         public int getServiceRequestId() {
             return mServiceRequestId;
@@ -93,12 +94,18 @@ public abstract class VehicleStub {
             return mHalPropValue;
         }
 
+        public long getTimeoutInMs() {
+            return mTimeoutInMs;
+        }
+
         /**
          * Get an instance for GetVehicleStubAsyncRequest.
          */
-        public GetVehicleStubAsyncRequest(int serviceRequestId, HalPropValue halPropValue) {
+        public GetVehicleStubAsyncRequest(int serviceRequestId, HalPropValue halPropValue,
+                long timeoutInMs) {
             mServiceRequestId = serviceRequestId;
             mHalPropValue = halPropValue;
+            mTimeoutInMs = timeoutInMs;
         }
     }
 
@@ -160,6 +167,13 @@ public abstract class VehicleStub {
          * Register a callback that will be called when the callback binder died.
          */
         public abstract void linkToDeath(DeathRecipient recipient) throws RemoteException;
+
+        /**
+         * Method called when async requests timed-out.
+         *
+         * If the callback's binder is already dead, this function will not be called.
+         */
+        public abstract void onRequestsTimeout(List<Integer> serviceRequestIds);
     }
 
     /**
