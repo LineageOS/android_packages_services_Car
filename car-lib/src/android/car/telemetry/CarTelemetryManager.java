@@ -443,7 +443,14 @@ public final class CarTelemetryManager extends CarManagerBase {
         }
     }
 
-    /** Listens for report ready notifications. */
+    /** Listens for report ready notifications.
+     * Atomic variables (mReportReadyListenerExecutor and mReportReadyListener)
+     * can be accessed from different threads simultaneously.
+     * Both of these variables can be set to null by {@link #clearReportReadyListener()}
+     * and simultaneously {@link #onReady(String)} may try to access the null value.
+     * So, to avoid possible NullPointerException due to this race condition,
+     * these atomic variables are needed to be retrieved in local variables
+     * and verified those are not null before accessing. */
     private static final class CarTelemetryReportReadyListenerImpl
             extends ICarTelemetryReportReadyListener.Stub {
         private final WeakReference<CarTelemetryManager> mManager;
@@ -462,8 +469,12 @@ public final class CarTelemetryManager extends CarManagerBase {
             if (executor == null) {
                 return;
             }
+            ReportReadyListener reportReadyListener = manager.mReportReadyListener.get();
+            if (reportReadyListener == null) {
+                return;
+            }
             executor.execute(
-                    () -> manager.mReportReadyListener.get().onReady(metricsConfigName));
+                    () -> reportReadyListener.onReady(metricsConfigName));
         }
     }
 
