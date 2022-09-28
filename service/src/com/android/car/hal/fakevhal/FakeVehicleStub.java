@@ -321,11 +321,16 @@ public final class FakeVehicleStub extends VehicleStub {
         checkPropIdSupported(propId);
         int areaId = isPropertyGlobal(propId) ? AREA_ID_GLOBAL : propValue.getAreaId();
         checkAreaIdSupported(propId, areaId);
+
+        // For HVAC power dependent properties, check if HVAC_POWER_ON is on.
+        if (isHvacPowerDependentProp(propId)) {
+            checkPropAvailable(propId, areaId);
+        }
         // Check access permission.
         int access = mPropConfigsByPropId.get(propId).getAccess();
         if (access != VehiclePropertyAccess.WRITE && access != VehiclePropertyAccess.READ_WRITE) {
             throw new ServiceSpecificException(StatusCode.ACCESS_DENIED, "This property " + propId
-                + " doesn't have write permission.");
+                    + " doesn't have write permission.");
         }
 
         if (isSpecialProperty(propValue.getPropId())) {
