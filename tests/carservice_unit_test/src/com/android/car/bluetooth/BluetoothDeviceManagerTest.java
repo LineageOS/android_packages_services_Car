@@ -102,8 +102,9 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
     BluetoothDeviceManager mDeviceManager;
 
     // Tests assume the auto connecting devices only support MAP
-    private final String mConnectionAction =
+    private static final String CONNECTION_STATE =
             "android.bluetooth.mapmce.profile.action.CONNECTION_STATE_CHANGED";
+
     private ParcelUuid[] mUuids = new ParcelUuid[] {
             BluetoothUuid.MAS};
 
@@ -248,7 +249,7 @@ public class BluetoothDeviceManagerTest extends AbstractExtendedMockitoBluetooth
 
     private void sendConnectionStateChanged(BluetoothDevice device, int newState) {
         Assert.assertTrue(mMockContext != null);
-        Intent intent = new Intent(mConnectionAction);
+        Intent intent = new Intent(CONNECTION_STATE);
         intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
         intent.putExtra(BluetoothProfile.EXTRA_STATE, newState);
         mMockContext.sendBroadcast(intent);

@@ -41,9 +41,10 @@ import java.util.concurrent.Executors;
  */
 @RunWith(AndroidJUnit4.class)
 public class CarTelemetryManagerPermissionTest {
+    private static final String METRICS_CONFIG_NAME = "name";
+
     private final byte[] mMetricsConfigBytes = "metricsConfig".getBytes();
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
-    private final String mMetricsConfigName = "name";
     private final Context mContext =
             InstrumentationRegistry.getInstrumentation().getTargetContext();
 
@@ -73,7 +74,7 @@ public class CarTelemetryManagerPermissionTest {
     @Test
     public void testRemoveMetricsConfig() {
         Exception e = assertThrows(SecurityException.class,
-                () -> mCarTelemetryManager.removeMetricsConfig(mMetricsConfigName));
+                () -> mCarTelemetryManager.removeMetricsConfig(METRICS_CONFIG_NAME));
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);
     }
@@ -89,7 +90,7 @@ public class CarTelemetryManagerPermissionTest {
     @Test
     public void testGetFinishedReport() {
         Exception e = assertThrows(SecurityException.class,
-                () -> mCarTelemetryManager.getFinishedReport(mMetricsConfigName, mExecutor,
+                () -> mCarTelemetryManager.getFinishedReport(METRICS_CONFIG_NAME, mExecutor,
                         (metricsConfigName, report, telemetryError, status) -> { }));
 
         assertThat(e.getMessage()).contains(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE);

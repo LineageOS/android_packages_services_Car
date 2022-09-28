@@ -146,6 +146,8 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected static final int DEFAULT_TIMEOUT_MS = 15000;
 
+    protected static final int ASYNC_CALL_TIMEOUT_MS = 100;
+
     @Mock protected Context mMockContext;
     @Mock protected Context mApplicationContext;
     @Mock protected LocationManager mLocationManager;
@@ -184,7 +186,6 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected final AndroidFuture<UserIdentificationAssociationResponse>
             mUserAssociationRespFuture = new AndroidFuture<>();
-    protected final int mAsyncCallTimeoutMs = 100;
     protected final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
     protected final SwitchUserResponse mSwitchUserResponse = new SwitchUserResponse();
 
@@ -250,7 +251,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
         doReturn(1).when(mMockedDrawable).getIntrinsicHeight();
         mockUserHalSupported(true);
         mockUserHalUserAssociationSupported(true);
-        doReturn(Optional.of(mAsyncCallTimeoutMs)).when(
+        doReturn(Optional.of(ASYNC_CALL_TIMEOUT_MS)).when(
                 () -> CarSystemProperties.getUserHalTimeout());
         CarLocalServices.addService(CarOccupantZoneService.class, mCarOccupantZoneService);
 
@@ -408,7 +409,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected void createUserWithRestrictionsInvalidTypes(@NonNull String type) throws Exception {
         int flags = 0;
         AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
-        mCarUserService.createUser("name", type, flags, mAsyncCallTimeoutMs, future,
+        mCarUserService.createUser("name", type, flags, ASYNC_CALL_TIMEOUT_MS, future,
                 HAS_CALLER_RESTRICTIONS);
         waitForHandlerThreadToFinish();
         assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(future,
@@ -418,7 +419,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
     protected void createUserWithRestrictionsInvalidTypes(int flags) throws Exception {
         String userType = UserManager.USER_TYPE_FULL_SECONDARY;
         AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>();
-        mCarUserService.createUser("name", userType, flags, mAsyncCallTimeoutMs, future,
+        mCarUserService.createUser("name", userType, flags, ASYNC_CALL_TIMEOUT_MS, future,
                 HAS_CALLER_RESTRICTIONS);
         waitForHandlerThreadToFinish();
         assertUserCreationInvalidArgumentsFailureWithInternalErrorMessage(future,
@@ -618,7 +619,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     (HalCallback<InitialUserInfoResponse>) invocation.getArguments()[3];
             callback.onResponse(HalCallback.STATUS_OK, response);
             return null;
-        }).when(mUserHal).getInitialUserInfo(anyInt(), eq(mAsyncCallTimeoutMs),
+        }).when(mUserHal).getInitialUserInfo(anyInt(), eq(ASYNC_CALL_TIMEOUT_MS),
                 eq(usersInfo), notNull());
     }
 
@@ -650,12 +651,12 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     (HalCallback<CreateUserResponse>) invocation.getArguments()[2];
             callback.onResponse(callbackStatus, response);
             return null;
-        }).when(mUserHal).createUser(captor.capture(), eq(mAsyncCallTimeoutMs), notNull());
+        }).when(mUserHal).createUser(captor.capture(), eq(ASYNC_CALL_TIMEOUT_MS), notNull());
         return captor;
     }
 
     protected void mockHalCreateUserThrowsRuntimeException(Exception exception) {
-        doThrow(exception).when(mUserHal).createUser(any(), eq(mAsyncCallTimeoutMs), notNull());
+        doThrow(exception).when(mUserHal).createUser(any(), eq(ASYNC_CALL_TIMEOUT_MS), notNull());
     }
 
     protected void mockCallerUid(int uid, boolean returnCorrectUid) throws Exception {
@@ -691,7 +692,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     .getArguments()[2];
             callback.onResponse(HalCallback.STATUS_OK, response);
         });
-        doAnswer(blockingAnswer).when(mUserHal).switchUser(eq(request), eq(mAsyncCallTimeoutMs),
+        doAnswer(blockingAnswer).when(mUserHal).switchUser(eq(request), eq(ASYNC_CALL_TIMEOUT_MS),
                 notNull());
         return blockingAnswer;
     }
@@ -716,7 +717,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     (HalCallback<SwitchUserResponse>) invocation.getArguments()[2];
             callback.onResponse(callbackStatus, response);
             return null;
-        }).when(mUserHal).switchUser(eq(request), eq(mAsyncCallTimeoutMs), notNull());
+        }).when(mUserHal).switchUser(eq(request), eq(ASYNC_CALL_TIMEOUT_MS), notNull());
     }
 
     protected void mockHalGetUserIdentificationAssociation(@NonNull UserHandle user,
@@ -771,7 +772,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     (HalCallback<UserIdentificationResponse>) invocation.getArguments()[2];
             callback.onResponse(HalCallback.STATUS_OK, response);
             return null;
-        }).when(mUserHal).setUserAssociation(eq(mAsyncCallTimeoutMs), notNull(), notNull());
+        }).when(mUserHal).setUserAssociation(eq(ASYNC_CALL_TIMEOUT_MS), notNull(), notNull());
     }
 
     protected void mockHalSetUserIdentificationAssociationFailure(@NonNull String errorMessage) {
@@ -784,7 +785,7 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
                     (HalCallback<UserIdentificationResponse>) invocation.getArguments()[2];
             callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, response);
             return null;
-        }).when(mUserHal).setUserAssociation(eq(mAsyncCallTimeoutMs), notNull(), notNull());
+        }).when(mUserHal).setUserAssociation(eq(ASYNC_CALL_TIMEOUT_MS), notNull(), notNull());
     }
 
     protected void mockInteractAcrossUsersPermission(boolean granted) {
@@ -938,11 +939,11 @@ abstract class BaseCarUserServiceTestCase extends AbstractExtendedMockitoTestCas
 
     protected void assertHalSwitch(int currentId, int targetId) {
         verify(mUserHal).switchUser(isSwitchUserRequest(0, currentId, targetId),
-                eq(mAsyncCallTimeoutMs), any());
+                eq(ASYNC_CALL_TIMEOUT_MS), any());
     }
 
     protected void assertHalSwitchAnyUser() {
-        verify(mUserHal).switchUser(any(), eq(mAsyncCallTimeoutMs), any());
+        verify(mUserHal).switchUser(any(), eq(ASYNC_CALL_TIMEOUT_MS), any());
     }
 
     protected void assertNoHalUserSwitch() {

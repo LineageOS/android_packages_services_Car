@@ -34,8 +34,9 @@ import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 
 public class PowerTestFragment extends Fragment {
-    private final boolean DBG = false;
-    private final String TAG = "PowerTestFragment";
+    private static final boolean DBG = false;
+    private static final String TAG = "PowerTestFragment";
+
     private CarPowerManager mCarPowerManager;
 
     private final CarPowerManager.CarPowerStateListener mPowerListener =
