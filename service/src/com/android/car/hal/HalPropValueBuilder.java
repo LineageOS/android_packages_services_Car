@@ -657,6 +657,15 @@ public final class HalPropValueBuilder {
                 Arrays.hashCode(mVehiclePropValue.value.byteValues));
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof AidlHalPropValue)) return false;
+            if (!super.equals(o)) return false;
+            AidlHalPropValue that = (AidlHalPropValue) o;
+            return mVehiclePropValue.equals(that.mVehiclePropValue);
+        }
+
         protected Float[] getFloatContainerArray() {
             int size =  getFloatValuesSize();
             Float[] array = new Float[size];
@@ -1047,6 +1056,15 @@ public final class HalPropValueBuilder {
                 mVehiclePropValue.value.int64Values.hashCode(),
                 mVehiclePropValue.value.stringValue.hashCode(),
                 mVehiclePropValue.value.bytes.hashCode());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof HidlHalPropValue)) return false;
+            if (!super.equals(o)) return false;
+            HidlHalPropValue that = (HidlHalPropValue) o;
+            return mVehiclePropValue.equals(that.mVehiclePropValue);
         }
 
         protected Float[] getFloatContainerArray() {
