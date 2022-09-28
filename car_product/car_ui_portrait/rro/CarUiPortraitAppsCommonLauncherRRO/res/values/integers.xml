@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2022 The Android Open Source Project
   ~
@@ -14,13 +15,6 @@
   ~ limitations under the License.
   -->
 
-<overlay>
-    <item target="dimen/control_bar_button_size" value="@dimen/control_bar_button_size"/>
-    <item target="dimen/play_pause_image_size" value="@dimen/play_pause_image_size"/>
-
-    <item target="color/action_button_icon_tint" value="@color/action_button_icon_tint"/>
-
-    <item target="integer/control_bar_columns" value="@integer/control_bar_columns"/>
-  
-    <item target="bool/enable_control_bar_overflow" value="@bool/enable_control_bar_overflow"/>
-</overlay>
+<resources>
+    <integer name="control_bar_columns">5</integer>
+</resources>
