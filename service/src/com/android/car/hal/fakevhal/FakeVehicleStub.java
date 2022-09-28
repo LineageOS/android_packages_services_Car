@@ -118,10 +118,12 @@ public final class FakeVehicleStub extends VehicleStub {
      * Initializes a {@link FakeVehicleStub} instance.
      *
      * @param realVehicle The real Vhal to be connected to handle special properties.
+     * @throws RemoteException if the remote operation through mRealVehicle fails.
      * @throws IOException if unable to read the config file stream.
      * @throws IllegalArgumentException if a JSONException is caught or some parsing error occurred.
      */
-    public FakeVehicleStub(VehicleStub realVehicle) throws IOException, IllegalArgumentException {
+    public FakeVehicleStub(VehicleStub realVehicle) throws RemoteException, IOException,
+            IllegalArgumentException {
         this(realVehicle, new FakeVhalConfigParser(), getCustomConfigFiles());
     }
 
@@ -131,19 +133,21 @@ public final class FakeVehicleStub extends VehicleStub {
      * @param realVehicle The real Vhal to be connected to handle special properties.
      * @param parser The parser to parse config files.
      * @param customConfigFiles The {@link List} of custom config files.
+     * @throws RemoteException if failed to get configs for special property from real Vehicle HAL.
      * @throws IOException if unable to read the config file stream.
      * @throws IllegalArgumentException if a JSONException is caught or some parsing error occurred.
      */
     @VisibleForTesting
     FakeVehicleStub(VehicleStub realVehicle, FakeVhalConfigParser parser,
-            List<File> customConfigFiles) throws IOException, IllegalArgumentException {
+            List<File> customConfigFiles) throws RemoteException, IOException,
+            IllegalArgumentException {
+        mRealVehicle = realVehicle;
         mHalPropValueBuilder = new HalPropValueBuilder(/* isAidl= */ true);
         mParser = parser;
         mCustomConfigFiles = customConfigFiles;
         mConfigDeclarationsByPropId = parseConfigFiles();
         mPropConfigsByPropId = extractPropConfigs(mConfigDeclarationsByPropId);
         mPropValuesByPropIdAreaId = extractPropValues(mConfigDeclarationsByPropId);
-        mRealVehicle = realVehicle;
         mHandler = new Handler(CarServiceUtils.getHandlerThread(getClass().getSimpleName())
                 .getLooper());
         mOnChangeSubscribeClientByPropIdAreaId = new ArrayMap<>();
@@ -505,20 +509,22 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     /**
-     * Extracts {@link HalPropConfig} for all properties from the parsing result.
+     * Extracts {@link HalPropConfig} for all properties from the parsing result and real VHAL.
      *
      * @param configDeclarationsByPropId The parsing result.
      * @return a {@link SparseArray} mapped from propId to its configs.
      */
     private SparseArray<HalPropConfig> extractPropConfigs(SparseArray<ConfigDeclaration>
-            configDeclarationsByPropId) {
-        SparseArray<HalPropConfig> propConfigsByPropId =
-                new SparseArray<>(/* initialCapacity= */ 0);
+            configDeclarationsByPropId) throws RemoteException {
+        SparseArray<HalPropConfig> propConfigsByPropId = new SparseArray<>();
         for (int i = 0; i < configDeclarationsByPropId.size(); i++) {
             VehiclePropConfig vehiclePropConfig = configDeclarationsByPropId.valueAt(i).getConfig();
             propConfigsByPropId.put(vehiclePropConfig.prop,
                     new AidlHalPropConfig(vehiclePropConfig));
         }
+        // If the special property is supported in this configuration, then override with configs
+        // from real vehicle.
+        overrideConfigsForSpecialProp(propConfigsByPropId);
         return propConfigsByPropId;
     }
 
@@ -581,6 +587,23 @@ public final class FakeVehicleStub extends VehicleStub {
             }
         }
         return propValuesByPropIdAreaId;
+    }
+
+    /**
+     * Overrides prop configs for special properties from real vehicle HAL.
+     *
+     * @throws RemoteException if getting prop configs from real vehicle HAL fails.
+     */
+    private void overrideConfigsForSpecialProp(SparseArray<HalPropConfig> fakePropConfigsByPropId)
+            throws RemoteException {
+        HalPropConfig[] realVehiclePropConfigs = mRealVehicle.getAllPropConfigs();
+        for (int i = 0; i < realVehiclePropConfigs.length; i++) {
+            HalPropConfig propConfig = realVehiclePropConfigs[i];
+            int propId = propConfig.getPropId();
+            if (isSpecialProperty(propId) && fakePropConfigsByPropId.contains(propId)) {
+                fakePropConfigsByPropId.put(propConfig.getPropId(), propConfig);
+            }
+        }
     }
 
     /**

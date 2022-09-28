@@ -19,6 +19,7 @@ package com.android.car.hal.fakevhal;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.after;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doNothing;
@@ -47,6 +48,7 @@ import android.util.SparseArray;
 
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.SubscriptionClient;
+import com.android.car.hal.AidlHalPropConfig;
 import com.android.car.hal.HalClientCallback;
 import com.android.car.hal.HalPropConfig;
 import com.android.car.hal.HalPropValue;
@@ -110,6 +112,7 @@ public class FakeVehicleStubUnitTest {
     @Before
     public void setup() throws Exception {
         when(mMockRealVehicleStub.isValid()).thenReturn(true);
+        when(mMockRealVehicleStub.getAllPropConfigs()).thenReturn(new HalPropConfig[0]);
     }
 
     @Test
@@ -166,6 +169,23 @@ public class FakeVehicleStubUnitTest {
         expect.that(propConfig.getMaxSampleRate()).isEqualTo(5.0f);
         expect.that(allPropConfig.length).isEqualTo(new FakeVehicleStub(mMockRealVehicleStub,
                 new FakeVhalConfigParser(), new ArrayList<>()).getAllPropConfigs().length + 1);
+    }
+
+    @Test
+    public void testGetAllPropConfigsWithSpecialProp() throws Exception {
+        // Access permission of VHAL_HEARTBEAT has been overridden by the mocked return result of
+        // AidlVehicleStub.getAllPropConfigs().
+        when(mMockRealVehicleStub.getAllPropConfigs()).thenReturn(new HalPropConfig[]{
+                new AidlHalPropConfig(createConfig(VehicleProperty.VHAL_HEARTBEAT,
+                        /* sampleRate= */ 0, VehiclePropertyAccess.READ_WRITE, /* areaId= */ 0))});
+        FakeVehicleStub fakeVehicleStub =  new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        HalPropConfig propConfig = getPropConfigByPropId(fakeVehicleStub.getAllPropConfigs(),
+                VehicleProperty.VHAL_HEARTBEAT);
+
+        verify(mMockRealVehicleStub, atLeastOnce()).getAllPropConfigs();
+        expect.that(propConfig.getAccess()).isEqualTo(VehiclePropertyAccess.READ_WRITE);
     }
 
     @Test
@@ -950,7 +970,7 @@ public class FakeVehicleStubUnitTest {
         client.unsubscribe(VehicleProperty.FUEL_LEVEL);
         clearInvocations(callback);
 
-        verify(callback, after(100).atMost(1)).onPropertyEvent(any(ArrayList.class));
+        verify(callback, after(200).atMost(1)).onPropertyEvent(any(ArrayList.class));
     }
 
     @Test
@@ -981,7 +1001,7 @@ public class FakeVehicleStubUnitTest {
             clearInvocations(callback1);
             clearInvocations(callback2);
 
-            verify(callback1, after(100).atMost(1)).onPropertyEvent(any(ArrayList.class));
+            verify(callback1, after(200).atMost(1)).onPropertyEvent(any(ArrayList.class));
             verify(callback2, timeout(100).atLeast(5)).onPropertyEvent(any(ArrayList.class));
         } finally {
             client2.unsubscribe(VehicleProperty.FUEL_LEVEL);
@@ -1119,14 +1139,14 @@ public class FakeVehicleStubUnitTest {
         return null;
     }
 
-    private VehiclePropConfig createConfig(int propId, float rate, int access, int areaId) {
+    private VehiclePropConfig createConfig(int propId, float sampleRate, int access, int areaId) {
         VehiclePropConfig propConfigValue = new VehiclePropConfig();
         propConfigValue.prop = propId;
         propConfigValue.access = access;
         VehicleAreaConfig vehicleAreaConfig = new VehicleAreaConfig();
         vehicleAreaConfig.areaId = areaId;
         propConfigValue.areaConfigs = new VehicleAreaConfig[]{vehicleAreaConfig};
-        propConfigValue.maxSampleRate = rate;
+        propConfigValue.maxSampleRate = sampleRate;
         return propConfigValue;
     }
 
