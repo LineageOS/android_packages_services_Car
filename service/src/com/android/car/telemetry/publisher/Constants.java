@@ -30,8 +30,18 @@ package com.android.car.telemetry.publisher;
  * populated.
  */
 public final class Constants {
+    // CarTelemetrydPublisher
     public static final String CAR_TELEMETRYD_BUNDLE_KEY_ID = "id";
     public static final String CAR_TELEMETRYD_BUNDLE_KEY_CONTENT = "content";
+
+    // MemoryPublisherPublisher
+    public static final String MEMORY_BUNDLE_KEY_MEMINFO = "meminfo";
+    public static final String MEMORY_BUNDLE_KEY_TIMESTAMP = "timestamp_millis";
+    public static final String MEMORY_BUNDLE_KEY_TOTAL_SWAPPABLE_PSS = "total_swappable_pss";
+    public static final String MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_DIRTY = "total_private_dirty";
+    public static final String MEMORY_BUNDLE_KEY_TOTAL_SHARED_DIRTY = "total_shared_dirty";
+    public static final String MEMORY_BUNDLE_KEY_TOTAL_PRIVATE_CLEAN = "total_private_clean";
+    public static final String MEMORY_BUNDLE_KEY_TOTAL_SHARED_CLEAN = "total_shared_clean";
 
     private Constants() {
     }
