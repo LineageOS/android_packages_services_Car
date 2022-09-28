@@ -76,6 +76,9 @@ public class FakeVehicleStubUnitTest {
     private static final int WINDOW_1_LEFT = VehicleAreaWindow.ROW_1_LEFT;
     private static final int SEAT_1_LEFT = VehicleAreaSeat.ROW_1_LEFT;
     private static final int SEAT_1_RIGHT = VehicleAreaSeat.ROW_1_RIGHT;
+    private static final int HVAC_LEFT = SEAT_1_LEFT | VehicleAreaSeat.ROW_2_LEFT
+            | VehicleAreaSeat.ROW_2_CENTER;
+    private static final int HVAC_ALL = HVAC_LEFT | SEAT_1_RIGHT | VehicleAreaSeat.ROW_2_RIGHT;
     private static final String PROPERTY_CONFIG_STRING_ON_CHANGE = "{\"property\":"
             + "\"VehicleProperty::ENGINE_OIL_LEVEL\","
             + "\"defaultValue\": {\"int32Values\": [\"VehicleOilLevel::NORMAL\"]},"
@@ -100,6 +103,12 @@ public class FakeVehicleStubUnitTest {
             + "\"defaultValue\": {\"int32Values\": [\"FuelType::FUEL_TYPE_UNLEADED\"]},"
             + "\"access\": \"VehiclePropertyAccess::READ\","
             + "\"changeMode\": \"VehiclePropertyChangeMode::STATIC\"}";
+    private static final String PROPERTY_CONFIG_STRING_HVAC_POWER_ON = "{\"property\":"
+            + "\"VehicleProperty::HVAC_POWER_ON\","
+            + "\"defaultValue\": {\"int32Values\": [1]},"
+            + "\"areas\": [{\"areaId\": \"Constants::HVAC_ALL\","
+            + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+            + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}]}";
 
     @Mock
     private VehicleStub mMockRealVehicleStub;
@@ -430,6 +439,133 @@ public class FakeVehicleStubUnitTest {
 
         expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
         expect.that(thrown).hasMessageThat().contains("areaId: 0 is not supported");
+    }
+
+    @Test
+    public void testGetMethodForHvacProp() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_ON
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_ALL\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(propValue.getPropId()).isEqualTo(VehicleProperty.HVAC_FAN_SPEED);
+        expect.that(propValue.getInt32Value(0)).isEqualTo(3);
+    }
+
+    @Test
+    public void testGetMethodForHvacPropNotAvailable() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::HVAC_POWER_ON\","
+                + "\"defaultValue\": {\"int32Values\": [0]},"
+                + "\"areas\": [{\"areaId\": \"Constants::HVAC_ALL\"}],"
+                + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.NOT_AVAILABLE);
+        expect.that(thrown).hasMessageThat().contains("HVAC_POWER_ON is off. PropId: 356517120 "
+                + "is not available.");
+    }
+
+    @Test
+    public void testGetMethodForHvacPropMatchedBitOrAreaId() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [" + PROPERTY_CONFIG_STRING_HVAC_POWER_ON
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_LEFT\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(propValue.getPropId()).isEqualTo(VehicleProperty.HVAC_FAN_SPEED);
+        expect.that(propValue.getInt32Value(0)).isEqualTo(3);
+    }
+
+    @Test
+    public void testGetMethodForHvacPropNoMatchedAreaId() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::HVAC_POWER_ON\","
+                + "\"defaultValue\": {\"int32Values\": [1]},"
+                + "\"areas\": [{\"areaId\": \"Constants::HVAC_RIGHT\"}],"
+                + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}"
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_LEFT\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_LEFT);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("This areaId: " + HVAC_LEFT + " doesn't match"
+                + " any supported areaIds in HVAC_POWER_ON");
+    }
+
+    @Test
+    public void testGetMethodForHvacPropWithMoreDefaultValues() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::HVAC_POWER_ON\","
+                + "\"defaultValue\": {\"int32Values\": [1, 0]},"
+                + "\"areas\": [{\"areaId\": \"Constants::HVAC_ALL\"}],"
+                + "\"configArray\": [\"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"VehicleProperty::HVAC_FAN_DIRECTION\"]}"
+                + ", {\"property\": \"VehicleProperty::HVAC_FAN_SPEED\","
+                + "\"defaultValue\": {\"int32Values\": [3]},"
+                + "\"areas\": [{"
+                + "\"areaId\": \"Constants::HVAC_ALL\","
+                + "\"minInt32Value\": 1,"
+                + "\"maxInt32Value\": 7}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.HVAC_FAN_SPEED, /* areaId= */ HVAC_ALL);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+
+        HalPropValue propValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(propValue.getInt32Value(0)).isEqualTo(3);
     }
 
     @Test
