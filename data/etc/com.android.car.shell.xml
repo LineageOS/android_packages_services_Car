@@ -53,6 +53,7 @@
         <permission name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"/>
         <permission name="android.car.permission.CAR_VENDOR_EXTENSION"/>
         <permission name="android.car.permission.CONTROL_CAR_ENERGY"/>
+        <permission name="android.car.permission.CAR_ENERGY_PORTS"/>
         <permission name="android.car.permission.CONTROL_CAR_ENERGY_PORTS"/>
         <permission name="android.car.permission.CAR_IDENTIFICATION"/>
         <permission name="android.car.permission.PRIVILEGED_CAR_INFO"/>
@@ -61,6 +62,14 @@
         <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
         <permission name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
         <permission name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
+        <permission name="android.car.permission.CAR_POWERTRAIN" />
+        <permission name="android.car.permission.CAR_ENERGY" />
+        <permission name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT" />
+        <permission name="android.car.permission.CAR_INFO" />
+        <permission name="android.car.permission.CAR_SPEED" />
+        <permission name="android.car.permission.READ_CAR_DISPLAY_UNITS" />
+        <permission name="android.car.permission.CONTROL_CAR_DISPLAY_UNITS" />
+        <permission name="android.car.permission.ADJUST_RANGE_REMAINING" />
         <permission name="android.car.permission.MANAGE_OCCUPANT_ZONE"/>
     </privapp-permissions>
 </permissions>
