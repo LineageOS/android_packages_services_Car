@@ -49,7 +49,7 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
             sBound = bound;
         }
 
-        public static synchronized boolean getBound() {
+        public static synchronized boolean isBound() {
             return sBound;
         }
 
@@ -93,7 +93,7 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
     public void testRegisterProjectionRunner() throws Exception {
         Intent intent = new Intent(
                 InstrumentationRegistry.getInstrumentation().getContext(), TestService.class);
-        assertThat(TestService.getBound()).isFalse();
+        assertThat(TestService.isBound()).isFalse();
         mManager.registerProjectionRunner(intent);
         synchronized (TestService.mLock) {
             try {
@@ -102,7 +102,7 @@ public final class CarProjectionManagerTest extends CarApiTestBase {
                 // Do nothing
             }
         }
-        assertThat(TestService.getBound()).isTrue();
+        assertThat(TestService.isBound()).isTrue();
         mManager.unregisterProjectionRunner(intent);
     }
 }

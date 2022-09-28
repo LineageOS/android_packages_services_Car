@@ -178,7 +178,7 @@ public final class UsbSettingsStorage {
         contentValues.put(COLUMN_PID, settings.getPid());
         contentValues.put(COLUMN_NAME, settings.getDeviceName());
         contentValues.put(COLUMN_HANDLER, settings.getHandler().flattenToShortString());
-        contentValues.put(COLUMN_AOAP, settings.getAoap() ? 1 : 0);
+        contentValues.put(COLUMN_AOAP, settings.isAaop() ? 1 : 0);
         contentValues.put(COLUMN_DEFAULT_HANDLER, settings.isDefaultHandler() ? 1 : 0);
         return contentValues;
     }

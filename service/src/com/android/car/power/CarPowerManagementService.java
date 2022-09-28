@@ -326,7 +326,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
-        mWifiAdjustmentForSuspend = getWifiAdjustmentForSuspendConfig();
+        mWifiAdjustmentForSuspend = isWifiAdjustmentForSuspendConfig();
         mPowerComponentHandler = powerComponentHandler;
         mSilentModeHandler = new SilentModeHandler(this, silentModeHwStatePath,
                 silentModeKernelStatePath, bootReason);
@@ -2507,7 +2507,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         return mContext.getResources().getInteger(R.integer.config_maxSuspendWaitDuration);
     }
 
-    private boolean getWifiAdjustmentForSuspendConfig() {
+    private boolean isWifiAdjustmentForSuspendConfig() {
         return mContext.getResources().getBoolean(R.bool.config_wifiAdjustmentForSuspend);
     }
 

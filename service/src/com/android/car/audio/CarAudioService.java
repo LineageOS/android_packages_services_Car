@@ -280,7 +280,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
         // Restore master mute state if applicable
         if (mPersistMasterMuteState) {
-            boolean storedMasterMute = mCarAudioSettings.getMasterMute();
+            boolean storedMasterMute = mCarAudioSettings.isMasterMute();
             setMasterMute(storedMasterMute, 0);
         }
     }
