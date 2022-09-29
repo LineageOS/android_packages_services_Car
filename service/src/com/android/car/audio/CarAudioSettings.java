@@ -65,7 +65,7 @@ public class CarAudioSettings {
                 masterMuteValue ? 1 : 0);
     }
 
-    boolean getMasterMute() {
+    boolean isMasterMute() {
         return Settings.Global.getInt(mContext.getContentResolver(),
                 VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
     }

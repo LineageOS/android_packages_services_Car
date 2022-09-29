@@ -267,7 +267,7 @@ public final class UsbHostController
     private UsbDeviceSettings getSingleAoapDeviceHandlerOrNull(List<UsbDeviceSettings> handlers) {
         UsbDeviceSettings aoapHandler = null;
         for (UsbDeviceSettings handler : handlers) {
-            if (handler.getAoap()) {
+            if (handler.isAaop()) {
                 if (aoapHandler != null) { // Found multiple AOAP handlers.
                     return null;
                 }
@@ -368,7 +368,7 @@ public final class UsbHostController
                     UsbDevice device = data.getUsbDevice();
                     mLastDeviceId = device.getDeviceId();
                     UsbDeviceSettings settings = data.getUsbDeviceSettings();
-                    if (!mUsbResolver.dispatch(device, settings.getHandler(), settings.getAoap(),
+                    if (!mUsbResolver.dispatch(device, settings.getHandler(), settings.isAaop(),
                             this::onFailure)) {
                         if (data.mRetries > 0) {
                             --data.mRetries;

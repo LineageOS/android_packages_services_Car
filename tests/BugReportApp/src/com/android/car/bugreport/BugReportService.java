@@ -557,7 +557,7 @@ public class BugReportService extends Service {
             startActivity(BugReportActivity.buildAddAudioIntent(this, mMetaBugReport));
         } else {
             // NOTE: If bugreport is TYPE_AUDIO_FIRST, it will already contain an audio message.
-            Status status = mConfig.getAutoUpload()
+            Status status = mConfig.isAutoUpload()
                     ? Status.STATUS_UPLOAD_PENDING : Status.STATUS_PENDING_USER_ACTION;
             BugStorageUtils.setBugReportStatus(BugReportService.this,
                     mMetaBugReport, status, /* message= */ "");

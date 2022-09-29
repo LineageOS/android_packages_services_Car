@@ -280,7 +280,7 @@ public class BugReportActivity extends Activity {
         if (mIsNewBugReport) {
             mSubmitButton.setText(R.string.bugreport_dialog_submit);
         } else {
-            mSubmitButton.setText(mConfig.getAutoUpload()
+            mSubmitButton.setText(mConfig.isAutoUpload()
                     ? R.string.bugreport_dialog_upload : R.string.bugreport_dialog_save);
         }
     }
@@ -715,7 +715,7 @@ public class BugReportActivity extends Activity {
                 Log.e(TAG, "Failed to write audio to bug report", e);
                 return null;
             }
-            if (mConfig.getAutoUpload()) {
+            if (mConfig.isAutoUpload()) {
                 BugStorageUtils.setBugReportStatus(mContext, bug,
                         com.android.car.bugreport.Status.STATUS_UPLOAD_PENDING, "");
             } else {
