@@ -566,6 +566,9 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         // Use setObscuredTouchRect on all the taskviews that overlap with the grip bar.
         mBackgroundTaskView.setObscuredTouchRegion(obscuredRegion);
         if (newLowerAppAreaState == STATE_OPEN) {
+            // Set control bar bounds as obscured region on RootTaskview when AppGrid launcher is
+            // open.
+            mRootTaskView.setObscuredTouchRect(controlBarBounds);
             applyBottomInsetsToUpperTaskView(mRootAppAreaContainer.getHeight(),
                     upperAppAreaBounds);
         } else {
