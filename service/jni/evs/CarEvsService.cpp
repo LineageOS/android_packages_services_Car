@@ -15,15 +15,21 @@
  */
 
 #include "EvsServiceContext.h"
-
+#ifdef __TEST__
+#include "MockEvsServiceFactory.h"
+#endif
 #include <android-base/logging.h>
 #include <nativehelper/JNIHelp.h>
 
 #include <jni.h>
 
-using ::android::automotive::evs::EvsServiceContext;
-
 namespace {
+
+using ::android::automotive::evs::EvsServiceContext;
+#ifdef __TEST__
+using ::android::automotive::evs::MockEvsServiceFactory;
+using ::android::automotive::evs::MockLinkUnlinkToDeath;
+#endif
 
 // EvsHalWrapperImpl class
 constexpr const char kCarEvsServiceClassName[] = "com/android/car/evs/EvsHalWrapperImpl";
@@ -151,7 +157,37 @@ jlong createServiceHandle(JNIEnv* env, jclass clazz) {
                           "Can't initialize the EvsServiceContext because the JavaVM is invalid");
     }
 
-    return reinterpret_cast<jlong>(new EvsServiceContext(vm, clazz));
+    return reinterpret_cast<jlong>(EvsServiceContext::create(vm, clazz));
+}
+
+jlong createServiceHandleForTest([[maybe_unused]] JNIEnv* env, [[maybe_unused]] jclass clazz) {
+#ifdef __TEST__
+    JavaVM* vm = nullptr;
+    env->GetJavaVM(&vm);
+    if (vm == nullptr) {
+        jniThrowException(env, "java/lang/IllegalStateException",
+                          "Can't initialize the EvsServiceContext because the JavaVM is invalid");
+    }
+
+    return reinterpret_cast<jlong>(
+            EvsServiceContext::create(vm, clazz, std::make_unique<MockEvsServiceFactory>(),
+                                      std::make_unique<MockLinkUnlinkToDeath>()));
+#else
+    return 0L;
+#endif
+}
+
+void triggerBinderDied([[maybe_unused]] JNIEnv* env, [[maybe_unused]] jobject thiz,
+                       [[maybe_unused]] jlong handle) {
+#ifdef __TEST__
+    EvsServiceContext* ctxt = reinterpret_cast<EvsServiceContext*>(handle);
+    if (!ctxt) {
+        LOG(WARNING) << __FUNCTION__ << ": EVS service context is not available.";
+        return;
+    }
+
+    ctxt->triggerBinderDied();
+#endif
 }
 
 /*
@@ -183,7 +219,10 @@ jint initializeCarEvsService(JavaVM* vm) {
             {"nativeRequestToStartVideoStream", "(J)Z", reinterpret_cast<void*>(startVideoStream)},
             {"nativeRequestToStopVideoStream", "(J)V", reinterpret_cast<void*>(stopVideoStream)},
             {"nativeDoneWithFrame", "(JI)V", reinterpret_cast<void*>(returnFrameBuffer)},
+            {"nativeTriggerBinderDied", "(J)V", reinterpret_cast<void*>(triggerBinderDied)},
             {"nativeCreateServiceHandle", "()J", reinterpret_cast<void*>(createServiceHandle)},
+            {"nativeCreateServiceHandleForTest", "()J",
+             reinterpret_cast<void*>(createServiceHandleForTest)},
             {"nativeDestroyServiceHandle", "(J)V", reinterpret_cast<void*>(destroyServiceHandle)},
     };
     jniRegisterNativeMethods(env, kCarEvsServiceClassName, methods, NELEM(methods));
