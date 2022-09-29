@@ -201,6 +201,24 @@ public class CarPackageManagerServiceTest {
     }
 
     @Test
+    public void testBlockingActivity_DoLaunchesNonDo_nonDoIsKilled_noBlockingActivity()
+            throws Exception {
+        startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO_NEW_TASK);
+        assertBlockingActivityFound();
+
+        for (TempActivity activity : sTestingActivities) {
+            if (activity instanceof NonDoActivity) {
+                activity.finishCompletely();
+                sTestingActivities.remove(activity);
+            }
+        }
+
+        assertBlockingActivityNotFound();
+        // After NonDo & ABA finishes, DoActivity will come to the top.
+        assertActivityLaunched(DoActivity.class.getSimpleName());
+    }
+
+    @Test
     public void testBlockingActivity_nonDoFinishesOnCreate_noBlockingActivity()
             throws Exception {
         startNonDoActivity(NonDoActivity.EXTRA_ONCREATE_FINISH_IMMEDIATELY);
@@ -421,12 +439,17 @@ public class CarPackageManagerServiceTest {
         public static final String DIALOG_TITLE = "Title";
 
         public static final String INTENT_EXTRA_LAUNCH_NONDO = "LAUNCH_NONDO";
+        public static final String INTENT_EXTRA_LAUNCH_NONDO_NEW_TASK = "LAUNCH_NONDO_NEW_TASK";
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             if (getIntent().getBooleanExtra(INTENT_EXTRA_LAUNCH_NONDO, false)) {
                 startActivity(new Intent(this, NonDoActivity.class));
+            }
+            if (getIntent().getBooleanExtra(INTENT_EXTRA_LAUNCH_NONDO_NEW_TASK, false)) {
+                startActivity(new Intent(this, NonDoActivity.class)
+                        .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             }
             if (getIntent().getBooleanExtra(INTENT_EXTRA_SHOW_DIALOG, false)) {
                 AlertDialog dialog = new AlertDialog.Builder(DoActivity.this)
