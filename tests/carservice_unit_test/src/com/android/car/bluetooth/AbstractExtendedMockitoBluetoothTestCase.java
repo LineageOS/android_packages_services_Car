@@ -81,8 +81,9 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
             .getSimpleName();
     private static final boolean VERBOSE = false;
 
-    final int mUserId = 16;
-    @Mock UserManager mMockUserManager;
+    protected static final int USER_ID = 16;
+
+    @Mock protected UserManager mMockUserManager;
 
     private final List<Class<?>> mStaticSpiedClasses = new ArrayList<>();
     private MockitoSession mSession;

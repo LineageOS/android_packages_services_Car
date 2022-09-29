@@ -116,7 +116,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
          */
         turnAdapterOn();
 
-        mPolicy = BluetoothPowerPolicy.create(mMockContext, mUserId);
+        mPolicy = BluetoothPowerPolicy.create(mMockContext, USER_ID);
         Assert.assertTrue(mPolicy != null);
 
         CarLocalServices.addService(CarPowerManagementService.class,
@@ -250,7 +250,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
      */
     @Test
     public void testReceivePowerShutdownPrepareWhenAdapterOn_disableBluetooth() throws Exception {
-        setUserUnlocked(mUserId, true);
+        setUserUnlocked(USER_ID, true);
         turnAdapterOn();
         clearInvocations(mMockBluetoothAdapter);
 
@@ -271,7 +271,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
      */
     @Test
     public void testReceivePowerShutdownPrepareWhenAdapterOff_doNothing() throws Exception {
-        setUserUnlocked(mUserId, true);
+        setUserUnlocked(USER_ID, true);
         turnAdapterOff(true);
         clearInvocations(mMockBluetoothAdapter);
 
@@ -293,7 +293,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
      */
     @Test
     public void testReceivePowerOnBluetoothPersistedOff_doNothing() throws Exception {
-        setUserUnlocked(mUserId, true);
+        setUserUnlocked(USER_ID, true);
         turnAdapterOff(true);
         clearInvocations(mMockBluetoothAdapter);
 
@@ -316,7 +316,7 @@ public class BluetoothPowerPolicyTest extends AbstractExtendedMockitoBluetoothTe
     @Test
     public void testReceivePowerOnBluetoothOffNotPersisted_BluetoothOn()
             throws Exception {
-        setUserUnlocked(mUserId, true);
+        setUserUnlocked(USER_ID, true);
         turnAdapterOff(false);
         // {@code turnAdapterOff(false)} should not change the persisted state in Settings;
         // the persisted state can be anything, so explicitly set the persisted state to ON.

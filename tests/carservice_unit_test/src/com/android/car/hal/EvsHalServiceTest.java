@@ -60,8 +60,8 @@ public class EvsHalServiceTest {
 
     private EvsHalService mEvsHalService;
 
-    private final int TRUE = 1;
-    private final int FALSE = 0;
+    private static final int TRUE = 1;
+    private static final int FALSE = 0;
 
     private final HalPropValueBuilder mPropValueBuilder = new HalPropValueBuilder(/*isAidl=*/true);
 

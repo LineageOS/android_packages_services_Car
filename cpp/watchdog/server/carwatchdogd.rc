@@ -28,6 +28,7 @@ on early-init && property:ro.build.type=userdebug
     # Below durations are in seconds
     setprop ro.carwatchdog.post_system_event_duration 30
     setprop ro.carwatchdog.user_switch_timeout 30
+    setprop ro.carwatchdog.wake_up_event_duration 30
 
 on early-init && property:ro.build.type=eng
     # Below intervals are in seconds
@@ -38,6 +39,7 @@ on early-init && property:ro.build.type=eng
     # Below durations are in seconds
     setprop ro.carwatchdog.post_system_event_duration 30
     setprop ro.carwatchdog.user_switch_timeout 30
+    setprop ro.carwatchdog.wake_up_event_duration 30
 
 on early-init && property:ro.build.type=user
     # Below intervals are in seconds
@@ -48,6 +50,7 @@ on early-init && property:ro.build.type=user
     # Below durations are in seconds
     setprop ro.carwatchdog.post_system_event_duration 30
     setprop ro.carwatchdog.user_switch_timeout 30
+    setprop ro.carwatchdog.wake_up_event_duration 30
 
 on init
     # Number of top stats per category

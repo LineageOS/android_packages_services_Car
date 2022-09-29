@@ -19,6 +19,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.SystemApi;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.JsonWriter;
@@ -122,6 +123,13 @@ public final class LifetimeWriteInfo implements Parcelable {
         }
 
         return false;
+    }
+
+    @Override
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.UPSIDE_DOWN_CAKE_0,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_0)
+    public int hashCode() {
+        return Objects.hash(partition, fstype, writtenBytes);
     }
 
     @Override

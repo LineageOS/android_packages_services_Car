@@ -62,7 +62,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * extend this class.
  */
 public class PropertyHalService extends HalServiceBase {
-    private final boolean mDbg = true;
+    private static final boolean DBG = true;
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
     private final Map<IBinder, GetVehicleStubAsyncCallback>
@@ -196,7 +196,7 @@ public class PropertyHalService extends HalServiceBase {
 
     public PropertyHalService(VehicleHal vehicleHal) {
         mVehicleHal = vehicleHal;
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "started PropertyHalService");
         }
         mPropValueBuilder = vehicleHal.getHalPropValueBuilder();
@@ -215,7 +215,7 @@ public class PropertyHalService extends HalServiceBase {
      * @return SparseArray<CarPropertyConfig> List of configs available.
      */
     public SparseArray<CarPropertyConfig<?>> getPropertyList() {
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "getPropertyList");
         }
         synchronized (mLock) {
@@ -339,7 +339,7 @@ public class PropertyHalService extends HalServiceBase {
      * @throws IllegalArgumentException thrown if property is not supported by VHAL.
      */
     public void subscribeProperty(int mgrPropId, float updateRate) throws IllegalArgumentException {
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "subscribeProperty propId: %s, rate=%f",
                     VehiclePropertyIds.toString(mgrPropId), updateRate);
         }
@@ -363,7 +363,7 @@ public class PropertyHalService extends HalServiceBase {
      * Unsubscribe the property and turn off update events for it.
      */
     public void unsubscribeProperty(int mgrPropId) {
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "unsubscribeProperty propId=%s", VehiclePropertyIds.toString(mgrPropId));
         }
         int halPropId = managerToHalPropId(mgrPropId);
@@ -378,14 +378,14 @@ public class PropertyHalService extends HalServiceBase {
 
     @Override
     public void init() {
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "init()");
         }
     }
 
     @Override
     public void release() {
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "release()");
         }
         synchronized (mLock) {
@@ -419,13 +419,13 @@ public class PropertyHalService extends HalServiceBase {
                 synchronized (mLock) {
                     mHalPropIdToPropConfig.put(halPropId, halPropConfig);
                 }
-                if (mDbg) {
+                if (DBG) {
                     Slogf.d(TAG, "takeSupportedProperties: %s",
                             VehiclePropertyIds.toString(halToManagerPropId(halPropId)));
                 }
             }
         }
-        if (mDbg) {
+        if (DBG) {
             Slogf.d(TAG, "takeSupportedProperties() took %d properties", halPropConfigs.size());
         }
         // If vehicle hal support to select permission for vendor properties.
