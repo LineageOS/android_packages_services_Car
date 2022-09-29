@@ -21,7 +21,6 @@
 #include <aidl/android/hardware/automotive/evs/IEvsDisplay.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <system/camera_metadata.h>
 
 namespace aidl::android::automotive::evs::implementation {
 

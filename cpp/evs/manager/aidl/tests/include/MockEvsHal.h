@@ -16,7 +16,6 @@
 
 #pragma once
 
-#include "Enumerator.h"
 #include "MockEvsCamera.h"
 #include "MockEvsDisplay.h"
 #include "MockEvsEnumerator.h"
@@ -25,6 +24,9 @@
 #include <aidl/android/hardware/graphics/common/PixelFormat.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
+#include <vndk/hardware_buffer.h>
+
+#include <unordered_map>
 
 namespace aidl::android::automotive::evs::implementation {
 
@@ -34,6 +36,7 @@ class MockEvsHal {
 public:
     MockEvsHal(size_t numCameras, size_t numDisplays) :
           mNumCameras(numCameras), mNumDisplays(numDisplays) {}
+    ~MockEvsHal();
 
     void initialize();
     std::shared_ptr<aidlevs::IEvsEnumerator> getEnumerator();
@@ -44,6 +47,9 @@ private:
     void configureCameras(size_t n);
     void configureDisplays(size_t n);
     void configureEnumerator();
+    void forwardFrames(size_t numberOfFramesToForward);
+    size_t initializeBufferPool(size_t size);
+    void deinitializeBufferPool();
 
     std::shared_ptr<NiceMockEvsEnumerator> mMockEvsEnumerator;
     std::vector<std::shared_ptr<NiceMockEvsCamera>> mMockEvsCameras;
@@ -61,14 +67,19 @@ private:
     std::map<int32_t, std::vector<uint8_t>> mCameraExtendedInfo;
     std::map<aidlevs::CameraParam, int32_t> mCameraParams;
     std::vector<aidlevs::BufferDesc> mBufferPool;
-    std::vector<int32_t> mBuffersInUse;
+    std::vector<aidlevs::BufferDesc> mBuffersInUse;
+    std::unordered_map<size_t, AHardwareBuffer*> mBufferRecord;
     std::weak_ptr<aidlevs::IEvsDisplay> mActiveDisplay;
+    bool mDisplayOwnedExclusively;
 
     aidlevs::DisplayState mCurrentDisplayState = aidlevs::DisplayState::NOT_OPEN;
 
     size_t mNumCameras;
     size_t mNumDisplays;
     size_t mBufferPoolSize;
+
+    mutable std::mutex mLock;
+    std::condition_variable mBufferAvailableSignal;
 };
 
 }  // namespace aidl::android::automotive::evs::implementation
