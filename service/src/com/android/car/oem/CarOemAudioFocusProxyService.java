@@ -24,13 +24,13 @@ import com.android.car.CarLog;
 
 import java.util.List;
 
-// TODO(b/239605560): Add check for circular call.
 /**
  * Provides functionality of the OEM Audio Focus Service.
  */
 public final class CarOemAudioFocusProxyService {
 
     private static final String TAG = CarLog.tagFor(CarOemAudioFocusProxyService.class);
+    private static final String CALLER_TAG = CarLog.tagFor(CarOemAudioFocusProxyService.class);
 
     private final CarOemProxyServiceHelper mHelper;
     private final IOemCarAudioFocusService mOemCarAudioFocusService;
@@ -46,7 +46,7 @@ public final class CarOemAudioFocusProxyService {
      */
     public void audioFocusChanged(List<AudioFocusInfo> currentFocusHolders,
             List<AudioFocusInfo> currentFocusLosers, int zoneId) {
-        mHelper.doBinderOneWayCall(() -> {
+        mHelper.doBinderOneWayCall(CALLER_TAG, () -> {
             try {
                 mOemCarAudioFocusService
                         .audioFocusChanged(currentFocusHolders, currentFocusLosers, zoneId);
