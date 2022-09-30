@@ -46,7 +46,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
-import com.android.car.VehicleStub.IGetVehicleStubAsyncCallback;
+import com.android.car.VehicleStub.VehicleStubCallbackInterface;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
@@ -130,7 +130,7 @@ public class PropertyHalService extends HalServiceBase {
     private final HalPropValueBuilder mPropValueBuilder;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
-    private final Map<IBinder, IGetVehicleStubAsyncCallback>
+    private final Map<IBinder, VehicleStubCallbackInterface>
             mResultBinderToVehicleStubCallback = new ArrayMap<>();
     @GuardedBy("mLock")
     private final SparseArray<CarPropertyConfig<?>> mMgrPropIdToCarPropConfig = new SparseArray<>();
@@ -147,7 +147,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
 
-    private class VehicleStubCallback extends IGetVehicleStubAsyncCallback {
+    private class VehicleStubCallback extends VehicleStubCallbackInterface {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
         private final IBinder mClientBinder;
 
@@ -682,7 +682,7 @@ public class PropertyHalService extends HalServiceBase {
         }
 
         IBinder getAsyncPropertyResultBinder = getAsyncPropertyResultCallback.asBinder();
-        IGetVehicleStubAsyncCallback callback;
+        VehicleStubCallbackInterface callback;
         synchronized (mLock) {
             if (mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder) == null) {
                 callback = new VehicleStubCallback(getAsyncPropertyResultCallback);

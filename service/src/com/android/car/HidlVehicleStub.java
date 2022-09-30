@@ -230,7 +230,7 @@ final class HidlVehicleStub extends VehicleStub {
 
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         mExecutor.execute(() -> {
             for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
                 GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
@@ -264,7 +264,7 @@ final class HidlVehicleStub extends VehicleStub {
 
     private void callGetAsyncErrorCallbacks(
             @CarPropertyAsyncErrorCode int errorCodeCarPropertyManager, int serviceRequestId,
-            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            VehicleStubCallbackInterface getVehicleStubAsyncCallback) {
         getVehicleStubAsyncCallback.onGetAsyncResults(
                 List.of(new GetVehicleStubAsyncResult(serviceRequestId,
                         errorCodeCarPropertyManager)));
