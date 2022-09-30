@@ -25,6 +25,7 @@ import static com.android.car.CarServiceUtils.toIntArray;
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.util.VersionUtils.isPlatformVersionAtLeast;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -1904,14 +1905,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
             }
         }
-
         startUsersOrHomeOnSecondaryDisplays(userId);
     }
 
     private void startUsersOrHomeOnSecondaryDisplays(@UserIdInt int userId) {
-        if (!UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+        if (isPlatformVersionAtLeast(PlatformVersion.VERSION_CODES.UPSIDE_DOWN_CAKE_0)
+                && !UserManagerHelper.isUsersOnSecondaryDisplaysSupported(mUserManager)) {
+            if (DBG) {
+                Slogf.d(TAG, "startUsersOrHomeOnSecondaryDisplays(%d): not supported", userId);
+            }
             return;
         }
+
         // Run from here only when CMUMD is supported.
         if (userId == ActivityManager.getCurrentUser()) {
             mBgHandler.post(() -> startOtherUsers(/* currentUserId= */ userId));

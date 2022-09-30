@@ -104,7 +104,7 @@ final class Config {
     }
 
     /** If new bugreports should be scheduled for uploading. */
-    boolean getAutoUpload() {
+    boolean isAutoUpload() {
         // TODO(b/144851443): Enable auto-upload only if upload destination is Gcs until
         //                    we create a way to allow implementing OEMs custom upload logic.
         return isUploadDestinationGcs();
@@ -148,7 +148,7 @@ final class Config {
         pw.print(prefix + "  ");
         pw.print("getAutoUpload");
         pw.print("=");
-        pw.println(getAutoUpload() ? "true" : "false");
+        pw.println(isAutoUpload() ? "true" : "false");
 
         pw.print(prefix + "  ");
         pw.print("getUploadDestination");
