@@ -348,6 +348,29 @@ public class FakeVehicleStubUnitTest {
     }
 
     @Test
+    public void testGetMethodGlobalPropWithAreaIdNotZero() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        HalPropValue requestPropValue = new HalPropValueBuilder(/* isAidl= */ true)
+                .build(/* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        // For global properties, if the supported area config array doesn't include 0,
+        // a ServiceSpecificException with StatusCode.INVALID_ARG.
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The areaId: 0 is not supported.");
+    }
+
+    @Test
     public void testGetMethodPropIdIsGlobalHasDefaultValueAreaIdIgnored() throws Exception {
         // Create a custom config file.
         String jsonString = "{\"properties\": [{\"property\": \"VehicleProperty::INFO_FUEL_TYPE\","
@@ -672,6 +695,78 @@ public class FakeVehicleStubUnitTest {
 
         expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
         expect.that(thrown).hasMessageThat().contains("The set value is outside the range");
+    }
+
+    @Test
+    public void testSetMethodGlobalPropWithAreaIdSetValueOutOfRange() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 0, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{120};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.set(requestPropValue));
+
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The set value is outside the range");
+    }
+
+    @Test
+    public void testSetMethodGlobalPropWithNoAreaIdSetValueOutOfRange() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]}}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{120};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 0,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        fakeVehicleStub.set(requestPropValue);
+        HalPropValue updatedPropValue = fakeVehicleStub.get(requestPropValue);
+
+        expect.that(updatedPropValue.getInt32Value(0)).isEqualTo(120);
+    }
+
+    @Test
+    public void testSetMethodGlobalPropWithAreaIdNotZero() throws Exception {
+        // Create a custom config file.
+        String jsonString = "{\"properties\": [{\"property\":"
+                + "\"VehicleProperty::DISPLAY_BRIGHTNESS\","
+                + "\"defaultValue\": {\"int32Values\": [100]},"
+                + "\"areas\": [{\"areaId\": 1, \"minInt32Value\": 0, \"maxInt32Value\": 100}]}]}";
+        List<File> customFileList = createFilenameList(jsonString);
+        // Create a request prop value.
+        RawPropValues rawPropValues = new RawPropValues();
+        rawPropValues.int32Values = new int[]{120};
+        HalPropValue requestPropValue = buildHalPropValue(
+                /* propId= */ VehicleProperty.DISPLAY_BRIGHTNESS, /* areaId= */ 1,
+                SystemClock.elapsedRealtimeNanos(), rawPropValues);
+
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), customFileList);
+        ServiceSpecificException thrown = assertThrows(ServiceSpecificException.class,
+                () -> fakeVehicleStub.get(requestPropValue));
+
+        // For global properties, if the supported area config array doesn't include 0,
+        // a ServiceSpecificException with StatusCode.INVALID_ARG.
+        expect.that(thrown.errorCode).isEqualTo(StatusCode.INVALID_ARG);
+        expect.that(thrown).hasMessageThat().contains("The areaId: 0 is not supported.");
     }
 
     @Test

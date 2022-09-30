@@ -763,13 +763,14 @@ public final class FakeVehicleStub extends VehicleStub {
      * @return {@code true} if set value is within the prop config range.
      */
     private boolean withinRange(int propId, int areaId, RawPropValues rawPropValues) {
-        if (isPropertyGlobal(propId)) {
-            // TODO(238646350) Handle global properties.
+        // For global property without areaId.
+        if (isPropertyGlobal(propId) && getAllSupportedAreaId(propId).isEmpty()) {
             return true;
         }
 
-        // For non-global properties.
+        // For non-global properties and global properties with areaIds.
         int index = getAllSupportedAreaId(propId).indexOf(areaId);
+
         HalAreaConfig areaConfig = mPropConfigsByPropId.get(propId).getAreaConfigs()[index];
 
         int[] int32Values = rawPropValues.int32Values;
@@ -854,18 +855,20 @@ public final class FakeVehicleStub extends VehicleStub {
     }
 
     /**
-     * Checks if an areaId of a property is supported. For global property, the areaId is ignored.
+     * Checks if an areaId of a property is supported.
      *
      * @param propId The property to be checked.
      * @param areaId The area to be checked.
      */
     private void checkAreaIdSupported(int propId, int areaId) {
-        // For global property, areaId is ignored.
-        // For non-global property, if property config exists, check if areaId is supported.
-        if (!isPropertyGlobal(propId) && !getAllSupportedAreaId(propId).contains(areaId)) {
-            throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
-                + " is not supported.");
+        List<Integer> supportedAreaIds = getAllSupportedAreaId(propId);
+        // For global property, areaId will be ignored if the area config array is empty.
+        if ((isPropertyGlobal(propId) && supportedAreaIds.isEmpty())
+                || supportedAreaIds.contains(areaId)) {
+            return;
         }
+        throw new ServiceSpecificException(StatusCode.INVALID_ARG, "The areaId: " + areaId
+                + " is not supported.");
     }
 
     /**
