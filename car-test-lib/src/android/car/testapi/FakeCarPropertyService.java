@@ -105,7 +105,8 @@ class FakeCarPropertyService extends ICarProperty.Stub implements CarPropertyCon
     @Override
     public void getPropertiesAsync(List<android.car.hardware.property.GetPropertyServiceRequest>
             getPropertyServiceRequests, IGetAsyncPropertyResultCallback
-            getAsyncPropertyResultCallback) throws RemoteException {
+            getAsyncPropertyResultCallback,
+            long timeoutInMs) throws RemoteException {
         List<GetValueResult> getValueResults = new ArrayList<>();
         for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
             GetPropertyServiceRequest getPropertyServiceRequest = getPropertyServiceRequests.get(i);

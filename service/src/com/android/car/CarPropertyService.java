@@ -738,7 +738,11 @@ public class CarPropertyService extends ICarProperty.Stub
      * <p>This method gets the CarPropertyValue using async methods. </p>
      */
     public void getPropertiesAsync(List<GetPropertyServiceRequest> getPropertyServiceRequests,
-            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
+            IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback,
+            long timeoutInMs) {
+        if (timeoutInMs <= 0) {
+            throw new IllegalArgumentException("timeoutInMs must be a positive number");
+        }
         for (int i = 0; i < getPropertyServiceRequests.size(); i++) {
             int propertyId = getPropertyServiceRequests.get(i).getPropertyId();
             int areaId = getPropertyServiceRequests.get(i).getAreaId();
@@ -752,6 +756,6 @@ public class CarPropertyService extends ICarProperty.Stub
             assertAreaIdIsSupported(config, areaId);
         }
         mPropertyHalService.getCarPropertyValuesAsync(getPropertyServiceRequests,
-                getAsyncPropertyResultCallback);
+                getAsyncPropertyResultCallback, timeoutInMs);
     }
 }

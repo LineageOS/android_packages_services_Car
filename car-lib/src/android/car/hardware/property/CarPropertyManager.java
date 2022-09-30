@@ -1291,7 +1291,7 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable CancellationSignal cancellationSignal,
             @Nullable Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
-        // TODO(b/238323816): implement cancellationSignal and timeoutInMs logic.
+        // TODO(b/238323816): implement cancellationSignal.
         checkGetAsyncRequirements(getPropertyRequests, getPropertyCallback, timeoutInMs);
         List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>(
                 getPropertyRequests.size());
@@ -1324,8 +1324,8 @@ public class CarPropertyManager extends CarManagerBase {
         }
         updateRequestIdToClientInfo(currentRequestIdToClientInfo);
         try {
-            mService.getPropertiesAsync(getPropertyServiceRequests,
-                    mGetAsyncPropertyResultCallback);
+            mService.getPropertiesAsync(getPropertyServiceRequests, mGetAsyncPropertyResultCallback,
+                    timeoutInMs);
         } catch (RemoteException e) {
             clearRequestIdToClientInfo(getPropertyRequests);
             handleRemoteExceptionFromCarService(e);
