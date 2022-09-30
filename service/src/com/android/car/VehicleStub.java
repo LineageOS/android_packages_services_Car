@@ -323,4 +323,11 @@ public abstract class VehicleStub {
     public boolean isFakeModeEnabled() {
         return false;
     }
+
+    /**
+     * Cancel all the on-going async requests with the given request IDs.
+     *
+     * @param requestIds a list of async get/set request IDs.
+     */
+    public void cancelRequests(List<Integer> requestIds) {}
 }

@@ -45,6 +45,7 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.LongSparseArray;
 
 import com.android.car.hal.AidlHalPropConfig;
@@ -60,6 +61,7 @@ import java.io.FileDescriptor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -459,6 +461,29 @@ final class AidlVehicleStub extends VehicleStub {
     @Override
     public void dump(FileDescriptor fd, List<String> args) throws RemoteException {
         mAidlVehicle.asBinder().dump(fd, args.toArray(new String[args.size()]));
+    }
+
+    // Get all the VHAL request IDs according to the service request IDs and remove them from
+    // pending requests map.
+    @Override
+    public void cancelRequests(List<Integer> serviceRequestIds) {
+        Set<Integer> serviceRequestIdsSet = new ArraySet<>(serviceRequestIds);
+        List<Long> vhalRequestIdsToCancel = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < mPendingAsyncRequestsByVhalRequestId.size(); i++) {
+                int serviceRequestId = mPendingAsyncRequestsByVhalRequestId.valueAt(i)
+                        .getServiceRequestId();
+                if (serviceRequestIdsSet.contains(serviceRequestId)) {
+                    vhalRequestIdsToCancel.add(mPendingAsyncRequestsByVhalRequestId.keyAt(i));
+                }
+            }
+            for (int i = 0; i < vhalRequestIdsToCancel.size(); i++) {
+                long vhalRequestIdToCancel = vhalRequestIdsToCancel.get(i);
+                Slogf.w(CarLog.TAG_SERVICE, "the request for VHAL request ID: %d is cancelled",
+                        vhalRequestIdToCancel);
+                mPendingAsyncRequestsByVhalRequestId.remove(vhalRequestIdToCancel);
+            }
+        }
     }
 
     @Nullable

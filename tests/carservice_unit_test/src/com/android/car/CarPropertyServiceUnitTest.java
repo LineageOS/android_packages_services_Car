@@ -442,4 +442,13 @@ public final class CarPropertyServiceUnitTest {
                 () -> mService.unregisterListener(VehiclePropertyIds.GEAR_SELECTION,
                         mICarPropertyEventListener));
     }
+
+    @Test
+    public void testCancelRequests() {
+        int[] requestIds = new int[]{1, 2};
+
+        mService.cancelRequests(requestIds);
+
+        verify(mHalService).cancelRequests(requestIds);
+    }
 }

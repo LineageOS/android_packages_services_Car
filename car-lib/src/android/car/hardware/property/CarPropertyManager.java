@@ -1275,6 +1275,8 @@ public class CarPropertyManager extends CarManagerBase {
      * executed on the default event handler thread. If the callback is doing heavy work, it is
      * recommended that the {@code callbackExecutor} is provided.
      *
+     * <p>If the operation is cancelled, it is guaranteed that no more callbacks will be called.
+     *
      * @param getPropertyRequests The property ID and the optional area ID for the property to get
      * @param timeoutInMs The timeout for the operation, in milliseconds
      * @param cancellationSignal A signal that could be used to cancel the on-going operation
@@ -1291,7 +1293,6 @@ public class CarPropertyManager extends CarManagerBase {
             @Nullable CancellationSignal cancellationSignal,
             @Nullable Executor callbackExecutor,
             @NonNull GetPropertyCallback getPropertyCallback) {
-        // TODO(b/238323816): implement cancellationSignal.
         checkGetAsyncRequirements(getPropertyRequests, getPropertyCallback, timeoutInMs);
         List<GetPropertyServiceRequest> getPropertyServiceRequests = new ArrayList<>(
                 getPropertyRequests.size());

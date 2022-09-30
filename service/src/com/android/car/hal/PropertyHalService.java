@@ -38,6 +38,7 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.ArrayMap;
+import android.util.ArraySet;
 import android.util.Pair;
 import android.util.SparseArray;
 
@@ -53,7 +54,6 @@ import com.android.internal.annotations.GuardedBy;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -118,6 +118,11 @@ public class PropertyHalService extends HalServiceBase {
     };
 
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
+    // The request ID passed by CarPropertyService (ManagerRequestId) is directly passed from
+    // CarPropertyManager. Multiple CarPropertyManagers use the same car service instance, thus,
+    // the ManagerRequestId is not unique. We have to create another unique ID called
+    // ServiceRequestId and pass it to underlying layer (VehicleHal, HalClient and VehicleStub).
+    // Internally, we will map ManagerRequestId to ServiceRequestId.
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.
     private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
@@ -145,7 +150,7 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private PropertyHalListener mPropertyHalListener;
     @GuardedBy("mLock")
-    private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
+    private final Set<Integer> mSubscribedHalPropIds = new ArraySet<>();
 
     private class VehicleStubCallback extends VehicleStubCallbackInterface {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
@@ -676,8 +681,10 @@ public class PropertyHalService extends HalServiceBase {
                 AsyncGetRequestInfo asyncGetRequestInfo = new AsyncGetRequestInfo(
                         getPropertyServiceRequest, SystemClock.uptimeMillis() + timeoutInMs,
                         timeoutInMs);
-                getVehicleStubAsyncRequests.add(generateGetVehicleStubAsyncRequestLocked(
-                        mPropValueBuilder, asyncGetRequestInfo));
+                GetVehicleStubAsyncRequest vehicleStubRequest =
+                        generateGetVehicleStubAsyncRequestLocked(
+                                mPropValueBuilder, asyncGetRequestInfo);
+                getVehicleStubAsyncRequests.add(vehicleStubRequest);
             }
         }
 
@@ -702,5 +709,32 @@ public class PropertyHalService extends HalServiceBase {
             }
         }
         mVehicleHal.getAsync(getVehicleStubAsyncRequests, callback);
+    }
+
+    /**
+     * Map managerRequestIds to serviceRequestIds and remove them from the pending request map.
+     */
+    public void cancelRequests(int[] managerRequestIds) {
+        List<Integer> serviceRequestIdsToCancel = new ArrayList<>();
+        Set<Integer> managerRequestIdsSet = new ArraySet<>();
+        for (int i = 0; i < managerRequestIds.length; i++) {
+            managerRequestIdsSet.add(managerRequestIds[i]);
+        }
+        synchronized (mLock) {
+            for (int i = 0; i < mServiceRequestIdToAsyncGetRequestInfo.size(); i++) {
+                if (managerRequestIdsSet.contains(mServiceRequestIdToAsyncGetRequestInfo.valueAt(i)
+                        .getManagerRequestId())) {
+                    serviceRequestIdsToCancel.add(mServiceRequestIdToAsyncGetRequestInfo.keyAt(i));
+                }
+            }
+            for (int i = 0; i < serviceRequestIdsToCancel.size(); i++) {
+                Slogf.w(TAG, "the request for propertyHalService request ID: %d is cancelled",
+                        serviceRequestIdsToCancel.get(i));
+                mServiceRequestIdToAsyncGetRequestInfo.remove(serviceRequestIdsToCancel.get(i));
+            }
+        }
+        if (!serviceRequestIdsToCancel.isEmpty()) {
+            mVehicleHal.cancelRequests(serviceRequestIdsToCancel);
+        }
     }
 }
