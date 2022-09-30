@@ -1848,7 +1848,9 @@ public final class CarPackageManagerService extends ICarPackageManager.Stub
     void onWindowChangeEvent(@NonNull AccessibilityEvent event) {
         Slogf.d(TAG, "onWindowChange event received");
         boolean receivedFromActivityBlockingActivity =
-                mActivityBlockingActivity.getPackageName().contentEquals(event.getPackageName())
+                event.getPackageName() != null && event.getClassName() != null
+                        && mActivityBlockingActivity.getPackageName().contentEquals(
+                        event.getPackageName())
                         && mActivityBlockingActivity.getClassName().contentEquals(
                         event.getClassName());
         if (!receivedFromActivityBlockingActivity) {
