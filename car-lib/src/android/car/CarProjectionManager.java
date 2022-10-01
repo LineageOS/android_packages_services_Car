@@ -692,11 +692,17 @@ public final class CarProjectionManager extends CarManagerBase {
             } else {
                 // Already subscribed to Car Service, immediately notify listener with the current
                 // projection status in the event handler thread.
+                int currentProjectionState = mCarProjectionStatusListener.mCurrentState;
+                String currentProjectionPackageName =
+                        mCarProjectionStatusListener.mCurrentPackageName;
+                List<ProjectionStatus> projectionStatusDetails =
+                        Collections.unmodifiableList(mCarProjectionStatusListener.mDetails);
+
                 getEventHandler().post(() ->
                         listener.onProjectionStatusChanged(
-                                mCarProjectionStatusListener.mCurrentState,
-                                mCarProjectionStatusListener.mCurrentPackageName,
-                                mCarProjectionStatusListener.mDetails));
+                                currentProjectionState,
+                                currentProjectionPackageName,
+                                projectionStatusDetails));
             }
         }
     }
