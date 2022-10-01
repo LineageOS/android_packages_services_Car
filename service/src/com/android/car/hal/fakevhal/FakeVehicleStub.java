@@ -387,6 +387,9 @@ public final class FakeVehicleStub extends VehicleStub {
         private final int mPropId;
         private final int mAreaId;
         private final float mSampleRate;
+        private final Object mUpdaterLock = new Object();
+        @GuardedBy("mUpdaterLock")
+        private boolean mStopped;
 
         ContinuousPropUpdater(FakeVhalSubscriptionClient client, int propId, int areaId,
                 float sampleRate) {
@@ -400,8 +403,24 @@ public final class FakeVehicleStub extends VehicleStub {
 
         @Override
         public void run() {
+            synchronized (mUpdaterLock) {
+                if (mStopped) {
+                    return;
+                }
+                mHandler.postDelayed(this, (long) (1000 / mSampleRate));
+            }
+
+            // It is possible that mStopped is updated to true at the same time. We will have one
+            // additional event here. We cannot hold lock because we don't want to hold lock while
+            // calling client's callback;
             mClient.onPropertyEvent(updateTimeStamp(mPropId, mAreaId));
-            mHandler.postDelayed(this, (long) (1000 / mSampleRate));
+        }
+
+        public void stop() {
+            synchronized (mUpdaterLock) {
+                mStopped = true;
+                mHandler.removeCallbacks(this);
+            }
         }
     }
 
@@ -813,7 +832,7 @@ public final class FakeVehicleStub extends VehicleStub {
                         continue;
                     }
                     // If sample rate is not same. Remove old updater from mHandler's message queue.
-                    mHandler.removeCallbacks(oldUpdater);
+                    oldUpdater.stop();
                     updaterByPropIdAreaId.remove(propIdAreaId);
                 }
                 ContinuousPropUpdater updater = new ContinuousPropUpdater(client, propId, areaId,
@@ -891,7 +910,7 @@ public final class FakeVehicleStub extends VehicleStub {
                     mUpdaterByPropIdAreaIdByClient.get(client);
             for (Pair<Integer, Integer> propIdAreaId : updaterByPropIdAreaId.keySet()) {
                 if (propIdAreaId.first == propId) {
-                    mHandler.removeCallbacks(updaterByPropIdAreaId.get(propIdAreaId));
+                    updaterByPropIdAreaId.get(propIdAreaId).stop();
                     Slogf.d(TAG, "FakeVhalSubscriptionClient unsubscribes CONTINUOUS property,"
                             + " propId: %d,  areaId: %d", propId, propIdAreaId.second);
                     deletePairs.add(propIdAreaId);
