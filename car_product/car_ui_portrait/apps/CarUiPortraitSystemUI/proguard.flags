@@ -1,4 +1,5 @@
 -keep class com.android.systemui.CarUiPortraitSystemUIInitializer
+-keep class com.android.car.caruiportrait.common.service.CarUiPortraitService
 
 -keep class com.android.systemui.DaggerCarUiPortraitGlobalRootComponent { *; }
 -keep class com.android.systemui.DaggerCarUiPortraitGlobalRootComponent$CarUiPortraitSysUIComponentImpl { *; }

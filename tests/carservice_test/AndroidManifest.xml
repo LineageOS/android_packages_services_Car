@@ -60,7 +60,8 @@
         <activity
             android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoNoHistoryActivity"
             android:noHistory="true"/>
-        <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoActivity"/>
+        <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoActivity"
+            android:taskAffinity=""/>
         <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$DoActivity"
              android:label="DoActivity">
             <meta-data android:name="distractionOptimized"

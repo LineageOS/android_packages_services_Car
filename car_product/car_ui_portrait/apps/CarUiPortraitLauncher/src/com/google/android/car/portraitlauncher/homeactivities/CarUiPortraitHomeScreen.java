@@ -19,9 +19,17 @@ package com.android.car.portraitlauncher.homeactivities;
 import static android.view.InsetsState.ITYPE_BOTTOM_GENERIC_OVERLAY;
 import static android.view.InsetsState.ITYPE_TOP_GENERIC_OVERLAY;
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.PRIVATE_FLAG_TRUSTED_OVERLAY;
 import static android.window.DisplayAreaOrganizer.FEATURE_DEFAULT_TASK_CONTAINER;
+
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_IMMERSIVE_MODE_REQUESTED;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_REGISTER_CLIENT;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_SUW_IN_PROGRESS;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.MSG_UNREGISTER_CLIENT;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
@@ -31,6 +39,7 @@ import android.app.TaskStackListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
@@ -39,6 +48,10 @@ import android.graphics.Region;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArraySet;
@@ -52,6 +65,7 @@ import android.view.animation.Animation;
 import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
@@ -64,6 +78,7 @@ import com.android.car.carlauncher.LaunchRootCarTaskViewCallbacks;
 import com.android.car.carlauncher.TaskViewManager;
 import com.android.car.carlauncher.homescreen.HomeCardModule;
 import com.android.car.carlauncher.taskstack.TaskStackChangeListeners;
+import com.android.car.caruiportrait.common.service.CarUiPortraitService;
 import com.android.car.portraitlauncher.R;
 import com.android.wm.shell.common.HandlerExecutor;
 
@@ -122,9 +137,11 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private static final int STATE_OPEN = 1;
     private static final int STATE_CLOSE = 2;
+    private static final int STATE_FULL = 3;
 
     @IntDef({STATE_OPEN,
-            STATE_CLOSE})
+            STATE_CLOSE,
+            STATE_FULL})
     private @interface RootAppAreaState {
     }
 
@@ -137,6 +154,12 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     private FrameLayout mContainer;
     private View mRootAppAreaContainer;
     private View mGripBar;
+    private View mGripBarView;
+    private ImageView mImmersiveButtonView;
+    private boolean mIsRootTaskViewFullScreen;
+    private boolean mShouldSetInsetsOnUpperTaskView;
+    private Drawable mChevronUpDrawable;
+    private Drawable mChevronDownDrawable;
     private View mControlBarView;
     private TaskViewManager mTaskViewManager;
     // All the TaskViews & corresponding helper instance variables.
@@ -151,6 +174,45 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     // contains the list of activities that will be displayed on feature {@link
     // CarDisplayAreaOrganizer.FEATURE_VOICE_PLATE)
     private Set<ComponentName> mVoicePlateActivitySet;
+
+    /** Messenger for communicating with {@link CarUiPortraitService}. */
+    Messenger mService = null;
+    /** Flag indicating whether or not {@link CarUiPortraitService} is bounded. */
+    boolean mIsBound;
+
+    /**
+     * All messages from {@link CarUiPortraitService} are received in this handler.
+     */
+    final Messenger mMessenger = new Messenger(new IncomingHandler());
+
+    /**
+     * Class for interacting with the main interface of the {@link CarUiPortraitService}.
+     */
+    private final ServiceConnection mConnection = new ServiceConnection() {
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // Communicating with our service through an IDL interface, so get a client-side
+            // representation of that from the raw service object.
+            mService = new Messenger(service);
+
+            // Register to the service.
+            try {
+                Message msg = Message.obtain(null, MSG_REGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            } catch (RemoteException e) {
+                // In this case the service has crashed before we could even
+                // do anything with it; we can count on soon being
+                // disconnected (and then reconnected if it can be restarted)
+                // so there is no need to do anything here.
+                Log.w(TAG, "can't connect to CarUiPortraitService: ", e);
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            mService = null;
+        }
+    };
+
     // This listener lets us know when actives are added and removed from any of the display regions
     // we care about, so we can trigger the opening and closing of the app containers as needed.
     private final TaskStackListener mTaskStackListener = new TaskStackListener() {
@@ -236,12 +298,41 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mBackgroundActivityComponent = ComponentName.unflattenFromString(getResources().getString(
                 R.string.config_backgroundActivity));
 
+        mShouldSetInsetsOnUpperTaskView = getResources().getBoolean(
+                R.bool.config_setInsetsOnUpperTaskView);
         mControlBarComponent = ComponentName.unflattenFromString(
                 getResources().getString(
                         R.string.config_controlBarActivity));
         mGripBar = findViewById(R.id.grip_bar);
+        mGripBarView = findViewById(R.id.grip_bar_view);
         mGripBar.setVisibility(GONE);
 
+        mChevronUpDrawable = getDrawable(R.drawable.ic_chevron_up);
+        mChevronDownDrawable = getDrawable(R.drawable.ic_chevron_down);
+
+        mImmersiveButtonView = findViewById(R.id.immersive_button);
+        if (mImmersiveButtonView != null) {
+            mImmersiveButtonView.setImageDrawable(
+                    mIsRootTaskViewFullScreen ? mChevronDownDrawable
+                            : mChevronUpDrawable);
+            mImmersiveButtonView.setOnClickListener(v -> {
+                if (mIsRootTaskViewFullScreen) {
+                    // notify systemUI to show bars
+                    notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(false));
+                    mIsRootTaskViewFullScreen = false;
+                    updateUIState(STATE_OPEN, true);
+                    mControlBarView.setVisibility(VISIBLE);
+                } else {
+                    // notify systemUI to hide bars
+                    notifySystemUI(MSG_HIDE_SYSTEM_BAR_FOR_IMMERSIVE, boolToInt(true));
+                    mControlBarView.setVisibility(INVISIBLE);
+                    mIsRootTaskViewFullScreen = true;
+                }
+                mImmersiveButtonView.setImageDrawable(
+                        mIsRootTaskViewFullScreen ? mChevronDownDrawable
+                                : mChevronUpDrawable);
+            });
+        }
         mStatusBarHeight = getResources().getDimensionPixelSize(
                 com.android.internal.R.dimen.status_bar_height);
 
@@ -336,6 +427,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                         if (yEndVal > mTitleBarDragThreshold) {
                             mLowerAppAreaParams.topMargin = mContainer.getMeasuredHeight();
                             mRootAppAreaState = STATE_CLOSE;
+                            notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(false));
                             mRootAppAreaContainer.setLayoutParams(mLowerAppAreaParams);
                         } else {
                             mLowerAppAreaParams.topMargin = mTopMargin;
@@ -356,6 +448,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
         updateVoicePlateActivityMap();
         initializeCards();
+        doBindService();
     }
 
     private void initializeCards() {
@@ -405,6 +498,7 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         mRootTaskView = null;
         mBackgroundTaskView = null;
         TaskStackChangeListeners.getInstance().unregisterTaskStackListener(mTaskStackListener);
+        doUnbindService();
         super.onDestroy();
     }
 
@@ -476,8 +570,8 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
     }
 
     private void updateUIState(int newLowerAppAreaState, boolean animate) {
-        int lowerAppAreaTop;
-        Runnable onAnimationEnd;
+        int lowerAppAreaTop = 0;
+        Runnable onAnimationEnd = null;
 
         if (newLowerAppAreaState == STATE_OPEN) {
             lowerAppAreaTop = mBackgroundAppAreaHeightWhenCollapsed - mGripBarHeight;
@@ -485,13 +579,14 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             // Animate the lower app area first and then change the upper app area size to avoid
             // black patch on screen.
             onAnimationEnd = () -> {
+                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(true));
                 mGripBar.post(() -> updateBottomOverlap(STATE_OPEN));
                 mRootAppAreaState = STATE_OPEN;
                 mRootTaskView.setZOrderOnTop(false);
                 mIsAnimating = false;
                 mGripBar.setVisibility(VISIBLE);
             };
-        } else {
+        } else if (newLowerAppAreaState == STATE_CLOSE) {
             lowerAppAreaTop = mContainer.getMeasuredHeight();
 
             // Change the upper app area's size to full-screen first and then animate the lower app
@@ -499,36 +594,112 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
             mGripBar.post(() -> updateBottomOverlap(STATE_CLOSE));
 
             onAnimationEnd = () -> {
+                notifySystemUI(MSG_ROOT_TASK_VIEW_VISIBILITY_CHANGE, boolToInt(false));
                 mRootAppAreaState = STATE_CLOSE;
                 mRootTaskView.setZOrderOnTop(false);
+                mIsAnimating = false;
+            };
+        } else {
+            // newLowerAppAreaState == STATE_FULL
+            lowerAppAreaTop = 0;
+
+            // Animate the lower app area first and then change the upper app area size to avoid
+            // black patch on screen.
+            onAnimationEnd = () -> {
+                mGripBar.post(() -> updateBottomOverlap(STATE_FULL));
+                mRootAppAreaState = STATE_FULL;
                 mIsAnimating = false;
             };
         }
 
         if (animate) {
             mIsAnimating = true;
-            Animation animation = createAnimationForLowerAppArea(lowerAppAreaTop /* newTop */,
-                    onAnimationEnd);
+            Animation animation = null;
+            if (newLowerAppAreaState == STATE_FULL) {
+                animation = createImmersiveAnimationForLowerAppArea(lowerAppAreaTop /* newTop */,
+                        onAnimationEnd);
+            } else if (mRootAppAreaState == STATE_FULL && newLowerAppAreaState == STATE_OPEN) {
+                animation = createImmersiveAnimationForLowerAppArea(lowerAppAreaTop /* newTop */,
+                        onAnimationEnd);
+            } else {
+                animation = createAnimationForLowerAppArea(lowerAppAreaTop /* newTop */,
+                        onAnimationEnd);
+            }
+
             mRootAppAreaContainer.startAnimation(animation);
         } else {
-            FrameLayout.LayoutParams lowerAppAreaParams =
-                    (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
             if (newLowerAppAreaState == STATE_OPEN) {
                 // Update the height only for the open state because for the closed state, it
                 // is anyhow not visible.
                 // Triggering height change when it is off-screen sometimes gives problems.
-                lowerAppAreaParams.height = mContainer.getMeasuredHeight()
-                        - mBackgroundAppAreaHeightWhenCollapsed + mGripBarHeight;
+                if (!mIsRootTaskViewFullScreen) {
+                    resetRootTaskViewToDefaultHeight();
+                } else {
+                    makeRootTaskViewFullscreen();
+                }
             }
-            lowerAppAreaParams.topMargin = lowerAppAreaTop;
-
-            mRootAppAreaContainer.setLayoutParams(lowerAppAreaParams);
 
             onAnimationEnd.run();
         }
     }
 
+    private void makeRootTaskViewFullscreen() {
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams)
+                mRootAppAreaContainer.getLayoutParams();
+
+        lp.height = mContainer.getMeasuredHeight();
+        lp.topMargin = 0;
+        mRootAppAreaContainer.setLayoutParams(lp);
+
+        mControlBarView.setVisibility(INVISIBLE);
+    }
+
+    private void resetRootTaskViewToDefaultHeight() {
+        int lowerAppAreaTop = mBackgroundAppAreaHeightWhenCollapsed - mGripBarHeight;
+
+        FrameLayout.LayoutParams lowerAppAreaParams =
+                (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
+        lowerAppAreaParams.height = mContainer.getMeasuredHeight()
+                - mBackgroundAppAreaHeightWhenCollapsed + mGripBarHeight;
+        lowerAppAreaParams.topMargin = lowerAppAreaTop;
+
+        mRootAppAreaContainer.setLayoutParams(lowerAppAreaParams);
+        mControlBarView.setVisibility(VISIBLE);
+    }
+
     private Animation createAnimationForLowerAppArea(int newTop, Runnable onAnimationEnd) {
+        FrameLayout.LayoutParams lowerAppAreaParams =
+                (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
+        Animation animation = new Animation() {
+            @Override
+            protected void applyTransformation(float interpolatedTime, Transformation t) {
+                lowerAppAreaParams.topMargin =
+                        lowerAppAreaParams.topMargin - (int) ((lowerAppAreaParams.topMargin
+                                - newTop) * interpolatedTime);
+                mRootAppAreaContainer.setLayoutParams(lowerAppAreaParams);
+            }
+        };
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                onAnimationEnd.run();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+        });
+
+        animation.setInterpolator(new DecelerateInterpolator());
+        animation.setDuration(ANIMATION_DURATION_MS);
+        return animation;
+    }
+
+    private Animation createImmersiveAnimationForLowerAppArea(int newTop, Runnable onAnimationEnd) {
         FrameLayout.LayoutParams lowerAppAreaParams =
                 (FrameLayout.LayoutParams) mRootAppAreaContainer.getLayoutParams();
         Animation animation = new Animation() {
@@ -574,14 +745,21 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
         Region obscuredRegion = new Region(gripBarBounds.left, gripBarBounds.top,
                 gripBarBounds.right, gripBarBounds.bottom);
         Rect controlBarBounds = new Rect();
-        mControlBarView.getBoundsOnScreen(controlBarBounds);
-        obscuredRegion.union(controlBarBounds);
+        if (newLowerAppAreaState != STATE_FULL) {
+            mControlBarView.getBoundsOnScreen(controlBarBounds);
+            obscuredRegion.union(controlBarBounds);
+        }
 
         // Use setObscuredTouchRect on all the taskviews that overlap with the grip bar.
         mBackgroundTaskView.setObscuredTouchRegion(obscuredRegion);
         if (newLowerAppAreaState == STATE_OPEN) {
+            // Set control bar bounds as obscured region on RootTaskview when AppGrid launcher is
+            // open.
+            mRootTaskView.setObscuredTouchRect(controlBarBounds);
             applyBottomInsetsToUpperTaskView(mRootAppAreaContainer.getHeight(),
                     upperAppAreaBounds);
+        } else if (newLowerAppAreaState == STATE_FULL) {
+            applyBottomInsetsToUpperTaskView(0, upperAppAreaBounds);
         } else {
             applyBottomInsetsToUpperTaskView(controlBarBounds.height(), upperAppAreaBounds);
         }
@@ -589,20 +767,22 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
 
     private void applyBottomInsetsToUpperTaskView(int bottomOverlap, Rect appAreaBounds) {
 
-        mBackgroundTaskView.setInsets(new SparseArray<Rect>() {
-            {
-                append(ITYPE_BOTTOM_GENERIC_OVERLAY, new Rect(appAreaBounds.left,
-                        appAreaBounds.bottom - bottomOverlap,
-                        appAreaBounds.right,
-                        appAreaBounds.bottom
-                ));
-                append(ITYPE_TOP_GENERIC_OVERLAY, new Rect(appAreaBounds.left,
-                        appAreaBounds.top,
-                        appAreaBounds.right,
-                        mStatusBarHeight
-                ));
-            }
-        });
+        if (mShouldSetInsetsOnUpperTaskView) {
+            mBackgroundTaskView.setInsets(new SparseArray<Rect>() {
+                {
+                    append(ITYPE_BOTTOM_GENERIC_OVERLAY, new Rect(appAreaBounds.left,
+                            appAreaBounds.bottom - bottomOverlap,
+                            appAreaBounds.right,
+                            appAreaBounds.bottom
+                    ));
+                    append(ITYPE_TOP_GENERIC_OVERLAY, new Rect(appAreaBounds.left,
+                            appAreaBounds.top,
+                            appAreaBounds.right,
+                            mStatusBarHeight
+                    ));
+                }
+            });
+        }
     }
 
     private void onContainerDimensionsChanged() {
@@ -647,5 +827,87 @@ public final class CarUiPortraitHomeScreen extends FragmentActivity {
                     public void onTaskViewReady() {
                     }
                 });
+    }
+
+    private void onImmersiveModeRequested(boolean requested) {
+        if (mGripBarView != null) {
+            mGripBarView.setVisibility(requested ? View.GONE : View.VISIBLE);
+        }
+        if (mImmersiveButtonView != null) {
+            mImmersiveButtonView.setVisibility(requested ? View.VISIBLE : View.GONE);
+        }
+        if (!requested) {
+            resetRootTaskViewToDefaultHeight();
+        }
+    }
+
+    /**
+     * Handler of incoming messages from service.
+     */
+    class IncomingHandler extends Handler {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case MSG_IMMERSIVE_MODE_REQUESTED:
+                    onImmersiveModeRequested(intToBool(msg.arg1));
+                    break;
+                case MSG_SUW_IN_PROGRESS:
+                    boolean isSuwInProgress = intToBool(msg.arg1);
+                    if (isSuwInProgress) {
+                        makeRootTaskViewFullscreen();
+                    } else {
+                        resetRootTaskViewToDefaultHeight();
+                    }
+                    break;
+                default:
+                    super.handleMessage(msg);
+            }
+        }
+    }
+
+    void doBindService() {
+        // Establish a connection with {@link CarUiPortraitService}. We use an explicit class
+        // name because there is no reason to be able to let other applications replace our
+        // component.
+        bindService(new Intent(this, CarUiPortraitService.class), mConnection,
+                Context.BIND_AUTO_CREATE);
+        mIsBound = true;
+    }
+
+    void doUnbindService() {
+        if (mIsBound) {
+            if (mService != null) {
+                try {
+                    Message msg = Message.obtain(null, MSG_UNREGISTER_CLIENT);
+                    msg.replyTo = mMessenger;
+                    mService.send(msg);
+                } catch (RemoteException e) {
+                    Log.w(TAG, "can't unregister to CarUiPortraitService: ", e);
+                }
+            }
+
+            // Detach our existing connection.
+            unbindService(mConnection);
+            mIsBound = false;
+        }
+    }
+
+    private void notifySystemUI(int key, int value) {
+        Message msg = Message.obtain(null, key, value, 0);
+        try {
+            if (mService != null) {
+                mService.send(msg);
+            }
+        } catch (RemoteException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static int boolToInt(Boolean b) {
+        return b ? 1 : 0;
+    }
+
+    private static boolean intToBool(int val) {
+        return val == 1;
     }
 }

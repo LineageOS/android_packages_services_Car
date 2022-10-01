@@ -16,20 +16,22 @@
 
 package com.android.systemui.car.systembar;
 
-import static com.android.systemui.car.displayarea.DisplayAreaComponent.DISPLAY_AREA_VISIBILITY_CHANGED;
+import static android.view.Display.DEFAULT_DISPLAY;
+
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_ROOT_TASK_VIEW_VISIBILITY_CHANGE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
 import com.android.systemui.car.displayarea.CarDisplayAreaController;
 
 class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateListener {
 
     private final CarDisplayAreaController mDisplayAreaController;
+    private boolean mIsRootTaskViewVisible;
 
     CarUiPortraitButtonSelectionStateListener(Context context,
             ButtonSelectionStateController carSystemButtonController,
@@ -40,10 +42,24 @@ class CarUiPortraitButtonSelectionStateListener extends ButtonSelectionStateList
         BroadcastReceiver displayAreaVisibilityReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
+                mIsRootTaskViewVisible = intent.getBooleanExtra(
+                        INTENT_EXTRA_ROOT_TASK_VIEW_VISIBILITY_CHANGE, false);
                 onTaskStackChanged();
             }
         };
-        LocalBroadcastManager.getInstance(context).registerReceiver(displayAreaVisibilityReceiver,
-                new IntentFilter(DISPLAY_AREA_VISIBILITY_CHANGED));
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(REQUEST_FROM_LAUNCHER);
+        context.registerReceiverForAllUsers(displayAreaVisibilityReceiver,
+                filter, null, null);
+    }
+
+    @Override
+    public void onTaskStackChanged() {
+        if (!mIsRootTaskViewVisible) {
+            mButtonSelectionStateController.clearAllSelectedButtons(DEFAULT_DISPLAY);
+            return;
+        }
+        super.onTaskStackChanged();
     }
 }

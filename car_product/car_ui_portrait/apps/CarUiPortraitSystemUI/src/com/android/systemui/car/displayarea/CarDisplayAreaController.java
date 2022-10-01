@@ -18,6 +18,11 @@ package com.android.systemui.car.displayarea;
 
 import static android.window.DisplayAreaOrganizer.FEATURE_VENDOR_FIRST;
 
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.INTENT_EXTRA_SUW_IN_PROGRESS;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_LAUNCHER;
+import static com.android.car.caruiportrait.common.service.CarUiPortraitService.REQUEST_FROM_SYSTEM_UI;
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_FULLSCREEN;
 import static com.android.wm.shell.ShellTaskOrganizer.TASK_LISTENER_TYPE_MULTI_WINDOW;
 
@@ -26,9 +31,11 @@ import android.app.ActivityTaskManager;
 import android.app.TaskStackListener;
 import android.car.Car;
 import android.car.app.CarActivityManager;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
@@ -42,9 +49,12 @@ import android.window.DisplayAreaAppearedInfo;
 import android.window.DisplayAreaOrganizer;
 
 import com.android.systemui.R;
+import com.android.systemui.car.CarDeviceProvisionedController;
+import com.android.systemui.car.CarDeviceProvisionedListener;
 import com.android.systemui.car.CarServiceProvider;
 import com.android.systemui.statusbar.CommandQueue;
 import com.android.systemui.statusbar.policy.ConfigurationController;
+import com.android.systemui.wm.CarUiPortraitDisplaySystemBarsController;
 import com.android.wm.shell.ShellTaskOrganizer;
 import com.android.wm.shell.common.ShellExecutor;
 
@@ -67,6 +77,8 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
     private final CarFullscreenTaskListener mCarFullscreenTaskListener;
 
     private final ShellExecutor mShellExecutor;
+    private final CarDeviceProvisionedController mCarDeviceProvisionedController;
+    private final CarUiPortraitDisplaySystemBarsController mCarUiDisplaySystemBarsController;
 
     private final ComponentName mNotificationCenterComponent;
     private final Context mApplicationContext;
@@ -115,6 +127,37 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             };
     private Car mCar;
 
+    private final CarUiPortraitDisplaySystemBarsController.Callback
+            mCarUiPortraitDisplaySystemBarsControllerCallback =
+            new CarUiPortraitDisplaySystemBarsController.Callback() {
+                @Override
+                public void onImmersiveRequestedChanged(ComponentName componentName,
+                        boolean requested) {
+                    Intent intent = new Intent(REQUEST_FROM_SYSTEM_UI);
+                    intent.putExtra(INTENT_EXTRA_IS_IMMERSIVE_MODE_REQUESTED, requested);
+                    mApplicationContext.sendBroadcastAsUser(intent,
+                            new UserHandle(ActivityManager.getCurrentUser()));
+                }
+
+                @Override
+                public void onImmersiveStateChanged(boolean immersive) {
+
+                }
+            };
+
+    private final CarDeviceProvisionedListener mCarDeviceProvisionedListener =
+            new CarDeviceProvisionedListener() {
+                @Override
+                public void onUserSetupInProgressChanged() {
+                    boolean userSetupInProgress = mCarDeviceProvisionedController
+                            .isCurrentUserSetupInProgress();
+                    Intent intent = new Intent(REQUEST_FROM_SYSTEM_UI);
+                    intent.putExtra(INTENT_EXTRA_SUW_IN_PROGRESS, userSetupInProgress);
+                    mApplicationContext.sendBroadcastAsUser(intent,
+                            new UserHandle(ActivityManager.getCurrentUser()));
+                }
+            };
+
     /**
      * Initializes the controller
      */
@@ -124,7 +167,9 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
             ShellExecutor shellExecutor,
             CarServiceProvider carServiceProvider,
             DisplayAreaOrganizer organizer,
-            CommandQueue commandQueue) {
+            CarUiPortraitDisplaySystemBarsController carUiPortraitDisplaySystemBarsController,
+            CommandQueue commandQueue,
+            CarDeviceProvisionedController deviceProvisionedController) {
         mApplicationContext = applicationContext;
         mOrganizer = organizer;
         mShellExecutor = shellExecutor;
@@ -134,6 +179,11 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
         mNotificationCenterComponent = ComponentName.unflattenFromString(resources.getString(
                 R.string.config_notificationCenterActivity));
         mVoicePlateActivitySet = new ArraySet<>();
+
+        mCarUiDisplaySystemBarsController = carUiPortraitDisplaySystemBarsController;
+        mCarDeviceProvisionedController = deviceProvisionedController;
+        mCarUiDisplaySystemBarsController.registerCallback(mApplicationContext.getDisplayId(),
+                mCarUiPortraitDisplaySystemBarsControllerCallback);
 
         commandQueue.addCallback(this);
 
@@ -188,6 +238,21 @@ public class CarDisplayAreaController implements ConfigurationController.Configu
                 mOnActivityRestartAttemptListener);
         // add CarFullscreenTaskListener to control the foreground DA when the task appears.
         mCarFullscreenTaskListener.registerOnTaskChangeListener(mOnTaskChangeListener);
+
+        mCarDeviceProvisionedController.addCallback(mCarDeviceProvisionedListener);
+        BroadcastReceiver immersiveModeChangeReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent.hasExtra(INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE)) {
+                    boolean hideSystemBar = intent.getBooleanExtra(
+                            INTENT_EXTRA_HIDE_SYSTEM_BAR_FOR_IMMERSIVE_MODE, false);
+                    mCarUiDisplaySystemBarsController.requestImmersiveMode(
+                            mApplicationContext.getDisplayId(), hideSystemBar);
+                }
+            }
+        };
+        mApplicationContext.registerReceiverForAllUsers(immersiveModeChangeReceiver,
+                new IntentFilter(REQUEST_FROM_LAUNCHER), null, null);
     }
 
     void updateVoicePlateActivityMap() {

@@ -22,6 +22,9 @@ android_library {
     sdk_version: "current",
 
     manifest: "AndroidManifest.xml",
+
+    srcs: ["src/**/*.java"],
+
     resource_dirs: [
         "res",
     ],
