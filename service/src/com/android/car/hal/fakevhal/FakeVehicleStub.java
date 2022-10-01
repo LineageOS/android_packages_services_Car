@@ -219,7 +219,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public void linkToDeath(IVehicleDeathRecipient recipient) throws IllegalStateException {
-        // TODO(b/238646350)
+        mRealVehicle.linkToDeath(recipient);
     }
 
     /**
@@ -229,7 +229,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public void unlinkToDeath(IVehicleDeathRecipient recipient) {
-        // TODO(b/238646350)
+        mRealVehicle.unlinkToDeath(recipient);
     }
 
     /**
@@ -371,7 +371,7 @@ public final class FakeVehicleStub extends VehicleStub {
     @Override
     public void dump(FileDescriptor fd, List<String> args) throws RemoteException,
             ServiceSpecificException {
-        // TODO(b/238646350)
+        mRealVehicle.dump(fd, args);
     }
 
     /**

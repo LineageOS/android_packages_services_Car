@@ -18,6 +18,7 @@ package com.android.car.hal.fakevhal;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.atMost;
@@ -46,6 +47,7 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.SparseArray;
 
+import com.android.car.IVehicleDeathRecipient;
 import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.SubscriptionClient;
 import com.android.car.hal.AidlHalPropConfig;
@@ -64,6 +66,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -1388,6 +1391,39 @@ public class FakeVehicleStubUnitTest {
         client.unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
 
         verify(realClient).unsubscribe(VehicleProperty.VHAL_HEARTBEAT);
+    }
+
+    @Test
+    public void testLinkToDeath() throws Exception {
+        IVehicleDeathRecipient recipient = mock(IVehicleDeathRecipient.class);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.linkToDeath(recipient);
+
+        verify(mMockRealVehicleStub).linkToDeath(recipient);
+    }
+
+    @Test
+    public void testUnLinkToDeath() throws Exception {
+        IVehicleDeathRecipient recipient = mock(IVehicleDeathRecipient.class);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.unlinkToDeath(recipient);
+
+        verify(mMockRealVehicleStub).unlinkToDeath(recipient);
+    }
+
+    @Test
+    public void testDump() throws Exception {
+        FileDescriptor fd = mock(FileDescriptor.class);
+        FakeVehicleStub fakeVehicleStub = new FakeVehicleStub(mMockRealVehicleStub,
+                new FakeVhalConfigParser(), new ArrayList<>());
+
+        fakeVehicleStub.dump(fd, new ArrayList<>());
+
+        verify(mMockRealVehicleStub).dump(eq(fd), eq(new ArrayList<>()));
     }
 
     private HalPropValue buildHalPropValue(int propId, int areaId, long timestamp,
