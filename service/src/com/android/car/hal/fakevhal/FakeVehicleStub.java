@@ -168,7 +168,7 @@ public final class FakeVehicleStub extends VehicleStub {
      */
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         // TODO(b/238646350)
     }
 

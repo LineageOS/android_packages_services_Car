@@ -84,7 +84,7 @@ final class AidlVehicleStub extends VehicleStub {
     private final LongSparseArray<AndroidFuture<GetValueResult>>
             mPendingSyncGetValueRequestsByVhalRequestId = new LongSparseArray();
     @GuardedBy("mLock")
-    private final LongSparseArray<AsyncClientInfo> mPendingAsyncGetValueCallbacksByVhalRequestId =
+    private final LongSparseArray<AsyncClientInfo> mPendingAsyncClientsByRequestId =
             new LongSparseArray();
     @GuardedBy("mLock")
     private final LongSparseArray<AndroidFuture<SetValueResult>>
@@ -92,20 +92,20 @@ final class AidlVehicleStub extends VehicleStub {
 
     private static class AsyncClientInfo {
         private final int mServiceRequestId;
-        private final GetVehicleStubAsyncCallback mGetVehicleStubAsyncCallback;
+        private final IGetVehicleStubAsyncCallback mGetAsyncCallback;
 
         private AsyncClientInfo(int serviceRequestId,
-                GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+                IGetVehicleStubAsyncCallback getAsyncCallback) {
             mServiceRequestId = serviceRequestId;
-            mGetVehicleStubAsyncCallback = getVehicleStubAsyncCallback;
+            mGetAsyncCallback = getAsyncCallback;
         }
 
         public int getServiceRequestId() {
             return mServiceRequestId;
         }
 
-        public GetVehicleStubAsyncCallback getGetVehicleStubAsyncCallback() {
-            return mGetVehicleStubAsyncCallback;
+        public IGetVehicleStubAsyncCallback getGetAsyncCallback() {
+            return mGetAsyncCallback;
         }
     }
 
@@ -299,17 +299,33 @@ final class AidlVehicleStub extends VehicleStub {
 
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            IGetVehicleStubAsyncCallback getCallback) {
         GetValueRequest[] getValueRequests =
                 new GetValueRequest[getVehicleStubAsyncRequests.size()];
+
         synchronized (mLock) {
+            // Add the death recipient so that all client info for a dead callback will be cleaned
+            // up. Note that this must be in the same critical section as the following code to
+            // store the client info into the map. This makes sure that even if the client is
+            // died half way while adding the client info, it will wait until all the clients are
+            // added and then remove them all.
+            try {
+                getCallback.linkToDeath(() -> {
+                    removePendingAsyncClientForGetCallback(getCallback);
+                });
+            } catch (RemoteException e) {
+                // The binder is already died.
+                throw new IllegalStateException("Failed to link callback to death recipient, the "
+                        + "client maybe already died");
+            }
+
             for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
                 GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
                         getVehicleStubAsyncRequests.get(i);
                 long vhalRequestId = mRequestId.getAndIncrement();
-                mPendingAsyncGetValueCallbacksByVhalRequestId.put(vhalRequestId,
+                mPendingAsyncClientsByRequestId.put(vhalRequestId,
                         new AsyncClientInfo(getVehicleStubAsyncRequest.getServiceRequestId(),
-                                getVehicleStubAsyncCallback));
+                                getCallback));
                 GetValueRequest vhalRequest = new GetValueRequest();
                 vhalRequest.requestId = vhalRequestId;
                 vhalRequest.prop = (VehiclePropValue) getVehicleStubAsyncRequest.getHalPropValue()
@@ -327,10 +343,10 @@ final class AidlVehicleStub extends VehicleStub {
         try {
             mAidlVehicle.getValues(mGetSetValuesCallback, requests);
         } catch (RemoteException e) {
-            handleExceptionFromVhal(requests, getVehicleStubAsyncCallback,
+            handleExceptionFromVhal(requests, getCallback,
                     CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
         } catch (ServiceSpecificException e) {
-            handleExceptionFromVhal(requests, getVehicleStubAsyncCallback,
+            handleExceptionFromVhal(requests, getCallback,
                     convertHalToCarPropertyManagerError(e.errorCode));
         }
     }
@@ -342,7 +358,7 @@ final class AidlVehicleStub extends VehicleStub {
      * where the caller is.
      */
     private void handleExceptionFromVhal(GetValueRequests requests,
-            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback, int errorCode) {
+            IGetVehicleStubAsyncCallback getCallback, int errorCode) {
         Slogf.w(CarLog.TAG_SERVICE,
                 "Received RemoteException or ServiceSpecificException from VHAL. VHAL is likely "
                         + "dead.");
@@ -350,20 +366,19 @@ final class AidlVehicleStub extends VehicleStub {
         synchronized (mLock) {
             for (int i = 0; i < requests.payloads.length; i++) {
                 long vhalRequestId = requests.payloads[i].requestId;
-                AsyncClientInfo clientInfo = mPendingAsyncGetValueCallbacksByVhalRequestId
-                        .get(vhalRequestId);
-                mPendingAsyncGetValueCallbacksByVhalRequestId.remove(vhalRequestId);
+                AsyncClientInfo clientInfo = mPendingAsyncClientsByRequestId.get(vhalRequestId);
+                mPendingAsyncClientsByRequestId.remove(vhalRequestId);
                 if (clientInfo == null) {
                     Slogf.w(CarLog.TAG_SERVICE,
-                            "No pending request for ID: %s, possibly already timed out",
-                            vhalRequestId);
+                            "No pending request for ID: %s, possibly already timed out or "
+                            + "the client already died", vhalRequestId);
                     continue;
                 }
                 getVehicleStubAsyncResults.add(
                         new GetVehicleStubAsyncResult(clientInfo.getServiceRequestId(), errorCode));
             }
         }
-        getVehicleStubAsyncCallback.onGetAsyncResults(getVehicleStubAsyncResults);
+        getCallback.onGetAsyncResults(getVehicleStubAsyncResults);
     }
 
     /**
@@ -523,36 +538,33 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void onGetAsyncPropertyResult(GetValueResult result, long vhalRequestId,
-            Map<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
+            Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
         AsyncClientInfo clientInfo;
         synchronized (mLock) {
-            clientInfo = mPendingAsyncGetValueCallbacksByVhalRequestId.get(vhalRequestId);
-            mPendingAsyncGetValueCallbacksByVhalRequestId.remove(vhalRequestId);
+            clientInfo = mPendingAsyncClientsByRequestId.get(vhalRequestId);
+            mPendingAsyncClientsByRequestId.remove(vhalRequestId);
         }
         if (clientInfo == null) {
             Slogf.w(CarLog.TAG_SERVICE,
-                    "No pending request for ID: %s, possibly already timed out", vhalRequestId);
+                    "No pending request for ID: %s, possibly already timed out"
+                    + " or the client already died", vhalRequestId);
             return;
         }
         int serviceRequestId = clientInfo.getServiceRequestId();
         GetVehicleStubAsyncResult getVehicleStubAsyncResult;
-        if (result.prop == null) {
-            getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
-                    CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
-        } else if (result.status != StatusCode.OK) {
+        if (result.status != StatusCode.OK) {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
                     convertHalToCarPropertyManagerError(result.status));
+        } else if (result.prop == null) {
+            // If status is OKAY but no property is returned, treat it as not_available.
+            getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
+                    CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
         } else {
             getVehicleStubAsyncResult = new GetVehicleStubAsyncResult(serviceRequestId,
                     mPropValueBuilder.build(result.prop));
         }
-        GetVehicleStubAsyncCallback getVehicleStubAsyncCallback;
-        getVehicleStubAsyncCallback = clientInfo.getGetVehicleStubAsyncCallback();
-        if (getVehicleStubAsyncCallback == null) {
-            Slogf.w(CarLog.TAG_SERVICE,
-                    "No pending request for ID: %s, possibly already timed out", vhalRequestId);
-            return;
-        }
+        IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback =
+                clientInfo.getGetAsyncCallback();
         if (callbackToResult.get(getVehicleStubAsyncCallback) == null) {
             callbackToResult.put(getVehicleStubAsyncCallback, new ArrayList<>());
         }
@@ -563,12 +575,12 @@ final class AidlVehicleStub extends VehicleStub {
         GetValueResults origResponses = (GetValueResults)
                 LargeParcelable.reconstructStableAIDLParcelable(responses,
                         /* keepSharedMemory= */ false);
-        Map<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult =
+        Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult =
                 new ArrayMap<>();
         synchronized (mLock) {
             for (GetValueResult result : origResponses.payloads) {
                 long vhalRequestId = result.requestId;
-                if (mPendingAsyncGetValueCallbacksByVhalRequestId.get(vhalRequestId) == null) {
+                if (mPendingAsyncClientsByRequestId.get(vhalRequestId) == null) {
                     onGetSyncPropertyResult(result, vhalRequestId);
                 } else {
                     onGetAsyncPropertyResult(result, vhalRequestId, callbackToResult);
@@ -579,20 +591,23 @@ final class AidlVehicleStub extends VehicleStub {
     }
 
     private void callGetAsyncCallbacks(
-            Map<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
-        for (Map.Entry<GetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> entry :
+            Map<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> callbackToResult) {
+        for (Map.Entry<IGetVehicleStubAsyncCallback, List<GetVehicleStubAsyncResult>> entry :
                 callbackToResult.entrySet()) {
-            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback = entry.getKey();
+            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback = entry.getKey();
             getVehicleStubAsyncCallback.onGetAsyncResults(entry.getValue());
         }
     }
 
     private int convertHalToCarPropertyManagerError(int errorCode) {
-        // TODO (b/241060746): Implement retry logic - StatusCode.TRY_AGAIN
-        if (errorCode == StatusCode.NOT_AVAILABLE) {
-            return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+        switch (errorCode) {
+            case StatusCode.NOT_AVAILABLE:
+                return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+            case StatusCode.TRY_AGAIN:
+                return STATUS_TRY_AGAIN;
+            default:
+                return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
         }
-        return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
     }
 
     private void onSetValues(SetValueResults responses) {
@@ -651,6 +666,24 @@ final class AidlVehicleStub extends VehicleStub {
         @Override
         public int getInterfaceVersion() {
             return IVehicleCallback.VERSION;
+        }
+    }
+
+    // Remove all the pending client info that has the specified callback.
+    private void removePendingAsyncClientForGetCallback(IGetVehicleStubAsyncCallback getCallback) {
+        synchronized (mLock) {
+            List<Long> requestIdsToRemove = new ArrayList<>();
+
+            for (int i = 0; i < mPendingAsyncClientsByRequestId.size(); i++) {
+                if (mPendingAsyncClientsByRequestId.valueAt(i).getGetAsyncCallback()
+                        == getCallback) {
+                    requestIdsToRemove.add(mPendingAsyncClientsByRequestId.keyAt(i));
+                }
+            }
+
+            for (int i = 0; i < requestIdsToRemove.size(); i++) {
+                mPendingAsyncClientsByRequestId.delete(requestIdsToRemove.get(i));
+            }
         }
     }
 }
