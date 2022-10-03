@@ -70,8 +70,6 @@ public final class UserAssignmentTest extends BaseCarUserServiceTestCase {
         // OccupantZoneHelper, display id is same with zone id
         int displayId = mZoneHelper.zoneRearLeft.zoneId;
         verify(mICarServiceHelper).startUserInBackgroundOnSecondaryDisplay(userId, displayId);
-        verify(mCarOccupantZoneService).assignVisibleUserToOccupantZone(zoneId, mAnotherAdminUser,
-                0);
     }
 
     @Before

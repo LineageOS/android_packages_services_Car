@@ -16,12 +16,16 @@
 
 package com.android.car;
 
+import static android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.builtin.content.ContextHelper;
 import android.car.builtin.util.Slogf;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -444,6 +448,7 @@ public final class CarServiceUtils {
      */
     public static boolean startHomeForUserAndDisplay(@NonNull Context context,
             @UserIdInt int userId, int displayId) {
+        Slogf.d(TAG, "Starting HOME for user: %d, display:%d", userId, displayId);
         Intent homeIntent = new Intent(Intent.ACTION_MAIN);
         String category = (displayId == Display.DEFAULT_DISPLAY) ? Intent.CATEGORY_HOME
                 : Intent.CATEGORY_SECONDARY_HOME;
@@ -453,9 +458,37 @@ public final class CarServiceUtils {
         try {
             ContextHelper.startActivityAsUser(context, homeIntent, activityOptions.toBundle(),
                     UserHandle.of(userId));
+            Slogf.d(TAG, "Started HOME for user: %d, display:%d", userId, displayId);
             return true;
         } catch (Exception e) {
             Slogf.w(TAG, e, "Cannot start HOME for user: %d, display:%d", userId, displayId);
+            return false;
+        }
+    }
+
+    /**
+     * Starts UserPickerActivity for the given {@code userId} and {@code displayId}.
+     *
+     * @return {@code true} when starting activity succeeds. It can fail in situation like
+     * package not existing.
+     */
+    public static boolean startUserPickerOnDisplay(@NonNull Context context,
+            int displayId, String userPickerActivityPackage) {
+        Slogf.d(TAG, "Starting user picker on display:%d", displayId);
+        // FLAG_ACTIVITY_MULTIPLE_TASK ensures the user picker can show up on multiple displays.
+        Intent intent = new Intent()
+                .setComponent(ComponentName.unflattenFromString(
+                    userPickerActivityPackage))
+                .addFlags(FLAG_ACTIVITY_MULTIPLE_TASK | FLAG_ACTIVITY_NEW_TASK);
+        ActivityOptions activityOptions = ActivityOptions.makeBasic()
+                .setLaunchDisplayId(displayId);
+        try {
+            // Start the user picker as user 0.
+            ContextHelper.startActivityAsUser(context, intent, activityOptions.toBundle(),
+                    UserHandle.SYSTEM);
+            return true;
+        } catch (Exception e) {
+            Slogf.w(TAG, e, "Cannot start user picker as user 0 on display:%d", displayId);
             return false;
         }
     }

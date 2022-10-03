@@ -85,6 +85,7 @@
           <item type="array" name="config_occupant_display_mapping" translatable="false"/>
           <item type="array" name="config_sourcePreferredComponents" translatable="false"/>
           <item type="string" name="config_userNoticeUiService" translatable="false"/>
+          <item type="string" name="config_userPickerActivity" translatable="false"/>
           <item type="integer" name="config_mediaSourceChangedAutoplay"/>
           <item type="integer" name="config_mediaBootAutoplay"/>
           <item type="bool" name="config_mediaSourceIndependentPlayback"/>

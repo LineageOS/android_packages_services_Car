@@ -64,10 +64,11 @@ public final class SimpleUserPickerFragment extends Fragment {
     private Button mStartUserButton;
     private Button mStopUserButton;
     private Button mSwitchUserButton;
+    private Button mRefreshButton;
 
     private TextView mUserIdText;
     private TextView mZoneInfoText;
-    private TextView mErrorMessageText;
+    private TextView mStatusMessageText;
 
     private ActivityManager mActivityManager;
     private UserManager mUserManager;
@@ -117,30 +118,37 @@ public final class SimpleUserPickerFragment extends Fragment {
         mStopUserButton.setOnClickListener(v -> stopUser());
         mSwitchUserButton = view.findViewById(R.id.button_switch_user);
         mSwitchUserButton.setOnClickListener(v -> switchUser());
+        mRefreshButton = view.findViewById(R.id.button_refresh);
+        mRefreshButton.setOnClickListener(v -> refresh());
 
-        mErrorMessageText = view.findViewById(R.id.status_message_text_view);
+        mStatusMessageText = view.findViewById(R.id.status_message_text_view);
     }
 
     private void updateTextInfo() {
         int currentUserId = ActivityManager.getCurrentUser();
         int myUserId = UserHandle.myUserId();
-        mUserIdText.setText("Current userId:" + currentUserId + " myUserId:" + myUserId);
-        StringBuilder zoneStatebuilder = new StringBuilder();
-        zoneStatebuilder.append("Zone-User-Displays:");
+        mUserIdText.setText("Current userId: " + currentUserId + " myUserId:" + myUserId);
+        StringBuilder zoneStateBuilder = new StringBuilder();
+        zoneStateBuilder.append("Zone-User-Displays: ");
         List<CarOccupantZoneManager.OccupantZoneInfo> zonelist = mZoneManager.getAllOccupantZones();
         for (CarOccupantZoneManager.OccupantZoneInfo zone : zonelist) {
-            zoneStatebuilder.append(zone.zoneId);
-            zoneStatebuilder.append("-");
-            zoneStatebuilder.append(mZoneManager.getUserForOccupant(zone));
-            zoneStatebuilder.append("-");
+            zoneStateBuilder.append(zone.zoneId);
+            zoneStateBuilder.append("-");
+            int user = mZoneManager.getUserForOccupant(zone);
+            if (user == UserHandle.USER_NULL) {
+                zoneStateBuilder.append("unassigned");
+            } else {
+                zoneStateBuilder.append(user);
+            }
+            zoneStateBuilder.append("-");
             List<Display> displays = mZoneManager.getAllDisplaysForOccupant(zone);
             for (Display display : displays) {
-                zoneStatebuilder.append(display.getDisplayId());
-                zoneStatebuilder.append(",");
+                zoneStateBuilder.append(display.getDisplayId());
+                zoneStateBuilder.append(",");
             }
-            zoneStatebuilder.append(":");
+            zoneStateBuilder.append(":");
         }
-        mZoneInfoText.setText(zoneStatebuilder.toString());
+        mZoneInfoText.setText(zoneStateBuilder.toString());
     }
 
     // startUser starts a selected user on a selected secondary display.
@@ -164,25 +172,8 @@ public final class SimpleUserPickerFragment extends Fragment {
             return;
         }
 
-        // Assign the user to the occupant zone that has this display.
-        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
-        if (zoneInfo == null) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot find occupant zone info associated with display " + displayId);
-            return;
-        }
-
-        int assignmentResult = mZoneManager.assignVisibleUserToOccupantZone(
-                zoneInfo, UserHandle.of(userId), 0);
-        if (assignmentResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot assign user " + userId + " to occupant zone " + zoneInfo.zoneId);
-            return;
-        }
-
         setMessage(INFO_MESSAGE,
-                "Started user " + userId + " on display " + displayId
-                + " and assigned user to zone " + zoneInfo.zoneId);
+                "Started user " + userId + " on display " + displayId);
         mUsersSpinner.updateEntries(getUnassignedUsers());
         updateTextInfo();
     }
@@ -221,10 +212,15 @@ public final class SimpleUserPickerFragment extends Fragment {
             return;
         }
 
-        // Unassigning user from zone will happen in CarUserService.handleStoppingVisibleUser
-        // after getting the zone for the user and then the display in that zone
-        // so that this display can be used for starting user picker in
-        // CarUserService.handleStoppingVisibleUser.
+        // Unassign the user from the occupant zone.
+        // TODO(b/253264316): See if we can move it to CarUserService.
+        int result = mZoneManager.unassignOccupantZone(zoneInfo);
+        if (result != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
+            setMessage(ERROR_MESSAGE, "failed to unassign user " + userId + " from occupant zone "
+                            + zoneInfo.zoneId);
+            return;
+        }
+
         IActivityManager am = ActivityManager.getService();
         Log.i(TAG, "stop user:" + userId);
         try {
@@ -244,6 +240,7 @@ public final class SimpleUserPickerFragment extends Fragment {
         // Pick an unassigned user to switch to on this display.
         int userId = getSelectedUser();
         if (userId == UserHandle.USER_NULL) {
+            setMessage(ERROR_MESSAGE, "Invalid user");
             return;
         }
 
@@ -254,12 +251,6 @@ public final class SimpleUserPickerFragment extends Fragment {
         }
 
         int displayId = mDisplayAttached.getDisplayId();
-        OccupantZoneInfo zoneInfo = getOccupantZoneForDisplayId(displayId);
-        if (zoneInfo == null) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot find occupant zone info associated with display " + displayId);
-            return;
-        }
 
         Log.i(TAG, "start user: " + userId + " in background on secondary display: " + displayId);
         boolean started = mActivityManager.startUserInBackgroundOnSecondaryDisplay(
@@ -270,19 +261,15 @@ public final class SimpleUserPickerFragment extends Fragment {
             return;
         }
 
-        int zoneId = zoneInfo.zoneId;
-        Log.i(TAG, "assigning user:" + userId + " to zone:" + zoneId);
-        int assignmentResult = mZoneManager.assignVisibleUserToOccupantZone(
-                zoneInfo, UserHandle.of(userId), 0);
-        if (assignmentResult != CarOccupantZoneManager.USER_ASSIGNMENT_RESULT_OK) {
-            setMessage(ERROR_MESSAGE,
-                    "Cannot assign user " + userId + " to occupant zone " + zoneInfo.zoneId);
-            return;
-        }
-
-        setMessage(INFO_MESSAGE, "Assigned user " + userId + " to zone " + zoneId);
+        setMessage(INFO_MESSAGE, "Switched to user " + userId + " on display " + displayId);
         mUsersSpinner.updateEntries(getUnassignedUsers());
         updateTextInfo();
+    }
+
+    private void refresh() {
+        mUsersSpinner.updateEntries(getUnassignedUsers());
+        updateTextInfo();
+        setMessage(INFO_MESSAGE, "User assignment info refreshed");
     }
 
     // TODO(b/248608281): Use API from CarOccupantZoneManager for convenience.
@@ -319,29 +306,17 @@ public final class SimpleUserPickerFragment extends Fragment {
                 break;
             case WARN_MESSAGE:
                 Log.w(TAG, message);
-                textColor = Color.GREEN;
+                textColor = Color.YELLOW;
                 break;
             case INFO_MESSAGE:
             default:
                 Log.i(TAG, message);
-                textColor = Color.WHITE;
+                textColor = Color.GREEN;
         }
-        mErrorMessageText.setTextColor(textColor);
-        mErrorMessageText.setText(message);
+        mStatusMessageText.setTextColor(textColor);
+        mStatusMessageText.setText(message);
     }
 
-    @Nullable
-    private CarOccupantZoneManager.OccupantZoneInfo getZoneInfoForId(int zoneId) {
-        List<CarOccupantZoneManager.OccupantZoneInfo> zonelist = mZoneManager.getAllOccupantZones();
-        for (CarOccupantZoneManager.OccupantZoneInfo zone : zonelist) {
-            if (zone.zoneId == zoneId) {
-                return zone;
-            }
-        }
-        return null;
-    }
-
-    @Nullable
     private int getSelectedDisplay() {
         String displayStr = mDisplaysSpinner.getSelectedEntry();
         if (displayStr == null) {

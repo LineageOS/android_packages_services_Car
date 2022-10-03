@@ -349,10 +349,10 @@
 
     <!--
         Specifies whether CarLaunchParamControl prefers source. If prefer-source is enabled,
-        CarLaunchParamControl tries to launch Activities without any desiganted display to
+        CarLaunchParamControl tries to launch Activities without any designated display to
         the display where the source is located.
 
-        This can be configured 3 ways:
+        This can be configured in 3 ways:
         A. No items - don't prefer source for any components.
         B. 1 items with "*" - prefer source for all components.
         C. enumerate items of "packageName/activityName" - prefer source for the specified ones.
@@ -368,6 +368,11 @@
          resolve permission by itself to use any higher priority window type.
          Setting this string to empty will disable the feature. -->
     <string name="config_userNoticeUiService" translatable="false">com.google.android.car.kitchensink/.UserNoticeDemoUiService</string>
+
+    <!-- Specifies the user picker to be launched on a secondary display when there is no user
+         allocation when the system boots and when a visible user stops.
+    -->
+    <string name="config_userPickerActivity" translatable="false">com.google.android.car.kitchensink/.UserPickerActivity</string>
 
     <!-- Configuration to enable media center to autoplay when the media source is changed.
          There are 3 supported configurations:
