@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
+#include "BundleWrapper.h"
 #include "JniUtils.h"
 #include "LuaEngine.h"
 #include "jni.h"
+#include "nativehelper/scoped_local_ref.h"
 
 #include <cstdint>
 #include <cstring>
@@ -218,6 +220,45 @@ Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasDoubleArrayVa
                                       /* checkIsInteger= */ false);
     env->ReleaseDoubleArrayElements(value, rawInputArray, JNI_ABORT);
     return result;
+}
+
+JNIEXPORT bool JNICALL
+Java_com_android_car_scriptexecutortest_unit_JniUtilsTest_nativeHasPersistableBundleOfStringValue(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jstring expected) {
+    const char* rawKey = env->GetStringUTFChars(key, nullptr);
+    scriptexecutor::LuaEngine* engine =
+            reinterpret_cast<scriptexecutor::LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    // Assumes the table is on top of the stack.
+    auto* luaState = engine->getLuaState();
+    lua_pushstring(luaState, rawKey);
+    lua_gettable(luaState, -2);
+    // check if the key maps to a value of type table
+    if (!lua_istable(luaState, -1)) {
+        return false;
+    }
+    // convert value (a table) into a PersistableBundle
+    scriptexecutor::BundleWrapper bundleWrapper(env);
+    scriptexecutor::convertLuaTableToBundle(env, luaState, &bundleWrapper);
+    // call PersistableBundle#toString() to compare the string representation with the expected
+    // representation
+    ScopedLocalRef<jclass> persistableBundleClass(env,
+                                                  env->FindClass("android/os/PersistableBundle"));
+    jmethodID toStringMethod =
+            env->GetMethodID(persistableBundleClass.get(), "toString", "()Ljava/lang/String;");
+    ScopedLocalRef<jstring> actual(env,
+                                   (jstring)env->CallObjectMethod(bundleWrapper.getBundle(),
+                                                                  toStringMethod));
+    // convert jstring into c string
+    const char* nativeActualString = env->GetStringUTFChars(actual.get(), nullptr);
+    const char* nativeExpectedString = env->GetStringUTFChars(expected, nullptr);
+
+    // compare actual vs expected
+    int res = strncmp(nativeActualString, nativeExpectedString, strlen(nativeActualString));
+
+    env->ReleaseStringUTFChars(key, rawKey);
+    env->ReleaseStringUTFChars(actual.get(), nativeActualString);
+    env->ReleaseStringUTFChars(expected, nativeExpectedString);
+    return res == 0;
 }
 
 }  //  extern "C"
