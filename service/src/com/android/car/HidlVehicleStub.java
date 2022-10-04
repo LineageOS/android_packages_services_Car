@@ -230,7 +230,7 @@ final class HidlVehicleStub extends VehicleStub {
 
     @Override
     public void getAsync(List<GetVehicleStubAsyncRequest> getVehicleStubAsyncRequests,
-            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         mExecutor.execute(() -> {
             for (int i = 0; i < getVehicleStubAsyncRequests.size(); i++) {
                 GetVehicleStubAsyncRequest getVehicleStubAsyncRequest =
@@ -264,16 +264,17 @@ final class HidlVehicleStub extends VehicleStub {
 
     private void callGetAsyncErrorCallbacks(
             @CarPropertyAsyncErrorCode int errorCodeCarPropertyManager, int serviceRequestId,
-            GetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
+            IGetVehicleStubAsyncCallback getVehicleStubAsyncCallback) {
         getVehicleStubAsyncCallback.onGetAsyncResults(
                 List.of(new GetVehicleStubAsyncResult(serviceRequestId,
                         errorCodeCarPropertyManager)));
     }
 
     private int convertHalToCarPropertyManagerError(int errorCode) {
-        // TODO (b/241060746): Implement retry logic - StatusCode.TRY_AGAIN
-        if (errorCode == android.hardware.automotive.vehicle.V2_0.StatusCode.NOT_AVAILABLE) {
+        if (errorCode == StatusCode.NOT_AVAILABLE) {
             return CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE;
+        } else if (errorCode == StatusCode.TRY_AGAIN) {
+            return STATUS_TRY_AGAIN;
         }
         return CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR;
     }

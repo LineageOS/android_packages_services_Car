@@ -32,6 +32,7 @@ import android.car.hardware.property.IGetAsyncPropertyResultCallback;
 import android.hardware.automotive.vehicle.VehiclePropError;
 import android.hardware.automotive.vehicle.VehicleProperty;
 import android.os.IBinder;
+import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.util.ArrayMap;
@@ -40,9 +41,10 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.VehicleStub.GetVehicleStubAsyncCallback;
+import com.android.car.VehicleStub;
 import com.android.car.VehicleStub.GetVehicleStubAsyncRequest;
 import com.android.car.VehicleStub.GetVehicleStubAsyncResult;
+import com.android.car.VehicleStub.IGetVehicleStubAsyncCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
@@ -65,8 +67,6 @@ public class PropertyHalService extends HalServiceBase {
     private static final boolean DBG = true;
     private final LinkedList<CarPropertyEvent> mEventsToDispatch = new LinkedList<>();
     private final AtomicInteger mServiceRequestIdCounter = new AtomicInteger(0);
-    private final Map<IBinder, GetVehicleStubAsyncCallback>
-            mResultBinderToVehicleStubCallback = new ArrayMap<>();
     // Only contains property ID if value is different for the CarPropertyManager and the HAL.
     private static final BidirectionalSparseIntArray MGR_PROP_ID_TO_HAL_PROP_ID =
             BidirectionalSparseIntArray.create(
@@ -77,7 +77,9 @@ public class PropertyHalService extends HalServiceBase {
     private final PropertyHalServiceIds mPropertyHalServiceIds = new PropertyHalServiceIds();
     private final HalPropValueBuilder mPropValueBuilder;
     private final Object mLock = new Object();
-    // Use SparseArray to save memory.
+    @GuardedBy("mLock")
+    private final Map<IBinder, IGetVehicleStubAsyncCallback>
+            mResultBinderToVehicleStubCallback = new ArrayMap<>();
     @GuardedBy("mLock")
     private final SparseArray<CarPropertyConfig<?>> mMgrPropIdToCarPropConfig = new SparseArray<>();
     @GuardedBy("mLock")
@@ -93,11 +95,23 @@ public class PropertyHalService extends HalServiceBase {
     @GuardedBy("mLock")
     private final Set<Integer> mSubscribedHalPropIds = new HashSet<>();
 
-    private class VehicleStubCallback extends GetVehicleStubAsyncCallback {
+    private class VehicleStubCallback extends IGetVehicleStubAsyncCallback {
         private final IGetAsyncPropertyResultCallback mGetAsyncPropertyResultCallback;
+        private final IBinder mClientBinder;
 
-        VehicleStubCallback(IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
+        VehicleStubCallback(
+                IGetAsyncPropertyResultCallback getAsyncPropertyResultCallback) {
             mGetAsyncPropertyResultCallback = getAsyncPropertyResultCallback;
+            mClientBinder = getAsyncPropertyResultCallback.asBinder();
+        }
+
+        private void retry(int serviceRequestId) {
+            // TODO(b/241060746): Implement the retry logic.
+        }
+
+        @Override
+        public void linkToDeath(DeathRecipient recipient) throws RemoteException {
+            mClientBinder.linkToDeath(recipient, /* flags= */ 0);
         }
 
         @Override
@@ -117,10 +131,14 @@ public class PropertyHalService extends HalServiceBase {
                                         + "exception might have been thrown", serviceRequestId);
                         continue;
                     }
-                    int errorCode = getVehicleStubAsyncResult.getErrorCode();
+                    int vehicleStubErrorCode = getVehicleStubAsyncResult.getErrorCode();
+                    if (vehicleStubErrorCode == VehicleStub.STATUS_TRY_AGAIN) {
+                        retry(serviceRequestId);
+                        continue;
+                    }
                     mServiceRequestIdToPropertyServiceRequest.remove(serviceRequestId);
                     CarPropertyValue carPropertyValue;
-                    if (errorCode != CarPropertyManager.STATUS_OK) {
+                    if (vehicleStubErrorCode != CarPropertyManager.STATUS_OK) {
                         carPropertyValue = null;
                     } else {
                         int managerPropertyId = getPropertyServiceRequest.getPropertyId();
@@ -130,7 +148,7 @@ public class PropertyHalService extends HalServiceBase {
                                 .toCarPropertyValue(managerPropertyId, halPropConfig);
                     }
                     getValueResults.add(new GetValueResult(getPropertyServiceRequest.getRequestId(),
-                            carPropertyValue, errorCode));
+                            carPropertyValue, vehicleStubErrorCode));
                 }
             }
             try {
@@ -530,19 +548,27 @@ public class PropertyHalService extends HalServiceBase {
                         getPropertyServiceRequest));
             }
         }
+
         IBinder getAsyncPropertyResultBinder = getAsyncPropertyResultCallback.asBinder();
-        try {
-            getAsyncPropertyResultBinder.linkToDeath(
-                    () -> mResultBinderToVehicleStubCallback.remove(
-                            getAsyncPropertyResultBinder), /* flags= */0);
-        } catch (RemoteException e) {
-            Slogf.w(TAG, "Linking to binder death recipient failed: %s", e);
+        IGetVehicleStubAsyncCallback callback;
+        synchronized (mLock) {
+            if (mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder) == null) {
+                callback = new VehicleStubCallback(getAsyncPropertyResultCallback);
+                try {
+                    callback.linkToDeath(() -> {
+                        synchronized (mLock) {
+                            mResultBinderToVehicleStubCallback.remove(getAsyncPropertyResultBinder);
+                        }
+                    });
+                } catch (RemoteException e) {
+                    throw new IllegalStateException("Linking to binder death recipient failed, "
+                            + "the client might already died", e);
+                }
+                mResultBinderToVehicleStubCallback.put(getAsyncPropertyResultBinder, callback);
+            } else {
+                callback = mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder);
+            }
         }
-        if (mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder) == null) {
-            mResultBinderToVehicleStubCallback.put(getAsyncPropertyResultBinder,
-                    new VehicleStubCallback(getAsyncPropertyResultCallback));
-        }
-        mVehicleHal.getAsync(getVehicleStubAsyncRequests,
-                mResultBinderToVehicleStubCallback.get(getAsyncPropertyResultBinder));
+        mVehicleHal.getAsync(getVehicleStubAsyncRequests, callback);
     }
 }

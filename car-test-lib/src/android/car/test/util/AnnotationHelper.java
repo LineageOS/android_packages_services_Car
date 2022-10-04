@@ -58,7 +58,7 @@ public class AnnotationHelper {
                 Method method = methods[j];
 
                 // These are some internal methods
-                if (method.getName().contains("$")) continue;
+                if (method.isBridge() || method.isSynthetic()) continue;
 
                 boolean isAnnotated = containsAddedInAnnotation(method, annotationClasses);
                 boolean shouldBeAnnotated = Modifier.isPublic(method.getModifiers())
