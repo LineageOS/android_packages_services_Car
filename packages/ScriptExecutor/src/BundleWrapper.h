@@ -48,8 +48,9 @@ public:
     ::android::base::Result<void> putLongArray(const char* key, const std::vector<int64_t>& value);
     ::android::base::Result<void> putStringArray(const char* key,
                                                  const std::vector<std::string>& value);
+    ::android::base::Result<void> putPersistableBundle(const char* key, const BundleWrapper& value);
 
-    jobject getBundle();
+    jobject getBundle() const;
 
 private:
     // The class asks Java to create PersistableBundle object and stores the reference.
