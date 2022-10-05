@@ -1695,4 +1695,11 @@
             column="15"/>
     </issue>
 
+    <issue
+        id="NewApi"
+        message="Class requires API level 34 (current min is 33): `android.content.om.OverlayManager`">
+        <location
+            file="packages/services/Car/service/src/com/android/car/ICarImpl.java"
+            line="744"/>
+    </issue>
 </issues>
