@@ -39,7 +39,7 @@
             android:layout_height="@dimen/button_layout_height"
             android:layout_marginRight="@dimen/car_alert_dialog_button_margin"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/alert_dialog_message_text_color"/>
+            android:textColor="@color/car_alert_dialog_button_text_color"/>
         <Button
             android:id="@android:id/button2"
             android:background="@drawable/car_dialog_button_background"
@@ -49,7 +49,7 @@
             android:layout_height="@dimen/button_layout_height"
             android:layout_marginRight="@dimen/car_alert_dialog_button_margin"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/alert_dialog_message_text_color"/>
+            android:textColor="@color/car_alert_dialog_button_text_color"/>
         <Button
             android:id="@android:id/button1"
             android:background="@drawable/car_dialog_button_background"
@@ -58,7 +58,7 @@
             android:stateListAnimator="@null"
             android:layout_height="@dimen/button_layout_height"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/alert_dialog_message_text_color"/>
+            android:textColor="@color/car_alert_dialog_button_text_color"/>
         <Space
             android:id="@*android:id/spacer"
             android:layout_width="0dp"

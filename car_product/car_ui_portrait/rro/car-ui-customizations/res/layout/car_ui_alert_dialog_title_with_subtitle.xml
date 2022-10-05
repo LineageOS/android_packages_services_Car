@@ -44,7 +44,7 @@
             android:id="@+id/car_ui_alert_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="start"
             android:layout_marginBottom="@dimen/alert_dialog_margin"
             android:textAppearance="@style/TextAppearance_CarUi_AlertDialog_Title" />
 
@@ -52,7 +52,7 @@
             android:id="@+id/car_ui_alert_subtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:gravity="start"
             android:textAppearance="@style/TextAppearance_CarUi_AlertDialog_Subtitle"/>
     </LinearLayout>
 

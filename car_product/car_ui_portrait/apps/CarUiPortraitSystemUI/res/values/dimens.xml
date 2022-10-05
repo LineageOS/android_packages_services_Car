@@ -68,4 +68,9 @@
     <dimen name="toast_margin">24dp</dimen>
     <dimen name="toast_icon_dimen">48dp</dimen>
     <dimen name="toast_bottom_margin">32dp</dimen>
+
+    <dimen name="car_quick_controls_footer_button_vertical_margin">10dp</dimen>
+    <dimen name="car_quick_controls_footer_button_horizontal_margin">24dp</dimen>
+    <dimen name="car_quick_controls_footer_button_min_height">56dp</dimen>
+    <dimen name="car_quick_controls_footer_button_radius">@dimen/car_portrait_ui_button_radius</dimen>
 </resources>
