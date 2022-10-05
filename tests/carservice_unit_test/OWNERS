@@ -60,4 +60,4 @@ per-file src/android/car/builtin/view/* = ycheo@google.com
 per-file src/com/android/car/hal/fakevhal/*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 per-file src/com/android/car/hal/Hal*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
 per-file src/com/android/car/hal/VehicleHal*.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
-per-file src/com/android/car/*VehicleStubTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
+per-file src/com/android/car/*VehicleStubUnitTest.java = ericjeong@google.com, tylertrephan@google.com, shanyu@google.com
