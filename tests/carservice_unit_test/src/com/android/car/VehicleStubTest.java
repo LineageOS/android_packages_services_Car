@@ -19,11 +19,11 @@ package com.android.car;
 import static android.car.VehiclePropertyIds.HVAC_TEMPERATURE_SET;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.after;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.car.hardware.property.CarPropertyManager;
+import android.car.test.mocks.JavaMockitoHelper;
 import android.hardware.automotive.vehicle.GetValueRequest;
 import android.hardware.automotive.vehicle.GetValueRequests;
 import android.hardware.automotive.vehicle.GetValueResult;
@@ -72,6 +73,7 @@ import com.android.car.hal.HidlHalPropConfig;
 import com.android.car.internal.LargeParcelable;
 import com.android.compatibility.common.util.PollingCheck;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -134,6 +136,11 @@ public class VehicleStubTest {
 
         mHandlerThread.start();
         mHandler = new Handler(mHandlerThread.getLooper());
+    }
+
+    @After
+    public void tearDown() {
+        mHandlerThread.quitSafely();
     }
 
     @Test
@@ -948,30 +955,26 @@ public class VehicleStubTest {
                 CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
     }
 
+    private void postOnBinderDied(CountDownLatch latch, DeathRecipient deathRecipient) {
+        mHandler.post(() -> {
+            deathRecipient.binderDied();
+            latch.countDown();
+        });
+    }
+
     // Test that the client information is cleaned-up and client callback will not be called if
     // client's binder died after the getAsync request.
     @Test
     public void testGetAsyncAidlBinderDiedAfterRegisterCallback() throws Exception {
-        CountDownLatch callbackLatch = new CountDownLatch(1);
+        List<IVehicleCallback.Stub> callbackWrapper = new ArrayList<>();
+        List<GetValueResults> resultsWrapper = new ArrayList<>();
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             GetValueRequests requests = (GetValueRequests) args[1];
             IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
             GetValueResults results = createGetValueResults(StatusCode.OK, requests.payloads[0]);
-
-            // Call callback after receiving the signal.
-            mHandler.post(() -> {
-                try {
-                    callbackLatch.await();
-                } catch (InterruptedException e) {
-                    // Do nothing.
-                }
-                try {
-                    callback.onGetValues(results);
-                } catch (RemoteException e) {
-                    // ignore.
-                }
-            });
+            callbackWrapper.add(callback);
+            resultsWrapper.add(results);
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
         List<DeathRecipient> recipientWrapper = new ArrayList<>();
@@ -992,48 +995,40 @@ public class VehicleStubTest {
 
         verify(mGetVehicleStubAsyncCallback).linkToDeath(any());
 
-        // After sending the request, the client died.
-        mHandler.post(() -> {
-            recipientWrapper.get(0).binderDied();
-            // Trigger the callback after the binder is dead.
-            callbackLatch.countDown();
-        });
+        CountDownLatch latch = new CountDownLatch(1);
+        // After sending the request, the client died. Must call the binderDied from a different
+        // thread.
+        postOnBinderDied(latch, recipientWrapper.get(0));
+        JavaMockitoHelper.await(latch, /* timeoutMs= */ 1000);
 
-        verify(mGetVehicleStubAsyncCallback, after(100).never()).onGetAsyncResults(any());
+        // Trigger the callback after the binder is dead.
+        assertWithMessage("callback wrapper").that(callbackWrapper).hasSize(1);
+        assertWithMessage("results wrapper").that(resultsWrapper).hasSize(1);
+        callbackWrapper.get(0).onGetValues(resultsWrapper.get(0));
+
+        verify(mGetVehicleStubAsyncCallback, never()).onGetAsyncResults(any());
     }
 
     // Test that the client information is cleaned-up and client callback will not be called if
     // client's binder died while getAsync is adding the callbacks.
     @Test
     public void testGetAsyncAidlBinderDiedWhileRegisterCallback() throws Exception {
-        CountDownLatch callbackLatch = new CountDownLatch(2);
+        List<IVehicleCallback.Stub> callbackWrapper = new ArrayList<>();
+        List<GetValueResults> resultsWrapper = new ArrayList<>();
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             GetValueRequests requests = (GetValueRequests) args[1];
             IVehicleCallback.Stub callback = (IVehicleCallback.Stub) args[0];
             GetValueResults results = createGetValueResults(StatusCode.OK, requests.payloads[0]);
-
-            // Call callback after receiving the signal.
-            mHandler.post(() -> {
-                try {
-                    callbackLatch.await();
-                } catch (InterruptedException e) {
-                    // Do nothing.
-                }
-                try {
-                    callback.onGetValues(results);
-                } catch (RemoteException e) {
-                    // ignore.
-                }
-            });
+            callbackWrapper.add(callback);
+            resultsWrapper.add(results);
             return null;
         }).when(mAidlVehicle).getValues(any(), any());
+        CountDownLatch latch = new CountDownLatch(1);
         doAnswer((invocation) -> {
-            mHandler.post(() -> {
-                // After linkToDeath is called, the client died immediately.
-                ((DeathRecipient) invocation.getArguments()[0]).binderDied();
-                callbackLatch.countDown();
-            });
+            // After linkToDeath is called, the client died immediately. Must call the binderDied
+            // from a different thread.
+            postOnBinderDied(latch, ((DeathRecipient) invocation.getArguments()[0]));
             return null;
         }).when(mGetVehicleStubAsyncCallback).linkToDeath(any());
 
@@ -1048,12 +1043,16 @@ public class VehicleStubTest {
                 mGetVehicleStubAsyncCallback);
 
         verify(mGetVehicleStubAsyncCallback).linkToDeath(any());
+        // Make sure binderDied is called.
+        JavaMockitoHelper.await(latch, /* timeoutMs= */ 1000);
+
+        assertWithMessage("callback wrapper").that(callbackWrapper).hasSize(1);
         // Make sure we have finished registering the callback and the client is also died before
         // we send the callback out.
         // This will trigger the callback.
-        callbackLatch.countDown();
+        callbackWrapper.get(0).onGetValues(resultsWrapper.get(0));
 
-        verify(mGetVehicleStubAsyncCallback, after(100).never()).onGetAsyncResults(any());
+        verify(mGetVehicleStubAsyncCallback, never()).onGetAsyncResults(any());
     }
 
     // Test that the client callback will not be called if client's binder already died before
