@@ -19,7 +19,6 @@ package com.android.systemui.car.displayarea;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.graphics.Rect;
 import android.util.ArrayMap;
 import android.view.SurfaceControl;
 import android.window.WindowContainerToken;
@@ -56,19 +55,19 @@ public class CarDisplayAreaAnimationController {
     @SuppressWarnings("unchecked")
     CarDisplayAreaTransitionAnimator getAnimator(
             WindowContainerToken token, SurfaceControl leash,
-            float startPos, float endPos, Rect displayBounds) {
+            float startPos, float endPos) {
         CarDisplayAreaTransitionAnimator animator = mAnimatorMap.get(token);
         if (animator == null) {
             mAnimatorMap.put(token, setupDisplayAreaTransitionAnimator(
                     CarDisplayAreaTransitionAnimator.ofYOffset(
-                            token, leash, startPos, endPos, displayBounds)));
+                            token, leash, startPos, endPos)));
         } else if (animator.isRunning()) {
             animator.updateEndValue(endPos);
         } else {
             animator.cancel();
             mAnimatorMap.put(token, setupDisplayAreaTransitionAnimator(
                     CarDisplayAreaTransitionAnimator.ofYOffset(
-                            token, leash, startPos, endPos, displayBounds)));
+                            token, leash, startPos, endPos)));
         }
         return mAnimatorMap.get(token);
     }
@@ -228,12 +227,10 @@ public class CarDisplayAreaAnimationController {
         @VisibleForTesting
         static CarDisplayAreaTransitionAnimator ofYOffset(
                 WindowContainerToken token,
-                SurfaceControl leash, float startValue, float endValue, Rect displayBounds) {
+                SurfaceControl leash, float startValue, float endValue) {
 
             return new CarDisplayAreaTransitionAnimator(
                     token, leash, startValue, endValue) {
-
-                private final Rect mTmpRect = new Rect(displayBounds);
 
                 private float getCastedFractionValue(float start, float end, float fraction) {
                     return ((end - start) * fraction) + start;
@@ -245,14 +242,8 @@ public class CarDisplayAreaAnimationController {
                     float start = getStartValue();
                     float end = getEndValue();
                     float currentValue = getCastedFractionValue(start, end, fraction);
-                    mTmpRect.set(
-                            mTmpRect.left,
-                            mTmpRect.top + Math.round(currentValue),
-                            mTmpRect.right,
-                            mTmpRect.bottom + Math.round(currentValue));
                     setCurrentValue(currentValue);
                     getSurfaceTransactionHelper()
-                            .crop(tx, leash, mTmpRect)
                             .round(tx, leash)
                             .translate(tx, leash, currentValue);
                     tx.apply();
@@ -261,7 +252,6 @@ public class CarDisplayAreaAnimationController {
                 @Override
                 void onStartTransaction(SurfaceControl leash, SurfaceControl.Transaction tx) {
                     getSurfaceTransactionHelper()
-                            .crop(tx, leash, mTmpRect)
                             .round(tx, leash)
                             .translate(tx, leash, getStartValue());
                     tx.apply();

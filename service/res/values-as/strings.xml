@@ -42,8 +42,6 @@
     <string name="car_permission_desc_projection" msgid="2352178999656292944">"কোনো এপক ফ’নৰ পৰা এটা ইণ্টাৰফে’চ গাড়ীৰ ডিছপ্লে’ত প্ৰজেক্ট কৰিবলৈ অনুমতি দিয়ে।"</string>
     <string name="car_permission_label_access_projection_status" msgid="4231618890836627402">"প্ৰজেক্‌শ্বনৰ স্থিতি এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_access_projection_status" msgid="8497351979100616278">"কোনো এপক গাড়ী ডিছপ্লে’ত প্ৰজেক্ট কৰি থকা অন্য এপৰ স্থিতি লাভ কৰিবলৈ অনুমতি দিয়ে।"</string>
-    <string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"প্ৰজেক্‌শ্বন সেৱাৰ সৈতে সংযুক্ত হ’ব"</string>
-    <string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"এটা প্ৰজেক্‌শ্বন সেৱাৰ শীৰ্ষ স্তৰৰ ইণ্টাৰফে’চৰ সৈতে সংযুক্ত হ’বলৈ ধাৰকক অনুমতি দিয়ে। সাধাৰণ এপ্‌সমূহৰ বাবে কেতিয়াও প্ৰয়োজন হ’ব নালাগে।"</string>
     <string name="car_permission_label_audio_volume" msgid="310587969373137690">"গাড়ীৰ অডিঅ’ ভলিউম নিয়ন্ত্ৰণ কৰিব"</string>
     <string name="car_permission_label_audio_settings" msgid="6524703796944023977">"গাড়ীৰ অডিঅ’ ছেটিংসমূহ পৰিচালনা কৰিব"</string>
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"বাহনৰ HAL ইমুলে’ট কৰিব"</string>
@@ -62,8 +60,6 @@
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ইনষ্ট্ৰুমেণ্ট ক্লাষ্টাৰত এপ্ লঞ্চ কৰিব"</string>
     <string name="car_permission_car_monitor_cluster_navigation_state" msgid="7025307242306902441">"ইনষ্ট্ৰুমেণ্ট ক্লাষ্টাৰ নেভিগে’শ্বনৰ অৱস্থা"</string>
     <string name="car_permission_desc_car_monitor_cluster_navigation_state" msgid="8745047153878713339">"ইনষ্ট্ৰুমেণ্ট ক্লাষ্টাৰ নেভিগে’শ্বনৰ অৱস্থাৰ সালসলনিবোৰ জানিবলৈ শুনক"</string>
-    <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ইনষ্ট্ৰুমেণ্ট ক্লাষ্টাৰ ৰেণ্ডাৰ কৰি থকা হৈছে"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ইনষ্ট্ৰুমেণ্ট ক্লাষ্টাৰৰ ডেটা পায়"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX সীমাবদ্ধতা কনফিগাৰেশ্বন"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UXৰ সীমাবদ্ধতা কনফিগাৰ কৰক"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ব্যক্তিগত ডিছপ্লে’ আইডিলৈ পঢ়াৰ এক্সেছ"</string>
@@ -74,8 +70,6 @@
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness Systemৰ স্থিতি পঢ়া আৰু ডেটা চিনাক্ত কৰাৰ অনুমতি দিয়ে"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness Systemৰ লেখ নিয়ন্ত্ৰণ কৰক"</string>
     <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System চিনাক্তকৰণৰ লেখৰ আৰম্ভ কৰা আৰু বন্ধ কৰা কার্য নিয়ন্ত্ৰণ কৰাটোৰ অনুমতি দিয়ে"</string>
-    <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"গাড়ীৰ ইনপুট সেৱা"</string>
-    <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"ইনপুট ইভেণ্ট নিয়ন্ত্ৰণ কৰিব"</string>
     <string name="car_permission_label_diag_read" msgid="7248894224877702604">"ডায়গন’ষ্টিক ডেটা পঢ়িব"</string>
     <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"গাড়ীৰ ডায়গ’ষ্টিক তথ্য পঢ়িব।"</string>
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"ডায়গন’ষ্টিক ডেটা মচিব"</string>
@@ -84,8 +78,6 @@
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS বাৰ্তা প্ৰকাশ কৰিব পাৰে"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS গ্ৰাহক"</string>
     <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS বাৰ্তাৰ গ্ৰাহকভুক্তি কৰিব পাৰে"</string>
-    <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS ক্লায়েণ্ট সেৱা"</string>
-    <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS ক্লায়েণ্টৰ সৈতে সংযুক্ত হ’ব পাৰে"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ফ্লেশ্ব ষ্ট’ৰেজ নিৰীক্ষণ কৰা"</string>
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ফ্লেশ্ব ষ্ট’ৰেজৰ ব্যৱহাৰ নিৰীক্ষণ কৰক"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব"</string>

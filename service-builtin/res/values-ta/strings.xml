@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"காட்சிப்படுத்தல் சேவையுடன் இணைக்க வேண்டும்"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"காட்சிப்படுத்தல் சேவையின் உயர் நிலை இடைமுகத்துடன் இணைப்பதற்கு ஹோல்டரை அனுமதிக்கிறது. வழக்கமான ஆப்ஸிற்கு எப்போதுமே தேவைப்படாது."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS கிளையண்ட் சேவை"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS கிளையண்ட்டுகளுடன் இணைத்தல்"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"இன்ஸ்ட்ருமெண்ட் கிளஸ்டரை ஒழுங்கமைத்தல்"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"இன்ஸ்ட்ருமெண்ட் கிளஸ்டர் தரவைப் பெறுதல்"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"காருக்கு உற்பத்தியாளர் வழங்கும் சேவை"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"உற்பத்தியாளர் வழங்கும் சேவைகளைக் கையாளுதல்"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"வாகனம் ஓட்டும்போது இந்த அம்சத்தைப் பயன்படுத்த முடியாது"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"ஆப்ஸைப் பாதுகாப்பான அம்சங்களுடன் மீண்டும் தொடங்க <xliff:g id="EXIT_BUTTON">%s</xliff:g>ஐத் தேர்ந்தெடுக்கவும்."</string>
     <string name="exit_button" msgid="3491899413031549265">"பின்செல்"</string>

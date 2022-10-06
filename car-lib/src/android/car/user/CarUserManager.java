@@ -35,6 +35,7 @@ import android.car.CarManagerBase;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.annotation.AddedInOrBefore;
+import android.car.annotation.ApiRequirements;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.EventLogHelper;
 import android.car.util.concurrent.AndroidAsyncFuture;
@@ -192,6 +193,28 @@ public final class CarUserManager extends CarManagerBase {
     @AddedInOrBefore(majorVersion = 33)
     public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED =
             CommonConstants.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+
+    /**
+     * {@link UserLifecycleEvent} called after an existing user is created.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
+    public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_CREATED;
+
+    /**
+     * {@link UserLifecycleEvent} called after an existing user is removed.
+     *
+     * @hide
+     */
+    @SystemApi
+    @ApiRequirements(minCarVersion = ApiRequirements.CarVersion.TIRAMISU_1,
+            minPlatformVersion = ApiRequirements.PlatformVersion.TIRAMISU_1)
+    public static final int USER_LIFECYCLE_EVENT_TYPE_REMOVED =
+            CommonConstants.USER_LIFECYCLE_EVENT_TYPE_REMOVED;
 
     /** @hide */
     @AddedInOrBefore(majorVersion = 33)
@@ -997,6 +1020,12 @@ public final class CarUserManager extends CarManagerBase {
                 return "STOPPING";
             case USER_LIFECYCLE_EVENT_TYPE_STOPPED:
                 return "STOPPED";
+            case USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED:
+                return "POST_UNLOCKED";
+            case USER_LIFECYCLE_EVENT_TYPE_CREATED:
+                return "CREATED";
+            case USER_LIFECYCLE_EVENT_TYPE_REMOVED:
+                return "REMOVED";
             default:
                 return "UNKNOWN-" + type;
         }
@@ -1063,8 +1092,14 @@ public final class CarUserManager extends CarManagerBase {
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_SWITCHING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKING},
          * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_UNLOCKED},
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING}, or
-         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED}.
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPING} or
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_STOPPED} for all apps;
+         * for apps {@link CarPackageManager#getTargetCarVersion() targeting car version}
+         * {@link CarVersion.VERSION_CODES#TIRAMISU_1} or higher, it could be new types
+         * added on later releases, such as
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_CREATED},
+         * {@link CarUserManager#USER_LIFECYCLE_EVENT_TYPE_REMOVED} and possibly others.
+         *
          */
         @UserLifecycleEventType
         @AddedInOrBefore(majorVersion = 33)

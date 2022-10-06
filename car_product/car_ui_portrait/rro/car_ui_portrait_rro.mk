@@ -28,9 +28,20 @@ PRODUCT_PACKAGES += \
     CarUiPortraitNotificationRRO \
     CarUiPortraitCarServiceRRO \
     CarUiPortraitFrameworkResRRO \
-    CarUiPortraitFrameworkResRROTest
+    CarUiPortraitFrameworkResRROTest \
+    CarUiPortraitLauncherMediaRRO \
+    CarUiPortraitLauncherAppsRRO
 
 ifneq ($(INCLUDE_SEAHAWK_ONLY_RROS),)
 PRODUCT_PACKAGES += \
     CarUiPortraitSettingsProviderRRO
 endif
+
+# Set necessary framework configs for SUW to run at boot.
+ifneq ($(filter $(TARGET_PRODUCT), gcar_ui_portrait_suw),)
+PRODUCT_PACKAGES += \
+    CarUiPortraitSettingsProviderEmuRRO
+endif
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.boot.vendor.overlay.theme=com.android.car.carlauncher.caruiportrait.rro;com.android.car.dialer.caruiportrait.rro;com.google.android.car.evs.caruiportrait.rro;com.android.car.carlauncher.apps.caruiportrait.rro;com.android.car.caruiportrait.rro;com.android.car.carlauncher.media.caruiportrait.rro;com.android.car.media.common.caruiportrait.rro;com.android.car.media.caruiportrait.rro;com.android.car.notification.caruiportrait.rro;com.android.providers.settings.caruiportrait.emu.rro;com.android.providers.settings.caruiportrait.rro;com.android.car.settings.caruiportrait.rro

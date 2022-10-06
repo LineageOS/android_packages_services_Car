@@ -28,6 +28,7 @@ import com.android.car.CarLog;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -75,8 +76,10 @@ public class MemoryPublisher extends AbstractPublisher {
     MemoryPublisher(
             @NonNull PublisherListener listener,
             @NonNull Handler telemetryHandler,
-            @NonNull ResultStore resultStore) {
-        this(listener, telemetryHandler, resultStore, Paths.get("/proc/meminfo"));
+            @NonNull ResultStore resultStore,
+            @NonNull SessionController sessionController) {
+        this(listener, telemetryHandler, resultStore, sessionController,
+                Paths.get("/proc/meminfo"));
     }
 
     @VisibleForTesting
@@ -84,6 +87,7 @@ public class MemoryPublisher extends AbstractPublisher {
             @NonNull PublisherListener listener,
             @NonNull Handler telemetryHandler,
             @NonNull ResultStore resultStore,
+            @NonNull SessionController sessionController,
             @NonNull Path meminfoPath) {
         super(listener);
         mTelemetryHandler = telemetryHandler;
@@ -93,6 +97,8 @@ public class MemoryPublisher extends AbstractPublisher {
                 MemoryPublisher.class.getSimpleName(), false);
         mTraceLog = new TimingsTraceLog(
                 CarLog.TAG_TELEMETRY, TraceHelper.TRACE_TAG_CAR_SERVICE);
+        // Subscribes the publisher to driving session updates by SessionController.
+        sessionController.registerCallback(this::handleSessionStateChange);
     }
 
     @Override

@@ -48,9 +48,11 @@ import org.junit.Rule;
 import org.junit.rules.TestName;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileDescriptor;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -247,5 +249,26 @@ public abstract class CarApiTestBase {
         String message = String.format(format, args);
         Log.e(TAG, "test failed: " + message);
         org.junit.Assert.fail(message);
+    }
+
+    protected static String executeShellCommand(String commandFormat, Object... args)
+            throws IOException {
+        UiAutomation uiAutomation = InstrumentationRegistry.getInstrumentation().getUiAutomation();
+        return executeShellCommand(uiAutomation, commandFormat, args);
+    }
+
+    private static String executeShellCommand(UiAutomation uiAutomation, String commandFormat,
+            Object... args) throws IOException {
+        ParcelFileDescriptor stdout = uiAutomation.executeShellCommand(
+                String.format(commandFormat, args));
+        try (InputStream inputStream = new ParcelFileDescriptor.AutoCloseInputStream(stdout)) {
+            ByteArrayOutputStream result = new ByteArrayOutputStream();
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) != -1) {
+                result.write(buffer, 0, length);
+            }
+            return result.toString("UTF-8");
+        }
     }
 }

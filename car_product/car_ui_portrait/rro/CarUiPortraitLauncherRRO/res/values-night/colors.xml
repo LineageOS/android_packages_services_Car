@@ -18,6 +18,8 @@
 <resources>
     <color name="default_audio_background_image_color">#515355</color>
     <color name="default_audio_background_color">#1E2125</color>
+    <color name="default_audio_background_gradient_start_color">#99000000</color>
+    <color name="default_audio_background_gradient_end_color">#00000000</color>
 
     <color name="icon_tint">#e8eaed</color>
 </resources>

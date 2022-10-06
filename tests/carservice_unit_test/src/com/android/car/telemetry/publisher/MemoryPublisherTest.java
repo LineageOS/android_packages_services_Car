@@ -40,6 +40,8 @@ import android.os.SystemClock;
 
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
+import com.android.car.telemetry.sessioncontroller.SessionController;
 import com.android.car.test.FakeHandlerWrapper;
 
 import com.google.common.collect.Range;
@@ -97,10 +99,14 @@ public class MemoryPublisherTest {
 
     @Captor
     private ArgumentCaptor<PersistableBundle> mBundleCaptor;
+    @Captor
+    private ArgumentCaptor<SessionController.SessionControllerCallback> mSessionCallbackCaptor;
     @Mock
     private DataSubscriber mMockDataSubscriber;
     @Mock
     private ResultStore mMockResultStore;
+    @Mock
+    private SessionController mMockSessionController;
 
     @Before
     public void setUp() throws Exception {
@@ -116,6 +122,7 @@ public class MemoryPublisherTest {
 
         // create MemoryPublisher
         mPublisher = createPublisher(mTempFile.toPath());
+        verify(mMockSessionController).registerCallback(mSessionCallbackCaptor.capture());
     }
 
     /**
@@ -127,6 +134,7 @@ public class MemoryPublisherTest {
                 mFakePublisherListener,
                 mFakeHandlerWrapper.getMockHandler(),
                 mMockResultStore,
+                mMockSessionController,
                 meminfoPath);
     }
 
@@ -138,6 +146,22 @@ public class MemoryPublisherTest {
         verify(mMockDataSubscriber).push(mBundleCaptor.capture());
         assertThat(mBundleCaptor.getValue().getString(DATA_BUNDLE_KEY_MEMINFO))
                 .isEqualTo(FAKE_MEMINFO);
+    }
+
+    @Test
+    public void testAddDataSubscriber_annotatesWithDrivingSessionData() {
+        SessionAnnotation sessionAnnotation = new SessionAnnotation(
+                2, SessionController.STATE_ENTER_DRIVING_SESSION, 123, 1234, "reboot");
+
+        mSessionCallbackCaptor.getValue().onSessionStateChanged(sessionAnnotation);
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        verify(mMockDataSubscriber).push(mBundleCaptor.capture());
+        PersistableBundle report = mBundleCaptor.getValue();
+        assertThat(report.getString(DATA_BUNDLE_KEY_MEMINFO)).isEqualTo(FAKE_MEMINFO);
+        assertThat(report.getInt(SessionAnnotation.ANNOTATION_BUNDLE_KEY_SESSION_ID)).isEqualTo(2);
+        assertThat(report.getString(SessionAnnotation.ANNOTATION_BUNDLE_KEY_BOOT_REASON))
+                .isEqualTo("reboot");
     }
 
     @Test

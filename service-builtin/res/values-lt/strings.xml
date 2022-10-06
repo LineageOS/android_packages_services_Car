@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"susieti su projektavimo paslauga"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Savininkui leidžiama susisaistyti su aukščiausio lygio projektavimo paslaugos sąsaja. Įprastoms programoms to neturėtų prireikti."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS kliento paslauga"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"Susaistyti su VMS klientais"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Instrumentų blokinio pateikimas"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Gauti instrumentų blokinio duomenis"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Automobilio įvesties paslauga"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Apdoroti įvesties įvykius."</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Negalite naudoti šios funkcijos vairuodami"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Jei norite pradėti iš naujo naudodami saugias programos funkcijas, pasirinkite <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"Atgal"</string>

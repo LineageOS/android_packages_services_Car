@@ -109,6 +109,20 @@ final class CarDuckingUtils {
     private CarDuckingUtils() {
     }
 
+    static CarDuckingInfo generateDuckingInfo(
+            CarDuckingInfo oldDuckingInfo, List<AudioFocusInfo> focusHolders, CarAudioZone zone) {
+        int[] usagesHoldingFocus = getUsagesHoldingFocus(focusHolders);
+        List<String> addressesToDuck = getAddressesToDuck(usagesHoldingFocus, zone);
+        List<String> addressesToUnduck =
+                getAddressesToUnduck(addressesToDuck, oldDuckingInfo.mAddressesToDuck);
+
+        return new CarDuckingInfo(
+                zone.getId(),
+                addressesToDuck,
+                addressesToUnduck,
+                CarHalAudioUtils.usagesToMetadatas(usagesHoldingFocus, zone));
+    }
+
     static int[] getUsagesHoldingFocus(List<AudioFocusInfo> focusHolders) {
         Set<Integer> uniqueUsages = new HashSet<>();
         for (AudioFocusInfo focusInfo : focusHolders) {

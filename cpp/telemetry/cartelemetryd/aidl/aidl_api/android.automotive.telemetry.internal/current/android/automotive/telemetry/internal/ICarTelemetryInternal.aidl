@@ -35,4 +35,6 @@ package android.automotive.telemetry.internal;
 interface ICarTelemetryInternal {
   void setListener(in android.automotive.telemetry.internal.ICarDataListener listener);
   void clearListener();
+  void addCarDataIds(in int[] ids);
+  void removeCarDataIds(in int[] ids);
 }

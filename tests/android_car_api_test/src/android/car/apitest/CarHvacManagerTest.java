@@ -72,7 +72,7 @@ public class CarHvacManagerTest extends CarApiTestBase {
     private void assertTypeAndZone(CarPropertyConfig property) {
         switch (property.getPropertyId()) {
             case CarHvacManager.ID_MIRROR_DEFROSTER_ON: // non-zoned bool
-                checkTypeAndGlobal(Boolean.class, true, property);
+                checkTypeAndGlobal(Integer.class, false, property);
                 break;
             case CarHvacManager.ID_STEERING_WHEEL_HEAT: // non-zoned int
             case CarHvacManager.ID_TEMPERATURE_DISPLAY_UNITS:

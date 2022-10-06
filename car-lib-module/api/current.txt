@@ -1,6 +1,13 @@
 // Signature format: 2.0
 package android.car {
 
+  public abstract class ApiVersion<T extends android.car.ApiVersion<?>> {
+    method public final int getMajorVersion();
+    method public final int getMinorVersion();
+    method public final boolean isAtLeast(@NonNull T);
+    method @NonNull public final String toString();
+  }
+
   public final class Car {
     method @Deprecated public void connect() throws java.lang.IllegalStateException;
     method @Deprecated public static android.car.Car createCar(android.content.Context, android.content.ServiceConnection, @Nullable android.os.Handler);
@@ -11,15 +18,17 @@ package android.car {
     method public void disconnect();
     method @Deprecated public int getCarConnectionType();
     method @Nullable public Object getCarManager(String);
-    method public static boolean isApiAndPlatformVersionAtLeast(int, int);
-    method public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
-    method public static boolean isApiVersionAtLeast(int);
-    method public static boolean isApiVersionAtLeast(int, int);
+    method @NonNull public static android.car.CarVersion getCarVersion();
+    method @NonNull public static android.car.PlatformVersion getPlatformVersion();
+    method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int);
+    method @Deprecated public static boolean isApiAndPlatformVersionAtLeast(int, int, int);
+    method @Deprecated public static boolean isApiVersionAtLeast(int);
+    method @Deprecated public static boolean isApiVersionAtLeast(int, int);
     method public boolean isConnected();
     method public boolean isConnecting();
     method public boolean isFeatureEnabled(@NonNull String);
-    field public static final int API_VERSION_MAJOR_INT = 33; // 0x21
-    field public static final int API_VERSION_MINOR_INT = 0; // 0x0
+    field @Deprecated public static final int API_VERSION_MAJOR_INT = 33; // 0x21
+    field @Deprecated public static final int API_VERSION_MINOR_INT = 1; // 0x1
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
@@ -54,6 +63,7 @@ package android.car {
     field public static final String PERMISSION_READ_INTERIOR_LIGHTS = "android.car.permission.READ_CAR_INTERIOR_LIGHTS";
     field public static final String PERMISSION_READ_STEERING_STATE = "android.car.permission.READ_CAR_STEERING";
     field public static final String PERMISSION_SPEED = "android.car.permission.CAR_SPEED";
+    field @Deprecated public static final int PLATFORM_VERSION_MINOR_INT;
     field public static final String POWER_SERVICE = "power";
     field public static final String PROPERTY_SERVICE = "property";
     field @Deprecated public static final String SENSOR_SERVICE = "sensor";
@@ -143,6 +153,19 @@ package android.car {
     field public int zoneId;
   }
 
+  public final class CarVersion extends android.car.ApiVersion<android.car.CarVersion> implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public static android.car.CarVersion forMajorAndMinorVersions(int, int);
+    method @NonNull public static android.car.CarVersion forMajorVersion(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.CarVersion> CREATOR;
+  }
+
+  public static class CarVersion.VERSION_CODES {
+    field @NonNull public static final android.car.CarVersion TIRAMISU_0;
+    field @NonNull public static final android.car.CarVersion TIRAMISU_1;
+  }
+
   @Deprecated public final class EvConnectorType {
     field @Deprecated public static final int CHADEMO = 3; // 0x3
     field @Deprecated public static final int COMBO_1 = 4; // 0x4
@@ -173,6 +196,32 @@ package android.car {
     field public static final int OTHER = 12; // 0xc
     field public static final int UNKNOWN = 0; // 0x0
     field public static final int UNLEADED = 1; // 0x1
+  }
+
+  public final class GsrComplianceType {
+    field public static final int GSR_COMPLIANCE_TYPE_NOT_REQUIRED = 0; // 0x0
+    field public static final int GSR_COMPLIANCE_TYPE_REQUIRED_V1 = 1; // 0x1
+  }
+
+  public final class PlatformVersion extends android.car.ApiVersion<android.car.PlatformVersion> implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public static android.car.PlatformVersion forMajorAndMinorVersions(int, int);
+    method @NonNull public static android.car.PlatformVersion forMajorVersion(int);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersion> CREATOR;
+  }
+
+  public static class PlatformVersion.VERSION_CODES {
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_0;
+    field @NonNull public static final android.car.PlatformVersion TIRAMISU_1;
+  }
+
+  public final class PlatformVersionMismatchException extends java.lang.UnsupportedOperationException implements android.os.Parcelable {
+    ctor public PlatformVersionMismatchException(@NonNull android.car.PlatformVersion);
+    method public int describeContents();
+    method @NonNull public android.car.PlatformVersion getMinimumPlatformApiVersion();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.PlatformVersionMismatchException> CREATOR;
   }
 
   public final class PortLocationType {
@@ -288,6 +337,7 @@ package android.car {
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int FUEL_LEVEL_LOW = 287310853; // 0x11200405
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int FUEL_VOLUME_DISPLAY_UNITS = 289408513; // 0x11400601
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int GEAR_SELECTION = 289408000; // 0x11400400
+    field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_CAR_INFO)) public static final int GENERAL_SAFETY_REGULATION_COMPLIANCE = 289410887; // 0x11400f47
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int HAZARD_LIGHTS_STATE = 289410563; // 0x11400e03
     field @RequiresPermission("android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS") public static final int HAZARD_LIGHTS_SWITCH = 289410579; // 0x11400e13
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int HEADLIGHTS_STATE = 289410560; // 0x11400e00
@@ -425,9 +475,11 @@ package android.car {
 package android.car.content.pm {
 
   public final class CarPackageManager {
+    method @NonNull public android.car.CarVersion getTargetCarVersion();
     method public boolean isActivityDistractionOptimized(String, String);
     method public boolean isPendingIntentDistractionOptimized(@NonNull android.app.PendingIntent);
     method public boolean isServiceDistractionOptimized(String, String);
+    field public static final String MANIFEST_METADATA_TARGET_CAR_VERSION = "android.car.targetCarVersion";
   }
 
 }

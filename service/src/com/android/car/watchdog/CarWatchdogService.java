@@ -16,14 +16,16 @@
 
 package com.android.car.watchdog;
 
-import static android.car.builtin.os.UserManagerHelper.USER_NULL;
+import static android.car.PlatformVersion.VERSION_CODES;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 import static android.content.Intent.ACTION_PACKAGE_CHANGED;
 import static android.content.Intent.ACTION_REBOOT;
 import static android.content.Intent.ACTION_SHUTDOWN;
 import static android.content.Intent.ACTION_USER_REMOVED;
-import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
 import static com.android.car.CarLog.TAG_WATCHDOG;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -40,7 +42,6 @@ import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
-import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerPolicy;
@@ -62,6 +63,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArraySet;
@@ -126,8 +128,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogStorage mWatchdogStorage;
     private final WatchdogProcessHandler mWatchdogProcessHandler;
     private final WatchdogPerfHandler mWatchdogPerfHandler;
-    private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
+
+    private CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
+
     /*
      * TODO(b/192481350): Listen for GarageMode change notification rather than depending on the
      *  system_server broadcast when the CarService internal API for listening GarageMode change is
@@ -141,7 +145,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 case ACTION_DISMISS_RESOURCE_OVERUSE_NOTIFICATION:
                 case ACTION_LAUNCH_APP_SETTINGS:
                 case ACTION_RESOURCE_OVERUSE_DISABLE_APP:
-                    mWatchdogPerfHandler.handleIntent(intent);
+                    mWatchdogPerfHandler.processUserNotificationIntent(intent);
                     break;
                 case ACTION_GARAGE_MODE_ON:
                 case ACTION_GARAGE_MODE_OFF:
@@ -193,22 +197,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     break;
                 }
                 case ACTION_PACKAGE_CHANGED: {
-                    String packageName = intent.getData().getSchemeSpecificPart();
-                    int userId = intent.getIntExtra(Intent.EXTRA_USER_HANDLE, USER_NULL);
-                    if (userId == USER_NULL) {
-                        break;
-                    }
-                    try {
-                        if (PackageManagerHelper.getApplicationEnabledSettingForUser(packageName,
-                                userId) == COMPONENT_ENABLED_STATE_ENABLED) {
-                            mWatchdogPerfHandler.removeFromDisabledPackagesSettingsString(
-                                    packageName, userId);
-                        }
-                    } catch (RemoteException e) {
-                        Slogf.e(TAG, e,
-                                "Failed to verify enabled setting for user %d, package '%s'",
-                                userId, packageName);
-                    }
+                    mWatchdogPerfHandler.processPackageChangedIntent(intent);
                     break;
                 }
             }
@@ -283,7 +272,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @VisibleForTesting
-    CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
+    public CarWatchdogService(Context context, Context carServiceBuiltinPackageContext,
             WatchdogStorage watchdogStorage, TimeSource timeSource) {
         mContext = context;
         mWatchdogStorage = watchdogStorage;
@@ -303,6 +292,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         };
         mCurrentGarageMode = GarageMode.GARAGE_MODE_OFF;
         mIsDisplayEnabled = true;
+    }
+
+    @VisibleForTesting
+    public void setCarWatchdogDaemonHelper(CarWatchdogDaemonHelper helper) {
+        mCarWatchdogDaemonHelper = helper;
     }
 
     @Override
@@ -515,6 +509,41 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         return mWatchdogPerfHandler.disablePackageForUser(packageName, userId);
     }
 
+    /**
+     * Sets the thread priority for a specific thread.
+     *
+     * The thread must belong to the calling process.
+     *
+     * @throws IllegalArgumentException If the policy/priority is not valid.
+     * @throws IllegalStateException If the provided tid does not belong to the calling process.
+     * @throws RemoteException If binder error happens.
+     * @throws ServiceSpecificException If car watchdog daemon failed to set the thread priority.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     */
+    public void setThreadPriority(int pid, int tid, int uid, int policy, int priority)
+            throws RemoteException {
+        mCarWatchdogDaemonHelper.setThreadPriority(pid, tid, uid, policy, priority);
+    }
+
+    /**
+     * Gets the thread scheduling policy and priority for the specified thread.
+     *
+     * The thread must belong to the calling process.
+     *
+     * @throws IllegalStateException If the provided tid does not belong to the calling process or
+     *         car watchdog daemon failed to get the priority.
+     * @throws RemoteException If binder error happens.
+     * @throws UnsupportedOperationException If the current android release doesn't support the API.
+     */
+    public int[] getThreadPriority(int pid, int tid, int uid) throws RemoteException {
+        try {
+            return mCarWatchdogDaemonHelper.getThreadPriority(pid, tid, uid);
+        } catch (ServiceSpecificException e) {
+            // Car watchdog daemon failed to get the priority.
+            throw new IllegalStateException(e);
+        }
+    }
+
     @VisibleForTesting
     int getClientCount(int timeout) {
         return mWatchdogProcessHandler.getClientCount(timeout);
@@ -680,12 +709,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             Slogf.w(TAG, "Cannot get CarUserService");
             return;
         }
-        UserLifecycleEventFilter userStartingOrStoppedEventFilter =
+        UserLifecycleEventFilter userEventFilter =
                 new UserLifecycleEventFilter.Builder()
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_STARTING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
+                        .addEventType(USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED)
                         .addEventType(USER_LIFECYCLE_EVENT_TYPE_STOPPED).build();
-        userService.addUserLifecycleListener(userStartingOrStoppedEventFilter, (event) -> {
+        userService.addUserLifecycleListener(userEventFilter, (event) -> {
             if (!isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
+                    USER_LIFECYCLE_EVENT_TYPE_SWITCHING, USER_LIFECYCLE_EVENT_TYPE_UNLOCKING,
+                    USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED, USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
+                return;
+            }
+            if (!Car.getPlatformVersion().isAtLeast(VERSION_CODES.TIRAMISU_1)
+                    && !isEventAnyOfTypes(TAG, event, USER_LIFECYCLE_EVENT_TYPE_STARTING,
                     USER_LIFECYCLE_EVENT_TYPE_STOPPED)) {
                 return;
             }
@@ -698,6 +736,18 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/ false);
                     userState = UserState.USER_STATE_STARTED;
                     userStateDesc = "STARTING";
+                    break;
+                case USER_LIFECYCLE_EVENT_TYPE_SWITCHING:
+                    userState = UserState.USER_STATE_SWITCHING;
+                    userStateDesc = "SWITCHING";
+                    break;
+                case USER_LIFECYCLE_EVENT_TYPE_UNLOCKING:
+                    userState = UserState.USER_STATE_UNLOCKING;
+                    userStateDesc = "UNLOCKING";
+                    break;
+                case USER_LIFECYCLE_EVENT_TYPE_POST_UNLOCKED:
+                    userState = UserState.USER_STATE_POST_UNLOCKED;
+                    userStateDesc = "POST_UNLOCKED";
                     break;
                 case USER_LIFECYCLE_EVENT_TYPE_STOPPED:
                     mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/ true);

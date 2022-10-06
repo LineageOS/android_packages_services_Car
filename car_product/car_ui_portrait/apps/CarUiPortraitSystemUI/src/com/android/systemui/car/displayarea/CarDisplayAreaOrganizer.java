@@ -32,7 +32,6 @@ import android.hardware.display.DisplayManager;
 import android.os.Handler;
 import android.util.ArrayMap;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceControl;
 import android.window.DisplayAreaAppearedInfo;
@@ -71,16 +70,15 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
     public static final int FEATURE_TITLE_BAR = FEATURE_VENDOR_FIRST + 5;
     static final int FEATURE_VOICE_PLATE = FEATURE_VENDOR_FIRST + 6;
     private static final String TAG = "CarDisplayAreaOrganizer";
-    private final ComponentName mAssistantVoicePlateActivityName;
     private final ComponentName mControlBarActivityName;
     private final List<ComponentName> mBackGroundActivities;
 
     private final Context mContext;
     private final SyncTransactionQueue mTransactionQueue;
+    private final Rect mForegroundApplicationDisplayBounds = new Rect();
     private final Rect mBackgroundApplicationDisplayBounds = new Rect();
     private final CarDisplayAreaAnimationController mAnimationController;
     private final Handler mHandlerForAnimation;
-    private final Rect mLastVisualDisplayBounds = new Rect();
     private final ArrayMap<WindowContainerToken, SurfaceControl> mDisplayAreaTokenMap =
             new ArrayMap();
     private final Car.CarServiceLifecycleListener mCarServiceLifecycleListener =
@@ -91,12 +89,10 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                         CarActivityManager carAm = (CarActivityManager) car.getCarManager(
                                 Car.CAR_ACTIVITY_SERVICE);
                         for (ComponentName backgroundCmp : mBackGroundActivities) {
-                            setPersistentActivity(carAm, backgroundCmp,
+                            CarDisplayAreaUtils.setPersistentActivity(carAm, backgroundCmp,
                                     BACKGROUND_TASK_CONTAINER, "Background");
                         }
-                        setPersistentActivity(carAm, mAssistantVoicePlateActivityName,
-                                FEATURE_VOICE_PLATE, "VoicePlate");
-                        setPersistentActivity(carAm, mControlBarActivityName,
+                        CarDisplayAreaUtils.setPersistentActivity(carAm, mControlBarActivityName,
                                 CONTROL_BAR_DISPLAY_AREA, "ControlBar");
                     }
                 }
@@ -119,16 +115,17 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                                 .CarDisplayAreaTransitionAnimator animator) {
 
                     mIsDisplayAreaAnimating = true;
-                    SurfaceControl.Transaction tx = new SurfaceControl.Transaction();
-                    // Update the foreground panel layer index to animate on top of the
-                    // background DA.
-                    tx.setLayer(mBackgroundApplicationDisplay.getLeash(),
-                            BACKGROUND_LAYER_INDEX);
-                    tx.setLayer(mForegroundApplicationDisplay.getLeash(),
-                            BACKGROUND_LAYER_INDEX + 1);
-                    tx.setLayer(mControlBarDisplay.getLeash(),
-                            CONTROL_BAR_LAYER_INDEX);
-                    tx.apply(true);
+
+                    mTransactionQueue.runInSync(tx -> {
+                        // Update the foreground panel layer index to animate on top of the
+                        // background DA.
+                        tx.setLayer(mBackgroundApplicationDisplay.getLeash(),
+                                BACKGROUND_LAYER_INDEX);
+                        tx.setLayer(mForegroundApplicationDisplay.getLeash(),
+                                BACKGROUND_LAYER_INDEX + 1);
+                        tx.setLayer(mControlBarDisplay.getLeash(),
+                                CONTROL_BAR_LAYER_INDEX);
+                    });
                 }
 
                 @Override
@@ -139,9 +136,12 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                     mAnimationController.removeAnimator(animator.getToken());
                     if (mAnimationController.isAnimatorsConsumed()) {
                         WindowContainerTransaction wct = new WindowContainerTransaction();
-
                         if (mToState == DisplayAreaComponent.FOREGROUND_DA_STATE.DEFAULT) {
                             // Foreground DA opens to default height.
+                            updateBackgroundDisplayBounds(wct);
+                        } else if (mToState
+                                == DisplayAreaComponent.FOREGROUND_DA_STATE.FULL_TO_DEFAULT) {
+                            updateForegroundDisplayBounds(wct);
                             updateBackgroundDisplayBounds(wct);
                         }
                     }
@@ -161,9 +161,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         super(executor);
         mContext = context;
         mTransactionQueue = tx;
-        // TODO(b/201712747): Gets the Assistant Activity by resolving the indirect Intent.
-        mAssistantVoicePlateActivityName = ComponentName.unflattenFromString(
-                context.getResources().getString(R.string.config_assistantVoicePlateActivity));
         mControlBarActivityName = ComponentName.unflattenFromString(
                 context.getResources().getString(R.string.config_controlBarActivity));
         mBackGroundActivities = new ArrayList<>();
@@ -178,19 +175,6 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
 
         Car.createCar(context, /* handler= */ null, Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER,
                 mCarServiceLifecycleListener);
-    }
-
-    private static void setPersistentActivity(CarActivityManager am,
-            ComponentName activity, int featureId, String featureName) {
-        if (activity == null) {
-            Log.e(TAG, "Empty activity for " + featureName + " (" + featureId + ")");
-            return;
-        }
-        int ret = am.setPersistentActivity(activity, DEFAULT_DISPLAY, featureId);
-        if (ret != CarActivityManager.RESULT_SUCCESS) {
-            Log.e(TAG, "Failed to set PersistentActivity: activity=" + activity
-                    + ", ret=" + ret);
-        }
     }
 
     int getDpiDensity() {
@@ -210,6 +194,25 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
         return mIsDisplayAreaAnimating;
     }
 
+    // WCT will be queued in updateBackgroundDisplayBounds().
+    private void updateForegroundDisplayBounds(WindowContainerTransaction wct) {
+        Rect foregroundApplicationDisplayBound = mForegroundApplicationDisplayBounds;
+        WindowContainerToken foregroundDisplayToken =
+                mForegroundApplicationDisplay.getDisplayAreaInfo().token;
+
+        int foregroundDisplayWidthDp =
+                foregroundApplicationDisplayBound.width() * DisplayMetrics.DENSITY_DEFAULT
+                        / getDpiDensity();
+        int foregroundDisplayHeightDp =
+                foregroundApplicationDisplayBound.height() * DisplayMetrics.DENSITY_DEFAULT
+                        / getDpiDensity();
+        wct.setBounds(foregroundDisplayToken, foregroundApplicationDisplayBound);
+        wct.setScreenSizeDp(foregroundDisplayToken, foregroundDisplayWidthDp,
+                foregroundDisplayHeightDp);
+        wct.setSmallestScreenWidthDp(foregroundDisplayToken,
+                Math.min(foregroundDisplayWidthDp, foregroundDisplayHeightDp));
+    }
+
     private void updateBackgroundDisplayBounds(WindowContainerTransaction wct) {
         Rect backgroundApplicationDisplayBound = mBackgroundApplicationDisplayBounds;
         WindowContainerToken backgroundDisplayToken =
@@ -226,14 +229,15 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                 backgroundDisplayHeightDp);
         wct.setSmallestScreenWidthDp(backgroundDisplayToken,
                 Math.min(backgroundDisplayWidthDp, backgroundDisplayHeightDp));
+        mTransactionQueue.queue(wct);
 
         mTransactionQueue.runInSync(t -> {
+            // Do not set window crop on backgroundApplicationDisplay. Its windowCrop should remain
+            // full screen so that IME doesn't get cropped.
             t.setPosition(mBackgroundApplicationDisplay.getLeash(),
                     backgroundApplicationDisplayBound.left,
                     backgroundApplicationDisplayBound.top);
         });
-
-        applyTransaction(wct);
     }
 
     void resetWindowsOffset() {
@@ -256,7 +260,8 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
      * Offsets the windows by a given offset on Y-axis, triggered also from screen rotation.
      * Directly perform manipulation/offset on the leash.
      */
-    void scheduleOffset(int fromPos, int toPos, Rect finalBackgroundBounds,
+    void scheduleOffset(int fromPos, int toPos,
+            Rect finalBackgroundBounds, Rect finalForegroundBounds,
             DisplayAreaAppearedInfo backgroundApplicationDisplay,
             DisplayAreaAppearedInfo foregroundDisplay,
             DisplayAreaAppearedInfo controlBarDisplay,
@@ -271,6 +276,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
                     if (token == mBackgroundDisplayToken) {
                         mBackgroundApplicationDisplayBounds.set(finalBackgroundBounds);
                     } else if (token == mForegroundDisplayToken) {
+                        mForegroundApplicationDisplayBounds.set(finalForegroundBounds);
                         animateWindows(token, leash, fromPos, toPos, durationMs);
                     }
                 });
@@ -285,8 +291,7 @@ public class CarDisplayAreaOrganizer extends DisplayAreaOrganizer {
             float toPos, int durationMs) {
         CarDisplayAreaAnimationController.CarDisplayAreaTransitionAnimator
                 animator =
-                mAnimationController.getAnimator(token, leash, fromPos, toPos,
-                        mLastVisualDisplayBounds);
+                mAnimationController.getAnimator(token, leash, fromPos, toPos);
 
 
         if (animator != null) {

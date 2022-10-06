@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"프로젝션 서비스에 연결"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"권한을 가진 프로그램이 프로젝션 서비스의 최상위 인터페이스에 연결되도록 허용합니다. 일반 앱에는 필요하지 않습니다."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS 클라이언트 서비스"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS 클라이언트에 연결"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"계기판 렌더링"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"계기판 데이터 수신"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"차량 입력 서비스"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"입력 이벤트 처리"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"운전 중에는 이 기능을 사용하실 수 없습니다."</string>
     <string name="exit_button_message" msgid="5375678491245394542">"안전한 앱 기능으로 다시 시작하려면 <xliff:g id="EXIT_BUTTON">%s</xliff:g>을(를) 선택하세요."</string>
     <string name="exit_button" msgid="3491899413031549265">"뒤로"</string>

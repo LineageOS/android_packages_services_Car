@@ -18,6 +18,7 @@ package com.android.systemui;
 
 import com.android.systemui.car.displayarea.CarDisplayAreaModule;
 import com.android.systemui.car.displayarea.DisplayAreaComponent;
+import com.android.systemui.car.systembar.CarUiPortraitSystemBarModule;
 import com.android.systemui.car.window.ExtendedOverlayWindowModule;
 
 import dagger.Binds;
@@ -26,7 +27,8 @@ import dagger.multibindings.ClassKey;
 import dagger.multibindings.IntoMap;
 
 /** Binder for AAECarSystemUI specific {@link CoreStartable} modules and components. */
-@Module(includes = {ExtendedOverlayWindowModule.class, CarDisplayAreaModule.class})
+@Module(includes = {ExtendedOverlayWindowModule.class, CarDisplayAreaModule.class,
+        CarUiPortraitSystemBarModule.class})
 abstract class CarUiPortraitSystemUIBinder extends CarSystemUIBinder {
 
     /** Inject into ClusterDisplayController. */

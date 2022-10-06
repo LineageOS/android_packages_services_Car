@@ -32,6 +32,8 @@
         <permission name="android.car.permission.CONTROL_CAR_APP_LAUNCH"/>
         <permission name="android.car.permission.CONTROL_CAR_POWER_POLICY"/>
         <permission name="android.car.permission.CONTROL_CAR_CLIMATE"/>
+        <permission name="android.car.permission.CONTROL_CAR_DOORS"/>
+        <permission name="android.car.permission.CONTROL_CAR_WINDOWS"/>
         <permission name="android.car.permission.CAR_TIRES"/>
         <permission name="android.car.permission.READ_CAR_STEERING"/>
         <permission name="android.car.permission.REQUEST_CAR_EVS_ACTIVITY" />
@@ -43,5 +45,21 @@
         <permission name="android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG" />
         <permission name="android.car.permission.USE_CAR_TELEMETRY_SERVICE" />
         <permission name="android.car.permission.CONTROL_SHUTDOWN_PROCESS"/>
+        <permission name="android.car.permission.CAR_DYNAMICS_STATE"/>
+        <permission name="android.car.permission.CAR_ENGINE_DETAILED"/>
+        <permission name="android.car.permission.CAR_MILEAGE"/>
+        <permission name="android.car.permission.CAR_TIRES"/>
+        <permission name="android.car.permission.CAR_EXTERIOR_LIGHTS"/>
+        <permission name="android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS"/>
+        <permission name="android.car.permission.CAR_VENDOR_EXTENSION"/>
+        <permission name="android.car.permission.CONTROL_CAR_ENERGY"/>
+        <permission name="android.car.permission.CONTROL_CAR_ENERGY_PORTS"/>
+        <permission name="android.car.permission.CAR_IDENTIFICATION"/>
+        <permission name="android.car.permission.PRIVILEGED_CAR_INFO"/>
+        <permission name="android.car.permission.MANAGE_THREAD_PRIORITY"/>
+        <permission name="android.car.permission.CONTROL_CAR_SEATS"/>
+        <permission name="android.car.permission.CONTROL_CAR_MIRRORS"/>
+        <permission name="android.car.permission.READ_CAR_INTERIOR_LIGHTS" />
+        <permission name="android.car.permission.CONTROL_CAR_INTERIOR_LIGHTS" />
     </privapp-permissions>
 </permissions>

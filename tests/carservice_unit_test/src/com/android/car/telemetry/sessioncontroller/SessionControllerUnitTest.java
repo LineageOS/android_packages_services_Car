@@ -28,7 +28,6 @@ import static org.mockito.Mockito.when;
 import android.car.AbstractExtendedMockitoCarServiceTestCase;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
 
@@ -53,8 +52,6 @@ public class SessionControllerUnitTest
         extends AbstractExtendedMockitoCarServiceTestCase {
     private static final int CALLBACK_TIMEOUT_SEC = 10;
 
-    @Mock
-    private Context mMockContext;
     @Mock
     private Handler mDirectHandler; // Runs the messages on the current thread immediately
     @Mock
@@ -94,15 +91,12 @@ public class SessionControllerUnitTest
 
     @Before
     public void setUp() {
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class,
-                mMockCarPowerManagementService);
         when(mDirectHandler.post(any(Runnable.class))).thenAnswer(i -> {
             Runnable runnable = i.getArgument(0);
             runnable.run();
             return true;
         });
-        mSessionController = new SessionController(mMockContext, mDirectHandler);
+        mSessionController = new SessionController(mMockCarPowerManagementService, mDirectHandler);
         verify(mMockCarPowerManagementService).registerInternalListener(
                 mPowerStateListenerCaptor.capture());
     }

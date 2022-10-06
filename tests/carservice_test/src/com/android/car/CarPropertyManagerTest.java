@@ -17,12 +17,14 @@
 package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.VehicleAreaType;
+import android.car.VehicleAreaWheel;
 import android.car.VehiclePropertyIds;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -59,6 +61,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -243,6 +246,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case SUPPORT_CUSTOM_PERMISSION:
                 case PROP_WITH_READ_ONLY_PERMISSION:
                 case PROP_WITH_WRITE_ONLY_PERMISSION:
+                case VehiclePropertyIds.TIRE_PRESSURE:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg.toString());
@@ -816,6 +820,94 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 mManager.setIntProperty(prop, /* areaId= */ 0, /* val= */ 0));
     }
 
+    @Test
+    public void registerCallback_handlesContinuousPropertyUpdateRate() {
+        float wheelLeftFrontValue = 11.11f;
+        long wheelLeftFrontTimestampNanos = Duration.ofSeconds(1).toNanos();
+
+        float notNewEnoughWheelLeftFrontValue = 22.22f;
+        long notNewEnoughWheelLeftFrontTimestampNanos = Duration.ofMillis(1999).toNanos();
+
+        float newEnoughWheelLeftFrontValue = 33.33f;
+        long newEnoughWheelLeftFrontTimestampNanos = Duration.ofSeconds(2).toNanos();
+
+        TestCallback testCallback = new TestCallback(2);
+        assertThat(mManager.registerCallback(testCallback, VehiclePropertyIds.TIRE_PRESSURE,
+                1f)).isTrue();
+
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
+                        wheelLeftFrontValue, wheelLeftFrontTimestampNanos));
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
+                        notNewEnoughWheelLeftFrontValue, notNewEnoughWheelLeftFrontTimestampNanos));
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
+                        newEnoughWheelLeftFrontValue, newEnoughWheelLeftFrontTimestampNanos));
+
+        List<CarPropertyValue<?>> carPropertyValues = testCallback.getCarPropertyValues();
+        assertThat(carPropertyValues).hasSize(2);
+
+        assertTirePressureCarPropertyValue(carPropertyValues.get(0),
+                VehicleAreaWheel.WHEEL_LEFT_FRONT, wheelLeftFrontValue,
+                wheelLeftFrontTimestampNanos);
+
+        assertTirePressureCarPropertyValue(carPropertyValues.get(1),
+                VehicleAreaWheel.WHEEL_LEFT_FRONT, newEnoughWheelLeftFrontValue,
+                newEnoughWheelLeftFrontTimestampNanos);
+    }
+
+    @Test
+    public void registerCallback_handlesOutOfTimeOrderEventsWithDifferentAreaIds() {
+        float wheelLeftFrontValue = 11.11f;
+        long wheelLeftFrontTimestampNanos = Duration.ofSeconds(4).toNanos();
+
+        float wheelRightFrontValue = 22.22f;
+        long wheelRightFrontTimestampNanos = Duration.ofSeconds(3).toNanos();
+
+        float wheelLeftRearValue = 33.33f;
+        long wheelLeftRearTimestampNanos = Duration.ofSeconds(2).toNanos();
+
+        float wheelRightRearValue = 44.44f;
+        long wheelRightRearTimestampNanos = Duration.ofSeconds(1).toNanos();
+
+        TestCallback testCallback = new TestCallback(4);
+        assertThat(mManager.registerCallback(testCallback, VehiclePropertyIds.TIRE_PRESSURE,
+                1f)).isTrue();
+
+        // inject events in time order from newest to oldest
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_FRONT,
+                        wheelLeftFrontValue, wheelLeftFrontTimestampNanos));
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_RIGHT_FRONT,
+                        wheelRightFrontValue, wheelRightFrontTimestampNanos));
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_LEFT_REAR,
+                        wheelLeftRearValue, wheelLeftRearTimestampNanos));
+        getAidlMockedVehicleHal().injectEvent(
+                newTirePressureVehiclePropValue(VehicleAreaWheel.WHEEL_RIGHT_REAR,
+                        wheelRightRearValue, wheelRightRearTimestampNanos));
+
+        List<CarPropertyValue<?>> carPropertyValues = testCallback.getCarPropertyValues();
+        assertThat(carPropertyValues).hasSize(4);
+
+        assertTirePressureCarPropertyValue(carPropertyValues.get(0),
+                VehicleAreaWheel.WHEEL_LEFT_FRONT, wheelLeftFrontValue,
+                wheelLeftFrontTimestampNanos);
+
+        assertTirePressureCarPropertyValue(carPropertyValues.get(1),
+                VehicleAreaWheel.WHEEL_RIGHT_FRONT, wheelRightFrontValue,
+                wheelRightFrontTimestampNanos);
+
+        assertTirePressureCarPropertyValue(carPropertyValues.get(2),
+                VehicleAreaWheel.WHEEL_LEFT_REAR, wheelLeftRearValue, wheelLeftRearTimestampNanos);
+
+        assertTirePressureCarPropertyValue(carPropertyValues.get(3),
+                VehicleAreaWheel.WHEEL_RIGHT_REAR, wheelRightRearValue,
+                wheelRightRearTimestampNanos);
+    }
+
     private void userHalPropertiesTest(String method, Visitor<Integer> visitor) {
         List<String> failedProperties = new ArrayList<String>();
         for (int propertyId : USER_HAL_PROPERTIES) {
@@ -844,6 +936,13 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addAidlProperty(INT_PROP_STATUS_UNAVAILABLE, handler);
         addAidlProperty(FLOAT_PROP_STATUS_UNAVAILABLE, handler);
         addAidlProperty(BOOLEAN_PROP_STATUS_ERROR, handler);
+        addAidlProperty(VehiclePropertyIds.TIRE_PRESSURE, handler).addAreaConfig(
+                VehicleAreaWheel.WHEEL_LEFT_REAR).addAreaConfig(
+                VehicleAreaWheel.WHEEL_RIGHT_REAR).addAreaConfig(
+                VehicleAreaWheel.WHEEL_RIGHT_FRONT).addAreaConfig(
+                VehicleAreaWheel.WHEEL_LEFT_FRONT).setChangeMode(
+                CarPropertyConfig.VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS).setMaxSampleRate(
+                10).setMinSampleRate(1);
 
         VehiclePropValue tempValue = new VehiclePropValue();
         tempValue.value = new RawPropValues();
@@ -959,6 +1058,26 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         }
     }
 
+    private static VehiclePropValue newTirePressureVehiclePropValue(int areaId, float floatValue,
+            long timestampNanos) {
+        VehiclePropValue vehiclePropValue = new VehiclePropValue();
+        vehiclePropValue.prop = VehiclePropertyIds.TIRE_PRESSURE;
+        vehiclePropValue.areaId = areaId;
+        vehiclePropValue.value = new RawPropValues();
+        vehiclePropValue.value.floatValues = new float[]{floatValue};
+        vehiclePropValue.timestamp = timestampNanos;
+        return vehiclePropValue;
+    }
+
+    private static void assertTirePressureCarPropertyValue(CarPropertyValue<?> carPropertyValue,
+            int areaId, float floatValue, long timestampNanos) {
+        assertThat(carPropertyValue.getPropertyId()).isEqualTo(VehiclePropertyIds.TIRE_PRESSURE);
+        assertThat(carPropertyValue.getAreaId()).isEqualTo(areaId);
+        assertThat(carPropertyValue.getStatus()).isEqualTo(CarPropertyValue.STATUS_AVAILABLE);
+        assertThat(carPropertyValue.getTimestamp()).isEqualTo(timestampNanos);
+        assertThat(carPropertyValue.getValue()).isEqualTo(floatValue);
+    }
+
     private static class TestErrorCallback implements CarPropertyManager.CarPropertyEventCallback {
 
         private static final String CALLBACK_TAG = "ErrorEventTest";
@@ -1008,6 +1127,43 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 throw new IllegalStateException("Register failed in " + CALLBACK_SHORT_TIMEOUT_MS
                         + " ms.");
             }
+        }
+    }
+
+    private static class TestCallback implements CarPropertyManager.CarPropertyEventCallback {
+        private final List<CarPropertyValue<?>> mCarPropertyValues = new ArrayList<>();
+        private final int mNumberOfExpectedCarPropertyValues;
+        private final CountDownLatch mCountDownLatch;
+
+        TestCallback(int numberOfExpectedCarPropertyValues) {
+            mNumberOfExpectedCarPropertyValues = numberOfExpectedCarPropertyValues;
+            mCountDownLatch = new CountDownLatch(numberOfExpectedCarPropertyValues);
+        }
+
+        @Override
+        public void onChangeEvent(CarPropertyValue carPropertyValue) {
+            mCarPropertyValues.add(carPropertyValue);
+            mCountDownLatch.countDown();
+        }
+
+        @Override
+        public void onErrorEvent(int propertyId, int areaId) {
+            Log.e(TAG, "TestCallback onErrorEvent - property ID: " + propertyId + " areaId: "
+                    + areaId);
+        }
+
+        public List<CarPropertyValue<?>> getCarPropertyValues() {
+            try {
+                assertWithMessage("Expected " + mNumberOfExpectedCarPropertyValues
+                        + " CarPropertyValues before timeout, but only received: "
+                        + mCarPropertyValues.size()).that(
+                        mCountDownLatch.await(CALLBACK_SHORT_TIMEOUT_MS,
+                                TimeUnit.MILLISECONDS)).isTrue();
+
+            } catch (InterruptedException e) {
+                fail("TestCallback was interrupted: " + e);
+            }
+            return mCarPropertyValues;
         }
     }
 

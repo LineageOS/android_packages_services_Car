@@ -21,4 +21,7 @@
 
     <color name="title_bar_display_area_handle_bar_color">#5f6368</color>
     <color name="title_bar_display_area_background_color">#000000</color>
+
+    <color name="privacy_chip_light_icon_color">#ffffff</color>
+    <color name="privacy_chip_dark_icon_color">#000000</color>
 </resources>

@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"proyeksiya xidmətinə bağlanmaq"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"Sahibin proyeksiya xidmətinin yuxarı səviyyəli interfeysinə bağlanmasına icazə verir. Normal tətbiqlər üçün heç vaxt tələb olunmur."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS Müştəri Xidməti"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS müştərilərinə bağlanmaq"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"Alət Klasterinin Təchizatı"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"Alət klasteri məlumatlarını almaq"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"Avtomobil Daxiletmə Xidməti"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"Daxiletmələri idarə etmək"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"Avtomobil sürərkən bu funksiyanı istifadə edə bilməzsiniz"</string>
     <string name="exit_button_message" msgid="5375678491245394542">"Təhlükəsiz tətbiq xüsusiyyətləri ilə başlamaq üçün <xliff:g id="EXIT_BUTTON">%s</xliff:g> seçin."</string>
     <string name="exit_button" msgid="3491899413031549265">"Geri"</string>

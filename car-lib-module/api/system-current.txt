@@ -20,12 +20,14 @@ package android.car {
     field public static final String ACCESS_PRIVATE_DISPLAY_ID = "android.car.permission.ACCESS_PRIVATE_DISPLAY_ID";
     field @Deprecated public static final String CABIN_SERVICE = "cabin";
     field public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
+    field public static final String CAR_BUGREPORT_SERVICE = "car_bugreport";
     field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
     field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
     field public static final String CAR_EVS_SERVICE = "car_evs_service";
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_PERFORMANCE_SERVICE = "car_performance";
     field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
@@ -48,6 +50,7 @@ package android.car {
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
+    field public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION = "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
     field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH = "android.car.permission.CONTROL_CAR_APP_LAUNCH";
@@ -65,6 +68,7 @@ package android.car {
     field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
     field public static final String PERMISSION_CONTROL_SHUTDOWN_PROCESS = "android.car.permission.CONTROL_SHUTDOWN_PROCESS";
     field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_MANAGE_THREAD_PRIORITY = "android.car.permission.MANAGE_THREAD_PRIORITY";
     field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
     field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
     field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
@@ -88,6 +92,22 @@ package android.car {
     field public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
     field @Deprecated public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
     field @Deprecated public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
+  }
+
+  public final class CarBugreportManager {
+    method @RequiresPermission(android.Manifest.permission.DUMP) public void cancelBugreport();
+    method @RequiresPermission(android.Manifest.permission.DUMP) public void requestBugreport(@NonNull android.os.ParcelFileDescriptor, @NonNull android.os.ParcelFileDescriptor, @NonNull android.car.CarBugreportManager.CarBugreportManagerCallback);
+  }
+
+  public abstract static class CarBugreportManager.CarBugreportManagerCallback {
+    ctor public CarBugreportManager.CarBugreportManagerCallback();
+    method public void onError(int);
+    method public void onFinished();
+    method public void onProgress(@FloatRange(from=0.0f, to=100.0f) float);
+    field public static final int CAR_BUGREPORT_DUMPSTATE_CONNECTION_FAILED = 3; // 0x3
+    field public static final int CAR_BUGREPORT_DUMPSTATE_FAILED = 1; // 0x1
+    field public static final int CAR_BUGREPORT_IN_PROGRESS = 2; // 0x2
+    field public static final int CAR_BUGREPORT_SERVICE_NOT_AVAILABLE = 4; // 0x4
   }
 
   public class CarOccupantZoneManager {
@@ -187,6 +207,10 @@ package android.car {
     field public static final int WRITE = 2; // 0x2
   }
 
+  public final class VehiclePropertyIds {
+    field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_CLIMATE) public static final int HVAC_ELECTRIC_DEFROSTER_ON = 320865556; // 0x13200514
+  }
+
   public final class VehicleUnit {
     field public static final int DEGREES = 128; // 0x80
     field public static final int HERTZ = 3; // 0x3
@@ -261,6 +285,18 @@ package android.car.cluster {
     method @Deprecated public void onClusterActivityStateChanged(String, android.os.Bundle);
   }
 
+  public final class ClusterActivityState {
+    method @NonNull public static android.car.cluster.ClusterActivityState create(boolean, @NonNull android.graphics.Rect);
+    method @NonNull public static android.car.cluster.ClusterActivityState fromBundle(@NonNull android.os.Bundle);
+    method @Nullable public android.os.Bundle getExtras();
+    method @Nullable public android.graphics.Rect getUnobscuredBounds();
+    method public boolean isVisible();
+    method @NonNull public android.car.cluster.ClusterActivityState setExtras(@NonNull android.os.Bundle);
+    method @NonNull public android.car.cluster.ClusterActivityState setUnobscuredBounds(@NonNull android.graphics.Rect);
+    method @NonNull public android.car.cluster.ClusterActivityState setVisible(boolean);
+    method @NonNull public android.os.Bundle toBundle();
+  }
+
 }
 
 package android.car.cluster.renderer {
@@ -285,6 +321,8 @@ package android.car.cluster.renderer {
     method @MainThread public void onKeyEvent(@NonNull android.view.KeyEvent);
     method @MainThread public void onNavigationComponentLaunched();
     method @MainThread public void onNavigationComponentReleased();
+    method public void setClusterActivityLaunchOptions(@NonNull android.app.ActivityOptions);
+    method public void setClusterActivityState(@NonNull android.car.cluster.ClusterActivityState);
     method public boolean startFixedActivityModeForDisplayAndUser(@NonNull android.content.Intent, @NonNull android.app.ActivityOptions, int);
     method protected boolean startNavigationActivity(@NonNull android.content.ComponentName);
     method public void stopFixedActivityMode(int);
@@ -334,6 +372,7 @@ package android.car.content.pm {
   }
 
   public final class CarPackageManager {
+    method @NonNull @RequiresPermission(android.Manifest.permission.QUERY_ALL_PACKAGES) public android.car.CarVersion getTargetCarVersion(@NonNull String) throws android.content.pm.PackageManager.NameNotFoundException;
     method public boolean isActivityBackedBySafeActivity(android.content.ComponentName);
     method @Deprecated public void setAppBlockingPolicy(String, android.car.content.pm.CarAppBlockingPolicy, int);
     field @Deprecated public static final int FLAG_SET_POLICY_ADD = 2; // 0x2
@@ -630,6 +669,28 @@ package android.car.drivingstate {
 
   public static interface CarDrivingStateManager.CarDrivingStateEventListener {
     method public void onDrivingStateChanged(android.car.drivingstate.CarDrivingStateEvent);
+  }
+
+  public final class CarUxRestrictionsConfiguration implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public Integer getPhysicalPort();
+    method @NonNull public android.car.drivingstate.CarUxRestrictions getUxRestrictions(int, float);
+    method @NonNull public android.car.drivingstate.CarUxRestrictions getUxRestrictions(int, @FloatRange(from=0.0f) float, @NonNull String);
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.drivingstate.CarUxRestrictionsConfiguration> CREATOR;
+  }
+
+  public final class CarUxRestrictionsManager {
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration> getConfigs();
+    method @Nullable public android.car.drivingstate.CarUxRestrictions getCurrentCarUxRestrictions(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public String getRestrictionMode();
+    method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration> getStagedConfigs();
+    method public void onCarDisconnected();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull java.util.List<android.car.drivingstate.CarUxRestrictionsConfiguration>);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean saveUxRestrictionsConfigurationForNextBoot(@NonNull android.car.drivingstate.CarUxRestrictionsConfiguration);
+    method public void setListener(int, @NonNull android.car.drivingstate.CarUxRestrictionsManager.OnUxRestrictionsChangedListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION) public boolean setRestrictionMode(@NonNull String);
+    field public static final String UX_RESTRICTION_MODE_BASELINE = "baseline";
   }
 
 }
@@ -1076,6 +1137,32 @@ package android.car.navigation {
 
 }
 
+package android.car.os {
+
+  public final class CarPerformanceManager {
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public android.car.os.ThreadPolicyWithPriority getThreadPriority();
+    method @RequiresPermission(android.car.Car.PERMISSION_MANAGE_THREAD_PRIORITY) public void setThreadPriority(@NonNull android.car.os.ThreadPolicyWithPriority) throws android.car.os.CarPerformanceManager.SetSchedulerFailedException;
+  }
+
+  public static final class CarPerformanceManager.SetSchedulerFailedException extends java.lang.Exception {
+  }
+
+  public final class ThreadPolicyWithPriority implements android.os.Parcelable {
+    ctor public ThreadPolicyWithPriority(int, @IntRange(from=0, to=99) int);
+    method public int describeContents();
+    method public int getPolicy();
+    method @IntRange(from=0, to=99) public int getPriority();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.os.ThreadPolicyWithPriority> CREATOR;
+    field public static final int PRIORITY_MAX = 99; // 0x63
+    field public static final int PRIORITY_MIN = 1; // 0x1
+    field public static final int SCHED_DEFAULT = 0; // 0x0
+    field public static final int SCHED_FIFO = 1; // 0x1
+    field public static final int SCHED_RR = 2; // 0x2
+  }
+
+}
+
 package android.car.projection {
 
   public class ProjectionOptions {
@@ -1316,6 +1403,8 @@ package android.car.user {
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.UserLifecycleEventFilter, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
     method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_CREATED = 8; // 0x8
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_REMOVED = 9; // 0x9
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6; // 0x6
     field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5; // 0x5

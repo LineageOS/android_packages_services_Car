@@ -76,6 +76,7 @@ import com.android.car.audio.hal.AudioControlFactory;
 import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.car.audio.hal.HalAudioFocus;
+import com.android.car.audio.hal.HalAudioGainCallback;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -146,6 +147,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private CarDucking mCarDucking;
     private CarVolumeGroupMuting mCarVolumeGroupMuting;
     private HalAudioFocus mHalAudioFocus;
+    private @Nullable CarAudioGainMonitor mCarAudioGainMonitor;
 
     private CarOccupantZoneService mOccupantZoneService;
 
@@ -195,6 +197,17 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             mOccupantZoneConfigChangeListener = new CarAudioOccupantConfigChangeListener();
     private CarAudioPlaybackCallback mCarAudioPlaybackCallback;
     private CarAudioPowerListener mCarAudioPowerListener;
+
+    private final HalAudioGainCallback mHalAudioGainCallback =
+            new HalAudioGainCallback() {
+                @Override
+                public void onAudioDeviceGainsChanged(
+                        List<Integer> halReasons, List<CarAudioGainConfigInfo> gains) {
+                    synchronized (mImplLock) {
+                        handleAudioDeviceGainsChangedLocked(halReasons, gains);
+                    }
+                }
+            };
 
     public CarAudioService(Context context) {
         this(context, getAudioConfigurationPath());
@@ -691,10 +704,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Slogf.d(CarLog.TAG_AUDIO, "HalAudioGainCallback is not supported on this device");
             return;
         }
-        mAudioControlWrapper.registerAudioGainCallback((reasons, gains) -> {
-            // TODO(b/224886068): Add missing audio gain management
-            Slogf.d(CarLog.TAG_AUDIO, "onAudioGainChanged reasons" + reasons + ", gains=" + gains);
-        });
+        mCarAudioGainMonitor = new CarAudioGainMonitor(mAudioControlWrapper, mCarAudioZones);
+        mCarAudioGainMonitor.registerAudioGainListener(mHalAudioGainCallback);
     }
 
     /**
@@ -1482,11 +1493,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    private void resetHalAudioGain() {
+        if (mCarAudioGainMonitor != null) {
+            mCarAudioGainMonitor.reset();
+            mCarAudioGainMonitor.registerAudioGainListener(mHalAudioGainCallback);
+        }
+    }
+
+    private void handleAudioDeviceGainsChangedLocked(
+            List<Integer> halReasons, List<CarAudioGainConfigInfo> gains) {
+        mCarAudioGainMonitor.handleAudioDeviceGainsChanged(halReasons, gains);
+    }
+
     private void audioControlDied() {
         resetHalAudioFocus();
-        synchronized (mImplLock) {
-            setupHalAudioGainCallbackLocked();
-        }
+        resetHalAudioGain();
     }
 
     boolean isAudioZoneIdValid(int zoneId) {

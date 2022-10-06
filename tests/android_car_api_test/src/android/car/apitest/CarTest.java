@@ -21,10 +21,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
+import android.car.CarVersion;
 import android.car.ICar;
-import android.car.annotation.AddedIn;
-import android.car.annotation.AddedInOrBefore;
-import android.car.annotation.MinimumPlatformSdkVersion;
+import android.car.PlatformVersion;
 import android.car.hardware.CarSensorManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -68,55 +67,6 @@ public class CarTest {
 
     private void waitForConnection(long timeoutMs) throws InterruptedException {
         mConnectionWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS);
-    }
-
-    @AddedIn(majorVersion = 31)
-    @MinimumPlatformSdkVersion(30)
-    private static class AnnotationTest1 {
-        @AddedIn(majorVersion = 31)
-        @MinimumPlatformSdkVersion(29)
-        public int val;
-
-        @AddedIn(majorVersion = 31)
-        public void method1() {
-        }
-    }
-
-    @AddedIn(majorVersion = 31, minorVersion = 0)
-    @MinimumPlatformSdkVersion(30)
-    private static class AnnotationTest2 {
-        @AddedIn(majorVersion = 31, minorVersion = 0)
-        @MinimumPlatformSdkVersion(29)
-        public int val;
-
-        @AddedIn(majorVersion = 31, minorVersion = 0)
-        public void method1() {
-        }
-    }
-
-
-    @AddedInOrBefore(majorVersion = 31)
-    @MinimumPlatformSdkVersion(30)
-    private static class AnnotationTest3 {
-        @AddedInOrBefore(majorVersion = 31)
-        @MinimumPlatformSdkVersion(29)
-        public int val;
-
-        @AddedInOrBefore(majorVersion = 31)
-        public void method1() {
-        }
-    }
-
-    @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
-    @MinimumPlatformSdkVersion(30)
-    private static class AnnotationTest4 {
-        @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
-        @MinimumPlatformSdkVersion(29)
-        public int val;
-
-        @AddedInOrBefore(majorVersion = 31, minorVersion = 0)
-        public void method1() {
-        }
     }
 
     @Test
@@ -166,7 +116,8 @@ public class CarTest {
     }
 
     @Test
-    public void testApiVersion() throws Exception {
+    @SuppressWarnings("deprecation")
+    public void testApiVersion_deprecated() throws Exception {
         int ApiVersionTooHigh = 1000000;
         int MinorApiVersionTooHigh = 1000000;
         assertThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT)).isTrue();
@@ -188,5 +139,24 @@ public class CarTest {
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT)).isTrue();
         assertThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT, Build.VERSION.SDK_INT + 1)).isFalse();
+    }
+
+    @Test
+    public void testApiVersion_car() throws Exception {
+        CarVersion carVersion = Car.getCarVersion();
+
+        assertThat(carVersion).isNotNull();
+        assertThat(carVersion.getMajorVersion()).isAtLeast(Build.VERSION.SDK_INT);
+        assertThat(carVersion.getMajorVersion()).isAtMost(Build.VERSION_CODES.CUR_DEVELOPMENT);
+        assertThat(carVersion.getMinorVersion()).isAtLeast(0);
+    }
+
+    @Test
+    public void testApiVersion_platform() throws Exception {
+        PlatformVersion platformVersion = Car.getPlatformVersion();
+
+        assertThat(platformVersion).isNotNull();
+        assertThat(platformVersion.getMajorVersion()).isEqualTo(Build.VERSION.SDK_INT);
+        assertThat(platformVersion.getMinorVersion()).isAtLeast(0);
     }
 }

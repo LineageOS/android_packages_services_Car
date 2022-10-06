@@ -252,4 +252,17 @@ import java.util.Set;
     private boolean containsDeviceAddress(String deviceAddress) {
         return mDeviceAddresses.contains(deviceAddress);
     }
+
+    void onAudioGainChanged(List<Integer> halReasons, List<CarAudioGainConfigInfo> gains) {
+        for (int index = 0; index < gains.size(); index++) {
+            CarAudioGainConfigInfo gainInfo = gains.get(index);
+            for (int groupIndex = 0; groupIndex < mVolumeGroups.size(); groupIndex++) {
+                CarVolumeGroup group = mVolumeGroups.get(groupIndex);
+                if (group.getAddresses().contains(gainInfo.getDeviceAddress())) {
+                    group.onAudioGainChanged(halReasons, gainInfo);
+                    break; // loop of CarVolumeGroup.
+                }
+            }
+        }
+    }
 }

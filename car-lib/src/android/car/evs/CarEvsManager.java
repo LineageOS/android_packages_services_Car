@@ -503,6 +503,9 @@ public final class CarEvsManager extends CarManagerBase {
             mService.returnFrameBuffer(buffer.getId());
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
+        } finally {
+            // We are done with this HardwareBuffer object.
+            buffer.getHardwareBuffer().close();
         }
     }
 

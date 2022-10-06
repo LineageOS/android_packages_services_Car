@@ -52,6 +52,7 @@ import static org.testng.Assert.expectThrows;
 
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.CarVersion;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -394,6 +395,34 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
     }
 
     @Test
+    public void testOnUserLifecycleEvent_notifyReceiver_targetVersionCheck() throws Exception {
+        // Arrange: add receivers.
+        mCarUserService.setLifecycleListenerForApp("package1",
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED).build(),
+                mLifecycleEventReceiver);
+        mCarUserService.setLifecycleListenerForApp("package2",
+                new UserLifecycleEventFilter.Builder()
+                        .addEventType(CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED).build(),
+                mAnotherLifecycleEventReceiver);
+
+        when(mCarPackageManagerService.getTargetCarVersion("package1"))
+                .thenReturn(CarVersion.VERSION_CODES.TIRAMISU_0);
+        when(mCarPackageManagerService.getTargetCarVersion("package2"))
+                .thenReturn(CarVersion.VERSION_CODES.TIRAMISU_1);
+
+        // Act: User created event occurs.
+        sendUserLifecycleEvent(/* fromUser */ 0, mRegularUserId,
+                CarUserManager.USER_LIFECYCLE_EVENT_TYPE_CREATED);
+        waitForHandlerThreadToFinish();
+
+        // Verify: receivers are called or not depending on whether the target version meets
+        // requirement.
+        verify(mLifecycleEventReceiver, never()).send(anyInt(), any());
+        verify(mAnotherLifecycleEventReceiver).send(anyInt(), any());
+    }
+
+    @Test
     public void testOnUserLifecycleEvent_notifyReceiver_singleReceiverWithMultipleFilters()
             throws Exception {
         // Arrange: add one receiver with multiple filters.
@@ -608,7 +637,8 @@ public final class CarUserServiceTest extends BaseCarUserServiceTestCase {
                 mInitialUserSetter,
                 mUserPreCreator,
                 mCarUxRestrictionService,
-                mMockedHandler);
+                mMockedHandler,
+                mCarPackageManagerService);
         mockStopUserWithDelayedLockingThrows(userId, new IllegalStateException());
 
         carUserServiceLocal.stopUser(userId, userStopResult);

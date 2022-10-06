@@ -47,15 +47,23 @@ namespace {
 
 constexpr int32_t kDefaultTopNStatsPerCategory = 10;
 constexpr int32_t kDefaultTopNStatsPerSubcategory = 5;
-constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time I/O performance report:\n%s\n";
-constexpr const char kPeriodicCollectionTitle[] =
-        "%s\nLast N minutes I/O performance report:\n%s\n";
-constexpr const char kCustomCollectionTitle[] = "%s\nCustom I/O performance data report:\n%s\n";
+constexpr int32_t kDefaultMaxUserSwitchEvents = 5;
+constexpr const char kBootTimeCollectionTitle[] = "%s\nBoot-time performance report:\n%s\n";
+constexpr const char kPeriodicCollectionTitle[] = "%s\nLast N minutes performance report:\n%s\n";
+constexpr const char kUserSwitchCollectionTitle[] =
+        "%s\nUser-switch events performance report:\n%s\n";
+constexpr const char kUserSwitchCollectionSubtitle[] = "Number of user switch events: %zu\n";
+constexpr const char kCustomCollectionTitle[] = "%s\nCustom performance data report:\n%s\n";
+constexpr const char kUserSwitchEventTitle[] = "\nEvent %zu: From: %d To: %d\n%s\n";
 constexpr const char kCollectionTitle[] =
         "Collection duration: %.f seconds\nNumber of collections: %zu\n";
 constexpr const char kRecordTitle[] = "\nCollection %zu: <%s>\n%s\n%s";
-constexpr const char kIoReadsTitle[] = "\nTop N Reads:\n%s\n";
-constexpr const char kIoWritesTitle[] = "\nTop N Writes:\n%s\n";
+constexpr const char kCpuTimeTitle[] = "\nTop N CPU Times:\n%s\n";
+constexpr const char kCpuTimeHeader[] =
+        "Android User ID, Package Name, CPU Time (ms), Percentage of total CPU time\n\tCommand, "
+        "CPU Time (ms), Percentage of UID's CPU Time\n";
+constexpr const char kIoReadsTitle[] = "\nTop N Storage I/O Reads:\n%s\n";
+constexpr const char kIoWritesTitle[] = "\nTop N Storage I/O Writes:\n%s\n";
 constexpr const char kIoStatsHeader[] =
         "Android User ID, Package Name, Foreground Bytes, Foreground Bytes %%, Foreground Fsync, "
         "Foreground Fsync %%, Background Bytes, Background Bytes %%, Background Fsync, "
@@ -138,22 +146,24 @@ void cacheTopNIoStats(MetricType metricType, const UidStats& uidStats,
 enum ProcStatType {
     IO_BLOCKED_TASKS_COUNT = 0,
     MAJOR_FAULTS,
+    CPU_TIME,
     PROC_STAT_TYPES,
 };
 
 bool cacheTopNProcessStats(ProcStatType procStatType, const ProcessStats& processStats,
-                           std::vector<UserPackageStats::ProcStats::ProcessCount>* topNProcesses) {
-    uint64_t count = procStatType == IO_BLOCKED_TASKS_COUNT ? processStats.ioBlockedTasksCount
-                                                            : processStats.totalMajorFaults;
-    if (count == 0) {
+                           std::vector<UserPackageStats::ProcStats::ProcessValue>* topNProcesses) {
+    uint64_t value = procStatType == CPU_TIME        ? processStats.cpuTimeMillis
+            : procStatType == IO_BLOCKED_TASKS_COUNT ? processStats.ioBlockedTasksCount
+                                                     : processStats.totalMajorFaults;
+    if (value == 0) {
         return false;
     }
     for (auto it = topNProcesses->begin(); it != topNProcesses->end(); ++it) {
-        if (count > it->count) {
+        if (value > it->value) {
             topNProcesses->emplace(it,
-                                   UserPackageStats::ProcStats::ProcessCount{
+                                   UserPackageStats::ProcStats::ProcessValue{
                                            .comm = processStats.comm,
-                                           .count = count,
+                                           .value = value,
                                    });
             topNProcesses->pop_back();
             return true;
@@ -164,12 +174,13 @@ bool cacheTopNProcessStats(ProcStatType procStatType, const ProcessStats& proces
 
 UserPackageStats toUserPackageStats(ProcStatType procStatType, const UidStats& uidStats,
                                     int topNProcessCount) {
-    uint64_t count = procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
-                                                            : uidStats.procStats.totalMajorFaults;
+    uint64_t value = procStatType == CPU_TIME        ? uidStats.cpuTimeMillis
+            : procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
+                                                     : uidStats.procStats.totalMajorFaults;
     UserPackageStats userPackageStats = {
             .uid = uidStats.uid(),
             .genericPackageName = uidStats.genericPackageName(),
-            .stats = UserPackageStats::ProcStats{.count = count},
+            .stats = UserPackageStats::ProcStats{.value = value},
     };
     auto& procStats = std::get<UserPackageStats::ProcStats>(userPackageStats.stats);
     procStats.topNProcesses.resize(topNProcessCount);
@@ -188,14 +199,15 @@ UserPackageStats toUserPackageStats(ProcStatType procStatType, const UidStats& u
 
 bool cacheTopNProcStats(ProcStatType procStatType, const UidStats& uidStats, int topNProcessCount,
                         std::vector<UserPackageStats>* topNProcStats) {
-    uint64_t count = procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
-                                                            : uidStats.procStats.totalMajorFaults;
-    if (count == 0) {
+    uint64_t value = procStatType == CPU_TIME        ? uidStats.cpuTimeMillis
+            : procStatType == IO_BLOCKED_TASKS_COUNT ? uidStats.procStats.ioBlockedTasksCount
+                                                     : uidStats.procStats.totalMajorFaults;
+    if (value == 0) {
         return false;
     }
     for (auto it = topNProcStats->begin(); it != topNProcStats->end(); ++it) {
         if (const auto* procStats = std::get_if<UserPackageStats::ProcStats>(&it->stats);
-            procStats == nullptr || count > procStats->count) {
+            procStats == nullptr || value > procStats->value) {
             topNProcStats->emplace(it,
                                    toUserPackageStats(procStatType, uidStats, topNProcessCount));
             topNProcStats->pop_back();
@@ -238,23 +250,30 @@ std::string UserPackageStats::toString(MetricType metricsType,
     return buffer;
 }
 
-std::string UserPackageStats::toString(int64_t totalCount) const {
+std::string UserPackageStats::toString(int64_t totalValue) const {
     std::string buffer;
     const auto& procStats = std::get<UserPackageStats::ProcStats>(stats);
     StringAppendF(&buffer, "%" PRIu32 ", %s, %" PRIu64 ", %.2f%%\n", multiuser_get_user_id(uid),
-                  genericPackageName.c_str(), procStats.count,
-                  percentage(procStats.count, totalCount));
-    for (const auto& processCount : procStats.topNProcesses) {
-        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processCount.comm.c_str(),
-                      processCount.count, percentage(processCount.count, procStats.count));
+                  genericPackageName.c_str(), procStats.value,
+                  percentage(procStats.value, totalValue));
+    for (const auto& processValue : procStats.topNProcesses) {
+        StringAppendF(&buffer, "\t%s, %" PRIu64 ", %.2f%%\n", processValue.comm.c_str(),
+                      processValue.value, percentage(processValue.value, procStats.value));
     }
     return buffer;
 }
 
 std::string UserPackageSummaryStats::toString() const {
     std::string buffer;
+    if (!topNCpuTimes.empty()) {
+        StringAppendF(&buffer, kCpuTimeTitle, std::string(16, '-').c_str());
+        StringAppendF(&buffer, kCpuTimeHeader);
+        for (const auto& stats : topNCpuTimes) {
+            StringAppendF(&buffer, "%s", stats.toString(totalCpuTimeMillis).c_str());
+        }
+    }
     if (!topNIoReads.empty()) {
-        StringAppendF(&buffer, kIoReadsTitle, std::string(12, '-').c_str());
+        StringAppendF(&buffer, kIoReadsTitle, std::string(24, '-').c_str());
         StringAppendF(&buffer, kIoStatsHeader);
         for (const auto& stats : topNIoReads) {
             StringAppendF(&buffer, "%s",
@@ -262,7 +281,7 @@ std::string UserPackageSummaryStats::toString() const {
         }
     }
     if (!topNIoWrites.empty()) {
-        StringAppendF(&buffer, kIoWritesTitle, std::string(13, '-').c_str());
+        StringAppendF(&buffer, kIoWritesTitle, std::string(25, '-').c_str());
         StringAppendF(&buffer, kIoStatsHeader);
         for (const auto& stats : topNIoWrites) {
             StringAppendF(&buffer, "%s",
@@ -293,8 +312,12 @@ std::string UserPackageSummaryStats::toString() const {
 
 std::string SystemSummaryStats::toString() const {
     std::string buffer;
-    StringAppendF(&buffer, "CPU I/O wait time/percent: %" PRIu64 " / %.2f%%\n", cpuIoWaitTime,
-                  percentage(cpuIoWaitTime, totalCpuTime));
+    StringAppendF(&buffer, "Total CPU time (ms): %" PRIu64 "\n", totalCpuTimeMillis);
+    StringAppendF(&buffer, "Total idle CPU time (ms)/percent: %" PRIu64 " / %.2f%%\n",
+                  cpuIdleTimeMillis, percentage(cpuIdleTimeMillis, totalCpuTimeMillis));
+    StringAppendF(&buffer, "CPU I/O wait time (ms)/percent: %" PRIu64 " / %.2f%%\n",
+                  cpuIoWaitTimeMillis, percentage(cpuIoWaitTimeMillis, totalCpuTimeMillis));
+    StringAppendF(&buffer, "Number of context switches: %" PRIu64 "\n", contextSwitchesCount);
     StringAppendF(&buffer, "Number of I/O blocked processes/percent: %" PRIu32 " / %.2f%%\n",
                   ioBlockedProcessCount, percentage(ioBlockedProcessCount, totalProcessCount));
     return buffer;
@@ -333,6 +356,8 @@ Result<void> IoPerfCollection::init() {
             sysprop::topNStatsPerCategory().value_or(kDefaultTopNStatsPerCategory));
     mTopNStatsPerSubcategory = static_cast<int>(
             sysprop::topNStatsPerSubcategory().value_or(kDefaultTopNStatsPerSubcategory));
+    mMaxUserSwitchEvents = static_cast<size_t>(
+            sysprop::maxUserSwitchEvents().value_or(kDefaultMaxUserSwitchEvents));
     size_t periodicCollectionBufferSize = static_cast<size_t>(
             sysprop::periodicCollectionBufferSize().value_or(kDefaultPeriodicCollectionBufferSize));
     mBoottimeCollection = {
@@ -361,6 +386,8 @@ void IoPerfCollection::terminate() {
     mPeriodicCollection.records.clear();
     mPeriodicCollection = {};
 
+    mUserSwitchCollections.clear();
+
     mCustomCollection.records.clear();
     mCustomCollection = {};
 }
@@ -370,13 +397,17 @@ Result<void> IoPerfCollection::onDump(int fd) const {
     if (!WriteStringToFd(StringPrintf(kBootTimeCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(33, '=').c_str()),
                          fd) ||
-        !WriteStringToFd(mBoottimeCollection.toString(), fd) ||
-        !WriteStringToFd(StringPrintf(kPeriodicCollectionTitle, std::string(75, '-').c_str(),
+        !WriteStringToFd(mBoottimeCollection.toString(), fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the boot-time collection report.";
+    }
+    if (const auto& result = onUserSwitchCollectionDump(fd); !result.ok()) {
+        return result.error();
+    }
+    if (!WriteStringToFd(StringPrintf(kPeriodicCollectionTitle, std::string(75, '-').c_str(),
                                       std::string(38, '=').c_str()),
                          fd) ||
         !WriteStringToFd(mPeriodicCollection.toString(), fd)) {
-        return Error(FAILED_TRANSACTION)
-                << "Failed to dump the boot-time and periodic collection reports.";
+        return Error(FAILED_TRANSACTION) << "Failed to dump the periodic collection report.";
     }
     return {};
 }
@@ -431,6 +462,36 @@ Result<void> IoPerfCollection::onPeriodicCollection(
                          procStatCollectorSp, &mPeriodicCollection);
 }
 
+Result<void> IoPerfCollection::onUserSwitchCollection(
+        time_t time, userid_t from, userid_t to,
+        const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+        const android::wp<ProcStatCollectorInterface>& procStatCollector) {
+    const sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
+    const sp<ProcStatCollectorInterface> procStatCollectorSp = procStatCollector.promote();
+    auto result = checkDataCollectors(uidStatsCollectorSp, procStatCollectorSp);
+    if (!result.ok()) {
+        return result;
+    }
+    Mutex::Autolock lock(mMutex);
+    if (mUserSwitchCollections.empty() || mUserSwitchCollections.back().from != from ||
+        mUserSwitchCollections.back().to != to) {
+        UserSwitchCollectionInfo userSwitchCollection = {
+                {
+                        .maxCacheSize = std::numeric_limits<std::size_t>::max(),
+                        .records = {},
+                },
+                .from = from,
+                .to = to,
+        };
+        mUserSwitchCollections.push_back(userSwitchCollection);
+    }
+    if (mUserSwitchCollections.size() > mMaxUserSwitchEvents) {
+        mUserSwitchCollections.erase(mUserSwitchCollections.begin());
+    }
+    return processLocked(time, std::unordered_set<std::string>(), uidStatsCollectorSp,
+                         procStatCollectorSp, &mUserSwitchCollections.back());
+}
+
 Result<void> IoPerfCollection::onCustomCollection(
         time_t time, [[maybe_unused]] SystemState systemState,
         const std::unordered_set<std::string>& filterPackages,
@@ -459,6 +520,8 @@ Result<void> IoPerfCollection::processLocked(
     };
     processUidStatsLocked(filterPackages, uidStatsCollector, &record.userPackageSummaryStats);
     processProcStatLocked(procStatCollector, &record.systemSummaryStats);
+    record.userPackageSummaryStats.totalCpuTimeMillis =
+            record.systemSummaryStats.totalCpuTimeMillis;
     if (collectionInfo->records.size() > collectionInfo->maxCacheSize) {
         collectionInfo->records.erase(collectionInfo->records.begin());  // Erase the oldest record.
     }
@@ -475,6 +538,7 @@ void IoPerfCollection::processUidStatsLocked(
         return;
     }
     if (filterPackages.empty()) {
+        userPackageSummaryStats->topNCpuTimes.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoReads.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoWrites.resize(mTopNStatsPerCategory);
         userPackageSummaryStats->topNIoBlocked.resize(mTopNStatsPerCategory);
@@ -489,6 +553,8 @@ void IoPerfCollection::processUidStatsLocked(
                              &userPackageSummaryStats->topNIoReads);
             cacheTopNIoStats(MetricType::WRITE_BYTES, curUidStats,
                              &userPackageSummaryStats->topNIoWrites);
+            cacheTopNProcStats(CPU_TIME, curUidStats, mTopNStatsPerSubcategory,
+                               &userPackageSummaryStats->topNCpuTimes);
             if (cacheTopNProcStats(IO_BLOCKED_TASKS_COUNT, curUidStats, mTopNStatsPerSubcategory,
                                    &userPackageSummaryStats->topNIoBlocked)) {
                 userPackageSummaryStats->taskCountByUid[uid] =
@@ -503,6 +569,8 @@ void IoPerfCollection::processUidStatsLocked(
                     toUserPackageStats(MetricType::READ_BYTES, curUidStats));
             userPackageSummaryStats->topNIoWrites.emplace_back(
                     toUserPackageStats(MetricType::WRITE_BYTES, curUidStats));
+            userPackageSummaryStats->topNCpuTimes.emplace_back(
+                    toUserPackageStats(CPU_TIME, curUidStats, mTopNStatsPerSubcategory));
             userPackageSummaryStats->topNIoBlocked.emplace_back(
                     toUserPackageStats(IO_BLOCKED_TASKS_COUNT, curUidStats,
                                        mTopNStatsPerSubcategory));
@@ -529,6 +597,7 @@ void IoPerfCollection::processUidStatsLocked(
             }
         }
     };
+    removeEmptyStats(userPackageSummaryStats->topNCpuTimes);
     removeEmptyStats(userPackageSummaryStats->topNIoReads);
     removeEmptyStats(userPackageSummaryStats->topNIoWrites);
     removeEmptyStats(userPackageSummaryStats->topNIoBlocked);
@@ -539,10 +608,38 @@ void IoPerfCollection::processProcStatLocked(
         const sp<ProcStatCollectorInterface>& procStatCollector,
         SystemSummaryStats* systemSummaryStats) const {
     const ProcStatInfo& procStatInfo = procStatCollector->deltaStats();
-    systemSummaryStats->cpuIoWaitTime = procStatInfo.cpuStats.ioWaitTime;
-    systemSummaryStats->totalCpuTime = procStatInfo.totalCpuTime();
+    systemSummaryStats->cpuIoWaitTimeMillis = procStatInfo.cpuStats.ioWaitTimeMillis;
+    systemSummaryStats->cpuIdleTimeMillis = procStatInfo.cpuStats.idleTimeMillis;
+    systemSummaryStats->totalCpuTimeMillis = procStatInfo.totalCpuTimeMillis();
+    systemSummaryStats->contextSwitchesCount = procStatInfo.contextSwitchesCount;
     systemSummaryStats->ioBlockedProcessCount = procStatInfo.ioBlockedProcessCount;
     systemSummaryStats->totalProcessCount = procStatInfo.totalProcessCount();
+}
+
+Result<void> IoPerfCollection::onUserSwitchCollectionDump(int fd) const {
+    if (!WriteStringToFd(StringPrintf(kUserSwitchCollectionTitle, std::string(75, '-').c_str(),
+                                      std::string(38, '=').c_str()),
+                         fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+    }
+    if (!mUserSwitchCollections.empty() &&
+        !WriteStringToFd(StringPrintf(kUserSwitchCollectionSubtitle, mUserSwitchCollections.size()),
+                         fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+    }
+    if (mUserSwitchCollections.empty() && !WriteStringToFd(kEmptyCollectionMessage, fd)) {
+        return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+    }
+    for (size_t i = 0; i < mUserSwitchCollections.size(); ++i) {
+        const auto& userSwitchCollection = mUserSwitchCollections[i];
+        if (!WriteStringToFd(StringPrintf(kUserSwitchEventTitle, i, userSwitchCollection.from,
+                                          userSwitchCollection.to, std::string(26, '=').c_str()),
+                             fd) ||
+            !WriteStringToFd(userSwitchCollection.toString(), fd)) {
+            return Error(FAILED_TRANSACTION) << "Failed to dump the user-switch collection report.";
+        }
+    }
+    return {};
 }
 
 }  // namespace watchdog

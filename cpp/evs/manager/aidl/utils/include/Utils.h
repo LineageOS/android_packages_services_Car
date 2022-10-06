@@ -98,7 +98,7 @@ public:
 
     static aidlevs::EvsEventType makeFromHidl(const hidlevs::V1_1::EvsEventType& type);
 
-    static hidlevs::V1_1::EvsEventDesc makeToHidl(const aidlevs::EvsEventDesc& type);
+    static bool makeToHidl(const aidlevs::EvsEventDesc& in, hidlevs::V1_1::EvsEventDesc* out);
 
     static aidlevs::EvsEventDesc makeFromHidl(const hidlevs::V1_1::EvsEventDesc& desc);
 

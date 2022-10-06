@@ -32,6 +32,7 @@ import android.app.usage.NetworkStatsManager;
 import android.car.telemetry.TelemetryProto;
 import android.car.telemetry.TelemetryProto.ConnectivityPublisher.OemType;
 import android.car.telemetry.TelemetryProto.ConnectivityPublisher.Transport;
+import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkIdentity;
 import android.net.NetworkTemplate;
@@ -143,6 +144,7 @@ public class ConnectivityPublisherTest {
     private static final int UID_3 = 3;
     private static final int UID_4 = 4;
 
+    @Mock private Context mMockContext;
     @Mock private UidPackageMapper mMockUidMapper;
 
     private final long mNow = System.currentTimeMillis(); // since epoch
@@ -173,7 +175,7 @@ public class ConnectivityPublisherTest {
     @Before
     public void setUp() throws Exception {
         mTestRootDir = Files.createTempDirectory("car_telemetry_test").toFile();
-        mResultStore = new ResultStore(mTestRootDir);
+        mResultStore = new ResultStore(mMockContext, mTestRootDir);
         when(mMockUidMapper.getPackagesForUid(anyInt())).thenReturn(List.of("pkg1"));
         mPublisher =
                 new ConnectivityPublisher(

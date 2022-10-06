@@ -43,6 +43,7 @@ import android.app.ActivityOptions;
 import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.CarVersion;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
@@ -147,6 +148,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -168,6 +171,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
     private static final String COMMAND_GET_CARPROPERTYCONFIG = "get-carpropertyconfig";
     private static final String COMMAND_GET_PROPERTY_VALUE = "get-property-value";
+    private static final String COMMAND_SET_PROPERTY_VALUE = "set-property-value";
     private static final String COMMAND_PROJECTION_AP_TETHERING = "projection-tethering";
     private static final String COMMAND_PROJECTION_AP_STABLE_CONFIG =
             "projection-stable-lohs-config";
@@ -260,6 +264,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String COMMAND_TEST_ECHO_REVERSE_BYTES = "test-echo-reverse-bytes";
 
+    private static final String COMMAND_GET_TARGET_CAR_VERSION = "get-target-car-version";
+
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
             android.Manifest.permission.MANAGE_USERS
@@ -347,6 +353,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_TEST_ECHO_REVERSE_BYTES,
                 android.car.Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_TARGET_CAR_VERSION,
+                android.Manifest.permission.QUERY_ALL_PACKAGES);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -544,6 +552,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\tget-property-value [PROPERTY_ID in Hex or Decimal] [areaId]");
         pw.println("\t  Get a vehicle property value by property id and areaId");
         pw.println("\t  or list all property values for all areaId");
+        pw.printf("\t%s\n", getSetPropertyValueUsage());
         pw.printf("\t%s\n", getSuspendCommandUsage(COMMAND_SUSPEND));
         pw.println("\t  Suspend the system to RAM.");
         pw.printf("\t  %s forces the device to perform suspend-to-RAM.\n", PARAM_REAL);
@@ -756,6 +765,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
         pw.println("\t  test the ECHO_REVERSE_BYTES property. PROP_ID is the ID (int) for "
                 + "ECHO_REVERSE_BYTES, REQUEST_SIZE is how many byteValues in the request. "
                 + "This command can be used for testing LargeParcelable by passing large request.");
+
+        pw.printf("\t%s [--user USER] <APP1> [APPN]", COMMAND_GET_TARGET_CAR_VERSION);
+        pw.println("\t  Gets the target API version (major and minor) defined by the given apps "
+                + "for the given user (or current user when --user is not set).");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -935,6 +948,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 String areaId = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA : args[2];
                 mHal.dumpPropertyValueByCommand(writer, Integer.decode(propId),
                         Integer.decode(areaId));
+                break;
+            case COMMAND_SET_PROPERTY_VALUE:
+                runSetVehiclePropertyValue(args, writer);
                 break;
             case COMMAND_PROJECTION_UI_MODE:
                 if (args.length != 2) {
@@ -1128,6 +1144,9 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 break;
             case COMMAND_TEST_ECHO_REVERSE_BYTES:
                 testEchoReverseBytes(args, writer);
+                break;
+            case COMMAND_GET_TARGET_CAR_VERSION:
+                getTargetCarVersion(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -1927,12 +1946,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     private CarUserManager getCarUserManager(IndentingPrintWriter writer,
             @UserIdInt int userId) {
-        Context context;
-        if (userId == mContext.getUser().getIdentifier()) {
-            context = mContext;
-        } else {
-            context = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
-        }
+        Context context = getContextForUser(userId);
         int actualUserId = Binder.getCallingUid();
         if (actualUserId != userId) {
             writer.printf("Emulating call for user id %d, but caller's user id is %d, so that's "
@@ -1940,6 +1954,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         return getCarUserManager(context);
+    }
+
+    private Context getContextForUser(int userId) {
+        if (userId == mContext.getUser().getIdentifier()) {
+            return mContext;
+        }
+        return mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
     }
 
     private CarUserManager getCarUserManager(Context context) {
@@ -2487,6 +2508,47 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
     }
 
+    // Handles set-property-value command.
+    private void runSetVehiclePropertyValue(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 4) {
+            writer.println("Invalid command syntax:");
+            writer.printf("Usage: %s\n", getSetPropertyValueUsage());
+            return;
+        }
+        String strId = args[1];
+        String strAreaId = args[2];
+        String value = args[3];
+        int id;
+        int areaId;
+        try {
+            id = Integer.decode(strId);
+            areaId = Integer.decode(strAreaId);
+        } catch (NumberFormatException e) {
+            writer.printf("Cannot set a property: Invalid property ID(%s) or area ID(%s) format\n",
+                    strId, strAreaId);
+            return;
+        }
+        Slogf.i(TAG, "Setting vehicle property: id=%s, areaId=%s, value=%s", strId, strAreaId,
+                value);
+        if (strAreaId.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL)
+                && !isPropertyAreaTypeGlobal(strId)) {
+            writer.printf("Property area type is inconsistent with given area ID: %s\n",
+                    strAreaId);
+            return;
+        }
+        try {
+            mHal.setPropertyFromCommand(id, areaId, value, writer);
+            writer.printf("Property(%s) is set to %s successfully\n", strId, value);
+        } catch (Exception e) {
+            writer.printf("Cannot set a property: %s\n", e);
+        }
+    }
+
+    private static String getSetPropertyValueUsage() {
+        return COMMAND_SET_PROPERTY_VALUE + " <PROPERTY_ID in Hex or Decimal> <areaId> "
+                + "<data (can be comma-separated)>";
+    }
+
     // Set a target camera device for the rearview
     private void setRearviewCameraId(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
@@ -2668,22 +2730,24 @@ final class CarShellCommand extends BasicShellCommandHandler {
         writer.println("\tremove-all");
         writer.println("\t  Removes all metrics configs.");
         writer.println("\tping-script-executor [published data filepath] [state filepath]");
+        writer.println("\t  Runs a Lua script from stdin.");
+        writer.println("\tlist");
+        writer.println("\t  Lists the active config metrics.");
+        writer.println("\tget-result <name>");
+        writer.println("\t  Blocks until a metrics report is available and returns it.");
+        writer.println("\t  If there are multiple reports, the CLI is guaranteed to receive "
+                + "at least one report. There is no guarantee that it will be able to get "
+                + "all of them.");
         writer.println("\nEXAMPLES:");
+        writer.println("\t$ adb shell cmd car_service telemetry add name < config1.protobin");
+        writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
+        writer.println("\n\t$ adb shell cmd car_service telemetry get-result name");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "< example_script.lua");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "/data/local/tmp/published_data < example_script.lua");
         writer.println("\t$ adb shell cmd car_service telemetry ping-script-executor "
                 + "/data/local/tmp/bundle /data/local/tmp/bundle2 < example_script.lua");
-        writer.println("\t  Removes all metrics configs.");
-        writer.println("\tlist");
-        writer.println("\t  Lists the config metrics in the service.");
-        writer.println("\tget-result <name>");
-        writer.println("\t  Gets if available or waits for the results for the metrics config.");
-        writer.println("\nEXAMPLES:");
-        writer.println("\t$ adb shell cmd car_service telemetry add name < config1.protobin");
-        writer.println("\t\tWhere config1.protobin is a serialized MetricsConfig proto.");
-        writer.println("\n\t$ adb shell cmd car_service telemetry get-result name");
     }
 
     private void handleTelemetryCommands(String[] args, IndentingPrintWriter writer) {
@@ -2811,13 +2875,16 @@ final class CarShellCommand extends BasicShellCommandHandler {
                             } else if (telemetryError != null) {
                                 parseTelemetryError(telemetryError, writer);
                             }
+                            // the latch counts after receiving 1 report even if there are
+                            // multiple reports
                             latch.countDown();
                         };
                 carTelemetryManager.clearReportReadyListener();
-                carTelemetryManager.setReportReadyListener(Runnable::run, metricsConfigName -> {
+                Executor executor = Executors.newSingleThreadExecutor();
+                carTelemetryManager.setReportReadyListener(executor, metricsConfigName -> {
                     if (metricsConfigName.equals(configName)) {
                         carTelemetryManager.getFinishedReport(
-                                metricsConfigName, Runnable::run, callback);
+                                metricsConfigName, executor, callback);
                     }
                 });
                 try {
@@ -3156,6 +3223,56 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         writer.println("Test Succeeded!");
+    }
+
+    private void getTargetCarVersion(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        int firstAppArg = 1;
+
+        // TODO(b/234499460): move --user logic to private helper / support 'all'
+        int userId = UserHandle.CURRENT.getIdentifier();
+        if (args[1].equals("--user")) {
+            if (args.length < 4) {
+                showInvalidArguments(writer);
+                return;
+            }
+            String userArg = args[2];
+            firstAppArg += 2;
+            if (!"current".equals(userArg) && !"cur".equals(userArg)) {
+                try {
+                    userId = Integer.parseInt(args[2]);
+                } catch (NumberFormatException e) {
+                    showInvalidArguments(writer);
+                    return;
+                }
+            }
+        }
+        if (userId == UserHandle.CURRENT.getIdentifier()) {
+            userId = ActivityManager.getCurrentUser();
+        }
+        writer.printf("User %d:\n", userId);
+
+        Context userContext = getContextForUser(userId);
+        for (int i = firstAppArg; i < args.length; i++) {
+            String app = args[i];
+            try {
+                CarVersion Version = CarPackageManagerService.getTargetCarVersion(
+                        userContext, app);
+                writer.printf("  %s: major=%d, minor=%d\n", app,
+                        Version.getMajorVersion(), Version.getMinorVersion());
+            } catch (ServiceSpecificException e) {
+                if (e.errorCode == CarPackageManager.ERROR_CODE_NO_PACKAGE) {
+                    writer.printf("  %s: not found\n", app);
+                } else {
+                    writer.printf("  %s: unexpected exception: %s \n", app, e);
+                }
+                continue;
+            }
+        }
     }
 
     // Check if the given property is global

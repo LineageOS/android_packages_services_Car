@@ -42,6 +42,7 @@ import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.ParcelUuid;
+import android.os.UserManager;
 import android.telecom.PhoneAccountHandle;
 import android.telecom.TelecomManager;
 
@@ -75,6 +76,9 @@ import java.util.stream.Collectors;
 public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoothTestCase {
     private static final String TAG = CarBluetoothUserServiceTest.class.getSimpleName();
 
+    static final String DEVICE_NAME = "name";
+    static final String DEVICE_ADDRESS_STRING = "11:22:33:44:55:66";
+
     private static final String DEFAULT_DEVICE = "00:11:22:33:44:55";
     private static final List<String> DEVICE_LIST_WITHOUT_DEFAULT = Arrays.asList(
             "DE:AD:BE:EF:00:00",
@@ -101,6 +105,7 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
     @Mock private PhoneAccountHandle mMockPhoneAccountHandle;
     @Captor private ArgumentCaptor<BluetoothDevice> mBvraDeviceCaptor;
     @Mock private Resources mMockResources;
+    @Mock private UserManager mMockUserManager;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -117,6 +122,8 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         when(mMockPerUserCarServiceImpl.getApplicationContext()).thenReturn(mMockContext);
         mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockBluetoothAdapter.getName()).thenReturn(DEVICE_NAME);
+        when(mMockBluetoothAdapter.getAddress()).thenReturn(DEVICE_ADDRESS_STRING);
 
         // for testing BVRA
         mMockContext.addMockedSystemService(TelecomManager.class, mMockTelecomManager);
@@ -131,6 +138,9 @@ public class CarBluetoothUserServiceTest extends AbstractExtendedMockitoBluetoot
         when(mMockPerUserCarServiceImpl.getResources()).thenReturn(mMockResources);
         when(mMockPerUserCarServiceImpl.getSystemService(eq(BluetoothManager.class)))
                 .thenReturn(mMockBluetoothManager);
+        when(mMockPerUserCarServiceImpl.getSystemService(eq(UserManager.class)))
+                .thenReturn(mMockUserManager);
+        when(mMockUserManager.isUserUnlocked()).thenReturn(false);
 
         mCarBluetoothUserService = new CarBluetoothUserService(mMockPerUserCarServiceImpl);
 

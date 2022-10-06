@@ -30,10 +30,14 @@ import java.lang.annotation.Target;
  *
  * <p> For items marked with this, the client need to make sure to check car API version using
  * {@link android.car.Car#API_VERSION_MAJOR_INT} for major version and
- * {@link android.car.Car#API_VERSION_MINOR_INT} for minor version.
+ * {@link android.car.Car#API_VERSION_MINOR_INT} for minor version. Should only be used for
+ * {@code majorVersion = 33, minorVersion = 0}.
+ *
+ * @deprecated - use {@code AddedIn} instead.
  *
  * @hide
  */
+@Deprecated
 @Retention(RUNTIME)
 @Target({ANNOTATION_TYPE, FIELD, TYPE, METHOD})
 public @interface AddedInOrBefore {

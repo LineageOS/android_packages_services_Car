@@ -514,25 +514,37 @@ Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
 }
 
 Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseListener>& listener) {
+    if (listener == nullptr) {
+        return Error(Status::EX_ILLEGAL_ARGUMENT) << "Must provide non-null listener";
+    }
     pid_t callingPid = IPCThreadState::self()->getCallingPid();
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
-    std::unique_lock writeLock(mRwMutex);
-    if (!isInitializedLocked()) {
-        // mBinderDeathRecipient is initialized inside init.
-        return Error(Status::EX_ILLEGAL_STATE) << "Service is not initialized";
-    }
     auto binder = BnResourceOveruseListener::asBinder(listener);
-    if (findListenerAndProcessLocked(binder, nullptr)) {
-        ALOGW("Failed to register the I/O overuse listener (pid: %d, uid: %d) as it is already "
-              "registered",
-              callingPid, callingUid);
-        return {};
+    sp<BinderDeathRecipient> binderDeathRecipient;
+    {
+        std::unique_lock writeLock(mRwMutex);
+        if (mBinderDeathRecipient == nullptr) {
+            return Error(Status::EX_ILLEGAL_STATE) << "Service is not initialized";
+        }
+        if (findListenerAndProcessLocked(binder, nullptr)) {
+            ALOGW("Failed to register the I/O overuse listener (pid: %d, uid: %d) as it is already "
+                  "registered",
+                  callingPid, callingUid);
+            return {};
+        }
+        mOveruseListenersByUid[callingUid] = listener;
+        binderDeathRecipient = mBinderDeathRecipient;
     }
-    if (const auto status = binder->linkToDeath(mBinderDeathRecipient); status != OK) {
+    if (const auto status = binder->linkToDeath(binderDeathRecipient); status != OK) {
+        std::unique_lock writeLock(mRwMutex);
+        if (const auto& it = mOveruseListenersByUid.find(callingUid);
+            it != mOveruseListenersByUid.end() &&
+            BnResourceOveruseListener::asBinder(it->second) == binder) {
+            mOveruseListenersByUid.erase(it);
+        }
         return Error(Status::EX_ILLEGAL_STATE)
                 << "(pid " << callingPid << ", uid: " << callingUid << ") is dead";
     }
-    mOveruseListenersByUid[callingUid] = listener;
     if (DEBUG) {
         ALOGD("Added I/O overuse listener for uid: %d", callingUid);
     }
@@ -541,9 +553,11 @@ Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseLis
 
 Result<void> IoOveruseMonitor::removeIoOveruseListener(
         const sp<IResourceOveruseListener>& listener) {
+    if (listener == nullptr) {
+        return Error(Status::EX_ILLEGAL_ARGUMENT) << "Must provide non-null listener";
+    }
     std::unique_lock writeLock(mRwMutex);
-    if (!isInitializedLocked()) {
-        // mBinderDeathRecipient is initialized inside init.
+    if (mBinderDeathRecipient == nullptr) {
         return Error(Status::EX_ILLEGAL_STATE) << "Service is not initialized";
     }
     const auto processor = [&](ListenersByUidMap& listeners, ListenersByUidMap::const_iterator it) {

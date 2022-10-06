@@ -16,6 +16,14 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+<string name="car_permission_label_bind_projection_service" msgid="5362076216606651526">"الالتزام بخدمة عرض"</string>
+<string name="car_permission_desc_bind_projection_service" msgid="2282657787853408639">"يتيح للمالك الالتزام بواجهة المستوى العلوي لخدمة عرض. لن تكون هناك حاجة إليه مطلقًا مع التطبيقات العادية."</string>
+<string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"خدمة عميل الأجهزة الافتراضية"</string>
+<string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"الالتزام بعملاء الأجهزة الافتراضية"</string>
+<string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"جارٍ عرض مجموعة العدادات"</string>
+<string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"تلقّي بيانات مجموعة الأدوات"</string>
+<string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"خدمة إدخال السيارة"</string>
+<string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"التعامل مع أحداث الإدخال"</string>
     <string name="activity_blocked_text" msgid="5991043857905412794">"لا يمكنك استخدام هذه الميزة أثناء القيادة."</string>
     <string name="exit_button_message" msgid="5375678491245394542">"للبدء من جديد باستخدام ميزات تطبيق آمنة، اختَر <xliff:g id="EXIT_BUTTON">%s</xliff:g>."</string>
     <string name="exit_button" msgid="3491899413031549265">"رجوع"</string>

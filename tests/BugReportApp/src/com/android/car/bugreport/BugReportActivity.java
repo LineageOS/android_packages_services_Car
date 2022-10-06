@@ -17,6 +17,9 @@ package com.android.car.bugreport;
 
 import static com.android.car.bugreport.BugReportService.MAX_PROGRESS_VALUE;
 
+import static java.util.stream.Collectors.collectingAndThen;
+import static java.util.stream.Collectors.toList;
+
 import android.Manifest;
 import android.app.Activity;
 import android.car.Car;
@@ -47,6 +50,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.io.ByteStreams;
 
 import java.io.File;
@@ -54,7 +59,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
@@ -80,7 +84,9 @@ public class BugReportActivity extends Activity {
             "com.android.car.bugreport.action.ADD_AUDIO";
 
     private static final int VOICE_MESSAGE_MAX_DURATION_MILLIS = 60 * 1000;
-    private static final int AUDIO_PERMISSIONS_REQUEST_ID = 1;
+    private static final int PERMISSIONS_REQUEST_ID = 1;
+    private static final ImmutableSortedSet<String> REQUIRED_PERMISSIONS = ImmutableSortedSet.of(
+            Manifest.permission.RECORD_AUDIO, Manifest.permission.POST_NOTIFICATIONS);
 
     private static final String EXTRA_BUGREPORT_ID = "bugreport-id";
 
@@ -412,11 +418,22 @@ public class BugReportActivity extends Activity {
                     mMetaBugReport.getTimestamp()));
         }
 
-        if (!hasRecordPermissions()) {
-            requestRecordPermissions();
-        } else {
+        ImmutableList<String> missingPermissions = findMissingPermissions();
+        if (missingPermissions.isEmpty()) {
             startRecordingWithPermission();
+        } else {
+            requestPermissions(missingPermissions.toArray(new String[missingPermissions.size()]),
+                    PERMISSIONS_REQUEST_ID);
         }
+    }
+
+    /**
+     * Finds required permissions not granted.
+     */
+    private ImmutableList<String> findMissingPermissions() {
+        return REQUIRED_PERMISSIONS.stream().filter(permission -> checkSelfPermission(permission)
+                != PackageManager.PERMISSION_GRANTED).collect(
+                collectingAndThen(toList(), ImmutableList::copyOf));
     }
 
     /**
@@ -491,37 +508,26 @@ public class BugReportActivity extends Activity {
         finish();
     }
 
-    private void requestRecordPermissions() {
-        requestPermissions(
-                new String[]{Manifest.permission.RECORD_AUDIO}, AUDIO_PERMISSIONS_REQUEST_ID);
-    }
-
-    private boolean hasRecordPermissions() {
-        return checkSelfPermission(Manifest.permission.RECORD_AUDIO)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
     @Override
     public void onRequestPermissionsResult(
             int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode != AUDIO_PERMISSIONS_REQUEST_ID) {
+        if (requestCode != PERMISSIONS_REQUEST_ID) {
             return;
         }
-        for (int i = 0; i < grantResults.length; i++) {
-            if (Manifest.permission.RECORD_AUDIO.equals(permissions[i])
-                    && grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                // Start recording from UI thread, otherwise when MediaRecord#start() fails,
-                // stack trace gets confusing.
-                mHandler.post(this::startRecordingWithPermission);
-                return;
-            }
+
+        ImmutableList<String> missingPermissions = findMissingPermissions();
+        if (missingPermissions.isEmpty()) {
+            // Start recording from UI thread, otherwise when MediaRecord#start() fails,
+            // stack trace gets confusing.
+            mHandler.post(this::startRecordingWithPermission);
+        } else {
+            handleMissingPermissions(missingPermissions);
         }
-        handleNoPermission(permissions);
     }
 
-    private void handleNoPermission(String[] permissions) {
+    private void handleMissingPermissions(ImmutableList missingPermissions) {
         String text = this.getText(R.string.toast_permissions_denied) + " : "
-                + Arrays.toString(permissions);
+                + String.join(", ", missingPermissions);
         Log.w(TAG, text);
         Toast.makeText(this, text, Toast.LENGTH_LONG).show();
         if (mMetaBugReport == null) {
@@ -542,7 +548,7 @@ public class BugReportActivity extends Activity {
         Log.i(TAG, "Started voice recording, and saving audio to " + mAudioFile);
 
         mLastAudioFocusRequest = new AudioFocusRequest.Builder(
-                        AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE)
                 .setOnAudioFocusChangeListener(focusChange ->
                         Log.d(TAG, "AudioManager focus change " + focusChange))
                 .setAudioAttributes(new AudioAttributes.Builder()
@@ -620,7 +626,7 @@ public class BugReportActivity extends Activity {
      * Creates a {@link MetaBugReport} and saves it in a local sqlite database.
      *
      * @param context an Android context.
-     * @param type bug report type, {@link MetaBugReport.BugReportType}.
+     * @param type    bug report type, {@link MetaBugReport.BugReportType}.
      */
     static MetaBugReport createBugReport(Context context, int type) {
         String timestamp = MetaBugReport.toBugReportTimestamp(new Date());

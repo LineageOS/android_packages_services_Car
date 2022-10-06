@@ -30,6 +30,9 @@ import android.annotation.UserIdInt;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
+import android.car.Car;
+import android.car.CarVersion;
+import android.car.PlatformVersion;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.test.util.UserTestingHelper;
@@ -410,6 +413,22 @@ public final class AndroidMockitoHelper {
      */
     public static void mockBinderGetCallingUserHandle(@UserIdInt int userId) {
         doReturn(UserHandle.of(userId)).when(() -> Binder.getCallingUserHandle());
+    }
+
+    /**
+     * Mocks a call to {@link Car#getCarVersion()
+     */
+    public static void mockCarGetCarVersion(CarVersion version) {
+        Log.d(TAG, "mockCarGetCarVersion(): " + version);
+        doReturn(version).when(() -> Car.getCarVersion());
+    }
+
+    /**
+     * Mocks a call to {@link Car#getPlatformVersion()
+     */
+    public static void mockCarGetPlatformVersion(PlatformVersion version) {
+        Log.d(TAG, "mockCarGetPlatformVersion(): " + version);
+        doReturn(version).when(() -> Car.getPlatformVersion());
     }
 
     /**

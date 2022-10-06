@@ -18,6 +18,8 @@ package android.car.builtin.view;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.car.builtin.annotation.AddedIn;
+import android.car.builtin.annotation.PlatformVersion;
 import android.view.KeyEvent;
 
 /**
@@ -34,6 +36,7 @@ public final class KeyEventHelper {
     /**
      * Sets the display id for the key event passed as argument.
      */
+    @AddedIn(PlatformVersion.TIRAMISU_0)
     public static void setDisplayId(@NonNull KeyEvent keyEvent, int newDisplayId) {
         keyEvent.setDisplayId(newDisplayId);
     }

@@ -18,6 +18,8 @@
 <resources>
     <color name="default_audio_background_image_color">#DADCE0</color>
     <color name="default_audio_background_color">#BDC1C6</color>
+    <color name="default_audio_background_gradient_start_color">#FF000000</color>
+    <color name="default_audio_background_gradient_end_color">#00000000</color>
 
     <color name="icon_tint">#000000</color>
     <color name="media_button_tint">@color/icon_tint</color>

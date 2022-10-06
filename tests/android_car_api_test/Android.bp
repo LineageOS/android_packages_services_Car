@@ -32,6 +32,7 @@ android_test {
     certificate: "platform",
 
     min_sdk_version: "33",
+    target_sdk_version: "33",
 
     // When built explicitly put it in the data partition
 
@@ -47,6 +48,8 @@ android_test {
         "android.car.testapi",
         "android.car.test.utils",
         "androidx.test.runner",
+// TODO(b/236153976): comment back once guava is supported
+//      "guava-android-testlib",
         "compatibility-device-util-axt",
         "platform-test-annotations",
         "testng",

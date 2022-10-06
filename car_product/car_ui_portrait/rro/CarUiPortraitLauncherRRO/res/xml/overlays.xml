@@ -60,4 +60,6 @@
 
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background"/>
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
+
+    <item target="string/default_media_song_title" value="@string/default_media_song_title"/>
 </overlay>

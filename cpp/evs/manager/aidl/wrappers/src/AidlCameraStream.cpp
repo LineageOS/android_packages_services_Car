@@ -30,6 +30,7 @@ namespace hidlevs = ::android::hardware::automotive::evs;
 using ::aidl::android::hardware::automotive::evs::BufferDesc;
 using ::aidl::android::hardware::automotive::evs::EvsEventDesc;
 using ::aidl::android::hardware::automotive::evs::EvsEventType;
+using ::aidl::android::hardware::automotive::evs::EvsResult;
 using ::ndk::ScopedAStatus;
 
 AidlCameraStream::AidlCameraStream(
@@ -124,7 +125,12 @@ ScopedAStatus AidlCameraStream::ImplV1::deliverFrame(const std::vector<BufferDes
 }
 
 ScopedAStatus AidlCameraStream::ImplV1::notify(const EvsEventDesc& event) {
-    if (auto status = mStream->notify(Utils::makeToHidl(event)); !status.isOk()) {
+    hidlevs::V1_1::EvsEventDesc hidlEvent;
+    if (!Utils::makeToHidl(event, &hidlEvent)) {
+        return ScopedAStatus::fromServiceSpecificError(static_cast<int>(EvsResult::INVALID_ARG));
+    }
+
+    if (auto status = mStream->notify(hidlEvent); !status.isOk()) {
         LOG(ERROR) << "Failed to forward an event, " << Utils::toString(event.aType);
         return ScopedAStatus::fromExceptionCode(EX_TRANSACTION_FAILED);
     }

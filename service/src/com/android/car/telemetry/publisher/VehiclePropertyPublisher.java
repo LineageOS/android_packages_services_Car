@@ -16,14 +16,18 @@
 
 package com.android.car.telemetry.publisher;
 
+import static java.lang.Integer.toHexString;
+
 import android.annotation.NonNull;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.telemetry.TelemetryProto;
 import android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
+import android.hardware.automotive.vehicle.VehiclePropertyType;
 import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
@@ -36,6 +40,7 @@ import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.telemetry.sessioncontroller.SessionAnnotation;
 import com.android.internal.util.Preconditions;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -47,8 +52,16 @@ import java.util.List;
 public class VehiclePropertyPublisher extends AbstractPublisher {
     private static final boolean DEBUG = false;  // STOPSHIP if true
 
-    /** Bundle key for {@link CarPropertyEvent}. */
-    public static final String CAR_PROPERTY_EVENT_KEY = "car_property_event";
+    public static final String BUNDLE_TIMESTAMP_KEY = "timestamp";
+    public static final String BUNDLE_STRING_KEY = "stringVal";
+    public static final String BUNDLE_BOOLEAN_KEY = "boolVal";
+    public static final String BUNDLE_INT_KEY = "intVal";
+    public static final String BUNDLE_INT_ARRAY_KEY = "intArrayVal";
+    public static final String BUNDLE_LONG_KEY = "longVal";
+    public static final String BUNDLE_LONG_ARRAY_KEY = "longArrayVal";
+    public static final String BUNDLE_FLOAT_KEY = "floatVal";
+    public static final String BUNDLE_FLOAT_ARRAY_KEY = "floatArrayVal";
+    public static final String BUNDLE_BYTE_ARRAY_KEY = "byteArrayVal";
 
     private final CarPropertyService mCarPropertyService;
     private final Handler mTelemetryHandler;
@@ -176,14 +189,110 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     private void onVehicleEvent(@NonNull CarPropertyEvent event) {
         // move the work from CarPropertyService's worker thread to the telemetry thread
         mTelemetryHandler.post(() -> {
-            // TODO(b/197269115): convert CarPropertyEvent into PersistableBundle
-            PersistableBundle bundle = new PersistableBundle();
-            ArraySet<DataSubscriber> subscribersClone = new ArraySet<>(
-                    mCarPropertyToSubscribers.get(event.getCarPropertyValue().getPropertyId()));
-            for (DataSubscriber subscriber : subscribersClone) {
+            CarPropertyValue propValue = event.getCarPropertyValue();
+            PersistableBundle bundle = parseCarPropertyValue(
+                    propValue, mCarPropertyList.get(propValue.getPropertyId()).getConfigArray());
+            for (DataSubscriber subscriber
+                    : mCarPropertyToSubscribers.get(propValue.getPropertyId())) {
                 subscriber.push(bundle);
             }
         });
+    }
+
+    /**
+     * Parses the car property value into a PersistableBundle.
+     */
+    private PersistableBundle parseCarPropertyValue(
+            CarPropertyValue propValue, List<Integer> configArray) {
+        Object value = propValue.getValue();
+        PersistableBundle bundle = new PersistableBundle();
+        bundle.putLong(BUNDLE_TIMESTAMP_KEY, propValue.getTimestamp());
+        int type = propValue.getPropertyId() & VehiclePropertyType.MASK;
+        if (VehiclePropertyType.BOOLEAN == type) {
+            bundle.putBoolean(BUNDLE_BOOLEAN_KEY, (Boolean) value);
+        } else if (VehiclePropertyType.FLOAT == type) {
+            bundle.putDouble(BUNDLE_FLOAT_KEY, ((Float) value).doubleValue());
+        } else if (VehiclePropertyType.INT32 == type) {
+            bundle.putInt(BUNDLE_INT_KEY, (Integer) value);
+        } else if (VehiclePropertyType.INT64 == type) {
+            bundle.putLong(BUNDLE_LONG_KEY, (Long) value);
+        } else if (VehiclePropertyType.FLOAT_VEC == type) {
+            Float[] floats = (Float[]) value;
+            double[] doubles = new double[floats.length];
+            for (int i = 0; i < floats.length; i++) {
+                doubles[i] = floats[i].doubleValue();
+            }
+            bundle.putDoubleArray(BUNDLE_FLOAT_ARRAY_KEY, doubles);
+        } else if (VehiclePropertyType.INT32_VEC == type) {
+            Integer[] integers = (Integer[]) value;
+            int[] ints = new int[integers.length];
+            for (int i = 0; i < integers.length; i++) {
+                ints[i] = integers[i];
+            }
+            bundle.putIntArray(BUNDLE_INT_ARRAY_KEY, ints);
+        } else if (VehiclePropertyType.INT64_VEC == type) {
+            Long[] oldLongs = (Long[]) value;
+            long[] longs = new long[oldLongs.length];
+            for (int i = 0; i < oldLongs.length; i++) {
+                longs[i] = oldLongs[i];
+            }
+            bundle.putLongArray(BUNDLE_LONG_ARRAY_KEY, longs);
+        } else if (VehiclePropertyType.STRING == type) {
+            bundle.putString(BUNDLE_STRING_KEY, (String) value);
+        } else if (VehiclePropertyType.BYTES == type) {
+            bundle.putString(
+                    BUNDLE_BYTE_ARRAY_KEY, new String((byte[]) value, StandardCharsets.UTF_8));
+        } else if (VehiclePropertyType.MIXED == type) {
+            Object[] mixed = (Object[]) value;
+            int k = 0;
+            if (configArray.get(0) == 1) {  // Has single String
+                bundle.putString(BUNDLE_STRING_KEY, (String) mixed[k++]);
+            }
+            if (configArray.get(1) == 1) {  // Has single Boolean
+                bundle.putBoolean(BUNDLE_BOOLEAN_KEY, (Boolean) mixed[k++]);
+            }
+            if (configArray.get(2) == 1) {  // Has single Integer
+                bundle.putInt(BUNDLE_INT_KEY, (Integer) mixed[k++]);
+            }
+            if (configArray.get(3) != 0) {  // Integer[] length is non-zero
+                int[] ints = new int[configArray.get(3)];
+                for (int i = 0; i < configArray.get(3); i++) {
+                    ints[i] = (Integer) mixed[k++];
+                }
+                bundle.putIntArray(BUNDLE_INT_ARRAY_KEY, ints);
+            }
+            if (configArray.get(4) == 1) {  // Has single Long
+                bundle.putLong(BUNDLE_LONG_KEY, (Long) mixed[k++]);
+            }
+            if (configArray.get(5) != 0) {  // Long[] length is non-zero
+                long[] longs = new long[configArray.get(5)];
+                for (int i = 0; i < configArray.get(5); i++) {
+                    longs[i] = (Long) mixed[k++];
+                }
+                bundle.putLongArray(BUNDLE_LONG_ARRAY_KEY, longs);
+            }
+            if (configArray.get(6) == 1) {  // Has single Float
+                bundle.putDouble(BUNDLE_FLOAT_KEY, ((Float) mixed[k++]).doubleValue());
+            }
+            if (configArray.get(7) != 0) {  // Float[] length is non-zero
+                double[] doubles = new double[configArray.get(7)];
+                for (int i = 0; i < configArray.get(7); i++) {
+                    doubles[i] = ((Float) mixed[k++]).doubleValue();
+                }
+                bundle.putDoubleArray(BUNDLE_FLOAT_ARRAY_KEY, doubles);
+            }
+            if (configArray.get(8) != 0) {  // Byte[] length is non-zero
+                byte[] bytes = new byte[configArray.get(8)];
+                for (int i = 0; i < configArray.get(8); i++) {
+                    bytes[i] = (Byte) mixed[k++];
+                }
+                bundle.putString(BUNDLE_BYTE_ARRAY_KEY, new String(bytes, StandardCharsets.UTF_8));
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "Unexpected property type: " + toHexString(type));
+        }
+        return bundle;
     }
 
     @Override

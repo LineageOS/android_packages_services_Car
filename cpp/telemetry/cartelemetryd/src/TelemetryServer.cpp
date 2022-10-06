@@ -24,6 +24,7 @@
 
 #include <inttypes.h>  // for PRIu64 and friends
 
+#include <cstdint>
 #include <memory>
 
 namespace android {
@@ -38,9 +39,7 @@ using ::aidl::android::frameworks::automotive::telemetry::CarData;
 using ::android::base::Error;
 using ::android::base::Result;
 
-enum {
-    MSG_PUSH_CAR_DATA_TO_LISTENER = 1,
-};
+constexpr int kMsgPushCarDataToListener = 1;
 
 // If ICarDataListener cannot accept data, the next push should be delayed little bit to allow
 // the listener to recover.
@@ -55,15 +54,11 @@ TelemetryServer::TelemetryServer(LooperWrapper* looper,
       mRingBuffer(maxBufferSize),
       mMessageHandler(new MessageHandlerImpl(this)) {}
 
-Result<void> TelemetryServer::setListener(const std::shared_ptr<ICarDataListener>& listener) {
+void TelemetryServer::setListener(const std::shared_ptr<ICarDataListener>& listener) {
     const std::scoped_lock<std::mutex> lock(mMutex);
-    if (mCarDataListener != nullptr) {
-        return Error(::EX_ILLEGAL_STATE) << "ICarDataListener is already set";
-    }
     mCarDataListener = listener;
     mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
-                                MSG_PUSH_CAR_DATA_TO_LISTENER);
-    return {};
+                                kMsgPushCarDataToListener);
 }
 
 void TelemetryServer::clearListener() {
@@ -72,7 +67,19 @@ void TelemetryServer::clearListener() {
         return;
     }
     mCarDataListener = nullptr;
-    mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
+    mLooper->removeMessages(mMessageHandler, kMsgPushCarDataToListener);
+}
+
+void TelemetryServer::addCarDataIds(const std::vector<int32_t>& ids) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    mCarDataIds.insert(ids.cbegin(), ids.cend());
+}
+
+void TelemetryServer::removeCarDataIds(const std::vector<int32_t>& ids) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    for (int32_t id : ids) {
+        mCarDataIds.erase(id);
+    }
 }
 
 std::shared_ptr<ICarDataListener> TelemetryServer::getListener() {
@@ -91,6 +98,11 @@ void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t p
     const std::scoped_lock<std::mutex> lock(mMutex);
     bool bufferWasEmptyBefore = mRingBuffer.size() == 0;
     for (auto&& data : dataList) {
+        // ignore data that has no subscribers in CarTelemetryService
+        if (mCarDataIds.find(data.id) == mCarDataIds.end()) {
+            LOG(VERBOSE) << "Ignoring CarData with ID=" << data.id;
+            continue;
+        }
         mRingBuffer.push({.mId = data.id,
                           .mContent = std::move(data.content),
                           .mPublisherUid = publisherUid});
@@ -99,22 +111,20 @@ void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t p
     // too many unnecessary idendical messages in the looper.
     if (mCarDataListener != nullptr && bufferWasEmptyBefore && mRingBuffer.size() > 0) {
         mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
-                                    MSG_PUSH_CAR_DATA_TO_LISTENER);
+                                    kMsgPushCarDataToListener);
     }
 }
 
 // Runs on the main thread.
 void TelemetryServer::pushCarDataToListeners() {
-    std::shared_ptr<ICarDataListener> listener;
     std::vector<CarDataInternal> pendingCarDataInternals;
     {
         const std::scoped_lock<std::mutex> lock(mMutex);
         // Remove extra messages.
-        mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
+        mLooper->removeMessages(mMessageHandler, kMsgPushCarDataToListener);
         if (mCarDataListener == nullptr || mRingBuffer.size() == 0) {
             return;
         }
-        listener = mCarDataListener;
         // Push elements to pendingCarDataInternals in reverse order so we can send data
         // from the back of the pendingCarDataInternals vector.
         while (mRingBuffer.size() > 0) {
@@ -126,12 +136,21 @@ void TelemetryServer::pushCarDataToListeners() {
         }
     }
 
-    // Now the mutex is unlocked, we can do the heavy work.
-
     // TODO(b/186477983): send data in batch to improve performance, but careful sending too
     //                    many data at once, as it could clog the Binder - it has <1MB limit.
     while (!pendingCarDataInternals.empty()) {
-        auto status = listener->onCarDataReceived({pendingCarDataInternals.back()});
+        ndk::ScopedAStatus status = ndk::ScopedAStatus::ok();
+        {
+            const std::scoped_lock<std::mutex> lock(mMutex);
+            if (mCarDataListener != nullptr) {
+                status = mCarDataListener->onCarDataReceived({pendingCarDataInternals.back()});
+            } else {
+                status = ndk::ScopedAStatus::
+                        fromServiceSpecificErrorWithMessage(EX_NULL_POINTER,
+                                                            "mCarDataListener is currently set to "
+                                                            "null, will try again.");
+            }
+        }
         if (!status.isOk()) {
             LOG(WARNING) << "Failed to push CarDataInternal, will try again: "
                          << status.getMessage();
@@ -147,7 +166,7 @@ TelemetryServer::MessageHandlerImpl::MessageHandlerImpl(TelemetryServer* server)
 
 void TelemetryServer::MessageHandlerImpl::handleMessage(const Message& message) {
     switch (message.what) {
-        case MSG_PUSH_CAR_DATA_TO_LISTENER:
+        case kMsgPushCarDataToListener:
             mTelemetryServer->pushCarDataToListeners();
             break;
         default:

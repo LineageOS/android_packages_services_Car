@@ -87,7 +87,7 @@ public final class CarDuckingTest {
             int zoneId = mCarAudioZones.keyAt(i);
             CarDuckingInfo duckingInfo = currentDuckingInfo.get(zoneId);
             assertThat(duckingInfo).isNotNull();
-            assertThat(duckingInfo.mUsagesHoldingFocus).isEmpty();
+            assertThat(duckingInfo.mPlaybackMetaDataHoldingFocus).isEmpty();
             assertThat(duckingInfo.mAddressesToDuck).isEmpty();
             assertThat(duckingInfo.mAddressesToUnduck).isEmpty();
         }
@@ -98,8 +98,11 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
-        assertThat(newDuckingInfo.get(PRIMARY_ZONE_ID).mUsagesHoldingFocus)
-                .asList().containsExactly(USAGE_MEDIA);
+        assertThat(
+                        CarHalAudioUtils.metadatasToUsages(
+                                newDuckingInfo.get(PRIMARY_ZONE_ID).mPlaybackMetaDataHoldingFocus))
+                .asList()
+                .containsExactly(USAGE_MEDIA);
     }
 
     @Test
@@ -107,8 +110,8 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
-        assertThat(newDuckingInfo.get(PASSENGER_ZONE_ID).mUsagesHoldingFocus).isEmpty();
-        assertThat(newDuckingInfo.get(REAR_ZONE_ID).mUsagesHoldingFocus).isEmpty();
+        assertThat(newDuckingInfo.get(PASSENGER_ZONE_ID).mPlaybackMetaDataHoldingFocus).isEmpty();
+        assertThat(newDuckingInfo.get(REAR_ZONE_ID).mPlaybackMetaDataHoldingFocus).isEmpty();
     }
 
     @Test
@@ -136,7 +139,9 @@ public final class CarDuckingTest {
         mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
-        int[] usagesHoldingFocus = mCarDuckingInfosCaptor.getValue().get(0).mUsagesHoldingFocus;
+        int[] usagesHoldingFocus =
+                CarHalAudioUtils.metadatasToUsages(
+                        mCarDuckingInfosCaptor.getValue().get(0).mPlaybackMetaDataHoldingFocus);
         assertThat(usagesHoldingFocus).asList().containsExactly(USAGE_MEDIA);
     }
 

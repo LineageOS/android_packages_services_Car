@@ -23,14 +23,21 @@ import static com.android.car.audio.CarAudioContext.EMERGENCY;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 import static com.android.car.audio.CarAudioContext.NOTIFICATION;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.expectThrows;
 
 import android.annotation.UserIdInt;
+import android.hardware.automotive.audiocontrol.AudioGainConfigInfo;
+import android.hardware.automotive.audiocontrol.Reasons;
 import android.os.UserHandle;
 import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
@@ -42,6 +49,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -574,6 +582,531 @@ public class CarVolumeGroupUnitTest {
 
         assertWithMessage("Mute state after volume change")
                 .that(carVolumeGroup.isMuted()).isEqualTo(false);
+    }
+
+    @Test
+    public void setBlocked_withGain_thenBackToUninitializedGain() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        carVolumeGroup.setBlocked(10);
+
+        assertThat(carVolumeGroup.isBlocked()).isTrue();
+
+        carVolumeGroup.resetBlocked();
+
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+    }
+
+    @Test
+    public void setLimited_withGain_thenBackToMaxGain() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+
+        carVolumeGroup.setLimit(carVolumeGroup.getMaxGainIndex() - 1);
+
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+
+        carVolumeGroup.resetLimit();
+
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+    }
+
+    @Test
+    public void setAttenuatedGain_withGain_thenBackToUninitializedGain() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+
+        carVolumeGroup.setAttenuatedGain(10);
+
+        assertThat(carVolumeGroup.isAttenuated()).isTrue();
+
+        carVolumeGroup.resetAttenuation();
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+    }
+
+    @Test
+    public void getCurrentGainIndex_whileBlocked_thenUnblocked() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+
+        assertWithMessage("Initial current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+
+        int blockedIndex = 10;
+        carVolumeGroup.setBlocked(blockedIndex);
+
+        assertThat(carVolumeGroup.isBlocked()).isTrue();
+
+        assertWithMessage("Blocked current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(blockedIndex);
+
+        carVolumeGroup.resetBlocked();
+
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        assertWithMessage("Back to current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void getCurrentGainIndex_whileLimited_thenUnlimited() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        assertWithMessage("Initial current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+
+        int limitedGainIndex = carVolumeGroup.getMaxGainIndex() - 1;
+        carVolumeGroup.setLimit(limitedGainIndex);
+
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertWithMessage("Limited current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(limitedGainIndex);
+
+        carVolumeGroup.resetLimit();
+
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertWithMessage("Back to current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void getCurrentGainIndex_whileAttenuated_thenUnattenuated() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        assertWithMessage("Initial current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+
+        int attenuatedIndex = TEST_GAIN_INDEX - 1;
+        carVolumeGroup.setAttenuatedGain(attenuatedIndex);
+
+        assertThat(carVolumeGroup.isAttenuated()).isTrue();
+        assertWithMessage("Attenuated current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(attenuatedIndex);
+
+        carVolumeGroup.resetAttenuation();
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertWithMessage("Muted current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+    }
+
+    @Test
+    public void setCurrentGainIndex_whileBlocked_thenRemainsUnblocked() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+
+        assertWithMessage("Initial current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+
+        int blockedIndex = 1;
+        carVolumeGroup.setBlocked(blockedIndex);
+
+        assertThat(carVolumeGroup.isBlocked()).isTrue();
+
+        carVolumeGroup.setCurrentGainIndex(blockedIndex + 1);
+
+        assertWithMessage("Over Blocked current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(blockedIndex);
+
+        carVolumeGroup.setCurrentGainIndex(blockedIndex - 1);
+
+        assertWithMessage("Under Blocked current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(blockedIndex);
+    }
+
+    @Test
+    public void setCurrentGainIndex_whileLimited_under_then_over_limit() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+        assertWithMessage("Initial current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MAX_GAIN_INDEX);
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+
+        int limitedGainIndex = MAX_GAIN_INDEX - 1;
+        carVolumeGroup.setLimit(limitedGainIndex);
+
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isOverLimit()).isTrue();
+
+        // Underlimit
+        carVolumeGroup.setCurrentGainIndex(limitedGainIndex - 1);
+
+        assertWithMessage("Under limit current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(limitedGainIndex - 1);
+
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+
+        // Overlimit
+        carVolumeGroup.setCurrentGainIndex(limitedGainIndex + 1);
+
+        assertWithMessage("Over limit current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(limitedGainIndex);
+
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        // Limitation prevents to set overlimited inde
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+    }
+
+    @Test
+    public void setCurrentGainIndex_whileAttenuated_thenUnattenuated() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX);
+        assertWithMessage("Initial current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(TEST_GAIN_INDEX);
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+
+        int attenuatedIndex = TEST_GAIN_INDEX - 2;
+        carVolumeGroup.setAttenuatedGain(attenuatedIndex);
+
+        assertThat(carVolumeGroup.isAttenuated()).isTrue();
+        assertWithMessage("Attenuated current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(attenuatedIndex);
+
+        carVolumeGroup.setCurrentGainIndex(attenuatedIndex + 1);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertWithMessage("new current gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(attenuatedIndex + 1);
+    }
+
+    @Test
+    public void isOverLimit_expectedTrue() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+
+        List<Integer> limitReasons = List.of(Reasons.THERMAL_LIMITATION);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain);
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isOverLimit()).isTrue();
+    }
+
+    @Test
+    public void isOverLimit_expectedFalse() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(TEST_GAIN_INDEX - 1);
+
+        List<Integer> limitReasons = List.of(Reasons.THERMAL_LIMITATION);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = TEST_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+    }
+
+    @Test
+    public void onAudioGainChanged_withOverLimit_thenEndsAndRestoresVolume() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MAX_GAIN_INDEX);
+
+        List<Integer> limitReasons = List.of(Reasons.THERMAL_LIMITATION);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain);
+
+        assertWithMessage("Overlimit gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(DEFAULT_GAIN_INDEX);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isOverLimit()).isTrue();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        assertWithMessage("Restored initial gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MAX_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioGainChanged_withUnderLimit_thenEndsWithVolumeUnchanged() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(MIN_GAIN_INDEX);
+
+        List<Integer> limitReasons = List.of(Reasons.THERMAL_LIMITATION);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(limitReasons, musicCarGain);
+
+        assertWithMessage("Underlimit gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MIN_GAIN_INDEX);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        assertWithMessage("Unchanged gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MIN_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioGainChanged_withBlockedGain_thenEndsAndRestoresVolume() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+
+        List<Integer> blockReasons = List.of(Reasons.TCU_MUTE);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = MIN_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(blockReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isTrue();
+
+        assertWithMessage("Blocked gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(MIN_GAIN_INDEX);
+
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        assertWithMessage("Restored initial gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(DEFAULT_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioGainChanged_withAttenuatedGain_thenEndsAndRestoresVolume() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+        carVolumeGroup.setCurrentGainIndex(DEFAULT_GAIN_INDEX);
+        int attenuatedIndex = DEFAULT_GAIN_INDEX - 1;
+
+        List<Integer> attenuateReasons = List.of(Reasons.ADAS_DUCKING);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = attenuatedIndex;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(attenuateReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isTrue();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        assertWithMessage("Attenuated gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(attenuatedIndex);
+
+        List<Integer> noReasons = new ArrayList<>(0);
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isOverLimit()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+
+        assertWithMessage("Restored initial gain index")
+                .that(carVolumeGroup.getCurrentGainIndex())
+                .isEqualTo(DEFAULT_GAIN_INDEX);
+    }
+
+    @Test
+    public void onAudioGainChanged_withBlockingLimitAndAttenuation() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        List<Integer> allReasons =
+                List.of(
+                        -1,
+                        -10,
+                        666,
+                        Reasons.FORCED_MASTER_MUTE,
+                        Reasons.TCU_MUTE,
+                        Reasons.REMOTE_MUTE,
+                        Reasons.THERMAL_LIMITATION,
+                        Reasons.SUSPEND_EXIT_VOL_LIMITATION,
+                        Reasons.ADAS_DUCKING,
+                        Reasons.ADAS_DUCKING);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(allReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isTrue();
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isBlocked()).isTrue();
+    }
+
+    @Test
+    public void onAudioGainChanged_resettingBlockingLimitAndAttenuation() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        List<Integer> noReasons = new ArrayList<>(0);
+
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+    }
+
+    @Test
+    public void onAudioGainChanged_setResettingBlockingLimitAndAttenuation() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        List<Integer> allReasons =
+                List.of(
+                        Reasons.FORCED_MASTER_MUTE,
+                        Reasons.TCU_MUTE,
+                        Reasons.REMOTE_MUTE,
+                        Reasons.THERMAL_LIMITATION,
+                        Reasons.SUSPEND_EXIT_VOL_LIMITATION,
+                        Reasons.ADAS_DUCKING,
+                        Reasons.ADAS_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        carVolumeGroup.onAudioGainChanged(allReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isTrue();
+        assertThat(carVolumeGroup.isLimited()).isTrue();
+        assertThat(carVolumeGroup.isBlocked()).isTrue();
+
+        List<Integer> noReasons = new ArrayList<>(0);
+
+        carVolumeGroup.onAudioGainChanged(noReasons, musicCarGain);
+
+        assertThat(carVolumeGroup.isAttenuated()).isFalse();
+        assertThat(carVolumeGroup.isLimited()).isFalse();
+        assertThat(carVolumeGroup.isBlocked()).isFalse();
+    }
+
+    @Test
+    public void onAudioGainChanged_validGain() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+        AudioGainConfigInfo musicGain = new AudioGainConfigInfo();
+        musicGain.zoneId = ZONE_ID;
+        musicGain.devicePortAddress = MEDIA_DEVICE_ADDRESS;
+        musicGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo musicCarGain = new CarAudioGainConfigInfo(musicGain);
+
+        AudioGainConfigInfo navGain = new AudioGainConfigInfo();
+        navGain.zoneId = ZONE_ID;
+        navGain.devicePortAddress = NAVIGATION_DEVICE_ADDRESS;
+        navGain.volumeIndex = DEFAULT_GAIN_INDEX;
+        CarAudioGainConfigInfo navCarGain = new CarAudioGainConfigInfo(navGain);
+
+        carVolumeGroup.onAudioGainChanged(reasons, musicCarGain);
+        // Broadcasted to all CarAudioDeviceInfo
+        verify(mMediaDeviceInfo).setCurrentGain(eq(DEFAULT_GAIN));
+        verify(mNavigationDeviceInfo).setCurrentGain(eq(DEFAULT_GAIN));
+
+        carVolumeGroup.onAudioGainChanged(reasons, navCarGain);
+        // Broadcasted to all CarAudioDeviceInfo
+        verify(mMediaDeviceInfo, times(2)).setCurrentGain(eq(DEFAULT_GAIN));
+        verify(mNavigationDeviceInfo, times(2)).setCurrentGain(eq(DEFAULT_GAIN));
+    }
+
+    @Test
+    public void onAudioGainChanged_invalidGain() {
+        CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
+
+        List<Integer> reasons = List.of(Reasons.REMOTE_MUTE, Reasons.NAV_DUCKING);
+        AudioGainConfigInfo unknownGain = new AudioGainConfigInfo();
+        unknownGain.zoneId = ZONE_ID;
+        unknownGain.devicePortAddress = OTHER_ADDRESS;
+        unknownGain.volumeIndex = 666;
+        CarAudioGainConfigInfo unknownCarGain = new CarAudioGainConfigInfo(unknownGain);
+
+        carVolumeGroup.onAudioGainChanged(reasons, unknownCarGain);
+
+        verify(mMediaDeviceInfo, never()).setCurrentGain(anyInt());
+        verify(mNavigationDeviceInfo, never()).setCurrentGain(anyInt());
     }
 
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
