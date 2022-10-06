@@ -448,4 +448,11 @@ public class CarAudioContextTest {
         assertWithMessage("Context String for ANNOUNCEMENT")
                 .that(CarAudioContext.toString(ANNOUNCEMENT)).isEqualTo("ANNOUNCEMENT");
     }
+
+    @Test
+    public void toString_forInvalidContext_returnsUnsupportedContext() {
+        assertWithMessage("Context String for invalid context")
+                .that(CarAudioContext.toString(/* context= */ -1))
+                .contains("Unsupported Context");
+    }
 }
