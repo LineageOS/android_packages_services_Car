@@ -16,8 +16,6 @@
 
 package com.android.car.audio;
 
-import static android.car.builtin.media.AudioManagerHelper.getUsageVirtualSource;
-
 import android.annotation.IntDef;
 import android.car.builtin.media.AudioManagerHelper;
 import android.car.builtin.util.Slogf;
@@ -156,120 +154,120 @@ public final class CarAudioContext {
             getAudioAttributeFromUsage(AudioAttributes.USAGE_ANNOUNCEMENT)
     };
 
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_MUSIC =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_GAME),
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)
+            }, "MUSIC", MUSIC);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_NAVIGATION =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    getAudioAttributeFromUsage(AudioAttributes
+                    .USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
+            }, "NAVIGATION", NAVIGATION);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_VOICE_COMMAND =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY),
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANT)
+            }, "VOICE_COMMAND", VOICE_COMMAND);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_CALL_RING =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+            }, "CALL_RING", CALL_RING);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_CALL =
+            new CarAudioContextInfo(new AudioAttributes[] {
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION),
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
+                    getAudioAttributeFromUsage(AudioAttributes
+                            .USAGE_VOICE_COMMUNICATION_SIGNALLING),
+            }, "CALL", CALL);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_ALARM =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_ALARM)
+            }, "ALARM", ALARM);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_NOTIFICATION =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION),
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
+            }, "NOTIFICATION", NOTIFICATION);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_SYSTEM_SOUND =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
+            }, "SYSTEM_SOUND", SYSTEM_SOUND);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_EMERGENCY =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_EMERGENCY)
+            }, "EMERGENCY", EMERGENCY);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_SAFETY =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_SAFETY)
+            }, "SAFETY", SAFETY);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_VEHICLE_STATUS =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_VEHICLE_STATUS)
+            }, "VEHICLE_STATUS", VEHICLE_STATUS);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_ANNOUNCEMENT =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioAttributes.USAGE_ANNOUNCEMENT)
+            }, "ANNOUNCEMENT", ANNOUNCEMENT);
+
+    private static final CarAudioContextInfo CAR_CONTEXT_INFO_INVALID =
+            new CarAudioContextInfo(new AudioAttributes[]{
+                    getAudioAttributeFromUsage(AudioManagerHelper.getUsageVirtualSource())
+            }, "INVALID", INVALID);
+
+    private static final CarAudioContextInfo[] CAR_CONTEXT_INFO = {
+            CAR_CONTEXT_INFO_MUSIC,
+            CAR_CONTEXT_INFO_NAVIGATION,
+            CAR_CONTEXT_INFO_VOICE_COMMAND,
+            CAR_CONTEXT_INFO_CALL_RING,
+            CAR_CONTEXT_INFO_CALL,
+            CAR_CONTEXT_INFO_ALARM,
+            CAR_CONTEXT_INFO_NOTIFICATION,
+            CAR_CONTEXT_INFO_SYSTEM_SOUND,
+            CAR_CONTEXT_INFO_EMERGENCY,
+            CAR_CONTEXT_INFO_SAFETY,
+            CAR_CONTEXT_INFO_VEHICLE_STATUS,
+            CAR_CONTEXT_INFO_ANNOUNCEMENT,
+            CAR_CONTEXT_INFO_INVALID
+    };
+
     public static int[] getSystemUsages() {
         return covertAttributesToUsage(SYSTEM_ATTRIBUTES);
     }
 
     private static final SparseArray<String> CONTEXT_NAMES = new SparseArray<>(CONTEXTS.length + 1);
-    static {
-        CONTEXT_NAMES.append(INVALID, "INVALID");
-        CONTEXT_NAMES.append(MUSIC, "MUSIC");
-        CONTEXT_NAMES.append(NAVIGATION, "NAVIGATION");
-        CONTEXT_NAMES.append(VOICE_COMMAND, "VOICE_COMMAND");
-        CONTEXT_NAMES.append(CALL_RING, "CALL_RING");
-        CONTEXT_NAMES.append(CALL, "CALL");
-        CONTEXT_NAMES.append(ALARM, "ALARM");
-        CONTEXT_NAMES.append(NOTIFICATION, "NOTIFICATION");
-        CONTEXT_NAMES.append(SYSTEM_SOUND, "SYSTEM_SOUND");
-        CONTEXT_NAMES.append(EMERGENCY, "EMERGENCY");
-        CONTEXT_NAMES.append(SAFETY, "SAFETY");
-        CONTEXT_NAMES.append(VEHICLE_STATUS, "VEHICLE_STATUS");
-        CONTEXT_NAMES.append(ANNOUNCEMENT, "ANNOUNCEMENT");
-    }
-
     private static final SparseArray<AudioAttributes[]> CONTEXT_TO_ATTRIBUTES = new SparseArray<>();
-
-    static {
-        CONTEXT_TO_ATTRIBUTES.put(MUSIC,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_UNKNOWN),
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_GAME),
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_MEDIA)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(NAVIGATION,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes
-                                .USAGE_ASSISTANCE_NAVIGATION_GUIDANCE)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(VOICE_COMMAND,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_ACCESSIBILITY),
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANT)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(CALL_RING,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(CALL,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION),
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_CALL_ASSISTANT),
-                        getAudioAttributeFromUsage(AudioAttributes
-                                        .USAGE_VOICE_COMMUNICATION_SIGNALLING),
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(ALARM,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_ALARM)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(NOTIFICATION,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION),
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_NOTIFICATION_EVENT)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(SYSTEM_SOUND,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_ASSISTANCE_SONIFICATION)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(EMERGENCY,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_EMERGENCY)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(SAFETY,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_SAFETY)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(VEHICLE_STATUS,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_VEHICLE_STATUS)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(ANNOUNCEMENT,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(AudioAttributes.USAGE_ANNOUNCEMENT)
-                });
-
-        CONTEXT_TO_ATTRIBUTES.put(INVALID,
-                new AudioAttributes[]{
-                        getAudioAttributeFromUsage(getUsageVirtualSource())
-                });
-    }
-
     private static final Map<AudioAttributesWrapper, Integer> AUDIO_ATTRIBUTE_TO_CONTEXT =
             new ArrayMap<>();
 
     static {
-        for (int i = 0; i < CONTEXT_TO_ATTRIBUTES.size(); i++) {
-            @AudioContext int audioContext = CONTEXT_TO_ATTRIBUTES.keyAt(i);
-            AudioAttributes[] attributes = CONTEXT_TO_ATTRIBUTES.valueAt(i);
-            for (int index = 0; index < attributes.length; index++) {
+        for (int index = 0; index < CAR_CONTEXT_INFO.length; index++) {
+            CarAudioContextInfo info = CAR_CONTEXT_INFO[index];
+            CONTEXT_NAMES.append(info.getId(), info.getName());
+            CONTEXT_TO_ATTRIBUTES.put(info.getId(), info.getAudioAttributes());
+
+            AudioAttributes[] attributes = info.getAudioAttributes();
+            for (int attributeIndex = 0; attributeIndex < attributes.length; attributeIndex++) {
                 AudioAttributesWrapper attributesWrapper =
-                        new AudioAttributesWrapper(attributes[index]);
+                        new AudioAttributesWrapper(attributes[attributeIndex]);
                 if (AUDIO_ATTRIBUTE_TO_CONTEXT.containsKey(attributesWrapper)) {
                     int mappedContext = AUDIO_ATTRIBUTE_TO_CONTEXT.get(attributesWrapper);
                     Slogf.wtf(TAG, "%s already mapped to context %s, can not remap to context %s",
-                            attributesWrapper, mappedContext, audioContext);
+                            attributesWrapper, mappedContext, info.getId());
                 }
-                AUDIO_ATTRIBUTE_TO_CONTEXT.put(attributesWrapper, audioContext);
+                AUDIO_ATTRIBUTE_TO_CONTEXT.put(attributesWrapper, info.getId());
             }
         }
     }
