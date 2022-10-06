@@ -78,16 +78,21 @@ public final class HidlVehicleStubUnitTest {
     private static final int VHAL_PROP_SUPPORTED_PROPERTY_IDS = 0x11410F48;
 
     private static final HalPropValue TEST_PROP_VALUE;
+    private static final VehiclePropValue TEST_VHAL_VEHICLE_PROP_VALUE;
 
     static {
         HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ false);
         TEST_PROP_VALUE = builder.build(TEST_PROP, /* areaId= */ 0, TEST_VALUE);
+
+        TEST_VHAL_VEHICLE_PROP_VALUE = new VehiclePropValue();
+        TEST_VHAL_VEHICLE_PROP_VALUE.prop = TEST_PROP;
+        TEST_VHAL_VEHICLE_PROP_VALUE.value.int32Values.add(TEST_VALUE);
     }
 
     @Mock
     private IVehicle mHidlVehicle;
     @Mock
-    private VehicleStub.VehicleStubCallbackInterface mGetVehicleStubAsyncCallback;
+    private VehicleStub.VehicleStubCallbackInterface mAsyncCallback;
 
     private VehicleStub mHidlVehicleStub;
 
@@ -377,7 +382,7 @@ public final class HidlVehicleStubUnitTest {
     }
 
     @Test
-    public void testGetHidlAsync() throws Exception {
+    public void testGetAsync() throws Exception {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             VehiclePropValue propValue = (VehiclePropValue) args[0];
@@ -391,19 +396,17 @@ public final class HidlVehicleStubUnitTest {
 
         AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(value);
 
-        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetVehicleStubAsyncCallback);
+        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
 
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
-                argumentCaptor.capture());
+        verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getHalPropValue()).isEqualTo(value);
     }
 
     @Test
-    public void testGetHidlAsyncError() throws Exception {
+    public void testGetAsyncError() throws Exception {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             VehiclePropValue propValue = (VehiclePropValue) args[0];
@@ -418,17 +421,15 @@ public final class HidlVehicleStubUnitTest {
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetVehicleStubAsyncCallback);
+        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
 
-        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
-                argumentCaptor.capture());
+        verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
     }
 
     @Test
-    public void testGetHidlAsyncTryAgainError() throws Exception {
+    public void testGetAsyncTryAgainError() throws Exception {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             VehiclePropValue propValue = (VehiclePropValue) args[0];
@@ -443,17 +444,57 @@ public final class HidlVehicleStubUnitTest {
         ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
                 ArgumentCaptor.forClass(List.class);
 
-        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest),
-                mGetVehicleStubAsyncCallback);
+        mHidlVehicleStub.getAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
 
-        verify(mGetVehicleStubAsyncCallback, timeout(1000)).onGetAsyncResults(
-                argumentCaptor.capture());
+        verify(mAsyncCallback, timeout(1000)).onGetAsyncResults(argumentCaptor.capture());
         assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
                 VehicleStub.STATUS_TRY_AGAIN);
     }
 
     @Test
-    public void testGetHidl() throws Exception {
+    public void testGetAsyncOneOkayResultOneNoValue() throws Exception {
+        doAnswer((invocation) -> {
+            Object[] args = invocation.getArguments();
+            VehiclePropValue propValue = (VehiclePropValue) args[0];
+            getCallback callback = (getCallback) args[1];
+            if (propValue.prop == TEST_PROP) {
+                // For TEST_PROP, return no result.
+                callback.onValues(StatusCode.OK, null);
+            } else {
+                callback.onValues(StatusCode.OK, propValue);
+            }
+            return null;
+        }).when(mHidlVehicle).get(any(), any());
+
+        HalPropValueBuilder builder = new HalPropValueBuilder(/* isAidl= */ false);
+        HalPropValue newTestValue = builder.build(/* propId= */ 2, /* areaId= */ 0, TEST_VALUE);
+        AsyncGetSetRequest request0 = defaultVehicleStubAsyncRequest(TEST_PROP_VALUE);
+        AsyncGetSetRequest request1 = new AsyncGetSetRequest(
+                /* serviceRequestId=*/ 1, newTestValue, /* timeoutInMs= */ 1000);
+        ArgumentCaptor<List<VehicleStub.GetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        mHidlVehicleStub.getAsync(List.of(request0, request1), mAsyncCallback);
+
+        verify(mAsyncCallback, timeout(1000).times(2)).onGetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getAllValues()).hasSize(2);
+        List<VehicleStub.GetVehicleStubAsyncResult> callResult0 = argumentCaptor.getAllValues()
+                .get(0);
+        assertThat(callResult0).hasSize(1);
+        assertThat(callResult0.get(0).getServiceRequestId()).isEqualTo(0);
+        assertThat(callResult0.get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+        List<VehicleStub.GetVehicleStubAsyncResult> callResult1 = argumentCaptor.getAllValues()
+                .get(1);
+        assertThat(callResult1).hasSize(1);
+        assertThat(callResult1.get(0).getServiceRequestId()).isEqualTo(1);
+        assertThat(callResult1.get(0).getHalPropValue()).isEqualTo(newTestValue);
+        assertThat(callResult1.get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_OK);
+    }
+
+    @Test
+    public void testGetSync() throws Exception {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             VehiclePropValue propValue = (VehiclePropValue) args[0];
@@ -469,7 +510,7 @@ public final class HidlVehicleStubUnitTest {
     }
 
     @Test(expected = ServiceSpecificException.class)
-    public void testGetHidlError() throws Exception {
+    public void testGetSyncError() throws Exception {
         doAnswer((invocation) -> {
             Object[] args = invocation.getArguments();
             VehiclePropValue propValue = (VehiclePropValue) args[0];
@@ -483,23 +524,105 @@ public final class HidlVehicleStubUnitTest {
     }
 
     @Test
-    public void testSetHidl() throws Exception {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = TEST_PROP;
-        propValue.value.int32Values.add(TEST_VALUE);
+    public void testSetAsync() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenReturn(StatusCode.OK);
 
-        when(mHidlVehicle.set(propValue)).thenReturn(StatusCode.OK);
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(
+                TEST_PROP_VALUE);
+
+        mHidlVehicleStub.setAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
+
+        ArgumentCaptor<List<VehicleStub.SetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).hasSize(1);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_OK);
+    }
+
+    @Test
+    public void testSetAsyncRemoteException() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenThrow(new RemoteException());
+
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(
+                TEST_PROP_VALUE);
+
+        mHidlVehicleStub.setAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
+
+        ArgumentCaptor<List<VehicleStub.SetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).hasSize(1);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testSetAsyncServiceSpecificExceptionTryAgain() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenReturn(StatusCode.TRY_AGAIN);
+
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(
+                TEST_PROP_VALUE);
+
+        mHidlVehicleStub.setAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
+
+        ArgumentCaptor<List<VehicleStub.SetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).hasSize(1);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                VehicleStub.STATUS_TRY_AGAIN);
+    }
+
+    @Test
+    public void testSetAsyncServiceSpecificExceptionNotAvailable() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenReturn(StatusCode.NOT_AVAILABLE);
+
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(
+                TEST_PROP_VALUE);
+
+        mHidlVehicleStub.setAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
+
+        ArgumentCaptor<List<VehicleStub.SetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).hasSize(1);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_NOT_AVAILABLE);
+    }
+
+    @Test
+    public void testSetAsyncServiceSpecificExceptionInternal() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenReturn(StatusCode.INTERNAL_ERROR);
+
+        AsyncGetSetRequest getVehicleStubAsyncRequest = defaultVehicleStubAsyncRequest(
+                TEST_PROP_VALUE);
+
+        mHidlVehicleStub.setAsync(List.of(getVehicleStubAsyncRequest), mAsyncCallback);
+
+        ArgumentCaptor<List<VehicleStub.SetVehicleStubAsyncResult>> argumentCaptor =
+                ArgumentCaptor.forClass(List.class);
+
+        verify(mAsyncCallback, timeout(1000)).onSetAsyncResults(argumentCaptor.capture());
+        assertThat(argumentCaptor.getValue()).hasSize(1);
+        assertThat(argumentCaptor.getValue().get(0).getErrorCode()).isEqualTo(
+                CarPropertyManager.STATUS_ERROR_INTERNAL_ERROR);
+    }
+
+    @Test
+    public void testSetSync() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenReturn(StatusCode.OK);
 
         mHidlVehicleStub.set(TEST_PROP_VALUE);
     }
 
     @Test
-    public void testSetHidlError() throws Exception {
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = TEST_PROP;
-        propValue.value.int32Values.add(TEST_VALUE);
-
-        when(mHidlVehicle.set(propValue)).thenReturn(StatusCode.INVALID_ARG);
+    public void testSetSyncError() throws Exception {
+        when(mHidlVehicle.set(TEST_VHAL_VEHICLE_PROP_VALUE)).thenReturn(StatusCode.INVALID_ARG);
 
         ServiceSpecificException exception = assertThrows(ServiceSpecificException.class, () -> {
             mHidlVehicleStub.set(TEST_PROP_VALUE);
@@ -512,11 +635,9 @@ public final class HidlVehicleStubUnitTest {
         HalClientCallback callback = mock(HalClientCallback.class);
         VehicleStub.SubscriptionClient client = mHidlVehicleStub.newSubscriptionClient(callback);
         IVehicleCallback.Stub hidlCallback = (IVehicleCallback.Stub) client;
-        VehiclePropValue propValue = new VehiclePropValue();
-        propValue.prop = TEST_PROP;
-        propValue.value.int32Values.add(TEST_VALUE);
 
-        hidlCallback.onPropertyEvent(new ArrayList<VehiclePropValue>(Arrays.asList(propValue)));
+        hidlCallback.onPropertyEvent(new ArrayList<VehiclePropValue>(Arrays.asList(
+                TEST_VHAL_VEHICLE_PROP_VALUE)));
 
         verify(callback).onPropertyEvent(new ArrayList<HalPropValue>(Arrays.asList(
                 TEST_PROP_VALUE)));
